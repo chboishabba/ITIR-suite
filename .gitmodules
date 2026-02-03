@@ -13,3 +13,9 @@
 [submodule "reverse-engineered-chatgpt"]
 	path = reverse-engineered-chatgpt
 	url = https://github.com/chboishabba/reverse-engineered-chatgpt.git
+[submodule "chat-export-structurer"]
+	path = chat-export-structurer
+	url = https://github.com/1ch1n/chat-export-structurer.git
+[submodule "StatiBaker"]
+	path = StatiBaker
+	url = https://github.com/chboishabba/StatiBaker.git
