@@ -908,3 +908,93 @@ Just say the word.
 78. - map **legal / NotebookLM / ChatGPT** into a single ITIR super-corpus
 79.
 80. Just say where you want to push first.
+
+---
+
+# Conversation: Compression ratio comparison
+
+- ID: 698218f7-9ca4-83a1-969d-0ffc3d6264e4
+- Updated (UTC): 2026-02-03T16:11:09.867298Z
+- Source: 698218f7-9ca4-83a1-969d-0ffc3d6264e4:1-80
+
+## Latest assistant excerpt (lines 1-80)
+1. 4. Deterministic indices:
+2.    - atom → list(doc_id, offsets)
+3.    - doc_id → stream
+4.    - optional: span graph (purely structural)
+5. 
+6. These are **content-addressed** artifacts. Think “build outputs.”
+7. 
+8. ### ITIR consumes SL outputs
+9. ITIR builds *interpretations* **on top of** those stable atoms:
+10. 
+11. - “This atom is a *candidate* for ‘jurisdictional error’ pattern”
+12. - “This atom often occurs near holdings”
+13. - “These atoms cluster into a concept”
+14. - “This atom aligns with citation contexts”
+15. 
+16. But ITIR stores these as **annotations** in a separate namespace, never rewriting SL.
+17. 
+18. ## The key contract boundary
+19. 
+20. **ITIR must never:**
+21. - change canonicalisation
+22. - change phrase promotion thresholds
+23. - introduce new atoms into SL’s dictionary
+24. - rewrite SL’s streams
+25. 
+26. Instead, ITIR does:
+27. - `interpretation(atom_id) -> distribution over meanings`
+28. - `interpretation(span_location) -> candidate role labels`
+29. - `graph overlays` (edges between atom_ids, spans, citations)
+30. 
+31. ## Minimal “overlay” interface
+32. 
+33. Define an ITIR overlay record like:
+34. 
+35. - `target`: (`doc_id`, `offset_range`) or `atom_id`
+36. - `layer`: string (e.g. `"concepts.v1"`, `"arguments.v1"`)
+37. - `label`: string or structured tag
+38. - `score`: float
+39. - `evidence`: list of deterministic pointers (atom_ids, span ids, citations)
+40. - `model_id`: hash/version of the interpretive model
+41. 
+42. Crucially: evidence points back into SL’s immutable structures.
+43. 
+44. ## Why phrase atoms help ITIR
+45. 
+46. They give ITIR:
+47. - stable “phrases” without semantic commitment
+48. - consistent units for clustering/concept induction
+49. - better retrieval keys than raw tokens
+50. - interpretive work can be incremental and reversible
+51. 
+52. And SL stays clean because atoms are:
+53. - purely syntactic
+54. - content-addressed
+55. - reproducible
+56. 
+57. ---
+58. 
+59. # Practical starter kit
+60. 
+61. If you want the *smallest* viable implementation that still respects all this:
+62. 
+63. 1. Run one-pass promotion for n=2..8, `min_df=2`, `min_cf=5`, `dict_cost=α*n` with α ~ 2–5 in “token units”
+64. 2. Emit `phrase_atoms.jsonl` sorted by `atom_id`
+65. 3. Rewrite docs with leftmost-longest
+66. 4. Expose:
+67.    - `atom_id -> expansion`
+68.    - `doc_id -> rewritten stream`
+69.    - `atom_id -> occurrences`
+70. 
+71. Then ITIR can immediately start doing:
+72. - concept clustering over `atom_id` co-occurrence
+73. - argument candidate extraction using atom sequences
+74. - citation-context models anchored to atoms
+75. 
+76. All without changing SL.
+77. 
+78. ---
+79. 
+80. If you want, next step I can do in the same spirit is: **pick concrete parameter defaults** (Nmax/min_df/min_cf/α) tailored to your corpus sizes, *and* define a couple of failure modes + guards (e.g., “stopwords/number-heavy spans”, “cross-page artifact spans”, “citation boilerplate flooding”) in deterministic ways.
