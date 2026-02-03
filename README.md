@@ -44,16 +44,20 @@ This is already quite fast on CPU, especially with whisperx, and when VAD chunki
 Most newer consumer cards will not require this compatibility layer.
 
 
+```
 docker run -it \
-        --name ITIR \
-        --device=/dev/kfd --device=/dev/dri \
-        --security-opt seccomp=unconfined \
-        --group-add video \
-        -v /usr/include/vulkan:/usr/include/vulkan:ro \
-        -v /usr/include/spirv:/usr/include/spirv:ro \
-        -v /usr/include/vk_video:/usr/include/vk_video:ro \
-        -v /usr/include/glslang:/usr/include/glslang:ro \
-        -v /usr/bin/glslangValidator:/usr/bin/glslangValidator:ro \
-        -v "~/Documents/code/ITIR-suite master:/opt/dashiCFD" \
-        --entrypoint /bin/bash \
-        dashi_ready_image
+              --name ITIR \
+              --device=/dev/kfd --device=/dev/dri \
+              --security-opt seccomp=unconfined \
+              --group-add video \
+              -v /usr/include/vulkan:/usr/include/vulkan:ro \
+              -v /usr/include/spirv:/usr/include/spirv:ro \
+              -v /usr/include/vk_video:/usr/include/vk_video:ro \
+              -v /usr/include/glslang:/usr/include/glslang:ro \
+              -v /usr/bin/glslangValidator:/usr/bin/glslangValidator:ro \
+              -v "/home/c/Documents/code/ITIR-suite:/opt/ITIR-suite" \
+              --entrypoint /bin/bash \
+              dashi_ready_image
+```
+then ``` cd /opt/ITIR-suite (linked to host)```
+and ```source /Whisper-WebUI/venv/bin/activate```
