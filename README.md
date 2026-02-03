@@ -1,13 +1,15 @@
 # ITIR-suite
 
-Meta-repo that pins the moving pieces of the ITIR / SensibLaw stack as git submodules. Use this repo to pull the whole toolchain in one shot; build and run inside the individual submodules.
+Meta-repo that pins the moving pieces of the ITIR / SensibLaw stack as git submodules and co-locates adjacent projects. Use this repo to pull the whole toolchain in one shot; build and run inside the individual submodules.
 
-## Components (submodules)
+## Components (submodules + local projects)
 - `SensibLaw/` – ingestion + operations console for span-anchored legal corpora (see that repo for build/run docs).
 - `SL-reasoner/` – reasoning/IR spine that the SensibLaw UI and tooling consume.
 - `tircorder-JOBBIE/` – investigative/interpretive tooling (ITIR/TIRC experiments).
+- `StatiBaker/` – daily state distillation engine (docs-only, see that repo for design/specs).
 - `WhisperX-WebUI/` – speech-to-text pipeline + UI (WhisperX wrapper).
 - `reverse-engineered-chatgpt` – wrapper for programmatic access to chatGPT interface (note, issues with sending messages - testing stalled due to bot detection - chat account otherwise unaffected).
+- `chat-export-structurer/` – utilities for ingesting chat exports into SQLite with FTS.
 
 The definitive instructions for each live in the submodule’s own README; this file only tracks how to manage them together.
 
