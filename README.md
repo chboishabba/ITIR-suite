@@ -36,6 +36,22 @@ git submodule update --init --recursive
 - This repo carries no standalone build; everything interesting happens inside the submodules.
 - Keep `setup.sh` up to date if new modules are added.
 
+## Dependencies (aggregated)
+The repo root `requirements.txt` is a consolidated superset of submodule Python dependencies so you can
+optionally build a single compatibility venv at the root. Submodules still ship their own venvs and
+requirements; prefer those unless you explicitly need a unified environment.
+
+## Chat Context Sync
+To avoid copy-pasting long CLI commands, maintain the conversation list in
+`__CONTEXT/convo_ids.md` and run:
+
+```bash
+./scripts/sync_chat_context.sh
+```
+
+The script writes a timestamped report into `__CONTEXT/last_sync/` with
+line-numbered excerpts so you can cite `ID:line#` in context files.
+
 
 ## Dev Note
 Due to technical constraints, the below command is used for running a compatibility docker. We are hoping to eventually provide ITIR as a deployable container separate to this as well.

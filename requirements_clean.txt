@@ -125,3 +125,5 @@ webrtcvad
 websockets
 whisperx
 wrapt
+
+chat-export-structurer

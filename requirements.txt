@@ -123,11 +123,10 @@ pynput
 colorama
 # From original WhisperX-WebUI (venv)
 
+# From reverse-engineered-chatgpt (CLI runtime)
 curl_cffi==0.5.9
 websockets==12.0
 certifi==2024.2.2
 cffi
-curl_cffi
 pycparser==2.22
-websockets==12.0
 playwright
