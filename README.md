@@ -35,3 +35,25 @@ git submodule update --init --recursive
 ## Notes
 - This repo carries no standalone build; everything interesting happens inside the submodules.
 - Keep `setup.sh` up to date if new modules are added.
+
+
+## Dev Note
+Due to technical constraints, the below command is used for running a compatibility docker. We are hoping to eventually provide ITIR as a deployable container separate to this as well.
+The compatibility docker is provided due to development being conducted on AMD RX580 (gfx803), requiring some compiled modules due to importing torch/ctranslate2 for speech-to-text in WhisperX-WebUI.
+This is already quite fast on CPU, especially with whisperx, and when VAD chunking is performed by tircorder, however does result in degradation of desktop experience for the server/host.
+Most newer consumer cards will not require this compatibility layer.
+
+
+docker run -it \
+              --name dashi_dev \
+              --device=/dev/kfd --device=/dev/dri \
+              --security-opt seccomp=unconfined \
+              --group-add video \
+              -v /usr/include/vulkan:/usr/include/vulkan:ro \
+              -v /usr/include/spirv:/usr/include/spirv:ro \
+              -v /usr/include/vk_video:/usr/include/vk_video:ro \
+              -v /usr/include/glslang:/usr/include/glslang:ro \
+              -v /usr/bin/glslangValidator:/usr/bin/glslangValidator:ro \
+              -v ~/Documents/code/ITIR-suite:/opt/ITIR-suite \
+              --entrypoint /bin/bash \
+              dashi_ready_image

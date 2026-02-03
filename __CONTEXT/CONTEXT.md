@@ -342,3 +342,479 @@ If you want, next I can:
 * or convert this into a formal ADR set
 
 Just tell me where you want the pressure applied.
+
+
+Perfect — this is the right moment to **lock ITIR in as a first-class system** rather than an aspiration.
+
+Below are **four concrete deliverables**, written so you can drop them straight into the repo with minimal editing:
+
+1. **`docs/itir_model.md` — full, authoritative**
+2. **Minimal ITIR DB schema (implementation-agnostic)**
+3. **First investigative branch walkthrough (Epstein-class tranche)**
+4. **Formal ADR set (architecture decision records)**
+
+I’ll keep everything consistent with the SL/ITIR separation you’ve already enforced.
+
+---
+
+# 1. `docs/itir_model.md` (FULL)
+
+```md
+# ITIR Data Model
+
+## Purpose
+
+ITIR (Investigative & Interpretive Reasoning) defines the **explicit interpretation layer** over the SensibLaw (SL) structural substrate.
+
+ITIR objects represent **claims, hypotheses, actors, events, and relationships** that are:
+- non-authoritative
+- explicitly attributed
+- reversible
+- span-backed by SL
+
+ITIR never mutates source text or structural spans.  
+All interpretation remains an overlay.
+
+---
+
+## Core Principle
+
+> **Every ITIR object must cite SL spans.  
+> No interpretation exists without provenance.**
+
+---
+
+## Object Classes
+
+### Claim
+
+A Claim represents an asserted statement about the world.
+
+Claims may be true, false, disputed, or unknown.
+
+**Required fields**
+- `claim_id`
+- `asserted_by` (user, org, branch)
+- `span_refs` (list of `(doc_id, start, end)`)
+- `confidence` (0–1 or enum)
+- `created_at`
+
+**Optional**
+- `summary` (derived, non-authoritative)
+- `notes`
+
+Claims do not imply correctness.
+
+---
+
+### Hypothesis
+
+A Hypothesis is a tentative explanatory model.
+
+Types include:
+- `actor`
+- `event`
+- `motive`
+- `timeline`
+- `relationship`
+
+**Required**
+- `hypothesis_id`
+- `type`
+- `description`
+- `supporting_claims`
+- `contradicting_claims`
+- `confidence`
+
+Hypotheses may coexist and conflict.
+
+---
+
+### Actor (Hypothesis subtype)
+
+Actors represent **identity hypotheses**, not resolved entities.
+
+**Fields**
+- `actor_id`
+- `labels` (names, aliases, spellings)
+- `evidence_spans`
+- `confidence`
+
+Actors may be merged or split later; history is preserved.
+
+---
+
+### Event (Hypothesis subtype)
+
+Represents a hypothesised occurrence.
+
+**Fields**
+- `event_id`
+- `description`
+- `time_bounds` (optional)
+- `evidence_spans`
+- `confidence`
+
+---
+
+### Relationship
+
+Directed relationships between ITIR objects.
+
+**Types**
+- `supports`
+- `contradicts`
+- `implies`
+- `associated_with`
+- `uncertain`
+
+**Required**
+- `source_id`
+- `target_id`
+- `relation_type`
+- `provenance_spans`
+- `confidence`
+
+---
+
+## Redactions & Uncertainty
+
+Redactions are **structural spans in SL**.
+
+In ITIR:
+- redactions may anchor hypotheses
+- uncertainty must be explicit
+- no filling or guessing allowed
+
+Example:
+> “Actor A appears adjacent to repeated redactions in documents X, Y.”
+
+---
+
+## Branching & Attribution
+
+All ITIR objects belong to a **branch**.
+
+Branches:
+- may diverge
+- may be merged
+- never overwrite history
+
+Each object records:
+- creator
+- branch
+- timestamp
+
+---
+
+## Invariants
+
+- No ITIR object without span provenance
+- No silent merges
+- No inferred truth
+- No mutation of SL text
+- Deterministic references
+
+---
+
+## Non-goals
+
+ITIR does NOT:
+- decide truth
+- rank narratives
+- resolve guilt
+- enforce consensus
+- overwrite sources
+
+---
+
+## Summary
+
+ITIR enables **explicit, auditable disagreement** over a shared factual substrate.
+
+SL guarantees everyone sees the same text.  
+ITIR allows them to argue responsibly.
+```
+
+---
+
+# 2. Minimal ITIR DB Schema (Sketch)
+
+This is **intentionally small**.
+
+You can implement this in SQLite, Postgres, or as JSON-first storage.
+
+---
+
+### `itir_branch`
+
+```sql
+branch_id TEXT PRIMARY KEY
+parent_branch_id TEXT
+created_by TEXT
+created_at TIMESTAMP
+description TEXT
+```
+
+---
+
+### `itir_claim`
+
+```sql
+claim_id TEXT PRIMARY KEY
+branch_id TEXT
+asserted_by TEXT
+confidence REAL
+created_at TIMESTAMP
+```
+
+---
+
+### `itir_claim_span`
+
+```sql
+claim_id TEXT
+doc_id TEXT
+span_start INTEGER
+span_end INTEGER
+```
+
+---
+
+### `itir_hypothesis`
+
+```sql
+hypothesis_id TEXT PRIMARY KEY
+branch_id TEXT
+type TEXT
+description TEXT
+confidence REAL
+```
+
+---
+
+### `itir_actor`
+
+```sql
+actor_id TEXT PRIMARY KEY
+branch_id TEXT
+confidence REAL
+```
+
+---
+
+### `itir_actor_label`
+
+```sql
+actor_id TEXT
+label TEXT
+```
+
+---
+
+### `itir_relationship`
+
+```sql
+source_id TEXT
+target_id TEXT
+relation_type TEXT
+confidence REAL
+```
+
+---
+
+### `itir_relationship_span`
+
+```sql
+source_id TEXT
+target_id TEXT
+doc_id TEXT
+span_start INTEGER
+span_end INTEGER
+```
+
+---
+
+### **Hard DB Constraint (recommended)**
+
+```sql
+CHECK (EXISTS (
+  SELECT 1 FROM itir_*_span
+))
+```
+
+> No interpretation without spans.
+
+---
+
+# 3. First Investigative Branch Walkthrough (Epstein-class)
+
+This is the **canonical example** you should document.
+
+---
+
+## Step 0 — Ingest (SL)
+
+* Ingest tranche PDFs (flight logs, depositions)
+* Preserve redactions verbatim
+* Produce:
+
+  * canonical tokens
+  * spans
+  * logic trees
+
+SL is now frozen.
+
+---
+
+## Step 1 — Create an ITIR branch
+
+```text
+branch: "epstein-analysis-v1"
+parent: main
+created_by: journalist_A
+```
+
+No interpretation yet.
+
+---
+
+## Step 2 — Add claims
+
+Example claim:
+
+> “Individual X appears in flight log Y on date Z.”
+
+* Attach spans from flight log PDF
+* Confidence: medium
+* No actor resolution yet
+
+---
+
+## Step 3 — Propose actor hypotheses
+
+Create two actor hypotheses:
+
+* Actor A: “John Doe (politician)”
+* Actor B: “John Doe (businessman)”
+
+Attach:
+
+* name spans
+* contextual spans
+* confidence estimates
+
+No forced merge.
+
+---
+
+## Step 4 — Handle redactions
+
+Claim:
+
+> “Repeated redactions occur adjacent to Actor A mentions.”
+
+* Attach spans around `[REDACTED]`
+* Confidence: low–medium
+* Explicit uncertainty
+
+---
+
+## Step 5 — Competing branches
+
+Another journalist forks:
+
+```text
+branch: "epstein-analysis-alt"
+parent: epstein-analysis-v1
+```
+
+They:
+
+* dispute Actor A hypothesis
+* propose alternative timeline
+* add contradictory relationships
+
+Both branches coexist.
+
+---
+
+## Step 6 — Publication
+
+A branch is published with:
+
+* visible uncertainty
+* clickable span provenance
+* redactions intact
+* no authoritative claims
+
+Readers can verify everything back to SL.
+
+---
+
+# 4. ADR Set (Formal)
+
+You should store these in `docs/adr/`.
+
+---
+
+## ADR-001: Separation of Structural and Interpretive Layers
+
+**Status:** Accepted
+**Decision:** SL produces structure only; ITIR produces interpretation only.
+**Consequences:** No semantic inference at ingest; interpretive layers are explicit.
+
+---
+
+## ADR-002: Span-Anchored Provenance Requirement
+
+**Status:** Accepted
+**Decision:** All ITIR objects must reference SL spans.
+**Consequences:** Prevents hallucination, enforces auditability.
+
+---
+
+## ADR-003: Redactions as First-Class Objects
+
+**Status:** Accepted
+**Decision:** Redactions are preserved verbatim in SL; interpreted only in ITIR.
+**Consequences:** Absence becomes analyzable without speculation.
+
+---
+
+## ADR-004: Branch-Based Interpretive Workflow
+
+**Status:** Accepted
+**Decision:** ITIR interpretations are branched, not overwritten.
+**Consequences:** Enables disagreement, citizen journalism, collaboration.
+
+---
+
+## ADR-005: No Automated Truth Resolution
+
+**Status:** Accepted
+**Decision:** ITIR does not resolve truth or guilt automatically.
+**Consequences:** Human accountability preserved.
+
+---
+
+## Final sanity check
+
+You now have:
+
+* A **closed SL contract**
+* A **fully specified ITIR model**
+* A **defensible investigative workflow**
+* A **clear legal / epistemic safety story**
+* A **roadmap that doesn’t collapse layers**
+
+This is rare. Most systems never get this far without cutting corners.
+
+If you want next, I can:
+
+* turn this into migration tasks
+* write ITIR UI wireframes
+* design a first CLI (`itir branch create`, `itir claim add`)
+* or produce a public-facing “Why this system is safe” explainer
+
+Just say the word.
