@@ -10,3 +10,6 @@
 [submodule "WhisperX-WebUI"]
 	path = WhisperX-WebUI
 	url = https://github.com/chboishabba/WhisperX-WebUI.git
+[submodule "reverse-engineered-chatgpt"]
+	path = reverse-engineered-chatgpt
+	url = https://github.com/chboishabba/reverse-engineered-chatgpt.git
