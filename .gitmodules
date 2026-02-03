@@ -1,0 +1,12 @@
+[submodule "SensibLaw"]
+	path = SensibLaw
+	url = https://github.com/chboishabba/SensibLaw.git
+[submodule "SL-reasoner"]
+	path = SL-reasoner
+	url = https://github.com/chboishabba/SL-reasoner.git
+[submodule "tircorder-JOBBIE"]
+	path = tircorder-JOBBIE
+	url = https://github.com/chboishabba/tircorder-JOBBIE.git
+[submodule "WhisperX-WebUI"]
+	path = WhisperX-WebUI
+	url = https://github.com/chboishabba/WhisperX-WebUI.git
