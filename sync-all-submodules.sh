@@ -3,6 +3,7 @@
 # 1. Sync all submodules
 git submodule foreach '
     echo "Syncing $name..."
+    git pull
     git add .
     # Only commit if there are changes
     if ! git diff-index --quiet HEAD --; then
