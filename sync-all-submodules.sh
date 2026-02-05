@@ -1,11 +1,21 @@
 #!/bin/bash
 
 # 1. Sync all submodules
-# This loops through every submodule and runs the commands
-git submodule foreach 'echo "Syncing $name..."; git add .; git commit -m "auto-sync" || echo "No changes"; git push'
+git submodule foreach '
+    echo "Syncing $name..."
+    git add .
+    # Only commit if there are changes
+    if ! git diff-index --quiet HEAD --; then
+        git commit -m "auto-sync: updates and docs"
+        # Only attempt push if you have write access (or ignore failure)
+        git push origin $(git rev-parse --abbrev-ref HEAD) || echo "Push failed for $name - check permissions/forks"
+    else
+        echo "No changes in $name"
+    fi
+'
 
-# 2. Sync the base suite (to track the new submodule pointers)
+# 2. Sync the base suite
 echo "Syncing ITIR-suite base..."
 git add .
-git commit -m "auto-sync base" || echo "No changes"
+git commit -m "chore: update submodule pointers and base files" || echo "No changes in base"
 git push
