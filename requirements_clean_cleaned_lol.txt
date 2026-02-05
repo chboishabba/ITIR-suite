@@ -1,0 +1,112 @@
+# ------------------------------------------------------------
+# Build / tooling
+# ------------------------------------------------------------
+setuptools
+wheel
+
+black
+ruff
+pre-commit
+
+pytest
+hypothesis
+mypy
+
+# ------------------------------------------------------------
+# Local packages
+# ------------------------------------------------------------
+-e ./openrecall
+
+# ------------------------------------------------------------
+# Core utilities
+# ------------------------------------------------------------
+certifi
+cffi
+colorama
+curl_cffi
+dotenv
+requests
+tqdm
+ijson
+jsonschema
+graphviz
+networkx
+plotly
+streamlit
+websockets
+tiktoken
+vaderSentiment
+
+# ------------------------------------------------------------
+# Audio / DSP
+# ------------------------------------------------------------
+numpy==1.26.4        # numba compatibility (Whisper word timings)
+scipy
+librosa
+sounddevice
+soundfile
+pyaudio
+webrtcvad
+jiwer
+matplotlib
+
+# ------------------------------------------------------------
+# ML / NLP (CPU-safe)
+# ------------------------------------------------------------
+torch==2.10.0
+torchaudio==2.10.0
+transformers==4.47.1
+ctranslate2
+faster-whisper==1.1.1
+openai-whisper
+
+spacy==3.7.2
+thinc==8.2.5
+blis==0.7.11
+weasel==0.3.4
+nltk
+
+# ------------------------------------------------------------
+# Diarization / alignment
+# ------------------------------------------------------------
+pyannote.audio==3.1.1
+whisperx==3.1.1
+
+# ------------------------------------------------------------
+# ONNX (CPU)
+# ------------------------------------------------------------
+onnxruntime
+onnx
+onnx2pytorch
+
+# ------------------------------------------------------------
+# Web / UI
+# ------------------------------------------------------------
+fastapi
+uvicorn
+gradio
+gradio_client
+gradio-i18n
+
+# ------------------------------------------------------------
+# Media / external tools
+# ------------------------------------------------------------
+playwright
+pytubefix
+
+# ------------------------------------------------------------
+# Data / finance / misc
+# ------------------------------------------------------------
+pdfminer.six
+piecash
+ofxparse
+qifparse
+sqlmodel==0.0.32
+SQLAlchemy==2.0.29
+SQLAlchemy-Utils==0.42.1
+
+# ------------------------------------------------------------
+# Git dependencies
+# ------------------------------------------------------------
+git+https://github.com/jhj0517/pyrubberband.git
+git+https://github.com/jhj0517/ultimatevocalremover_api.git

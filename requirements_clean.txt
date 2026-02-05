@@ -1,129 +1,84 @@
-altair
-annotated-doc
-annotated-types
-anyio
-attrs
+
 black
-blinker
-blis
-cachetools
-catalogue
-certifi
-certifi
+# both Whisper and SimulWhisper. Now supports Triton 2.x and 3.x with compatibility fix
+certifi==2024.2.2
 cffi
-cffi
-cfgv
-charset-normalizer
-click
-cloudpathlib
 colorama
-confection
-contourpy
-cryptography
 ctranslate2
+# CUDA 12.6 : https://download.pytorch.org/whl/cu126
+# CUDA 12.8 : https://download.pytorch.org/whl/cu128
 curl_cffi
-curl_cffi
-cycler
-cymem
-distlib
--e git+https://github.com/chboishabba/SensibLaw.git@8c2b623e829a4310930a026426e1140d215e075b#egg=sensiblaw
+curl_cffi==0.5.9
+# dependency from WhisperStreaming:
+# dev/test
+dotenv
+--extra-index-url https://download.pytorch.org/whl/cu126
 fastapi
 faster-whisper
-filelock
-fonttools
-gitdb
-GitPython
+# for using Silero VAD with WhisperStreaming, torchaudio is needed
+# from SimulWhisper
+# from Whisper
+git+https://github.com/jhj0517/pyrubberband.git
+git+https://github.com/jhj0517/ultimatevocalremover_api.git
+gradio
 gradio_client
+gradio-i18n
 graphviz
+# https://download.pytorch.org/whl/xpu
 hypothesis
-identify
-idna
-iniconfig
-Jinja2
+ijson>=3.2.0,<4.0.0
+# Install with: pip install -r requirements.txt
+## Intel GPU
+jiwer
 jsonschema
-jsonschema
-jsonschema-specifications
-kiwisolver
 librosa
-librt
-MarkupSafe
 matplotlib
-murmurhash
 mypy
-mypy_extensions
-narwhals
-networkx
 networkx
 nltk
-nodeenv
+# Numba requires NumPy < 2.3; Whisper pulls numba for word timings.
 numpy
-numpy
+numpy<2.3
+## Nvidia GPU
 ofxparse
-packaging
-pandas
-pathspec
+onnxruntime-gpu
+openai-whisper
+openai_whisper
 pdfminer.six
 piecash
-pillow
-platformdirs
 playwright
 plotly
-pluggy
-pre_commit
-preshed
-protobuf
-pyarrow
+pre-commit
+# Progress bars for CLI scripts (optional but recommended)
+pyannote.audio
 pyaudio
-pycparser
-pycparser
-pydantic
-pydantic_core
-pydeck
-Pygments
+pycparser==2.22
 pynput
-pyparsing
 pytest
-python-dateutil
-pytokens
-pytz
-PyYAML
+# Python dependencies for Chat Export Structurer
+pytubefix
+pyyaml
 PyYAML
 qifparse
-referencing
 requests
-requests
-rpds-py
+ruamel.yaml
 ruff
-setuptools
-six
-smart_open
-smmap
-sortedcontainers
-spacy
-spacy-legacy
-spacy-loggers
-srsly
-starlette
+sounddevice
+spacy>=3.5,<4
+spacy>=3.7,<4
+sqlmodel
+# Streaming JSON parser for large chat exports
 streamlit
-tenacity
-thinc
-toml
+tiktoken
 torch
-tornado
+torchaudio
+# torchaudio 2.8+ removed AudioMetaData which our diarization pipeline imports
 tqdm
-typer-slim
-typing_extensions
-typing-inspection
-tzdata
-urllib3
+tqdm>=4.66.0,<5.0.0
+transformers
+triton>=2.0.0;platform_machine=="x86_64" and sys_platform=="linux" or sys_platform=="linux2"
+# Update above --extra-index-url according to your device.
 vaderSentiment
-virtualenv
-wasabi
-watchdog
-weasel
 webrtcvad
-websockets
+websockets==12.0
 whisperx
-wrapt
-
-chat-export-structurer

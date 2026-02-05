@@ -998,3 +998,97 @@ Just say the word.
 78. ---
 79. 
 80. If you want, next step I can do in the same spirit is: **pick concrete parameter defaults** (Nmax/min_df/min_cf/α) tailored to your corpus sizes, *and* define a couple of failure modes + guards (e.g., “stopwords/number-heavy spans”, “cross-page artifact spans”, “citation boilerplate flooding”) in deterministic ways.
+
+---
+
+# Conversation: Whisper progress + streaming + project fit (tircorder/ITIR)
+
+## Summary (short)
+- `tqdm` is the de facto progress surface for Whisper/WhisperX, but it is not a stable or official API.
+- Native, built-in streaming partial segments are not provided by Whisper/WhisperX local APIs; streaming-like behavior is typically simulated by chunking.
+- Hosted OpenAI Audio/Realtime endpoints can stream partial text, but this is an API-layer feature, not Whisper’s local Python API.
+- For ITIR/tircorder goals, the best spine remains tircorder’s job/session model, with streaming policy logic layered on top (not the other way around).
+
+---
+
+## Whisper (OpenAI) — progress surface
+- Progress reporting is an implementation detail.
+- Internally uses `tqdm` in decoding/segment loops.
+- Visibility depends on CLI vs Python usage and stdout attachment.
+- No formal progress callback or observer interface.
+- Typical workarounds:
+  - wrap your own loops in `tqdm`
+  - monkey-patch internal loops
+
+## WhisperX — progress surface
+- Also uses `tqdm` for transcription/alignment/diarization.
+- No structured progress events or stable API contract.
+- Expected by users, not guaranteed as an interface.
+
+## Why `tqdm` is insufficient for ITIR-grade use
+- Terminal-only ergonomics.
+- No structured metrics for UI integration or headless services.
+- No stable phase/ETA instrumentation.
+
+## Common alternatives (non-`tqdm`)
+1. Phase timing only (coarse but stable)
+2. Segment counting (you compute around Whisper calls)
+3. Log scraping (brittle)
+4. Fork/patch (best long-term, higher maintenance)
+
+---
+
+## Whisper / WhisperX streaming (local) — bottom line
+- No official native method that streams partial segments mid-decode.
+- Simulated streaming = manual chunking + sequential processing.
+
+## OpenAI hosted APIs (streaming)
+- Streaming via SSE/WebSockets is supported in hosted APIs.
+- This is API-layer streaming, not Whisper local decode.
+
+---
+
+## Project fit vs goals (tircorder/ITIR)
+
+### Goals that matter here
+- low-latency dispatch
+- iterative hypotheses (unstable vs committed text)
+- adaptive sentence cutting for run-ons
+- audio↔text coupling for UI/artefacts
+- client/server separation
+- interpretability + provenance
+
+### Best fit spine
+- `tircorder-JOBBIE` stays the platform spine.
+- Embed policy ideas from:
+  - `ufal/whisper_streaming` (LocalAgreement-style commit logic)
+  - `ufal/SimulStreaming` (optional research policy reference)
+
+### Recommended replacement path
+- For batch/backend: `faster-whisper` is the clean backend swap.
+- For streaming behavior: add a streaming policy layer above the backend.
+- Keep segmentation as sessionization/throttle, not as the streaming mechanism.
+
+---
+
+## Streaming-first vs segmentation-first (decision framing)
+
+### Streaming-first
+- ASR owns rolling buffer + commit policy.
+- Tircorder owns session/artefact boundaries.
+- Use `whisper_streaming` or `SimulStreaming` as policy layer.
+
+### Segmentation-first
+- Tircorder owns slicing/dispatch + job boundaries.
+- ASR is stateless worker.
+- Use `faster-whisper` as backend; add prefix-commit logic if needed.
+
+---
+
+## Final distilled answer (architectural)
+- `tqdm` is canonical-in-practice, not a stable API surface.
+- Whisper/WhisperX local APIs do not offer native partial-segment streaming.
+- Best system fit remains:
+  - `tircorder-JOBBIE` as the spine
+  - streaming policy borrowed from `whisper_streaming`
+  - optional research references from `SimulStreaming`

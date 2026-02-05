@@ -19,3 +19,24 @@
 [submodule "StatiBaker"]
 	path = StatiBaker
 	url = https://github.com/chboishabba/StatiBaker.git
+[submodule "notebooklm-py"]
+	path = notebooklm-py
+	url = https://github.com/teng-lin/notebooklm-py.git
+[submodule "Chatistics"]
+	path = Chatistics
+	url = https://github.com/MasterScrat/Chatistics.git
+[submodule "pyThunderbird"]
+	path = pyThunderbird
+	url = https://github.com/WolfgangFahl/pyThunderbird.git
+[submodule "SimulStreaming"]
+	path = SimulStreaming
+	url = https://github.com/ufal/SimulStreaming.git
+[submodule "whisper_streaming"]
+	path = whisper_streaming
+	url = https://github.com/ufal/whisper_streaming.git
+[submodule "openrecall"]
+	path = openrecall
+	url = https://github.com/openrecall/openrecall.git
+[submodule "doctr"]
+	path = doctr
+	url = https://github.com/mindee/doctr.git
