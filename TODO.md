@@ -10,7 +10,10 @@
 - WhisperX-WebUI: README TODO list appears complete; translation PRs requested.
 - reverse-engineered-chatgpt: README TODOs remaining (better error handling, improve documentation); TODO.md items all completed.
 - chat-export-structurer: no TODOs found.
-- StatiBaker: pending work across intent/scope, normalization/compression, emissions, integration adapters, governance/safety, plus open questions.
+- StatiBaker: pending work across intent/scope, temporal reduction rules (carryover/new/resolved), atom/handle definitions, integration adapters for TIRC/SL/ITIR refs, and guard tests that prevent content summarization.
+- notebooklm-py: no TODOs found.
+- Chatistics: no TODOs found.
+- pyThunderbird: no TODOs found.
 
 ## Blockers / constraints
 - No explicit blockers listed in submodule TODO files.

@@ -2,3 +2,9 @@
 __pycache__/
 *.pyc
 chat-export-structurer/
+container.sh
+.venv*/
+*.whl
+*.tar.gz
+__pycache__/
+*.pdf
