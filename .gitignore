@@ -10,3 +10,7 @@ __pycache__/
 *.pdf
 .hypothesis/
 codex_history.sqlite
+*.sqlite
+*.sqlite3
+*.db
+*.log
