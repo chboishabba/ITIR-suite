@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/models/__init__.py
-# hypothesis_version: 6.151.5
-
-['Document', 'DocumentMetadata', 'Provision', 'Sentence', 'TextSpan']

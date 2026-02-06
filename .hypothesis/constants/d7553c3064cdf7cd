@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/obligation_projections.py
-# hypothesis_version: 6.151.5
-
-['action', 'action_view', 'actor', 'actor_view', 'clause_id', 'clause_view', 'kind', 'lifecycle', 'modality', 'normalized', 'obligations', 'text', 'timeline_view', 'unknown']

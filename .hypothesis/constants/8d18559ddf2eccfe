@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/text/citations.py
-# hypothesis_version: 6.151.5
-
-[' ,;', ' ,;.', '. ', 'CaseCitation', 'RuleReference', '\\s+', 'court', 'number', 'page', 'parse_case_citation', 'pinpoint', 'reporter', 'volume', 'year']

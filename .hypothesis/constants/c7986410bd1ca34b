@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/culture/registry.py
-# hypothesis_version: 6.151.5
-
-['CulturalFlagMetadata', 'CulturalFlagRegistry', '_', 'aliases', 'annotation', 'canonical_name', 'consent_required', 'defaults', 'description', 'load_registry', 'none', 'policy', 'r', 'redaction', 'requires consent', 'utf-8']

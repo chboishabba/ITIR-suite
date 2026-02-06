@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/ingestion/dispatcher.py
-# hypothesis_version: 6.151.5
-
-['/', 'AUSTLII.EDU.AU', 'HCOURT.GOV.AU', 'HTML', 'PDF', 'adapter', 'austlii', 'base_url', 'cited_authorities', 'crawl_delay_sec', 'db_path', 'debates', 'edges', 'fetchers', 'formats', 'from', 'hansard', 'hansard.db', 'id', 'name', 'nodes', 'official', 'pdf', 'respect_robots', 'sources', 'throttle', 'to', 'type']

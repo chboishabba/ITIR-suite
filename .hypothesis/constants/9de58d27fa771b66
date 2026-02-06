@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/models/sentence.py
-# hypothesis_version: 6.151.5
-
-['Sentence', 'end_char', 'index', 'start_char', 'text']

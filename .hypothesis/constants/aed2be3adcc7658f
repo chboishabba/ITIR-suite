@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/austlii_sino.py
-# hypothesis_version: 6.151.5
-
-[0.5, 30.0, '&', '?', 'Referer', 'User-Agent', 'all', 'any', 'austlii.search', 'boolean', 'callback', 'legis', 'mask_path', 'meta', 'method', 'near', 'offset', 'or', 'phrase', 'query', 'rank', 'results', 'title']

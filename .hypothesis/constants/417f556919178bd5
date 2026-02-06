@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/concepts/matcher.py
-# hypothesis_version: 6.151.5
-
-['*.json', 'ConceptHit', 'ConceptMatcher', 'MATCHER', 'Match', 'MatchResult', 'children', 'concepts', 'data', 'fail', 'id', 'match', 'outputs', 'phrases']

@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/reliability/pre_brief.py
-# hypothesis_version: 6.151.5
-
-['%Y-%m-%d', ',', '.', 'Applicant', 'Child', 'DocumentSection', 'Exhibit', 'FactClaim', 'Father', 'Intervener', 'Mother', 'PreBrief', 'Respondent', '\\s+', 'anchor', 'anchors', 'application', 'april', 'august', 'build_pre_brief', 'child_views', 'conference', 'contradictions', 'date', 'dates', 'deadline', 'december', 'detail', 'event', 'factor', 'february', 'filed', 'filing', 'hearing', 'id', 'incident', 'inconsistency', 'january', 'judgment', 'july', 'june', 'key_dates', 'label', 'march', 'may', 'missing', 'name', 'november', 'october', 'order', 'orders sought', 'orders_sought', 'parties', 'party1', 'party2', 'practical_difficulty', 'proof_debt', 'red_flags', 'report', 'review', 'role', 'role1', 'role2', 's60cc_hits', 'september', 'snippet', 'source_text', 'statements', 'text', 'trial', 'type']

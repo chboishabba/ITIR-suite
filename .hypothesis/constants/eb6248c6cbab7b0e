@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/storage/core.py
-# hypothesis_version: 6.151.5
-
-['1970-01-01', 'data', 'definition', 'id', 'metadata', 'minhash', 'name', 'node_id', 'r', 'recorded_from', 'recorded_to', 'schema.sql', 'simhash', 'source', 'suggestion', 'target', 'template', 'term', 'text', 'type', 'utf-8', 'valid_from', 'valid_to']

@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/graph/ingest.py
-# hypothesis_version: 6.151.5
-
-[1.0, 1.1, 1.2, 1.5, 2.0, '1st reading', '2nd reading', '3rd reading', 'CITES', 'Case', 'Edge', 'Graph', 'INTERPRETS', 'Node', 'Provision', 'ROLE_WEIGHTS', 'STAGE_WEIGHTS', 'backbencher', 'cited_authorities', 'committee', 'compute_weight', 'first reading', 'ingest_document', 'ingest_extrinsic', 'minister', 'second reading', 'shadow minister', 'third reading']

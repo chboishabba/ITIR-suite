@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/ingestion/consent_gate.py
-# hypothesis_version: 6.151.5
-
-['SACRED_DATA', 'allow', 'body', 'citation', 'consent', 'consent.rego', 'consent_receipt', 'consent_required', 'cultural_flags', 'deny', 'else', 'if', 'inference_consent', 'metadata', 'policies', 'require', 'storage_consent', 'then', 'transform']

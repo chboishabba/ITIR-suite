@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/ingest/polis.py
-# hypothesis_version: 6.151.5
-
-[0.0, 1.0, 128, 429, 500, 600, 'DATA_DIR', 'agrees', 'cluster', 'clusters', 'concepts', 'data', 'disagrees', 'fetch_conversation', 'id', 'label', 'name', 'polis', 'relations', 'score', 'statements', 'status_code', 'text', 'txt', 'utf-8', 'w']

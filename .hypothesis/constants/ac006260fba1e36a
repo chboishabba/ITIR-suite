@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/tools/__init__.py
-# hypothesis_version: 6.151.5
-
-['BATNASheet', 'EgoContestReport', 'OfferSummary', 'TermRewriter', 'ToneAuditResult', 'ToneFlag', 'as_table', 'build_batna_sheet', 'load_glossary', 'lookup', 'normalise_offers', 'rewrite_text', 'run_ego_contest_kit', 'side_by_side_diff', 'tone_audit']

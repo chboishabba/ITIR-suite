@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/tools/ego_contest.py
-# hypothesis_version: 6.151.5
-
-[', ', '; ', 'Apology wording', 'BATNASheet', 'Costs liability', 'EgoContestReport', 'Estimate pending', 'General position', 'Meeting arrangements', 'No outstanding', 'None stated', 'Not specified', 'OfferSummary', 'Payment terms', 'Settlement amount', 'ToneAuditResult', 'ToneFlag', '[,\\n;]', 'acceptable_range', 'after', 'apology', 'build_batna_sheet', 'by', 'constraints', 'cost_to_hearing', 'costs', 'deadline', 'demands', 'disclosure', 'disclosure_gaps', 'fails to', 'has not agreed to', 'has not yet', 'hearing_timeframe', 'issue', 'meeting', 'normalise_offers', 'payment', 'pending', 'provided', 'refuses', 'requests', 'run_ego_contest_kit', 'settlement', 'side_by_side_diff', 'source', 'subject to', 'timeframe_to_hearing', 'timeline', 'tone_audit', 'within']

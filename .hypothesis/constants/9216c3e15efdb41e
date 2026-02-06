@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/pipeline/ner.py
-# hypothesis_version: 6.151.5
-
-['LAW', 'NER_REFERENCE_LABELS', 'ORG', 'PERSON', 'REFERENCE', 'REFERENCE_LABEL', 'REFERENCE_SPAN_KEY', 'analyze_references', 'en', 'en_core_web_sm', 'entity_ruler', 'get_ner_pipeline', 'legal_patterns.jsonl', 'ner', 'overwrite', 'overwrite_ents', 'pattern', 'patterns', 'reference_resolver', 'reference_source', 'spans_key']

@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/versioning/section_diff.py
-# hypothesis_version: 6.151.5
-
-['-', '</body></html>', '</section>', '<[^>]+>', '<html><body>', '[^a-z0-9]+', 'delete', 'equal', 'insert', 'new', 'old', 'replace']
