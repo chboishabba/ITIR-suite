@@ -29,6 +29,19 @@
 - Define Context Envelope JSON schema (see `docs/planning/adr_ctx_001.md`).
 - Add UI invariant tests: no context-free rendering, no silent context loss, and
   irreversible compression (see `docs/planning/ui_context_components.md`).
+- Wire Context Envelope validation into ingest and render paths (see
+  `docs/planning/context_envelope_schema.md`).
+- Implement UI invariant test harness entries for context drift, epistemic
+  slider integrity, and interpretation-optional mode (see
+  `docs/planning/ui_invariant_tests.md`).
+- Draft database schema for context envelope storage (see
+  `docs/planning/context_envelope_db_sketch.md`).
+- Add minimal JSON fixtures for context envelope validation (see
+  `docs/planning/context_envelope_fixtures.json`).
+- Add UI invariant test runner template (see
+  `docs/planning/ui_invariant_test_runner.md`).
+- Choose a JSON Schema validator and wire fixture validation into CI (see
+  `docs/planning/context_envelope_validate_stub.py`).
 
 ## Blockers / constraints
 - No explicit blockers listed in submodule TODO files.
