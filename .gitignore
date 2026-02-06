@@ -9,3 +9,4 @@ container.sh
 __pycache__/
 *.pdf
 .hypothesis/
+codex_history.sqlite
