@@ -1,7 +1,7 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-02-03
+- 2026-02-05
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
@@ -14,6 +14,10 @@
 - notebooklm-py: no TODOs found.
 - Chatistics: no TODOs found.
 - pyThunderbird: no TODOs found.
+
+## Active TODOs
+- Install `reverse-engineered-chatgpt` dependencies into root `ITIR-suite/.venv` (missing `websockets`, `curl_cffi==0.5.9`); current pip install fails without network or local wheels.
+- Re-run docTR timing on SensibLaw root PDFs using `/Whisper-WebUI/venv` (GPU if available) and record results in `doctr/PROFILE_RUNTIME_NOTES.md` on 2026-02-06.
 
 ## Blockers / constraints
 - No explicit blockers listed in submodule TODO files.

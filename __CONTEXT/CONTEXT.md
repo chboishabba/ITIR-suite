@@ -1092,3 +1092,32 @@ Just say the word.
   - `tircorder-JOBBIE` as the spine
   - streaming policy borrowed from `whisper_streaming`
   - optional research references from `SimulStreaming`
+# StatiBaker Sprint Plan (2026-02-05)
+
+Short reference: `__CONTEXT/sprints/stati_baker_sprints.md`
+
+Summary:
+- Sprint 1 locks SB as a deterministic temporal reducer (guard tests, multi-day replay, no content summarization).
+- Sprint 2 introduces external observation (Wazuh lifecycle + Prometheus summaries) without authority leakage.
+- Sprint 3 defines integration boundaries (OCR contract, Android status contract, read-only query surface).
+
+Recommended order: Sprint 1 → Sprint 2 → Sprint 3.
+Detailed scope, acceptance criteria, and non-goals live in `__CONTEXT/sprints/stati_baker_sprints.md`.
+
+Post–Sprint 1–3 continuation:
+- Sprint 4–6 plan in `__CONTEXT/sprints/stati_baker_sprints_4_6.md` (stress/drift, selective Phase-2 compression, read-only surfaces).
+
+Post–Sprint 4–6 continuation:
+- Sprint 7–9 plan in `__CONTEXT/sprints/stati_baker_sprints_7_9.md` (portability, time hygiene, red-team boundary lock).
+- Sprint 9 scope explicitly includes event injection, command/RCE, credential leakage,
+  path traversal, DoS/resource-exhaustion refusal, and blast-radius rules.
+
+OpenClaw integration notes:
+- `StatiBaker/docs/openclaw_integration.md` captures execution envelopes and the
+  SB/ITIR truth-substrate doctrine for agent tooling.
+
+Multi-modal system doctrine:
+- `StatiBaker/docs/multimodal_system_doctrine.md` defines epistemic modes and
+  explicit authority boundaries for assistive, intent, scheduling, and ground
+  truth layers.
+- `SensibLaw/docs/multimodal_system_doctrine.md` mirrors the doctrine for SL/ITIR.

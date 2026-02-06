@@ -58,6 +58,9 @@ To avoid copy-pasting long CLI commands, maintain the conversation list in
 
 The script writes a timestamped report into `__CONTEXT/last_sync/` with
 line-numbered excerpts so you can cite `ID:line#` in context files.
+It uses the root `ITIR-suite/.venv` Python environment and sets `PYTHONPATH`
+to the `reverse-engineered-chatgpt` package so it does not require a
+submodule-specific venv.
 
 
 ## Dev Note
