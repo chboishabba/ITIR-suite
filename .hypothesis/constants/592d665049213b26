@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/distinguish/engine.py
-# hypothesis_version: 6.151.5
-
-['\\[(\\d+)\\]', '^\\s*(\\d+)[\\.\\)]?\\s+', 'a_only_tokens', 'anchor', 'b_only_tokens', 'base', 'candidate', 'fact', 'held', 'holding', 'id', 'index', 'missing', 'overlap_tokens', 'overlaps', 'paragraph', 'text', 'type', '¶(\\d+)']

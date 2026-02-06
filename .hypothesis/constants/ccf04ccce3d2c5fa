@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/tools/glossary.py
-# hypothesis_version: 6.151.5
-
-['#', ':', 'TermRewriter', 'as_table', 'data', 'glossary.yaml', 'load_glossary', 'lookup', 'rewrite_text']

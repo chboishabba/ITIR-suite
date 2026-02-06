@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/cli/receipts.py
-# hypothesis_version: 6.151.5
-
-['--new', '--old', 'JSON encoded receipt', 'Original text file', 'Receipt utilities', 'Revised text file', 'Verify a receipt', 'build', 'cosmetic', 'data', 'diff', 'invalid', 'receipt', 'receipt_command', 'receipts', 'register', 'substantive', 'valid', 'verify']

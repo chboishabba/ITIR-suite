@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/graph/models.py
-# hypothesis_version: 6.151.5
-
-[1.0, 'CaseNode', 'EdgeType', 'ExtrinsicNode', 'GraphEdge', 'GraphNode', 'IssueNode', 'JudgeOpinionNode', 'LegalGraph', 'NodeType', 'OrderNode', 'PrincipleNode', 'StatuteSectionNode', 'TestElementNode', 'actor_class', 'amends', 'applies', 'applies_to', 'articulates', 'authorized_by', 'case', 'cites', 'concept', 'considers', 'controls', 'distinguishes', 'document', 'event', 'explains', 'extrinsic', 'follows', 'has_element', 'instantiates', 'interpreted_by', 'interprets', 'issue', 'judge_opinion', 'legal_source', 'order', 'overrules', 'person', 'principle', 'proposed_by', 'protected_interest', 'protects', 'provision', 'references', 'rejects', 'related_to', 'remedied_by', 'remedy', 'statute_section', 'test_element', 'wrong_type']

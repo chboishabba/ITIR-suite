@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/concepts/loader.py
-# hypothesis_version: 6.151.5
-
-['*.json', 'GRAPH', 'TRIGGERS', 'concepts', 'id', 'label', 'load', 'phrases', 'r', 'relations', 'seeds.json', 'source', 'target', 'triggers', 'type', 'utf-8']

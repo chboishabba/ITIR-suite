@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/WhisperX-WebUI/backend/db/task/models.py
-# hypothesis_version: 6.151.5
-
-[0.0, 'Progress of the task', 'TaskStatusResponse', 'bgm_separation', 'cancelled', 'completed', 'failed', 'filepath', 'in_progress', 'json', 'onupdate', 'paused', 'pending', 'queued', 'retrying', 'tasks', 'transcription', 'vad']

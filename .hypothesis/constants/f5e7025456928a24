@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/nlp/rules.py
-# hypothesis_version: 6.151.5
-
-[',.;:', '?', 'CONDITION', 'CONDITION_LABEL', 'IN', 'LONGEST', 'LOWER', 'MODALITY', 'MODALITY_LABEL', 'OP', 'PENALTY', 'PENALTY_LABEL', 'REFERENCE', 'REFERENCE_LABEL', 'REGEX', 'RuleMatch', 'RuleMatchSummary', 'TEXT', 'act', 'chapter', 'despite', 'division', 'get_rule_matcher', 'if', 'match_rules', 'maximum', 'may', 'must', 'not', 'part', 'penalty', 'provided', 'regulation', 'regulations', 'rule', 'rules', 's', 'schedule', 'section', 'sections', 'shall', 'ss', 'subject', 'that', 'this', 'to', 'unit', 'units', 'unless', 'when', 'where', 'while']

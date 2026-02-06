@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/graph/tircorder.py
-# hypothesis_version: 6.151.5
-
-[1.0, 'MissingNodeError', 'TiRCorderBuilder', 'applies_to', 'articulates', 'case_id', 'concept_id', 'controls', 'element_id', 'following_case_id', 'has_element', 'interprets', 'leading_case_id', 'metadata', 'provision_id', 'weight']

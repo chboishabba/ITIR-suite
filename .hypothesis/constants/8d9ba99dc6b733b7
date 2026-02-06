@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/briefing/models.py
-# hypothesis_version: 6.151.5
-
-['AuthoritySlot', 'BriefPack', 'BundleIssue', 'BundleReport', 'CounterArgument', 'CounterEvidence', 'CoverageGrid', 'CoverageRow', 'IssueProfile', 'IssueSkeleton', 'MatterAuthority', 'MatterExhibit', 'MatterFactor', 'MatterProfile', 'SkeletonSection', 'anchor', 'anchors', 'annexed', 'assertion', 'authorities', 'bundle_report', 'citation', 'counter_arguments', 'coverage_grid', 'description', 'evidence', 'exhibit_id', 'exhibits', 'factors', 'first_cut_brief', 'heading', 'id', 'issue', 'issues', 'missing_annexures', 'name', 'pages', 'pin_cite', 'proposition', 'pushback', 'response', 'rows', 'section', 'sections', 'source', 'statement', 'submission_skeletons', 'title']

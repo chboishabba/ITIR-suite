@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/jade.py
-# hypothesis_version: 6.151.5
-
-[1.0, 30.0, 'Authorization', 'Content-Type', 'JADE_API_BASE', 'JADE_API_KEY', 'User-Agent', 'citation', 'content_type', 'https://jade.io', 'jade.io', 'source', 'status_code']

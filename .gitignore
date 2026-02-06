@@ -8,3 +8,4 @@ container.sh
 *.tar.gz
 __pycache__/
 *.pdf
+.hypothesis/

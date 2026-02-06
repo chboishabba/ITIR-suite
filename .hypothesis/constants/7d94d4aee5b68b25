@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/austlii_fetch.py
-# hypothesis_version: 6.151.5
-
-[1.0, 30.0, 'Content-Type', 'User-Agent', 'austlii', 'austlii.edu.au', 'austlii.fetch', 'path', 'source', 'status_code']

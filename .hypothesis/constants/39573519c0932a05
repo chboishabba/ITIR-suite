@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/policy/engine.py
-# hypothesis_version: 6.151.5
-
-['#', ':', 'CulturalFlags', 'PolicyEngine', 'action', 'allow', 'consent_required', 'cultural_flags.yaml', 'data', 'default', 'deny', 'else', 'export', 'false', 'flag', 'hash', 'if', 'ingest', 'log', 'none', 'null', 'omit', 'r', 'redact', 'redaction', 'rules', 'summary', 'then', 'transform', 'true', 'utf-8']

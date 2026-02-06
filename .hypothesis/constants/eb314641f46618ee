@@ -1,4 +1,0 @@
-# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/ontology/lookup.py
-# hypothesis_version: 6.151.5
-
-['LookupRecord', 'batch_lookup', 'confidence', 'glossary', 'id', 'persist_lookup_logs']
