@@ -1,0 +1,12 @@
+{
+  "subsystem": "SensibLaw",
+  "signals": [
+    "citation_rate",
+    "crossref_resolve_rate",
+    "obligation_density",
+    "exception_density",
+    "contradiction_rate"
+  ],
+  "phases": ["Acquire", "Normalize", "Interpret", "Contest", "Publish"],
+  "lens_ids": ["evidence_density"]
+}

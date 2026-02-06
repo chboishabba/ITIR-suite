@@ -1,0 +1,12 @@
+{
+  "subsystem": "LES",
+  "signals": [
+    "rainfall_intensity",
+    "temp_anomaly",
+    "soil_moisture_change",
+    "wind_energy",
+    "market_price_vol"
+  ],
+  "phases": ["Acquire", "Simulate", "Gate"],
+  "lens_ids": ["time"]
+}

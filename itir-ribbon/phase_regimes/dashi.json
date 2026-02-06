@@ -1,0 +1,12 @@
+{
+  "subsystem": "DASHI",
+  "signals": [
+    "coherence",
+    "compression_gain",
+    "residual_energy",
+    "hysteresis_margin",
+    "collapse_probability"
+  ],
+  "phases": ["Gate", "Simulate", "Contest"],
+  "lens_ids": ["time"]
+}
