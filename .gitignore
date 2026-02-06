@@ -34,3 +34,4 @@ codex_history.sqlite
 secrets/
 secret/
 secret_scan_reports/
+logs/
