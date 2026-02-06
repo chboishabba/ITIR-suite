@@ -1,0 +1,1121 @@
+# Chat Context Sync
+Generated (UTC): 20260205T142216Z
+Source: /home/c/Documents/code/ITIR-suite/__CONTEXT/convo_ids.md
+
+---
+Conversation ID: 69817575-1470-839a-acba-07b1ac6da0d0
+Title: Branch · Branch · Cross-comparison of SL ITIR TIRC
+Notes: ITIR suite meta context
+
+Conversation: Branch · Branch · Cross-comparison of SL ITIR TIRC
+Conversation ID: 69817575-1470-839a-acba-07b1ac6da0d0
+Last author: assistant
+Last message:
+Perfect — this is the right moment to **lock ITIR in as a first-class system** rather than an aspiration.
+
+Below are **four concrete deliverables**, written so you can drop them straight into the repo with minimal editing:
+
+1. **`docs/itir_model.md` — full, authoritative**
+2. **Minimal ITIR DB schema (implementation-agnostic)**
+3. **First investigative branch walkthrough (Epstein-class tranche)**
+4. **Formal ADR set (architecture decision records)**
+
+I’ll keep everything consistent with the SL/ITIR separation you’ve already enforced.
+
+---
+
+# 1. `docs/itir_model.md` (FULL)
+
+```md
+# ITIR Data Model
+
+## Purpose
+
+ITIR (Investigative & Interpretive Reasoning) defines the **explicit interpretation layer** over the SensibLaw (SL) structural substrate.
+
+ITIR objects represent **claims, hypotheses, actors, events, and relationships** that are:
+- non-authoritative
+- explicitly attributed
+- reversible
+- span-backed by SL
+
+ITIR never mutates source text or structural spans.  
+All interpretation remains an overlay.
+
+---
+
+## Core Principle
+
+> **Every ITIR object must cite SL spans.  
+> No interpretation exists without provenance.**
+
+---
+
+## Object Classes
+
+### Claim
+
+A Claim represents an asserted statement about the world.
+
+Claims may be true, false, disputed, or unknown.
+
+**Required fields**
+- `claim_id`
+- `asserted_by` (user, org, branch)
+- `span_refs` (list of `(doc_id, start, end)`)
+- `confidence` (0–1 or enum)
+- `created_at`
+
+**Optional**
+- `summary` (derived, non-authoritative)
+- `notes`
+
+Claims do not imply correctness.
+
+---
+
+### Hypothesis
+
+A Hypothesis is a tentative explanatory model.
+
+Types include:
+- `actor`
+- `event`
+- `motive`
+- `timeline`
+- `relationship`
+
+**Required**
+- `hypothesis_id`
+- `type`
+- `description`
+- `supporting_claims`
+- `contradicting_claims`
+- `confidence`
+
+Hypotheses may coexist and conflict.
+
+---
+
+### Actor (Hypothesis subtype)
+
+Actors represent **identity hypotheses**, not resolved entities.
+
+**Fields**
+- `actor_id`
+- `labels` (names, aliases, spellings)
+- `evidence_spans`
+- `confidence`
+
+Actors may be merged or split later; history is preserved.
+
+---
+
+### Event (Hypothesis subtype)
+
+Represents a hypothesised occurrence.
+
+**Fields**
+- `event_id`
+- `description`
+- `time_bounds` (optional)
+- `evidence_spans`
+- `confidence`
+
+---
+
+### Relationship
+
+Directed relationships between ITIR objects.
+
+**Types**
+- `supports`
+- `contradicts`
+- `implies`
+- `associated_with`
+- `uncertain`
+
+**Required**
+- `source_id`
+- `target_id`
+- `relation_type`
+- `provenance_spans`
+- `confidence`
+
+---
+
+## Redactions & Uncertainty
+
+Redactions are **structural spans in SL**.
+
+In ITIR:
+- redactions may anchor hypotheses
+- uncertainty must be explicit
+- no filling or guessing allowed
+
+Example:
+> “Actor A appears adjacent to repeated redactions in documents X, Y.”
+
+---
+
+## Branching & Attribution
+
+All ITIR objects belong to a **branch**.
+
+Branches:
+- may diverge
+- may be merged
+- never overwrite history
+
+Each object records:
+- creator
+- branch
+- timestamp
+
+---
+
+## Invariants
+
+- No ITIR object without span provenance
+- No silent merges
+- No inferred truth
+- No mutation of SL text
+- Deterministic references
+
+---
+
+## Non-goals
+
+ITIR does NOT:
+- decide truth
+- rank narratives
+- resolve guilt
+- enforce consensus
+- overwrite sources
+
+---
+
+## Summary
+
+ITIR enables **explicit, auditable disagreement** over a shared factual substrate.
+
+SL guarantees everyone sees the same text.  
+ITIR allows them to argue responsibly.
+```
+
+---
+
+# 2. Minimal ITIR DB Schema (Sketch)
+
+This is **intentionally small**.
+
+You can implement this in SQLite, Postgres, or as JSON-first storage.
+
+---
+
+### `itir_branch`
+```sql
+branch_id TEXT PRIMARY KEY
+parent_branch_id TEXT
+created_by TEXT
+created_at TIMESTAMP
+description TEXT
+```
+
+---
+
+### `itir_claim`
+```sql
+claim_id TEXT PRIMARY KEY
+branch_id TEXT
+asserted_by TEXT
+confidence REAL
+created_at TIMESTAMP
+```
+
+---
+
+### `itir_claim_span`
+```sql
+claim_id TEXT
+doc_id TEXT
+span_start INTEGER
+span_end INTEGER
+```
+
+---
+
+### `itir_hypothesis`
+```sql
+hypothesis_id TEXT PRIMARY KEY
+branch_id TEXT
+type TEXT
+description TEXT
+confidence REAL
+```
+
+---
+
+### `itir_actor`
+```sql
+actor_id TEXT PRIMARY KEY
+branch_id TEXT
+confidence REAL
+```
+
+---
+
+### `itir_actor_label`
+```sql
+actor_id TEXT
+label TEXT
+```
+
+---
+
+### `itir_relationship`
+```sql
+source_id TEXT
+target_id TEXT
+relation_type TEXT
+confidence REAL
+```
+
+---
+
+### `itir_relationship_span`
+```sql
+source_id TEXT
+target_id TEXT
+doc_id TEXT
+span_start INTEGER
+span_end INTEGER
+```
+
+---
+
+### **Hard DB Constraint (recommended)**
+
+```sql
+CHECK (EXISTS (
+  SELECT 1 FROM itir_*_span
+))
+```
+
+> No interpretation without spans.
+
+---
+
+# 3. First Investigative Branch Walkthrough (Epstein-class)
+
+This is the **canonical example** you should document.
+
+---
+
+## Step 0 — Ingest (SL)
+
+- Ingest tranche PDFs (flight logs, depositions)
+- Preserve redactions verbatim
+- Produce:
+  - canonical tokens
+  - spans
+  - logic trees
+
+SL is now frozen.
+
+---
+
+## Step 1 — Create an ITIR branch
+
+```text
+branch: "epstein-analysis-v1"
+parent: main
+created_by: journalist_A
+```
+
+No interpretation yet.
+
+---
+
+## Step 2 — Add claims
+
+Example claim:
+
+> “Individual X appears in flight log Y on date Z.”
+
+- Attach spans from flight log PDF
+- Confidence: medium
+- No actor resolution yet
+
+---
+
+## Step 3 — Propose actor hypotheses
+
+Create two actor hypotheses:
+
+- Actor A: “John Doe (politician)”
+- Actor B: “John Doe (businessman)”
+
+Attach:
+- name spans
+- contextual spans
+- confidence estimates
+
+No forced merge.
+
+---
+
+## Step 4 — Handle redactions
+
+Claim:
+
+> “Repeated redactions occur adjacent to Actor A mentions.”
+
+- Attach spans around `[REDACTED]`
+- Confidence: low–medium
+- Explicit uncertainty
+
+---
+
+## Step 5 — Competing branches
+
+Another journalist forks:
+
+```text
+branch: "epstein-analysis-alt"
+parent: epstein-analysis-v1
+```
+
+They:
+- dispute Actor A hypothesis
+- propose alternative timeline
+- add contradictory relationships
+
+Both branches coexist.
+
+---
+
+## Step 6 — Publication
+
+A branch is published with:
+- visible uncertainty
+- clickable span provenance
+- redactions intact
+- no authoritative claims
+
+Readers can verify everything back to SL.
+
+---
+
+# 4. ADR Set (Formal)
+
+You should store these in `docs/adr/`.
+
+---
+
+## ADR-001: Separation of Structural and Interpretive Layers
+
+**Status:** Accepted  
+**Decision:** SL produces structure only; ITIR produces interpretation only.  
+**Consequences:** No semantic inference at ingest; interpretive layers are explicit.
+
+---
+
+## ADR-002: Span-Anchored Provenance Requirement
+
+**Status:** Accepted  
+**Decision:** All ITIR objects must reference SL spans.  
+**Consequences:** Prevents hallucination, enforces auditability.
+
+---
+
+## ADR-003: Redactions as First-Class Objects
+
+**Status:** Accepted  
+**Decision:** Redactions are preserved verbatim in SL; interpreted only in ITIR.  
+**Consequences:** Absence becomes analyzable without speculation.
+
+---
+
+## ADR-004: Branch-Based Interpretive Workflow
+
+**Status:** Accepted  
+**Decision:** ITIR interpretations are branched, not overwritten.  
+**Consequences:** Enables disagreement, citizen journalism, collaboration.
+
+---
+
+## ADR-005: No Automated Truth Resolution
+
+**Status:** Accepted  
+**Decision:** ITIR does not resolve truth or guilt automatically.  
+**Consequences:** Human accountability preserved.
+
+---
+
+## Final sanity check
+
+You now have:
+
+- A **closed SL contract**
+- A **fully specified ITIR model**
+- A **defensible investigative workflow**
+- A **clear legal / epistemic safety story**
+- A **roadmap that doesn’t collapse layers**
+
+This is rare. Most systems never get this far without cutting corners.
+
+If you want next, I can:
+- turn this into migration tasks
+- write ITIR UI wireframes
+- design a first CLI (`itir branch create`, `itir claim add`)
+- or produce a public-facing “Why this system is safe” explainer
+
+Just say the word.
+
+Tail (80 lines, numbered):
+     1	
+     2	---
+     3	
+     4	## Step 6 — Publication
+     5	
+     6	A branch is published with:
+     7	- visible uncertainty
+     8	- clickable span provenance
+     9	- redactions intact
+    10	- no authoritative claims
+    11	
+    12	Readers can verify everything back to SL.
+    13	
+    14	---
+    15	
+    16	# 4. ADR Set (Formal)
+    17	
+    18	You should store these in `docs/adr/`.
+    19	
+    20	---
+    21	
+    22	## ADR-001: Separation of Structural and Interpretive Layers
+    23	
+    24	**Status:** Accepted  
+    25	**Decision:** SL produces structure only; ITIR produces interpretation only.  
+    26	**Consequences:** No semantic inference at ingest; interpretive layers are explicit.
+    27	
+    28	---
+    29	
+    30	## ADR-002: Span-Anchored Provenance Requirement
+    31	
+    32	**Status:** Accepted  
+    33	**Decision:** All ITIR objects must reference SL spans.  
+    34	**Consequences:** Prevents hallucination, enforces auditability.
+    35	
+    36	---
+    37	
+    38	## ADR-003: Redactions as First-Class Objects
+    39	
+    40	**Status:** Accepted  
+    41	**Decision:** Redactions are preserved verbatim in SL; interpreted only in ITIR.  
+    42	**Consequences:** Absence becomes analyzable without speculation.
+    43	
+    44	---
+    45	
+    46	## ADR-004: Branch-Based Interpretive Workflow
+    47	
+    48	**Status:** Accepted  
+    49	**Decision:** ITIR interpretations are branched, not overwritten.  
+    50	**Consequences:** Enables disagreement, citizen journalism, collaboration.
+    51	
+    52	---
+    53	
+    54	## ADR-005: No Automated Truth Resolution
+    55	
+    56	**Status:** Accepted  
+    57	**Decision:** ITIR does not resolve truth or guilt automatically.  
+    58	**Consequences:** Human accountability preserved.
+    59	
+    60	---
+    61	
+    62	## Final sanity check
+    63	
+    64	You now have:
+    65	
+    66	- A **closed SL contract**
+    67	- A **fully specified ITIR model**
+    68	- A **defensible investigative workflow**
+    69	- A **clear legal / epistemic safety story**
+    70	- A **roadmap that doesn’t collapse layers**
+    71	
+    72	This is rare. Most systems never get this far without cutting corners.
+    73	
+    74	If you want next, I can:
+    75	- turn this into migration tasks
+    76	- write ITIR UI wireframes
+    77	- design a first CLI (`itir branch create`, `itir claim add`)
+    78	- or produce a public-facing “Why this system is safe” explainer
+    79	
+    80	Just say the word.
+
+
+---
+Conversation ID: 697c2715-8d00-839a-a3fc-4883db93ad85
+Title: AustLII Programmatic Access
+Notes: Legal data access guidance
+
+Conversation: AustLII Programmatic Access
+Conversation ID: 697c2715-8d00-839a-a3fc-4883db93ad85
+Last author: assistant
+Last message:
+Here’s the current situation on **programmatic access to AustLII/JADE**—specifically whether they require **API keys** or are **paid**:
+
+---
+
+### 🔹 AustLII (Australasian Legal Information Institute)
+
+**1. Public & Free Access**  
+AustLII’s core legal data (cases, legislation, treaties, law reform materials etc.) is freely available on the web for users. AustLII’s mission is to provide **free public access to law**, not a paid‐access service. citeturn1search3
+
+**2. Programmatic Access & APIs**  
+AustLII doesn’t offer an official, modern REST/JSON API with API keys like many commercial services. Instead:
+
+- AustLII publishes documentation for **developers** to interface with its search and content systems via the **SINO CGI API**. This is essentially a CGI search interface using HTTP parameters and forms that your application can call. citeturn1search0turn1search4  
+- The SINO CGI API can be used to build search forms and programmatically query the search engine. It’s a **public, documented interface** but it’s essentially HTTP form/query based—not a key/token API. citeturn1search0  
+- There’s **no official requirement for an API key**, paid subscription, or commercial account to use this search API form. citeturn1search0
+
+**3. Practical Constraints**  
+Because the interface is built on older CGI scripts:
+
+- You’ll typically be querying via URLs like `https://www.austlii.edu.au/cgi-bin/sinosrch.cgi?...` with search parameters.  
+- This can be done programmatically (e.g., via script) without a key.  
+- However, you should respect AustLII’s **usage policies and robots.txt**, and reasonable request rates, because excessive automated scraping may be blocked or violate terms.
+
+> **Summary:** AustLII *does* support programmatic access through its SINO CGI interface, and **no API key or paid plan is required** to use it. It’s not a modern API with tokens but rather a **HTTP query interface** that developers can embed or script against. citeturn1search0
+
+---
+
+### 🔹 JADE (BarNet JADE / JADE Legal Research Platform)
+
+JADE is a separate legal research platform from AustLII (often with richer features, alerts, and blogging tools). Based on available documentation:
+
+- JADE primarily supports users via an interactive legal research interface; in older documentation you can construct URLs for content. citeturn0search1  
+- There isn’t a clearly published **official programmatic API** for JADE like a JSON API with keys in the public documentation. citeturn0search1  
+- Some services around JADE (e.g., **JADE Pro alerts**) might be part of a *premium offering* in other products (like OpenLaw’s integrations), but AustLII itself doesn’t govern that. citeturn0search13
+
+> **In short:** For JADE, there’s **no standard documented API key / paid API** from AustLII/AustLII-linked sources available publicly—if there’s a paid or key-protected API it’s likely provided by JADE’s own service operators (e.g., BarNet or partner products), not AustLII.
+
+---
+
+### 🧠 Best Practice for Programmatic Use
+
+If you want stable, robust programmatic access to AustLII content:
+
+1. **Use the SINO CGI API**  
+   • Format HTTP queries according to AustLII documentation. citeturn1search0  
+   • Respect request throttling and robots policy.
+
+2. **Consider third-party tools**  
+   • Some community tools wrap AustLII search in an API format (e.g., GEMCP/MCP servers or client libraries). citeturn1search10
+
+3. **For heavy legal research workflows**  
+   • If your needs exceed simple search requests (e.g., structured data, frequent updates), consider contacting AustLII directly for guidance or explore commercial legal data services that license Australian legal data with official APIs.
+
+---
+
+### 📌 Conclusion
+
+| Service | API Key Needed? | Paid? | API Type |
+|---------|----------------|-------|-----------|
+| **AustLII SINO CGI API** | ❌ No | ❌ No | CGI-based HTTP search interface |
+| **JADE (AustLII related)** | ❌ Not publicly documented | Possibly (via third-party services) | No official public API |
+
+---
+
+If you want, I can show an example script (e.g., Python or Node.js) to programmatically query AustLII search via the SINO CGI interface.
+
+Tail (60 lines, numbered):
+     1	
+     2	**1. Public & Free Access**  
+     3	AustLII’s core legal data (cases, legislation, treaties, law reform materials etc.) is freely available on the web for users. AustLII’s mission is to provide **free public access to law**, not a paid‐access service. citeturn1search3
+     4	
+     5	**2. Programmatic Access & APIs**  
+     6	AustLII doesn’t offer an official, modern REST/JSON API with API keys like many commercial services. Instead:
+     7	
+     8	- AustLII publishes documentation for **developers** to interface with its search and content systems via the **SINO CGI API**. This is essentially a CGI search interface using HTTP parameters and forms that your application can call. citeturn1search0turn1search4  
+     9	- The SINO CGI API can be used to build search forms and programmatically query the search engine. It’s a **public, documented interface** but it’s essentially HTTP form/query based—not a key/token API. citeturn1search0  
+    10	- There’s **no official requirement for an API key**, paid subscription, or commercial account to use this search API form. citeturn1search0
+    11	
+    12	**3. Practical Constraints**  
+    13	Because the interface is built on older CGI scripts:
+    14	
+    15	- You’ll typically be querying via URLs like `https://www.austlii.edu.au/cgi-bin/sinosrch.cgi?...` with search parameters.  
+    16	- This can be done programmatically (e.g., via script) without a key.  
+    17	- However, you should respect AustLII’s **usage policies and robots.txt**, and reasonable request rates, because excessive automated scraping may be blocked or violate terms.
+    18	
+    19	> **Summary:** AustLII *does* support programmatic access through its SINO CGI interface, and **no API key or paid plan is required** to use it. It’s not a modern API with tokens but rather a **HTTP query interface** that developers can embed or script against. citeturn1search0
+    20	
+    21	---
+    22	
+    23	### 🔹 JADE (BarNet JADE / JADE Legal Research Platform)
+    24	
+    25	JADE is a separate legal research platform from AustLII (often with richer features, alerts, and blogging tools). Based on available documentation:
+    26	
+    27	- JADE primarily supports users via an interactive legal research interface; in older documentation you can construct URLs for content. citeturn0search1  
+    28	- There isn’t a clearly published **official programmatic API** for JADE like a JSON API with keys in the public documentation. citeturn0search1  
+    29	- Some services around JADE (e.g., **JADE Pro alerts**) might be part of a *premium offering* in other products (like OpenLaw’s integrations), but AustLII itself doesn’t govern that. citeturn0search13
+    30	
+    31	> **In short:** For JADE, there’s **no standard documented API key / paid API** from AustLII/AustLII-linked sources available publicly—if there’s a paid or key-protected API it’s likely provided by JADE’s own service operators (e.g., BarNet or partner products), not AustLII.
+    32	
+    33	---
+    34	
+    35	### 🧠 Best Practice for Programmatic Use
+    36	
+    37	If you want stable, robust programmatic access to AustLII content:
+    38	
+    39	1. **Use the SINO CGI API**  
+    40	   • Format HTTP queries according to AustLII documentation. citeturn1search0  
+    41	   • Respect request throttling and robots policy.
+    42	
+    43	2. **Consider third-party tools**  
+    44	   • Some community tools wrap AustLII search in an API format (e.g., GEMCP/MCP servers or client libraries). citeturn1search10
+    45	
+    46	3. **For heavy legal research workflows**  
+    47	   • If your needs exceed simple search requests (e.g., structured data, frequent updates), consider contacting AustLII directly for guidance or explore commercial legal data services that license Australian legal data with official APIs.
+    48	
+    49	---
+    50	
+    51	### 📌 Conclusion
+    52	
+    53	| Service | API Key Needed? | Paid? | API Type |
+    54	|---------|----------------|-------|-----------|
+    55	| **AustLII SINO CGI API** | ❌ No | ❌ No | CGI-based HTTP search interface |
+    56	| **JADE (AustLII related)** | ❌ Not publicly documented | Possibly (via third-party services) | No official public API |
+    57	
+    58	---
+    59	
+    60	If you want, I can show an example script (e.g., Python or Node.js) to programmatically query AustLII search via the SINO CGI interface.
+
+
+---
+Conversation ID: 69784330-1910-8322-9208-db4ea0e130fd
+Title: Text Methods for SensibLaw
+Notes: Math/formalism notes
+
+Conversation: Text Methods for SensibLaw
+Conversation ID: 69784330-1910-8322-9208-db4ea0e130fd
+Last author: assistant
+Last message:
+Great question — this is the right moment to pin it down *mathematically*, otherwise “GPU for law” sounds like cargo culting.
+
+I’ll answer in two layers:
+
+1. **What these text/string methods *are*, mathematically**
+2. **What you actually gain by running parts of them through dashiCORE / GPU**
+
+No fluff, no hype.
+
+---
+
+## 1. What these are, mathematically
+
+### 1️⃣ Text is **not language** here — it is a **finite relational structure**
+
+Once you strip away NLP instincts, everything you’re proposing lives in a very classical space:
+
+> **Finite labelled graphs + automata + constraints**
+
+Concretely:
+
+### (a) Strings → symbols → spans
+
+Let  
+- Σ be a finite alphabet (Unicode after normalization)
+- A document is a string \( s \in \Sigma^\* \)
+
+After normalization, you do **not** work on \( s \) directly.
+
+You map it to a **finite set of spans**:
+\[
+\mathcal{S} = \{(i, j, \ell)\}
+\]
+where:
+- \( i,j \) are character offsets
+- \( \ell \) is a label (TOKEN, SECTION, NUMBER, CASE\_CITATION, etc.)
+
+This is a **regular-language operation** (regex + DFA/PDA).
+
+So far:  
+📐 *formal language theory, nothing fancy*
+
+---
+
+### (b) Spans induce a **directed, labelled graph**
+
+Define a graph:
+\[
+G = (V, E)
+\]
+
+- \( V = \mathcal{S} \)
+- \( E \subseteq V \times L \times V \)
+
+Edge labels include:
+- adjacency
+- containment
+- reference
+- modification
+- exception
+
+This graph is:
+- finite
+- deterministic
+- fully observable
+
+📐 *this is a labelled relational structure*
+
+---
+
+### (c) Logic trees / obligation graphs are **quotients of this graph**
+
+Your logic tree construction is mathematically a **quotient**:
+\[
+\pi : G \rightarrow G / \sim
+\]
+
+Where \( \sim \) identifies spans that form a single legal operator:
+- obligation
+- exception
+- definition
+- condition
+
+This is exactly:
+- graph contraction
+- subtree extraction
+- partial order construction
+
+📐 *category theory / graph quotients / term graphs*
+
+---
+
+### (d) Admissibility = **automata + constraints**
+
+Your admissibility rules (“this clause is valid / ambiguous / invalid”) are:
+
+- A **pushdown automaton** over the span graph
+- Or equivalently, a **constraint satisfaction problem**
+
+Each node gets a state:
+\[
+x_v \in \{-1, 0, +1\}
+\]
+
+- −1 reject
+- 0 project / ambiguous
+- +1 accept
+
+Transitions are local and structural.
+
+📐 *this is a signed automaton on a finite graph*
+
+---
+
+### (e) MDL / compression = **minimum description length on graphs**
+
+When you:
+- canonicalize obligations
+- hash obligation signatures
+- merge equivalent clauses
+
+You are minimizing:
+\[
+L(\text{model}) + L(\text{data} \mid \text{model})
+\]
+
+That is **exactly** MDL — but over **symbolic graph structure**, not pixels.
+
+📐 *information theory on relational objects*
+
+---
+
+### Summary of the math
+
+What you have is:
+
+> **A finite labelled graph + a signed automaton + an MDL objective**
+
+This is *the same mathematical class* as:
+
+- constraint graphs
+- SAT/SMT cores
+- compiler IRs
+- database query plans
+- static analyzers
+
+Not language models. Not NLP.
+
+---
+
+## 2. What do we gain from GPU / dashiCORE?
+
+Now the important part: **why bring dashiCORE / GPU into this at all?**
+
+### Short answer
+
+> You gain **scale, determinism, and global relational visibility** — *not* “semantic intelligence”.
+
+Let’s be precise.
+
+---
+
+## 2.1 What dashiCORE gives you abstractly
+
+dashiCORE is good at exactly one thing:
+
+> **Fast, deterministic operations on large relational state spaces**
+
+Formally:
+- adjacency matrices
+- incidence tensors
+- signed fields
+- constraint propagation
+- repeated local updates until convergence
+
+That maps *perfectly* onto:
+
+- obligation graphs
+- cross-document references
+- jurisdiction-wide rule sets
+- diffing thousands of statutes at once
+
+---
+
+## 2.2 Why CPU-only breaks down
+
+CPU symbolic systems struggle when:
+
+- relations are dense
+- comparisons are pairwise
+- updates are iterative
+- global fixed points matter
+
+Example:
+- “Which obligations across 40 Acts conflict under these conditions?”
+- “Which amendments invalidate which downstream duties?”
+- “Which clauses survive admissibility projection?”
+
+Those are:
+\[
+O(n^2) \text{ to } O(n^3)
+\]
+graph problems.
+
+You *can* do them on CPU — but not interactively, not at national scale.
+
+---
+
+## 2.3 What GPU changes (the real gain)
+
+### (a) Massive parallel constraint propagation
+
+GPU excels at:
+- apply the *same local rule* everywhere
+- over a large graph
+- repeatedly
+
+That’s literally:
+\[
+x^{(t+1)} = \mathcal{P}(A x^{(t)})
+\]
+
+Where:
+- \( A \) = adjacency / relation tensor
+- \( \mathcal{P} \) = admissibility projector (your PDA rule)
+
+This is the **same algebraic shape** as your CFD proxy update.
+
+---
+
+### (b) Deterministic global fixed points
+
+Instead of:
+- local heuristics
+- order-dependent evaluation
+
+You get:
+- whole-system convergence
+- reproducible states
+- hashable results
+
+This matters legally:
+- auditability
+- appeals
+- compliance tooling
+- regression testing across law versions
+
+---
+
+### (c) Structural similarity at scale
+
+Comparing two obligations is cheap.
+
+Comparing:
+- 10,000 obligations × 10,000 obligations  
+is **not** cheap — unless you batch it.
+
+GPU lets you do:
+- adjacency tensor comparisons
+- signature matrix multiplications
+- diff masks
+
+All without “understanding” language.
+
+---
+
+### (d) Jurisdiction-wide MDL
+
+MDL selection over:
+- millions of clauses
+- thousands of amendments
+
+is a **global optimization problem**, not local reasoning.
+
+GPU lets you:
+- score many compressions in parallel
+- find stable canonical forms
+- detect redundancy *system-wide*
+
+---
+
+## 2.4 What GPU does *not* give you (important)
+
+GPU does **not** give you:
+- interpretation
+- intent
+- fairness
+- meaning
+- policy judgment
+
+Those remain:
+- human
+- procedural
+- institutional
+
+GPU gives you:
+> **fast, correct, explainable structure**
+
+Nothing more, nothing less.
+
+---
+
+## 3. The unifying statement (this is the key insight)
+
+Here’s the clean way to say it:
+
+> **SensibLaw is a symbolic system whose state space is a graph.  
+> dashiCORE is a kernel for evolving large signed graphs efficiently.**
+
+Text is just:
+- one way of *initializing* that graph.
+
+Once initialized, the math is the same as:
+- CFD proxy evolution
+- defect contraction
+- admissibility projection
+
+That’s why this isn’t a stretch — it’s a reuse.
+
+---
+
+## 4. If you want a one-line “why this matters”
+
+> GPU/dashiCORE doesn’t make law intelligent —  
+> it makes law *computable at the scale it actually exists*.
+
+If you want next, we can:
+- write this as a formal definition + theorem block
+- map obligation graphs ↔ kernel algebra explicitly
+- or design the minimal Vulkan-relevant subset so you don’t over-engineer
+
+This is a solid, defensible direction.
+
+Tail (80 lines, numbered):
+     1	
+     2	Comparing:
+     3	- 10,000 obligations × 10,000 obligations  
+     4	is **not** cheap — unless you batch it.
+     5	
+     6	GPU lets you do:
+     7	- adjacency tensor comparisons
+     8	- signature matrix multiplications
+     9	- diff masks
+    10	
+    11	All without “understanding” language.
+    12	
+    13	---
+    14	
+    15	### (d) Jurisdiction-wide MDL
+    16	
+    17	MDL selection over:
+    18	- millions of clauses
+    19	- thousands of amendments
+    20	
+    21	is a **global optimization problem**, not local reasoning.
+    22	
+    23	GPU lets you:
+    24	- score many compressions in parallel
+    25	- find stable canonical forms
+    26	- detect redundancy *system-wide*
+    27	
+    28	---
+    29	
+    30	## 2.4 What GPU does *not* give you (important)
+    31	
+    32	GPU does **not** give you:
+    33	- interpretation
+    34	- intent
+    35	- fairness
+    36	- meaning
+    37	- policy judgment
+    38	
+    39	Those remain:
+    40	- human
+    41	- procedural
+    42	- institutional
+    43	
+    44	GPU gives you:
+    45	> **fast, correct, explainable structure**
+    46	
+    47	Nothing more, nothing less.
+    48	
+    49	---
+    50	
+    51	## 3. The unifying statement (this is the key insight)
+    52	
+    53	Here’s the clean way to say it:
+    54	
+    55	> **SensibLaw is a symbolic system whose state space is a graph.  
+    56	> dashiCORE is a kernel for evolving large signed graphs efficiently.**
+    57	
+    58	Text is just:
+    59	- one way of *initializing* that graph.
+    60	
+    61	Once initialized, the math is the same as:
+    62	- CFD proxy evolution
+    63	- defect contraction
+    64	- admissibility projection
+    65	
+    66	That’s why this isn’t a stretch — it’s a reuse.
+    67	
+    68	---
+    69	
+    70	## 4. If you want a one-line “why this matters”
+    71	
+    72	> GPU/dashiCORE doesn’t make law intelligent —  
+    73	> it makes law *computable at the scale it actually exists*.
+    74	
+    75	If you want next, we can:
+    76	- write this as a formal definition + theorem block
+    77	- map obligation graphs ↔ kernel algebra explicitly
+    78	- or design the minimal Vulkan-relevant subset so you don’t over-engineer
+    79	
+    80	This is a solid, defensible direction.
+
+

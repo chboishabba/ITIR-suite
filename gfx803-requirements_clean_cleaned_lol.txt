@@ -79,6 +79,8 @@ jsonschema
 pydantic>=2
 sqlalchemy>=2.0
 sqlmodel>=0.0.31
+pdfminer.six
+websockets
 
 # --------------------
 # Git edges (shared with host)

@@ -98,7 +98,7 @@ pytubefix
 # Data / finance / misc
 # ------------------------------------------------------------
 pdfminer.six
-piecash
+piecash>=1.2.1
 ofxparse
 qifparse
 sqlmodel==0.0.32
@@ -110,3 +110,4 @@ SQLAlchemy-Utils==0.42.1
 # ------------------------------------------------------------
 git+https://github.com/jhj0517/pyrubberband.git
 git+https://github.com/jhj0517/ultimatevocalremover_api.git
+python-doctr @ git+https://github.com/mindee/doctr.git
