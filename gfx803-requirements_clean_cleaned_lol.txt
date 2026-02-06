@@ -85,6 +85,9 @@ curl_cffi
 pytest
 hypothesis
 ijson
+matplotlib
+pyyaml
+
 
 # --------------------
 # Git edges (shared with host)

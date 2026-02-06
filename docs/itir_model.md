@@ -152,6 +152,15 @@ Each object records:
 - No inferred truth
 - No mutation of SL text
 - Deterministic references
+- Context is mandatory: every artifact view includes temporal and epistemic
+  frame metadata (date/time, venue/medium, known public facts at the time).
+
+## Context Anchoring (Suite-Level Requirement)
+
+ITIR preserves interpretive integrity by enforcing knowledge-state overlays:
+- What was publicly known at the time
+- What legal status existed at the time
+- What was later revealed (and must be visually separated)
 
 ---
 
