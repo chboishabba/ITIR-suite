@@ -33,3 +33,4 @@ codex_history.sqlite
 .ssh/
 secrets/
 secret/
+secret_scan_reports/
