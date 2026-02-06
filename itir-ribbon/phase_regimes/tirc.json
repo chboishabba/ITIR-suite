@@ -1,0 +1,12 @@
+{
+  "subsystem": "TiRC",
+  "signals": [
+    "audio_energy",
+    "speech_prob",
+    "segment_boundary_rate",
+    "correction_rate",
+    "redaction_ops"
+  ],
+  "phases": ["Acquire", "Normalize", "Index", "Publish"],
+  "lens_ids": ["time"]
+}

@@ -1,0 +1,15 @@
+{
+  "lens_id": "evidence_density",
+  "units": "points",
+  "rho": {
+    "op": "add",
+    "args": [
+      {"op": "mul", "args": [{"op": "signal", "name": "citation_rate"}, {"op": "const", "value": 1.0}]},
+      {"op": "mul", "args": [{"op": "signal", "name": "exhibit_rate"}, {"op": "const", "value": 2.0}]},
+      {"op": "mul", "args": [{"op": "signal", "name": "contradiction_rate"}, {"op": "const", "value": 3.0}]}
+    ]
+  },
+  "post": [
+    {"op": "clamp", "min": 0, "max": 1000}
+  ]
+}
