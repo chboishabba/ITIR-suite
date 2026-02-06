@@ -20,6 +20,12 @@
 - Re-run docTR timing on SensibLaw root PDFs using `/Whisper-WebUI/venv` (GPU if available) and record results in `doctr/PROFILE_RUNTIME_NOTES.md` on 2026-02-06.
 - Implement SensibLaw lexeme layer tables + ingestion + tests (see `SensibLaw/docs/lexeme_layer.md`).
 - Fix missing TextSpan errors during PDF ingest for `Mabo [No 2]`, `House v The King`, `Native Title (NSW) Act 1994`, and `Plaintiff S157` (or add an explicit allow-missing-spans flag).
+- Implement suite-level context safeguards: context-bound artifact view, epistemic state overlay, and context drift warnings (see `docs/user_stories.md`).
+- Implement SL claim typing enforcement with inference-to-evidence graph requirements and denial pattern clustering (see `docs/user_stories.md`).
+- Implement SB reputational exposure map and power asymmetry indicators (see `docs/user_stories.md`).
+- Define Context Envelope JSON schema (see `docs/planning/adr_ctx_001.md`).
+- Add UI invariant tests: no context-free rendering, no silent context loss, and
+  irreversible compression (see `docs/planning/ui_context_components.md`).
 
 ## Blockers / constraints
 - No explicit blockers listed in submodule TODO files.
