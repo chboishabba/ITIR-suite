@@ -84,6 +84,7 @@ websockets
 curl_cffi
 pytest
 hypothesis
+ijson
 
 # --------------------
 # Git edges (shared with host)

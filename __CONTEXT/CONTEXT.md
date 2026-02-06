@@ -1148,3 +1148,11 @@ Multi-modal system doctrine:
 
 - Added `SensibLaw/docs/media_ethics_ui.md` with UI constraints and hostile
   cross-examination simulation for media access.
+
+---
+
+# Update: Ingest Compression Stats (2026-02-06)
+
+- PDF ingest now computes lexeme-based compression stats and stores them in
+  `DocumentMetadata.compression_stats`.
+- `pdf_ingest.py` CLI accepts `--db-path` for optional SQLite persistence.
