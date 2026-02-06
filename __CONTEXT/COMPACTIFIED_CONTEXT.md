@@ -7,3 +7,10 @@
   `docs/itir_model.md`.
 - Updated `TODO.md` with implementation tasks tied to the new user stories.
 - Added ADR-CTX-001 and supporting UI and doctrine specs in `docs/planning/`.
+- Added Context Envelope schema draft and UI invariant test checklist; added
+  front-page context line to `README.md`.
+- Added Context Envelope DB sketch, fixtures, and test runner template in
+  `docs/planning/`.
+- Added validation notes to context schema and a stub validator script in
+  `docs/planning/`.
+- Added `docs/planning/README.md` with validation stub guidance.

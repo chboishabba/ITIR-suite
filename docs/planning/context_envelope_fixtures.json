@@ -1,0 +1,82 @@
+[
+  {
+    "artifact_id": "email_00042",
+    "temporal": {
+      "created_at": "2011-05-04T14:12:03Z",
+      "duration_ms": 0,
+      "sequence_index": 12,
+      "sequence_group_id": "thread_991"
+    },
+    "venue": {
+      "medium": "private_email",
+      "intended_audience": "recipient_only",
+      "visibility_scope": "private"
+    },
+    "epistemic_state": {
+      "known_then": [
+        "prior_plea_agreement_exists"
+      ],
+      "known_now": [
+        "additional_parties_contacted"
+      ],
+      "legal_status_then": "convicted_2008",
+      "investigative_status_then": "closed"
+    },
+    "role_power": {
+      "speaker_role": "third_party_contact",
+      "recipient_role": "principal",
+      "institutional_asymmetry": "high",
+      "status_flags": [
+        "wealth_high"
+      ]
+    },
+    "provenance": {
+      "source_id": "mailbox_epstein_01",
+      "revision_id": "rev_2026_02_06_001",
+      "text_spans": [
+        { "start_char": 120, "end_char": 420 }
+      ]
+    }
+  },
+  {
+    "artifact_id": "transcript_0007",
+    "temporal": {
+      "created_at": "2015-08-22T02:30:00Z",
+      "duration_ms": 780000,
+      "sequence_index": 3,
+      "sequence_group_id": "show_2015_08_22"
+    },
+    "venue": {
+      "medium": "comedy_stage",
+      "intended_audience": "live_room",
+      "visibility_scope": "restricted"
+    },
+    "epistemic_state": {
+      "known_then": [
+        "event_context_local",
+        "joke_target_audience_present"
+      ],
+      "known_now": [
+        "clip_viral"
+      ],
+      "legal_status_then": "none",
+      "investigative_status_then": "none",
+      "later_discovered": [
+        "clip_shared_outside_room"
+      ]
+    },
+    "role_power": {
+      "speaker_role": "performer",
+      "recipient_role": "audience",
+      "institutional_asymmetry": "low",
+      "status_flags": []
+    },
+    "provenance": {
+      "source_id": "show_audio_2015_08_22",
+      "revision_id": "rev_2026_02_06_002",
+      "text_spans": [
+        { "start_char": 0, "end_char": 8000 }
+      ]
+    }
+  }
+]

@@ -2,6 +2,8 @@
 
 Meta-repo that pins the moving pieces of the ITIR / SensibLaw stack as git submodules and co-locates adjacent projects. Use this repo to pull the whole toolchain in one shot; build and run inside the individual submodules.
 
+Context is not commentary. Context is infrastructure.
+
 ## Components (submodules + local projects)
 - `SensibLaw/` – ingestion + operations console for span-anchored legal corpora (see that repo for build/run docs).
 - `SL-reasoner/` – reasoning/IR spine that the SensibLaw UI and tooling consume.
