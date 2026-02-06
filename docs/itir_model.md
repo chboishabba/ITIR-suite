@@ -8,7 +8,7 @@ ITIR objects represent **claims, hypotheses, actors, events, and relationships**
 - non-authoritative
 - explicitly attributed
 - reversible
-- span-backed by SL
+- span-backed by SL (TextSpan with revision_id + character offsets)
 
 ITIR never mutates source text or structural spans.  
 All interpretation remains an overlay.
@@ -17,7 +17,7 @@ All interpretation remains an overlay.
 
 ## Core Principle
 
-> **Every ITIR object must cite SL spans.  
+> **Every ITIR object must cite SL spans (TextSpan).  
 > No interpretation exists without provenance.**
 
 ---
@@ -33,7 +33,7 @@ Claims may be true, false, disputed, or unknown.
 **Required fields**
 - `claim_id`
 - `asserted_by` (user, org, branch)
-- `span_refs` (list of `(doc_id, start, end)`)
+- `span_refs` (list of `{revision_id, start_char, end_char}`)
 - `confidence` (0–1 or enum)
 - `created_at`
 
@@ -75,7 +75,7 @@ Actors represent **identity hypotheses**, not resolved entities.
 **Fields**
 - `actor_id`
 - `labels` (names, aliases, spellings)
-- `evidence_spans`
+- `evidence_spans` (TextSpan)
 - `confidence`
 
 Actors may be merged or split later; history is preserved.
@@ -90,7 +90,7 @@ Represents a hypothesised occurrence.
 - `event_id`
 - `description`
 - `time_bounds` (optional)
-- `evidence_spans`
+- `evidence_spans` (TextSpan)
 - `confidence`
 
 ---
@@ -110,7 +110,7 @@ Directed relationships between ITIR objects.
 - `source_id`
 - `target_id`
 - `relation_type`
-- `provenance_spans`
+- `provenance_spans` (TextSpan)
 - `confidence`
 
 ---
@@ -147,7 +147,7 @@ Each object records:
 
 ## Invariants
 
-- No ITIR object without span provenance
+- No ITIR object without TextSpan provenance
 - No silent merges
 - No inferred truth
 - No mutation of SL text

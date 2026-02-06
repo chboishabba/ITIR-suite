@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/models/document.py
+# hypothesis_version: 6.151.5
+
+['Document', 'DocumentMetadata', 'DocumentTOCEntry', 'body', 'canonical_id', 'cco_tags', 'checksum', 'children', 'citation', 'court', 'cultural_annotations', 'cultural_flags', 'cultural_redactions', 'date', 'identifier', 'jurisdiction', 'jurisdiction_codes', 'kind', 'legacy', 'licence', 'lpo_tags', 'metadata', 'node_type', 'ontology_tags', 'page_number', 'provenance', 'provisions', 'retrieved_at', 'sentences', 'source_url', 'text', 'title', 'toc_entries']

@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/scripts/validate_integrity.py
+# hypothesis_version: 6.151.5
+
+['*.json', '__main__', 'aliases', 'canonical_name', 'citation', 'citation uniqueness', 'corpus', 'cultural_flags', 'cultural_flags.yaml', 'cultural_rules.yaml', 'data', 'metadata', 'utf-8']

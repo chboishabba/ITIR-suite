@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/obligation_views.py
+# hypothesis_version: 6.151.5
+
+[99999, 99999999, '(', ')', '-clause-', '.', 'QUERY_SCHEMA_VERSION', '\\(?[a-z]\\)?', 'action', 'actor', 'atoms', 'build_explanations', 'category', 'clause_id', 'conditions', 'content_span', 'explanations', 'kind', 'lifecycle', 'modality', 'normalized', 'object', 'obligation.query.v1', 'query_obligations', 'reference_identities', 'results', 'scopes', 'source_span', 'span', 'text', 'type', 'version']

@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/nlp/taxonomy.py
+# hypothesis_version: 6.151.5
+
+['ConditionalConnector', 'ConditionalPolarity', 'Modality', 'Modality | None', 'condition.despite', 'condition.if', 'condition.subject_to', 'condition.unless', 'condition.when', 'condition.where', 'condition.while', 'despite', 'if', 'may', 'may not', 'modality.may', 'modality.may_not', 'modality.must', 'modality.must_not', 'modality.shall', 'modality.shall_not', 'must', 'must not', "mustn't", 'negative', 'neutral', 'positive', 'provided', 'provided that', 'shall', 'shall not', "shan't", 'subject to', 'unless', 'when', 'where', 'while']

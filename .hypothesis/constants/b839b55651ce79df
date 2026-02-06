@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/api/sample_routes.py
+# hypothesis_version: 6.151.5
+
+[404, 500, '/logic-tree/search', '/provision', '/subgraph', '/treatment', 'Provision text', 'Query text', 'Search expression', '_logic_tree_search', 'api_provision', 'api_subgraph', 'api_treatment', 'cloud', 'customs', 'digraph G {', 'dot', 'principles', 'provision', 'results', 'router', 'rules', 'tokens', '}']

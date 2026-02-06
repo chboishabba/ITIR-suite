@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/graph/rgcn.py
+# hypothesis_version: 6.151.5
+
+[0.0, 0.0001, 0.01, 0.1, 0.5, 100, 200, 'DGLGraph', 'RGCNConfig', 'RGCNEpochResult', 'RGCNGraphData', 'RGCNTrainer', 'RGCNTrainingResult', 'attach_embeddings', 'checkpoint_path', 'config', 'cpu', 'dgl.DGLGraph', 'embedding', 'export_embeddings', 'history', 'legal_graph_to_dgl', 'load_embeddings', 'node_ids', 'norm', 'r', 'rel_type', 'relation_index', 'state_dict', 'torch.Tensor', 'torch.device', 'utf-8', 'w']

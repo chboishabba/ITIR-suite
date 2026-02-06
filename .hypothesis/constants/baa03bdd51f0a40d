@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/crossdoc_topology.py
+# hypothesis_version: 6.151.5
+
+['-clause-', 'CROSSDOC_VERSION', 'cites', 'clause_id', 'edges', 'from', 'kind', 'modifies', 'nodes', 'obl_id', 'provenance', 'references', 'repeals', 'source_id', 'span', 'text', 'to', 'version']

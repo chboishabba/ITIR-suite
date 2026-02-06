@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/ingestion/cache.py
+# hypothesis_version: 6.151.5
+
+[0.0, 1.0, 60.0, 304, '304 Not Modified: %s', 'CACHE_DIR', 'ETag', 'If-Modified-Since', 'If-None-Match', 'Last-Modified', 'SENSIBLAW_CACHE', 'cache', 'data', 'digest', 'etag', 'fetch_html', 'fetch_json', 'fetch_pdf', 'fetched_at', 'ignore', 'last_modified', 'meta', 'objects', 'requests.Session', 'utf-8']

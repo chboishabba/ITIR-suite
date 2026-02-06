@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/rules/__init__.py
+# hypothesis_version: 6.151.5
+
+['[^a-z]+', 'accused', 'actors', 'actors.yaml', 'aliases', 'commits', 'data', 'defence', 'individual', 'individuals', 'is guilty', 'ontology', 'person', 'persons', 'r', 'role', 'the accused', 'the individual', 'the individuals', 'the person', 'the persons', 'unknown', 'utf-8', 'who_text']

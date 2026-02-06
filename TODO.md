@@ -18,6 +18,7 @@
 ## Active TODOs
 - Install `reverse-engineered-chatgpt` dependencies into root `ITIR-suite/.venv` (missing `websockets`, `curl_cffi==0.5.9`); current pip install fails without network or local wheels.
 - Re-run docTR timing on SensibLaw root PDFs using `/Whisper-WebUI/venv` (GPU if available) and record results in `doctr/PROFILE_RUNTIME_NOTES.md` on 2026-02-06.
+- Implement SensibLaw lexeme layer tables + ingestion + tests (see `SensibLaw/docs/lexeme_layer.md`).
 
 ## Blockers / constraints
 - No explicit blockers listed in submodule TODO files.

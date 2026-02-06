@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/culture/overlay.py
+# hypothesis_version: 6.151.5
+
+['CulturalOverlay', 'CulturalRule', 'consent_required', 'cultural_flags.yaml', 'cultural_rules.yaml', 'data', 'flag', 'get_default_overlay', 'hash', 'kind', 'none', 'omit', 'policy', 'r', 'redaction', 'transform', 'utf-8']

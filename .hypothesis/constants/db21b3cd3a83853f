@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/models/text_span.py
+# hypothesis_version: 6.151.5
+
+['TextSpan', 'end_char', 'revision_id', 'start_char']

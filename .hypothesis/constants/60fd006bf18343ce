@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/tools/harm_index.py
+# hypothesis_version: 6.151.5
+
+[0.0, 1.0, '*.json', '--chart-out', '--data-dir', '--json-out', '--weights', 'Harm index', 'Metrics directory', 'Output JSON file', 'Output chart image', '__main__', 'data/harm_inputs', 'harm_index.json', 'harm_index.png', 'metrics', 'right', 'stakeholder']

@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/rules/dependencies.py
+# hypothesis_version: 6.151.5
+
+['AUX', 'DependencyCandidate', 'SENT_START', 'SentenceDependencies', 'VERB', 'acl', 'acl:relcl', 'advcl', 'advmod', 'agent', 'amod', 'appos', 'aux', 'auxpass', 'ccomp', 'det', 'dobj', 'en_core_web_lg', 'en_core_web_md', 'en_core_web_sm', 'get_dependencies', 'iobj', 'mark', 'neg', 'nsubj', 'obj', 'obl', 'parataxis', 'root', 'spacy', 'verb', 'xcomp']

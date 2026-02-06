@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/concepts/cloud.py
+# hypothesis_version: 6.151.5
+
+[-0.5, 0.0, 1e-09, 0.2, 0.4, 0.5, 1.0, 300, 365, 'build_cloud', 'court_rank', 'date', 'edges', 'id', 'jurisdiction_match', 'keyword_exact', 'layout_cloud', 'metadata', 'nodes', 'recency', 'score_node', 'scores', 'source', 'span', 'target', 'type', 'weight', 'x', 'y', 'z']

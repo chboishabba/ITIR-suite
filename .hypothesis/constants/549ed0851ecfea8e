@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/ontology/search.py
+# hypothesis_version: 6.151.5
+
+[0.0, '_confidence_score', 'aliases', 'filter_candidates', 'label', 'score']

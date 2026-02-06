@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/ingestion/span_role_hypotheses.py
+# hypothesis_version: 6.151.5
+
+[0.9, 'defined_term', 'defined_term_regex', 'definition', 'lemma', 'term_text', 'unknown']

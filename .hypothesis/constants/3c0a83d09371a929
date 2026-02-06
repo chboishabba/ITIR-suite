@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/ingestion/span_signal_hypotheses.py
+# hypothesis_version: 6.151.5
+
+[0.4, 0.5, 0.6, 0.7, 0.9, 127, '(?m)^\\s*\\d{1,4}\\s*$', '\\b[A-Z]{4,}\\b', '\\uFFFD', 'all_caps_token', 'codepoint', 'encoding_loss', 'layout_artifact', 'list_marker', 'list_marker_regex', 'marker', 'non_ascii_glyph', 'non_ascii_scan', 'page_number_line', 'punctuation_damage', 'unknown', 'visual_emphasis', '�']
