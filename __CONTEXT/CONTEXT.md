@@ -1112,6 +1112,9 @@ Post–Sprint 4–6 continuation:
 - Sprint 9 scope explicitly includes event injection, command/RCE, credential leakage,
   path traversal, DoS/resource-exhaustion refusal, and blast-radius rules.
 
+SensibLaw S7–S9 (span authority, non-judgmental topology, read-only UI):
+- Summary in `__CONTEXT/sprints/sensiblaw_sprints_7_9.md`.
+
 OpenClaw integration notes:
 - `StatiBaker/docs/openclaw_integration.md` captures execution envelopes and the
   SB/ITIR truth-substrate doctrine for agent tooling.
@@ -1121,3 +1124,27 @@ Multi-modal system doctrine:
   explicit authority boundaries for assistive, intent, scheduling, and ground
   truth layers.
 - `SensibLaw/docs/multimodal_system_doctrine.md` mirrors the doctrine for SL/ITIR.
+- "Against Victor's Memory" doctrine recorded in `StatiBaker/DESIGN.md` and
+  mirrored in `SensibLaw/docs/multimodal_system_doctrine.md`.
+- Panopticon refusal doctrine recorded in `StatiBaker/docs/panopticon_refusal.md`
+  and `SensibLaw/docs/panopticon_refusal.md` (includes state power/structural violence note).
+- User story pressure tests:
+  - `SensibLaw/docs/user_stories.md` (lawyer/psychologist work/home boundaries).
+  - `StatiBaker/docs/user_stories.md` (SB-only execution boundary narratives).
+
+---
+
+# Update: Lexeme Layer Kickoff (2026-02-06)
+
+- Added `SensibLaw/docs/lexeme_layer.md` to define lexeme dictionary, occurrences,
+  and phrase atom promotion as redundancy substrate.
+- Updated tokenizer and corpus characterisation docs to reference lexeme layer.
+- Next implementation target: lexeme tables + lexeme occurrence ingestion in
+  `SensibLaw/src/storage/versioned_store.py`.
+
+---
+
+# Update: Media Ethics UI Guidelines (2026-02-06)
+
+- Added `SensibLaw/docs/media_ethics_ui.md` with UI constraints and hostile
+  cross-examination simulation for media access.

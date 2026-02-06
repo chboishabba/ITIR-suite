@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/briefing/__init__.py
+# hypothesis_version: 6.151.5
+
+['AuthoritySlot', 'BriefPack', 'BriefPackBuilder', 'BundleIssue', 'BundleReport', 'CounterArgument', 'CounterEvidence', 'CoverageGrid', 'CoverageRow', 'IssueProfile', 'IssueSkeleton', 'MatterAuthority', 'MatterExhibit', 'MatterFactor', 'MatterProfile', 'SkeletonSection']

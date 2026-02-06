@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/sensiblaw/api/routes.py
+# hypothesis_version: 6.151.5
+
+[400, 404, '/check_event', '/import_stories', '/obligations/explain', '/obligations/query', '/rules', 'Story', 'Story not found', 'action', 'activation', 'actor', 'clause', 'document', 'enable_actor_binding', 'event_present', 'imported', 'obligations', 'results', 'rules', 'timeline', 'version', 'view']

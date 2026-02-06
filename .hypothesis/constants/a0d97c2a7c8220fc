@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/rules/extractor.py
+# hypothesis_version: 6.151.5
+
+[' ,.;:', '(', ')', ',;:', '.;', '; ', '[\\s,;:]+', '\\b(?:and|or|;|,)\\b', '\\bby\\s+[^,;.]+', '\\bdeliberately\\b', '\\bduring\\s+[^,;.]+', '\\bintentionally\\b', '\\bknowingly\\b', '\\bleading to\\b[^,;]+', '\\bmaliciously\\b', '\\bnegligently\\b', '\\brecklessly\\b', '\\bso as to\\b[^,;]+', '\\bso that\\b[^,;]+', '\\bthen$', '\\bunder\\s+[^,;.]+', '\\bunless\\b[^.]+', '\\busing\\s+[^,;.]+', '\\bwhile\\s+[^,;.]+', '\\bwilfully\\b', '\\bwithin\\s+[^,;.]+', '\\bwithout\\s+[^,;.]+', '\\s+', 'a ', 'actor', 'all ', 'an ', 'any ', 'body', 'circumstance', 'conduct', 'each ', 'every ', 'exception', 'fault', 'if', 'modality', 'no ', 'rest', 'result', 'the ', 'unless', 'when', 'where']

@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/ingestion/hansard.py
+# hypothesis_version: 6.151.5
+
+['Debate', '\\s+', 'act', 'body', 'citations', 'cites', 'date', 'debate', 'extract_citations', 'fetch_debates', 'from', 'hash', 'id', 'identifier', 'metadata', 'normalize_text', 'pinpoint', 'prefix', 's', 'section', 'sections', 'ss', 'suffix', 'text', 'to', 'type', 'utf-8', 'work']

@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/pipeline/tokens.py
+# hypothesis_version: 6.151.5
+
+['SpacyAdapter', 'Token', 'TokenStream', 'en', 'en_core_web_sm', 'get_spacy_adapter', 'ner', 'spacy_adapter']

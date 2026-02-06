@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/scripts/corpus_stats.py
+# hypothesis_version: 6.151.5
+
+[0.0, 8.0, '*.pdf', '--limit-chars', '--workers', '?', 'No PDFs found.', '__main__', 'compressed_bytes', 'entropy_rate_bits', 'lz_bits_per_token', 'lz_entropy_floor', 'path', 'raw_bytes', 'repeat_ratio_5gram', 'token_entropy_proxy', 'tokens', 'unique', 'utf-8', 'vocab']

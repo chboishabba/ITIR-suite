@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/ingestion/hca.py
+# hypothesis_version: 6.151.5
+
+[1.0, 2.0, 3.0, 4.0, 5.0, ' v ', ' v.', ',|;|\\band\\b', '<[^>]+>', 'FCA', 'FCAFC', 'HCA', 'HCACase', 'J', 'JJ', 'NSWCA', 'NSWSC', '[,;]', '[A-Z][A-Z\\s\\-&]+', '\\s+', '^[A-Z][A-Za-z\\s]+:$', 'agreed with', 'block', 'case', 'cases cited', 'catchwords', 'cite', 'cites', 'concur', 'concurr', 'concurring', 'court', 'court_rank', 'crawl_year', 'dissent', 'dissenting', 'final_orders', 'for the majority', 'from', 'id', 'ignore', 'in the majority', 'judge', 'latin-1', 'majority', 'opinion', 'order', 'panel_opinions', 'parse_cases_cited', 'parse_index', 'pdf', 'reference', 'stance', 'statute', 'to', 'treatment', 'txt', 'type', 'utf-8', 'weight']

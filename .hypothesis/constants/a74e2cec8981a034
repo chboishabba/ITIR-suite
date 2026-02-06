@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/graph/principle_graph.py
+# hypothesis_version: 6.151.5
+
+['Case#', 'Provision', 'Provision#', 'Statute#', 'atoms', 'authorities', 'authority', 'case', 'children', 'citation', 'confidence', 'edges', 'evidenceCount', 'evidence_count', 'id', 'identifier', 'issue', 'kind', 'label', 'metadata', 'nodes', 'notes', 'pinpoint', 'principle', 'proof', 'provision', 'provision_id', 'relationship', 'role', 'source', 'status', 'statute', 'summary', 'tags', 'target', 'title', 'type']

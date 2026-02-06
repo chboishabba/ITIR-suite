@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/ingestion/promotion_rules.py
+# hypothesis_version: 6.151.5
+
+['PromotionConfig', 'actor', 'blocked', 'construct', 'defined_term', 'evaluate_promotions', 'gate_passed', 'label', 'missing_label', 'modal_participation', 'no_gate', 'no_gate_matched', 'no_label', 'object', 'promoted', 'rejected', 'repetition', 'signal_block', 'signal_overlap', 'signals', 'span_id', 'unknown']

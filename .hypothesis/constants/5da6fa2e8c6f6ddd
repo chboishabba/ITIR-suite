@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/models/span_signal_hypothesis.py
+# hypothesis_version: 6.151.5
+
+['SpanSignalHypothesis', 'confidence', 'evidence', 'extractor', 'metadata', 'signal_type', 'span_end', 'span_id', 'span_source', 'span_start']

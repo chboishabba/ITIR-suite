@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/reference_identity.py
+# hypothesis_version: 6.151.5
+
+[',', ':', 'ReferenceIdentity', '[\\(\\)\\[\\]{}]', '[^\\w&-]+', '\\b(\\d{4})\\b', '\\s+', 'family_key', 'jurisdiction_hint', 'pinpoint', 'section', 'utf-8', 'work', 'year']

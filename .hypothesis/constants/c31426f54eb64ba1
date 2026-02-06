@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/activation.py
+# hypothesis_version: 6.151.5
+
+['ACTIVATION_VERSION', 'ActivationReason', 'ActivationResult', 'Fact', 'FactEnvelope', 'activation', 'active', 'fact.envelope.v1', 'fact_key', 'fact_value', 'inactive', 'reasons', 'simulate_activation', 'terminated', 'termination', 'text', 'trigger', 'version']

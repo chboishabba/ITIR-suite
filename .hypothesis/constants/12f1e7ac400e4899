@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/distinguish/factors.py
+# hypothesis_version: 6.151.5
+
+['abuse', 'abuse_indicators', 'abuse_of_process', 'delay', 'held\\s*:\\s*yes', 'lost_evidence', 'prejudice']

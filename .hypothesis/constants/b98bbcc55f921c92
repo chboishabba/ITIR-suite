@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/models/span_role_hypothesis.py
+# hypothesis_version: 6.151.5
+
+['SpanRoleHypothesis', 'confidence', 'evidence', 'extractor', 'metadata', 'role_hypothesis', 'span_end', 'span_id', 'span_source', 'span_start']

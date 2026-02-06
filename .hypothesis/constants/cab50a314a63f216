@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/text/sentences.py
+# hypothesis_version: 6.151.5
+
+['.', 'en', 'get_nlp', 'iter_sentence_spans', 'make_doc', 'segment_sentences', 'sentencizer']

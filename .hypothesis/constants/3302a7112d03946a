@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/glossary/service.py
+# hypothesis_version: 6.151.5
+
+[' \t\n,.!?;:\'"()', '.json', '.yaml', '.yml', 'GlossEntry', 'data', 'elements', 'gloss', 'glossary', 'lookup', 'metadata', 'offence_gloss.yaml', 'r', 'text', 'utf-8']

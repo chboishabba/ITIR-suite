@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/graph/proof_tree.py
+# hypothesis_version: 6.151.5
+
+['; ', 'Edge', 'Graph', 'Node', 'ProofTree', 'ProofTreeEdge', 'ProofTreeNode', 'Provenance', 'ResultNode', 'ResultTable', 'build_subgraph', 'digraph G {', 'digraph ProofTree {', 'edges', 'expand_proof_tree', 'label', 'nodes', 'provenance', 'receipt', 'source', 'target', 'to_dot', '}']

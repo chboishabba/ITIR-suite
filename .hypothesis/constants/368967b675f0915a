@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/ingestion/anchors.py
+# hypothesis_version: 6.151.5
+
+['AnchorResult', 'claimant', 'defence', 'individual', 'plaintiff', 'prosecution', 'respondent', 'state_actor', 'unknown', 'unknown_actor']

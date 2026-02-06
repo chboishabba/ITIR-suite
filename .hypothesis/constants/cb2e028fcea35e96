@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/section_parser.py
+# hypothesis_version: 6.151.5
+
+['<[^>]+>', 'Section', '_ParsedNode', 'conditions', 'despite', 'division', 'en', 'fetch_section', 'heading', 'if', 'may', 'may not', 'modality', 'must', 'must not', 'number', 'parse_html_section', 'parse_sections', 'part', 'provided that', 'references', 'rules', 'section', 'shall', 'shall not', 'subdivision', 'subject to', 'subsection', 'text', 'unless', 'when', 'where', 'while']

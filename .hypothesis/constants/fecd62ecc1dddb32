@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/ingestion/frl.py
+# hypothesis_version: 6.151.5
+
+['"([^"\\n]+)"\\s+means', 'Act', 'PointInTime', 'Section', 'Sections', 'act', 'body', 'cites', 'defines', 'fetch_acts', 'from', 'has_section', 'id', 'identifier', 'number', 'pointInTime', 'point_in_time', 'results', 'section', 'sections', 'text', 'title', 'to', 'type']

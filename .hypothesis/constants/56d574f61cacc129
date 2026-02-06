@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/redflags/forbidden_language.py
+# hypothesis_version: 6.151.5
+
+['[a-zA-Z]+', 'binding', 'breach', 'breached', 'compliance', 'compliant', 'illegal', 'invalid', 'lawful', 'override', 'prevails', 'satisfaction', 'satisfies', 'stronger', 'valid', 'violates', 'violation', 'weaker']

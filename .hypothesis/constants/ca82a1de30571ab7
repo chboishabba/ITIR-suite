@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/rate_limit.py
+# hypothesis_version: 6.151.5
+
+[0.0, 1.0, 'burst must be > 0', 'rps must be > 0']

@@ -1,0 +1,4 @@
+# file: /home/c/Documents/code/ITIR-suite/SensibLaw/src/ontology/tagger.py
+# hypothesis_version: 6.151.5
+
+['*.json', 'cco', 'data', 'lpo', 'ontology', 'principle']
