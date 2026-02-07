@@ -64,3 +64,8 @@
   - `__CONTEXT/ITIR_DEFINITION_CONTEXT.md`
 - Added ITIR definition ratification draft with explicit accepted/rejected/pending clauses:
   - `__CONTEXT/ITIR_DEFINITION_RATIFICATION.md`
+- Applied user adjudication to six key definition snippets:
+  - marked `investigative operating system` and `one system/modes` as qualified
+    metaphors/doctrine, not canonical runtime identity.
+  - affirmed `ITIR-suite` meta-repo/control-plane and SB product distinction.
+  - re-scoped `re-segment time` as boundary guardrail, not default ITIR action.
