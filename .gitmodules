@@ -40,3 +40,6 @@
 [submodule "doctr"]
 	path = doctr
 	url = https://github.com/mindee/doctr.git
+[submodule "SeaMeInIt"]
+	path = SeaMeInIt
+	url = https://github.com/chboishabba/SeaMeInIt.git
