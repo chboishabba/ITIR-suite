@@ -1,0 +1,25 @@
+valid_selector_basic:
+  dsl_version: "0.1"
+  selector:
+    all_of:
+      - graph: structural
+        where:
+          function.name: parse_text
+      - graph: execution
+        where:
+          execution.network_exposed: false
+
+valid_selector_any_not:
+  dsl_version: "0.1"
+  selector:
+    any_of:
+      - graph: threat
+        where:
+          primitive: RCE
+      - graph: threat
+        where:
+          primitive: info_leak
+    not:
+      graph: threat
+      where:
+        attacker.auth: admin
