@@ -16,6 +16,8 @@ Canonical product identity (from archived doctrine threads in
 - `SensibLaw`: deterministic ground-truth substrate and provenance spine.
 - `ITIR`: investigative/interpretive coordination layer over evidence, not a
   command authority.
+- historical phrase `investigative operating system` is treated as shorthand
+  metaphor, not runtime/platform semantics.
 - `StatiBaker`: daily state distillation engine and context prosthesis, not an
   autonomous assistant.
 - `tircorder-JOBBIE` + `WhisperX-WebUI`: capture/transcription ingest channels.
