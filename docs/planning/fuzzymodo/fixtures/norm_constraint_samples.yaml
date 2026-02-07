@@ -1,0 +1,23 @@
+valid_norm_constraint:
+  id: NC-parse-text-binary
+  dsl_version: "0.1"
+  selector:
+    all_of:
+      - graph: structural
+        where:
+          function.name: parse_text
+      - graph: execution
+        where:
+          execution.network_exposed: false
+  assertion:
+    kind: design_intent
+    statement: Binary output is intentional in non-network contexts.
+  effect:
+    mode: prune
+    bug_classes:
+      - type_mismatch
+      - encoding_violation
+  provenance:
+    decided_by: architecture-owner@example.com
+    decided_at: "2026-02-07T02:30:00Z"
+    rationale: Legacy CLI behavior must remain stable.

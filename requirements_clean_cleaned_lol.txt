@@ -16,6 +16,7 @@ mypy
 # Local packages
 # ------------------------------------------------------------
 -e ./openrecall
+-e ./reverse-engineered-chatgpt
 
 # ------------------------------------------------------------
 # Core utilities

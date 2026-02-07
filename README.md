@@ -1,6 +1,29 @@
 # ITIR-suite
 
-Meta-repo that pins the moving pieces of the ITIR / SensibLaw stack as git submodules and co-locates adjacent projects. Use this repo to pull the whole toolchain in one shot; build and run inside the individual submodules.
+ITIR is not an operating system.
+
+ITIR-suite is the orchestration/control plane for a bounded product stack. It
+pins submodules, coordinates local projects, and defines cross-project handoff
+contracts.
+
+Definition source context (raw archive extracts, role-attributed, no synthesis):
+- `__CONTEXT/ITIR_DEFINITION_CONTEXT.md`
+Definition ratification draft (accepted/rejected/pending clauses):
+- `__CONTEXT/ITIR_DEFINITION_RATIFICATION.md`
+
+Canonical product identity (from archived doctrine threads in
+`chat-export-structurer/my_archive.sqlite`):
+- `SensibLaw`: deterministic ground-truth substrate and provenance spine.
+- `ITIR`: investigative/interpretive coordination layer over evidence, not a
+  command authority.
+- `StatiBaker`: daily state distillation engine and context prosthesis, not an
+  autonomous assistant.
+- `tircorder-JOBBIE` + `WhisperX-WebUI`: capture/transcription ingest channels.
+- `SL-reasoner` and adjacent tools: optional analysis/derivation layers bound
+  by provenance and authority constraints.
+
+Use this repo to pull and orchestrate the whole toolchain in one shot; build
+and run inside the individual submodules.
 
 Context is not commentary. Context is infrastructure.
 
@@ -17,8 +40,23 @@ Context is not commentary. Context is infrastructure.
 - `pyThunderbird/` – Thunderbird automation client (third-party; see that repo for setup).
 - `SimulStreaming/` – research-grade streaming ASR policy/decoding (ufal).
 - `whisper_streaming/` – Whisper streaming policy reference implementation (ufal).
+- `fuzzymodo/` – selector DSL and norm-constraint scaffold for quirk-vs-vulnerability reasoning.
+- `casey-git-clone/` – standalone superposition-style VCS prototype scaffold based on Casey thread.
 
 The definitive instructions for each live in the submodule’s own README; this file only tracks how to manage them together.
+
+## ITIR as Orchestrator
+- ITIR-suite is the control plane for cross-project planning, context, and
+  execution routing.
+- Component repos remain the implementation/data planes.
+- Cross-component behavior is declared via interface contracts, not implicit
+  coupling.
+
+Orchestrator contract:
+- `docs/planning/itir_orchestrator.md`
+
+Interface contract index for cross-project handoffs:
+- `docs/planning/project_interfaces.md`
 
 ## Quickstart
 ```bash

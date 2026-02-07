@@ -1156,3 +1156,82 @@ Multi-modal system doctrine:
 - PDF ingest now computes lexeme-based compression stats and stores them in
   `DocumentMetadata.compression_stats`.
 - `pdf_ingest.py` CLI accepts `--db-path` for optional SQLite persistence.
+
+---
+
+# Update: Chat Context Sync (2026-02-07)
+
+- Ran live `re_gpt.cli --view` for conversation
+  `698686e2-6e48-839e-ad0f-91e6fa4697f8` from
+  `reverse-engineered-chatgpt` after network approval.
+- Confirmed title: `OSS-Fuzz Bug Detection`.
+- Latest assistant reply timestamp (UTC):
+  `2026-02-07T03:05:48.055634Z`.
+- Latest assistant content reframed Fuzzymodo as a speculative execution
+  engine: dominant-branch exploration, normative retirement buffer, and
+  explicit rollback semantics.
+- Local canonical archive (`chat-export-structurer/my_archive.sqlite`) had no
+  rows for this conversation before the live fetch, so this run is the current
+  authoritative sync point.
+
+---
+
+# Update: Fuzzymodo Project Layout Kickoff (2026-02-07)
+
+- Added phase scaffold:
+  `.planning/phases/16-fuzzymodo-selector-dsl/` with context, phase plan, and
+  milestones.
+- Added planning pack at `docs/planning/fuzzymodo/` with:
+  - selector DSL spec draft
+  - norm constraint spec draft
+  - canonical hashing rules
+  - JSON schema drafts
+  - conversation-step-to-artifact map
+  - fixture samples
+- Added implementation scaffold at `fuzzymodo/` with selector DSL module stubs
+  and smoke tests so implementation can start without reshuffling paths.
+
+---
+
+# Update: Casey Git Clone Layout Kickoff (2026-02-07)
+
+- Added dedicated standalone project folder: `casey-git-clone/`.
+- Added phase scaffold:
+  `.planning/phases/17-casey-git-clone/` with context, phase plan, and
+  milestones.
+- Added planning pack at `docs/planning/casey-git-clone/` covering:
+  - core model objects and invariants
+  - publish/sync/collapse/build-view workflow
+  - MVP backlog
+- Added initial package/test stubs in `casey-git-clone/src/` and
+  `casey-git-clone/tests/` to make the project immediately implementable.
+
+---
+
+# Update: Fuzzymodo + Casey Step Execution (2026-02-07)
+
+- Pulled updated live conversation state for
+  `698686e2-6e48-839e-ad0f-91e6fa4697f8` and extracted implementation steps.
+- Queried canonical archive thread IDs for Casey/Muratori guidance:
+  `b8800296148a7c14e0b84a152e0c67a2ba32acb0` (`Git Coordination Debate`) and
+  `be7800224c818a1b8d029595c915727fffcdea04`
+  (`Casey's Git idea summary`).
+- Added conversation step maps:
+  - `docs/planning/fuzzymodo/conversation_step_map.md` (updated source timestamp)
+  - `docs/planning/casey-git-clone/conversation_step_map.md` (new)
+- Implemented Fuzzymodo step-2 code:
+  - full selector composition/operator evaluator in
+    `fuzzymodo/src/selector_dsl/evaluator.py`
+  - speculation/retirement primitives in
+    `fuzzymodo/src/selector_dsl/speculation.py`
+  - tests in `fuzzymodo/tests/test_evaluator.py` and
+    `fuzzymodo/tests/test_speculation.py`
+- Implemented Casey step-2 code:
+  - expanded model objects in `casey-git-clone/src/casey_git_clone/models.py`
+  - publish/sync/collapse/build operations in
+    `casey-git-clone/src/casey_git_clone/operations.py`
+  - tests in `casey-git-clone/tests/test_models.py` and
+    `casey-git-clone/tests/test_operations.py`
+- Test results:
+  - `pytest -q fuzzymodo/tests`: `9 passed`
+  - `pytest -q casey-git-clone/tests`: `12 passed`

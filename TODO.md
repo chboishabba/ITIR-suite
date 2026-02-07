@@ -1,7 +1,7 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-02-05
+- 2026-02-07
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
@@ -16,7 +16,37 @@
 - pyThunderbird: no TODOs found.
 
 ## Active TODOs
-- Install `reverse-engineered-chatgpt` dependencies into root `ITIR-suite/.venv` (missing `websockets`, `curl_cffi==0.5.9`); current pip install fails without network or local wheels.
+- Current execution pass scope (2026-02-07):
+  - Convert live + archived Casey/Muratori conversation steps into explicit
+    implementation artifacts for `fuzzymodo/` and `casey-git-clone/`.
+  - Implement the mapped steps in code with project-local tests. (Done)
+- Implement Fuzzymodo selector DSL parser over
+  `docs/planning/fuzzymodo/selector_dsl.schema.json`.
+- Implement canonical serialization + hash generation aligned with
+  `docs/planning/fuzzymodo/canonical_hashing.md`.
+- Add fixture-driven tests for selector and norm-constraint examples in
+  `docs/planning/fuzzymodo/fixtures/`.
+- Implement Fuzzymodo exchange channels defined in
+  `fuzzymodo/docs/interfaces.md`: selector ingress, norm ingress, facts feed,
+  decision egress, and replay artifact emission.
+- Implement Casey exchange channels defined in
+  `casey-git-clone/docs/interfaces.md`: publish ingress, sync command, collapse
+  command, build snapshot egress, and fuzzymodo facts export adapter.
+- Implement cross-project channel adapters and validators per
+  `docs/planning/project_interfaces.md` for:
+  `SensibLaw/`, `SL-reasoner/`, `tircorder-JOBBIE/`, `StatiBaker/`,
+  `WhisperX-WebUI/`, `reverse-engineered-chatgpt/`,
+  `chat-export-structurer/`, `notebooklm-py/`, `Chatistics/`,
+  `pyThunderbird/`, `SimulStreaming/`, `whisper_streaming/`, and
+  `itir-ribbon/`.
+- Implement ITIR orchestrator control-plane checks from
+  `docs/planning/itir_orchestrator.md`:
+  context/planning ingress, contract routing validation, execution sync hooks,
+  and artifact egress bookkeeping.
+- Add an orchestrator manifest mapping producer->consumer exchange channels
+  across all component `docs/interfaces.md` contracts.
+- Add interface-contract conformance tests that verify required ingress/egress
+  payload fields and provenance metadata across component boundaries.
 - Re-run docTR timing on SensibLaw root PDFs using `/Whisper-WebUI/venv` (GPU if available) and record results in `doctr/PROFILE_RUNTIME_NOTES.md` on 2026-02-06.
 - Implement timeline ribbon UI: conserved-quantity lens selector, conservation badge, lens inspector, segment tooltips, split/merge checks, and compare overlay (see `SensibLaw/docs/timeline_ribbon.md`).
 - Wire ribbon UI to selector contract (`itir-ribbon/ui_contract.md`) and expose conservation metadata for Playwright tests.

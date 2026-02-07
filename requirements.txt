@@ -1,5 +1,7 @@
 
 black
+# Local editable dependency for chat context sync tooling (re_gpt.cli)
+-e ./reverse-engineered-chatgpt
 # both Whisper and SimulWhisper. Now supports Triton 2.x and 3.x with compatibility fix
 certifi==2024.2.2
 cffi
