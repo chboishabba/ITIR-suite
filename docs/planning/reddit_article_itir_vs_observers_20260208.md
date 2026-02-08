@@ -40,6 +40,31 @@ Short version:
 
 Editable structure is not canonical state.
 
+## Where this started (self-hosted thread context)
+
+With all the hype around OpenClaw / Clawdbot / Moltbook / Copilot Recall /
+Rewind-style tooling, the same gap keeps showing up:
+
+- agent systems optimize action,
+- "memory" tools optimize convenience,
+- very few tools optimize audited continuity of what actually happened.
+
+That is the gap StatiBaker is meant to fill inside ITIR:
+
+- not a chatbot,
+- not an autonomous agent,
+- a state compiler.
+
+The output is a local-first daily state surface you can inspect and replay:
+
+- yesterday: what happened,
+- today: what matters,
+- unresolved: what was mentioned but not completed,
+- optional agent envelope: what automation is allowed next.
+
+All of it should be traceable back to raw events.
+No silent rewriting.
+
 ## Why this matters
 
 If your "source of truth" can be silently rewritten, your memory model is governance theater.
@@ -52,6 +77,32 @@ This is why the stack is explicitly split:
 - external systems = observers and integrations,
 - ITIR/SB = authority and compilation layer,
 - downstream UIs/reports = projections, never origin truth.
+
+## Non-negotiable operating constraints
+
+- local-first: offline works; cloud is optional.
+- append-only: raw events are immutable; derived summaries are recomputable.
+- witness, not verdict: preserve/contextualize state; do not diagnose or judge.
+- expansion cheaper than summarization: every compressed claim must be expandable to source.
+
+## Evidence classes SB is expected to ingest
+
+- journals (text/voice),
+- TODO streams,
+- calendars,
+- git commits and command traces,
+- agent logs,
+- smart-home/system state,
+- "this broke when I tried X" incident notes.
+
+## Suite components (portable one-liners)
+
+- ITIR: interpretive/temporal record layer over span-backed provenance.
+- StatiBaker (SB): append-only daily state distillation with traceable outputs.
+- TiRCorder: voice and narrative capture/transcription event feed.
+- SensibLaw (SL): structural/provenance substrate and canonical graph layer.
+- SL-reasoner: explicitly labeled hypothesis layer over SL outputs.
+- ITIR Ribbon: shared timeline/lens contract across ITIR/SB/SL projections.
 
 ## Projects I am actively building across this model
 
@@ -71,44 +122,50 @@ observer/authority split.
 - `WhisperX-WebUI` (speech/transcript observer feed)
 - `JesusCrust` (JavaCrust-adjacent engineering track)
 
-### Related active projects in my working graph
+### Related active projects in my working graph (explained)
 
-- `SeaMeInIt` (my iron-man suit generator)
-- `Living-Environment-System`
-- `rr_gfx803_rocm`, `gfx803-compatibility-dockerfiles`, `doctr`
-- `openrecall`, `notebooklm-py`, `Chatistics`, `pyThunderbird`
-- `SimulStreaming`, `whisper_streaming`
-- `moltbook-api-client`, `itir-ribbon`, `casey-git-clone`
-- `Grid-Connect-Integration`, `corkysoft`, `Aquaponics-Calculator`
-- `react_tir`, `tir`, `srtmerger-ms`, `wavenet-for-chrome`
+- `SeaMeInIt`: parametric made-to-fit suit/clothing R&D (SMPL-X fitting,
+  panelization, seam and module constraints). In this doctrine it is a domain
+  experiment lane, not an authority ledger.
+- `Living-Environment-System`: environment/control modeling lane; useful for
+  scenario signals and constraints, but non-authoritative to memory state.
+- `rr_gfx803_rocm`, `gfx803-compatibility-dockerfiles`, `doctr`: hardware and
+  compute-enablement work to keep local-first pipelines viable on constrained
+  hardware.
+- `openrecall`, `notebooklm-py`, `Chatistics`, `pyThunderbird`: retrieval and
+  adapter surfaces that feed observer data into the wider stack.
+- `SimulStreaming`, `whisper_streaming`, `WhisperX-WebUI`: speech/transcript
+  capture and streaming observer surfaces.
+- `moltbook-api-client`, `itir-ribbon`, `casey-git-clone`, `react_tir`, `tir`:
+  interface and interaction experiments (timeline/ribbon/projection and VCS
+  exploration), downstream from authority state.
+- other repos in this graph (`Grid-Connect-Integration`, `corkysoft`,
+  `Aquaponics-Calculator`, `srtmerger-ms`, `wavenet-for-chrome`) are adjacent
+  experiments/utilities and are included for context, not as authority claims.
 
-### Dashi ecosystem (explicit)
+### Dashi ecosystem (what it is in this map)
 
-- `dashiCFD` (CFD optimization research track)
-- `dashiCORE` (reusable core substrate for Dashi projects)
-- `dashiBRAIN` (connectome/manifold-structure research direction)
-- `dashiQ` (experimental/utility Dashi component)
-- `dashifine` (numbers/analysis utility track)
-- `dashitest` (testbed for Dashi feature validation)
+Dashi is a research cluster around reduced-order modeling, simulation
+compression, and fast numerical kernels.
 
-### Dashi ecosystem (archive-verified additional repos)
+Primary lanes:
 
-From `chat-export-structurer/my_archive.sqlite` activity mentions, additional
-active Dashi repos include:
+- `dashiCFD`: CFD optimization experiments.
+- `dashiCORE`: shared reusable substrate/math/runtime pieces.
+- `DASHI-ROM`: ROM formalism (explicitly used in SeamInit x DASHI-ROM
+  coupling work for SeaMeInIt).
+- `dashi_les_vorticity_codec`, `dashi_les_vorticity_codec_v2`: LES/vorticity
+  structural codec experiments.
+- `dashi-vulkan-vkfft`: GPU/FFT acceleration lane.
+- `dashiBRAIN`: connectome/manifold-structure research direction.
+- `dashilearn`: test harness for whether Dashi kernels can learn across varied
+  tasks (including trading-oriented tests).
+- `dashiQ`: quantum-oriented Dashi research lane.
+- `dashitest`, `dashifine`, `dashi_cli.py`: testbench, analysis, and
+  utility/tooling surfaces.
 
-- `dashilearn`
-- `dashi-vulkan-vkfft`
-- `DASHI-ROM`
-- `dashi_les_vorticity_codec`
-- `dashi_les_vorticity_codec_v2`
-- `dashi_cli.py`
-
-These are treated as repos in this mapping and appear in active chat history as
-part of the working Dashi graph.
-
-The point of listing these is exactly the doctrine: they are not all equal in
-authority. Some are core authority-layer components, many are observer feeds,
-and others are downstream interfaces or domain experiments.
+In this article, Dashi repos are method R&D inputs, not canonical authority
+stores.
 
 ### How this list was validated
 
@@ -264,6 +321,49 @@ It is a boundary claim:
 If you think this is wrong, the real question is:
 
 What exactly in your stack is authoritative, immutable enough, and replayable enough to survive compression and conflict over time?
+
+## FAQ block (portable from original post)
+
+### "Is this watching me?"
+No. Nothing is captured unless a source is explicitly enabled; local-first and append-only are baseline constraints.
+
+### "What do I actually get day-to-day?"
+A short daily brief (usually under a minute to read) with drill-down back to raw logs.
+
+### "Is it telling me what to do?"
+No. Witness model only; no behavioral optimization or life verdicting.
+
+### "Do I need agents/LLMs?"
+No. Agents are optional. SB can compile state from non-agent sources only.
+
+### "Do I need to adopt the whole suite?"
+No. Components are separable; shared schema/timeline contracts are the reason they coexist.
+
+## Concrete comment-response block (timesheet use case)
+
+Across a normal day, real work often never lands cleanly in a timesheet:
+short calls, half-written drafts, "follow up tomorrow" notes, failed attempts.
+Most people reconstruct that later from memory.
+
+SB's value in that mode is simple:
+
+- keep an evidence-backed timeline from enabled sources,
+- emit factual "yesterday" and unresolved-carryover views,
+- optionally draft an activity summary you can review before using elsewhere.
+
+It does not bill clients, prioritize work, or make decisions for you.
+It gives you a reliable reconstruction surface under stress.
+
+## Optional author context block
+
+I am an open-source systems developer focused on local-first, inspectable tooling.
+Most projects I maintain are designed to run offline on imperfect hardware with explicit auditability.
+I have also contributed in Linux/GPU reliability discussions (including LKML threads around RX580/gfx803/ROCm stability).
+
+## Optional mod note (selfhosted framing)
+
+This project is not formally affiliated with a commercial brand.
+Current direction is social-good/open tooling with no funding at present.
 
 ---
 

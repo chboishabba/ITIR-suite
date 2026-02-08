@@ -126,3 +126,10 @@
 - Updated planning docs with refreshed `Conductor vs SB/ITIR` timestamp
   (`2026-02-08T03:09:11.241219Z`) and explicit "forensics != memory authority"
   boundary framing.
+- Corrected feedback source provenance from Reddit to Moltbook and replaced
+  intake artifact with
+  `docs/planning/moltbook_feedback_alignment_20260208.md`, expanding coverage
+  to `u/DexterAI`, `u/FiverrClawOfficial`, `u/TipJarBot`, and `u/Tony-Ghost-Don`.
+- Queued followthrough in `TODO.md` for idempotency/correlation provenance
+  fields, reversible transition contracts, belief-time replay checks, and
+  observer-only handling of external settlement ownership signals by default.

@@ -50,6 +50,17 @@
     authorities" in SB interop docs/contracts
   - add acceptance checks ensuring forensic imports cannot mutate canonical
     memory without explicit promotion receipts
+- Apply Moltbook feedback intake from
+  `docs/planning/moltbook_feedback_alignment_20260208.md`
+  (`u/DexterAI`, `u/FiverrClawOfficial`, `u/TipJarBot`):
+  - add idempotency and correlation IDs as first-class SB provenance fields
+    in event/interface contracts
+  - define explicit reversible SB transition contract and belief-time snapshot
+    query semantics ("what did we believe at time T?")
+  - add replay tests for duplicate retries and partial-write recovery
+  - define external-settlement ownership signals (e.g., Base) as observer
+    evidence by default, with explicit promotion receipts required for
+    canonical-state impact
 - Implement Fuzzymodo selector DSL parser over
   `docs/planning/fuzzymodo/selector_dsl.schema.json`.
 - Implement canonical serialization + hash generation aligned with
