@@ -7,6 +7,11 @@
 - Canonical thread ID: `be7800224c818a1b8d029595c915727fffcdea04`
   - Title: `Casey's Git idea summary`
   - Latest assistant timestamp: `2025-12-18T11:19:16Z`
+- Live conversation ID: `6986ccc6-a58c-83a1-9c72-76c671dd7af0`
+  - Title: `Codeex and Vibe Faster`
+  - Latest assistant timestamp: `2026-02-07T05:34:09.991600Z`
+  - Relevance: threaded orchestration model aligned with non-blocking Casey
+    operation boundaries and explicit commit points.
 
 ## Step Mapping
 1. Represent conflicts as data, not failure states

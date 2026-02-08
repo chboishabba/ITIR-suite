@@ -69,3 +69,60 @@
     metaphors/doctrine, not canonical runtime identity.
   - affirmed `ITIR-suite` meta-repo/control-plane and SB product distinction.
   - re-scoped `re-segment time` as boundary guardrail, not default ITIR action.
+- Added doctrine page clarifying separation of powers:
+  - `docs/planning/why_itir_not_sl.md`
+- Ran targeted archive sweep for `SL` (whole-word), `sensiblaw`, `itir`, and
+  `suite` over `chat-export-structurer/my_archive.sqlite` with
+  `role IN ('user','assistant')`.
+- Captured sweep artifacts:
+  - `__CONTEXT/last_sync/20260207T043655Z_term_sweep_sl_sensiblaw_itir_suite.json`
+  - `__CONTEXT/last_sync/20260207T043655Z_term_sweep_sl_sensiblaw_itir_suite.md`
+- Synced follow-up planning into `TODO.md` for runbook formalization,
+  high-signal thread index refresh, and `suite` false-positive triage.
+
+## 2026-02-07 (additional live context refresh)
+- Synced conversation `6986c9f5-3988-839d-ad80-9338ea8a04eb`
+  (`Conductor vs SB/ITIR`); latest assistant timestamp:
+  `2026-02-07T06:10:06.463491Z`.
+- Synced conversation `6986ccc6-a58c-83a1-9c72-76c671dd7af0`
+  (`Codeex and Vibe Faster`); latest assistant timestamp:
+  `2026-02-07T05:34:09.991600Z`.
+- Synced JavaCrust-adjacent thread
+  `6986c16d-e97c-839b-82b8-425b1e5a5e6d`
+  (`GPU Methodology for CPU`); latest assistant timestamp:
+  `2026-02-07T05:23:13.297950Z`.
+- Note: user-provided JavaCrust ID
+  `986c16d-e97c-839b-82b8-425b1e5a5e6d` was invalid; corrected leading segment
+  (`6986c16d-...`) resolved.
+- Updated tracked conversation list in `__CONTEXT/convo_ids.md` for future
+  scripted sync runs.
+- Added concrete followthrough artifact covering requested sections
+  `1.1`-`1.5`, `2.1`-`2.5` (+ dev environment), and `3.1`-`3.5`:
+  - `docs/planning/sb_casey_jesuscrust_followthrough_20260207.md`
+- Linked followthrough doc from planning index and queued implementation items
+  in root `TODO.md`.
+
+## 2026-02-08
+- Ran robust context refresh for
+  `6986d38e-4b5c-839b-813a-608aa0de88d5` (`ADR language vs SensibLaw`).
+- Live fetch confirmed latest assistant timestamp remains
+  `2026-02-07T06:01:41.279462Z`.
+- Added SL thread followthrough planning artifact:
+  - `docs/planning/sl_lce_profile_followthrough_20260208.md`
+- Saved refresh evidence artifact:
+  - `__CONTEXT/last_sync/20260208T053748Z_context_refresh_6986d38e.md`
+- Refreshed planning index and tracked conversation IDs:
+  - `docs/planning/README.md`
+  - `__CONTEXT/convo_ids.md`
+- Queued implementation backlog for compression engine/profile contracts/lint
+  and cross-profile safety tests in root `TODO.md`.
+- Ran additional triplet context refresh for:
+  - `6986c9f5-3988-839d-ad80-9338ea8a04eb` (`Conductor vs SB/ITIR`)
+  - `6986ccc6-a58c-83a1-9c72-76c671dd7af0` (`Codeex and Vibe Faster`)
+  - `6986c16d-e97c-839b-82b8-425b1e5a5e6d` (`GPU Methodology for CPU`)
+- Saved triplet artifacts:
+  - `__CONTEXT/last_sync/20260208T054446Z_context_refresh_triplet.md`
+  - `__CONTEXT/last_sync/20260208T054446Z_latest_triplet_6986c9f5_6986ccc6_6986c16d.tsv`
+- Updated planning docs with refreshed `Conductor vs SB/ITIR` timestamp
+  (`2026-02-08T03:09:11.241219Z`) and explicit "forensics != memory authority"
+  boundary framing.

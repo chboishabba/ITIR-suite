@@ -16,6 +16,7 @@
 - Current repo boundary docs:
   - `README.md`
   - `docs/planning/itir_orchestrator.md`
+  - `docs/planning/why_itir_not_sl.md`
   - `docs/planning/project_interfaces.md`
 
 ## Clause Register

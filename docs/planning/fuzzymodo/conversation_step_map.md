@@ -4,6 +4,12 @@
 - Conversation ID: `698686e2-6e48-839e-ad0f-91e6fa4697f8`
 - Title: `OSS-Fuzz Bug Detection`
 - Latest assistant timestamp: `2026-02-07T03:05:48.055634Z`
+- Related context thread: `6986c9f5-3988-839d-ad80-9338ea8a04eb`
+  - Title: `Conductor vs SB/ITIR`
+  - Latest assistant timestamp: `2026-02-08T03:09:11.241219Z`
+  - Relevance: state-governance/cloud-observer boundary for fuzzer evidence
+    ingest and non-authoritative execution logs; includes explicit separation of
+    post-mortem forensic tools from SB memory authority.
 
 ## Step Mapping
 1. Define scope selectors per graph layer

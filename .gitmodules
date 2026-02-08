@@ -43,3 +43,6 @@
 [submodule "SeaMeInIt"]
 	path = SeaMeInIt
 	url = https://github.com/chboishabba/SeaMeInIt.git
+[submodule "JesusCrust"]
+	path = JesusCrust
+	url = https://github.com/chboishabba/JesusCrust.git
