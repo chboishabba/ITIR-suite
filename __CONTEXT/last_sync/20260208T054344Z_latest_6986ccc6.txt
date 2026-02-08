@@ -1,1 +1,0 @@
-Failed to fetch latest chat: Failed to perform, curl: (6) Could not resolve host: chatgpt.com. See https://curl.se/libcurl/c/libcurl-errors.html first for more details.

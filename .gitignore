@@ -36,6 +36,10 @@ secret/
 secret_scan_reports/
 logs/
 
+# Chat exports and context sync artifacts (often contain PII)
+chat_exports/
+__CONTEXT/last_sync/
+
 # NotebookLM auth export (contains session cookies/tokens)
 /storage_state.json
 
