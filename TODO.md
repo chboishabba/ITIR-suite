@@ -29,6 +29,10 @@
   - decide collector path (Prometheus vs Grafana Agent vs OTEL Collector) and hosting
   - add Grafana Alerting webhook ingest as an observer lane (link-first)
   - add a thin sitrep that reports alert state + links to Grafana, not charts
+- SensibLaw Ontology DB migration hygiene:
+  - Make SQLite ontology migrations idempotent by tracking applied migrations (do not re-run `001_normative_schema.sql` after `002_normalize_countries.sql` drops transitional columns).
+  - Add guardrails so we don’t accidentally point ontology migrations at VersionedStore ingest DBs (different schema families).
+  - Unblock DBpedia external ref upserts by making `ensure_database()` safe on repeated CLI calls.
 - Execute assumption stress controls from
   `docs/planning/assumption_stress_test_20260208.md`:
   - add axis hierarchy policy fixtures and collision tests (`A1` / `Q1`)

@@ -32,6 +32,10 @@
 
   - Entry: CLI ontology upsert in cli/__main__.py calling sensiblaw/db/dao.py.
   - DB schema managed by src/sensiblaw/db/migrations via MigrationRunner.
+  - MigrationRunner must be idempotent: it tracks applied migrations in
+    `schema_migrations` so `ensure_database()` is safe to call repeatedly.
+  - Note: this ontology DB is distinct from the VersionedStore SQLite used by
+    PDF ingest (those tables live in src/storage/versioned_store.py).
   - References: cli/__main__.py, src/sensiblaw/db/dao.py, src/sensiblaw/db/migrations.
 
   6) Rule-atom anchoring → lightweight normalized tables
