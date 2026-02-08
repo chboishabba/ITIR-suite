@@ -46,3 +46,6 @@
 [submodule "JesusCrust"]
 	path = JesusCrust
 	url = https://github.com/chboishabba/JesusCrust.git
+[submodule "moltbook-api-client"]
+	path = moltbook-api-client
+	url = https://github.com/lbke/moltbook-api-client.git

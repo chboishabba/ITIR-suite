@@ -562,6 +562,14 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Do not run web fallback; fail if DB does not satisfy the request.",
     )
     parser.add_argument(
+        "--persist-web-miss",
+        action="store_true",
+        help=(
+            "When DB lookup misses and web fallback runs, also run export download + "
+            "ingest into structurer DB. Disabled by default for faster lookups."
+        ),
+    )
+    parser.add_argument(
         "--json",
         action="store_true",
         help="Emit JSON output.",
@@ -911,21 +919,8 @@ def main() -> int:
             _print_result(payload, args.json)
             return 2
 
-    persist_result: Optional[dict] = None
-    persist_warning: Optional[str] = None
-    if not args.no_web:
-        persist_result = _persist_selector_to_structurer(
-            args.selector,
-            repo_root=repo_root,
-            db_path=db_path,
-            venv_python=venv_python_path,
-            timeout=args.web_timeout,
-        )
-        if not persist_result.get("ok"):
-            persist_warning = "Persistence pipeline failed (download and/or ingest)."
-
     db_match: Optional[DbMatch] = None
-    db_error: Optional[str] = persist_warning
+    db_error: Optional[str] = None
     if not db_path.exists():
         extra = f"DB path does not exist: {db_path}"
         db_error = f"{db_error}; {extra}" if db_error else extra
@@ -974,8 +969,6 @@ def main() -> int:
                 "decision_reason": reason,
                 "error": "Web fallback disabled by --no-web.",
             }
-            if persist_result is not None:
-                payload["persist"] = persist_result
             if db_error:
                 payload["db_warning"] = db_error
             _print_result(payload, args.json)
@@ -1014,6 +1007,19 @@ def main() -> int:
                 "decision_reason": reason,
                 "web": web_result,
             }
+            persist_result: Optional[dict] = None
+            if args.persist_web_miss:
+                persist_result = _persist_selector_to_structurer(
+                    args.selector,
+                    repo_root=repo_root,
+                    db_path=db_path,
+                    venv_python=venv_python_path,
+                    timeout=args.web_timeout,
+                )
+                if not persist_result.get("ok"):
+                    extra = "Persistence pipeline failed (download and/or ingest)."
+                    db_error = f"{db_error}; {extra}" if db_error else extra
+
             if web_recent_turns:
                 payload["web_recent_turns"] = web_recent_turns
             if web_recent_meta is not None:
@@ -1040,8 +1046,6 @@ def main() -> int:
             "error": web_result.get("error") or "Web fallback failed.",
             "web": web_result,
         }
-        if persist_result is not None:
-            payload["persist"] = persist_result
         if db_match is not None:
             payload["db_match"] = _db_payload(
                 db_match,
@@ -1064,8 +1068,6 @@ def main() -> int:
             recent_turns=db_recent_turns,
         ),
     }
-    if persist_result is not None:
-        payload["persist"] = persist_result
     if threshold is not None:
         payload["requested_threshold_utc"] = _iso_utc(threshold)
     if db_error:
