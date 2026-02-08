@@ -597,6 +597,14 @@ def _build_parser() -> argparse.ArgumentParser:
             "(DB when source=db; live fetch when source=web)."
         ),
     )
+    parser.add_argument(
+        "--check-web-newer",
+        action="store_true",
+        help=(
+            "When DB has a match, fetch live recent turn timestamps and prefer web "
+            "if web appears newer than DB."
+        ),
+    )
     return parser
 
 
@@ -609,6 +617,17 @@ def _truncate_text(text: str, max_chars: int) -> str:
 
 def _split_paragraphs(text: str) -> list[str]:
     return [chunk.strip() for chunk in re.split(r"\n\s*\n+", text) if chunk.strip()]
+
+
+def _latest_turn_datetime(turns: list[dict]) -> Optional[dt.datetime]:
+    latest: Optional[dt.datetime] = None
+    for turn in turns:
+        parsed = _parse_message_ts(turn.get("ts_utc") or turn.get("ts"))
+        if parsed is None:
+            continue
+        if latest is None or parsed > latest:
+            latest = parsed
+    return latest
 
 
 def _query_recent_turns(
@@ -962,6 +981,31 @@ def main() -> int:
     else:
         reason = "db_match_found"
 
+    preloaded_web_recent: Optional[dict] = None
+    if (
+        not needs_web
+        and db_match is not None
+        and args.check_web_newer
+        and not args.no_web
+    ):
+        preview_limit = max(1, args.recent_turns)
+        preloaded_web_recent = _fetch_web_recent_turns(
+            selector=db_match.canonical_thread_id,
+            repo_root=repo_root,
+            limit=preview_limit,
+            max_text_chars=args.max_text_chars,
+        )
+        if preloaded_web_recent.get("ok"):
+            web_turns = preloaded_web_recent.get("recent_turns") or []
+            web_latest = _latest_turn_datetime(web_turns)
+            db_latest = db_match.latest_datetime
+            if web_latest is not None and (db_latest is None or web_latest > db_latest):
+                needs_web = True
+                reason = "web_newer_than_db"
+        else:
+            extra = f"Web freshness check failed: {preloaded_web_recent.get('error')}"
+            db_error = f"{db_error}; {extra}" if db_error else extra
+
     if needs_web:
         if args.no_web:
             payload = {
@@ -985,12 +1029,16 @@ def main() -> int:
             web_recent_warning: Optional[str] = None
             web_recent_meta: Optional[dict] = None
             if args.recent_turns > 0:
-                web_recent = _fetch_web_recent_turns(
-                    selector=args.selector,
-                    repo_root=repo_root,
-                    limit=args.recent_turns,
-                    max_text_chars=args.max_text_chars,
-                )
+                web_recent = preloaded_web_recent
+                if not web_recent or not web_recent.get("ok") or (
+                    len(web_recent.get("recent_turns") or []) < args.recent_turns
+                ):
+                    web_recent = _fetch_web_recent_turns(
+                        selector=args.selector,
+                        repo_root=repo_root,
+                        limit=args.recent_turns,
+                        max_text_chars=args.max_text_chars,
+                    )
                 if web_recent.get("ok"):
                     web_recent_turns = web_recent.get("recent_turns") or []
                     web_recent_meta = {

@@ -57,3 +57,11 @@ Concrete outputs from thread `6986d38e-4b5c-839b-813a-608aa0de88d5`
 
 Document:
 - `docs/planning/sl_lce_profile_followthrough_20260208.md`
+
+## Moltbook Feedback Intake (2026-02-08)
+
+Captured community feedback and doctrine-aligned followthrough for SB/ITIR
+authority/replay requirements.
+
+Document:
+- `docs/planning/moltbook_feedback_alignment_20260208.md`
