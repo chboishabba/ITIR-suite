@@ -62,6 +62,24 @@ def _sqlite_ro_uri(path: Path) -> str:
     resolved = path.expanduser().resolve()
     return f"file:{resolved}?mode=ro&immutable=1"
 
+def _connect_sqlite_ro(db_path: Path) -> sqlite3.Connection:
+    """Open an immutable read-only connection with temp-store hardening.
+
+    SQLite can choose a temp-file backed store for sorts/group-bys/FTS joins.
+    In some environments that yields opaque `SQLITE_CANTOPEN` errors during
+    stepping. Prefer in-memory temp storage for robustness.
+    """
+
+    con = sqlite3.connect(_sqlite_ro_uri(db_path), uri=True)
+    con.row_factory = sqlite3.Row
+    try:
+        con.execute("PRAGMA temp_store=MEMORY")
+        con.execute("PRAGMA query_only=ON")
+    except sqlite3.Error:
+        # Best-effort hardening: don't fail resolver if PRAGMAs are unavailable.
+        pass
+    return con
+
 
 @dataclass
 class DbMatch:
@@ -182,8 +200,7 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
     if not db_path.exists():
         return None
 
-    con = sqlite3.connect(_sqlite_ro_uri(db_path), uri=True)
-    con.row_factory = sqlite3.Row
+    con = _connect_sqlite_ro(db_path)
     cur = con.cursor()
 
     cur.execute(
@@ -718,8 +735,7 @@ def _query_recent_turns(
     if limit <= 0:
         return []
 
-    con = sqlite3.connect(_sqlite_ro_uri(db_path), uri=True)
-    con.row_factory = sqlite3.Row
+    con = _connect_sqlite_ro(db_path)
     cur = con.cursor()
     cur.execute(
         """
@@ -1048,8 +1064,7 @@ def main() -> int:
         if db_match is None and len(args.selector.strip()) >= 3:
             # Prefer DB-local candidate suggestions over immediately hitting live web fallback.
             try:
-                con = sqlite3.connect(_sqlite_ro_uri(db_path), uri=True)
-                con.row_factory = sqlite3.Row
+                con = _connect_sqlite_ro(db_path)
                 cur = con.cursor()
                 db_candidates = _query_db_fts_candidates(cur, args.selector, limit=10)
                 con.close()
