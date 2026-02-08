@@ -43,6 +43,32 @@ component internals; it coordinates them through explicit contracts.
 - Outputs: `TODO.md`, `__CONTEXT/COMPACTIFIED_CONTEXT.md`, planning indexes.
 - Purpose: record what changed, why, and what remains.
 
+## Current Priority Intersection
+- Four-way handoff contract:
+  `docs/planning/sl_tircorder_ribbon_sb_intersection_20260208.md`
+  (`SensibLaw` x `tircorder-JOBBIE` x `itir-ribbon` x `StatiBaker`).
+- Idempotency/dedupe cooperation addendum:
+  `docs/planning/itir_idempotency_dedupe_cooperation_20260208.md`
+  (shared invariants vs siloed semantics + schema-freeze decision queue).
+- Reducer ownership contract:
+  `docs/planning/reducer_ownership_contract_20260208.md`
+  (shared runtime distribution with SL semantic governance).
+- Canonical consumption matrix:
+  `docs/planning/itir_consumption_matrix_20260208.md`
+  (ratified producer/consumer paths and authority-write null paths).
+- Receipts pack automation contract:
+  `docs/planning/receipts_pack_automation_contract_20260208.md`
+  (verification-first export bundles and expansion-invariant enforcement).
+- Concept/RuleAtom + contradiction contract:
+  `docs/planning/concept_ruleatom_expansion_contradiction_contract_20260208.md`
+  (layer boundaries + contradiction detection outputs + reconciliation boundary).
+- TiRC->SL + context/receipt contract:
+  `docs/planning/tirc_sl_context_envelope_promotion_receipts_contract_20260208.md`
+  (reducer wiring + trauma-aware context envelopes + promotion receipt rules).
+- Three Locks + narrative sovereignty contract:
+  `docs/planning/three_locks_narrative_sovereignty_contract_20260208.md`
+  (public artifact quality gates + anti-gaming lock enforcement).
+
 ## Operational Rule
 - Docs define orchestration intent first.
 - TODO tracks executable orchestration steps second.

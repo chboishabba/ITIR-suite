@@ -9,7 +9,7 @@ inference, alerts, or prioritisation.
 
 ### context_fields
 - `context_id` TEXT PRIMARY KEY (e.g., `weather:bom:2026-02-06T12Z:latlon`)
-- `context_type` TEXT CHECK IN (`weather`,`market`,`astronomy`,`astrology`,`agro_ecological`,`indigenous_season`,`symbolic_overlay`)
+- `context_type` TEXT CHECK IN (`weather`,`market`,`astronomy`,`astrology`,`agro_ecological`,`indigenous_season`,`symbolic_overlay`,`living_environment`,`aquaponics`,`crops`,`medication`,`mood`,`inaturalist`,`pet_wearable`,`location_timeline`)
 - `source` TEXT          -- data provider or published calendar
 - `retrieved_at` TEXT    -- ISO timestamp of fetch
 - `location` TEXT        -- freeform or geo URI; optional for non-spatial fields
@@ -41,8 +41,12 @@ inference, alerts, or prioritisation.
 - `symbolic` flag MUST be set for astrology and other non-empirical overlays.
 - Weather/market/astronomy MUST include raw observed values; no derived
   behaviour or advice stored.
+- Location timeline overlays must be coarse by default (hashed cell IDs), and
+  must not include addresses or raw coordinates.
 - Indigenous/seasonal calendars must include `source` and `authority` in
   `provenance`; no auto-mapping to Gregorian months.
+- Indigenous-linked overlays without clear authority/consent metadata are
+  non-promotable observer signals by default.
 - Exports dropping context MUST log loss; summaries must declare inclusion or
   exclusion of context fields.
 
