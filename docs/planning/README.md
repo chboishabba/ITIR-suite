@@ -7,6 +7,7 @@ artifacts for the context invariant.
 
 ITIR-suite orchestration role and boundaries:
 - `docs/planning/itir_orchestrator.md`
+- `docs/planning/why_itir_not_sl.md` (separation of powers: ITIR vs SL)
 
 ## Validation (Stub)
 
@@ -35,3 +36,24 @@ Casey-derived superposition VCS planning artifacts live under:
 
 Suite-wide interface contract index:
 - `docs/planning/project_interfaces.md`
+
+## Cross-Thread Followthrough (2026-02-07)
+
+Concrete outputs for:
+- SB/fuzzer invariants and acceptance checks
+- casey-git model/operation contracts
+- JesusCrust integration and ADR-ready principles
+
+Document:
+- `docs/planning/sb_casey_jesuscrust_followthrough_20260207.md`
+
+## SL LCE/Profile Followthrough (2026-02-08)
+
+Concrete outputs from thread `6986d38e-4b5c-839b-813a-608aa0de88d5`
+(`ADR language vs SensibLaw`) covering:
+- engine/profile separation
+- ingest-safe invariant language
+- profile contract and safety-test backlog
+
+Document:
+- `docs/planning/sl_lce_profile_followthrough_20260208.md`

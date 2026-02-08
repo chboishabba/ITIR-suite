@@ -1,7 +1,7 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-02-07
+- 2026-02-08
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
@@ -20,6 +20,36 @@
   - Convert live + archived Casey/Muratori conversation steps into explicit
     implementation artifacts for `fuzzymodo/` and `casey-git-clone/`.
   - Implement the mapped steps in code with project-local tests. (Done)
+- Term sweep follow-ups from
+  `__CONTEXT/last_sync/20260207T043655Z_term_sweep_sl_sensiblaw_itir_suite.md`:
+  - Add a repeatable term-sweep runbook doc under `docs/planning/` covering
+    scope, whole-word matching rules, and output artifact contract.
+  - Add/refresh high-signal thread mappings in `__CONTEXT/convo_ids.md` for the
+    top titled `SL`/`sensiblaw`/`itir`/`suite` conversations.
+- Add a triage rule for overloaded term `suite` (flag likely false positives
+  before context ratification).
+- Execute followthrough plan from
+  `docs/planning/sb_casey_jesuscrust_followthrough_20260207.md`:
+  - implement SB observer/loss schema and refusal-path tests (`1.1`-`1.3`)
+  - implement casey operation-contract tests (`2.1`-`2.5`)
+  - formalize JesusCrust execution-boundary integration notes and ADR text
+    (`3.1`-`3.5`)
+- Execute SL engine/profile followthrough from
+  `docs/planning/sl_lce_profile_followthrough_20260208.md`:
+  - draft domain-neutral engine spec (`docs/planning/compression_engine.md`)
+  - define profile contracts (`docs/planning/profile_contracts.md`) for
+    `sl_profile`, `sb_profile`, and `infra_profile` boundaries
+  - define profile lint rules (`docs/planning/profile_lint_rules.md`) for
+    forbidden axes/groups per profile
+  - define cross-profile safety tests
+    (`docs/planning/cross_profile_safety_tests.md`) that keep compression
+    mechanics fixed while admissibility varies
+- Apply refreshed SB boundary guidance from
+  `docs/planning/sb_casey_jesuscrust_followthrough_20260207.md`:
+  - codify "post-mortem forensic analyzers are observers, not memory
+    authorities" in SB interop docs/contracts
+  - add acceptance checks ensuring forensic imports cannot mutate canonical
+    memory without explicit promotion receipts
 - Implement Fuzzymodo selector DSL parser over
   `docs/planning/fuzzymodo/selector_dsl.schema.json`.
 - Implement canonical serialization + hash generation aligned with

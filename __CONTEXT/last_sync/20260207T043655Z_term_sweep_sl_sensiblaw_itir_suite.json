@@ -1,0 +1,560 @@
+{
+  "source_db": "/home/c/Documents/code/ITIR-suite/chat-export-structurer/my_archive.sqlite",
+  "filter_scope": "role in ('user','assistant'); SL as whole word; sensiblaw/itir/suite case-insensitive",
+  "total_messages_in_db": 76950,
+  "total_matched_messages": 1744,
+  "counts_by_term": {
+    "suite": 552,
+    "sensiblaw": 1055,
+    "itir": 439,
+    "SL": 246
+  },
+  "top_threads": [
+    {
+      "canonical_thread_id": "4d535d3f33f54b1040ab38ec67f8f550a0f69dce",
+      "title_hint": "SENSIBLAW",
+      "matched_messages": 443,
+      "term_counts": {
+        "sensiblaw": 413,
+        "itir": 12,
+        "suite": 18
+      }
+    },
+    {
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "title_hint": "",
+      "matched_messages": 119,
+      "term_counts": {
+        "sensiblaw": 28,
+        "itir": 57,
+        "suite": 20,
+        "SL": 14
+      }
+    },
+    {
+      "canonical_thread_id": "d368629d32111762fee2a415839a53ee398cb2df",
+      "title_hint": "Branch \u00b7 Branch \u00b7 Cross-comparison of SL ITIR TIRC",
+      "matched_messages": 100,
+      "term_counts": {
+        "SL": 43,
+        "itir": 43,
+        "sensiblaw": 11,
+        "suite": 3
+      }
+    },
+    {
+      "canonical_thread_id": "0baa733624372fdcdf4c7e624a5b0401a38a3fe7",
+      "title_hint": "Branch \u00b7 Cross-comparison of SL ITIR TIRC",
+      "matched_messages": 85,
+      "term_counts": {
+        "SL": 38,
+        "itir": 38,
+        "sensiblaw": 8,
+        "suite": 1
+      }
+    },
+    {
+      "canonical_thread_id": "1802fc3d13a0ad01ad95cef07eeaae9c16c22bed",
+      "title_hint": "Milestone Slice Feedback",
+      "matched_messages": 75,
+      "term_counts": {
+        "suite": 37,
+        "sensiblaw": 37,
+        "SL": 1
+      }
+    },
+    {
+      "canonical_thread_id": "f8170d36e0b2c28b2bb0366a7dc35a433e26ca00",
+      "title_hint": "Feature timeline visualization",
+      "matched_messages": 66,
+      "term_counts": {
+        "itir": 27,
+        "suite": 2,
+        "sensiblaw": 33,
+        "SL": 4
+      }
+    },
+    {
+      "canonical_thread_id": "420346cd175bde0d2a02e07c0785d05b46f7be21",
+      "title_hint": "Branch \u00b7 Playwright Testing Framework",
+      "matched_messages": 46,
+      "term_counts": {
+        "sensiblaw": 27,
+        "suite": 11,
+        "SL": 6,
+        "itir": 2
+      }
+    },
+    {
+      "canonical_thread_id": "74f6d0e08de82556df95c6ab1edb51557fede4fa",
+      "title_hint": "Taxonomising legal wrongs",
+      "matched_messages": 42,
+      "term_counts": {
+        "sensiblaw": 34,
+        "itir": 2,
+        "SL": 5,
+        "suite": 1
+      }
+    },
+    {
+      "canonical_thread_id": "402bebf7543fd9109cf9f0072fc2014df8c71bcc",
+      "title_hint": "Version conflicts and CUDA issues",
+      "matched_messages": 38,
+      "term_counts": {
+        "itir": 25,
+        "suite": 12,
+        "SL": 1
+      }
+    },
+    {
+      "canonical_thread_id": "bdab15ced02c693ad38c49066c36fc815c418a53",
+      "title_hint": "StatiBaker Proposal",
+      "matched_messages": 36,
+      "term_counts": {
+        "itir": 24,
+        "suite": 7,
+        "SL": 3,
+        "sensiblaw": 2
+      }
+    },
+    {
+      "canonical_thread_id": "2b6d0099dd2e5950608b50f3636aa32b6a81ae56",
+      "title_hint": "Playwright Testing Framework",
+      "matched_messages": 36,
+      "term_counts": {
+        "sensiblaw": 23,
+        "suite": 9,
+        "SL": 4
+      }
+    },
+    {
+      "canonical_thread_id": "7678c64c22d062992353ed24cf12c26fd516e9b6",
+      "title_hint": "Branch \u00b7 Compression ratio comparison",
+      "matched_messages": 34,
+      "term_counts": {
+        "SL": 18,
+        "sensiblaw": 4,
+        "itir": 10,
+        "suite": 2
+      }
+    },
+    {
+      "canonical_thread_id": "cfacd6488919ade801d8137a9d05573ec31f9345",
+      "title_hint": "Summary of key details",
+      "matched_messages": 26,
+      "term_counts": {
+        "sensiblaw": 12,
+        "itir": 11,
+        "suite": 3
+      }
+    },
+    {
+      "canonical_thread_id": "df662e5df0a444fa97e57053dd7c1cec130f9aeb",
+      "title_hint": "Expand explanation request",
+      "matched_messages": 26,
+      "term_counts": {
+        "sensiblaw": 16,
+        "SL": 7,
+        "itir": 3
+      }
+    },
+    {
+      "canonical_thread_id": "eeefa20ff7e326ff38d083915f134bc67392fb14",
+      "title_hint": "Linux Copilot Recall Clone",
+      "matched_messages": 26,
+      "term_counts": {
+        "sensiblaw": 7,
+        "itir": 15,
+        "SL": 3,
+        "suite": 1
+      }
+    },
+    {
+      "canonical_thread_id": "bc1f074d4d2a53d7592b6c8050875800918e801e",
+      "title_hint": "",
+      "matched_messages": 26,
+      "term_counts": {
+        "sensiblaw": 19,
+        "suite": 5,
+        "SL": 2
+      }
+    },
+    {
+      "canonical_thread_id": "83ee7436aa909dd31a14a147f10bb78cd52b6f55",
+      "title_hint": "Category coverage review",
+      "matched_messages": 25,
+      "term_counts": {
+        "sensiblaw": 23,
+        "suite": 2
+      }
+    },
+    {
+      "canonical_thread_id": "32c691e2032f3ed787499254720081202500e94b",
+      "title_hint": "Aptos cryptocurrency overview",
+      "matched_messages": 22,
+      "term_counts": {
+        "suite": 2,
+        "sensiblaw": 12,
+        "SL": 8
+      }
+    },
+    {
+      "canonical_thread_id": "163b7581b26e8f5d8f43558a833ab5a48ce65202",
+      "title_hint": "Compression ratio comparison",
+      "matched_messages": 22,
+      "term_counts": {
+        "SL": 12,
+        "sensiblaw": 3,
+        "itir": 6,
+        "suite": 1
+      }
+    },
+    {
+      "canonical_thread_id": "21f55daa80206517e38f8c0fa56ee9bb2db8a9a0",
+      "title_hint": "Actor table design",
+      "matched_messages": 20,
+      "term_counts": {
+        "sensiblaw": 12,
+        "itir": 7,
+        "suite": 1
+      }
+    }
+  ],
+  "latest_examples": [
+    {
+      "ts": "2026-02-06T11:46:04+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "itir",
+        "suite"
+      ],
+      "snippet": "can I just ~/Documents/code/ITIR-suite master* \u276f mkdir -p /home/c/Documents/code/ITIR-suite/secret_scan_reports cp /tmp/secret_scan_reports/*.gitleaks.json /home/c/Documents/code/ITIR-suite/secret_scan_reports/ cp /tmp/s..."
+    },
+    {
+      "ts": "2026-02-06T11:42:35+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "SL",
+        "sensiblaw",
+        "itir",
+        "suite"
+      ],
+      "snippet": "~/Documents/code/ITIR-suite master* 16m 30s \u276f bash [c@cachy-lambo ITIR-suite]$ set -euo pipefail subs=(SensibLaw SL-reasoner tircorder-JOBBIE WhisperX-WebUI reverse-engineered-chatgpt chat-export-structurer StatiBaker no..."
+    },
+    {
+      "ts": "2026-02-06T08:09:02+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "sensiblaw"
+      ],
+      "snippet": "4 insertions(+), 3 deletions(-) create mode 100644 sensiblaw_streamlit/tabs/ribbon.py create mode 100644 src/sensiblaw/ribbon/compute.py create mode 100644 tests/test_ribbon_compute.py To https://github.com/chboishabba/S..."
+    },
+    {
+      "ts": "2026-02-06T07:58:42+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "SL",
+        "sensiblaw",
+        "itir",
+        "suite"
+      ],
+      "snippet": "\u276f bash [c@cachy-lambo ITIR-suite]$ set -euo pipefail subs=(SensibLaw SL-reasoner tircorder-JOBBIE WhisperX-WebUI reverse-engineered-chatgpt chat-export-structurer StatiBaker notebooklm-py Chatistics pyThunderbird SimulSt..."
+    },
+    {
+      "ts": "2026-02-06T07:25:50+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "itir",
+        "suite"
+      ],
+      "snippet": "~/Documents/code/ITIR-suite master* \u276f which gitleaks /usr/bin/gitleaks"
+    },
+    {
+      "ts": "2026-02-06T07:14:01+00:00",
+      "canonical_thread_id": "553a012195d0ef9d10128b52576f41cc0fe68dea",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "SL",
+        "itir",
+        "suite"
+      ],
+      "snippet": "Got it \u2014 thanks for clarifying. You\u2019re not asking *about you*, you\u2019re asking: > **\u201cWhat clarifying questions would a general (non-expert) audience have about the apps / functionality, and how should I pre-empt them in th..."
+    },
+    {
+      "ts": "2026-02-06T07:06:37+00:00",
+      "canonical_thread_id": "553a012195d0ef9d10128b52576f41cc0fe68dea",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "sensiblaw",
+        "itir",
+        "suite"
+      ],
+      "snippet": "Is there any way you could offer some implementation/functionality notes re each ITIR suite item etc? Hey folks, With all the hype around OpenClaw / Clawdbot / Moltbot, Moltbook, Copilot Recall, Rewind, etc, I realised s..."
+    },
+    {
+      "ts": "2026-02-06T05:50:56+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "itir"
+      ],
+      "snippet": "This is a *great* stress-test, because this episode accidentally demonstrates **exactly why ITIR/SB exists** \u2014 and why public figures *need* it even more than private individuals. I\u2019ll do this in four layers: 1. **What t..."
+    },
+    {
+      "ts": "2026-02-06T05:46:10+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "itir",
+        "suite"
+      ],
+      "snippet": "re selectors just document what we need to do and we'll confirm that later... ribbon should be module but also maybe make new dir itir-ribbon/ in ITIR-suite, playwright may need to be pip installed in the .venv, then 1,2..."
+    },
+    {
+      "ts": "2026-02-06T05:43:58+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "SL",
+        "sensiblaw",
+        "itir"
+      ],
+      "snippet": "just to be clear sb stands for statibaker: Got it. I\u2019ll give you **(A) Playwright UI-conservation tests**, **(B) a lens-authoring DSL for \u03c1(t)**, and **(C) a single phase-regime mapping across TiRC / SL / SB / LES / DASH..."
+    },
+    {
+      "ts": "2026-02-06T05:42:06+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "SL",
+        "sensiblaw",
+        "itir"
+      ],
+      "snippet": "just to be clear sb stands for statibaker: Got it. I\u2019ll give you **(A) Playwright UI-conservation tests**, **(B) a lens-authoring DSL for \u03c1(t)**, and **(C) a single phase-regime mapping across TiRC / SL / SB / LES / DASH..."
+    },
+    {
+      "ts": "2026-02-06T05:41:00+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "SL",
+        "sensiblaw",
+        "itir"
+      ],
+      "snippet": "just to be clear sb stands for statibaker: Got it. I\u2019ll give you **(A) Playwright UI-conservation tests**, **(B) a lens-authoring DSL for \u03c1(t)**, and **(C) a single phase-regime mapping across TiRC / SL / SB / LES / DASH..."
+    },
+    {
+      "ts": "2026-02-06T05:38:40+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "itir"
+      ],
+      "snippet": "Perfect \u2014 below is a **complete, concrete bundle** you can drop into the repo and reason about formally. I\u2019ll give you: 1. **JSON Schema (draft-07)** for spine + lens + segments (+ threads) 2. **Property-based tests (Hyp..."
+    },
+    {
+      "ts": "2026-02-06T05:37:22+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "suite"
+      ],
+      "snippet": "Alright \u2014 here\u2019s a clean formal model you can hang everything on, then the split/merge invariants that keep it honest, then concrete UI affordances to make the conserved quantity *explicit + inspectable*. --- ## 1) Mathe..."
+    },
+    {
+      "ts": "2026-02-06T05:36:52+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "sensiblaw",
+        "itir"
+      ],
+      "snippet": "Please $update-docs-todo-implement $get-shit-done Yep \u2014 think of the **timeline ribbon** as the *spine of time and effort*, with everything else hanging off it in a disciplined way. I\u2019ll walk through it from **what the u..."
+    },
+    {
+      "ts": "2026-02-06T05:31:31+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "sensiblaw",
+        "itir"
+      ],
+      "snippet": "Please $update-docs-todo-implement $get-shit-done Yep \u2014 think of the **timeline ribbon** as the *spine of time and effort*, with everything else hanging off it in a disciplined way. I\u2019ll walk through it from **what the u..."
+    },
+    {
+      "ts": "2026-02-06T05:31:04+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "sensiblaw",
+        "itir"
+      ],
+      "snippet": "Please $update-docs-todo-implement $get-shit-done Yep \u2014 think of the **timeline ribbon** as the *spine of time and effort*, with everything else hanging off it in a disciplined way. I\u2019ll walk through it from **what the u..."
+    },
+    {
+      "ts": "2026-02-06T05:27:00+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "SL",
+        "itir"
+      ],
+      "snippet": "Ensure we have adapters for all ITIR products (SB, SL, ITIR, TIRC, whisperx-webui) -> SB .. I think you probably have placeholder adapters for LES, you can find the LES project in ../dashiLES"
+    },
+    {
+      "ts": "2026-02-06T05:24:37+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "suite"
+      ],
+      "snippet": "Please impl all: 1. Write a short adapter spec in docs/ (e.g., tircorder_whisperx_adapter.md) using the execution-envelope schema. 2. Add a tiny importer to emit envelopes + segment events (no inference) and tests assert..."
+    },
+    {
+      "ts": "2026-02-06T04:53:50+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "itir",
+        "suite"
+      ],
+      "snippet": "Perfect \u2014 this is a *use-case braid* question, not an architecture one. I\u2019ll stay concrete and show **how the same system is used differently without splitting the system**. I\u2019ll do this in three passes: 1. the **farmer*..."
+    },
+    {
+      "ts": "2026-02-06T04:52:29+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "itir"
+      ],
+      "snippet": "You\u2019re right \u2014 and thank you for catching that. If **LES is upstream of SB**, the entire epistemic posture tightens, not loosens. That actually makes the system *cleaner* and more defensible. Let me restate the model **c..."
+    },
+    {
+      "ts": "2026-02-06T04:52:00+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "itir"
+      ],
+      "snippet": "Nice \u2014 bringing **DASHI / LES** into this closes the loop. Up to now we\u2019ve been talking about *static contextual fields*. LES is where **learning without domination** becomes possible. I\u2019ll stay strict to your design eth..."
+    },
+    {
+      "ts": "2026-02-06T04:51:59+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "itir"
+      ],
+      "snippet": "Yeah \u2014 this is *exactly* the right instinct. Once you widen beyond \u201cWestern urban knowledge time,\u201d a bunch of hidden assumptions snap into view. I\u2019ll stay grounded in **SB/ITIR invariants**, not anthropology-for-tourists..."
+    },
+    {
+      "ts": "2026-02-06T04:50:24+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "itir"
+      ],
+      "snippet": "1,2,3 and This is a really good question, because it hits *exactly* where ITIR/SB differs from \u201cdashboards\u201d or \u201cassistants\u201d: **how do you admit noisy, socially-powerful signals without letting them colonise meaning**. I\u2019..."
+    },
+    {
+      "ts": "2026-02-06T04:49:31+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "itir"
+      ],
+      "snippet": "This is a really good question, because it hits *exactly* where ITIR/SB differs from \u201cdashboards\u201d or \u201cassistants\u201d: **how do you admit noisy, socially-powerful signals without letting them colonise meaning**. I\u2019ll frame t..."
+    },
+    {
+      "ts": "2026-02-06T04:49:04+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "sensiblaw",
+        "itir",
+        "suite"
+      ],
+      "snippet": "add details/user stories: Thank you for trusting me with this. I\u2019m going to respond **carefully, concretely, and in-system terms**, because what you\u2019re building here is not abstract philosophy \u2014 it is **protective infras..."
+    },
+    {
+      "ts": "2026-02-06T04:34:20+00:00",
+      "canonical_thread_id": "86d27ce74e6d96d131ccdecec7f9f1999ac39778",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "SL",
+        "sensiblaw",
+        "itir"
+      ],
+      "snippet": "Excellent \u2014 these three actually **lock together**. I\u2019ll give you all of them, but cleanly separated so you can lift each one directly into the repo or ADRs without refactoring. I\u2019ll keep this **implementation-grade**, n..."
+    },
+    {
+      "ts": "2026-02-06T04:32:42+00:00",
+      "canonical_thread_id": "86d27ce74e6d96d131ccdecec7f9f1999ac39778",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "SL",
+        "sensiblaw",
+        "itir",
+        "suite"
+      ],
+      "snippet": "Please ensure we fully document all of this especially in user stories: \u203a Okay \u2014 I see what you\u2019re really doing here. You\u2019re not asking for a recap. You\u2019re stress-testing **ITIR / SB / SL** against one of the nastiest re..."
+    },
+    {
+      "ts": "2026-02-06T04:31:23+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "SL",
+        "sensiblaw",
+        "itir",
+        "suite"
+      ],
+      "snippet": "Perfect \u2014 this is the right moment to **snap everything back into ITIR/SB/SL** and turn the transcripts from *analysis fuel* into **explicit product requirements**. I\u2019m going to do this in four layers, moving from *princ..."
+    },
+    {
+      "ts": "2026-02-06T04:30:37+00:00",
+      "canonical_thread_id": "dff2e608e358fe5ed5cf1d0376a36ff8a87a6f2d",
+      "role": "user",
+      "title": "",
+      "terms": [
+        "SL",
+        "itir"
+      ],
+      "snippet": "Yeah\u2026 this transcript is bleak \u2014 and not because it\u2019s \u201cnew horrors,\u201d but because it **confirms a stable operating pattern**. What you pasted isn\u2019t random scandal; it\u2019s a *repeating machine*. Let me do three things for yo..."
+    }
+  ]
+}
