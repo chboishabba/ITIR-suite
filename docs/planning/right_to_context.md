@@ -33,6 +33,26 @@ This is not privacy or secrecy. It is interpretive integrity.
    - Users may choose not to interpret.
    - "Unknown" is a valid terminal state.
 
+## Trauma / Legal Proceedings Notes (Target Posture)
+
+The following items are **TARGET** doctrine until enforced end-to-end by
+ratified contracts and implementation:
+
+1. Prevent hindsight laundering
+   - Preserve "known then" vs "known now" so later facts cannot be used to
+     retro-judge earlier actions without acknowledging epistemic limits.
+2. Capacity and overload windows
+   - Allow envelopes to record overload/fatigue/context-collapse windows as
+     constraints, without smuggling interpretive conclusions into canonical
+     memory.
+3. Venue drift warnings
+   - If an artifact moves across venues/audiences (e.g., private therapeutic
+     note -> adversarial filing), raise an explicit drift warning and require
+     acknowledgement of the venue change before rendering/export.
+4. Preserve contradictions
+   - Gaps and contradictions remain first-class: the system should not smooth
+     them into a "clean" narrative for legibility.
+
 ---
 
 ## Why This Matters

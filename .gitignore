@@ -35,3 +35,9 @@ secrets/
 secret/
 secret_scan_reports/
 logs/
+
+# NotebookLM auth export (contains session cookies/tokens)
+/storage_state.json
+
+# Built docs site outputs
+docs/_site/

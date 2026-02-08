@@ -80,18 +80,30 @@ class DbMatch:
         return _parse_message_ts(self.latest_ts)
 
 
-def _fetch_latest_for_thread(cur: sqlite3.Cursor, thread_id: str) -> Optional[tuple]:
+def _fetch_latest_for_thread(
+    cur: sqlite3.Cursor, thread_id: str, *, require_text: bool = False
+) -> Optional[tuple]:
+    text_clause = ""
+    if require_text:
+        text_clause = "AND text IS NOT NULL AND TRIM(text) <> ''"
+
     cur.execute(
-        """
+        f"""
         SELECT canonical_thread_id, COALESCE(NULLIF(title, ''), '(no title)') AS title, ts, role, text
         FROM messages
         WHERE LOWER(canonical_thread_id) = LOWER(?)
+          {text_clause}
         ORDER BY ts DESC, rowid DESC
         LIMIT 1
         """,
         (thread_id,),
     )
-    return cur.fetchone()
+    row = cur.fetchone()
+    if row or not require_text:
+        return row
+
+    # If we required text and found nothing, fall back to the absolute latest row.
+    return _fetch_latest_for_thread(cur, thread_id, require_text=False)
 
 
 def _query_thread_message_count(cur: sqlite3.Cursor, thread_id: str) -> int:
@@ -101,6 +113,69 @@ def _query_thread_message_count(cur: sqlite3.Cursor, thread_id: str) -> int:
     )
     row = cur.fetchone()
     return int(row[0]) if row and row[0] is not None else 0
+
+
+def _fts_query(selector: str) -> Optional[str]:
+    # Avoid arbitrary FTS syntax; convert user input into a safe OR list.
+    # Prefix matching helps "wiki" hit "wikipedia", "wikidata", etc.
+    tokens = re.findall(r"[A-Za-z0-9_]{2,}", selector.lower())
+    if not tokens:
+        return None
+    seen: set[str] = set()
+    uniq: list[str] = []
+    for token in tokens:
+        if token in seen:
+            continue
+        seen.add(token)
+        uniq.append(token)
+    return " OR ".join(f"{token}*" for token in uniq)
+
+
+def _query_db_fts_candidates(
+    cur: sqlite3.Cursor,
+    selector: str,
+    *,
+    limit: int = 10,
+) -> list[dict]:
+    query = _fts_query(selector)
+    if not query:
+        return []
+
+    cur.execute(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'messages_fts'"
+    )
+    if cur.fetchone() is None:
+        return []
+
+    # Join via rowid: messages_fts.rowid maps to messages.rowid.
+    cur.execute(
+        """
+        SELECT
+            m.canonical_thread_id AS canonical_thread_id,
+            COALESCE(NULLIF(m.title, ''), '(no title)') AS title,
+            MAX(m.ts) AS latest_ts,
+            COUNT(*) AS hit_count
+        FROM messages_fts
+        JOIN messages m ON m.rowid = messages_fts.rowid
+        WHERE messages_fts MATCH ?
+        GROUP BY m.canonical_thread_id, title
+        ORDER BY hit_count DESC, latest_ts DESC
+        LIMIT ?
+        """,
+        (query, limit),
+    )
+    rows = cur.fetchall()
+    candidates: list[dict] = []
+    for row in rows:
+        candidates.append(
+            {
+                "canonical_thread_id": row["canonical_thread_id"],
+                "title": row["title"],
+                "latest_ts": row["latest_ts"],
+                "hit_count": int(row["hit_count"] or 0),
+            }
+        )
+    return candidates
 
 
 def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
@@ -119,7 +194,7 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
         return None
 
     # 1) Exact canonical thread id match.
-    row = _fetch_latest_for_thread(cur, selector)
+    row = _fetch_latest_for_thread(cur, selector, require_text=True)
     if row:
         count = _query_thread_message_count(cur, row["canonical_thread_id"])
         con.close()
@@ -141,6 +216,8 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
         SELECT canonical_thread_id, COALESCE(NULLIF(title, ''), '(no title)') AS title, ts, role, text
         FROM messages
         WHERE LOWER(title) = LOWER(?)
+          AND text IS NOT NULL
+          AND TRIM(text) <> ''
         ORDER BY ts DESC, rowid DESC
         LIMIT 1
         """,
@@ -176,6 +253,8 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
             SELECT canonical_thread_id, COALESCE(NULLIF(title, ''), '(no title)') AS title, ts, role, text
             FROM messages
             WHERE LOWER(title) LIKE ?
+              AND text IS NOT NULL
+              AND TRIM(text) <> ''
             ORDER BY ts DESC, rowid DESC
             LIMIT 1
             """,
@@ -863,30 +942,46 @@ def _print_result(payload: dict, as_json: bool) -> None:
             print(f"persist_ingested_count: {ingest.get('ingested_count', 0)}")
 
     if source == "db":
-        db = payload.get("db_match", {})
-        print(f"match_type: {db.get('match_type')}")
-        print(f"title: {db.get('title')}")
-        print(f"canonical_thread_id: {db.get('canonical_thread_id')}")
-        print(f"latest_ts_utc: {db.get('latest_ts_utc')}")
-        print(f"latest_role: {db.get('latest_role')}")
-        print(f"thread_message_count: {db.get('thread_message_count')}")
-        print(f"matched_thread_count: {db.get('matched_thread_count')}")
-        print("latest_text:")
-        print(db.get("latest_text", ""))
-        latest_paragraphs = db.get("latest_paragraphs") or []
-        if latest_paragraphs:
-            print("latest_paragraphs:")
-            for idx, paragraph in enumerate(latest_paragraphs, start=1):
-                print(f"[{idx}] {paragraph}")
-        recent_turns = db.get("recent_turns") or []
-        if recent_turns:
-            print("recent_turns:")
-            for idx, turn in enumerate(recent_turns, start=1):
+        db = payload.get("db_match") or {}
+        candidates = payload.get("db_candidates") or []
+
+        if db:
+            print(f"match_type: {db.get('match_type')}")
+            print(f"title: {db.get('title')}")
+            print(f"canonical_thread_id: {db.get('canonical_thread_id')}")
+            print(f"latest_ts_utc: {db.get('latest_ts_utc')}")
+            print(f"latest_role: {db.get('latest_role')}")
+            print(f"thread_message_count: {db.get('thread_message_count')}")
+            print(f"matched_thread_count: {db.get('matched_thread_count')}")
+            print("latest_text:")
+            print(db.get("latest_text", ""))
+
+            latest_paragraphs = db.get("latest_paragraphs") or []
+            if latest_paragraphs:
+                print("latest_paragraphs:")
+                for idx, paragraph in enumerate(latest_paragraphs, start=1):
+                    print(f"[{idx}] {paragraph}")
+            recent_turns = db.get("recent_turns") or []
+            if recent_turns:
+                print("recent_turns:")
+                for idx, turn in enumerate(recent_turns, start=1):
+                    print(
+                        f"[{idx}] ts={turn.get('ts')} "
+                        f"ts_utc={turn.get('ts_utc')} role={turn.get('role')}:"
+                    )
+                    print(turn.get("text", ""))
+        else:
+            print("db_match: (none)")
+
+        if candidates:
+            print("db_candidates:")
+            for idx, candidate in enumerate(candidates, start=1):
                 print(
-                    f"[{idx}] ts={turn.get('ts')} "
-                    f"ts_utc={turn.get('ts_utc')} role={turn.get('role')}:"
+                    f"[{idx}] hits={candidate.get('hit_count')} "
+                    f"latest_ts={candidate.get('latest_ts')} "
+                    f"id={candidate.get('canonical_thread_id')} "
+                    f"title={candidate.get('title')}"
                 )
-                print(turn.get("text", ""))
         return
 
     if source == "web":
@@ -940,6 +1035,7 @@ def main() -> int:
 
     db_match: Optional[DbMatch] = None
     db_error: Optional[str] = None
+    db_candidates: list[dict] = []
     if not db_path.exists():
         extra = f"DB path does not exist: {db_path}"
         db_error = f"{db_error}; {extra}" if db_error else extra
@@ -949,6 +1045,17 @@ def main() -> int:
         except sqlite3.Error as exc:
             extra = f"DB lookup failed: {exc}"
             db_error = f"{db_error}; {extra}" if db_error else extra
+        if db_match is None and len(args.selector.strip()) >= 3:
+            # Prefer DB-local candidate suggestions over immediately hitting live web fallback.
+            try:
+                con = sqlite3.connect(_sqlite_ro_uri(db_path), uri=True)
+                con.row_factory = sqlite3.Row
+                cur = con.cursor()
+                db_candidates = _query_db_fts_candidates(cur, args.selector, limit=10)
+                con.close()
+            except sqlite3.Error as exc:
+                extra = f"DB FTS lookup failed: {exc}"
+                db_error = f"{db_error}; {extra}" if db_error else extra
 
     db_recent_turns: list[dict] = []
     if db_match is not None and args.recent_turns > 0:
@@ -966,8 +1073,12 @@ def main() -> int:
     needs_web = False
     reason = ""
     if db_match is None:
-        needs_web = True
-        reason = "not_found_in_db"
+        if db_candidates:
+            needs_web = False
+            reason = "db_fts_candidates"
+        else:
+            needs_web = True
+            reason = "not_found_in_db"
     elif threshold is not None:
         latest = db_match.latest_datetime
         if latest is None:
@@ -1109,13 +1220,16 @@ def main() -> int:
     payload = {
         "source": "db",
         "decision_reason": reason,
-        "db_match": _db_payload(
+    }
+    if db_match is not None:
+        payload["db_match"] = _db_payload(
             db_match,
             args.max_text_chars,
             latest_paragraphs=args.latest_paragraphs,
             recent_turns=db_recent_turns,
-        ),
-    }
+        )
+    if db_candidates:
+        payload["db_candidates"] = db_candidates
     if threshold is not None:
         payload["requested_threshold_utc"] = _iso_utc(threshold)
     if db_error:

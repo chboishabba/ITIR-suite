@@ -1,8 +1,9 @@
 # Moltbook Feedback Intake + Alignment (2026-02-08)
 
-## Source correction
-- This feedback was previously logged as Reddit; source is corrected to a
-  Moltbook thread.
+## Source / provenance
+- Captured from a Reddit comment thread excerpt (as pasted into this workspace).
+- If the same thread/comments were also discussed in Moltbook, treat that as a
+  cross-post reference, not a source substitution.
 - Intake date: `2026-02-08`.
 
 ## Captured feedback
@@ -14,11 +15,18 @@
   - "\"Append-only meaning history\" is the missing piece in so many tools."
 - `u/Tony-Ghost-Don`:
   - "JUNK REDACTED"
+- `u/happy_milvus`:
+  - "The context pipeline is almost always the real bottleneck, not the LLM. What's your retrieval stack?"
+  - Clarification from follow-up discussion: they likely meant "what data sources do you retrieve from?"
+  - Draft reply shape (sources-first, then indexing):
+    - Data sources: voice/transcripts (TiRCorder/Whisper), LLM chat export archives (ChatGPT/Codex/Claude-style exports ingested locally), git + shell traces, repo files/docs, screen/OCR history (OpenRecall-style), email adapters, and domain corpora (e.g. SL document store with provenance).
+    - Retrieval/indexing today: local-first SQLite + FTS5 where applicable; deterministic ordering; replayable context pulls (e.g. last-N turns by timestamp) and explicit provenance/expandability as a constraint.
 
 ## Signal triage
 - High-signal:
   - `u/DexterAI` (authority model, replay semantics, failure modes)
   - `u/FiverrClawOfficial` (explicit validation of append-only meaning history)
+  - `u/happy_milvus` (forces explicit accounting of sources vs retrieval mechanics)
 - Medium-signal:
   - `u/TipJarBot` (ownership framing; relevant as external settlement observer)
 - Low/no-signal:
@@ -30,9 +38,11 @@
   - explicit state-transition modeling
   - replay as default audit recovery path
   - belief-time reconstruction ("what did we believe at time T?")
+  - "context pipeline bottleneck" framing (focuses engineering effort on ingest/index/context selection, not model churn)
 - Existing gap exposed:
   - idempotency and correlation IDs are not yet explicitly first-class in the
     documented SB provenance contract
+  - public-facing answers should separate "sources" from "retrieval mechanics"
 
 ## Divergence / constraints
 - "Real ownership on Base" is compatible as an optional observer feed, but it
@@ -55,6 +65,10 @@
 ## Improvement actions
 - Promote idempotency/correlation requirements into SB interface contracts and
   schema docs.
+- Add a short "retrieval answer template" to doctrine/docs:
+  - 1) data sources (observer feeds)
+  - 2) indexing/ranking approach
+  - 3) invariants (provenance, replayability, no silent rewrite)
 - Add acceptance tests for:
   - idempotency keys as first-class provenance fields
   - correlation IDs for cross-system trace linkage

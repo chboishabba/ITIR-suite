@@ -8,7 +8,8 @@ Owner: Architecture
 ## Context
 
 SB/ITIR ingest “context fields” such as weather, market indices, astronomical
-events, and symbolic overlays (e.g., astrology). These signals are
+events, symbolic overlays (e.g., astrology), and environmental telemetry lanes
+(e.g., living-environment simulator, aquaponics, crops). These signals are
 environmental and socially powerful, but they are **not facts about the user**
 and **not evidence of intent or causality**. Without guardrails they can
 colonise meaning (e.g., “bad market → stress → cause”), which violates the
@@ -30,6 +31,8 @@ authoritative SB core (events/artifacts/activity).
   outputs.
 - Symbolic overlays (e.g., astrology) are **opt-in, explicitly labeled
   symbolic**, and never attach automatically to events.
+- Indigenous context overlays require explicit provenance authority metadata and
+  remain non-promotable until consent/policy receipts exist.
 - Exports that drop context MUST log the loss; exports that keep context must
   retain provenance (“this data did not come from you”).
 
@@ -37,7 +40,7 @@ authoritative SB core (events/artifacts/activity).
 
 ```json
 {
-  "type": "context_field.weather",           // market | astronomy | ...
+  "type": "context_field.weather",           // market | astronomy | living_environment | aquaponics | crops | medication | mood | inaturalist | pet_wearable | ...
   "source": "bom.gov.au",
   "location": "lat,lon",
   "time_range": "...",

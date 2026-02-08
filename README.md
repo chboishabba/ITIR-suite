@@ -78,7 +78,16 @@ git submodule update --init --recursive
   ```bash
   git submodule update --remote --recursive
   ```
-- To commit/push submodule changes in bulk (use with care), `sync-all-submodules.sh` will run `git add/commit/push` inside each submodule and then commit the updated pointers in this meta-repo.
+- To fast-forward pull clean submodules (safe; no commits):
+  ```bash
+  ./sync-all-submodules.sh
+  ```
+- To also commit (and optionally push) ONLY the updated submodule pointers in this meta-repo:
+  ```bash
+  ./sync-all-submodules.sh --commit-super
+  ./sync-all-submodules.sh --push-super
+  ```
+  This refuses to commit if the superproject has any non-submodule changes.
 - When changing a submodule, commit inside the submodule first, then `git add <submodule>` in this repo to record the new pointer.
 
 ## Notes
