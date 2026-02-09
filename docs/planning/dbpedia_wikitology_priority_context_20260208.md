@@ -9,6 +9,20 @@ DBpedia/Wikitology-style external ontology integration framing:
 - `canonical_thread_id`: `331a7d1304f329259315649e7a9d729a83b51daf`
 - Latest message timestamp (DB): `2025-11-18T02:11:55Z`
 
+### How to re-fetch it (DB-first)
+
+Use `$robust-context-fetch` (resolver DB-first) via:
+
+```bash
+.venv/bin/python scripts/chat_context_resolver.py "topology" --no-web
+```
+
+Or fetch by canonical thread id:
+
+```bash
+.venv/bin/python scripts/chat_context_resolver.py "331a7d1304f329259315649e7a9d729a83b51daf" --no-web
+```
+
 ## Why this matters
 
 This thread contains the explicit project motivation for "wiki-ish ingestion":
@@ -54,4 +68,3 @@ captured as docs + schema, even if ingestion is still mostly manual/curated:
 2. Provide a minimal "lookup + curate + upsert" tool surface:
    - Do not depend on live SPARQL at runtime; support offline caching/batches.
    - Keep it opt-in and auditable.
-
