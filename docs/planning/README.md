@@ -233,3 +233,11 @@ to implement full DBpedia URIs as the supported representation (Option 1).
 
 Document:
 - `docs/planning/dbpedia_external_id_representation_decision_20260208.md`
+
+## Schema Chat Thread Map (2026-02-08)
+
+Maps archived “schema” threads (canonical_thread_id + why they matter) to the
+docs they should support, so doc updates can cite the right context.
+
+Document:
+- `docs/planning/schema_chat_thread_map_20260208.md`
