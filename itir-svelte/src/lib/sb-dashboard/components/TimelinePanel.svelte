@@ -124,7 +124,7 @@
   </div>
 
   {#if filtered.length}
-    <div class="overflow-auto rounded-xl ring-1 ring-ink-900/10 bg-paper-50">
+    <div class="max-h-[560px] overflow-auto overscroll-contain rounded-xl ring-1 ring-ink-900/10 bg-paper-50">
       <div class="min-w-[780px]">
         {#each filtered as e, i (rowKey(e, i))}
           {@const role = e.kind === 'chat' ? roleFor(e) : 'unknown'}

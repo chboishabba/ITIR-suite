@@ -1,6 +1,7 @@
 <script lang="ts">
   import Section from '$lib/ui/Section.svelte';
   import type { DashboardArtifactLink } from '../contracts/dashboard';
+  import ColorBarByTime from '$lib/ui/ColorBarByTime.svelte';
 
   export let links: DashboardArtifactLink[] | undefined;
 
@@ -76,6 +77,17 @@
     const a = 0.06 + 0.22 * r;
     return `background: rgba(194, 91, 42, ${a.toFixed(3)});`;
   }
+
+  function mtimeHours(l: DashboardArtifactLink): number[] {
+    if (typeof l.mtime_hour === 'number' && Number.isFinite(l.mtime_hour)) return [l.mtime_hour];
+    return [];
+  }
+
+  function seenBins(l: DashboardArtifactLink): number[] | null {
+    const b = (l as any).seen_hour_bins;
+    if (Array.isArray(b) && b.length === 24) return b.map((x) => (typeof x === 'number' && Number.isFinite(x) ? x : 0));
+    return null;
+  }
 </script>
 
 <Section title="Artifacts" subtitle="Paths are local; this UI does not attempt to open them.">
@@ -93,8 +105,13 @@
                 {@const file = basename(l.path) || l.label}
                 {@const seen = l.seen_count ?? (l.seen_dates?.length ?? 1)}
                 <li class="flex items-start justify-between gap-4 rounded-xl ring-1 ring-ink-900/10 px-4 py-2" style={satBg(seen)}>
-                  <div class="min-w-0">
+                  <div class="min-w-0 flex-1">
                     <div class="text-sm font-medium text-ink-950 truncate" title={l.path}>{file}</div>
+                    {#if seenBins(l) || mtimeHours(l).length}
+                      <div class="mt-2 w-full max-w-[520px]" title={`seen-hour bins use daily dashboard generated_at; mtime marker (ring) is file mtime in UTC: ${l.mtime_iso ?? ''}`}>
+                        <ColorBarByTime bins={seenBins(l)} markHours={mtimeHours(l)} heightPx={10} gapPx={1} />
+                      </div>
+                    {/if}
                     {#if l.seen_dates && l.seen_dates.length}
                       <div class="mt-1 font-mono text-[11px] text-ink-800/70" title={l.seen_dates.join(', ')}>
                         seen {seen}x: {l.seen_dates[0]}{l.seen_dates.length > 1 ? ` .. ${l.seen_dates[l.seen_dates.length - 1]}` : ''}

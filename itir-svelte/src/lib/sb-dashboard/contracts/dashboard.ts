@@ -5,7 +5,11 @@ export const DashboardArtifactLinkSchema = z.object({
   path: z.string(),
   // Optional range aggregation helpers (Svelte-side), ignored by legacy SB HTML.
   seen_count: z.number().int().nonnegative().optional(),
-  seen_dates: z.array(z.string()).optional()
+  seen_dates: z.array(z.string()).optional(),
+  // Optional time-of-day distribution helpers (Svelte-side).
+  seen_hour_bins: z.array(z.number().int().nonnegative()).length(24).optional(),
+  mtime_iso: z.string().optional(),
+  mtime_hour: z.number().int().min(0).max(23).optional()
 });
 
 export const DashboardTimelineEventSchema = z.object({

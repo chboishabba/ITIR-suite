@@ -68,7 +68,7 @@
   <FrequencyBars frequencyByHour={payload.frequency_by_hour} />
   <ArtifactLinks links={payload.artifact_links} />
 
-  <ChatThreadsTable rows={threadRows} />
+  <ChatThreadsTable rows={threadRows} start={data.selected.start || payload.date} end={data.selected.end || payload.date} />
   <ChatFlowWaterfall {segments} />
   <ToolUseSummary toolUse={payload.tool_use_summary} />
   <TimelineRibbonLite events={payload.timeline} />

@@ -3,6 +3,8 @@
   import type { ThreadRow } from '../adapters/dashboard';
 
   export let rows: ThreadRow[];
+  export let start: string | null = null;
+  export let end: string | null = null;
 
   type SortKey = 'share' | 'messageCount' | 'title';
   let sortKey: SortKey = 'share';
@@ -31,6 +33,13 @@
     } catch {
       // ignore
     }
+  }
+
+  function threadHref(threadId: string): string {
+    const qs: string[] = [];
+    if (start) qs.push(`start=${encodeURIComponent(start)}`);
+    if (end) qs.push(`end=${encodeURIComponent(end)}`);
+    return `/thread/${encodeURIComponent(threadId)}${qs.length ? `?${qs.join('&')}` : ''}`;
   }
 </script>
 
@@ -63,7 +72,15 @@
               <div class="flex items-center gap-3 min-w-0">
                 <div class="h-3 w-3 rounded-sm ring-1 ring-ink-900/20 shrink-0" style={`background:${r.colorHex ?? '#ddd'}`}></div>
                 <div class="min-w-0">
-                  <div class="text-sm text-ink-950 truncate" title={r.title}>{r.title}</div>
+                  <a
+                    class="text-sm text-ink-950 truncate underline decoration-ink-900/20 hover:decoration-ink-900/50"
+                    title="Open thread viewer in new tab"
+                    href={threadHref(r.threadId)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {r.title}
+                  </a>
                 </div>
               </div>
 

@@ -94,6 +94,25 @@ async function isWritableDir(dir: string): Promise<boolean> {
   }
 }
 
+async function addArtifactMtimes(links: DashboardArtifactLink[] | undefined): Promise<DashboardArtifactLink[] | undefined> {
+  if (!links || !links.length) return links;
+  const MAX = 200;
+  const slice = links.slice(0, MAX);
+  const out: DashboardArtifactLink[] = await Promise.all(
+    slice.map(async (l) => {
+      try {
+        const st = await fs.stat(l.path);
+        const iso = st.mtime.toISOString();
+        const hour = Number(iso.slice(11, 13));
+        return { ...l, mtime_iso: iso, mtime_hour: Number.isFinite(hour) ? hour : undefined };
+      } catch {
+        return l;
+      }
+    })
+  );
+  return links.length > MAX ? [...out, ...links.slice(MAX)] : out;
+}
+
 function runBuildDashboard(repoRoot: string, runsRoot: string, date: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const script = path.join(repoRoot, 'StatiBaker', 'scripts', 'build_dashboard.py');
@@ -233,6 +252,15 @@ function stableHash(text: string): number {
   return h >>> 0;
 }
 
+function hourFromIso(iso: unknown): number | null {
+  if (typeof iso !== 'string') return null;
+  if (iso.length < 13) return null;
+  const h = Number(iso.slice(11, 13));
+  if (!Number.isFinite(h)) return null;
+  if (h < 0 || h > 23) return null;
+  return h;
+}
+
 function buildRangePayload(dailies: DashboardPayload[], { start, end }: { start: string; end: string }): DashboardPayload {
   const warnings: string[] = [];
 
@@ -259,10 +287,11 @@ function buildRangePayload(dailies: DashboardPayload[], { start, end }: { start:
   // This avoids repeating identical absolute paths with date-prefixed labels.
   const artifactByPath = new Map<
     string,
-    { path: string; label: string; seen_count: number; seen_dates: Set<string> }
+    { path: string; label: string; seen_count: number; seen_dates: Set<string>; seen_hour_bins: number[] }
   >();
   for (const p of dailies) {
     const date = p.date;
+    const genHour = hourFromIso((p as any).generated_at);
     for (const a of p.artifact_links ?? []) {
       const absPath = String(a.path ?? '');
       if (!absPath) continue;
@@ -273,15 +302,29 @@ function buildRangePayload(dailies: DashboardPayload[], { start, end }: { start:
           path: absPath,
           label: base,
           seen_count: 0,
-          seen_dates: new Set<string>()
-        } as { path: string; label: string; seen_count: number; seen_dates: Set<string> });
+          seen_dates: new Set<string>(),
+          seen_hour_bins: Array.from({ length: 24 }, () => 0)
+        } as {
+          path: string;
+          label: string;
+          seen_count: number;
+          seen_dates: Set<string>;
+          seen_hour_bins: number[];
+        });
       cur.seen_count += 1;
       if (date) cur.seen_dates.add(date);
+      if (genHour !== null) cur.seen_hour_bins[genHour] = (cur.seen_hour_bins[genHour] ?? 0) + 1;
       artifactByPath.set(absPath, cur);
     }
   }
   const artifacts: DashboardArtifactLink[] = [...artifactByPath.values()]
-    .map((a) => ({ label: a.label, path: a.path, seen_count: a.seen_count, seen_dates: [...a.seen_dates].sort() }))
+    .map((a) => ({
+      label: a.label,
+      path: a.path,
+      seen_count: a.seen_count,
+      seen_dates: [...a.seen_dates].sort(),
+      seen_hour_bins: a.seen_hour_bins
+    }))
     .sort((a, b) => (b.seen_count ?? 0) - (a.seen_count ?? 0) || String(a.label).localeCompare(String(b.label)));
 
   // Summary: compute only what UI needs today.
@@ -582,6 +625,9 @@ export async function load({ url }: { url: URL }) {
     payload = buildRangePayload(dailies, { start, end });
     payload.warnings = [...(payload.warnings ?? []), ...warnings];
   }
+
+  // Enrich artifacts with filesystem mtime (best-effort local convenience).
+  if (payload.artifact_links) payload.artifact_links = await addArtifactMtimes(payload.artifact_links);
 
   const builtCount = Number(url.searchParams.get('built') ?? 0) || 0;
   const failedCount = Number(url.searchParams.get('failed') ?? 0) || 0;

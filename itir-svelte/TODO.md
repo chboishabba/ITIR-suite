@@ -7,8 +7,9 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
 
 ## Near-Term (Parity)
 
+- Chat threads: clicking a thread opens a thread viewer route in a new tab (messenger-style bubbles; supports tail pagination for huge threads).
 - Artifacts: keep full-width section and scroll-contained list.
-- Artifacts: group by folder; display filename only; consider surfacing git-derived edit frequency (currently `seen_count` is "days referenced in range").
+- Artifacts: group by folder; display filename only; consider surfacing git-derived edit frequency (currently `seen_count` is "days referenced in range" and time-of-day bins are from per-day sightings).
 - Frequency by hour: support `all` (sum) view and consider multi-lane selection/stacked rendering.
 - Weekly/lifetime parity modules (from legacy SB HTML):
   - rollups / totals grid

@@ -13,9 +13,13 @@
 - Updated Chat Flow Waterfall rendering: each hour strip now fills full width (relative thread shares), with a separate per-hour volume bar.
 - Chat Flow Waterfall hover now shows thread title and thread ID; added width mode toggle (`time` vs `messages`) where time mode uses gap-to-next-message/hour-boundary as span weight.
 - Chat Threads table: force single-line rows (truncate long titles, widen Thread column via `table-fixed`), and show full thread ID as an overlay on hover with click-to-copy.
-- Updated Tool Use variants rendering to collapse Python heredoc invocations (e.g. `<<'PY' ... PY`) into a single `'PY'` variant bucket.
+- Tool Use: heredoc invocations (e.g. `<<'PY' ... PY`) are now trunked as `'PY'`, with different script bodies grouped underneath as separate sub-variants (derived from the heredoc body).
+- Tool Use: `apply_patch` payloads are now trunked as `'PATCH'`, with sub-variants labeled by affected file(s) (Add/Update/Delete/Move) instead of showing raw `*** Begin Patch` content.
+- Chat Threads: clicking the thread title opens a new-tab thread viewer at `/thread/<thread_id>`, rendered with a reusable messenger-style bubble component.
 - Timeline: clicking a row now expands a detail panel showing full preview/detail and available context (cmd/pwd when present; parsed fields; raw meta).
 - Fixed missing-days builder to resolve `SB_RUNS_ROOT` to an absolute path (prevents building dashboards into the wrong directory when env var is relative). Also surfaces build results/errors in the Missing Runs panel.
 - Added reusable UI container `Panel.svelte` for consistent non-section boxes (errors/notices) and used it for the page load error block.
 - Added reusable sparkline component `Sparkline.svelte` (GitHub-contrib "heartbeat" cue) and embedded it into summary stat cards for key lanes.
 - Artifacts UI: group by folder, display filename only, and add saturation hint based on `seen_count` within the selected range (avoids redundant absolute-path repetition).
+- Added reusable `ColorBarByTime.svelte` (24-hour distribution bar). Artifacts now show a full-width time-of-day bar: bins come from per-day sightings (daily dashboard `generated_at` hour), with a ring marker for current file `mtime` (UTC).
+- Timeline list is now vertically scroll-contained (max height + internal scroll) to avoid expanding the whole page.
