@@ -1,5 +1,8 @@
 <script lang="ts">
   import Section from '$lib/ui/Section.svelte';
+  import ToolCallBlock from '$lib/chat/ToolCallBlock.svelte';
+  import { parseToolCallText } from '$lib/chat/parseToolCall';
+  import { page } from '$app/stores';
   import type { DashboardTimelineEvent } from '../contracts/dashboard';
 
   export let events: DashboardTimelineEvent[] | undefined;
@@ -92,6 +95,30 @@
     }
   }
 
+  function threadMeta(e: DashboardTimelineEvent): { thread_id: string; thread_title: string; thread_origin: string } | null {
+    const m = (e.meta as any) ?? null;
+    const id = typeof m?.thread_id === 'string' ? m.thread_id : '';
+    if (!id) return null;
+    const title = typeof m?.thread_title === 'string' ? m.thread_title : '';
+    const origin = typeof m?.thread_origin === 'string' ? m.thread_origin : '';
+    return { thread_id: id, thread_title: title, thread_origin: origin };
+  }
+
+  function threadHref(threadId: string): string {
+    const u = new URL($page.url);
+    u.pathname = `/thread/${threadId}`;
+    // Keep range params when present.
+    const start = $page.url.searchParams.get('start');
+    const end = $page.url.searchParams.get('end');
+    if (start) u.searchParams.set('start', start);
+    else u.searchParams.delete('start');
+    if (end) u.searchParams.set('end', end);
+    else u.searchParams.delete('end');
+    // Avoid leaking unrelated params into the viewer.
+    u.searchParams.delete('tail');
+    return u.pathname + (u.searchParams.toString() ? `?${u.searchParams.toString()}` : '');
+  }
+
   function kvRows(obj: Record<string, unknown> | null | undefined): Array<{ k: string; v: string }> {
     if (!obj) return [];
     const rows: Array<{ k: string; v: string }> = [];
@@ -131,13 +158,13 @@
           {@const src = sourceFor(e)}
           {@const chars = charsFor(e)}
           {@const k = rowKey(e, i)}
-          {@const isOpen = expanded.has(k)}
-          {@const detailFields = parseDetailFields(e.detail ?? '')}
-          {@const metaRows = kvRows((e.meta as any) ?? null)}
-          {@const toolMeta = e.kind === 'chat' ? toolPreviewMeta(e) : null}
-          {@const command = toolMeta?.payload && typeof toolMeta.payload.cmd === 'string' ? toolMeta.payload.cmd : null}
-          {@const workdir = toolMeta?.payload && typeof toolMeta.payload.workdir === 'string' ? toolMeta.payload.workdir : null}
-          <div
+	          {@const isOpen = expanded.has(k)}
+	          {@const detailFields = parseDetailFields(e.detail ?? '')}
+	          {@const metaRows = kvRows((e.meta as any) ?? null)}
+	          {@const toolMeta = e.kind === 'chat' ? toolPreviewMeta(e) : null}
+	          {@const toolCall = toolMeta?.raw ? parseToolCallText(toolMeta.raw) : null}
+	          {@const tmeta = e.kind === 'chat' ? threadMeta(e) : null}
+	          <div
             class={`border-b border-ink-900/10 hover:bg-paper-100 ${isOpen ? 'bg-paper-100' : ''}`}
             title={`${e.ts} | ${e.kind}${e.kind === 'chat' ? ` role=${role} chars=${chars}${src ? ` source=${src}` : ''}` : ''} | ${e.detail}`}
           >
@@ -160,11 +187,16 @@
                     style={`background: ${roleColors[role] ?? roleColors.unknown}22; color: ${roleColors[role] ?? roleColors.unknown};`}
                   >
                     role={role}
-                  </span>
-                  {#if src}
-                    <span class="truncate font-mono text-[11px] text-ink-800/70" title={src}>src={src}</span>
-                  {/if}
-                {:else}
+	                  </span>
+	                  {#if src}
+	                    <span
+	                      class="inline-flex min-w-0 max-w-[10rem] items-center rounded-full px-2 py-1 font-mono text-[11px] ring-1 ring-ink-900/10 bg-paper-100 text-ink-800/70"
+	                      title={src}
+	                    >
+	                      <span class="truncate">src={src}</span>
+	                    </span>
+	                  {/if}
+	                {:else}
                   <span class="font-mono text-[11px] text-ink-800/60">meta</span>
                 {/if}
               </div>
@@ -189,36 +221,50 @@
             {#if isOpen}
               <div class="px-6 pb-3">
                 <div class="grid gap-2 rounded-xl bg-paper-50 ring-1 ring-ink-900/10 px-4 py-3">
-                  <div class="grid gap-2 md:grid-cols-2">
-                    <div class="text-xs text-ink-800/60">
-                      <div><span class="font-mono text-ink-900/80">ts</span>: <span class="font-mono">{e.ts}</span></div>
-                      <div><span class="font-mono text-ink-900/80">kind</span>: <span class="font-mono">{e.kind}</span></div>
-                      {#if e.source_path}
-                        <div><span class="font-mono text-ink-900/80">source</span>: <span class="font-mono break-all">{e.source_path}</span></div>
-                      {/if}
-                    </div>
-                    <div class="text-xs text-ink-800/60">
-                      {#if command}
-                        <div><span class="font-mono text-ink-900/80">cmd</span>:</div>
-                        <pre class="mt-1 whitespace-pre-wrap break-words rounded-lg bg-paper-100 ring-1 ring-ink-900/10 px-3 py-2 font-mono text-[11px] text-ink-900/80">{command}</pre>
-                      {/if}
-                      {#if workdir}
-                        <div class="mt-2"><span class="font-mono text-ink-900/80">pwd</span>: <span class="font-mono break-all">{workdir}</span></div>
-                      {/if}
-                    </div>
-                  </div>
-
-                  {#if toolMeta?.raw}
-                    <div>
-                      <div class="text-xs uppercase tracking-widest text-ink-800/60">preview</div>
-                      <pre class="mt-2 whitespace-pre-wrap break-words rounded-lg bg-paper-100 ring-1 ring-ink-900/10 px-3 py-2 font-mono text-[11px] text-ink-900/80">{toolMeta.raw}</pre>
-                    </div>
-                  {:else if e.detail}
-                    <div>
-                      <div class="text-xs uppercase tracking-widest text-ink-800/60">detail</div>
-                      <pre class="mt-2 whitespace-pre-wrap break-words rounded-lg bg-paper-100 ring-1 ring-ink-900/10 px-3 py-2 font-mono text-[11px] text-ink-900/80">{e.detail}</pre>
-                    </div>
-                  {/if}
+	                  <div class="grid gap-2 md:grid-cols-2">
+	                    <div class="text-xs text-ink-800/60">
+	                      <div><span class="font-mono text-ink-900/80">ts</span>: <span class="font-mono">{e.ts}</span></div>
+	                      <div><span class="font-mono text-ink-900/80">kind</span>: <span class="font-mono">{e.kind}</span></div>
+	                      {#if e.source_path}
+	                        <div><span class="font-mono text-ink-900/80">source</span>: <span class="font-mono break-all">{e.source_path}</span></div>
+	                      {/if}
+	                      {#if tmeta}
+	                        <div class="mt-2">
+	                          <div><span class="font-mono text-ink-900/80">thread</span>: <span class="font-mono break-all">{tmeta.thread_id}</span></div>
+	                          <div><span class="font-mono text-ink-900/80">title</span>: <span class="font-mono">{tmeta.thread_title ? tmeta.thread_title : '(no title)'}</span></div>
+	                          {#if tmeta.thread_origin}
+	                            <div><span class="font-mono text-ink-900/80">origin</span>: <span class="font-mono">{tmeta.thread_origin}</span></div>
+	                          {/if}
+	                          <div class="mt-2">
+	                            <a
+	                              class="inline-flex items-center rounded-lg bg-ink-900 text-paper-50 px-3 py-2 text-[10px] font-mono uppercase tracking-widest"
+	                              href={threadHref(tmeta.thread_id)}
+	                              target="_blank"
+	                              rel="noreferrer"
+	                              title="Open the full thread in the thread viewer (new tab)"
+	                            >
+	                              Open thread
+	                            </a>
+	                          </div>
+	                        </div>
+	                      {/if}
+	                    </div>
+	                    <div class="text-xs text-ink-800/60">
+	                      {#if toolCall}
+	                        <ToolCallBlock tool={toolCall.tool} payload={toolCall.payload} rawJson={toolCall.rawJson} parseError={toolCall.parseError} />
+	                      {:else if toolMeta?.raw}
+	                        <div><span class="font-mono text-ink-900/80">preview</span>:</div>
+	                        <pre class="mt-1 max-h-[260px] overflow-auto overscroll-contain whitespace-pre-wrap break-words rounded-lg bg-paper-100 ring-1 ring-ink-900/10 px-3 py-2 font-mono text-[11px] text-ink-900/80">{toolMeta.raw}</pre>
+	                      {/if}
+	                    </div>
+	                  </div>
+	
+	                  {#if !toolCall && !toolMeta?.raw && e.detail}
+	                    <div>
+	                      <div class="text-xs uppercase tracking-widest text-ink-800/60">detail</div>
+	                      <pre class="mt-2 max-h-[260px] overflow-auto overscroll-contain whitespace-pre-wrap break-words rounded-lg bg-paper-100 ring-1 ring-ink-900/10 px-3 py-2 font-mono text-[11px] text-ink-900/80">{e.detail}</pre>
+	                    </div>
+	                  {/if}
 
                   {#if Object.keys(detailFields).length}
                     <div>

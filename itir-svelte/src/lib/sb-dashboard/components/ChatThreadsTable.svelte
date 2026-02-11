@@ -53,7 +53,7 @@
     </select>
   </div>
 
-  <div class="overflow-auto rounded-xl ring-1 ring-ink-900/10">
+  <div class="max-h-[420px] overflow-auto overscroll-contain rounded-xl ring-1 ring-ink-900/10">
     <table class="min-w-[980px] w-full table-fixed border-separate border-spacing-0">
       <thead class="sticky top-0 bg-paper-100">
         <tr>

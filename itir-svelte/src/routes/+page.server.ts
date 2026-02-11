@@ -263,6 +263,7 @@ function hourFromIso(iso: unknown): number | null {
 
 function buildRangePayload(dailies: DashboardPayload[], { start, end }: { start: string; end: string }): DashboardPayload {
   const warnings: string[] = [];
+  const daysInRange = dateRangeInclusive(start, end).length || dailies.length || 1;
 
   // Aggregate frequency_by_hour
   const freq: Record<string, number[]> = {};
@@ -355,6 +356,50 @@ function buildRangePayload(dailies: DashboardPayload[], { start, end }: { start:
     media_events: mediaEvents,
     chat_threads: uniqueThreads.size
   };
+
+  // NotebookLM/notes metadata: aggregate nested counters.
+  const notesTotals: any = { total_events: 0, notebooklm_events: 0, app_counts: {}, lifecycle: {}, warnings: [] as string[] };
+  const addBucket = (dst: any, src: any) => {
+    if (!src || typeof src !== 'object') return;
+    for (const k of ['created', 'modified', 'moved', 'deleted', 'seen', 'other']) {
+      const v = (src as any)[k];
+      if (typeof v === 'number' && Number.isFinite(v)) dst[k] = (dst[k] ?? 0) + v;
+    }
+  };
+  for (const p of dailies) {
+    const ns = (p as any).notes_meta_summary;
+    if (!ns || typeof ns !== 'object') continue;
+    notesTotals.total_events += typeof (ns as any).total_events === 'number' ? (ns as any).total_events : 0;
+    notesTotals.notebooklm_events += typeof (ns as any).notebooklm_events === 'number' ? (ns as any).notebooklm_events : 0;
+    const lc = (ns as any).lifecycle;
+    if (lc && typeof lc === 'object') {
+      for (const [bucket, vals] of Object.entries(lc as Record<string, unknown>)) {
+        const dst = notesTotals.lifecycle[bucket] ?? {};
+        addBucket(dst, vals);
+        notesTotals.lifecycle[bucket] = dst;
+      }
+    }
+    const app = (ns as any).app_counts;
+    if (app && typeof app === 'object') {
+      for (const [k, v] of Object.entries(app as Record<string, unknown>)) {
+        const n = typeof v === 'number' && Number.isFinite(v) ? v : Number(String(v)) || 0;
+        notesTotals.app_counts[k] = (notesTotals.app_counts[k] ?? 0) + n;
+      }
+    }
+  }
+
+  const notesMetaSummary =
+    notesTotals.total_events || notesTotals.notebooklm_events
+      ? notesTotals
+      : undefined;
+
+  const notesMetaAveragesPerDay =
+    notesMetaSummary
+      ? {
+          total_events: notesTotals.total_events / daysInRange,
+          notebooklm_events: notesTotals.notebooklm_events / daysInRange
+        }
+      : undefined;
 
   // Chat threads: merge across days.
   type ThreadAgg = {
@@ -509,6 +554,8 @@ function buildRangePayload(dailies: DashboardPayload[], { start, end }: { start:
     chat_threads,
     chat_flow,
     tool_use_summary,
+    notes_meta_summary: notesMetaSummary,
+    notes_meta_averages_per_day: notesMetaAveragesPerDay,
     artifact_links: artifacts,
     timeline: trimmed,
     warnings

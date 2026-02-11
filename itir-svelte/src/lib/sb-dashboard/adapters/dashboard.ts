@@ -59,6 +59,10 @@ export type WaterfallSegment = {
   threadStartHour?: number;
   messageCount: number;
   durationSeconds: number;
+  firstTs?: string;
+  lastTs?: string;
+  firstRole?: string;
+  lastRole?: string;
 };
 
 export function buildWaterfallSegments(payload: DashboardPayload): WaterfallSegment[] {
@@ -89,6 +93,7 @@ export function buildWaterfallSegments(payload: DashboardPayload): WaterfallSegm
     const role = it.role;
     const sw = it.switch;
     const threadStartHour = it.thread_start_hour;
+    const ts = String((it as any)?.ts ?? '').trim() || undefined;
 
     let gap = typeof it.gap_to_next_seconds === 'number' && Number.isFinite(it.gap_to_next_seconds) ? it.gap_to_next_seconds : NaN;
     if (!Number.isFinite(gap) || gap <= 0) {
@@ -109,6 +114,8 @@ export function buildWaterfallSegments(payload: DashboardPayload): WaterfallSegm
     if (cur && cur.hour === hour && cur.threadId === threadId) {
       cur.messageCount += 1;
       cur.durationSeconds += gap;
+      if (ts) cur.lastTs = ts;
+      if (role) cur.lastRole = role;
       continue;
     }
     cur = {
@@ -121,7 +128,11 @@ export function buildWaterfallSegments(payload: DashboardPayload): WaterfallSegm
       switch: sw,
       threadStartHour,
       messageCount: 1,
-      durationSeconds: gap
+      durationSeconds: gap,
+      firstTs: ts,
+      lastTs: ts,
+      firstRole: role,
+      lastRole: role
     };
     segs.push(cur);
   }

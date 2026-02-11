@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sqlite3
 import sys
 from pathlib import Path
@@ -31,6 +30,10 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--db", required=True)
     ap.add_argument("--thread-id", required=True)
+    ap.add_argument("--ts", default="")
+    ap.add_argument("--ts-start", default="")
+    ap.add_argument("--ts-end", default="")
+    ap.add_argument("--prefer-non-empty", action="store_true")
     ap.add_argument("--start", default="")
     ap.add_argument("--end", default="")
     ap.add_argument("--tail", type=int, default=400)
@@ -40,8 +43,6 @@ def main() -> int:
     if not db_path.exists():
         raise SystemExit(f"DB not found: {db_path}")
 
-    tail = max(1, min(2000, int(args.tail)))
-
     con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
     con.row_factory = sqlite3.Row
     cur = con.cursor()
@@ -49,11 +50,76 @@ def main() -> int:
     # Prevent temp file failures in some environments.
     cur.execute("pragma temp_store=memory")
 
+    # Direct timestamp lookup (optionally constrained to a ts-range).
+    if args.ts.strip() or args.ts_start.strip() or args.ts_end.strip():
+        ts = args.ts.strip()
+        prefer_non_empty = bool(args.prefer_non_empty)
+
+        # Archives vary in timestamp formatting:
+        # - SB dashboard payloads tend to use `...Z` (seconds precision)
+        # - Chat export archives may store `...+00:00` and/or include fractional seconds.
+        #
+        # We query at second granularity and (optionally) prefer non-empty text to avoid
+        # rendering blank chat bubbles when the most recent record is a metadata-only row.
+        ts_prefix = ts[:19] if len(ts) >= 19 else ""
+        ts_alt = f"{ts[:-1]}+00:00" if ts.endswith("Z") else ts
+
+        where = ["canonical_thread_id = ?"]
+        params: list[str] = [args.thread_id]
+
+        if args.ts_start.strip():
+            where.append("ts >= ?")
+            params.append(args.ts_start.strip())
+        if args.ts_end.strip():
+            where.append("ts <= ?")
+            params.append(args.ts_end.strip())
+
+        if ts_prefix:
+            where.append("(ts = ? or ts = ? or substr(ts, 1, 19) = ?)")
+            params.extend([ts, ts_alt, ts_prefix])
+        elif ts:
+            where.append("(ts = ? or ts = ?)")
+            params.extend([ts, ts_alt])
+
+        where_sql = " where " + " and ".join(where)
+        # Prefer:
+        # - exact ts match (if provided)
+        # - non-empty text (if requested)
+        # - most recent within the second
+        order_sql = " order by "
+        order_terms: list[str] = []
+        if ts:
+            order_terms.append("(ts = ? or ts = ?) desc")
+            params.extend([ts, ts_alt])
+        if prefer_non_empty:
+            order_terms.append("(trim(coalesce(text,'')) <> '') desc")
+        order_terms.append("ts desc")
+        order_sql += ", ".join(order_terms)
+
+        cur.execute(
+            f"""
+            select message_id, canonical_thread_id, platform, account_id, ts, role, text, title,
+                   source_id, source_thread_id, source_message_id
+            from messages
+            {where_sql}
+            {order_sql}
+            limit 1
+            """,
+            params,
+        )
+        row = cur.fetchone()
+
+        out = {"message": dict(row) if row else None}
+        json.dump(out, fp=sys.stdout, ensure_ascii=True)
+        return 0
+
+    tail = max(1, min(2000, int(args.tail)))
+
     where = ["canonical_thread_id = ?"]
     params: list[str] = [args.thread_id]
     if args.start.strip():
-        where.append("ts >= ?")
-        params.append(start_bound(args.start.strip()))
+      where.append("ts >= ?")
+      params.append(start_bound(args.start.strip()))
     if args.end.strip():
         where.append("ts <= ?")
         params.append(end_bound(args.end.strip()))

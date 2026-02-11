@@ -3,6 +3,9 @@
   import type { WaterfallSegment } from '../adapters/dashboard';
   import { createWaterfallPrefs, hydrateWaterfallPrefs, colorFor, type WaterfallAlgoName, type WaterfallPaletteName } from '../hooks/waterfallColors';
   import { onMount } from 'svelte';
+  import ToolCallBlock from '$lib/chat/ToolCallBlock.svelte';
+  import { parseToolCallText } from '$lib/chat/parseToolCall';
+  import { page } from '$app/stores';
 
   // Initial, intentionally simple visualization:
   // consecutive segments grouped by hour+thread rendered as a striped bar,
@@ -16,7 +19,39 @@
 
   type WidthMode = 'time' | 'messages';
   let widthMode: WidthMode = 'time';
-  let hover: { hour: number; title: string; threadId: string; messageCount: number; durationSeconds: number } | null = null;
+  let hover:
+    | {
+        hour: number;
+        title: string;
+        threadId: string;
+        messageCount: number;
+        durationSeconds: number;
+        firstTs: string | null;
+        lastTs: string | null;
+        firstRole: string | null;
+        lastRole: string | null;
+      }
+    | null = null;
+  let hoverMsg: { ts: string; role: string; text: string } | null = null;
+  let hoverLoading = false;
+  const msgCache = new Map<string, { ts: string; role: string; text: string } | null>();
+  let hoverTimer: number | null = null;
+
+  type Pinned = {
+    hour: number;
+    title: string;
+    threadId: string;
+    messageCount: number;
+    durationSeconds: number;
+    firstTs: string | null;
+    lastTs: string | null;
+    firstRole: string | null;
+    lastRole: string | null;
+    segmentKey: string;
+  };
+  let pinned: Pinned | null = null;
+  let pinnedMsg: { ts: string; role: string; text: string } | null = null;
+  let pinnedLoading = false;
 
   let byHour: WaterfallSegment[][] = Array.from({ length: 24 }, () => []);
   let totals: number[] = Array.from({ length: 24 }, () => 0); // messages
@@ -65,6 +100,118 @@
     custom = '';
     prefs.update((v) => ({ ...v, palette: 'viridis', custom: '' }));
   }
+
+  function cacheKey(threadId: string, ts: string, range: { startTs: string | null; endTs: string | null } | null): string {
+    if (range?.startTs || range?.endTs) return `${threadId}|range|${range?.startTs ?? ''}|${range?.endTs ?? ''}`;
+    return `${threadId}|ts|${ts}`;
+  }
+
+  async function fetchMessageInto(
+    kind: 'hover' | 'pinned',
+    threadId: string,
+    ts: string,
+    range: { startTs: string | null; endTs: string | null } | null
+  ): Promise<void> {
+    const k = cacheKey(threadId, ts, range);
+    if (msgCache.has(k)) {
+      const v = msgCache.get(k) ?? null;
+      if (kind === 'hover') {
+        hoverMsg = v;
+        hoverLoading = false;
+      } else {
+        pinnedMsg = v;
+        pinnedLoading = false;
+      }
+      return;
+    }
+    if (kind === 'hover') {
+      hoverLoading = true;
+      hoverMsg = null;
+    } else {
+      pinnedLoading = true;
+      pinnedMsg = null;
+    }
+    try {
+      const u = new URL('/api/chat-message', window.location.origin);
+      u.searchParams.set('threadId', threadId);
+      if (range?.startTs || range?.endTs) {
+        if (range?.startTs) u.searchParams.set('startTs', range.startTs);
+        if (range?.endTs) u.searchParams.set('endTs', range.endTs);
+      } else {
+        u.searchParams.set('ts', ts);
+      }
+      const resp = await fetch(u.toString());
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = (await resp.json()) as any;
+      const m = data?.message;
+      const parsed =
+        m && typeof m === 'object' && typeof m.ts === 'string' && typeof m.role === 'string' && typeof m.text === 'string'
+          ? { ts: m.ts, role: m.role, text: m.text }
+          : null;
+      msgCache.set(k, parsed);
+      if (kind === 'hover') hoverMsg = parsed;
+      else pinnedMsg = parsed;
+    } catch {
+      msgCache.set(k, null);
+      if (kind === 'hover') hoverMsg = null;
+      else pinnedMsg = null;
+    } finally {
+      if (kind === 'hover') hoverLoading = false;
+      else pinnedLoading = false;
+    }
+  }
+
+  function segmentKeyFor(s: WaterfallSegment, idx: number): string {
+    // Stable enough for UI pin/highlight; doesn't need to be globally unique across days.
+    return `${s.hour}:${idx}:${s.threadId}:${s.firstTs ?? ''}:${s.lastTs ?? ''}`;
+  }
+
+  function pinSegment(s: WaterfallSegment, idx: number, hour: number): void {
+    const segKey = segmentKeyFor(s, idx);
+    pinned = {
+      hour,
+      title: (s.threadTitle ?? '(no title)').trim() || '(no title)',
+      threadId: s.threadId,
+      messageCount: s.messageCount,
+      durationSeconds: s.durationSeconds,
+      firstTs: s.firstTs ?? null,
+      lastTs: s.lastTs ?? null,
+      firstRole: s.firstRole ?? null,
+      lastRole: s.lastRole ?? null,
+      segmentKey: segKey
+    };
+    pinnedMsg = null;
+    pinnedLoading = false;
+    if (hoverTimer !== null) window.clearTimeout(hoverTimer);
+    hoverTimer = null;
+
+    const ts = (pinned.messageCount > 1 ? pinned.lastTs : pinned.firstTs) ?? null;
+    if (ts) void fetchMessageInto('pinned', pinned.threadId, ts, { startTs: pinned.firstTs, endTs: pinned.lastTs });
+  }
+
+  function unpin(): void {
+    pinned = null;
+    pinnedMsg = null;
+    pinnedLoading = false;
+  }
+
+  function threadHref(threadId: string, focusTs: string | null): string {
+    const u = new URL($page.url);
+    u.pathname = `/thread/${threadId}`;
+    // Preserve date range when present.
+    const start = $page.url.searchParams.get('start');
+    const end = $page.url.searchParams.get('end');
+    if (start) u.searchParams.set('start', start);
+    else u.searchParams.delete('start');
+    if (end) u.searchParams.set('end', end);
+    else u.searchParams.delete('end');
+
+    // Ask for a larger tail so "open at message" works for big threads within a range.
+    u.searchParams.set('tail', '2000');
+    if (focusTs) u.searchParams.set('focus_ts', focusTs);
+    else u.searchParams.delete('focus_ts');
+    return u.pathname + '?' + u.searchParams.toString();
+  }
 </script>
 
 <Section title="Chat Flow Waterfall" subtitle="Grouped by hour+thread. Hour strip always fills width; per-hour volume shown separately.">
@@ -106,16 +253,6 @@
     </button>
   </div>
 
-  {#if hover}
-    <div class="mb-3 rounded-xl bg-paper-100 ring-1 ring-ink-900/10 px-4 py-3">
-      <div class="text-xs uppercase tracking-widest text-ink-800/60">Hover</div>
-      <div class="mt-1 text-sm text-ink-950 whitespace-pre-wrap">{hover.title}{'\n'}{hover.threadId}</div>
-      <div class="mt-2 font-mono text-xs text-ink-800/70">
-        hour={hover.hour} msgs={hover.messageCount.toLocaleString()} span={fmtDur(hover.durationSeconds)}
-      </div>
-    </div>
-  {/if}
-
   <div class="space-y-2">
     {#each Array.from({ length: 24 }, (_, i) => i) as h}
       {@const hourSegs = byHour[h] ?? []}
@@ -133,39 +270,186 @@
             ></div>
           </div>
         </div>
-        <div class="flex-1 overflow-hidden rounded-lg bg-paper-100 ring-1 ring-ink-900/10">
-          <div class="flex h-6 w-full">
-            {#each hourSegs as s, idx (h + ':' + idx)}
-              <button
-                type="button"
-                class="h-full p-0 m-0 border-0"
-                style={`background:${colorFor({ hour: s.hour, role: s.role, switch: s.switch, threadIndex: s.threadIndex, threadStartHour: s.threadStartHour, defaultColor: s.colorHex }, $prefs)}; flex:${weight(s)} 0 0`}
-                title={`${s.threadTitle ?? '(no title)'}\n${s.threadId}\nmsgs=${s.messageCount} span_s=${Math.round(s.durationSeconds)} (hour=${h})`}
-                aria-label={`${(s.threadTitle ?? '(no title)').trim() || '(no title)'} ${s.threadId} msgs ${s.messageCount} span_s ${Math.round(s.durationSeconds)}`}
-                on:mouseenter={() =>
-                  (hover = {
-                    hour: h,
-                    title: (s.threadTitle ?? '(no title)').trim() || '(no title)',
-                    threadId: s.threadId,
+	        <div class="flex-1 overflow-hidden rounded-lg bg-paper-100 ring-1 ring-ink-900/10">
+	          <div class="flex h-6 w-full">
+	            {#each hourSegs as s, idx (h + ':' + idx)}
+	              {@const segKey = segmentKeyFor(s, idx)}
+	              <button
+	                type="button"
+	                class={`h-full p-0 m-0 border-0 ${pinned?.segmentKey === segKey ? 'ring-2 ring-ink-950 ring-offset-2 ring-offset-paper-100 relative z-10' : ''}`}
+	                style={`background:${colorFor({ hour: s.hour, role: s.role, switch: s.switch, threadIndex: s.threadIndex, threadStartHour: s.threadStartHour, defaultColor: s.colorHex }, $prefs)}; flex:${weight(s)} 0 0`}
+	                title={`${s.threadTitle ?? '(no title)'}\n${s.threadId}\nmsgs=${s.messageCount} span_s=${Math.round(s.durationSeconds)} (hour=${h})`}
+	                aria-label={`${(s.threadTitle ?? '(no title)').trim() || '(no title)'} ${s.threadId} msgs ${s.messageCount} span_s ${Math.round(s.durationSeconds)}`}
+	                on:mouseenter={() => {
+	                  if (pinned) return;
+	                  hover = {
+	                    hour: h,
+	                    title: (s.threadTitle ?? '(no title)').trim() || '(no title)',
+	                    threadId: s.threadId,
                     messageCount: s.messageCount,
-                    durationSeconds: s.durationSeconds
-                  })}
-                on:mouseleave={() => (hover = null)}
-                on:focus={() =>
-                  (hover = {
-                    hour: h,
-                    title: (s.threadTitle ?? '(no title)').trim() || '(no title)',
-                    threadId: s.threadId,
+                    durationSeconds: s.durationSeconds,
+                    firstTs: s.firstTs ?? null,
+                    lastTs: s.lastTs ?? null,
+                    firstRole: s.firstRole ?? null,
+                    lastRole: s.lastRole ?? null
+                  };
+	                  hoverMsg = null;
+	                  hoverLoading = false;
+	                  if (hoverTimer !== null) window.clearTimeout(hoverTimer);
+	                  const ts = (hover.messageCount > 1 ? hover.lastTs : hover.firstTs) ?? null;
+	                  if (ts) hoverTimer = window.setTimeout(() => fetchMessageInto('hover', hover!.threadId, ts, { startTs: hover!.firstTs, endTs: hover!.lastTs }), 60);
+	                }}
+	                on:mouseleave={() => {
+	                  if (pinned) return;
+	                  hover = null;
+	                  hoverMsg = null;
+	                  hoverLoading = false;
+	                  if (hoverTimer !== null) window.clearTimeout(hoverTimer);
+                  hoverTimer = null;
+                }}
+	                on:focus={() => {
+	                  if (pinned) return;
+	                  hover = {
+	                    hour: h,
+	                    title: (s.threadTitle ?? '(no title)').trim() || '(no title)',
+	                    threadId: s.threadId,
                     messageCount: s.messageCount,
-                    durationSeconds: s.durationSeconds
-                  })}
-                on:blur={() => (hover = null)}
-              ></button>
-            {/each}
-          </div>
-        </div>
+                    durationSeconds: s.durationSeconds,
+                    firstTs: s.firstTs ?? null,
+                    lastTs: s.lastTs ?? null,
+                    firstRole: s.firstRole ?? null,
+                    lastRole: s.lastRole ?? null
+                  };
+	                  hoverMsg = null;
+	                  hoverLoading = false;
+	                  if (hoverTimer !== null) window.clearTimeout(hoverTimer);
+	                  const ts = (hover.messageCount > 1 ? hover.lastTs : hover.firstTs) ?? null;
+	                  if (ts) hoverTimer = window.setTimeout(() => fetchMessageInto('hover', hover!.threadId, ts, { startTs: hover!.firstTs, endTs: hover!.lastTs }), 60);
+	                }}
+	                on:blur={() => {
+	                  if (pinned) return;
+	                  hover = null;
+	                  hoverMsg = null;
+	                  hoverLoading = false;
+	                  if (hoverTimer !== null) window.clearTimeout(hoverTimer);
+	                  hoverTimer = null;
+	                }}
+	                on:click={() => pinSegment(s, idx, h)}
+	              ></button>
+	            {/each}
+	          </div>
+	        </div>
       </div>
     {/each}
+  </div>
+
+  <!-- Keep hover info out of the waterfall area (no layout shift under cursor). -->
+  <div
+    class="mt-3 rounded-xl bg-paper-100 ring-1 ring-ink-900/10 px-4 py-3"
+    style="min-height: 8.5rem;"
+    aria-live="polite"
+  >
+    <div class="text-xs uppercase tracking-widest text-ink-800/60">{pinned ? 'Pinned' : 'Hover'}</div>
+    {#if pinned}
+      {@const pinnedToolCall = pinnedMsg ? parseToolCallText(pinnedMsg.text) : null}
+      <div class="mt-1 flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <div class="text-sm text-ink-950 truncate" title={`${pinned.title}\n${pinned.threadId}`}>
+            {pinned.title} <span class="font-mono text-ink-800/70">({pinned.threadId})</span>
+          </div>
+          <div class="mt-1 font-mono text-xs text-ink-800/70">
+            pinned hour={pinned.hour} msgs={pinned.messageCount.toLocaleString()} span={fmtDur(pinned.durationSeconds)}
+          </div>
+        </div>
+        <div class="shrink-0 flex items-center gap-2">
+          <a
+            class="rounded-lg bg-ink-900 text-paper-50 px-3 py-1 text-xs uppercase tracking-widest"
+            href={threadHref(pinned.threadId, pinnedMsg?.ts ?? null)}
+            target="_blank"
+            rel="noreferrer"
+            title="Open this thread in the thread viewer (new tab). Attempts to focus the pinned message."
+          >
+            Open thread
+          </a>
+          <button
+            type="button"
+            class="rounded-lg bg-paper-50 ring-1 ring-ink-900/10 px-3 py-1 text-xs uppercase tracking-widest"
+            on:click={unpin}
+          >
+            Unpin
+          </button>
+        </div>
+      </div>
+
+      {#if pinnedLoading}
+        <div class="mt-2 text-[12px] text-ink-800/60">Loading message…</div>
+      {:else if pinnedMsg}
+        <div class="mt-2 rounded-lg bg-paper-50 ring-1 ring-ink-900/10 px-3 py-2">
+          <div class="flex flex-wrap items-center gap-2 font-mono text-[11px] text-ink-800/60">
+            <span>{pinnedMsg.ts}</span>
+            <span class="rounded-full px-2 py-1 ring-1 ring-ink-900/10 bg-paper-100 text-ink-900/80">role={pinnedMsg.role}</span>
+            {#if pinned.messageCount > 1}
+              <span>(latest in segment)</span>
+            {/if}
+            {#if pinned.lastTs && pinnedMsg.ts && pinned.lastTs.slice(0, 19) !== pinnedMsg.ts.slice(0, 19)}
+              <span class="text-ink-800/60">(showing last non-empty)</span>
+            {/if}
+          </div>
+          <div class="mt-2">
+            {#if pinnedToolCall}
+              <ToolCallBlock tool={pinnedToolCall.tool} payload={pinnedToolCall.payload} rawJson={pinnedToolCall.rawJson} parseError={pinnedToolCall.parseError} />
+            {:else}
+              {#if pinnedMsg.text && pinnedMsg.text.trim()}
+                <pre class="max-h-[260px] overflow-auto overscroll-contain whitespace-pre-wrap break-words font-mono text-[12px] leading-relaxed text-ink-950">{pinnedMsg.text}</pre>
+              {:else}
+                <div class="font-mono text-[12px] leading-relaxed text-ink-800/60 italic">(empty message)</div>
+              {/if}
+            {/if}
+          </div>
+        </div>
+      {:else}
+        <div class="mt-2 text-[12px] text-ink-800/60">No message text available for this segment.</div>
+      {/if}
+    {:else if hover}
+      {@const hoverToolCall = hoverMsg ? parseToolCallText(hoverMsg.text) : null}
+      <div class="mt-1 text-sm text-ink-950 truncate" title={`${hover.title}\n${hover.threadId}`}>
+        {hover.title} <span class="font-mono text-ink-800/70">({hover.threadId})</span>
+      </div>
+      <div class="mt-1 font-mono text-xs text-ink-800/70">
+        hour={hover.hour} msgs={hover.messageCount.toLocaleString()} span={fmtDur(hover.durationSeconds)}
+      </div>
+      {#if hoverLoading}
+        <div class="mt-2 text-[12px] text-ink-800/60">Loading message…</div>
+      {:else if hoverMsg}
+        <div class="mt-2 rounded-lg bg-paper-50 ring-1 ring-ink-900/10 px-3 py-2">
+          <div class="flex flex-wrap items-center gap-2 font-mono text-[11px] text-ink-800/60">
+            <span>{hoverMsg.ts}</span>
+            <span class="rounded-full px-2 py-1 ring-1 ring-ink-900/10 bg-paper-100 text-ink-900/80">role={hoverMsg.role}</span>
+            {#if hover.messageCount > 1}
+              <span>(latest in segment)</span>
+            {/if}
+            {#if hover.lastTs && hoverMsg.ts && hover.lastTs.slice(0, 19) !== hoverMsg.ts.slice(0, 19)}
+              <span class="text-ink-800/60">(showing last non-empty)</span>
+            {/if}
+          </div>
+          <div class="mt-2">
+            {#if hoverToolCall}
+              <ToolCallBlock tool={hoverToolCall.tool} payload={hoverToolCall.payload} rawJson={hoverToolCall.rawJson} parseError={hoverToolCall.parseError} />
+            {:else}
+              {#if hoverMsg.text && hoverMsg.text.trim()}
+                <pre class="max-h-[260px] overflow-auto overscroll-contain whitespace-pre-wrap break-words font-mono text-[12px] leading-relaxed text-ink-950">{hoverMsg.text}</pre>
+              {:else}
+                <div class="font-mono text-[12px] leading-relaxed text-ink-800/60 italic">(empty message)</div>
+              {/if}
+            {/if}
+          </div>
+        </div>
+      {:else}
+        <div class="mt-2 text-[12px] text-ink-800/60">No message text available for this segment.</div>
+      {/if}
+    {:else}
+      <div class="mt-1 text-sm text-ink-800/60">Hover a segment to see details. Click to pin.</div>
+    {/if}
   </div>
 
   <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-ink-800/60">

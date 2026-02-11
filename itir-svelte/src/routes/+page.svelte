@@ -6,6 +6,7 @@
     DashboardHeader,
     DashboardShell,
     FrequencyBars,
+    NotebookLMLifecycle,
     SummaryCards,
     TimelinePanel,
     ToolUseSummary
@@ -63,6 +64,8 @@
 
   <SummaryCards summary={payload.summary} frequencyByHour={payload.frequency_by_hour} />
 
+  <NotebookLMLifecycle {payload} />
+
   <WhenYouWorkHeatmap heatmaps={data.heatmaps} />
 
   <FrequencyBars frequencyByHour={payload.frequency_by_hour} />
@@ -73,6 +76,41 @@
   <ToolUseSummary toolUse={payload.tool_use_summary} />
   <TimelineRibbonLite events={payload.timeline} />
   <TimelinePanel events={payload.timeline} />
+
+  <Panel>
+    <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Graphs</div>
+    <div class="mt-2 text-sm text-ink-950">
+      <a class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50" href="/graphs/wiki-candidates"
+        >Wiki candidates (GWB)</a
+      >
+      <span class="ml-2 text-xs text-ink-800/60 font-mono">SensibLaw/.cache_local/wiki_candidates_gwb.json</span>
+    </div>
+    <div class="mt-2 text-sm text-ink-950">
+      <a class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50" href="/graphs/wiki-timeline"
+        >Wiki timeline (GWB)</a
+      >
+      <span class="ml-2 text-xs text-ink-800/60 font-mono">SensibLaw/.cache_local/wiki_timeline_gwb.json</span>
+    </div>
+    <div class="mt-2 text-sm text-ink-950">
+      <a
+        class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50"
+        href="/graphs/wiki-timeline-aoo"
+        >Wiki timeline AAO (GWB)</a
+      >
+      <span class="ml-2 text-xs text-ink-800/60 font-mono">SensibLaw/.cache_local/wiki_timeline_gwb_aoo.json</span>
+    </div>
+    <div class="mt-2 text-sm text-ink-950">
+      <a
+        class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50"
+        href="/graphs/wiki-timeline-aoo-all"
+        >Wiki timeline AAO combined (GWB)</a
+      >
+      <span class="ml-2 text-xs text-ink-800/60 font-mono">SensibLaw/.cache_local/wiki_timeline_gwb_aoo.json</span>
+    </div>
+    <div class="mt-2 text-xs text-ink-800/60">
+      Visualizes the pre-graph extraction substrate (page -&gt; candidate evidence edges).
+    </div>
+  </Panel>
 
   <div class="text-xs text-ink-800/60">
     Source: <span class="font-mono">{data.source}</span>

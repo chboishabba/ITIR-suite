@@ -3,7 +3,8 @@
 </script>
 
 <div class="min-h-dvh">
-  <div class="mx-auto max-w-[1200px] px-4 py-6">
+  <!-- On large displays keep ~10% whitespace on either side (content ~80vw), but cap for readability. -->
+  <div class="mx-auto w-full px-4 py-6 lg:w-[80vw] lg:max-w-[1800px]">
     <header class="mb-6">
       <div class="text-xs uppercase tracking-[0.28em] text-ink-800/60">{title}</div>
       <div class="mt-2 h-px w-full bg-gradient-to-r from-ink-900/20 via-ink-900/5 to-transparent"></div>

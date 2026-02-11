@@ -10,6 +10,7 @@ export { default as FrequencyBars } from './components/FrequencyBars.svelte';
 export { default as ArtifactLinks } from './components/ArtifactLinks.svelte';
 export { default as ChatThreadsTable } from './components/ChatThreadsTable.svelte';
 export { default as ChatFlowWaterfall } from './components/ChatFlowWaterfall.svelte';
+export { default as NotebookLMLifecycle } from './components/NotebookLMLifecycle.svelte';
 export { default as ToolUseSummary } from './components/ToolUseSummary.svelte';
 export { default as TimelinePanel } from './components/TimelinePanel.svelte';
 export { default as WarningsPanel } from './components/WarningsPanel.svelte';
