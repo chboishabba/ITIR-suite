@@ -70,6 +70,29 @@ export async function fetchThreadTail(
   };
 }
 
+export async function fetchThreadTailBySourceThreadId(
+  repoRoot: string,
+  sourceThreadId: string,
+  opts: QueryOpts = {}
+): Promise<{ canonicalThreadId: string | null; title: string | null; total: number; messages: ChatArchiveMessage[] }> {
+  const dbPath = path.join(repoRoot, 'chat-export-structurer', 'my_archive.sqlite');
+  const script = path.join(repoRoot, 'itir-svelte', 'scripts', 'query_chat_archive.py');
+  const tail = Math.max(1, Math.min(2000, Math.floor(opts.tail ?? 400)));
+
+  const argv = [script, '--db', dbPath, '--source-thread-id', sourceThreadId, '--tail', String(tail)];
+  if (opts.startIso && isDateText(opts.startIso)) argv.push('--start', opts.startIso);
+  if (opts.endIso && isDateText(opts.endIso)) argv.push('--end', opts.endIso);
+
+  const raw = await runQueryScript(argv, repoRoot);
+  const parsed = JSON.parse(raw) as any;
+  return {
+    canonicalThreadId: typeof parsed?.canonical_thread_id === 'string' ? parsed.canonical_thread_id : null,
+    title: typeof parsed?.title === 'string' ? parsed.title : parsed?.title ?? null,
+    total: Number(parsed?.total ?? 0) || 0,
+    messages: Array.isArray(parsed?.messages) ? (parsed.messages as ChatArchiveMessage[]) : []
+  };
+}
+
 export async function fetchMessageAtTs(
   repoRoot: string,
   canonicalThreadId: string,

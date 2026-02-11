@@ -33,7 +33,7 @@ Context is not commentary. Context is infrastructure.
 - `SensibLaw/` – ingestion + operations console for span-anchored legal corpora (see that repo for build/run docs).
 - `SL-reasoner/` – reasoning/IR spine that the SensibLaw UI and tooling consume.
 - `tircorder-JOBBIE/` – investigative/interpretive tooling (ITIR/TIRC experiments).
-- `StatiBaker/` – daily state distillation engine (temporal compiler over ITIR/TIRC/SL artifacts; docs-only, see that repo for design/specs).
+- `StatiBaker/` – daily state distillation engine (temporal compiler over ITIR/TIRC/SL artifacts; pre-1.0 and contract-first, see that repo for run/docs/specs).
 - `WhisperX-WebUI/` – speech-to-text pipeline + UI (WhisperX wrapper).
 - `reverse-engineered-chatgpt` – wrapper for programmatic access to chatGPT interface (note, issues with sending messages - testing stalled due to bot detection - chat account otherwise unaffected).
 - `chat-export-structurer/` – utilities for ingesting chat exports into SQLite with FTS.

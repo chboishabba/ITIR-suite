@@ -1,7 +1,7 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-02-08
+- 2026-02-10
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
@@ -16,12 +16,84 @@
 - pyThunderbird: no TODOs found.
 
 ## Active TODOs
+- Svelte SB dashboard migration (module parity + inventory):
+  - Inventory baseline: `docs/planning/sl_sb_web_component_inventory_20260210.md`
+  - Update registry/manifest drift when new UI surfaces appear:
+    `docs/planning/ui_surface_registry_20260208.md`,
+    `docs/planning/ui_surface_manifest.json`
+  - Track Svelte implementation tasks in: `itir-svelte/TODO.md`
+- Wikipedia connector + “fact tree” intake (do not treat external sources as normative):
+  - DONE: implement `SensibLaw/scripts/wiki_pull_api.py` (MediaWiki API baseline + pywikibot driver)
+  - DONE: pull + snapshot revision-locked seed pages (G.W. Bush set) into `SensibLaw/.cache_local/wiki_snapshots/`
+  - DONE: implement 1-hop category traversal with strict caps (member count, namespaces) for discovery
+  - DONE: root actor helper (`SensibLaw/scripts/ontology_actor_upsert.py`) + DBpedia external ref batch emission (`SensibLaw/scripts/dbpedia_lookup_api.py --emit-batch`)
+  - Implement: visual graph render of raw candidate set (do not trim first) from `wiki_candidates_gwb.json` -> `.dot`/`.svg` under `.cache_local/`
+  - Implement: DBpedia lookup runner for the bounded queue (cache-first; optional network) that annotates queue items as `pending|ambiguous|skipped` without choosing a URI automatically
+  - Implement: extract date-anchored event timeline candidates from the main wiki page snapshot (`George W. Bush`) into `SensibLaw/.cache_local/wiki_timeline_gwb.json`
+  - Implement: render wiki timeline in `itir-svelte` (`/graphs/wiki-timeline`) as pre-graph substrate (time bucket -> event edges)
+  - Implement: expand selected timeline event into actor/action/object mini-graph (sentence-local; non-causal) and render in `itir-svelte` (`/graphs/wiki-timeline-aoo`)
+  - Implement: AAO time rendering toggle (`auto|year|month|day`) that splits time into separate nodes (Year -> Month -> Day) for the AAO mini-graph UI
+  - Implement: whole-article combined AAO graph view that renders many events at once (event-heavy is ok; rely on pan/zoom + optional caps instead of pre-trimming)
+  - Implement: OAC v1.0 span lane + promotion gate:
+    - emit `span_candidates[]` as **unresolved mentions only** (spaCy pinned; structure only):
+      - exclude overlaps with already-resolved wikilink entities in the same sentence
+      - exclude time-only noun chunks (time is modeled separately)
+      - attach optional `hygiene.view_score` for view-layer sorting (truth != view)
+    - keep entities strictly ID-resolved (`wikilink|ontology|dbpedia/wikidata`)
+    - add `entity_meta` (id -> {type, provenance, confidence}) alongside AAO payload for typed views
+    - view-only promotion: recurrence N=2 candidate, N=3 eligible, promote only on hard-resolve
+    - spec: `docs/planning/oac_object_admissibility_contract_v1_20260211.md`
+  - DONE: classify wiki timeline/AAO fixes as hardcoded vs systemic with line references:
+    - `docs/planning/wiki_timeline_fix_inventory_hardcoded_vs_systemic_20260211.md`
+  - Follow-up: de-hardcode remaining sentence-specific heuristics in AAO extractor:
+    - replace `REPORTED_SUBJECT_RE` with dependency-first subject extraction only
+    - replace explicit `reported->cautioned` split with generic clause/verb-chain decomposition
+    - replace surface phrase object injections with resolver-scored dep/object promotion
+  - Follow-up: emit per-title progress to stderr in `wiki_pull_api.py` (stdout stays JSON) so 20-60s pulls do not look like a hang
+  - Follow-up: add explicit “environment sanity” checks (print interpreter path + driver selected) to debug pywikibot import mismatches quickly
+  - Follow-up: decide cache file ownership policy (`root` vs `ubuntu`) under `.cache_local/` to avoid permission friction
+  - draft `data/concepts/wiki_gwb_v1.json` fact-tree seed envelope + provenance fields (after snapshots exist)
+  - connect fact-tree outputs to the downstream investigation graph taxonomy (SL norms/interpretations/authority vs SB events/claims/provenance), keeping overlays as derived views:
+    - `docs/planning/bush_investigation_graphs_sl_io_context_20260210.md`
+- Legal principles ingest bootstrap (AU benchbooks + primary authority + wiki identity glue):
+  - Plan doc: `docs/planning/legal_principles_ingest_bootstrap_au_20260211.md`
+  - DONE: Add source-pack driven ingest queue for:
+    - Judicial College VIC bench books
+    - AIJA bench books (incl. DFV benchbook)
+    - FWC benchbooks (+ optional PDF lane)
+    - AustLII databases index + JADE registry page
+  - DONE: Implement bounded index pull + artifact manifest emit (title/url/content_type/outbound authority links), no open crawl.
+    - script: `SensibLaw/scripts/source_pack_manifest_pull.py`
+    - outputs: `SensibLaw/demo/ingest/legal_principles_au_v1/`
+  - DONE: Implement bounded authority-link follow pass (`max_depth` + `max_new_docs`) from first-pass manifest.
+    - script: `SensibLaw/scripts/source_pack_authority_follow.py`
+    - outputs: `SensibLaw/demo/ingest/legal_principles_au_v1/follow/`
+  - DONE: Render legal and legal_follow datasets in Bush-style graph routes via `?source=`:
+    - `itir-svelte/src/routes/graphs/wiki-timeline/+page.server.ts`
+    - `itir-svelte/src/routes/graphs/wiki-timeline-aoo/+page.server.ts`
+    - `itir-svelte/src/routes/graphs/wiki-timeline-aoo-all/+page.server.ts`
+    - plus dataset selectors in corresponding `+page.svelte` files.
+  - Feed extracted citations into existing citation-follow contract (`max_depth` + `max_new_docs` required) and preserve lane split:
+    - `citations[]` (hint lane)
+    - `sl_references[]` (parser-native lane)
+  - Pilot doctrinal primitive lane for Browne v Dunn-style cross-examination proposition handling (`put|not_put`, witness, proposition, doctrine_link).
+  - Keep wiki connector for identity/disambiguation only (never doctrinal authority).
 - Come back to the Duncan/Emma response draft:
   - `docs/planning/response_to_duncan_emma_itir_hospital_advocacy_20260208.md` missed the intended mark (needs a better synthesis/voice and should be evaluated against the actual posting context).
 - Tool Use Summary view follow-up:
   - Shell/hour is not hydrating from available sources (incl. chats); also verify Input/hour hydration.
   - Determine whether Shell/hour and Input/hour share the same upstream event/time-binning pipeline (likely coupled) and fix at the right layer (ingest vs reducer vs projection).
   - NotebookLM: ensure NotebookLM interactions (via `notebooklm-py` / any export/adapter) are ingested into the same tool-use event stream so Shell/hour/Input/hour and related counters can hydrate consistently.
+- Robust context fetch (online IDs / resolver gaps):
+  - DONE: resolver supports ChatGPT conversation UUIDs ("online IDs") without stopping at FTS candidates.
+  - DONE: local fallback consults `chat_exports/backups/*chatgpt_history_*.sqlite3` for UUID->title mapping.
+  - DONE: operator guidance in `docs/planning/chat_context_resolver_online_ids_20260210.md`.
+  - Implemented (2026-02-10): extend `chat-export-structurer` schema/ingest to store upstream IDs as nullable columns:
+    - `messages.source_thread_id` (conversation UUID)
+    - `messages.source_message_id`
+    This makes online UUID -> canonical_thread_id deterministic *once the export has been ingested*.
+  - Follow-up: bound SyncChatGPT live-capture with `--web-timeout` (avoid "hangs") and emit progress to stderr during long persistence runs.
+  - Follow-up: re-ingest relevant exports into `chat-export-structurer/my_archive.sqlite` so the resolver can answer UUIDs from the DB without web fallback.
 - Grafana integration (do not reimplement Grafana):
   - ratify metrics/logs/traces scope and label/cardinality policy:
     `docs/planning/grafana_integration_metrics_scope_20260208.md`
@@ -53,6 +125,10 @@
     unless expanded to raw IDs first (`A9`)
   - define and enforce machine-readable `loss_profile` schema across fold/sitrep/
     receipts surfaces (`A10`)
+- SB shell command modelling (from 2026-02-09 intent model):
+  - Add `command_attempt` entity with operator-scoped arg signatures, referent slots, resolution records, and outcomes (failure_class enum).
+  - Separate referent resolution from args; canonicalize artifacts (`fs:sha256`) independently.
+  - Implement attempt state machine (parse/invocation/resolution/permission/partial/success) and group retries/typos for summaries.
 - Run refactor execution from
   `docs/planning/refactor-master-coordination.md`:
   - keep `Q2`/`Q6`/`Q11` states updated (`OPEN` -> `RATIFIED` -> `IMPLEMENTED`

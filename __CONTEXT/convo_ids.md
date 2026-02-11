@@ -14,3 +14,4 @@ of the conversation when generating sync output.
 | 6986c9f5-3988-839d-ad80-9338ea8a04eb | Conductor vs SB/ITIR | 140 | SB state-governance and cloud-as-observer direction |
 | 6986ccc6-a58c-83a1-9c72-76c671dd7af0 | Codeex and Vibe Faster | 80 | Casey-git orchestration-adjacent context |
 | 6986c16d-e97c-839b-82b8-425b1e5a5e6d | GPU Methodology for CPU | 100 | User-labeled JavaCrust-adjacent thread (external relevance) |
+| 698c1cec-51c0-839a-a81b-c821aa4eabbb | Browne v Dunn Parsing | 120 | Doctrinal-layer ingest bootstrap context (benchbooks -> primary authority -> wiki identity glue) |

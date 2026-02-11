@@ -32,9 +32,9 @@
         lastRole: string | null;
       }
     | null = null;
-  let hoverMsg: { ts: string; role: string; text: string } | null = null;
+  let hoverMsg: { message_id: string; source_message_id: string | null; ts: string; role: string; text: string } | null = null;
   let hoverLoading = false;
-  const msgCache = new Map<string, { ts: string; role: string; text: string } | null>();
+  const msgCache = new Map<string, { message_id: string; source_message_id: string | null; ts: string; role: string; text: string } | null>();
   let hoverTimer: number | null = null;
 
   type Pinned = {
@@ -50,7 +50,7 @@
     segmentKey: string;
   };
   let pinned: Pinned | null = null;
-  let pinnedMsg: { ts: string; role: string; text: string } | null = null;
+  let pinnedMsg: { message_id: string; source_message_id: string | null; ts: string; role: string; text: string } | null = null;
   let pinnedLoading = false;
 
   let byHour: WaterfallSegment[][] = Array.from({ length: 24 }, () => []);
@@ -145,8 +145,14 @@
       const data = (await resp.json()) as any;
       const m = data?.message;
       const parsed =
-        m && typeof m === 'object' && typeof m.ts === 'string' && typeof m.role === 'string' && typeof m.text === 'string'
-          ? { ts: m.ts, role: m.role, text: m.text }
+        m &&
+        typeof m === 'object' &&
+        typeof m.message_id === 'string' &&
+        (typeof m.source_message_id === 'string' || m.source_message_id === null || m.source_message_id === undefined) &&
+        typeof m.ts === 'string' &&
+        typeof m.role === 'string' &&
+        typeof m.text === 'string'
+          ? { message_id: m.message_id, source_message_id: typeof m.source_message_id === 'string' ? m.source_message_id : null, ts: m.ts, role: m.role, text: m.text }
           : null;
       msgCache.set(k, parsed);
       if (kind === 'hover') hoverMsg = parsed;
@@ -195,7 +201,7 @@
     pinnedLoading = false;
   }
 
-  function threadHref(threadId: string, focusTs: string | null): string {
+  function threadHref(threadId: string, focusMid: string | null): string {
     const u = new URL($page.url);
     u.pathname = `/thread/${threadId}`;
     // Preserve date range when present.
@@ -208,8 +214,8 @@
 
     // Ask for a larger tail so "open at message" works for big threads within a range.
     u.searchParams.set('tail', '2000');
-    if (focusTs) u.searchParams.set('focus_ts', focusTs);
-    else u.searchParams.delete('focus_ts');
+    if (focusMid) u.searchParams.set('focus_mid', focusMid);
+    else u.searchParams.delete('focus_mid');
     return u.pathname + '?' + u.searchParams.toString();
   }
 </script>
@@ -364,7 +370,7 @@
         <div class="shrink-0 flex items-center gap-2">
           <a
             class="rounded-lg bg-ink-900 text-paper-50 px-3 py-1 text-xs uppercase tracking-widest"
-            href={threadHref(pinned.threadId, pinnedMsg?.ts ?? null)}
+            href={threadHref(pinned.threadId, pinnedMsg?.message_id ?? null)}
             target="_blank"
             rel="noreferrer"
             title="Open this thread in the thread viewer (new tab). Attempts to focus the pinned message."

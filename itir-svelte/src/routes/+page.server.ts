@@ -33,6 +33,82 @@ async function tryReadJson(p: string): Promise<unknown | null> {
   }
 }
 
+type NotebookMetaRow = {
+  threadId: string;
+  title: string;
+  messageCount: number;
+  origin: string;
+  sources: string[];
+  metaOnly: boolean;
+  firstTs?: string;
+  lastTs?: string;
+};
+
+function shortHash(value: string): string {
+  const clean = value.replace(/^sha256:/i, '').trim();
+  if (!clean) return '';
+  return clean.length > 12 ? `${clean.slice(0, 12)}...` : clean;
+}
+
+function minIso(a?: string, b?: string): string | undefined {
+  if (!a) return b;
+  if (!b) return a;
+  return b < a ? b : a;
+}
+
+function maxIso(a?: string, b?: string): string | undefined {
+  if (!a) return b;
+  if (!b) return a;
+  return b > a ? b : a;
+}
+
+async function loadNotebookMetaRowsForDate(runsRoot: string, date: string): Promise<NotebookMetaRow[]> {
+  const file = path.join(runsRoot, date, 'logs', 'notes', `${date}.jsonl`);
+  let raw = '';
+  try {
+    raw = await fs.readFile(file, 'utf-8');
+  } catch {
+    return [];
+  }
+
+  const byId = new Map<string, NotebookMetaRow>();
+  for (const line of raw.split(/\r?\n/g)) {
+    const text = line.trim();
+    if (!text) continue;
+    let record: any;
+    try {
+      record = JSON.parse(text);
+    } catch {
+      continue;
+    }
+
+    if (String(record?.signal ?? '').trim().toLowerCase() !== 'notes_meta') continue;
+    if (String(record?.app ?? '').trim().toLowerCase() !== 'notebooklm') continue;
+
+    const notebookHash = String(record?.notebook_id_hash ?? '').trim();
+    const isScoped = Boolean(notebookHash);
+    const id = isScoped ? `meta:notebooklm:${notebookHash}` : 'meta:notebooklm:unscoped';
+    const title = isScoped ? `NotebookLM ${shortHash(notebookHash)}` : 'NotebookLM (unscoped metadata)';
+    const ts = String(record?.ts ?? '').trim() || undefined;
+
+    const current = byId.get(id) ?? {
+      threadId: id,
+      title,
+      messageCount: 0,
+      origin: 'notebooklm',
+      sources: ['notebooklm (meta-only)'],
+      metaOnly: true
+    };
+
+    current.messageCount += 1;
+    current.firstTs = minIso(current.firstTs, ts);
+    current.lastTs = maxIso(current.lastTs, ts);
+    byId.set(id, current);
+  }
+
+  return [...byId.values()].sort((a, b) => b.messageCount - a.messageCount || a.title.localeCompare(b.title));
+}
+
 function dateRangeInclusive(start: string, end: string): string[] {
   const out: string[] = [];
   // dates are ISO so lexical order matches chronological order.
@@ -576,7 +652,8 @@ export async function load({ url }: { url: URL }) {
         source: envPath,
         parseError: null as string | null,
         availableDates: [] as string[],
-        selected: { start: '', end: '' }
+        selected: { start: '', end: '' },
+        notebookMetaRows: [] as NotebookMetaRow[]
       };
     } catch (err) {
       return {
@@ -584,7 +661,8 @@ export async function load({ url }: { url: URL }) {
         source: envPath,
         parseError: err instanceof Error ? err.message : String(err),
         availableDates: [] as string[],
-        selected: { start: '', end: '' }
+        selected: { start: '', end: '' },
+        notebookMetaRows: [] as NotebookMetaRow[]
       };
     }
   }
@@ -607,6 +685,7 @@ export async function load({ url }: { url: URL }) {
 
   const dailies: DashboardPayload[] = [];
   const dailyTuples: Array<{ date: string; payload: DashboardPayload }> = [];
+  const notebookMetaById = new Map<string, NotebookMetaRow>();
   const sources: string[] = [];
   const warnings: string[] = [];
   const missingDates: string[] = [];
@@ -620,7 +699,22 @@ export async function load({ url }: { url: URL }) {
     dailies.push(loaded.payload);
     dailyTuples.push({ date: d, payload: loaded.payload });
     sources.push(loaded.source);
+    for (const row of await loadNotebookMetaRowsForDate(runsRoot, d)) {
+      const current = notebookMetaById.get(row.threadId) ?? {
+        ...row,
+        messageCount: 0,
+        firstTs: undefined,
+        lastTs: undefined
+      };
+      current.messageCount += row.messageCount;
+      current.firstTs = minIso(current.firstTs, row.firstTs);
+      current.lastTs = maxIso(current.lastTs, row.lastTs);
+      notebookMetaById.set(row.threadId, current);
+    }
   }
+  const notebookMetaRows = [...notebookMetaById.values()].sort(
+    (a, b) => b.messageCount - a.messageCount || a.title.localeCompare(b.title)
+  );
 
   if (!dailies.length) {
     if (explicitSelection) {
@@ -631,7 +725,8 @@ export async function load({ url }: { url: URL }) {
         availableDates,
         selected: { start, end },
         missingDates,
-        heatmaps: buildHeatmaps([])
+        heatmaps: buildHeatmaps([]),
+        notebookMetaRows: [] as NotebookMetaRow[]
       };
     }
 
@@ -648,7 +743,8 @@ export async function load({ url }: { url: URL }) {
         availableDates,
         selected: { start: payload.date, end: payload.date },
         missingDates: [] as string[],
-        heatmaps: buildHeatmaps([{ date: payload.date, payload }])
+        heatmaps: buildHeatmaps([{ date: payload.date, payload }]),
+        notebookMetaRows: [] as NotebookMetaRow[]
       };
     } catch (err) {
       return {
@@ -658,7 +754,8 @@ export async function load({ url }: { url: URL }) {
         availableDates,
         selected: { start: end, end: end },
         missingDates: [] as string[],
-        heatmaps: buildHeatmaps([])
+        heatmaps: buildHeatmaps([]),
+        notebookMetaRows: [] as NotebookMetaRow[]
       };
     }
   }
@@ -688,7 +785,8 @@ export async function load({ url }: { url: URL }) {
     missingDates,
     heatmaps: buildHeatmaps(dailyTuples),
     runsRoot,
-    buildSummary: builtCount || failedCount ? { built: builtCount, failed: failedCount } : null
+    buildSummary: builtCount || failedCount ? { built: builtCount, failed: failedCount } : null,
+    notebookMetaRows
   };
 }
 

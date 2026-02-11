@@ -14,11 +14,30 @@
         actors: Array<{ label: string; resolved: string; role: string; source: string }>;
         action: string | null;
         objects: Array<{ title: string; source: string }>;
+        citations?: Array<{ text: string; kind?: string }>;
+        sl_references?: Array<{ text?: string; lane?: string; authority?: string; ref_value?: string }>;
+        party?: string;
+        toc_context?: Array<{ node_type?: string; identifier?: string; title?: string; path?: string }>;
+        legal_section_markers?: {
+          citation_prefixes?: string[];
+          sl_reference_lanes?: string[];
+          provision_stable_ids?: string[];
+          rule_atom_stable_ids?: string[];
+        };
+        timeline_facts?: Array<{
+          fact_id: string;
+          anchor: { year: number; month: number | null; day: number | null; precision: string; text: string; kind: string };
+          subjects?: string[];
+          action?: string | null;
+          objects?: string[];
+          party?: string;
+        }>;
         purpose: string | null;
         warnings: string[];
       }>;
     };
     relPath: string;
+    source?: string;
     error: string | null;
   };
 
@@ -29,6 +48,8 @@
   let maxObjects = 160;
   let includeRequesters = true;
   let includePurpose = false;
+  let orderByFactDate = false;
+  let showAllContextRows = false;
 
   let selectedNodeId: string | null = null;
   let contextBox: HTMLDivElement | null = null;
@@ -62,7 +83,36 @@
   $: eventsAll = data.payload.events ?? [];
   $: events = eventsAll.slice(0, Math.max(10, Math.min(eventsAll.length, Math.floor(limitEvents))));
 
-  type CtxRow = { key: string; event_id: string; time: string; section: string; text: string };
+  type CtxRow = {
+    key: string;
+    event_id: string;
+    time: string;
+    section: string;
+    text: string;
+    requesters: string[];
+    subjects: string[];
+    action: string | null;
+    actions: string[];
+    objects: string[];
+    citations: string[];
+    slRefs: string[];
+    party: string;
+    tocContext: string[];
+    legalMarkers: string[];
+    factRows: string[];
+    sortTime: string;
+    connected: string[];
+    purpose: string | null;
+  };
+
+  function uniqueStrings(xs: any[]): string[] {
+    const out = new Set<string>();
+    for (const x of xs ?? []) {
+      const s = String(x ?? '').trim();
+      if (s) out.add(s);
+    }
+    return Array.from(out);
+  }
 
   function keyFromNodeId(id: string): { kind: string; key: string } {
     const m = /^([a-z]+):(.+)$/.exec(id);
@@ -84,12 +134,23 @@
     return `${ym}-${pad2(d)}`;
   }
 
+  function factAnchorKey(a: any): string {
+    const y = String(a?.year ?? 0);
+    const m = typeof a?.month === 'number' ? pad2(a.month) : '99';
+    const d = typeof a?.day === 'number' ? pad2(a.day) : '99';
+    return `${y}-${m}-${d}`;
+  }
+
   function eventMatchesNode(e: any, nodeId: string): boolean {
     if (!nodeId) return false;
     if (nodeId.startsWith('act:')) return nodeId === `act:${e.event_id}`;
 
     if (nodeId.startsWith('sub:')) {
       const key = nodeId.slice('sub:'.length);
+      const stepSubs = Array.isArray((e as any).steps)
+        ? (e as any).steps.flatMap((s: any) => (Array.isArray(s?.subjects) ? s.subjects : []))
+        : [];
+      if (stepSubs.length) return stepSubs.some((x: any) => String(x) === key);
       return (e.actors ?? []).some((a: any) => (a.role ?? '') !== 'requester' && (a.resolved ?? a.label) === key);
     }
     if (nodeId.startsWith('req:')) {
@@ -98,6 +159,10 @@
     }
     if (nodeId.startsWith('obj:')) {
       const key = nodeId.slice('obj:'.length);
+      const stepObjs = Array.isArray((e as any).steps)
+        ? (e as any).steps.flatMap((s: any) => (Array.isArray(s?.objects) ? s.objects : []))
+        : [];
+      if (stepObjs.length) return stepObjs.some((x: any) => String(x) === key);
       return (e.objects ?? []).some((o: any) => (o.title ?? '') === key);
     }
 
@@ -149,19 +214,100 @@
     const rows: CtxRow[] = [];
     for (const e of events) {
       if (!eventMatchesNode(e, selectedNodeId)) continue;
+      const reqs = (e.actors ?? []).filter((a: any) => (a.role ?? '') === 'requester').map((a: any) => String(a.resolved ?? a.label ?? '')).filter(Boolean);
+      const stepSubs = Array.isArray((e as any).steps)
+        ? uniqueStrings((e as any).steps.flatMap((s: any) => (Array.isArray(s?.subjects) ? s.subjects : [])))
+        : [];
+      const subs = stepSubs.length
+        ? stepSubs
+        : (e.actors ?? []).filter((a: any) => (a.role ?? '') !== 'requester').map((a: any) => String(a.resolved ?? a.label ?? '')).filter(Boolean);
+      const stepObjs = Array.isArray((e as any).steps)
+        ? uniqueStrings((e as any).steps.flatMap((s: any) => (Array.isArray(s?.objects) ? s.objects : [])))
+        : [];
+      const objs = stepObjs.length
+        ? stepObjs
+        : (e.objects ?? []).map((o: any) => String(o.title ?? '')).filter(Boolean);
+      const stepActs = Array.isArray((e as any).steps) ? (e as any).steps.map((s: any) => String(s?.action ?? '')).filter(Boolean) : [];
+      const citations = Array.isArray((e as any).citations)
+        ? uniqueStrings((e as any).citations.map((c: any) => String(c?.text ?? '')).filter(Boolean))
+        : [];
+      const slRefs = Array.isArray((e as any).sl_references)
+        ? uniqueStrings(
+            (e as any).sl_references
+              .map((r: any) => String(r?.text ?? `${r?.authority ?? ''} ${r?.ref_value ?? ''}`.trim()))
+              .filter(Boolean)
+          )
+        : [];
+      const party = String((e as any).party ?? '').trim();
+      const tocContext = Array.isArray((e as any).toc_context)
+        ? uniqueStrings(
+            (e as any).toc_context
+              .map((t: any) => String(t?.path ?? `${t?.identifier ?? ''} ${t?.title ?? ''}`.trim()))
+              .filter(Boolean)
+          )
+        : [];
+      const legalMarkers = (() => {
+        const m = (e as any).legal_section_markers;
+        if (!m || typeof m !== 'object') return [] as string[];
+        return uniqueStrings([
+          ...((Array.isArray(m.citation_prefixes) ? m.citation_prefixes : []).map((x: any) => `cit:${String(x)}`)),
+          ...((Array.isArray(m.sl_reference_lanes) ? m.sl_reference_lanes : []).map((x: any) => `lane:${String(x)}`)),
+          ...((Array.isArray(m.provision_stable_ids) ? m.provision_stable_ids : []).map((x: any) => `prov:${String(x)}`)),
+          ...((Array.isArray(m.rule_atom_stable_ids) ? m.rule_atom_stable_ids : []).map((x: any) => `atom:${String(x)}`))
+        ]);
+      })();
+      const factRows = Array.isArray((e as any).timeline_facts)
+        ? uniqueStrings(
+            (e as any).timeline_facts.map((f: any) => {
+              const fa = factAnchorKey(f?.anchor);
+              const subs = Array.isArray(f?.subjects) ? f.subjects.join(', ') : '';
+              const act = String(f?.action ?? '').trim();
+              const objs = Array.isArray(f?.objects) ? f.objects.join(', ') : '';
+              return `${fa} | ${subs}${act ? ' -> ' + act : ''}${objs ? ' -> ' + objs : ''}`.trim();
+            })
+          )
+        : [];
+      const firstFactTime = Array.isArray((e as any).timeline_facts) && (e as any).timeline_facts.length
+        ? factAnchorKey((e as any).timeline_facts[0]?.anchor)
+        : '';
+      const connected = uniqueStrings([
+        ...reqs.map((x: string) => `req:${x}`),
+        ...subs.map((x: string) => `sub:${x}`),
+        ...stepActs.map((x: string) => `act:${x}`),
+        ...objs.map((x: string) => `obj:${x}`)
+      ]);
       rows.push({
         key: `${selectedNodeId}:${e.event_id}`,
         event_id: e.event_id,
         time: timeKeyForEvent(e, timeGranularity),
         section: e.section ?? '',
-        text: e.text ?? ''
+        text: e.text ?? '',
+        requesters: reqs,
+        subjects: subs,
+        action: typeof e.action === 'string' ? e.action : null,
+        actions: stepActs,
+        objects: objs,
+        citations,
+        slRefs,
+        party,
+        tocContext,
+        legalMarkers,
+        factRows,
+        sortTime: firstFactTime || timeKeyForEvent(e, 'day'),
+        connected,
+        purpose: typeof e.purpose === 'string' ? e.purpose : null
       });
     }
     // Keep chronological-ish by time bucket, then event_id.
-    rows.sort((a, b) => a.time.localeCompare(b.time) || a.event_id.localeCompare(b.event_id));
-    // If this is a high-degree node, cap context to keep scroll usable.
-    return rows.slice(0, 80);
+    if (orderByFactDate) {
+      rows.sort((a, b) => a.sortTime.localeCompare(b.sortTime) || a.event_id.localeCompare(b.event_id));
+    } else {
+      rows.sort((a, b) => a.time.localeCompare(b.time) || a.event_id.localeCompare(b.event_id));
+    }
+    return rows;
   })();
+
+  $: contextRowsShown = showAllContextRows ? contextRows : contextRows.slice(0, 80);
 
   $: contextNeedle = (() => {
     const id = selectedNodeId ?? '';
@@ -176,10 +322,10 @@
 
   afterUpdate(() => {
     if (!contextBox || !selectedNodeId) return;
-    const k = `${selectedNodeId}:${contextRows[0]?.event_id ?? ''}`;
+    const k = `${selectedNodeId}:${contextRowsShown[0]?.event_id ?? ''}`;
     if (!k || k === lastScrollKey) return;
     lastScrollKey = k;
-    const first = contextRows[0];
+    const first = contextRowsShown[0];
     if (!first) return;
     const el = contextBox.querySelector(`[data-ctx-id="${first.event_id}"]`);
     if (el && 'scrollIntoView' in el) (el as HTMLElement).scrollIntoView({ block: 'center' });
@@ -210,8 +356,14 @@
         const key = a.resolved || a.label;
         if (!key) continue;
         if (a.role === 'requester') requesterCount.set(key, (requesterCount.get(key) ?? 0) + 1);
-        else subjectCount.set(key, (subjectCount.get(key) ?? 0) + 1);
       }
+      const stepSubs = Array.isArray((e as any).steps)
+        ? uniqueStrings((e as any).steps.flatMap((s: any) => (Array.isArray(s?.subjects) ? s.subjects : [])))
+        : [];
+      const uniqueSubs = stepSubs.length
+        ? stepSubs
+        : uniqueStrings((e.actors ?? []).filter((a: any) => (a.role ?? '') !== 'requester').map((a: any) => a.resolved ?? a.label));
+      for (const key of uniqueSubs) subjectCount.set(key, (subjectCount.get(key) ?? 0) + 1);
       for (const o of e.objects ?? []) {
         const key = o.title;
         if (!key) continue;
@@ -259,7 +411,9 @@
       const actionText = e.action ?? '(no action matched)';
       const snippet = e.text.length > 58 ? e.text.slice(0, 58) + '...' : e.text;
       const actId = `act:${e.event_id}`;
-      actionNodes.push(node(actId, `${actionText}: ${snippet}`, '#fde68a', `${e.event_id} | ${e.anchor.text} | section=${e.section}`));
+      const stepActs = Array.isArray((e as any).steps) ? (e as any).steps.map((s: any) => String(s?.action ?? '')).filter(Boolean) : [];
+      const actionLabel = stepActs.length > 1 ? stepActs.join(' -> ') : actionText;
+      actionNodes.push(node(actId, `${actionLabel}: ${snippet}`, '#fde68a', `${e.event_id} | ${e.anchor.text} | section=${e.section}`));
 
       // Time -> action (attach at most specific available for selected granularity).
       const y = String(e.anchor.year || 0);
@@ -279,10 +433,15 @@
         if (!key) continue;
         if (a.role === 'requester') {
           if (includeRequesters && requesterSet.has(key)) edges.push({ from: `req:${key}`, to: actId });
-        } else {
-          if (subjectSet.has(key)) edges.push({ from: `sub:${key}`, to: actId });
         }
       }
+      const edgeSubs = Array.isArray((e as any).steps)
+        ? uniqueStrings((e as any).steps.flatMap((s: any) => (Array.isArray(s?.subjects) ? s.subjects : [])))
+        : [];
+      const uniqueEdgeSubs = edgeSubs.length
+        ? edgeSubs
+        : uniqueStrings((e.actors ?? []).filter((a: any) => (a.role ?? '') !== 'requester').map((a: any) => a.resolved ?? a.label));
+      for (const key of uniqueEdgeSubs) if (subjectSet.has(key)) edges.push({ from: `sub:${key}`, to: actId });
 
       // Action -> objects.
       for (const o of e.objects ?? []) {
@@ -329,6 +488,22 @@
 
     <div class="mt-4 flex flex-wrap items-center gap-3 text-sm">
       <label class="flex items-center gap-2">
+        <span class="text-ink-800/70">Dataset</span>
+        <select
+          class="rounded-md border border-ink-950/15 bg-white px-2 py-1 text-sm"
+          value={data.source ?? 'gwb'}
+          on:change={(e) => {
+            const v = (e.currentTarget as HTMLSelectElement).value;
+            window.location.href = `/graphs/wiki-timeline-aoo-all?source=${encodeURIComponent(v)}`;
+          }}
+        >
+          <option value="gwb">gwb</option>
+          <option value="hca">hca</option>
+          <option value="legal">legal</option>
+          <option value="legal_follow">legal_follow</option>
+        </select>
+      </label>
+      <label class="flex items-center gap-2">
         <span class="text-ink-800/70">Time</span>
         <select bind:value={timeGranularity} class="rounded-md border border-ink-950/15 bg-white px-2 py-1 text-sm">
           <option value="year">Year</option>
@@ -363,6 +538,28 @@
         <input type="checkbox" bind:checked={includePurpose} />
         <span class="text-ink-800/70">Purpose</span>
       </label>
+      <label class="flex items-center gap-2">
+        <input type="checkbox" bind:checked={orderByFactDate} />
+        <span class="text-ink-800/70">Fact-date order</span>
+      </label>
+      <a
+        class="rounded-md border border-ink-950/15 px-2 py-1 text-xs text-ink-950 hover:border-ink-950/30 hover:bg-ink-950/[0.03]"
+        href={`/graphs/wiki-timeline?source=${encodeURIComponent(data.source ?? 'gwb')}`}
+      >
+        Open Timeline
+      </a>
+      <a
+        class="rounded-md border border-ink-950/15 px-2 py-1 text-xs text-ink-950 hover:border-ink-950/30 hover:bg-ink-950/[0.03]"
+        href={`/graphs/wiki-timeline-aoo?source=${encodeURIComponent(data.source ?? 'gwb')}`}
+      >
+        Open AAO
+      </a>
+      <a
+        class="rounded-md border border-ink-950/15 px-2 py-1 text-xs text-ink-950 hover:border-ink-950/30 hover:bg-ink-950/[0.03]"
+        href={`/graphs/wiki-fact-timeline?source=${encodeURIComponent(data.source ?? 'gwb')}`}
+      >
+        Open Fact Timeline
+      </a>
     </div>
   </Panel>
 
@@ -384,11 +581,19 @@
   <Panel>
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Context</div>
-      <div class="text-[11px] font-mono text-ink-800/60">
+      <div class="flex flex-wrap items-center gap-3 text-[11px] font-mono text-ink-800/60">
         {#if selectedNodeId}
-          selected: {selectedNodeId}
+          <span>selected: {selectedNodeId}</span>
+          {#if contextRows.length > 80}
+            <label class="inline-flex items-center gap-1 rounded border border-ink-950/10 bg-white px-2 py-0.5">
+              <input type="checkbox" bind:checked={showAllContextRows} />
+              <span>all rows ({contextRows.length})</span>
+            </label>
+          {:else}
+            <span>rows: {contextRows.length}</span>
+          {/if}
         {:else}
-          click a node to preview the relevant extracted timeline text
+          <span>click a node to preview the relevant extracted timeline text</span>
         {/if}
       </div>
     </div>
@@ -401,12 +606,97 @@
       {:else if !contextRows.length}
         <div class="p-3 text-xs text-ink-800/70">No matching extracted timeline rows for this node in the current event window.</div>
       {:else}
-        {#each contextRows as r (r.key)}
+        {#each contextRowsShown as r (r.key)}
           <div class="border-b border-ink-950/10 p-3 last:border-b-0" data-ctx-id={r.event_id}>
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div class="font-mono text-[10px] text-ink-800/60">{r.time} {r.event_id}</div>
               <div class="font-mono text-[10px] text-ink-800/60">section={r.section}</div>
             </div>
+            <div class="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-ink-950">
+              {#if r.requesters.length}
+                {#each r.requesters as x (r.event_id + ':req:' + x)}
+                  <span class="rounded bg-purple-100 px-1.5 py-0.5 font-mono">[{x}]</span>
+                {/each}
+                <span class="font-mono text-ink-800/50">request</span>
+              {/if}
+              {#if r.subjects.length}
+                {#each r.subjects as x (r.event_id + ':sub:' + x)}
+                  <span class="rounded bg-emerald-100 px-1.5 py-0.5 font-mono">[{x}]</span>
+                {/each}
+                <span class="font-mono text-ink-800/50">do</span>
+              {/if}
+              {#if r.actions.length}
+                {#each r.actions as a (r.event_id + ':act:' + a)}
+                  <span class="rounded bg-amber-100 px-1.5 py-0.5 font-mono">[{a}]</span>
+                {/each}
+              {:else}
+                <span class="rounded bg-amber-100 px-1.5 py-0.5 font-mono">[{r.action ?? '(no action)'}]</span>
+              {/if}
+              {#if r.objects.length}
+                <span class="font-mono text-ink-800/50">object</span>
+                {#each r.objects as x (r.event_id + ':obj:' + x)}
+                  <span class="rounded bg-slate-100 px-1.5 py-0.5 font-mono">[{x}]</span>
+                {/each}
+              {/if}
+              {#if r.purpose}
+                <span class="font-mono text-ink-800/50">purpose</span>
+                <span class="rounded bg-yellow-50 px-1.5 py-0.5 font-mono">[{r.purpose}]</span>
+              {/if}
+            </div>
+            {#if r.connected.length}
+              <div class="mt-2 text-[11px]">
+                <span class="font-mono text-ink-800/50">connected</span>
+                {#each r.connected as x (r.event_id + ':conn:' + x)}
+                  <span class="ml-1 inline-block rounded bg-slate-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
+                {/each}
+              </div>
+            {/if}
+            {#if r.slRefs.length}
+              <div class="mt-2 text-[11px]">
+                <span class="font-mono text-ink-800/50">sl_refs</span>
+                {#each r.slRefs.slice(0, 6) as x (r.event_id + ':sl:' + x)}
+                  <span class="ml-1 inline-block rounded bg-blue-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
+                {/each}
+              </div>
+            {/if}
+            {#if r.party}
+              <div class="mt-2 text-[11px]">
+                <span class="font-mono text-ink-800/50">party</span>
+                <span class="ml-1 inline-block rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-ink-900">{r.party}</span>
+              </div>
+            {/if}
+            {#if r.tocContext.length}
+              <div class="mt-2 text-[11px]">
+                <span class="font-mono text-ink-800/50">toc</span>
+                {#each r.tocContext.slice(0, 4) as x (r.event_id + ':toc:' + x)}
+                  <span class="ml-1 inline-block rounded bg-slate-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
+                {/each}
+              </div>
+            {/if}
+            {#if r.legalMarkers.length}
+              <div class="mt-2 text-[11px]">
+                <span class="font-mono text-ink-800/50">legal_markers</span>
+                {#each r.legalMarkers.slice(0, 8) as x (r.event_id + ':lm:' + x)}
+                  <span class="ml-1 inline-block rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
+                {/each}
+              </div>
+            {/if}
+            {#if r.factRows.length}
+              <div class="mt-2 text-[11px]">
+                <span class="font-mono text-ink-800/50">timeline_facts</span>
+                {#each r.factRows.slice(0, 4) as x (r.event_id + ':fact:' + x)}
+                  <span class="ml-1 inline-block rounded bg-lime-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
+                {/each}
+              </div>
+            {/if}
+            {#if r.citations.length}
+              <div class="mt-2 text-[11px]">
+                <span class="font-mono text-ink-800/50">citations</span>
+                {#each r.citations.slice(0, 6) as x (r.event_id + ':cit:' + x)}
+                  <span class="ml-1 inline-block rounded bg-amber-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
+                {/each}
+              </div>
+            {/if}
             <div class="mt-2 text-sm text-ink-950">
               {#if contextNeedle}
                 {#each highlightParts(r.text, contextNeedle) as part, i (r.event_id + ':' + i)}

@@ -27,6 +27,30 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
     `dashboard_lifetime*.json` directly when present
   - range mode should prefer precomputed weekly JSON when available, else aggregate from dailies
 
+## Chat Threads
+
+- DONE (2026-02-11): add a source selector (multi-toggle) in Chat Threads so
+  thread rows can be enabled/disabled by source without changing date range.
+- DONE (2026-02-11): include `notebooklm (meta-only)` in the Chat Threads source
+  selector when NotebookLM lifecycle metadata exists in the selected payload.
+- DONE (2026-02-11): map `notebooklm (meta-only)` to metadata-backed rows by
+  parsing `runs/<date>/logs/notes/<date>.jsonl` (grouped by `notebook_id_hash`,
+  with an unscoped bucket for notebookless events).
+- DONE (2026-02-11): route NotebookLM rows into `/thread/<id>` and render
+  NotebookLM lifecycle cards (event/source/artifact/title/snippet fields).
+- DONE (2026-02-11): in NotebookLM thread view, render a source index panel
+  (numbered source list + type badges) and show per-event source refs as
+  compact number ranges (`1-3,7`) instead of repeating long source titles.
+- DONE (2026-02-11): render NotebookLM source snippets via Markdown-lite so
+  headings/lists/code formatting survives.
+- Keep source derivation consistent:
+  - prefer per-thread `source_ids` when present
+  - fallback to thread `origin`
+- Follow-up: add a dashboard-level global source scope (shared picker) that can
+  drive chat-source and metadata-source filtering across modules.
+- Follow-up: add a privacy mode toggle for NotebookLM thread rendering
+  (local full snippets vs strict metadata-only redaction).
+
 ## Tool Use Summary (Parser)
 
 - Implement a generic shell-line parser for compound commands:

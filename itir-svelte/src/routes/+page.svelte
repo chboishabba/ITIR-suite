@@ -12,7 +12,7 @@
     ToolUseSummary
   } from '$lib/sb-dashboard';
 
-  import { buildThreadRows, buildWaterfallSegments } from '$lib/sb-dashboard/adapters/dashboard';
+  import { buildThreadRows, buildWaterfallSegments, type ThreadRow } from '$lib/sb-dashboard/adapters/dashboard';
   import type { DashboardPayload } from '$lib/sb-dashboard/contracts/dashboard';
   import DateRangeSelector from '$lib/ui/DateRangeSelector.svelte';
   import MissingRunsPanel from '$lib/ui/MissingRunsPanel.svelte';
@@ -30,12 +30,23 @@
     heatmaps: any;
     runsRoot: string;
     buildSummary: { built: number; failed: number } | null;
+    notebookMetaRows?: ThreadRow[];
   };
 
   export let form: any;
 
   $: payload = data.payload;
-  $: threadRows = buildThreadRows(payload);
+  $: notebooklmMetaEvents = (() => {
+    const summary = (payload as any)?.notes_meta_summary ?? (payload as any)?.notes_meta_totals;
+    const raw = summary?.notebooklm_events;
+    const n = typeof raw === 'number' && Number.isFinite(raw) ? raw : Number(String(raw ?? ''));
+    return Number.isFinite(n) ? Math.max(0, Math.trunc(n)) : 0;
+  })();
+  $: baseThreadRows = buildThreadRows(payload);
+  $: threadRows = (() => {
+    const extras = (data.notebookMetaRows ?? []).filter((r) => !baseThreadRows.some((b) => b.threadId === r.threadId));
+    return extras.length ? [...baseThreadRows, ...extras] : baseThreadRows;
+  })();
   $: segments = buildWaterfallSegments(payload);
 </script>
 
@@ -71,7 +82,12 @@
   <FrequencyBars frequencyByHour={payload.frequency_by_hour} />
   <ArtifactLinks links={payload.artifact_links} />
 
-  <ChatThreadsTable rows={threadRows} start={data.selected.start || payload.date} end={data.selected.end || payload.date} />
+  <ChatThreadsTable
+    rows={threadRows}
+    start={data.selected.start || payload.date}
+    end={data.selected.end || payload.date}
+    notebooklmMetaEvents={notebooklmMetaEvents}
+  />
   <ChatFlowWaterfall {segments} />
   <ToolUseSummary toolUse={payload.tool_use_summary} />
   <TimelineRibbonLite events={payload.timeline} />
@@ -107,8 +123,32 @@
       >
       <span class="ml-2 text-xs text-ink-800/60 font-mono">SensibLaw/.cache_local/wiki_timeline_gwb_aoo.json</span>
     </div>
+    <div class="mt-2 text-sm text-ink-950">
+      <a
+        class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50"
+        href="/graphs/wiki-timeline-aoo?source=hca"
+        >Case timeline AAO (HCA S94/2025)</a
+      >
+      <span class="ml-2 text-xs text-ink-800/60 font-mono">SensibLaw/.cache_local/wiki_timeline_hca_s942025_aoo.json</span>
+    </div>
+    <div class="mt-2 text-sm text-ink-950">
+      <a
+        class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50"
+        href="/graphs/wiki-timeline-aoo-all?source=hca"
+        >Case timeline AAO combined (HCA S94/2025)</a
+      >
+      <span class="ml-2 text-xs text-ink-800/60 font-mono">SensibLaw/.cache_local/wiki_timeline_hca_s942025_aoo.json</span>
+    </div>
     <div class="mt-2 text-xs text-ink-800/60">
       Visualizes the pre-graph extraction substrate (page -&gt; candidate evidence edges).
+    </div>
+  </Panel>
+
+  <Panel>
+    <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Archive</div>
+    <div class="mt-2 text-sm text-ink-950">
+      <a class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50" href="/threads">Browse threads</a>
+      <span class="ml-2 text-xs text-ink-800/60 font-mono">chat-export-structurer/my_archive.sqlite</span>
     </div>
   </Panel>
 

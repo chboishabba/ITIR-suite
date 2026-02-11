@@ -57,6 +57,7 @@ pyaudio
 pycparser==2.22
 pynput
 pytest
+pywikibot
 # Python dependencies for Chat Export Structurer
 pytubefix
 pyyaml
@@ -66,8 +67,7 @@ requests
 ruamel.yaml
 ruff
 sounddevice
-spacy>=3.5,<4
-spacy>=3.7,<4
+spacy==3.8.11
 sqlmodel
 # Streaming JSON parser for large chat exports
 streamlit

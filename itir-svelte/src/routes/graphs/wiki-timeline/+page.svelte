@@ -14,6 +14,7 @@
       }>;
     };
     relPath: string;
+    source?: string;
     error: string | null;
   };
 
@@ -71,7 +72,7 @@
 
 <div class="space-y-4 p-6">
   <Panel>
-    <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Wiki timeline (GWB)</div>
+    <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Wiki timeline</div>
     <div class="mt-2 text-sm text-ink-950">
       Source: <span class="font-mono text-xs">{data.relPath}</span>
     </div>
@@ -83,6 +84,22 @@
     </div>
 
     <div class="mt-3 flex flex-wrap items-center gap-3 text-sm">
+      <label class="flex items-center gap-2">
+        <span class="text-ink-800/70">Source</span>
+        <select
+          class="rounded-md border border-ink-950/15 bg-white px-2 py-1 text-sm"
+          value={data.source ?? 'gwb'}
+          on:change={(e) => {
+            const v = (e.currentTarget as HTMLSelectElement).value;
+            window.location.href = `/graphs/wiki-timeline?source=${encodeURIComponent(v)}`;
+          }}
+        >
+          <option value="gwb">gwb</option>
+          <option value="hca">hca</option>
+          <option value="legal">legal</option>
+          <option value="legal_follow">legal_follow</option>
+        </select>
+      </label>
       <label class="flex items-center gap-2">
         <span class="text-ink-800/70">Bucket</span>
         <select bind:value={bucket} class="rounded-md border border-ink-950/15 bg-white px-2 py-1 text-sm">
@@ -101,6 +118,24 @@
           class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs"
         />
       </label>
+      <a
+        class="rounded-md border border-ink-950/15 px-2 py-1 text-xs text-ink-950 hover:border-ink-950/30 hover:bg-ink-950/[0.03]"
+        href={`/graphs/wiki-timeline-aoo?source=${encodeURIComponent(data.source ?? 'gwb')}`}
+      >
+        Open AAO
+      </a>
+      <a
+        class="rounded-md border border-ink-950/15 px-2 py-1 text-xs text-ink-950 hover:border-ink-950/30 hover:bg-ink-950/[0.03]"
+        href={`/graphs/wiki-timeline-aoo-all?source=${encodeURIComponent(data.source ?? 'gwb')}`}
+      >
+        Open AAO-all
+      </a>
+      <a
+        class="rounded-md border border-ink-950/15 px-2 py-1 text-xs text-ink-950 hover:border-ink-950/30 hover:bg-ink-950/[0.03]"
+        href={`/graphs/wiki-fact-timeline?source=${encodeURIComponent(data.source ?? 'gwb')}`}
+      >
+        Open Fact Timeline
+      </a>
     </div>
   </Panel>
 
@@ -120,4 +155,3 @@
     </div>
   </Panel>
 </div>
-

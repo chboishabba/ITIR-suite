@@ -43,6 +43,37 @@ Tool messages:
 - The **raw JSON payload is hidden by default**; expand `raw payload` to view/copy it.
 - `update_plan` shows the plan items (status + step) instead of dumping the full JSON.
 - `write_stdin` shows `session_id`, `yield_ms`, and a `chars=(empty|N)` summary to avoid wasting vertical space on empty payloads.
+- `notebooklm_meta_event` renders NotebookLM lifecycle cards (event, notebook/source/artifact fields, snippet/keywords when present) with raw payload still behind an expander.
+- NotebookLM summary snippets render through the same Markdown-lite renderer used by chat bubbles.
+- NotebookLM thread view builds a per-thread source index (numbered list + type badges) and event cards reference those source numbers/ranges instead of repeating long source titles on every row.
+- Non-tool messages render a small Markdown subset (headings, bold, lists, fenced code) so formatting matches the original chat better.
 
 Performance:
 - The thread viewer progressively mounts a tail-window of messages and prepends more as you scroll upward, to keep DOM size reasonable for long threads.
+
+## Chat Threads (Dashboard)
+
+The Chat Threads table supports source-based filtering so you can enable/disable
+thread sources without changing the selected date range.
+
+- Source options are derived from per-thread `source_ids` when available.
+- Fallback source uses thread `origin` when `source_ids` is missing.
+- Default behavior enables all discovered sources.
+- A thread row is shown when at least one of its sources is enabled.
+- If NotebookLM lifecycle metadata is present for the selected range, the source
+  selector also shows `notebooklm (meta-only)` to make that provenance visible.
+  NotebookLM rows are derived from `runs/<date>/logs/notes/<date>.jsonl`
+  (grouped by `notebook_id_hash`, with an unscoped bucket when missing).
+- NotebookLM thread rows open in the same thread viewer route, where lifecycle
+  events are shown with display fields/snippets rather than raw-only JSON.
+
+## Future: Global Source Scope (Option 2)
+
+Current source filtering is local to Chat Threads. A future global source scope
+would apply one shared source selection across multiple modules.
+
+Planned semantics:
+- One shared source picker near the top of the dashboard.
+- Chat panels (threads/flow/timeline) filtered by chat sources.
+- Metadata-only modules (NotebookLM lifecycle) filtered by metadata sources.
+- Modules with no source mapping keep rendering and show their effective scope.

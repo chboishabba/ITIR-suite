@@ -7,8 +7,10 @@
   export let collapsedLabel = 'Expand';
   export let expandedLabel = 'Collapse';
   export let showFade = true;
+  export let lazy = false; // mount body only after first open
 
   let mounted = false;
+  let hasMountedContent = false;
   let wrapEl: HTMLDivElement | null = null;
   let contentEl: HTMLDivElement | null = null;
   let maxHeightCss = `${collapsedHeight}px`;
@@ -59,6 +61,8 @@
     open = !open;
   }
 
+  $: if (open) hasMountedContent = true;
+
   $: if (mounted) {
     // Keep max-height in sync when collapsedHeight changes.
     if (!open && maxHeightCss === 'none') maxHeightCss = `${collapsedHeight}px`;
@@ -71,6 +75,7 @@
 
   onMount(async () => {
     mounted = true;
+    hasMountedContent = open;
     await tick();
     const h = measureContentHeight();
     maxHeightCss = open ? 'none' : `${Math.max(0, Math.min(collapsedHeight, h))}px`;
@@ -90,6 +95,19 @@
       ro.observe(contentEl);
     }
   });
+
+  $: if (mounted && typeof ResizeObserver !== 'undefined' && contentEl && !ro) {
+    ro = new ResizeObserver(() => {
+      if (open && maxHeightCss !== 'none') {
+        maxHeightCss = `${measureContentHeight()}px`;
+        return;
+      }
+      if (!open) {
+        maxHeightCss = `${Math.max(0, Math.min(collapsedHeight, measureContentHeight()))}px`;
+      }
+    });
+    ro.observe(contentEl);
+  }
 
   onDestroy(() => ro?.disconnect());
 </script>
@@ -124,9 +142,11 @@
       style={`max-height:${maxHeightCss}`}
       on:transitionend={onTransitionEnd}
     >
-      <div bind:this={contentEl} class="px-3 pb-3">
-        <slot />
-      </div>
+      {#if !lazy || open || hasMountedContent}
+        <div bind:this={contentEl} class="px-3 pb-3">
+          <slot />
+        </div>
+      {/if}
     </div>
 
     {#if showFade && !open}
@@ -134,4 +154,3 @@
     {/if}
   </div>
 </div>
-

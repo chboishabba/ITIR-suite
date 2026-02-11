@@ -4,6 +4,61 @@ This changelog records user-visible behavior changes in the Svelte SB dashboard 
 
 ## Unreleased
 
+- Thread viewer (NotebookLM meta): loader now aggregates in a streaming pass
+  instead of retaining full parsed row objects, reducing server memory pressure
+  on long date ranges; defaults/caps are tightened (`tail` default 200, cap
+  400 for NotebookLM meta threads).
+- NotebookLM batch payload shaping: source summary fields are bounded
+  (per-item char cap + truncated flag) while preserving counts/references.
+- Dev server: added Vite watch ignores for high-churn data paths
+  (`StatiBaker/runs`, raw chat export drops, sqlite sidecars) to reduce
+  unnecessary dev-process memory churn.
+- Added `dev:profile` script (GC traces + near-limit heap snapshots) and
+  request-level memory tracing via `ITIR_TRACE_MEM=1` in `src/hooks.server.ts`
+  for diagnosing Node/Vite OOM.
+- Tool call expanders now support lazy body mounting, and heavy sections
+  (`raw payload`, batched notebook details/source IDs) are lazy-mounted to
+  reduce initial thread-view memory footprint.
+- Thread viewer route SSR restored (was client-only) so Notebook/thread content
+  is visible immediately even when client hydration/runtime has transient issues.
+- NotebookLM thread viewer: source snippets now render with the shared
+  Markdown-lite renderer (headings/lists/code formatting preserved).
+- NotebookLM thread viewer: added a per-thread Source Index panel (numbered
+  sources + type badges + mentions), and NotebookLM event cards now show
+  compact `refs=<ranges>` pointers (e.g. `1-3,7`) instead of repeating long
+  source names per event.
+- NotebookLM event cards: removed duplicate in-card timestamp (time is already
+  shown in bubble meta), emphasize notebook title, and show clearer event
+  phrasing for artifact outputs (type/status-first wording).
+- NotebookLM thread payload shaping: reduced batch event payload size (removed
+  duplicate full-record embeddings and capped in-event source-id arrays) to
+  avoid server OOM on large NotebookLM snapshots.
+- NotebookLM loader memory hardening: switched notes-log reads to streaming,
+  capped NotebookLM thread tail at 800 events, and only materializes message
+  objects for the selected tail window (instead of all matched events).
+- NotebookLM thread viewer: `notebooklm_meta_event` cards now surface
+  notebook/source/artifact display fields (titles, type/status, URLs) and
+  optional source-guide snippets/keywords when present, while keeping raw JSON
+  collapsed by default.
+- NotebookLM thread summary card now includes artifact-row and snippet counts
+  alongside source/event totals.
+- Chat Threads: added a source selector (multi-toggle) in the table header so
+  rows can be enabled/disabled by source without changing the date range.
+  Source options derive from per-thread `source_ids` with `origin` fallback.
+- Chat Threads: selector now includes `notebooklm (meta-only)` when NotebookLM
+  lifecycle metadata exists in the selected payload, with metadata-backed rows
+  grouped by `notebook_id_hash` from `runs/<date>/logs/notes/<date>.jsonl`
+  (plus an unscoped bucket), rendered as clickable `meta` rows that open in the
+  thread viewer.
+- NotebookLM thread viewer: `source_observed` metadata rows sharing the same
+  timestamp are batched into one event (`source_observed_batch`) with count +
+  expandable source-id list, reducing repetitive vertical spam.
+- NotebookLM thread viewer: raw JSON is now hidden by default behind the shared
+  tool-call expander (`raw payload`) while keeping key metadata in a compact
+  summary block.
+- NotebookLM thread viewer: added a top summary card (notebook hash/unscoped,
+  event count, grouped message count, source-observed count, unique source IDs,
+  first/last timestamp).
 - Graphs: added a generic bipartite graph viewer and a page at `/graphs/wiki-candidates` to visualize
   the wiki candidate substrate (seed page -> candidate evidence edges), including an aggregate-by-kind
   mode that makes event-heavy extraction immediately visible.
@@ -17,6 +72,19 @@ This changelog records user-visible behavior changes in the Svelte SB dashboard 
   view (union graph across many events), with simple caps to keep the display responsive.
 - Graphs: layered graph nodes are now clickable to expand full text in-place; layout centers columns
   and prioritizes spacing around the expanded node by giving it more vertical room.
+- Graphs: `/graphs/wiki-timeline-aoo-all` context panel now supports full chronological expansion for
+  high-degree nodes (`all rows` toggle), and each row surfaces connected-node tags plus `citations` /
+  `sl_refs` snippets for cross-event traceability.
+- Graphs: `/graphs/wiki-timeline-aoo-all` context panel now renders HCA parser lanes (`party`,
+  `toc_context`, `legal_markers`, `timeline_facts`) and supports `Fact-date order` sorting for
+  out-of-order evidence narratives.
+- Graphs: added `/graphs/wiki-fact-timeline` for linearized fact chronology rendering (time ->
+  party/subject -> action -> object) using `fact_timeline[]` when present.
+- Graphs: `/graphs/wiki-timeline` source selector now includes `hca` and can render timeline
+  buckets from HCA AAO payload events.
+- Graphs: `wiki-timeline`, `wiki-timeline-aoo`, and `wiki-timeline-aoo-all` now support dataset source
+  switching via `?source=` (`gwb`, `hca`, `legal`, `legal_follow` as available), so source-pack timelines
+  can be viewed in the same Bush-style surfaces.
 - Docs/TODO: refreshed SL/SB web surface inventory for the Svelte transition and added an explicit
   Tool Use Summary parsing task (compound shell lines, directory grouping).
 - Tool Use Summary: derive command families from compound shell lines (e.g. `cd … && pytest …`)
@@ -50,6 +118,16 @@ This changelog records user-visible behavior changes in the Svelte SB dashboard 
   time range (falls back to showing an explicit `(empty message)` placeholder when no text exists).
 - Thread viewer: empty messages render an explicit `(empty message)` placeholder instead of a blank
   bubble, since empty text can represent non-text chat events (images/files) or capture artifacts.
+- Thread viewer: message bodies render a small Markdown subset (headings, bold, lists, fenced code)
+  to better reflect ChatGPT-style formatting, while keeping code blocks scroll-contained.
+- Thread viewer: supports deep-link focusing via query params:
+  - `focus_mid=<message_id>` (exact)
+  - `focus_source_message_id=<source_message_id>` (when present)
+  - `focus_ts=...` (fallback, second-level match)
+- Thread viewer: user bubbles are now light (similar lightness to assistant bubbles) while keeping a distinct hue.
+- Added `/threads` route to browse/search the local archive and open threads in the viewer.
+- Thread viewer route now accepts online/source conversation UUIDs (when `source_thread_id` exists in the archive) and maps them to canonical thread ids.
+- Chat archive: improved ChatGPT export parsing to preserve non-text `content.parts` items as stable placeholder lines (e.g. images/files) instead of dropping them to empty text, and added an ingest flag to upsert empty-text rows when re-ingesting improved parses.
 
 ## 2026-02-10
 
@@ -97,3 +175,9 @@ This changelog records user-visible behavior changes in the Svelte SB dashboard 
   current file `mtime` (UTC).
 - Timeline list is now vertically scroll-contained (max height + internal scroll) to avoid expanding
   the whole page.
+- Wiki AAO views now prioritize step-level subjects/objects (from `steps[]`) over raw actor inventory
+  for context rows and subject edges, which removes false co-subject displays in multi-actor sentences.
+- Wiki AAO per-event view now surfaces `chains[]` metadata emitted by the extractor (sequence/purpose
+  links) as a first nesting/chain lane.
+- Wiki AAO per-event view now includes an "Object resolver hints" panel for quick curation checks on
+  non-wikilink objects (exact/near matches from extraction hints).

@@ -1,6 +1,6 @@
 {
   "schema_version": "itir.ui.surface.v1",
-  "generated_for": "2026-02-08",
+  "generated_for": "2026-02-10",
   "surfaces": [
     {
       "component": "SensibLaw",
@@ -55,6 +55,15 @@
       "access": "StatiBaker/runs/<date>/outputs/dashboard_lifetime.html",
       "launch_command": "cd StatiBaker && python scripts/build_dashboard.py --date <YYYY-MM-DD> --lifetime",
       "notes": "Read-only lifetime aggregate output."
+    },
+    {
+      "component": "itir-svelte",
+      "surface_id": "itir_svelte_sb_dashboard",
+      "surface_type": "sveltekit_dev",
+      "authority_lane": "SB_projection",
+      "access": "http://127.0.0.1:5173",
+      "launch_command": "cd itir-svelte && npm install && SB_RUNS_ROOT=../StatiBaker/runs SB_DATE=<YYYY-MM-DD> npm run dev",
+      "notes": "Work-in-progress SvelteKit port of SB dashboard modules; reads existing SB dashboard JSON outputs and can build missing days when SB_RUNS_ROOT is writable."
     },
     {
       "component": "ITIR-suite",

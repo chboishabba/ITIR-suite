@@ -7,9 +7,30 @@ export type ThreadRow = {
   share?: number;
   colorHex?: string;
   origin?: string;
+  sources: string[];
+  metaOnly?: boolean;
   firstTs?: string;
   lastTs?: string;
 };
+
+function normalizeSources(raw: unknown, origin?: string): string[] {
+  const out = new Set<string>();
+  if (Array.isArray(raw)) {
+    for (const item of raw) {
+      const value = String(item ?? '').trim();
+      if (value) out.add(value);
+    }
+  } else if (raw && typeof raw === 'object') {
+    for (const [key] of Object.entries(raw as Record<string, unknown>)) {
+      const value = String(key ?? '').trim();
+      if (value) out.add(value);
+    }
+  }
+
+  const fallback = String(origin ?? '').trim();
+  if (!out.size && fallback) out.add(fallback);
+  return [...out].sort((a, b) => a.localeCompare(b));
+}
 
 export function buildThreadRows(payload: DashboardPayload): ThreadRow[] {
   const byId = new Map<string, ThreadRow>();
@@ -22,6 +43,7 @@ export function buildThreadRows(payload: DashboardPayload): ThreadRow[] {
       title,
       messageCount: t.message_count ?? 0,
       origin: t.origin,
+      sources: normalizeSources((t as any).source_ids, t.origin),
       firstTs: t.first_ts,
       lastTs: t.last_ts
     };
@@ -39,6 +61,7 @@ export function buildThreadRows(payload: DashboardPayload): ThreadRow[] {
       share: t.share,
       colorHex: t.color_hex,
       origin: existing?.origin,
+      sources: existing?.sources ?? [],
       firstTs: existing?.firstTs,
       lastTs: existing?.lastTs
     };

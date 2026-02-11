@@ -101,6 +101,30 @@ Document:
   - `docs/planning/schemas/escalation_envelope.schema.json`
   - `docs/planning/schemas/escalation_envelope.example.healthcare.json`
 
+## Wikipedia Intake + Graph Taxonomy (2026-02-10)
+
+Docs:
+- `docs/planning/wiki_connector_mediawiki_api_contract_20260210.md`
+- `docs/planning/wiki_ingest_fact_tree_gwb_20260210.md`
+- `docs/planning/wiki_ingest_run_notes_20260210.md`
+- `docs/planning/bush_investigation_graphs_sl_io_context_20260210.md`
+- `docs/planning/wiki_timeline_extraction_gwb_20260211.md`
+- `docs/planning/wiki_timeline_fix_inventory_hardcoded_vs_systemic_20260211.md`
+- `docs/planning/oac_object_admissibility_contract_v1_20260211.md`
+
+Schemas/examples:
+- `docs/planning/schemas/dbpedia_lookup_queue.schema.json`
+- `docs/planning/schemas/authority_graph.schema.json`
+- `docs/planning/schemas/authority_graph.example.us_2001_2004_v0.json`
+
+## Legal Principles Ingest Bootstrap (AU) (2026-02-11)
+
+Benchbook + primary-authority + wiki-identity bootstrap plan informed by live
+thread `698c1cec-51c0-839a-a81b-c821aa4eabbb` ("Browne v Dunn Parsing").
+
+Document:
+- `docs/planning/legal_principles_ingest_bootstrap_au_20260211.md`
+
 ## SL/TiRCorder/Ribbon/SB Intersection (2026-02-08)
 
 Focused cross-component contract map for the four-way handoff between
@@ -234,6 +258,28 @@ to implement full DBpedia URIs as the supported representation (Option 1).
 Document:
 - `docs/planning/dbpedia_external_id_representation_decision_20260208.md`
 
+## Wikipedia → Fact Tree Intake (George W. Bush) (2026-02-10)
+
+Plan for ingesting a small set of George W. Bush Wikipedia pages into a
+reviewable fact tree (seed envelope + DBpedia external refs) with provenance and
+curation guardrails.
+
+Document:
+- `docs/planning/wiki_ingest_fact_tree_gwb_20260210.md`
+Related context (investigation I/O + graph taxonomy, SL boundaries):
+- `docs/planning/bush_investigation_graphs_sl_io_context_20260210.md`
+
+## Wikipedia Connector (Structured Pull + Category Traversal) (2026-02-10)
+
+Connector contract for revision-locked structured pulls (wikitext + metadata)
+and category traversal as a discovery mechanism, with artifacts landing in
+gitignored caches.
+
+Document:
+- `docs/planning/wiki_connector_mediawiki_api_contract_20260210.md`
+- Run notes:
+  - `docs/planning/wiki_ingest_run_notes_20260210.md`
+
 ## Schema Chat Thread Map (2026-02-08)
 
 Maps archived “schema” threads (canonical_thread_id + why they matter) to the
@@ -241,3 +287,30 @@ docs they should support, so doc updates can cite the right context.
 
 Document:
 - `docs/planning/schema_chat_thread_map_20260208.md`
+
+## Chat Context Resolver Hardening (2026-02-08)
+
+Hardening notes for the DB-first context resolver (SQLite read-only, in-memory
+temp store), plus pointers for resolving ChatGPT "online IDs" (UUIDs) via local
+export DBs when the structurer archive cannot map them directly.
+
+Documents:
+- `docs/planning/chat_context_resolver_hardening_20260208.md`
+- `docs/planning/chat_context_resolver_online_ids_20260210.md`
+
+## ITIR Security Posture: Secrets Without Agency (2026-02-09)
+
+Captures the non-agentic security doctrine (ITIR as a ledger with eyes) anchored
+to the `Data management ontology topology` follow-on threads.
+
+Document:
+- `docs/planning/itir_security_non_agentic_posture_20260209.md`
+
+## SB Shell Command Intent Model (2026-02-09)
+
+Defines how SB should model shell commands: operator-scoped signatures, referent
+resolution, attempt taxonomy, and failure handling; links to the relevant online
+threads via `$robust-context-fetch`.
+
+Document:
+- `docs/planning/sb_shell_command_intent_model_20260209.md`

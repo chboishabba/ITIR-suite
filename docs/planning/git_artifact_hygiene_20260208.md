@@ -44,6 +44,13 @@ Changes made:
    - superproject status: `git status`
    - submodule statuses: `git submodule foreach --recursive 'git status --porcelain | head'`
 
+## SQLite WAL/SHM note (common gotcha)
+SQLite frequently creates sidecar files that are easy to accidentally stage:
+- `*.sqlite-wal`, `*.sqlite-shm`
+- `*.sqlite3-wal`, `*.sqlite3-shm`
+
+These must be ignored inside each submodule that stores SQLite DBs (example: `chat-export-structurer/`).
+
 ## Known cleanup opportunity (tracked sensitive files)
 If any sensitive artifacts are already tracked in git history (e.g. chat sqlite DBs, WAL/SHM files),
 `.gitignore` is not sufficient: they should be removed from tracking and ideally scrubbed from history.
@@ -58,4 +65,3 @@ the `token*` substring).
 Mitigation:
 - Add the exact fingerprints to `.gitleaksignore` so future scans are clean
   without weakening the generic ruleset.
-

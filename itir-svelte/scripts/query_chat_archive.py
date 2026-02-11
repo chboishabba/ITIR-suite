@@ -30,6 +30,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--db", required=True)
     ap.add_argument("--thread-id", required=True)
+    ap.add_argument("--source-thread-id", default="")
     ap.add_argument("--ts", default="")
     ap.add_argument("--ts-start", default="")
     ap.add_argument("--ts-end", default="")
@@ -113,10 +114,29 @@ def main() -> int:
         json.dump(out, fp=sys.stdout, ensure_ascii=True)
         return 0
 
+    # Optional mapping: source_thread_id (online conversation UUID) -> canonical_thread_id.
+    # If present, we resolve to the most-populated canonical thread for that upstream id.
+    canonical = args.thread_id
+    if args.source_thread_id.strip():
+        cur.execute(
+            """
+            select canonical_thread_id, count(*) as c
+            from messages
+            where source_thread_id = ?
+            group by canonical_thread_id
+            order by c desc
+            limit 1
+            """,
+            [args.source_thread_id.strip()],
+        )
+        row = cur.fetchone()
+        if row and row["canonical_thread_id"]:
+            canonical = row["canonical_thread_id"]
+
     tail = max(1, min(2000, int(args.tail)))
 
     where = ["canonical_thread_id = ?"]
-    params: list[str] = [args.thread_id]
+    params: list[str] = [canonical]
     if args.start.strip():
       where.append("ts >= ?")
       params.append(start_bound(args.start.strip()))
@@ -148,12 +168,12 @@ def main() -> int:
         order by ts desc
         limit 1
         """,
-        [args.thread_id],
+        [canonical],
     )
     row = cur.fetchone()
     title = row["title"] if row else None
 
-    out = {"title": title, "total": total, "tail": tail, "messages": rows}
+    out = {"canonical_thread_id": canonical, "title": title, "total": total, "tail": tail, "messages": rows}
     json.dump(out, fp=sys.stdout, ensure_ascii=True)
     return 0
 

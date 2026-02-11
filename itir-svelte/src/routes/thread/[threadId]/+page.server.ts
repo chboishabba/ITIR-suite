@@ -1,35 +1,85 @@
 import { error } from '@sveltejs/kit';
-import { fetchThreadTail } from '$lib/server/chatArchive';
+import { fetchThreadTail, fetchThreadTailBySourceThreadId } from '$lib/server/chatArchive';
+import {
+  fetchNotebookMetaThreadTail,
+  isNotebookMetaThreadId,
+  type NotebookMetaSummary,
+  type NotebookMetaSourceRow
+} from '$lib/server/notebookMeta';
 import path from 'node:path';
 
 function isDateText(v: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(v);
 }
 
+function looksLikeOnlineConversationId(v: string): boolean {
+  // ChatGPT conversation UUID style.
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+}
+
 export async function load({ params, url }: { params: { threadId: string }; url: URL }) {
   const threadId = params.threadId;
   if (!threadId || threadId.length < 8) throw error(400, 'Invalid thread id.');
+  const notebookMetaThread = isNotebookMetaThreadId(threadId);
 
   const start = url.searchParams.get('start');
   const end = url.searchParams.get('end');
   const tailParam = url.searchParams.get('tail');
-  const tail = Math.max(50, Math.min(2000, Number(tailParam ?? 400) || 400));
+  const tailCap = notebookMetaThread ? 400 : 2000;
+  const tailDefault = notebookMetaThread ? 200 : 400;
+  const tailMin = notebookMetaThread ? 20 : 50;
+  const tail = Math.max(tailMin, Math.min(tailCap, Number(tailParam ?? tailDefault) || tailDefault));
 
   // SvelteKit dev server runs with cwd at `itir-svelte/`; repo root is parent.
   const repoRoot = path.resolve('..');
 
-  const { title, total, messages } = await fetchThreadTail(repoRoot, threadId, {
-    startIso: start && isDateText(start) ? start : null,
-    endIso: end && isDateText(end) ? end : null,
-    tail
-  });
+  const startIso = start && isDateText(start) ? start : null;
+  const endIso = end && isDateText(end) ? end : null;
+
+  // `threadId` can be:
+  // - canonical_thread_id (sha1 hex)
+  // - online/source conversation UUID (when archive captured upstream IDs)
+  let canonicalThreadId = threadId;
+  let title: string | null = null;
+  let total = 0;
+  let messages: any[] = [];
+  let notebookMetaSummary: NotebookMetaSummary | null = null;
+  let notebookMetaSources: NotebookMetaSourceRow[] | null = null;
+
+  if (notebookMetaThread) {
+    const r = await fetchNotebookMetaThreadTail(threadId, {
+      startDate: startIso,
+      endDate: endIso,
+      tail,
+      runsRootEnv: process.env.SB_RUNS_ROOT
+    });
+    canonicalThreadId = threadId;
+    title = r.title;
+    total = r.total;
+    messages = r.messages;
+    notebookMetaSummary = r.summary;
+    notebookMetaSources = r.sources;
+  } else if (looksLikeOnlineConversationId(threadId)) {
+    const mapped = await fetchThreadTailBySourceThreadId(repoRoot, threadId, { startIso, endIso, tail });
+    canonicalThreadId = mapped.canonicalThreadId ?? threadId;
+    title = mapped.title;
+    total = mapped.total;
+    messages = mapped.messages;
+  } else {
+    const r = await fetchThreadTail(repoRoot, threadId, { startIso, endIso, tail });
+    title = r.title;
+    total = r.total;
+    messages = r.messages;
+  }
 
   return {
-    threadId,
+    threadId: canonicalThreadId,
     title,
     total,
     tail,
     range: { start: start && isDateText(start) ? start : null, end: end && isDateText(end) ? end : null },
-    messages
+    messages,
+    notebookMetaSummary,
+    notebookMetaSources
   };
 }

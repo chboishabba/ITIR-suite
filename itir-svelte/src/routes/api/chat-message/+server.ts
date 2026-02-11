@@ -39,6 +39,8 @@ export async function GET({ url }: { url: URL }) {
 
   return json({
     message: {
+      message_id: m.message_id,
+      source_message_id: m.source_message_id,
       ts: m.ts,
       role: m.role,
       text: m.text

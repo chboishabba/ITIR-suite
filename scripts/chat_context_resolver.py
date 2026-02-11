@@ -8,12 +8,15 @@ import datetime as dt
 import json
 import os
 import re
+import signal
 import shutil
 import sqlite3
 import subprocess
 import sys
+import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from contextlib import contextmanager
 from typing import Optional
 
 
@@ -79,6 +82,34 @@ def _connect_sqlite_ro(db_path: Path) -> sqlite3.Connection:
         # Best-effort hardening: don't fail resolver if PRAGMAs are unavailable.
         pass
     return con
+
+
+@contextmanager
+def _alarm_timeout(seconds: int, *, label: str) -> None:
+    """Best-effort wall-clock timeout for blocking IO in the current process.
+
+    We use SIGALRM on POSIX as a coarse guardrail to avoid "hangs" during live
+    network capture paths (SyncChatGPT). If SIGALRM is unavailable, this is a
+    no-op.
+    """
+
+    if seconds <= 0 or os.name != "posix":
+        yield
+        return
+
+    def _handler(signum: int, frame: object) -> None:  # pragma: no cover
+        raise TimeoutError(f"{label} timed out after {seconds}s")
+
+    prev = signal.getsignal(signal.SIGALRM)
+    try:
+        signal.signal(signal.SIGALRM, _handler)  # type: ignore[arg-type]
+        signal.alarm(int(seconds))
+        yield
+    finally:
+        try:
+            signal.alarm(0)
+        finally:
+            signal.signal(signal.SIGALRM, prev)  # type: ignore[arg-type]
 
 
 @dataclass
@@ -210,6 +241,47 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
         con.close()
         return None
 
+    # 0) ChatGPT "online ID" (conversation UUID) match, if upstream IDs exist.
+    if _looks_like_conversation_id(selector):
+        try:
+            cur.execute("PRAGMA table_info(messages)")
+            cols = {row["name"] for row in cur.fetchall()}
+            if "source_thread_id" in cols:
+                cur.execute(
+                    """
+                    SELECT canonical_thread_id
+                    FROM messages
+                    WHERE source_thread_id = ?
+                      AND text IS NOT NULL
+                      AND TRIM(text) <> ''
+                    ORDER BY ts DESC, rowid DESC
+                    LIMIT 1
+                    """,
+                    (selector.strip(),),
+                )
+                mapped = cur.fetchone()
+                if mapped:
+                    row = _fetch_latest_for_thread(
+                        cur, mapped["canonical_thread_id"], require_text=True
+                    )
+                    if row:
+                        count = _query_thread_message_count(cur, row["canonical_thread_id"])
+                        con.close()
+                        return DbMatch(
+                            match_type="source_thread_id_exact",
+                            canonical_thread_id=row["canonical_thread_id"],
+                            title=row["title"],
+                            latest_ts=row["ts"],
+                            latest_role=row["role"],
+                            latest_text=row["text"],
+                            thread_message_count=count,
+                            matched_thread_count=1,
+                            db_path=str(db_path.expanduser().resolve()),
+                        )
+        except sqlite3.Error:
+            # Best-effort: if upstream ID lookup fails, continue with normal matching.
+            pass
+
     # 1) Exact canonical thread id match.
     row = _fetch_latest_for_thread(cur, selector, require_text=True)
     if row:
@@ -303,6 +375,200 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
     return None
 
 
+def _iter_chat_exports_db_paths(repo_root: Path) -> list[Path]:
+    """Return chat export SQLite paths (newest-first).
+
+    These DBs are produced by local sync tooling and are distinct from the
+    chat-export-structurer archive. They are optional, and may contain only
+    conversation metadata (no message rows).
+    """
+
+    base = repo_root / "chat_exports"
+    candidates: list[Path] = []
+    for rel in (
+        base / "backups",
+        base,
+    ):
+        if not rel.exists():
+            continue
+        for path in sorted(rel.glob("*.sqlite3")):
+            candidates.append(path)
+
+    def _mtime(p: Path) -> float:
+        try:
+            return p.stat().st_mtime
+        except OSError:
+            return 0.0
+
+    # Newest-first so we prefer the freshest sync.
+    return sorted(candidates, key=_mtime, reverse=True)
+
+
+def _connect_sqlite_ro_basic(db_path: Path) -> sqlite3.Connection:
+    con = sqlite3.connect(f"file:{db_path.expanduser().resolve()}?mode=ro", uri=True)
+    con.row_factory = sqlite3.Row
+    try:
+        con.execute("PRAGMA query_only=ON")
+    except sqlite3.Error:
+        pass
+    return con
+
+
+def _epoch_to_iso_utc(value: object) -> Optional[str]:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        seconds = float(text)
+    except ValueError:
+        return None
+    return dt.datetime.fromtimestamp(seconds, tz=dt.timezone.utc).replace(microsecond=0).isoformat()
+
+
+def _query_chat_exports_conversation(
+    export_db: Path,
+    conversation_id: str,
+    *,
+    recent_turns: int,
+    max_text_chars: int,
+) -> Optional[dict]:
+    """Query a chat_exports SQLite DB for a specific ChatGPT conversation UUID."""
+
+    if not export_db.exists():
+        return None
+
+    try:
+        con = _connect_sqlite_ro_basic(export_db)
+    except sqlite3.Error:
+        return None
+    cur = con.cursor()
+
+    try:
+        cur.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='conversations'"
+        )
+        if cur.fetchone() is None:
+            con.close()
+            return None
+
+        cur.execute(
+            """
+            SELECT conversation_id, title, last_seen_at, cached_message_count
+            FROM conversations
+            WHERE conversation_id = ?
+            """,
+            (conversation_id,),
+        )
+        row = cur.fetchone()
+        if row is None:
+            con.close()
+            return None
+
+        payload = {
+            "conversation_id": row["conversation_id"],
+            "title": row["title"],
+            "last_seen_at": row["last_seen_at"],
+            "last_seen_at_utc": _epoch_to_iso_utc(row["last_seen_at"]),
+            "cached_message_count": int(row["cached_message_count"] or 0),
+            "export_db_path": str(export_db.expanduser().resolve()),
+        }
+
+        # If messages are cached, include a "latest" snippet even when --recent-turns
+        # isn't requested, to make this result useful in plain CLI runs.
+        cur.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='messages'"
+        )
+        has_messages_table = cur.fetchone() is not None
+        if has_messages_table:
+            cur.execute(
+                """
+                SELECT author, content, create_time
+                FROM messages
+                WHERE conversation_id = ?
+                ORDER BY message_index DESC
+                LIMIT 1
+                """,
+                (conversation_id,),
+            )
+            latest = cur.fetchone()
+            if latest is not None:
+                parsed_ts = _parse_message_ts(latest["create_time"])
+                payload["latest_role"] = latest["author"]
+                payload["latest_ts"] = latest["create_time"]
+                payload["latest_ts_utc"] = _iso_utc_precise(parsed_ts)
+                payload["latest_text"] = _truncate_text(
+                    str(latest["content"] or ""), max_text_chars
+                )
+
+        turns: list[dict] = []
+        if recent_turns > 0:
+            if has_messages_table:
+                cur.execute(
+                    """
+                    SELECT author, content, create_time
+                    FROM messages
+                    WHERE conversation_id = ?
+                    ORDER BY message_index DESC
+                    LIMIT ?
+                    """,
+                    (conversation_id, recent_turns),
+                )
+                msg_rows = cur.fetchall()
+                for msg in reversed(msg_rows):
+                    parsed_ts = _parse_message_ts(msg["create_time"])
+                    turns.append(
+                        {
+                            "ts": msg["create_time"],
+                            "ts_utc": _iso_utc_precise(parsed_ts),
+                            "role": msg["author"],
+                            "text": _truncate_text(str(msg["content"] or ""), max_text_chars),
+                        }
+                    )
+        con.close()
+        if turns:
+            payload["recent_turns"] = turns
+        return payload
+    except sqlite3.Error:
+        con.close()
+        return None
+
+
+def _resolve_from_chat_exports(
+    repo_root: Path,
+    selector: str,
+    *,
+    recent_turns: int,
+    max_text_chars: int,
+    max_dbs: int = 25,
+) -> dict:
+    """Try resolving a ChatGPT conversation UUID using local export caches."""
+
+    if not _looks_like_conversation_id(selector):
+        return {"ok": False, "error": "selector_not_conversation_uuid"}
+
+    checked: list[str] = []
+    for idx, export_db in enumerate(_iter_chat_exports_db_paths(repo_root), start=1):
+        if idx > max_dbs:
+            break
+        checked.append(str(export_db))
+        match = _query_chat_exports_conversation(
+            export_db,
+            selector.strip(),
+            recent_turns=recent_turns,
+            max_text_chars=max_text_chars,
+        )
+        if match:
+            return {"ok": True, "match": match, "checked_db_count": len(checked)}
+
+    return {
+        "ok": False,
+        "error": "conversation_id_not_found_in_chat_exports",
+        "checked_db_count": len(checked),
+    }
+
+
 def _load_session_token() -> Optional[str]:
     env_token = os.environ.get("CHATGPT_SESSION_TOKEN", "").strip()
     if env_token:
@@ -337,6 +603,9 @@ def _build_re_gpt_command(
     if action == "view":
         action_args = ["--nostore", "--view", selector]
     elif action == "download":
+        # NOTE: `re-gpt --download` seems effectively deprecated/unreliable in this environment.
+        # The resolver's persistence path prefers "live capture" (SyncChatGPT fetch)
+        # and emits a synthetic `resolver_live_v1` JSON for ingestion instead.
         action_args = ["--download", selector]
     else:
         raise ValueError(f"Unsupported re_gpt action: {action}")
@@ -408,12 +677,15 @@ def _run_re_gpt_action(
         )
 
     try:
+        started = time.monotonic()
         proc = _run(cmd)
+        elapsed = time.monotonic() - started
     except subprocess.TimeoutExpired:
         return {
             "ok": False,
             "error": f"Web fallback timed out after {timeout}s",
             "command": _redacted_command(cmd),
+            "duration_s": timeout,
         }
     except OSError as exc:
         return {
@@ -466,6 +738,7 @@ def _run_re_gpt_action(
         "command": _redacted_command(cmd),
         "error": extra_error,
         "retried_with_python": retried_with,
+        "duration_s": round(float(elapsed), 3),
     }
 
 
@@ -621,6 +894,79 @@ def _fetch_web_recent_turns(
         }
 
 
+def _capture_live_conversation(
+    selector: str,
+    repo_root: Path,
+    *,
+    max_text_chars: int,
+    timeout_s: int,
+) -> dict:
+    """Capture a full conversation via SyncChatGPT and return a resolver_live_v1 payload.
+
+    This is a persistence fallback when `re-gpt --download` is slow/unavailable.
+    """
+
+    token = _load_session_token()
+    if not token:
+        return {
+            "ok": False,
+            "error": (
+                "No token found for live capture. Set CHATGPT_SESSION_TOKEN or create "
+                "~/.chatgpt_session (first line = token)."
+            ),
+        }
+
+    module_path = str((repo_root / "reverse-engineered-chatgpt").resolve())
+    if module_path not in sys.path:
+        sys.path.insert(0, module_path)
+
+    try:
+        from re_gpt.storage import extract_ordered_messages
+        from re_gpt.sync_chatgpt import SyncChatGPT
+    except Exception as exc:
+        return {
+            "ok": False,
+            "error": f"Unable to import reverse-engineered-chatgpt modules: {exc}",
+        }
+
+    try:
+        with _alarm_timeout(int(timeout_s), label="live capture (SyncChatGPT)"):
+            print("[persist] live capture: opening session", file=sys.stderr, flush=True)
+            with SyncChatGPT(session_token=token) as chatgpt:
+                print("[persist] live capture: resolving selector", file=sys.stderr, flush=True)
+                resolved = _resolve_live_conversation(chatgpt, selector)
+                if not resolved:
+                    return {"ok": False, "error": f"Unable to resolve conversation selector: {selector}"}
+
+                print("[persist] live capture: fetching conversation", file=sys.stderr, flush=True)
+                conversation = chatgpt.get_conversation(
+                    resolved["conversation_id"],
+                    title=resolved.get("title"),
+                )
+                chat = conversation.fetch_chat()
+
+                print("[persist] live capture: ordering messages", file=sys.stderr, flush=True)
+                ordered = extract_ordered_messages(chat)
+                if max_text_chars > 0:
+                    for msg in ordered:
+                        msg["content"] = _truncate_text(str(msg.get("content") or ""), max_text_chars)
+
+                return {
+                    "ok": True,
+                    "payload": {
+                        "format": "resolver_live_v1",
+                        "platform": "chatgpt",
+                        "conversation_id": resolved["conversation_id"],
+                        "title": conversation.title or resolved.get("title") or "",
+                        "messages": ordered,
+                    },
+                }
+    except TimeoutError as exc:
+        return {"ok": False, "error": str(exc)}
+    except Exception as exc:
+        return {"ok": False, "error": f"Live capture failed: {exc}"}
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
@@ -649,7 +995,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--web-timeout",
         type=int,
-        default=120,
+        default=60,
         help="Timeout seconds for web fallback command (default: %(default)s)",
     )
     parser.add_argument(
@@ -795,6 +1141,9 @@ def _ingest_exports_to_structurer(
     venv_python: Path,
     repo_root: Path,
     timeout: int,
+    *,
+    fmt: str = "chatgpt",
+    platform: Optional[str] = None,
 ) -> dict:
     ingest_script = repo_root / "chat-export-structurer/src/ingest.py"
     if not ingest_script.exists():
@@ -827,12 +1176,14 @@ def _ingest_exports_to_structurer(
             "--db",
             str(db_path),
             "--format",
-            "chatgpt",
+            fmt,
             "--account",
             "main",
             "--source-id",
             source_id,
         ]
+        if platform:
+            cmd.extend(["--platform", platform])
         try:
             proc = subprocess.run(
                 cmd,
@@ -893,25 +1244,82 @@ def _persist_selector_to_structurer(
     venv_python: Path,
     timeout: int,
 ) -> dict:
-    download = _run_web_download(
+    # Prefer live capture over `re-gpt --download`. We keep the download path as a
+    # last-ditch fallback, but avoid waiting on it by default.
+    download = {"ok": False, "skipped": True, "note": "preferred_live_capture"}
+    json_paths: list[Path] = []
+    fallback: Optional[dict] = None
+    fmt = "chatgpt"
+    platform = None
+    print(f"[persist] live capture start selector={selector!r}", file=sys.stderr, flush=True)
+    live_started = time.monotonic()
+    live = _capture_live_conversation(
         selector,
-        repo_root=repo_root,
-        venv_python=venv_python,
-        timeout=timeout,
+        repo_root,
+        max_text_chars=0,
+        timeout_s=timeout,
     )
-    json_paths = _extract_downloaded_json_paths(download.get("stdout") or "", repo_root=repo_root)
+    live_elapsed = round(float(time.monotonic() - live_started), 3)
+    if live.get("ok"):
+        export_dir = repo_root / "chat_exports"
+        export_dir.mkdir(parents=True, exist_ok=True)
+        payload = live.get("payload") or {}
+        cid = str(payload.get("conversation_id") or "unknown")
+        title = str(payload.get("title") or "untitled")
+        safe = re.sub(r"[^A-Za-z0-9._-]+", "-", title.strip().lower()).strip("-")[:80] or "untitled"
+        ts = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        out_path = export_dir / f"resolver-live__{safe}__{cid[:8]}__{ts}.json"
+        out_path.write_text(json.dumps(payload, ensure_ascii=True, indent=2), encoding="utf-8")
+        json_paths = [out_path]
+        fallback = {"kind": "live_capture", "duration_s": live_elapsed, "json_path": str(out_path)}
+        fmt = "resolver_live"
+        platform = "chatgpt"
+        print(f"[persist] live capture ok duration_s={live_elapsed}", file=sys.stderr, flush=True)
+    else:
+        fallback = {"kind": "live_capture_failed", "duration_s": live_elapsed, "error": live.get("error")}
+        print(
+            f"[persist] live capture failed duration_s={live_elapsed} error={live.get('error')}",
+            file=sys.stderr,
+            flush=True,
+        )
+        # Last-resort fallback: try `re-gpt --download` if live capture couldn't run.
+        print(f"[persist] legacy download fallback start selector={selector!r}", file=sys.stderr, flush=True)
+        download = _run_web_download(
+            selector,
+            repo_root=repo_root,
+            venv_python=venv_python,
+            timeout=timeout,
+        )
+        print(
+            f"[persist] legacy download fallback done ok={download.get('ok')} duration_s={download.get('duration_s')}",
+            file=sys.stderr,
+            flush=True,
+        )
+        json_paths = _extract_downloaded_json_paths(download.get("stdout") or "", repo_root=repo_root)
+
+    print(f"[persist] ingest start json_count={len(json_paths)}", file=sys.stderr, flush=True)
+    ingest_started = time.monotonic()
     ingest = _ingest_exports_to_structurer(
         json_paths=json_paths,
         db_path=db_path,
         venv_python=venv_python,
         repo_root=repo_root,
         timeout=timeout,
+        fmt=fmt,
+        platform=platform,
+    )
+    ingest["duration_s"] = round(float(time.monotonic() - ingest_started), 3)
+    print(
+        f"[persist] ingest done ok={ingest.get('ok')} ingested_count={ingest.get('ingested_count')} duration_s={ingest.get('duration_s')}",
+        file=sys.stderr,
+        flush=True,
     )
     return {
-        "ok": bool(download.get("ok")) and bool(ingest.get("ok")),
+        "ok": bool(ingest.get("ok")) and (bool(download.get("ok")) or (fallback or {}).get("kind") == "live_capture"),
         "download": download,
         "downloaded_json_paths": [str(path) for path in json_paths],
         "ingest": ingest,
+        "fallback": fallback,
     }
 
 
@@ -998,6 +1406,9 @@ def _print_result(payload: dict, as_json: bool) -> None:
                     f"id={candidate.get('canonical_thread_id')} "
                     f"title={candidate.get('title')}"
                 )
+        hint = payload.get("hint")
+        if hint:
+            print(f"hint: {hint}")
         return
 
     if source == "web":
@@ -1023,7 +1434,39 @@ def _print_result(payload: dict, as_json: bool) -> None:
         print((web.get("stdout") or "").rstrip())
         return
 
+    if source == "chat_exports":
+        match = payload.get("chat_exports_match") or {}
+        print(f"match_type: {match.get('match_type')}")
+        print(f"conversation_id: {match.get('conversation_id')}")
+        print(f"title: {match.get('title')}")
+        print(f"last_seen_at_utc: {match.get('last_seen_at_utc')}")
+        print(f"cached_message_count: {match.get('cached_message_count')}")
+        print(f"export_db_path: {match.get('export_db_path')}")
+        if match.get("latest_text"):
+            print(f"latest_ts_utc: {match.get('latest_ts_utc')}")
+            print(f"latest_role: {match.get('latest_role')}")
+            print("latest_text:")
+            print(match.get("latest_text", ""))
+        recent_turns = match.get("recent_turns") or []
+        if recent_turns:
+            print("recent_turns:")
+            for idx, turn in enumerate(recent_turns, start=1):
+                print(
+                    f"[{idx}] ts={turn.get('ts')} "
+                    f"ts_utc={turn.get('ts_utc')} role={turn.get('role')}:"
+                )
+                print(turn.get("text", ""))
+        else:
+            print("recent_turns: (none cached)")
+        hint = payload.get("hint")
+        if hint:
+            print(f"hint: {hint}")
+        return
+
     print(payload.get("error", "unknown error"))
+    hint = payload.get("hint")
+    if hint:
+        print(f"hint: {hint}")
 
 
 def main() -> int:
@@ -1061,7 +1504,13 @@ def main() -> int:
         except sqlite3.Error as exc:
             extra = f"DB lookup failed: {exc}"
             db_error = f"{db_error}; {extra}" if db_error else extra
-        if db_match is None and len(args.selector.strip()) >= 3:
+        # FTS candidate suggestion is useful for human keyword selectors.
+        # For UUID selectors (ChatGPT online IDs), it produces garbage candidates.
+        if (
+            db_match is None
+            and len(args.selector.strip()) >= 3
+            and not _looks_like_conversation_id(args.selector)
+        ):
             # Prefer DB-local candidate suggestions over immediately hitting live web fallback.
             try:
                 con = _connect_sqlite_ro(db_path)
@@ -1071,6 +1520,38 @@ def main() -> int:
             except sqlite3.Error as exc:
                 extra = f"DB FTS lookup failed: {exc}"
                 db_error = f"{db_error}; {extra}" if db_error else extra
+
+    # If we were given a ChatGPT "online ID" (conversation UUID), try mapping it
+    # via local chat export caches. If that yields a title, attempt a DB match
+    # by title to keep the structurer DB as the primary authority.
+    chat_exports_result: Optional[dict] = None
+    chat_exports_hint: Optional[str] = None
+    if db_match is None and _looks_like_conversation_id(args.selector):
+        chat_exports_result = _resolve_from_chat_exports(
+            repo_root,
+            args.selector,
+            recent_turns=max(0, args.recent_turns),
+            max_text_chars=args.max_text_chars,
+        )
+        if chat_exports_result.get("ok"):
+            mapped_title = (chat_exports_result.get("match") or {}).get("title") or ""
+            if mapped_title.strip():
+                try:
+                    mapped = _query_db_match(db_path, mapped_title.strip())
+                except sqlite3.Error as exc:
+                    extra = f"DB lookup failed after chat_exports title map: {exc}"
+                    db_error = f"{db_error}; {extra}" if db_error else extra
+                    mapped = None
+                if mapped is not None:
+                    db_match = mapped
+                    db_candidates = []
+        else:
+            if chat_exports_result.get("error") == "conversation_id_not_found_in_chat_exports":
+                chat_exports_hint = (
+                    "Conversation UUID not found in local chat exports. "
+                    "Refresh `chat_exports/backups/*chatgpt_history_*.sqlite3` via chat-context-sync, "
+                    "or provide a live session token for web fallback."
+                )
 
     db_recent_turns: list[dict] = []
     if db_match is not None and args.recent_turns > 0:
@@ -1091,6 +1572,11 @@ def main() -> int:
         if db_candidates:
             needs_web = False
             reason = "db_fts_candidates"
+        elif chat_exports_result and chat_exports_result.get("ok"):
+            # We have a local export match but no structurer-DB match; prefer DB-first
+            # and avoid web fallback unless explicitly requested.
+            needs_web = False
+            reason = "chat_exports_match_only"
         else:
             needs_web = True
             reason = "not_found_in_db"
@@ -1139,6 +1625,8 @@ def main() -> int:
                 "decision_reason": reason,
                 "error": "Web fallback disabled by --no-web.",
             }
+            if chat_exports_hint:
+                payload["hint"] = chat_exports_hint
             if db_error:
                 payload["db_warning"] = db_error
             _print_result(payload, args.json)
@@ -1220,6 +1708,8 @@ def main() -> int:
             "error": web_result.get("error") or "Web fallback failed.",
             "web": web_result,
         }
+        if chat_exports_hint:
+            payload["hint"] = chat_exports_hint
         if db_match is not None:
             payload["db_match"] = _db_payload(
                 db_match,
@@ -1231,6 +1721,19 @@ def main() -> int:
             payload["db_warning"] = db_error
         _print_result(payload, args.json)
         return 1
+
+    if db_match is None and chat_exports_result and chat_exports_result.get("ok"):
+        match = dict(chat_exports_result.get("match") or {})
+        match["match_type"] = "conversation_id_exact"
+        payload = {
+            "source": "chat_exports",
+            "decision_reason": reason,
+            "chat_exports_match": match,
+        }
+        if chat_exports_hint:
+            payload["hint"] = chat_exports_hint
+        _print_result(payload, args.json)
+        return 0
 
     payload = {
         "source": "db",
@@ -1249,9 +1752,17 @@ def main() -> int:
         payload["requested_threshold_utc"] = _iso_utc(threshold)
     if db_error:
         payload["db_warning"] = db_error
+    if chat_exports_result and chat_exports_result.get("ok"):
+        payload["chat_exports_mapped_title"] = (chat_exports_result.get("match") or {}).get("title")
+    if chat_exports_hint:
+        payload["hint"] = chat_exports_hint
     _print_result(payload, args.json)
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except BrokenPipeError:
+        # Common when piping to `head`/`rg`; treat as a clean exit.
+        pass
