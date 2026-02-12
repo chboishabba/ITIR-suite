@@ -3,7 +3,87 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Graphs/AAO + AAO-all: add dedicated numeric lane wiring (`numeric_objects`)
+  across loader, graph layers, and context panels so quantitative mentions are
+  shown separately from entity object lanes.
+- Graphs/AAO loader: preserve extractor action canonicalization metadata
+  (`action_meta`, optional `action_surface`) from wiki AAO payloads so views can
+  render canonical lemma keys while still exposing inflection/surface context.
+- Graphs/AAO + AAO-all: default object lanes/context to `entity_objects` (with
+  fallback to legacy `objects`) so modifier-heavy noun phrases stay in truth
+  but do not flood default graph/context output.
+- Graphs/AAO-all: add optional Evidence lane sourced from event-local
+  `citations[]` + `sl_references[]`, with action->evidence overlay edges and
+  configurable evidence display cap.
+- Graph UI: extend `LayeredEdge` with edge kinds (`role`, `sequence`,
+  `evidence`, `context`) and render evidence edges as dashed overlays; evidence
+  edges are excluded from neighbor-centering logic so they do not perturb
+  layout behavior.
+- Graphs: `/graphs/wiki-fact-timeline` now includes a deterministic scope
+  validator for node->fact projections (subject/object/party/time/fact lanes),
+  surfacing leak counts and samples in-page for frame-scope debugging.
+- Graphs: `/graphs/wiki-fact-timeline` now supports a view-only importance
+  profile (`entropy_role_section_v1`) with bounded percentile node sizing for
+  subjects/objects (truth artifacts unchanged).
+- Graphs: `/graphs/wiki-timeline-aoo-all` now prefers step-scoped object sets
+  (fallback to event-level objects only when steps are absent), reducing
+  whole-event object union bleed.
+- Graphs/AAO contract: negation is now modeled as structured metadata
+  (`negation.kind=not`) while canonical `action` remains base verb.
+  Loaders preserve backward compatibility for legacy `not_*` artifacts,
+  and AAO/Fact Timeline views render negated actions without storing
+  proliferating `not_*` action variants.
+- Viewers: added reusable transcript/document/folder primitives under
+  `src/lib/viewers/`:
+  - `TranscriptViewer.svelte` (cue rendering, active cue highlight, seek hook)
+  - `DocumentViewer.svelte` (line-addressable plain/markdown text viewer with search)
+  - `FolderListViewer.svelte` (artifact list/picker lane)
+  - `transcript.ts` deterministic cue/timestamp parser helpers
+- Viewers: added `/viewers/hca-case` workbench route that loads existing HCA
+  ingest artifacts (`segments.json`, transcript markdown/text, `.document.json`)
+  to validate shared viewer behavior outside graph routes.
+- Media: added `/api/hca-media/video` byte-range endpoint to stream the local
+  HCA demo MP4 into transcript viewers for cue/audio synchronization.
+- Dashboard: added a home-link card to open the new viewer workbench.
+- Graphs: `/graphs/wiki-timeline-aoo-all` context rows now surface
+  `check_next` provider chips derived from `citations[]`/`sl_references[]`
+  follow metadata (with legal defaults when hints are present but sparse), so
+  HCA/legal rows can explicitly point reviewers to `austlii`, `jade`,
+  `wikipedia`, and source artifacts.
 
+- Graphs: `/graphs/wiki-fact-timeline` now guarantees rows for AAO payloads that
+  lack `fact_timeline[]` by deterministically falling back to nested
+  `events[].timeline_facts[]`, then to synthesized rows from `events[].steps[]`.
+  The page also surfaces loader diagnostics (`fact_row_source`, raw/output row
+  counts) for quick payload-shape debugging.
+- Graphs: `/graphs/wiki-fact-timeline` context rows now include step crosslink
+  metadata (`prev_fact_ids`, `next_fact_ids`, `chain_kinds`) synthesized from
+  AAO event `chains[]`, making clause/step progression explicit in-node.
+- Graphs: timeline route loaders now resolve repo root robustly across cwd
+  variants by checking both `.` and `..` for `SensibLaw/`, preventing
+  environment-dependent empty graph loads.
+- Graphs: `/graphs/wiki-timeline` context now surfaces per-event `links[]`
+  chips/counts so link breadth is inspectable in-place.
+- Graphs: node click context behavior is now consistent across timeline views:
+  `BipartiteGraph` emits `nodeSelect`, `/graphs/wiki-timeline` renders a
+  context panel for selected `time:*` and `ev:*` nodes, and
+  `/graphs/wiki-timeline-aoo` now renders a context panel (highlighted sentence
+  + connected node summary) for clicked graph nodes.
+- Graphs: `/graphs/wiki-fact-timeline` context matching now uses a deterministic
+  node->fact index (instead of prefix parsing), so clicking `time|party|subject|
+  fact|object` nodes reliably hydrates context rows; context auto-scrolls to the
+  first matched row.
+- Graphs: `/graphs/wiki-fact-timeline` now keeps mention-anchor chronology as
+  primary for fact rows (so historical references like `1954`/`1966` remain
+  visible in timeline order) and surfaces `event_anchor` as context metadata.
+- Graphs: `/graphs/wiki-timeline-aoo` now includes a deterministic `step-ribbon`
+  layout mode as a first-class view type (`?view=step-ribbon|roles`) with
+  shareable URLs/bookmarks. `step-ribbon` renders per-step columns in sentence
+  order with explicit `then` continuation edges (linearization only; non-causal)
+  and scales viewport width by step count for readability.
+- Docs: established migration baseline set for current Svelte transition:
+  - module parity matrix + assessed status (`docs/planning/sl_sb_web_component_inventory_20260210.md`)
+  - display-layer tool-use parser contract (`docs/planning/itir_svelte_tool_use_parser_display_contract_20260211.md`)
 - Thread viewer (NotebookLM meta): loader now aggregates in a streaming pass
   instead of retaining full parsed row objects, reducing server memory pressure
   on long date ranges; defaults/caps are tightened (`tail` default 200, cap

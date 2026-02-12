@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { existsSync } from 'node:fs';
 
 import { loadWikiTimeline } from '$lib/server/wikiTimeline';
 
@@ -15,8 +16,16 @@ const LEGAL_FOLLOW_REL = path.join(
 );
 const SOURCE_PATHS = { gwb: GWB_REL, hca: HCA_REL, legal: LEGAL_REL, legal_follow: LEGAL_FOLLOW_REL } as const;
 
+function resolveRepoRoot(): string {
+  const candidates = [path.resolve('.'), path.resolve('..')];
+  for (const c of candidates) {
+    if (existsSync(path.join(c, 'SensibLaw'))) return c;
+  }
+  return path.resolve('..');
+}
+
 export async function load({ url }: { url: URL }) {
-  const repoRoot = path.resolve('..');
+  const repoRoot = resolveRepoRoot();
   const source = (url.searchParams.get('source') || 'gwb').toLowerCase();
   const rel = SOURCE_PATHS[source as keyof typeof SOURCE_PATHS] ?? GWB_REL;
   try {

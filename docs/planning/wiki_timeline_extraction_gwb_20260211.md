@@ -1,5 +1,9 @@
 # Wikipedia -> Event Timeline Extraction (GWB) (2026-02-11)
 
+## Origin
+- `origin_online_id`: `698bdf6e-43f8-839c-9089-34ee3d3338dd`
+- `origin_note`: Architecture/de-hardcoding guidance summarized from user-provided online thread reference; no live fetch performed for this annotation.
+
 ## Goal
 Extract a reviewable, non-authoritative **event timeline** from the main Wikipedia page
 (`George W. Bush`) as upstream substrate for SB-style event graphs and later derived overlays.
@@ -57,6 +61,13 @@ This file is **not** an investigation graph. It is a curation-time artifact that
 - **AAO chain/nesting visibility:** purpose clauses and multi-verb sentences need explicit sequence
   structure for graph traversal. Fix: emit event-local `chains[]` metadata and optional derived
   purpose steps (e.g. `suspended -> take physical exam`) without causal claims.
+- **Request-clause role loss:** sentences like `at President Obama's request, ... established ...` were
+  extracting `requested` with the wrong subject set. Fix: normalize to an explicit requester-led step
+  (`action=request`, requester subject, requested-party objects) before the main action step.
+- **Negation and content-clause linkage:** complements like `told ... did not vote ...` need
+  step-level relation metadata. Fix: keep canonical action labels and store negation separately under
+  `step.negation` (render `not_*` only in views), plus deterministic
+  chain edges (`content_clause`) from governing speech-act steps to complement steps.
 - **Root surname collisions:** mapping `Bush` -> root actor should only fire for standalone surname
   references, not for `Laura Bush`/`Barbara Bush` mentions. Fix: suppress root mapping when the
   surname is part of a two-token name pattern in the same sentence.
@@ -77,6 +88,8 @@ Notes:
   links, and candidate titles for quick curation checks.
 - Actor resolution is heuristic and explicitly labeled (root surname, alias map, request pattern).
 - Step subjects are dependency-refined and may differ from the event actor inventory.
+- Step objects are action-local (dependency attachments per verb) with deterministic fallback merge
+  to preserve wikilink identity glue for crosslinking.
 - This does not assert causality; it is sentence-local structure for later curation.
 - Object admissibility + truth/view boundary is governed by:
   - `docs/planning/oac_object_admissibility_contract_v1_20260211.md`
@@ -108,6 +121,11 @@ Planned / in-progress variants:
   - `year`
   - `month`
   - `day`
+- **Step-ribbon layout:** render each extracted step in deterministic sentence
+  order (`S1 -> S2 -> ...`) with per-step role columns and explicit `then`
+  continuation edges. This is a linearization aid only (non-causal) and is
+  aligned to ribbon ordering principles in `SensibLaw/docs/timeline_ribbon.md`
+  (ordered domain first, overlays as callouts, no story-driven reordering).
 
 Notes:
 - This is explicitly a visualization choice. It does not change meaning or add causality.
@@ -131,3 +149,21 @@ Implementation note:
 Nothing in the UI is hardcoded to GWB-specific content; what looks “hand-authored” is generated from
 the JSON artifact, with the only fixed part being the extraction heuristics (e.g., requester patterns,
 alias resolution, and verb/purpose matching).
+
+## 2026-02-12 hydration/layout updates
+- Fact timeline hydration now has an explicit fallback contract:
+  1. use top-level `fact_timeline[]` when present
+  2. else flatten per-event `timeline_facts[]`
+  3. else synthesize linearized rows from `events[].steps[]`
+- The fact timeline route now surfaces diagnostics (`fact_row_source`, `raw_fact_rows`, `output_fact_rows`)
+  so empty renders can be traced quickly to payload shape vs parser behavior.
+- Wiki timeline context now renders per-event `links[]` counts and chips so link breadth can be inspected
+  directly from the same view (without switching files/routes).
+- Route repo-root resolution now checks both `.` and `..` for `SensibLaw/` to avoid environment-dependent
+  empty views when running the app from different working directories.
+- Extractor runs should use the project venv interpreter (`.venv/bin/python`) so the pinned spaCy
+  model lane is active; running via a global interpreter can silently degrade to no-parser mode.
+- AAO extraction now supports a versioned external profile (`--profile`, default
+  `SensibLaw/policies/wiki_timeline_aoo_profile_v1.json`) for action regex inventory and requester
+  title labels; emitted artifacts include `extraction_profile` provenance (`profile_id`,
+  `profile_version`, `sha256`, and loaded/fallback status).

@@ -16,6 +16,7 @@
 
 <script lang="ts">
   import GraphViewport from '$lib/ui/GraphViewport.svelte';
+  import { createEventDispatcher } from 'svelte';
 
   export let left: GraphNode[] = [];
   export let right: GraphNode[] = [];
@@ -31,6 +32,13 @@
   export let nodeH = 18;
   export let padY = 8;
   export let fontSize = 10;
+  let selectedNodeId: string | null = null;
+  const dispatch = createEventDispatcher<{ nodeSelect: { nodeId: string } }>();
+
+  function selectNode(nodeId: string) {
+    selectedNodeId = nodeId;
+    dispatch('nodeSelect', { nodeId });
+  }
 
   function clamp(v: number, lo: number, hi: number): number {
     return Math.max(lo, Math.min(hi, v));
@@ -58,6 +66,13 @@
     const dx = Math.max(40, (x2 - x1) * 0.5);
     return `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
   }
+
+  function onNodeKeydown(e: KeyboardEvent, nodeId: string) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      selectNode(nodeId);
+    }
+  }
 </script>
 
 <GraphViewport {width} {height}>
@@ -81,9 +96,27 @@
     {#each left as n (n.id)}
       {@const p = leftPos.get(n.id)}
       {#if p}
-        <rect x={p.x} y={p.y} width={nodeW} height={nodeH} rx="4" fill={n.color ?? '#e8f4ff'} stroke="rgba(0,0,0,0.12)" />
-        <title>{n.tooltip ?? n.label}</title>
-        <text x={p.x + 8} y={p.y + 12} font-size={fontSize} fill="rgba(0,0,0,0.88)">{n.label}</text>
+        <g
+          class="cursor-pointer"
+          role="button"
+          tabindex="0"
+          aria-label="Select node"
+          on:pointerdown|stopPropagation
+          on:click={() => selectNode(n.id)}
+          on:keydown={(e) => onNodeKeydown(e, n.id)}
+        >
+          <rect
+            x={p.x}
+            y={p.y}
+            width={nodeW}
+            height={nodeH}
+            rx="4"
+            fill={n.color ?? '#e8f4ff'}
+            stroke={selectedNodeId === n.id ? 'rgba(0,0,0,0.30)' : 'rgba(0,0,0,0.12)'}
+          />
+          <title>{n.tooltip ?? n.label}</title>
+          <text x={p.x + 8} y={p.y + 12} font-size={fontSize} fill="rgba(0,0,0,0.88)">{n.label}</text>
+        </g>
       {/if}
     {/each}
   </g>
@@ -92,9 +125,27 @@
     {#each right as n (n.id)}
       {@const p = rightPos.get(n.id)}
       {#if p}
-        <rect x={p.x} y={p.y} width={nodeW} height={nodeH} rx="4" fill={n.color ?? '#f6f6f6'} stroke="rgba(0,0,0,0.12)" />
-        <title>{n.tooltip ?? n.label}</title>
-        <text x={p.x + 8} y={p.y + 12} font-size={fontSize} fill="rgba(0,0,0,0.88)">{n.label}</text>
+        <g
+          class="cursor-pointer"
+          role="button"
+          tabindex="0"
+          aria-label="Select node"
+          on:pointerdown|stopPropagation
+          on:click={() => selectNode(n.id)}
+          on:keydown={(e) => onNodeKeydown(e, n.id)}
+        >
+          <rect
+            x={p.x}
+            y={p.y}
+            width={nodeW}
+            height={nodeH}
+            rx="4"
+            fill={n.color ?? '#f6f6f6'}
+            stroke={selectedNodeId === n.id ? 'rgba(0,0,0,0.30)' : 'rgba(0,0,0,0.12)'}
+          />
+          <title>{n.tooltip ?? n.label}</title>
+          <text x={p.x + 8} y={p.y + 12} font-size={fontSize} fill="rgba(0,0,0,0.88)">{n.label}</text>
+        </g>
       {/if}
     {/each}
   </g>

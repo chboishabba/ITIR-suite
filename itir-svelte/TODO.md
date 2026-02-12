@@ -7,6 +7,9 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
 
 ## Near-Term (Parity)
 
+- DONE (2026-02-11): lock parity baseline docs for migration decisions:
+  - `docs/planning/sl_sb_web_component_inventory_20260210.md`
+  - `docs/planning/itir_svelte_tool_use_parser_display_contract_20260211.md`
 - Weekly HTML parity modules (from legacy SB HTML screenshots):
   - When You Work (Weekday x Hour) multi-lane heatmap:
     - data source: `dashboard_weekly_*.json` -> `weekday_hour_heatmaps`
@@ -26,6 +29,19 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
   - add dedicated `weekly` and `lifetime` routes that load `dashboard_weekly_*.json` and
     `dashboard_lifetime*.json` directly when present
   - range mode should prefer precomputed weekly JSON when available, else aggregate from dailies
+
+## Reusable Viewers
+
+- DONE (2026-02-12): add reusable viewer primitives under `src/lib/viewers/`:
+  - `TranscriptViewer.svelte` (cue list + active highlighting + click/space seek hooks)
+  - `DocumentViewer.svelte` (line-addressable text/markdown viewer with search)
+  - `FolderListViewer.svelte` (generic file/folder picker lane)
+  - `transcript.ts` (deterministic cue/timestamp parsing utilities ported from tircorder behavior)
+- DONE (2026-02-12): add `/viewers/hca-case` workbench route to exercise transcript + document + folder viewers against `SensibLaw/demo/ingest/hca_case_s942025`.
+- Follow-up:
+  - wire these viewers into SB thread/event detail surfaces where transcript/document artifacts are present.
+  - define a shared span contract (`char_start/end`, `token span`, `source artifact id`) for graph <-> viewer cross-highlighting.
+  - evaluate extracting a shared “transcript cue sync” store so audio time, selected cue, and graph node focus can synchronize across pages.
 
 ## Chat Threads
 
@@ -53,6 +69,9 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
 
 ## Tool Use Summary (Parser)
 
+- DONE (2026-02-11): document display-layer parser contract and invariants in
+  `docs/planning/itir_svelte_tool_use_parser_display_contract_20260211.md`
+  (compound segmentation, directory context grouping, and special-case trunking).
 - Implement a generic shell-line parser for compound commands:
   - recognize `&&`, `||`, `;`, and `|`
   - treat leading `cd <dir>` (and `pushd <dir>`) as a directory context for subsequent segments
@@ -71,12 +90,17 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
   - `SensibLaw/docs/timeline_ribbon.md`
   - `itir-ribbon/docs/interfaces.md`
 - Timeline list: keep "accounting surface" posture (compact rows, full ISO on hover).
+- DONE (2026-02-12): `/graphs/wiki-fact-timeline` now has:
+  - frame-scoped node->fact scope validator (`scope_validator`, leak samples),
+  - view-only importance profile selector (`entropy_role_section_v1`),
+  - bounded percentile sizing for subject/object nodes.
 
 ## Wiki Graph Surfaces
 
 - AAO mini-graph: consider month-name rendering (`Jan 2010` vs `2010-01`) as a display-only toggle.
 - Whole-article AAO view: add optional edge labels/weights and filters (by section, by action verb) without changing extraction artifacts.
 - Whole-article AAO view: add a "show hidden counts" summary (subjects/objects dropped by display caps).
+- Whole-article AAO view: add evidence overlay lane (`citations[]`, `sl_references[]`) with edge-kind toggle (`role|sequence|evidence`) and keep evidence edges out of layout-neighbor centering logic.
 
 ## Chat Flow Waterfall (Semantics)
 

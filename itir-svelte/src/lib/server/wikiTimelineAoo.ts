@@ -42,6 +42,12 @@ export type AooSlReference = {
   follow?: Array<Record<string, unknown>>;
 };
 
+export type AooNegation = {
+  kind: string;
+  scope?: string;
+  source?: string;
+};
+
 export type AooTimelineFact = {
   fact_id: string;
   event_id: string;
@@ -50,9 +56,14 @@ export type AooTimelineFact = {
   party?: string;
   subjects?: string[];
   action?: string | null;
+  negation?: AooNegation;
   objects?: string[];
+  numeric_objects?: string[];
   purpose?: string | null;
   text?: string;
+  prev_fact_ids?: string[];
+  next_fact_ids?: string[];
+  chain_kinds?: string[];
 };
 
 export type SpanCandidate = {
@@ -77,9 +88,32 @@ export type AooEvent = {
   text: string;
   actors: AooActor[];
   action: string | null;
+  action_meta?: {
+    surface?: string;
+    tense?: string | null;
+    aspect?: string | null;
+    verb_form?: string | null;
+    voice?: string | null;
+    source?: string;
+  };
+  action_surface?: string | null;
+  negation?: AooNegation;
   steps?: Array<{
     action: string;
+    action_meta?: {
+      surface?: string;
+      tense?: string | null;
+      aspect?: string | null;
+      verb_form?: string | null;
+      voice?: string | null;
+      source?: string;
+    };
+    action_surface?: string | null;
+    negation?: AooNegation;
     subjects: string[];
+    entity_objects?: string[];
+    numeric_objects?: string[];
+    modifier_objects?: string[];
     objects: string[];
     purpose: string | null;
   }>;
@@ -90,6 +124,9 @@ export type AooEvent = {
     kind: string;
   }>;
   objects: AooObject[];
+  entity_objects?: string[];
+  numeric_objects?: string[];
+  modifier_objects?: string[];
   citations?: AooCitation[];
   sl_references?: AooSlReference[];
   party?: string;
@@ -119,6 +156,32 @@ function isObj(v: unknown): v is Record<string, unknown> {
   return Boolean(v) && typeof v === 'object';
 }
 
+function parseNegation(v: unknown): AooNegation | undefined {
+  if (!isObj(v)) return undefined;
+  const kind = typeof v.kind === 'string' ? String(v.kind).trim() : '';
+  if (!kind) return undefined;
+  return {
+    kind,
+    scope: typeof v.scope === 'string' ? String(v.scope) : undefined,
+    source: typeof v.source === 'string' ? String(v.source) : undefined
+  };
+}
+
+function normalizeActionAndNegation(rawAction: unknown, rawNegation: unknown): { action: string | null; negation?: AooNegation } {
+  const parsedNegation = parseNegation(rawNegation);
+  const actionText = typeof rawAction === 'string' ? String(rawAction).trim() : '';
+  if (!actionText) return { action: null, negation: parsedNegation };
+  if (actionText.startsWith('not_')) {
+    const base = actionText.slice(4).trim();
+    if (!base) return { action: null, negation: parsedNegation ?? { kind: 'not', scope: 'action', source: 'legacy:not_prefix' } };
+    return {
+      action: base,
+      negation: parsedNegation ?? { kind: 'not', scope: 'action', source: 'legacy:not_prefix' }
+    };
+  }
+  return { action: actionText, negation: parsedNegation };
+}
+
 export async function loadWikiTimelineAoo(repoRoot: string, relPath: string): Promise<WikiTimelineAooPayload> {
   const p = path.resolve(repoRoot, relPath);
   const raw = await fs.readFile(p, 'utf-8');
@@ -136,6 +199,7 @@ export async function loadWikiTimelineAoo(repoRoot: string, relPath: string): Pr
     const anchor = isObj(e.anchor) ? e.anchor : {};
     const actors = Array.isArray(e.actors) ? (e.actors as any[]) : [];
     const objects = Array.isArray(e.objects) ? (e.objects as any[]) : [];
+    const eventAction = normalizeActionAndNegation(e.action, (e as any).negation);
     outEvents.push({
       event_id,
       anchor: {
@@ -156,16 +220,46 @@ export async function loadWikiTimelineAoo(repoRoot: string, relPath: string): Pr
           role: String((a as any).role ?? ''),
           source: String((a as any).source ?? '')
         })),
-      action: typeof e.action === 'string' ? e.action : null,
+      action: eventAction.action,
+      action_meta: isObj((e as any).action_meta)
+        ? {
+            surface: typeof (e as any).action_meta.surface === 'string' ? String((e as any).action_meta.surface) : undefined,
+            tense: typeof (e as any).action_meta.tense === 'string' ? String((e as any).action_meta.tense) : null,
+            aspect: typeof (e as any).action_meta.aspect === 'string' ? String((e as any).action_meta.aspect) : null,
+            verb_form: typeof (e as any).action_meta.verb_form === 'string' ? String((e as any).action_meta.verb_form) : null,
+            voice: typeof (e as any).action_meta.voice === 'string' ? String((e as any).action_meta.voice) : null,
+            source: typeof (e as any).action_meta.source === 'string' ? String((e as any).action_meta.source) : undefined
+          }
+        : undefined,
+      action_surface: typeof (e as any).action_surface === 'string' ? String((e as any).action_surface) : undefined,
+      negation: eventAction.negation,
       steps: Array.isArray((e as any).steps)
         ? (e as any).steps
             .filter((s: any) => isObj(s) && typeof s.action === 'string')
-            .map((s: any) => ({
-              action: String(s.action ?? ''),
+            .map((s: any) => {
+              const normalized = normalizeActionAndNegation(s.action, s.negation);
+              return {
+              action: normalized.action ?? '',
+              action_meta: isObj(s.action_meta)
+                ? {
+                    surface: typeof s.action_meta.surface === 'string' ? String(s.action_meta.surface) : undefined,
+                    tense: typeof s.action_meta.tense === 'string' ? String(s.action_meta.tense) : null,
+                    aspect: typeof s.action_meta.aspect === 'string' ? String(s.action_meta.aspect) : null,
+                    verb_form: typeof s.action_meta.verb_form === 'string' ? String(s.action_meta.verb_form) : null,
+                    voice: typeof s.action_meta.voice === 'string' ? String(s.action_meta.voice) : null,
+                    source: typeof s.action_meta.source === 'string' ? String(s.action_meta.source) : undefined
+                  }
+                : undefined,
+              action_surface: typeof s.action_surface === 'string' ? String(s.action_surface) : undefined,
+              negation: normalized.negation,
               subjects: Array.isArray(s.subjects) ? s.subjects.map((x: any) => String(x)) : [],
+              entity_objects: Array.isArray(s.entity_objects) ? s.entity_objects.map((x: any) => String(x)) : undefined,
+              numeric_objects: Array.isArray(s.numeric_objects) ? s.numeric_objects.map((x: any) => String(x)) : undefined,
+              modifier_objects: Array.isArray(s.modifier_objects) ? s.modifier_objects.map((x: any) => String(x)) : undefined,
               objects: Array.isArray(s.objects) ? s.objects.map((x: any) => String(x)) : [],
               purpose: typeof s.purpose === 'string' ? s.purpose : null
-            }))
+            };
+            })
         : undefined,
       chains: Array.isArray((e as any).chains)
         ? (e as any).chains
@@ -193,6 +287,15 @@ export async function loadWikiTimelineAoo(repoRoot: string, relPath: string): Pr
                 }))
             : undefined
         })),
+      entity_objects: Array.isArray((e as any).entity_objects)
+        ? (e as any).entity_objects.map((x: any) => String(x))
+        : undefined,
+      numeric_objects: Array.isArray((e as any).numeric_objects)
+        ? (e as any).numeric_objects.map((x: any) => String(x))
+        : undefined,
+      modifier_objects: Array.isArray((e as any).modifier_objects)
+        ? (e as any).modifier_objects.map((x: any) => String(x))
+        : undefined,
       citations: Array.isArray((e as any).citations)
         ? (e as any).citations
             .filter((c: any) => isObj(c) && typeof c.text === 'string')
@@ -254,7 +357,9 @@ export async function loadWikiTimelineAoo(repoRoot: string, relPath: string): Pr
       timeline_facts: Array.isArray((e as any).timeline_facts)
         ? (e as any).timeline_facts
             .filter((f: any) => isObj(f) && typeof f.fact_id === 'string')
-            .map((f: any) => ({
+            .map((f: any) => {
+              const normalized = normalizeActionAndNegation(f.action, f.negation);
+              return {
               fact_id: String(f.fact_id ?? ''),
               event_id: String(f.event_id ?? event_id),
               step_index: Number.isFinite(Number(f.step_index)) ? Number(f.step_index) : undefined,
@@ -270,11 +375,17 @@ export async function loadWikiTimelineAoo(repoRoot: string, relPath: string): Pr
                 : { year: 0, month: null, day: null, precision: 'year', text: '', kind: '' },
               party: typeof f.party === 'string' ? String(f.party) : undefined,
               subjects: Array.isArray(f.subjects) ? f.subjects.map((x: any) => String(x)) : undefined,
-              action: typeof f.action === 'string' ? String(f.action) : null,
+              action: normalized.action,
+              negation: normalized.negation,
               objects: Array.isArray(f.objects) ? f.objects.map((x: any) => String(x)) : undefined,
+              numeric_objects: Array.isArray(f.numeric_objects) ? f.numeric_objects.map((x: any) => String(x)) : undefined,
               purpose: typeof f.purpose === 'string' ? String(f.purpose) : null,
-              text: typeof f.text === 'string' ? String(f.text) : undefined
-            }))
+              text: typeof f.text === 'string' ? String(f.text) : undefined,
+              prev_fact_ids: Array.isArray(f.prev_fact_ids) ? f.prev_fact_ids.map((x: any) => String(x)) : undefined,
+              next_fact_ids: Array.isArray(f.next_fact_ids) ? f.next_fact_ids.map((x: any) => String(x)) : undefined,
+              chain_kinds: Array.isArray(f.chain_kinds) ? f.chain_kinds.map((x: any) => String(x)) : undefined
+            };
+            })
         : undefined,
       purpose: typeof e.purpose === 'string' ? e.purpose : null,
       span_candidates: Array.isArray((e as any).span_candidates)
@@ -326,7 +437,9 @@ export async function loadWikiTimelineAoo(repoRoot: string, relPath: string): Pr
     fact_timeline: Array.isArray(parsed?.fact_timeline)
       ? parsed.fact_timeline
           .filter((f: any) => isObj(f) && typeof f.fact_id === 'string')
-          .map((f: any) => ({
+          .map((f: any) => {
+            const normalized = normalizeActionAndNegation(f.action, f.negation);
+            return {
             fact_id: String(f.fact_id ?? ''),
             event_id: String(f.event_id ?? ''),
             step_index: Number.isFinite(Number(f.step_index)) ? Number(f.step_index) : undefined,
@@ -342,11 +455,14 @@ export async function loadWikiTimelineAoo(repoRoot: string, relPath: string): Pr
               : { year: 0, month: null, day: null, precision: 'year', text: '', kind: '' },
             party: typeof f.party === 'string' ? String(f.party) : undefined,
             subjects: Array.isArray(f.subjects) ? f.subjects.map((x: any) => String(x)) : undefined,
-            action: typeof f.action === 'string' ? String(f.action) : null,
+            action: normalized.action,
+            negation: normalized.negation,
             objects: Array.isArray(f.objects) ? f.objects.map((x: any) => String(x)) : undefined,
+            numeric_objects: Array.isArray(f.numeric_objects) ? f.numeric_objects.map((x: any) => String(x)) : undefined,
             purpose: typeof f.purpose === 'string' ? String(f.purpose) : null,
             text: typeof f.text === 'string' ? String(f.text) : undefined
-          }))
+          };
+          })
       : undefined,
     parser
   };

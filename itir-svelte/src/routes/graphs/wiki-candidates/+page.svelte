@@ -27,6 +27,9 @@
 
   let mode: 'aggregate' | 'expanded' = 'aggregate';
   let topN = 120;
+  let selectedNodeId: string | null = null;
+  let showAllContextRows = false;
+  let expandedContextKeys = new Set<string>();
 
   $: pages = data.payload.pages ?? [];
   $: candidatesAll = data.payload.candidates ?? [];
@@ -100,6 +103,108 @@
   }
 
   $: graph = mode === 'aggregate' ? buildAggregate() : buildExpanded();
+
+  type ContextRow = {
+    key: string;
+    title: string;
+    subtitle: string;
+    chips: string[];
+    text: string;
+  };
+
+  function toggleContextExpand(key: string) {
+    const next = new Set(expandedContextKeys);
+    if (next.has(key)) next.delete(key);
+    else next.add(key);
+    expandedContextKeys = next;
+  }
+
+  $: contextRows = (() => {
+    if (!selectedNodeId) return [] as ContextRow[];
+
+    if (selectedNodeId.startsWith('page:')) {
+      const pageTitle = selectedNodeId.slice('page:'.length);
+      const page = pages.find((p) => p.title === pageTitle);
+      const matches = candidatesAll
+        .filter((c) => (c.evidence_pages ?? []).includes(pageTitle))
+        .sort((a, b) => Number(b.score ?? 0) - Number(a.score ?? 0))
+        .map((c) => ({
+          key: `ctx:page:${pageTitle}:cand:${c.title}`,
+          title: c.title,
+          subtitle: `candidate score=${Number(c.score ?? 0).toFixed(3)}`,
+          chips: [`kind:${guessKind(c.title)}`, `evidence_pages:${(c.evidence_pages ?? []).length}`],
+          text: `Evidence from page "${pageTitle}" supports candidate "${c.title}".`
+        }));
+      const header: ContextRow[] = page
+        ? [
+            {
+              key: `ctx:page:${pageTitle}:meta`,
+              title: page.title,
+              subtitle: `snapshot page`,
+              chips: [
+                `wiki:${page.wiki ?? 'unknown'}`,
+                `revid:${page.revid ?? 'unknown'}`
+              ],
+              text: page.source_url ? `source_url=${page.source_url}` : 'source_url=(none)'
+            }
+          ]
+        : [];
+      return [...header, ...matches];
+    }
+
+    if (selectedNodeId.startsWith('cand:')) {
+      const candTitle = selectedNodeId.slice('cand:'.length);
+      const cand = candidatesAll.find((c) => c.title === candTitle);
+      if (!cand) return [] as ContextRow[];
+      const rows: ContextRow[] = [
+        {
+          key: `ctx:cand:${candTitle}:meta`,
+          title: cand.title,
+          subtitle: `candidate`,
+          chips: [
+            `score:${Number(cand.score ?? 0).toFixed(3)}`,
+            `kind:${guessKind(cand.title)}`
+          ],
+          text: `Evidence pages: ${(cand.evidence_pages ?? []).join(', ') || '(none)'}`
+        }
+      ];
+      for (const pt of cand.evidence_pages ?? []) {
+        const p = pages.find((x) => x.title === pt);
+        rows.push({
+          key: `ctx:cand:${candTitle}:page:${pt}`,
+          title: pt,
+          subtitle: 'evidence page',
+          chips: [
+            `wiki:${p?.wiki ?? 'unknown'}`,
+            `revid:${p?.revid ?? 'unknown'}`
+          ],
+          text: p?.source_url ? `source_url=${p.source_url}` : 'source_url=(none)'
+        });
+      }
+      return rows;
+    }
+
+    if (selectedNodeId.startsWith('kind:')) {
+      const kind = selectedNodeId.slice('kind:'.length);
+      return candidatesAll
+        .filter((c) => guessKind(c.title) === kind)
+        .sort((a, b) => Number(b.score ?? 0) - Number(a.score ?? 0))
+        .map((c) => ({
+          key: `ctx:kind:${kind}:cand:${c.title}`,
+          title: c.title,
+          subtitle: `candidate`,
+          chips: [
+            `score:${Number(c.score ?? 0).toFixed(3)}`,
+            `evidence_pages:${(c.evidence_pages ?? []).length}`
+          ],
+          text: `Evidence pages: ${(c.evidence_pages ?? []).join(', ') || '(none)'}`
+        }));
+    }
+
+    return [] as ContextRow[];
+  })();
+
+  $: contextRowsShown = showAllContextRows ? contextRows : contextRows.slice(0, 60);
 </script>
 
 <div class="space-y-4 p-6">
@@ -133,7 +238,59 @@
     </Panel>
   {/if}
 
-  <BipartiteGraph left={pageNodes} right={graph.right} edges={graph.edges} width={1200} height={820} />
+  <BipartiteGraph
+    left={pageNodes}
+    right={graph.right}
+    edges={graph.edges}
+    width={1200}
+    height={820}
+    on:nodeSelect={(e) => (selectedNodeId = (e as CustomEvent<{ nodeId: string }>).detail.nodeId)}
+  />
+
+  <Panel>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Context</div>
+      <div class="text-[11px] font-mono text-ink-800/60">
+        {#if selectedNodeId}
+          selected: {selectedNodeId} | rows: {contextRows.length}
+          {#if contextRows.length > 60}
+            <label class="ml-2 inline-flex items-center gap-1 rounded border border-ink-950/10 bg-white px-2 py-0.5">
+              <input type="checkbox" bind:checked={showAllContextRows} />
+              <span>all rows ({contextRows.length})</span>
+            </label>
+          {/if}
+        {:else}
+          click a node to inspect candidate/page evidence context
+        {/if}
+      </div>
+    </div>
+    {#if selectedNodeId && contextRows.length}
+      <div class="mt-3 max-h-[340px] overflow-auto rounded-lg border border-ink-950/10 bg-white">
+        {#each contextRowsShown as r (r.key)}
+          {@const expanded = expandedContextKeys.has(r.key)}
+          <div class="border-b border-ink-950/10 p-3 last:border-b-0">
+            <button
+              class="w-full text-left"
+              on:click={() => toggleContextExpand(r.key)}
+            >
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="text-sm text-ink-950">{r.title}</div>
+                <div class="font-mono text-[10px] text-ink-800/60">{r.subtitle} {expanded ? '[-]' : '[+]'}</div>
+              </div>
+            </button>
+            <div class="mt-2 flex flex-wrap gap-1 text-[10px]">
+              {#each r.chips as c (r.key + ':chip:' + c)}
+                <span class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-ink-900">{c}</span>
+              {/each}
+            </div>
+            {#if expanded}
+              <div class="mt-2 text-xs text-ink-900 font-mono">{r.text}</div>
+            {/if}
+          </div>
+        {/each}
+      </div>
+    {/if}
+  </Panel>
 
   <div class="text-xs text-ink-800/60">
     Note: this is a visualization of the extraction substrate (page->candidate evidence edges). It is pre-graph (no SL/SB commitments).

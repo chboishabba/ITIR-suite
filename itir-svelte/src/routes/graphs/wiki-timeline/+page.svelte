@@ -1,6 +1,7 @@
 <script lang="ts">
   import BipartiteGraph, { type GraphEdge, type GraphNode } from '$lib/ui/BipartiteGraph.svelte';
   import Panel from '$lib/ui/Panel.svelte';
+  import { afterUpdate } from 'svelte';
 
   export let data: {
     payload: {
@@ -20,6 +21,11 @@
 
   let bucket: 'year' | 'month' = 'month';
   let topN = 140;
+  let selectedNodeId: string | null = null;
+  let showAllContextRows = false;
+  let expandedContextIds = new Set<string>();
+  let contextBox: HTMLDivElement | null = null;
+  let lastScrollKey = '';
 
   function pad2(n: number): string {
     return String(n).padStart(2, '0');
@@ -68,6 +74,65 @@
     to: `ev:${e.event_id}`,
     weight: 1
   }));
+
+  $: contextRows = (() => {
+    if (!selectedNodeId) return [] as typeof events;
+    if (selectedNodeId.startsWith('ev:')) {
+      const eventId = selectedNodeId.slice('ev:'.length);
+      return events.filter((e) => e.event_id === eventId);
+    }
+    if (selectedNodeId.startsWith('time:')) {
+      const key = selectedNodeId.slice('time:'.length);
+      return events.filter((e) => bucketKey(e.anchor, bucket) === key);
+    }
+    return [] as typeof events;
+  })();
+  $: contextRowsShown = showAllContextRows ? contextRows : contextRows.slice(0, 80);
+
+  function toggleContextExpand(eventId: string) {
+    const next = new Set(expandedContextIds);
+    if (next.has(eventId)) next.delete(eventId);
+    else next.add(eventId);
+    expandedContextIds = next;
+  }
+
+  function highlightParts(text: string, needle: string): Array<{ s: string; hit: boolean }> {
+    const t = String(text ?? '');
+    const n = String(needle ?? '').trim();
+    if (!n) return [{ s: t, hit: false }];
+    const lower = t.toLowerCase();
+    const nl = n.toLowerCase();
+    const out: Array<{ s: string; hit: boolean }> = [];
+    let i = 0;
+    while (i < t.length) {
+      const j = lower.indexOf(nl, i);
+      if (j < 0) {
+        out.push({ s: t.slice(i), hit: false });
+        break;
+      }
+      if (j > i) out.push({ s: t.slice(i, j), hit: false });
+      out.push({ s: t.slice(j, j + n.length), hit: true });
+      i = j + n.length;
+    }
+    return out.length ? out : [{ s: t, hit: false }];
+  }
+
+  $: contextNeedle = (() => {
+    if (!selectedNodeId) return '';
+    if (selectedNodeId.startsWith('time:')) return selectedNodeId.slice('time:'.length);
+    return '';
+  })();
+
+  afterUpdate(() => {
+    if (!contextBox || !selectedNodeId) return;
+    const k = `${selectedNodeId}:${contextRowsShown[0]?.event_id ?? ''}`;
+    if (!k || k === lastScrollKey) return;
+    lastScrollKey = k;
+    const first = contextRowsShown[0];
+    if (!first) return;
+    const el = contextBox.querySelector(`[data-ctx-id="${first.event_id}"]`);
+    if (el && 'scrollIntoView' in el) (el as HTMLElement).scrollIntoView({ block: 'center' });
+  });
 </script>
 
 <div class="space-y-4 p-6">
@@ -126,6 +191,12 @@
       </a>
       <a
         class="rounded-md border border-ink-950/15 px-2 py-1 text-xs text-ink-950 hover:border-ink-950/30 hover:bg-ink-950/[0.03]"
+        href={`/graphs/wiki-timeline-aoo?source=${encodeURIComponent(data.source ?? 'gwb')}&view=step-ribbon`}
+      >
+        Open Step-Ribbon
+      </a>
+      <a
+        class="rounded-md border border-ink-950/15 px-2 py-1 text-xs text-ink-950 hover:border-ink-950/30 hover:bg-ink-950/[0.03]"
         href={`/graphs/wiki-timeline-aoo-all?source=${encodeURIComponent(data.source ?? 'gwb')}`}
       >
         Open AAO-all
@@ -146,7 +217,79 @@
     </Panel>
   {/if}
 
-  <BipartiteGraph left={left} right={right} edges={edges} width={1200} height={820} />
+  <BipartiteGraph
+    left={left}
+    right={right}
+    edges={edges}
+    width={1200}
+    height={820}
+    on:nodeSelect={(e) => (selectedNodeId = (e as CustomEvent<{ nodeId: string }>).detail.nodeId)}
+  />
+
+  <Panel>
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Context</div>
+      <div class="text-[11px] font-mono text-ink-800/60">
+        {#if selectedNodeId}
+          selected: {selectedNodeId} | rows: {contextRows.length}
+          {#if contextRows.length > 80}
+            <label class="ml-2 inline-flex items-center gap-1 rounded border border-ink-950/10 bg-white px-2 py-0.5">
+              <input type="checkbox" bind:checked={showAllContextRows} />
+              <span>all rows ({contextRows.length})</span>
+            </label>
+          {/if}
+        {:else}
+          click a node to inspect matching timeline rows
+        {/if}
+      </div>
+    </div>
+    {#if selectedNodeId && contextRows.length}
+      <div class="mt-3 max-h-[320px] overflow-auto rounded-lg border border-ink-950/10 bg-white" bind:this={contextBox}>
+        {#each contextRowsShown as r (r.event_id)}
+          {@const expanded = expandedContextIds.has(r.event_id)}
+          <div class="border-b border-ink-950/10 p-3 last:border-b-0" data-ctx-id={r.event_id}>
+            <button class="w-full text-left" on:click={() => toggleContextExpand(r.event_id)}>
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="font-mono text-[10px] text-ink-800/60">{bucketKey(r.anchor, 'month')} {r.event_id}</div>
+                <div class="font-mono text-[10px] text-ink-800/60">section={r.section} {expanded ? '[-]' : '[+]'}</div>
+              </div>
+            </button>
+            <div class="mt-2 text-sm text-ink-950">
+              {#if contextNeedle}
+                {#each highlightParts(r.text, contextNeedle) as part, i (r.event_id + ':' + i)}
+                  {#if part.hit}
+                    <span class="rounded bg-amber-200/60 px-1">{part.s}</span>
+                  {:else}
+                    {part.s}
+                  {/if}
+                {/each}
+              {:else}
+                {r.text}
+              {/if}
+            </div>
+            {#if expanded && r.links?.length}
+              <div class="mt-2 text-[11px] text-ink-800/80">
+                links ({r.links.length}):
+                {#each r.links as l}
+                  <span class="ml-1 mt-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px]">{l}</span>
+                {/each}
+              </div>
+            {:else if r.links?.length}
+              <div class="mt-2 text-[11px] text-ink-800/80">
+                links ({r.links.length}):
+                {#each r.links.slice(0, 12) as l}
+                  <span class="ml-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[10px]">{l}</span>
+                {/each}
+                {#if r.links.length > 12}
+                  <span class="ml-1 font-mono text-[10px] text-ink-800/60">+{r.links.length - 12} more (expand)</span>
+                {/if}
+              </div>
+            {/if}
+          </div>
+        {/each}
+      </div>
+    {/if}
+  </Panel>
 
   <Panel>
     <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Notes</div>

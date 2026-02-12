@@ -10,6 +10,11 @@ Document the current user-visible Streamlit/HTML/web UI modules in:
 
 This inventory is the baseline for the ongoing Svelte transition in `itir-svelte/`.
 
+Transition baseline set (for migration decisions):
+- Module parity matrix (this file): legacy SL/SB UI surfaces vs `itir-svelte` status.
+- Parser/display contract: `docs/planning/itir_svelte_tool_use_parser_display_contract_20260211.md`
+  (Tool Use Summary grouping semantics and invariants).
+
 Scope note:
 - This is an inventory of **UI surfaces and their contracts**, not an implementation guide.
 - UI surfaces are **projection-only**: read-only views over frozen payloads. They do not mutate SL/SB
@@ -392,6 +397,11 @@ Status meanings:
 - **present**: module exists with roughly correct data + interaction posture
 - **partial**: module exists but missing major fields/controls/semantics
 - **missing**: no module yet
+
+Assessment timestamp:
+- 2026-02-11 (based on legacy HTML references:
+  `StatiBaker/runs/2026-02-08/outputs/dashboard_weekly_14d_all.html`,
+  `StatiBaker/runs/2026-02-06/outputs/dashboard_all.html`)
 
 | Legacy module | Legacy HTML | JSON contract | `itir-svelte` status | Notes |
 |---|---|---|---|---|

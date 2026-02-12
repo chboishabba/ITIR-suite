@@ -118,6 +118,14 @@
     <div class="mt-2 text-sm text-ink-950">
       <a
         class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50"
+        href="/graphs/wiki-timeline-aoo?view=step-ribbon"
+        >Wiki timeline Step-Ribbon (GWB)</a
+      >
+      <span class="ml-2 text-xs text-ink-800/60 font-mono">view=step-ribbon</span>
+    </div>
+    <div class="mt-2 text-sm text-ink-950">
+      <a
+        class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50"
         href="/graphs/wiki-timeline-aoo-all"
         >Wiki timeline AAO combined (GWB)</a
       >
@@ -130,6 +138,14 @@
         >Case timeline AAO (HCA S94/2025)</a
       >
       <span class="ml-2 text-xs text-ink-800/60 font-mono">SensibLaw/.cache_local/wiki_timeline_hca_s942025_aoo.json</span>
+    </div>
+    <div class="mt-2 text-sm text-ink-950">
+      <a
+        class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50"
+        href="/graphs/wiki-timeline-aoo?source=hca&view=step-ribbon"
+        >Case timeline Step-Ribbon (HCA S94/2025)</a
+      >
+      <span class="ml-2 text-xs text-ink-800/60 font-mono">view=step-ribbon</span>
     </div>
     <div class="mt-2 text-sm text-ink-950">
       <a
@@ -149,6 +165,16 @@
     <div class="mt-2 text-sm text-ink-950">
       <a class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50" href="/threads">Browse threads</a>
       <span class="ml-2 text-xs text-ink-800/60 font-mono">chat-export-structurer/my_archive.sqlite</span>
+    </div>
+  </Panel>
+
+  <Panel>
+    <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Viewers</div>
+    <div class="mt-2 text-sm text-ink-950">
+      <a class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50" href="/viewers/hca-case"
+        >HCA transcript + document viewer workbench</a
+      >
+      <span class="ml-2 text-xs text-ink-800/60 font-mono">reusable transcript/document/folder components</span>
     </div>
   </Panel>
 

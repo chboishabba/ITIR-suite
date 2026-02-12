@@ -1,5 +1,9 @@
 # OAC v1.0: Object Admissibility Contract (Truth vs View) (2026-02-11)
 
+## Origin
+- `origin_online_id`: `698bdf6e-43f8-839c-9089-34ee3d3338dd`
+- `origin_note`: User-provided online thread reference for the contract framing; documented here without performing live fetch.
+
 This document freezes the *object admissibility* contract for the Wikipedia -> AAO substrate lane,
 with explicit separation between:
 

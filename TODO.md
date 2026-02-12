@@ -18,10 +18,18 @@
 ## Active TODOs
 - Svelte SB dashboard migration (module parity + inventory):
   - Inventory baseline: `docs/planning/sl_sb_web_component_inventory_20260210.md`
+  - Tool-use parser display baseline:
+    `docs/planning/itir_svelte_tool_use_parser_display_contract_20260211.md`
   - Update registry/manifest drift when new UI surfaces appear:
     `docs/planning/ui_surface_registry_20260208.md`,
     `docs/planning/ui_surface_manifest.json`
   - Track Svelte implementation tasks in: `itir-svelte/TODO.md`
+  - DONE (2026-02-12): seed reusable viewer primitives in `itir-svelte` for cross-project reuse:
+    - transcript cue viewer (`src/lib/viewers/TranscriptViewer.svelte`)
+    - generic document viewer (`src/lib/viewers/DocumentViewer.svelte`)
+    - folder artifact picker (`src/lib/viewers/FolderListViewer.svelte`)
+    - demo workbench route (`/viewers/hca-case`) backed by HCA ingest artifacts
+  - Follow-up: mount these viewers in SB event/thread detail panels and SL inline document panes; keep graph-selection bridge on shared span IDs.
 - Wikipedia connector + “fact tree” intake (do not treat external sources as normative):
   - DONE: implement `SensibLaw/scripts/wiki_pull_api.py` (MediaWiki API baseline + pywikibot driver)
   - DONE: pull + snapshot revision-locked seed pages (G.W. Bush set) into `SensibLaw/.cache_local/wiki_snapshots/`
@@ -29,11 +37,13 @@
   - DONE: root actor helper (`SensibLaw/scripts/ontology_actor_upsert.py`) + DBpedia external ref batch emission (`SensibLaw/scripts/dbpedia_lookup_api.py --emit-batch`)
   - Implement: visual graph render of raw candidate set (do not trim first) from `wiki_candidates_gwb.json` -> `.dot`/`.svg` under `.cache_local/`
   - Implement: DBpedia lookup runner for the bounded queue (cache-first; optional network) that annotates queue items as `pending|ambiguous|skipped` without choosing a URI automatically
-  - Implement: extract date-anchored event timeline candidates from the main wiki page snapshot (`George W. Bush`) into `SensibLaw/.cache_local/wiki_timeline_gwb.json`
-  - Implement: render wiki timeline in `itir-svelte` (`/graphs/wiki-timeline`) as pre-graph substrate (time bucket -> event edges)
-  - Implement: expand selected timeline event into actor/action/object mini-graph (sentence-local; non-causal) and render in `itir-svelte` (`/graphs/wiki-timeline-aoo`)
-  - Implement: AAO time rendering toggle (`auto|year|month|day`) that splits time into separate nodes (Year -> Month -> Day) for the AAO mini-graph UI
-  - Implement: whole-article combined AAO graph view that renders many events at once (event-heavy is ok; rely on pan/zoom + optional caps instead of pre-trimming)
+  - DONE: extract date-anchored event timeline candidates from the main wiki page snapshot (`George W. Bush`) into `SensibLaw/.cache_local/wiki_timeline_gwb.json`
+  - DONE: render wiki timeline in `itir-svelte` (`/graphs/wiki-timeline`) as pre-graph substrate (time bucket -> event edges)
+  - DONE: expand selected timeline event into actor/action/object mini-graph (sentence-local; non-causal) and render in `itir-svelte` (`/graphs/wiki-timeline-aoo`)
+  - DONE: AAO time rendering toggle (`auto|year|month|day`) that splits time into separate nodes (Year -> Month -> Day) for the AAO mini-graph UI
+  - DONE: whole-article combined AAO graph view that renders many events at once (event-heavy is ok; rely on pan/zoom + optional caps instead of pre-trimming)
+  - DONE: add Fact Timeline graph (`/graphs/wiki-fact-timeline`) with deterministic loader fallback from `fact_timeline[]` -> nested `timeline_facts[]` -> synthesized `events[].steps[]`.
+  - Follow-up: enrich wiki timeline graph with first-class link layer (time -> event -> link) as optional lane; keep event-only mode default for readability.
   - Implement: OAC v1.0 span lane + promotion gate:
     - emit `span_candidates[]` as **unresolved mentions only** (spaCy pinned; structure only):
       - exclude overlaps with already-resolved wikilink entities in the same sentence
@@ -49,6 +59,27 @@
     - replace `REPORTED_SUBJECT_RE` with dependency-first subject extraction only
     - replace explicit `reported->cautioned` split with generic clause/verb-chain decomposition
     - replace surface phrase object injections with resolver-scored dep/object promotion
+  - AAO hardcode inventory + required de-hardcode inputs (new):
+    - current hardcoded spots (extractor):
+      - requester title expansion to `"U.S. President"` (request-clause normalization)
+      - static `ACTION_PATTERNS` verb map + sentence-shape split branches (`joined+commissioned`, `speech+threw`, `reported+cautioned`)
+      - static person guard tokens (`NON_PERSON_TOKENS`) and title-word blocks in surname/name fallback
+      - surface phrase object injections (`"the war"`, `continue weakening ...`) and pattern-derived object tails
+      - dataset-specific defaults (`--root-actor "George W. Bush"`, `--root-surname "Bush"`)
+    - required to remove hardcoding safely:
+      - office/role resolver table (Wikidata/DBpedia/SL ontology) so title labels derive from IDs (no literal `"U.S. President"` injection)
+      - versioned extraction-profile config (YAML/JSON) for action lexicon + split policy, loaded at runtime and pinned in output provenance
+      - dependency-first clause/frame extractor as primary step builder (regex branches become fallback-only with explicit warnings)
+      - typed object admissibility contract wired to entity IDs (`PERSON|ORG|PLACE|EVENT|LEGAL_INSTRUMENT|ABSTRACT`) to replace surface-object injections
+      - per-dataset actor bootstrap manifest (root actor/surname from input metadata, not CLI default literals)
+      - AAO goldset coverage for request/title, passive voice, clause chains, and object recovery to prevent regressions during de-hardcoding
+    - DONE (2026-02-12): moved negation out of action labels:
+      - extractor now stores `step.negation` (e.g. `{kind:\"not\",scope:\"action\"}`) and keeps canonical `action`
+      - loader/views keep backward compatibility for legacy `not_*` artifacts at parse/display layer
+    - DONE (2026-02-12): externalized first extraction-profile layer:
+      - `wiki_timeline_aoo_extract.py` now accepts `--profile` and loads action regex inventory + requester title labels from JSON
+      - artifacts now pin `extraction_profile` provenance (`profile_id`, `profile_version`, `sha256`, `loaded_from_file`)
+      - default profile added at `SensibLaw/policies/wiki_timeline_aoo_profile_v1.json`
   - Follow-up: emit per-title progress to stderr in `wiki_pull_api.py` (stdout stays JSON) so 20-60s pulls do not look like a hang
   - Follow-up: add explicit “environment sanity” checks (print interpreter path + driver selected) to debug pywikibot import mismatches quickly
   - Follow-up: decide cache file ownership policy (`root` vs `ubuntu`) under `.cache_local/` to avoid permission friction

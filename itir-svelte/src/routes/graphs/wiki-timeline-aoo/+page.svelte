@@ -13,7 +13,11 @@
         text: string;
         actors: Array<{ label: string; resolved: string; role: string; source: string }>;
         action: string | null;
+        negation?: { kind: string; scope?: string; source?: string };
         chains?: Array<{ from_step?: number; to_step?: number; to?: string; kind: string }>;
+        entity_objects?: string[];
+        numeric_objects?: string[];
+        modifier_objects?: string[];
         span_candidates?: Array<{
           span_id: string;
           text: string;
@@ -28,18 +32,43 @@
         }>;
         purpose: string | null;
         warnings: string[];
+        citations?: Array<{ text?: string }>;
+        sl_references?: Array<{ text?: string; authority?: string; ref_value?: string }>;
+        timeline_facts?: Array<{
+          anchor?: { year?: number; month?: number | null; day?: number | null };
+          subjects?: string[];
+          action?: string | null;
+          negation?: { kind?: string; scope?: string; source?: string };
+          objects?: string[];
+          numeric_objects?: string[];
+        }>;
       }>;
     };
     relPath: string;
     source?: string;
+    view?: string;
     error: string | null;
   };
 
   let selectedId: string | null = null;
+  let selectedNodeId: string | null = null;
+  let expandContextDetails = false;
   let showAllSpans = false;
+  type LayoutMode = 'roles' | 'step_ribbon';
+  let layoutMode: LayoutMode = 'step_ribbon';
 
   type TimeGranularity = 'auto' | 'year' | 'month' | 'day';
   let timeGranularity: TimeGranularity = 'auto';
+
+  function viewTypeFromLayout(layout: LayoutMode): string {
+    return layout === 'roles' ? 'roles' : 'step-ribbon';
+  }
+
+  function hrefFor(source: string, viewType: string): string {
+    return `/graphs/wiki-timeline-aoo?source=${encodeURIComponent(source)}&view=${encodeURIComponent(viewType)}`;
+  }
+
+  $: layoutMode = data.view === 'roles' ? 'roles' : 'step_ribbon';
 
   function fmtTime(a: { year: number; month: number | null; day: number | null; precision: string }): string {
     const y = a.year || 0;
@@ -126,6 +155,167 @@
     return { id, label: short, fullLabel: label, color, tooltip: tooltip ?? label };
   }
 
+  function actionLabel(action: string | null | undefined, negation?: { kind?: string | null }): string {
+    const base = String(action ?? '').trim();
+    if (!base) return '(no action matched)';
+    if (String(negation?.kind ?? '').toLowerCase() === 'not') return `not_${base}`;
+    return base;
+  }
+
+  function stepEntityObjects(step: any): string[] {
+    if (Array.isArray(step?.entity_objects)) return step.entity_objects.map((x: any) => String(x)).filter(Boolean);
+    if (Array.isArray(step?.objects)) return step.objects.map((x: any) => String(x)).filter(Boolean);
+    return [];
+  }
+
+  function eventEntityObjects(ev: any): string[] {
+    if (Array.isArray(ev?.entity_objects)) return ev.entity_objects.map((x: any) => String(x)).filter(Boolean);
+    return (ev?.objects ?? []).map((o: any) => String(o?.title ?? '')).filter(Boolean);
+  }
+
+  function stepNumericObjects(step: any): string[] {
+    if (Array.isArray(step?.numeric_objects)) return step.numeric_objects.map((x: any) => String(x)).filter(Boolean);
+    return [];
+  }
+
+  function eventNumericObjects(ev: any): string[] {
+    if (Array.isArray(ev?.numeric_objects)) return ev.numeric_objects.map((x: any) => String(x)).filter(Boolean);
+    return [];
+  }
+
+  function nodeNeedle(nodeId: string): string {
+    if (!nodeId) return '';
+    if (nodeId.startsWith('sub:') || nodeId.startsWith('obj:') || nodeId.startsWith('req:') || nodeId.startsWith('num:')) {
+      const parts = nodeId.split(':');
+      return parts[parts.length - 1] ?? '';
+    }
+    return '';
+  }
+
+  function highlightParts(text: string, needle: string): Array<{ s: string; hit: boolean }> {
+    const t = String(text ?? '');
+    const n = String(needle ?? '').trim();
+    if (!n) return [{ s: t, hit: false }];
+    const lower = t.toLowerCase();
+    const nl = n.toLowerCase();
+    const out: Array<{ s: string; hit: boolean }> = [];
+    let i = 0;
+    while (i < t.length) {
+      const j = lower.indexOf(nl, i);
+      if (j < 0) {
+        out.push({ s: t.slice(i), hit: false });
+        break;
+      }
+      if (j > i) out.push({ s: t.slice(i, j), hit: false });
+      out.push({ s: t.slice(j, j + n.length), hit: true });
+      i = j + n.length;
+    }
+    return out.length ? out : [{ s: t, hit: false }];
+  }
+
+  function uniqueStrings(xs: any[]): string[] {
+    const out = new Set<string>();
+    for (const x of xs ?? []) {
+      const s = String(x ?? '').trim();
+      if (s) out.add(s);
+    }
+    return Array.from(out);
+  }
+
+  $: selectedContext = (() => {
+    if (!selected || !selectedNodeId) return null as null | { needle: string; summary: string[] };
+    const steps = Array.isArray((selected as any).steps) ? ((selected as any).steps as Array<any>) : [];
+    const subjects = Array.from(
+      new Set(
+        steps.length
+          ? steps.flatMap((s) => (Array.isArray(s?.subjects) ? s.subjects : []))
+          : selected.actors.filter((a) => a.role !== 'requester').map((a) => a.resolved ?? a.label)
+      )
+    ).filter(Boolean) as string[];
+    const objects = Array.from(
+      new Set(
+        steps.length
+          ? steps.flatMap((s) => stepEntityObjects(s))
+          : eventEntityObjects(selected)
+      )
+    ).filter(Boolean) as string[];
+    const numerics = Array.from(
+      new Set(
+        steps.length
+          ? steps.flatMap((s) => stepNumericObjects(s))
+          : eventNumericObjects(selected)
+      )
+    ).filter(Boolean) as string[];
+    const actions = Array.from(new Set((steps.length ? steps.map((s) => actionLabel(s?.action, s?.negation)) : [actionLabel(selected.action, selected.negation)]).filter(Boolean)));
+    const summary = [
+      ...subjects.map((x) => `sub:${x}`),
+      ...actions.map((x) => `act:${x}`),
+      ...objects.map((x) => `obj:${x}`),
+      ...numerics.map((x) => `num:${x}`)
+    ];
+    return { needle: nodeNeedle(selectedNodeId), summary };
+  })();
+
+  $: selectedContextDetails = (() => {
+    if (!selected) {
+      return {
+        requesters: [] as string[],
+        subjects: [] as string[],
+        actions: [] as string[],
+        objects: [] as string[],
+        numerics: [] as string[],
+        citations: [] as string[],
+        slRefs: [] as string[],
+        factRows: [] as string[],
+        warnings: [] as string[]
+      };
+    }
+    const steps = Array.isArray((selected as any).steps) ? ((selected as any).steps as Array<any>) : [];
+    const requesters = uniqueStrings(
+      (selected.actors ?? [])
+        .filter((a) => a.role === 'requester')
+        .map((a) => a.resolved ?? a.label)
+    );
+    const subjects = uniqueStrings(
+      steps.length
+        ? steps.flatMap((s) => (Array.isArray(s?.subjects) ? s.subjects : []))
+        : (selected.actors ?? []).filter((a) => a.role !== 'requester').map((a) => a.resolved ?? a.label)
+    );
+    const actions = uniqueStrings(
+      (steps.length ? steps.map((s) => actionLabel(s?.action, s?.negation)) : [actionLabel(selected.action, selected.negation)]).filter(Boolean)
+    );
+    const objects = uniqueStrings(
+      steps.length
+        ? steps.flatMap((s) => stepEntityObjects(s))
+        : eventEntityObjects(selected)
+    );
+    const numerics = uniqueStrings(
+      steps.length
+        ? steps.flatMap((s) => stepNumericObjects(s))
+        : eventNumericObjects(selected)
+    );
+    const citations = uniqueStrings(((selected as any).citations ?? []).map((c: any) => String(c?.text ?? '')));
+    const slRefs = uniqueStrings(
+      ((selected as any).sl_references ?? []).map((r: any) => String(r?.text ?? `${r?.authority ?? ''} ${r?.ref_value ?? ''}`.trim()))
+    );
+    const factRows = uniqueStrings(
+      ((selected as any).timeline_facts ?? []).map((f: any) => {
+        const y = Number(f?.anchor?.year ?? 0);
+        const m = Number(f?.anchor?.month ?? 0);
+        const d = Number(f?.anchor?.day ?? 0);
+        const m2 = m > 0 ? String(m).padStart(2, '0') : '00';
+        const d2 = d > 0 ? String(d).padStart(2, '0') : '00';
+        const a = actionLabel(f?.action, f?.negation);
+        const subs = Array.isArray(f?.subjects) ? f.subjects.join(', ') : '';
+        const objs = Array.isArray(f?.objects) ? f.objects.join(', ') : '';
+        const nums = Array.isArray(f?.numeric_objects) ? f.numeric_objects.join(', ') : '';
+        return `${y}-${m2}-${d2} | ${subs}${a && a !== '(no action matched)' ? ' -> ' + a : ''}${objs ? ' -> ' + objs : ''}${nums ? ' -> #' + nums : ''}`.trim();
+      })
+    );
+    const warnings = uniqueStrings((selected as any).warnings ?? []);
+    return { requesters, subjects, actions, objects, numerics, citations, slRefs, factRows, warnings };
+  })();
+
   $: graph = (() => {
     if (!selected) return { layers: [], edges: [] as LayeredEdge[] };
 
@@ -136,11 +326,13 @@
     const requesterNodes = requesters.map((a) => node(`req:${a.resolved}`, a.resolved, '#e9d5ff', `source=${a.source}`));
 
     const steps = Array.isArray((selected as any).steps) && (selected as any).steps.length
-      ? ((selected as any).steps as Array<{ action: string; subjects: string[]; objects: string[]; purpose: string | null }>)
+      ? ((selected as any).steps as Array<{ action: string; negation?: { kind: string; scope?: string; source?: string }; subjects: string[]; objects: string[]; numeric_objects?: string[]; purpose: string | null }>)
       : [{
           action: selected.action ?? '(no action matched)',
+          negation: selected.negation,
           subjects: selected.actors.filter((a) => a.role !== 'requester').map((a) => a.resolved),
-          objects: (selected.objects ?? []).map((o) => o.title),
+          objects: eventEntityObjects(selected),
+          numeric_objects: eventNumericObjects(selected),
           purpose: selected.purpose ?? null
         }];
 
@@ -158,14 +350,14 @@
     })();
 
     const actionNodes = steps.map((s, i) =>
-      node(`act:${selected.event_id}:${i}`, s.action || '(no action matched)', '#fde68a')
+      node(`act:${selected.event_id}:${i}`, actionLabel(s.action, s.negation), '#fde68a')
     );
 
     // Objects/purpose are step-local when `steps[]` is present; fall back to legacy fields.
     const objSeen = new Set<string>();
     const objNodes: LayerNode[] = [];
     for (const s of steps) {
-      for (const t of s.objects ?? []) {
+      for (const t of stepEntityObjects(s)) {
         const title = String(t ?? '').trim();
         if (!title || objSeen.has(title)) continue;
         objSeen.add(title);
@@ -173,11 +365,30 @@
       }
     }
     if (!objNodes.length) {
-      for (const o of selected.objects ?? []) {
-        const title = String(o.title ?? '').trim();
+      for (const titleRaw of eventEntityObjects(selected)) {
+        const title = String(titleRaw ?? '').trim();
         if (!title || objSeen.has(title)) continue;
         objSeen.add(title);
-        objNodes.push(node(`obj:${title}`, title, '#f6f6f6', `source=${o.source}`));
+        objNodes.push(node(`obj:${title}`, title, '#f6f6f6'));
+      }
+    }
+
+    const numSeen = new Set<string>();
+    const numNodes: LayerNode[] = [];
+    for (const s of steps) {
+      for (const t of stepNumericObjects(s)) {
+        const value = String(t ?? '').trim();
+        if (!value || numSeen.has(value)) continue;
+        numSeen.add(value);
+        numNodes.push(node(`num:${value}`, value, '#fee2e2'));
+      }
+    }
+    if (!numNodes.length) {
+      for (const valueRaw of eventNumericObjects(selected)) {
+        const value = String(valueRaw ?? '').trim();
+        if (!value || numSeen.has(value)) continue;
+        numSeen.add(value);
+        numNodes.push(node(`num:${value}`, value, '#fee2e2'));
       }
     }
 
@@ -186,49 +397,121 @@
       if (s.purpose) purposeNodes.push(node(`pur:${selected.event_id}:${i}`, s.purpose, '#fef3c7'));
     });
 
-    const layers = [
-      ...time.layers,
-      { id: 'request', title: 'Requester', nodes: requesterNodes.length ? requesterNodes : [node('req:none', '(none)', '#ffffff')] },
-      { id: 'subjects', title: 'Subjects', nodes: subjectNodes.length ? subjectNodes : [node('sub:none', '(none)', '#ffffff')] },
-      { id: 'action', title: 'Action', nodes: actionNodes.length ? actionNodes : [node('act:none', '(none)', '#ffffff')] },
-      { id: 'objects', title: 'Objects', nodes: objNodes.length ? objNodes : [node('obj:none', '(none)', '#ffffff')] },
-      { id: 'purpose', title: 'Purpose', nodes: purposeNodes.length ? purposeNodes : [node('pur:none', '(none)', '#ffffff')] }
-    ];
+    if (layoutMode === 'roles') {
+      const layers = [
+        ...time.layers,
+        { id: 'request', title: 'Requester', nodes: requesterNodes.length ? requesterNodes : [node('req:none', '(none)', '#ffffff')] },
+        { id: 'subjects', title: 'Subjects', nodes: subjectNodes.length ? subjectNodes : [node('sub:none', '(none)', '#ffffff')] },
+        { id: 'action', title: 'Action', nodes: actionNodes.length ? actionNodes : [node('act:none', '(none)', '#ffffff')] },
+        { id: 'objects', title: 'Objects', nodes: objNodes.length ? objNodes : [node('obj:none', '(none)', '#ffffff')] },
+        { id: 'numeric', title: 'Numeric', nodes: numNodes.length ? numNodes : [node('num:none', '(none)', '#ffffff')] },
+        { id: 'purpose', title: 'Purpose', nodes: purposeNodes.length ? purposeNodes : [node('pur:none', '(none)', '#ffffff')] }
+      ];
 
-    const edges: LayeredEdge[] = [];
-    const firstActionId = actionNodes[0]?.id ?? 'act:none';
-    edges.push(...time.edges);
-    edges.push({ from: time.attachId, to: firstActionId, label: 'at' });
-    for (const r of requesterNodes) edges.push({ from: r.id, to: firstActionId, label: 'request' });
+      const edges: LayeredEdge[] = [];
+      const firstActionId = actionNodes[0]?.id ?? 'act:none';
+      edges.push(...time.edges);
+      edges.push({ from: time.attachId, to: firstActionId, label: 'at' });
+      for (const r of requesterNodes) edges.push({ from: r.id, to: firstActionId, label: 'request' });
 
-    // Step-local wiring: connect only the subjects/objects that belong to that step when possible.
-    steps.forEach((st, i) => {
-      const aid = actionNodes[i]?.id ?? firstActionId;
-      // If step subjects are explicit resolved strings, connect those nodes when present; else connect all subjects.
-      const subSet = new Set((st.subjects ?? []).map((x) => String(x)).filter(Boolean));
-      const didOne = (() => {
-        let ok = false;
-        for (const s of subjectNodes) {
-          if (!subSet.size || subSet.has(s.fullLabel ?? s.label)) {
-            edges.push({ from: s.id, to: aid, label: 'do' });
-            ok = true;
+      // Step-local wiring: connect only the subjects/objects that belong to that step when possible.
+      steps.forEach((st, i) => {
+        const aid = actionNodes[i]?.id ?? firstActionId;
+        // If step subjects are explicit resolved strings, connect those nodes when present; else connect all subjects.
+        const subSet = new Set((st.subjects ?? []).map((x) => String(x)).filter(Boolean));
+        const didOne = (() => {
+          let ok = false;
+          for (const s of subjectNodes) {
+            if (!subSet.size || subSet.has(s.fullLabel ?? s.label)) {
+              edges.push({ from: s.id, to: aid, label: 'do' });
+              ok = true;
+            }
           }
-        }
-        return ok;
-      })();
-      if (!didOne) for (const s of subjectNodes) edges.push({ from: s.id, to: aid, label: 'do' });
+          return ok;
+        })();
+        if (!didOne) for (const s of subjectNodes) edges.push({ from: s.id, to: aid, label: 'do' });
 
-      const objSet = new Set((st.objects ?? []).map((x) => String(x)).filter(Boolean));
-      for (const o of objNodes) {
-        const title = o.fullLabel ?? o.label;
-        if (!objSet.size || objSet.has(title)) edges.push({ from: aid, to: o.id, label: 'object' });
+        const objSet = new Set((st.objects ?? []).map((x) => String(x)).filter(Boolean));
+        const numSet = new Set(stepNumericObjects(st).map((x) => String(x)).filter(Boolean));
+        for (const o of objNodes) {
+          const title = o.fullLabel ?? o.label;
+          if (!objSet.size || objSet.has(title)) edges.push({ from: aid, to: o.id, label: 'object' });
+        }
+        for (const n of numNodes) {
+          const value = n.fullLabel ?? n.label;
+          if (!numSet.size || numSet.has(value)) edges.push({ from: aid, to: n.id, label: 'numeric' });
+        }
+        if (st.purpose) edges.push({ from: aid, to: `pur:${selected.event_id}:${i}`, label: 'purpose' });
+        const next = actionNodes[i + 1];
+        if (next) edges.push({ from: aid, to: next.id, label: 'then' });
+      });
+      return { layers, edges };
+    }
+
+    // Step-ribbon layout: deterministic progression by step index.
+    const layers: Array<{ id: string; title: string; nodes: LayerNode[] }> = [...time.layers];
+    const edges: LayeredEdge[] = [];
+    edges.push(...time.edges);
+    if (requesterNodes.length) layers.push({ id: 'request', title: 'Requester', nodes: requesterNodes });
+
+    const actionIds: string[] = [];
+    steps.forEach((st, i) => {
+      const sid = `${selected.event_id}:s${i}`;
+      const actionId = `act:${sid}`;
+      actionIds.push(actionId);
+
+      const stepSubjects = Array.from(new Set((st.subjects ?? []).map((x) => String(x).trim()).filter(Boolean)));
+      const stepObjects = Array.from(new Set(stepEntityObjects(st).map((x) => String(x).trim()).filter(Boolean)));
+      const stepSubjectNodes = stepSubjects.length
+        ? stepSubjects.map((s, j) => node(`sub:${sid}:${j}:${s}`, s, '#bbf7d0'))
+        : [node(`sub:${sid}:none`, '(none)', '#ffffff')];
+      const stepActionNode = node(actionId, actionLabel(st.action, st.negation), '#fde68a');
+      const stepObjectNodes = stepObjects.length
+        ? stepObjects.map((o, j) => node(`obj:${sid}:${j}:${o}`, o, '#f6f6f6'))
+        : [node(`obj:${sid}:none`, '(none)', '#ffffff')];
+      const stepNumbers = Array.from(new Set(stepNumericObjects(st).map((x) => String(x).trim()).filter(Boolean)));
+      const stepNumberNodes = stepNumbers.length
+        ? stepNumbers.map((n, j) => node(`num:${sid}:${j}:${n}`, n, '#fee2e2'))
+        : [node(`num:${sid}:none`, '(none)', '#ffffff')];
+      const stepPurposeNodes = st.purpose ? [node(`pur:${sid}`, st.purpose, '#fef3c7')] : [];
+
+      layers.push({ id: `step:${i}:sub`, title: `S${i + 1} Subjects`, nodes: stepSubjectNodes });
+      layers.push({ id: `step:${i}:act`, title: `S${i + 1} Action`, nodes: [stepActionNode] });
+      layers.push({ id: `step:${i}:obj`, title: `S${i + 1} Objects`, nodes: stepObjectNodes });
+      layers.push({ id: `step:${i}:num`, title: `S${i + 1} Numeric`, nodes: stepNumberNodes });
+      if (stepPurposeNodes.length) layers.push({ id: `step:${i}:pur`, title: `S${i + 1} Purpose`, nodes: stepPurposeNodes });
+
+      for (const s of stepSubjectNodes) {
+        if (!s.id.endsWith(':none')) edges.push({ from: s.id, to: actionId, label: 'do' });
       }
-      if (st.purpose) edges.push({ from: aid, to: `pur:${selected.event_id}:${i}`, label: 'purpose' });
-      const next = actionNodes[i + 1];
-      if (next) edges.push({ from: aid, to: next.id, label: 'then' });
+      for (const o of stepObjectNodes) {
+        if (!o.id.endsWith(':none')) edges.push({ from: actionId, to: o.id, label: 'object' });
+      }
+      for (const n of stepNumberNodes) {
+        if (!n.id.endsWith(':none')) edges.push({ from: actionId, to: n.id, label: 'numeric' });
+      }
+      const stepPurposeId = stepPurposeNodes[0]?.id;
+      if (stepPurposeId) edges.push({ from: actionId, to: stepPurposeId, label: 'purpose' });
     });
 
+    const firstActionId = actionIds[0] ?? 'act:none';
+    edges.push({ from: time.attachId, to: firstActionId, label: 'at' });
+    for (const r of requesterNodes) edges.push({ from: r.id, to: firstActionId, label: 'request' });
+    for (let i = 0; i + 1 < actionIds.length; i++) {
+      const from = actionIds[i];
+      const to = actionIds[i + 1];
+      if (from && to) edges.push({ from, to, label: 'then' });
+    }
+
     return { layers, edges };
+  })();
+
+  $: graphWidth = (() => {
+    if (!selected) return 1400;
+    const steps = Array.isArray((selected as any).steps) && (selected as any).steps.length ? (selected as any).steps.length : 1;
+    if (layoutMode !== 'step_ribbon') return 1500;
+    // time/request columns + 4-5 columns per step; keep deterministic width with room for expansion.
+    return Math.max(1800, 760 + steps * 640);
   })();
 </script>
 
@@ -249,7 +532,7 @@
           value={data.source ?? 'gwb'}
           on:change={(e) => {
             const v = (e.currentTarget as HTMLSelectElement).value;
-            window.location.href = `/graphs/wiki-timeline-aoo?source=${encodeURIComponent(v)}`;
+            window.location.href = hrefFor(v, viewTypeFromLayout(layoutMode));
           }}
         >
           <option value="gwb">gwb</option>
@@ -322,6 +605,28 @@
             </div>
           {/if}
           <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-ink-950">
+            <div class="font-mono text-[10px] uppercase tracking-[0.20em] text-ink-800/70">Layout</div>
+            <button
+              class="rounded-md border px-2 py-1 font-mono text-[11px] {layoutMode==='step_ribbon' ? 'border-ink-950/40 bg-ink-950/[0.04]' : 'border-ink-950/10 bg-white hover:border-ink-950/25 hover:bg-ink-950/[0.02]'}"
+              on:click={() => {
+                window.location.href = hrefFor(data.source ?? 'gwb', 'step-ribbon');
+              }}
+            >
+              step-ribbon
+            </button>
+            <button
+              class="rounded-md border px-2 py-1 font-mono text-[11px] {layoutMode==='roles' ? 'border-ink-950/40 bg-ink-950/[0.04]' : 'border-ink-950/10 bg-white hover:border-ink-950/25 hover:bg-ink-950/[0.02]'}"
+              on:click={() => {
+                window.location.href = hrefFor(data.source ?? 'gwb', 'roles');
+              }}
+            >
+              roles
+            </button>
+          </div>
+          <div class="mt-2 text-[11px] text-ink-800/65">
+            `step-ribbon` preserves sentence order (S1 -&gt; S2 ...) with explicit `then` edges; it is linearization only, not causality.
+          </div>
+          <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-ink-950">
             <div class="font-mono text-[10px] uppercase tracking-[0.20em] text-ink-800/70">Time view</div>
             <button
               class="rounded-md border px-2 py-1 font-mono text-[11px] {timeGranularity==='auto' ? 'border-ink-950/40 bg-ink-950/[0.04]' : 'border-ink-950/10 bg-white hover:border-ink-950/25 hover:bg-ink-950/[0.02]'}"
@@ -350,7 +655,128 @@
           </div>
         </Panel>
 
-        <LayeredGraph layers={graph.layers} edges={graph.edges} />
+        <LayeredGraph
+          layers={graph.layers}
+          edges={graph.edges}
+          width={graphWidth}
+          height={920}
+          on:nodeSelect={(e) => (selectedNodeId = (e as CustomEvent<{ nodeId: string }>).detail.nodeId)}
+        />
+
+        <Panel>
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Context</div>
+            <div class="text-[11px] font-mono text-ink-800/60">
+              {#if selectedNodeId}
+                selected: {selectedNodeId}
+                <button
+                  class="ml-2 rounded border border-ink-950/10 bg-white px-2 py-0.5 text-[10px] hover:border-ink-950/25"
+                  on:click={() => (expandContextDetails = !expandContextDetails)}
+                >
+                  {expandContextDetails ? 'collapse details' : 'expand details'}
+                </button>
+              {:else}
+                click a node to inspect context
+              {/if}
+            </div>
+          </div>
+          {#if selectedNodeId && selectedContext}
+            <div class="mt-3 rounded-lg border border-ink-950/10 bg-white p-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div class="font-mono text-[10px] text-ink-800/60">{fmtTime(selected.anchor)} {selected.event_id}</div>
+                <div class="font-mono text-[10px] text-ink-800/60">section={selected.section}</div>
+              </div>
+              <div class="mt-2 text-sm text-ink-950 leading-relaxed">
+                {#each highlightParts(selected.text, selectedContext.needle) as p, i (i)}
+                  {#if p.hit}
+                    <mark class="rounded bg-amber-100 px-0.5">{p.s}</mark>
+                  {:else}
+                    <span>{p.s}</span>
+                  {/if}
+                {/each}
+              </div>
+              <div class="mt-2 text-[11px] text-ink-800/65 font-mono">
+                connected {selectedContext.summary.join(' ')}
+              </div>
+              {#if expandContextDetails}
+                <div class="mt-3 max-h-[280px] overflow-auto rounded border border-ink-950/10 bg-slate-50 p-2 text-[11px]">
+                  {#if selectedContextDetails.requesters.length}
+                    <div class="mb-1">
+                      <span class="font-mono text-ink-800/60">requesters</span>
+                      {#each selectedContextDetails.requesters as x (selected.event_id + ':req:' + x)}
+                        <span class="ml-1 inline-block rounded bg-purple-100 px-1.5 py-0.5 font-mono">[{x}]</span>
+                      {/each}
+                    </div>
+                  {/if}
+                  {#if selectedContextDetails.subjects.length}
+                    <div class="mb-1">
+                      <span class="font-mono text-ink-800/60">subjects</span>
+                      {#each selectedContextDetails.subjects as x (selected.event_id + ':sub:' + x)}
+                        <span class="ml-1 inline-block rounded bg-emerald-100 px-1.5 py-0.5 font-mono">[{x}]</span>
+                      {/each}
+                    </div>
+                  {/if}
+                  {#if selectedContextDetails.actions.length}
+                    <div class="mb-1">
+                      <span class="font-mono text-ink-800/60">actions</span>
+                      {#each selectedContextDetails.actions as x (selected.event_id + ':act:' + x)}
+                        <span class="ml-1 inline-block rounded bg-amber-100 px-1.5 py-0.5 font-mono">[{x}]</span>
+                      {/each}
+                    </div>
+                  {/if}
+                  {#if selectedContextDetails.objects.length}
+                    <div class="mb-1">
+                      <span class="font-mono text-ink-800/60">objects</span>
+                      {#each selectedContextDetails.objects as x (selected.event_id + ':obj:' + x)}
+                        <span class="ml-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 font-mono">[{x}]</span>
+                      {/each}
+                    </div>
+                  {/if}
+                  {#if selectedContextDetails.numerics.length}
+                    <div class="mb-1">
+                      <span class="font-mono text-ink-800/60">numeric</span>
+                      {#each selectedContextDetails.numerics as x (selected.event_id + ':num:' + x)}
+                        <span class="ml-1 inline-block rounded bg-rose-100 px-1.5 py-0.5 font-mono">[{x}]</span>
+                      {/each}
+                    </div>
+                  {/if}
+                  {#if selectedContextDetails.factRows.length}
+                    <div class="mb-1">
+                      <span class="font-mono text-ink-800/60">timeline_facts</span>
+                      {#each selectedContextDetails.factRows.slice(0, 6) as x (selected.event_id + ':fact:' + x)}
+                        <span class="ml-1 mt-1 inline-block rounded bg-lime-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
+                      {/each}
+                    </div>
+                  {/if}
+                  {#if selectedContextDetails.citations.length}
+                    <div class="mb-1">
+                      <span class="font-mono text-ink-800/60">citations</span>
+                      {#each selectedContextDetails.citations.slice(0, 8) as x (selected.event_id + ':cit:' + x)}
+                        <span class="ml-1 inline-block rounded bg-amber-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
+                      {/each}
+                    </div>
+                  {/if}
+                  {#if selectedContextDetails.slRefs.length}
+                    <div class="mb-1">
+                      <span class="font-mono text-ink-800/60">sl_refs</span>
+                      {#each selectedContextDetails.slRefs.slice(0, 8) as x (selected.event_id + ':sl:' + x)}
+                        <span class="ml-1 inline-block rounded bg-blue-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
+                      {/each}
+                    </div>
+                  {/if}
+                  {#if selectedContextDetails.warnings.length}
+                    <div>
+                      <span class="font-mono text-ink-800/60">warnings</span>
+                      {#each selectedContextDetails.warnings as x (selected.event_id + ':warn:' + x)}
+                        <span class="ml-1 inline-block rounded bg-rose-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
+                      {/each}
+                    </div>
+                  {/if}
+                </div>
+              {/if}
+            </div>
+          {/if}
+        </Panel>
 
         <Panel>
           <div class="flex flex-wrap items-center justify-between gap-2">

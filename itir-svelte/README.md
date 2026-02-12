@@ -4,6 +4,15 @@ SvelteKit + Tailwind implementation workspace for ITIR-suite UIs.
 
 Initial focus: StatiBaker dashboard componentization.
 
+## Migration Docs
+
+Use these as the current docs baseline for SB legacy -> Svelte transition:
+
+- Module inventory + parity matrix:
+  `docs/planning/sl_sb_web_component_inventory_20260210.md`
+- Tool Use Summary display/parser contract:
+  `docs/planning/itir_svelte_tool_use_parser_display_contract_20260211.md`
+
 ## Dev
 
 ```bash

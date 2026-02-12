@@ -5,12 +5,15 @@
     color?: string;
     tooltip?: string;
     fullLabel?: string;
+    // Optional view-layer emphasis scaling (truth-neutral).
+    scale?: number;
   };
 
   export type LayeredEdge = {
     from: string;
     to: string;
     label?: string;
+    kind?: 'role' | 'sequence' | 'evidence' | 'context';
   };
 </script>
 
@@ -71,7 +74,8 @@
   }
 
   function nodeWidth(n: LayerNode): number {
-    return isExpanded(n) ? expandedNodeW : nodeW;
+    const s = Math.max(0.75, Math.min(2.2, Number(n.scale ?? 1)));
+    return (isExpanded(n) ? expandedNodeW : nodeW) * s;
   }
 
   function nodeLines(n: LayerNode): string[] {
@@ -83,9 +87,10 @@
 
   function nodeHeight(n: LayerNode): number {
     const lines = nodeLines(n);
-    if (!isExpanded(n)) return nodeH;
+    const s = Math.max(0.75, Math.min(2.2, Number(n.scale ?? 1)));
+    if (!isExpanded(n)) return nodeH * s;
     // Keep a compact but readable leading.
-    return Math.max(nodeH, 6 + lines.length * (fontSize + 3));
+    return Math.max(nodeH * s, 6 + lines.length * (fontSize + 3));
   }
 
   function findLayerIndex(nodeId: string): number {
@@ -99,6 +104,7 @@
   function neighborsOf(nodeId: string): Set<string> {
     const s = new Set<string>();
     for (const e of edges) {
+      if (e.kind === 'evidence') continue;
       if (e.from === nodeId) s.add(e.to);
       if (e.to === nodeId) s.add(e.from);
     }
@@ -168,7 +174,19 @@
     return `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
   }
 
-  function edgeStroke(e: LayeredEdge): { stroke: string; w: number } {
+  function edgeStroke(e: LayeredEdge): { stroke: string; w: number; dasharray?: string } {
+    if (e.kind === 'evidence') {
+      if (!expandedId) return { stroke: 'rgba(44, 96, 140, 0.42)', w: 1.1, dasharray: '3 4' };
+      const hot = e.from === expandedId || e.to === expandedId;
+      return hot
+        ? { stroke: 'rgba(44, 96, 140, 0.58)', w: 1.4, dasharray: '3 4' }
+        : { stroke: 'rgba(44, 96, 140, 0.28)', w: 1.0, dasharray: '3 4' };
+    }
+    if (e.kind === 'sequence') {
+      if (!expandedId) return { stroke: 'rgba(10,10,10,0.26)', w: 1.25 };
+      const hot = e.from === expandedId || e.to === expandedId;
+      return hot ? { stroke: 'rgba(10,10,10,0.50)', w: 1.9 } : { stroke: 'rgba(10,10,10,0.20)', w: 1.15 };
+    }
     if (!expandedId) return { stroke: 'rgba(10,10,10,0.22)', w: 1.2 };
     const hot = e.from === expandedId || e.to === expandedId;
     if (hot) return { stroke: 'rgba(10,10,10,0.45)', w: 1.8 };
@@ -208,7 +226,7 @@
         {@const ah = an ? nodeHeight(an) : nodeH}
         {@const bh = bn ? nodeHeight(bn) : nodeH}
         {@const st = edgeStroke(e)}
-        <path d={edgePath(a, aw, ah, b, bh)} fill="none" stroke={st.stroke} stroke-width={st.w} />
+        <path d={edgePath(a, aw, ah, b, bh)} fill="none" stroke={st.stroke} stroke-width={st.w} stroke-dasharray={st.dasharray} />
         {#if e.label}
           <text
             x={(a.x + b.x) / 2}
