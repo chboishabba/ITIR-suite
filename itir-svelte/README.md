@@ -12,6 +12,8 @@ Use these as the current docs baseline for SB legacy -> Svelte transition:
   `docs/planning/sl_sb_web_component_inventory_20260210.md`
 - Tool Use Summary display/parser contract:
   `docs/planning/itir_svelte_tool_use_parser_display_contract_20260211.md`
+- Chat archive pull/ingest benchmark + runbook (canonical DB workflow):
+  `docs/planning/chat_archive_pull_ingest_results_20260213.md`
 
 ## Dev
 

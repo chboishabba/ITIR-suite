@@ -104,7 +104,7 @@
   function neighborsOf(nodeId: string): Set<string> {
     const s = new Set<string>();
     for (const e of edges) {
-      if (e.kind === 'evidence') continue;
+      if (e.kind === 'evidence' || e.kind === 'context') continue;
       if (e.from === nodeId) s.add(e.to);
       if (e.to === nodeId) s.add(e.from);
     }
@@ -186,6 +186,13 @@
       if (!expandedId) return { stroke: 'rgba(10,10,10,0.26)', w: 1.25 };
       const hot = e.from === expandedId || e.to === expandedId;
       return hot ? { stroke: 'rgba(10,10,10,0.50)', w: 1.9 } : { stroke: 'rgba(10,10,10,0.20)', w: 1.15 };
+    }
+    if (e.kind === 'context') {
+      if (!expandedId) return { stroke: 'rgba(79, 70, 229, 0.34)', w: 1.05, dasharray: '2 5' };
+      const hot = e.from === expandedId || e.to === expandedId;
+      return hot
+        ? { stroke: 'rgba(79, 70, 229, 0.52)', w: 1.3, dasharray: '2 5' }
+        : { stroke: 'rgba(79, 70, 229, 0.22)', w: 0.95, dasharray: '2 5' };
     }
     if (!expandedId) return { stroke: 'rgba(10,10,10,0.22)', w: 1.2 };
     const hot = e.from === expandedId || e.to === expandedId;

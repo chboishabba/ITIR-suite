@@ -3,9 +3,38 @@
   import LayeredGraph, { type LayerNode, type LayeredEdge } from '$lib/ui/LayeredGraph.svelte';
   import { afterUpdate } from 'svelte';
 
+  type RequesterCoverage = {
+    request_signal_events?: number;
+    requester_events?: number;
+    total_events?: number;
+    missing_requester_event_ids?: string[];
+  };
+
   export let data: {
     payload: {
       root_actor: { label: string; surname: string };
+      requester_coverage?: RequesterCoverage;
+      source_entity?: {
+        id?: string;
+        type?: string;
+        title?: string;
+        url?: string;
+        publication_date?: string;
+        version_hash?: string;
+      };
+      extraction_record?: {
+        id?: string;
+        source_entity_id?: string;
+        parser_version?: string;
+        extraction_timestamp?: string;
+        confidence_score?: number;
+      };
+      extraction_profile?: {
+        profile_id?: string;
+        profile_version?: string;
+        predicate_classifier?: string;
+        path?: string;
+      };
       events: Array<{
         event_id: string;
         anchor: { year: number; month: number | null; day: number | null; precision: string; text: string; kind: string };
@@ -20,6 +49,7 @@
         modifier_objects?: string[];
         steps?: Array<{
           action: string;
+          claim_bearing?: boolean;
           negation?: { kind: string; scope?: string; source?: string };
           subjects?: string[];
           entity_objects?: string[];
@@ -61,6 +91,7 @@
           party?: string;
         }>;
         purpose: string | null;
+        claim_bearing?: boolean;
         warnings: string[];
       }>;
     };
@@ -75,7 +106,11 @@
   let maxSubjects = 120;
   let maxObjects = 160;
   let maxNumbers = 120;
+  let maxSources = 80;
+  let maxLenses = 120;
   let maxEvidence = 140;
+  let includeSources = true;
+  let includeLenses = true;
   let includeRequesters = true;
   let includePurpose = false;
   let includeEvidence = false;
@@ -112,7 +147,13 @@
   }
 
   $: eventsAll = data.payload.events ?? [];
-  $: events = eventsAll.slice(0, Math.max(10, Math.min(eventsAll.length, Math.floor(limitEvents))));
+  $: graphEvents = eventsAll.slice(0, Math.max(10, Math.min(eventsAll.length, Math.floor(limitEvents))));
+  $: contextEvents = eventsAll;
+  $: requesterCoverage = ((data.payload as any)?.requester_coverage ?? null) as RequesterCoverage | null;
+  $: missingRequesterEventIds = Array.isArray(requesterCoverage?.missing_requester_event_ids)
+    ? requesterCoverage.missing_requester_event_ids.map((x) => String(x ?? '')).filter(Boolean)
+    : [];
+  $: missingRequesterEventIdSet = new Set<string>(missingRequesterEventIds);
 
   type CtxRow = {
     key: string;
@@ -127,6 +168,9 @@
     actions: string[];
     objects: string[];
     numerics: string[];
+    numericClaims: string[];
+    sources: string[];
+    lenses: string[];
     citations: string[];
     checkNext: string[];
     slRefs: string[];
@@ -139,6 +183,13 @@
     purpose: string | null;
   };
 
+  type RequesterCoverageSnapshot = {
+    requestSignalEvents: number;
+    requesterEvents: number;
+    totalEvents: number;
+    missingRequesterEventIds: string[];
+  };
+
   function uniqueStrings(xs: any[]): string[] {
     const out = new Set<string>();
     for (const x of xs ?? []) {
@@ -146,6 +197,315 @@
       if (s) out.add(s);
     }
     return Array.from(out);
+  }
+
+  type NumericMention = { key: string; label: string };
+
+  const NUMERIC_UNITS = new Set([
+    '%',
+    'percent',
+    'million',
+    'billion',
+    'trillion',
+    'thousand',
+    'hundred',
+    'year',
+    'years',
+    'month',
+    'months',
+    'day',
+    'days',
+    'line',
+    'lines',
+    'point',
+    'points',
+    'dollar',
+    'dollars',
+    'usd',
+    'aud',
+    'eur',
+    'gbp'
+  ]);
+  const NUMERIC_SCALE_UNITS = new Set(['hundred', 'thousand', 'million', 'billion', 'trillion']);
+  const NUMERIC_CURRENCY_UNITS = new Set(['usd', 'aud', 'eur', 'gbp']);
+  const NUMERIC_SCALE_POW: Record<string, number> = {
+    hundred: 2,
+    thousand: 3,
+    million: 6,
+    billion: 9,
+    trillion: 12
+  };
+
+  function scientificFromScaled(value: string, pow: number): string {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return '';
+    const scaled = num * Math.pow(10, pow);
+    if (!Number.isFinite(scaled)) return '';
+    if (scaled === 0) return '0';
+    const exp = scaled.toExponential();
+    const parts = exp.split('e');
+    if (parts.length !== 2) return '';
+    let mantissa = String(parts[0] ?? '');
+    const exponent = Number.parseInt(String(parts[1] ?? ''), 10);
+    if (!Number.isFinite(exponent)) return '';
+    while (mantissa.includes('.') && mantissa.endsWith('0')) mantissa = mantissa.slice(0, -1);
+    if (mantissa.endsWith('.')) mantissa = mantissa.slice(0, -1);
+    return `${mantissa}e${exponent}`;
+  }
+
+  function canonicalUnitToken(raw: string): string {
+    const u = String(raw ?? '').toLowerCase();
+    if (!u) return '';
+    if (u === '%' || u === 'percentage' || u === 'percent') return 'percent';
+    if (u === 'dollar' || u === 'dollars' || u === 'usd') return 'usd';
+    if (u === 'years' || u === 'year') return 'year';
+    if (u === 'months' || u === 'month') return 'month';
+    if (u === 'days' || u === 'day') return 'day';
+    if (u === 'lines' || u === 'line') return 'line';
+    if (u === 'points' || u === 'point') return 'point';
+    if (u === 'aud' || u === 'eur' || u === 'gbp') return u;
+    return u;
+  }
+
+  function collapseWhitespace(raw: string): string {
+    let out = '';
+    let prevSpace = true;
+    for (const ch of String(raw ?? '')) {
+      const isSpace = ch.trim() === '';
+      if (isSpace) {
+        if (!prevSpace) out += ' ';
+      } else {
+        out += ch;
+      }
+      prevSpace = isSpace;
+    }
+    return out.trim();
+  }
+
+  function parseNumericValueToken(raw: string): string {
+    const compact = String(raw ?? '').trim().split(',').join('');
+    if (!compact) return '';
+    let i = 0;
+    let sign = '';
+    if (compact[0] === '+' || compact[0] === '-') {
+      sign = compact[0];
+      i = 1;
+    }
+    let seenDigit = false;
+    let seenDot = false;
+    let intPart = '';
+    let fracPart = '';
+    for (; i < compact.length; i++) {
+      const ch = compact[i] ?? '';
+      const isDigit = ch >= '0' && ch <= '9';
+      if (isDigit) {
+        seenDigit = true;
+        if (seenDot) fracPart += ch;
+        else intPart += ch;
+        continue;
+      }
+      if (ch === '.' && !seenDot) {
+        seenDot = true;
+        continue;
+      }
+      return '';
+    }
+    if (!seenDigit) return '';
+
+    while (intPart.startsWith('0') && intPart.length > 1) intPart = intPart.slice(1);
+    while (fracPart.endsWith('0')) fracPart = fracPart.slice(0, -1);
+
+    let value = fracPart ? `${intPart}.${fracPart}` : intPart;
+    if (value === '0') sign = '';
+    if (sign === '-') value = `-${value}`;
+    return value;
+  }
+
+  function normalizeNumericMention(raw: string): string {
+    const t = collapseWhitespace(String(raw ?? ''));
+    if (!t) return '';
+    const src = t.split(' ').filter(Boolean);
+    const toks: string[] = [];
+    for (let i = 0; i < src.length; i++) {
+      const low = String(src[i] ?? '').toLowerCase();
+      const next = i + 1 < src.length ? String(src[i + 1] ?? '').toLowerCase() : '';
+      if (low === 'per' && next === 'cent') {
+        toks.push('percent');
+        i += 1;
+      } else {
+        toks.push(String(src[i] ?? ''));
+      }
+    }
+    let currency = '';
+    if (toks.length) {
+      let first = String(toks[0] ?? '');
+      const low = first.toLowerCase();
+      if (low === '$') {
+        currency = 'usd';
+        toks.shift();
+      } else if (low === 'us$') {
+        currency = 'usd';
+        toks.shift();
+      } else if (low === 'a$') {
+        currency = 'aud';
+        toks.shift();
+      } else if (low === '€') {
+        currency = 'eur';
+        toks.shift();
+      } else if (low === '£') {
+        currency = 'gbp';
+        toks.shift();
+      } else if (low === 'usd' || low === 'aud' || low === 'eur' || low === 'gbp') {
+        currency = low;
+        toks.shift();
+      } else if (low.startsWith('$')) {
+        currency = 'usd';
+        first = first.slice(1);
+        toks[0] = first;
+      } else if (low.startsWith('us$')) {
+        currency = 'usd';
+        first = first.slice(3);
+        toks[0] = first;
+      } else if (low.startsWith('a$')) {
+        currency = 'aud';
+        first = first.slice(2);
+        toks[0] = first;
+      } else if (low.startsWith('€')) {
+        currency = 'eur';
+        first = first.slice(1);
+        toks[0] = first;
+      } else if (low.startsWith('£')) {
+        currency = 'gbp';
+        first = first.slice(1);
+        toks[0] = first;
+      }
+    }
+    if (!toks.length) return '';
+    if (toks.length === 1) {
+      const single = String(toks[0] ?? '');
+      let j = 0;
+      if (single[0] === '+' || single[0] === '-') j = 1;
+      let seenDigit = false;
+      let seenDot = false;
+      for (; j < single.length; j++) {
+        const ch = single[j] ?? '';
+        const isDigit = ch >= '0' && ch <= '9';
+        if (isDigit) {
+          seenDigit = true;
+          continue;
+        }
+        if (ch === ',' || (!seenDot && ch === '.')) {
+          if (ch === '.') seenDot = true;
+          continue;
+        }
+        break;
+      }
+      if (seenDigit && j < single.length) {
+        const left = single.slice(0, j);
+        const right = single.slice(j).toLowerCase();
+        if (NUMERIC_UNITS.has(right)) return currency ? `${left} ${right} ${currency}` : `${left} ${right}`;
+      }
+    }
+    for (let i = 1; i < toks.length; i++) {
+      const u = canonicalUnitToken(String(toks[i] ?? ''));
+      if (u) toks[i] = u;
+    }
+    if (currency) {
+      const lowParts = new Set(toks.map((x) => String(x ?? '').toLowerCase()));
+      if (!lowParts.has('usd') && !lowParts.has('aud') && !lowParts.has('eur') && !lowParts.has('gbp')) toks.push(currency);
+    }
+    return toks.join(' ');
+  }
+
+  function numericKey(raw: string): string {
+    const mention = normalizeNumericMention(raw);
+    if (!mention) return '';
+    const toks = mention.split(' ').filter(Boolean);
+    if (!toks.length) return '';
+    const value = parseNumericValueToken(toks[0] ?? '');
+    if (!value) return '';
+    const units = toks.slice(1).map((u) => canonicalUnitToken(u)).filter(Boolean);
+    if (!units.length) return `${value}|`;
+    const uniq = Array.from(new Set(units));
+    if (uniq.some((u) => !NUMERIC_UNITS.has(u))) return '';
+    let unit = '';
+    let outValue = value;
+    if (uniq.length === 1) {
+      unit = uniq[0] ?? '';
+    } else if (uniq.length === 2) {
+      const scale = uniq.find((u) => NUMERIC_SCALE_UNITS.has(u)) ?? '';
+      const ccy = uniq.find((u) => NUMERIC_CURRENCY_UNITS.has(u)) ?? '';
+      if (!scale || !ccy) return '';
+      const pow = NUMERIC_SCALE_POW[scale] ?? null;
+      if (pow === null) return '';
+      const sci = scientificFromScaled(value, pow);
+      if (!sci) return '';
+      outValue = sci;
+      unit = ccy;
+    } else {
+      return '';
+    }
+    return `${outValue}|${unit}`;
+  }
+
+  function numericMentionsFromValues(values: any[]): NumericMention[] {
+    const byKey = new Map<string, string>();
+    for (const raw of values ?? []) {
+      const label = normalizeNumericMention(String(raw ?? ''));
+      const key = numericKey(label);
+      if (!label || !key) continue;
+      if (!byKey.has(key)) byKey.set(key, label);
+    }
+    return Array.from(byKey.entries()).map(([key, label]) => ({ key, label }));
+  }
+
+  function numericMentionsForEvent(e: any): NumericMention[] {
+    const stepNums = Array.isArray((e as any)?.steps)
+      ? uniqueStrings((e as any).steps.flatMap((s: any) => stepNumericObjects(s)))
+      : [];
+    const nums = stepNums.length ? stepNums : uniqueStrings(eventNumericObjects(e));
+    return numericMentionsFromValues(nums);
+  }
+
+  function numericLabelFromKey(key: string): string {
+    const parts = String(key ?? '').split('|');
+    const value = parts[0] ?? '';
+    const unit = parts[1] ?? '';
+    if (!value) return String(key ?? '');
+    if (!unit) return value;
+    if (unit === 'percent') return `${value} percent`;
+    return `${value} ${unit}`;
+  }
+
+  function numericSortValueFromKey(key: string): number | null {
+    const raw = String(key ?? '').split('|')[0] ?? '';
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return null;
+    return n;
+  }
+
+  function numericSortUnitFromKey(key: string): string {
+    return String(key ?? '').split('|')[1] ?? '';
+  }
+
+  function compareNumericLaneEntries(a: [string, number], b: [string, number]): number {
+    const av = numericSortValueFromKey(a[0]);
+    const bv = numericSortValueFromKey(b[0]);
+    if (av !== null && bv !== null) {
+      const ad = Math.abs(av);
+      const bd = Math.abs(bv);
+      if (bd !== ad) return bd - ad;
+      if (bv !== av) return bv - av;
+    } else if (av !== null) {
+      return -1;
+    } else if (bv !== null) {
+      return 1;
+    }
+
+    const au = numericSortUnitFromKey(a[0]);
+    const bu = numericSortUnitFromKey(b[0]);
+    if (au !== bu) return au.localeCompare(bu);
+    return a[0].localeCompare(b[0]);
   }
 
   function actionLabel(action: string | null | undefined, negation?: { kind?: string | null }): string {
@@ -176,6 +536,117 @@
     if (Array.isArray(e?.numeric_objects)) return e.numeric_objects.map((x: any) => String(x)).filter(Boolean);
     return [];
   }
+
+  function sourceLabelsForEvent(e: any): string[] {
+    const out: string[] = [];
+    const src = (data.payload as any)?.source_entity;
+    if (src && typeof src === 'object') {
+      const title = String(src.title ?? '').trim();
+      const typ = String(src.type ?? '').trim();
+      if (title && typ) out.push(`source:${title} (${typ})`);
+      else if (title) out.push(`source:${title}`);
+      else if (typ) out.push(`source_type:${typ}`);
+    }
+    const extraction = (data.payload as any)?.extraction_record;
+    if (extraction && typeof extraction === 'object') {
+      const parserVersion = String(extraction.parser_version ?? '').trim();
+      if (parserVersion) out.push(`parser:${parserVersion}`);
+    }
+    const citationProviders = Array.isArray(e?.citations) ? collectFollowProviders(e.citations) : [];
+    const slRefProviders = Array.isArray(e?.sl_references) ? collectFollowProviders(e.sl_references) : [];
+    for (const p of uniqueStrings([...citationProviders, ...slRefProviders])) out.push(`provider:${p}`);
+    return uniqueStrings(out);
+  }
+
+  function lensLabelsForEvent(e: any): string[] {
+    const out: string[] = [];
+    const profile = (data.payload as any)?.extraction_profile;
+    if (profile && typeof profile === 'object') {
+      const profileId = String(profile.profile_id ?? '').trim();
+      const profileVersion = String(profile.profile_version ?? '').trim();
+      const predicateClassifier = String(profile.predicate_classifier ?? '').trim();
+      if (profileId && profileVersion) out.push(`profile:${profileId}@${profileVersion}`);
+      else if (profileId) out.push(`profile:${profileId}`);
+      if (predicateClassifier) out.push(`classifier:${predicateClassifier}`);
+    }
+    if ((e as any)?.claim_bearing === true) out.push('claim:claim_bearing');
+    if (Array.isArray((e as any)?.steps)) {
+      const claimBearingSteps = (e as any).steps.filter((s: any) => s?.claim_bearing === true).length;
+      if (claimBearingSteps > 0) out.push(`claim_steps:${claimBearingSteps}`);
+    }
+    if (Array.isArray((e as any)?.sl_references)) {
+      for (const r of (e as any).sl_references) {
+        const lane = String((r as any)?.lane ?? '').trim();
+        if (lane) out.push(`sl_lane:${lane}`);
+      }
+    }
+    const markers = (e as any)?.legal_section_markers;
+    if (markers && typeof markers === 'object' && Array.isArray(markers.sl_reference_lanes)) {
+      for (const lane of markers.sl_reference_lanes) {
+        const x = String(lane ?? '').trim();
+        if (x) out.push(`sl_lane:${x}`);
+      }
+    }
+    if (Array.isArray((e as any)?.timeline_facts) && (e as any).timeline_facts.length) out.push('fact:timeline');
+    return uniqueStrings(out);
+  }
+
+  function hasRequesterActor(e: any): boolean {
+    return (e?.actors ?? []).some((a: any) => {
+      if ((a?.role ?? '') !== 'requester') return false;
+      return Boolean(String(a?.resolved ?? a?.label ?? '').trim());
+    });
+  }
+
+  function asCount(raw: any): number {
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return 0;
+    if (n <= 0) return 0;
+    return Math.floor(n);
+  }
+
+  $: requesterCoverageGlobal = (() => {
+    if (!requesterCoverage) return null as RequesterCoverageSnapshot | null;
+    return {
+      requestSignalEvents: asCount(requesterCoverage.request_signal_events),
+      requesterEvents: asCount(requesterCoverage.requester_events),
+      totalEvents: asCount(requesterCoverage.total_events ?? eventsAll.length),
+      missingRequesterEventIds: uniqueStrings(requesterCoverage.missing_requester_event_ids ?? [])
+    } as RequesterCoverageSnapshot;
+  })();
+
+  $: requesterCoverageWindow = (() => {
+    const missingRequesterEventIds: string[] = [];
+    let requestSignalEvents = 0;
+    let requesterEvents = 0;
+    for (const e of graphEvents ?? []) {
+      const eventId = String((e as any)?.event_id ?? '');
+      const hasRequester = hasRequesterActor(e);
+      const missingRequester = eventId ? missingRequesterEventIdSet.has(eventId) : false;
+      if (hasRequester) requesterEvents += 1;
+      if (hasRequester || missingRequester) requestSignalEvents += 1;
+      if (missingRequester && eventId) missingRequesterEventIds.push(eventId);
+    }
+    return {
+      requestSignalEvents,
+      requesterEvents,
+      totalEvents: graphEvents.length,
+      missingRequesterEventIds
+    } as RequesterCoverageSnapshot;
+  })();
+
+  $: requesterCoverageWindowGap = requesterCoverageWindow.requestSignalEvents > requesterCoverageWindow.requesterEvents;
+  $: requesterCoverageGlobalGap = requesterCoverageGlobal
+    ? requesterCoverageGlobal.requestSignalEvents > requesterCoverageGlobal.requesterEvents
+    : false;
+
+  $: numericLabelByKey = (() => {
+    const out = new Map<string, string>();
+    for (const e of contextEvents ?? []) {
+      for (const m of numericMentionsForEvent(e)) if (!out.has(m.key)) out.set(m.key, m.label);
+    }
+    return out;
+  })();
 
   const DEFAULT_FOLLOW_ORDER = ['wikipedia', 'wiki_connector', 'austlii', 'jade', 'source_document', 'source_pdf'];
 
@@ -257,6 +728,7 @@
     }
     if (nodeId.startsWith('req:')) {
       const key = nodeId.slice('req:'.length);
+      if (key === 'none') return missingRequesterEventIdSet.has(String((e as any)?.event_id ?? ''));
       return (e.actors ?? []).some((a: any) => (a.role ?? '') === 'requester' && (a.resolved ?? a.label) === key);
     }
     if (nodeId.startsWith('obj:')) {
@@ -269,15 +741,19 @@
     }
     if (nodeId.startsWith('num:')) {
       const key = nodeId.slice('num:'.length);
-      const stepNums = Array.isArray((e as any).steps)
-        ? (e as any).steps.flatMap((s: any) => stepNumericObjects(s))
-        : [];
-      if (stepNums.length) return stepNums.some((x: any) => String(x) === key);
-      return eventNumericObjects(e).some((x: any) => String(x) === key);
+      return numericMentionsForEvent(e).some((m: NumericMention) => m.key === key);
     }
     if (nodeId.startsWith('evd:')) {
       const key = nodeId.slice('evd:'.length);
       return evidenceLabelsFromEvent(e).includes(key);
+    }
+    if (nodeId.startsWith('src:')) {
+      const key = nodeId.slice('src:'.length);
+      return sourceLabelsForEvent(e).includes(key);
+    }
+    if (nodeId.startsWith('lens:')) {
+      const key = nodeId.slice('lens:'.length);
+      return lensLabelsForEvent(e).includes(key);
     }
 
     if (nodeId.startsWith('time:y:')) {
@@ -326,7 +802,7 @@
     if (!selectedNodeId) return [] as CtxRow[];
     const { kind, key } = keyFromNodeId(selectedNodeId);
     const rows: CtxRow[] = [];
-    for (const e of events) {
+    for (const e of contextEvents) {
       if (!eventMatchesNode(e, selectedNodeId)) continue;
       const reqs = (e.actors ?? []).filter((a: any) => (a.role ?? '') === 'requester').map((a: any) => String(a.resolved ?? a.label ?? '')).filter(Boolean);
       const stepSubs = Array.isArray((e as any).steps)
@@ -341,12 +817,41 @@
       const objs = stepObjs.length
         ? stepObjs
         : eventEntityObjects(e);
-      const stepNums = Array.isArray((e as any).steps)
-        ? uniqueStrings((e as any).steps.flatMap((s: any) => stepNumericObjects(s)))
+      const numMentions = numericMentionsForEvent(e);
+      const nums = numMentions.map((m) => m.label);
+      const numKeys = numMentions.map((m) => m.key);
+      const srcs = sourceLabelsForEvent(e);
+      const lenses = lensLabelsForEvent(e);
+      const numericClaims = Array.isArray((e as any).numeric_claims)
+        ? uniqueStrings(
+            (e as any).numeric_claims.map((c: any) => {
+              const key = String(c?.key ?? '').trim();
+              const role = String(c?.role ?? '').trim();
+              const exprScale = String(c?.normalized?.expression?.scale_word ?? '').trim();
+              const exprExp = c?.normalized?.expression?.exponent_from_scale;
+              const surfSpacing = String(c?.normalized?.surface?.spacing_pattern ?? '').trim();
+              const years = Array.isArray(c?.time_years) ? c.time_years.map((x: any) => String(x ?? '').trim()).filter(Boolean).join(',') : '';
+              const ta = c?.time_anchor && typeof c.time_anchor === 'object'
+                ? [c.time_anchor.year, c.time_anchor.month, c.time_anchor.day]
+                    .filter((x: any) => x !== null && x !== undefined && String(x).trim() !== '')
+                    .map((x: any) => String(x))
+                    .join('-')
+                : '';
+              const bits = [
+                key,
+                role ? `role=${role}` : '',
+                exprScale ? `scale=${exprScale}` : '',
+                Number.isFinite(exprExp) ? `exp=${String(exprExp)}` : '',
+                surfSpacing ? `spacing=${surfSpacing}` : '',
+                years ? `years=${years}` : '',
+                ta ? `anchor=${ta}` : ''
+              ]
+                .filter(Boolean)
+                .join(' ');
+              return bits;
+            })
+          )
         : [];
-      const nums = stepNums.length
-        ? stepNums
-        : eventNumericObjects(e);
       const stepActs = Array.isArray((e as any).steps)
         ? (e as any).steps.map((s: any) => actionLabel(s?.action, s?.negation)).filter(Boolean)
         : [];
@@ -408,13 +913,15 @@
         ...subs.map((x: string) => `sub:${x}`),
         ...stepActs.map((x: string) => `act:${x}`),
         ...objs.map((x: string) => `obj:${x}`),
-        ...nums.map((x: string) => `num:${x}`),
-        ...evidenceLabelsFromEvent(e).map((x: string) => `evd:${x}`)
+        ...numKeys.map((x: string) => `num:${x}`),
+        ...evidenceLabelsFromEvent(e).map((x: string) => `evd:${x}`),
+        ...srcs.map((x: string) => `src:${x}`),
+        ...lenses.map((x: string) => `lens:${x}`)
       ]);
       rows.push({
         key: `${selectedNodeId}:${e.event_id}`,
         event_id: e.event_id,
-        time: timeKeyForEvent(e, timeGranularity),
+        time: timeKeyForEvent(e, 'day'),
         section: e.section ?? '',
         text: e.text ?? '',
         requesters: reqs,
@@ -424,6 +931,9 @@
         actions: stepActs,
         objects: objs,
         numerics: nums,
+        numericClaims,
+        sources: srcs,
+        lenses: lenses,
         citations,
         checkNext,
         slRefs,
@@ -455,8 +965,13 @@
     if (id.startsWith('sub:')) return id.slice('sub:'.length);
     if (id.startsWith('req:')) return id.slice('req:'.length);
     if (id.startsWith('obj:')) return id.slice('obj:'.length);
-    if (id.startsWith('num:')) return id.slice('num:'.length);
+    if (id.startsWith('num:')) {
+      const key = id.slice('num:'.length);
+      return numericLabelByKey.get(key) ?? numericLabelFromKey(key);
+    }
     if (id.startsWith('evd:')) return id.slice('evd:'.length);
+    if (id.startsWith('src:')) return id.slice('src:'.length);
+    if (id.startsWith('lens:')) return id.slice('lens:'.length);
     return '';
   })();
 
@@ -479,10 +994,12 @@
     const subjectCount = new Map<string, number>();
     const objectCount = new Map<string, number>();
     const numericCount = new Map<string, number>();
+    const sourceCount = new Map<string, number>();
+    const lensCount = new Map<string, number>();
     const requesterCount = new Map<string, number>();
     const evidenceCount = new Map<string, number>();
 
-    for (const e of events) {
+    for (const e of graphEvents) {
       const y = String(e.anchor.year || 0);
       yearNodes.set(y, node(`time:y:${y}`, y, '#e8f4ff', 'Year bucket (non-authoritative)'));
       if (timeGranularity !== 'year' && e.anchor.month) {
@@ -513,13 +1030,9 @@
         ? stepObjsForCounts
         : uniqueStrings(eventEntityObjects(e));
       for (const key of objKeys) objectCount.set(key, (objectCount.get(key) ?? 0) + 1);
-      const stepNumsForCounts = Array.isArray((e as any).steps)
-        ? uniqueStrings((e as any).steps.flatMap((s: any) => stepNumericObjects(s)))
-        : [];
-      const numKeys = stepNumsForCounts.length
-        ? stepNumsForCounts
-        : uniqueStrings(eventNumericObjects(e));
-      for (const key of numKeys) numericCount.set(key, (numericCount.get(key) ?? 0) + 1);
+      for (const m of numericMentionsForEvent(e)) numericCount.set(m.key, (numericCount.get(m.key) ?? 0) + 1);
+      for (const src of sourceLabelsForEvent(e)) sourceCount.set(src, (sourceCount.get(src) ?? 0) + 1);
+      for (const lens of lensLabelsForEvent(e)) lensCount.set(lens, (lensCount.get(lens) ?? 0) + 1);
       for (const ev of evidenceLabelsFromEvent(e)) evidenceCount.set(ev, (evidenceCount.get(ev) ?? 0) + 1);
     }
 
@@ -530,20 +1043,47 @@
 
     const topSubjects = top(subjectCount, maxSubjects);
     const topObjects = top(objectCount, maxObjects);
-    const topNumbers = top(numericCount, maxNumbers);
+    const topNumbers = top(numericCount, maxNumbers).sort(compareNumericLaneEntries);
+    const topSources = includeSources ? top(sourceCount, Math.max(10, maxSources)) : [];
+    const topLenses = includeLenses ? top(lensCount, Math.max(10, maxLenses)) : [];
     const topRequesters = includeRequesters ? top(requesterCount, Math.min(60, maxSubjects)) : [];
     const topEvidence = includeEvidence ? top(evidenceCount, maxEvidence) : [];
 
     const subjectSet = new Set(topSubjects.map(([k]) => k));
     const objectSet = new Set(topObjects.map(([k]) => k));
     const numericSet = new Set(topNumbers.map(([k]) => k));
+    const sourceSet = new Set(topSources.map(([k]) => k));
+    const lensSet = new Set(topLenses.map(([k]) => k));
     const requesterSet = new Set(topRequesters.map(([k]) => k));
     const evidenceSet = new Set(topEvidence.map(([k]) => k));
 
+    const missingRequesterIdsInWindow = uniqueStrings(
+      (graphEvents ?? [])
+        .map((e: any) => String(e?.event_id ?? ''))
+        .filter((eventId: string) => Boolean(eventId) && missingRequesterEventIdSet.has(eventId))
+    );
     const requesterNodes = topRequesters.map(([k, c]) => node(`req:${k}`, `${k} (${c})`, '#e9d5ff'));
+    if (!topRequesters.length || missingRequesterIdsInWindow.length) {
+      const reqNoneLabel = missingRequesterIdsInWindow.length ? `(none missing: ${missingRequesterIdsInWindow.length})` : '(none)';
+      requesterNodes.push(
+        node(
+          'req:none',
+          reqNoneLabel,
+          '#ffffff',
+          missingRequesterIdsInWindow.length
+            ? `Request-signal events missing requester in current window: ${missingRequesterIdsInWindow.join(', ')}`
+            : 'No requester actors in current event window.'
+        )
+      );
+    }
     const subjectNodes = topSubjects.map(([k, c]) => node(`sub:${k}`, `${k} (${c})`, '#bbf7d0'));
     const objectNodes = topObjects.map(([k, c]) => node(`obj:${k}`, `${k} (${c})`, '#f6f6f6'));
-    const numericNodes = topNumbers.map(([k, c]) => node(`num:${k}`, `${k} (${c})`, '#fee2e2'));
+    const numericNodes = topNumbers.map(([k, c]) => {
+      const label = numericLabelByKey.get(k) ?? numericLabelFromKey(k);
+      return node(`num:${k}`, `${label} (${c})`, '#fee2e2', `key=${k}`);
+    });
+    const sourceNodes = topSources.map(([k, c]) => node(`src:${k}`, `${k} (${c})`, '#d1fae5'));
+    const lensNodes = topLenses.map(([k, c]) => node(`lens:${k}`, `${k} (${c})`, '#ede9fe'));
     const evidenceNodes = topEvidence.map(([k, c]) => node(`evd:${k}`, `${k} (${c})`, '#dbeafe'));
 
     const actionNodes: LayerNode[] = [];
@@ -565,7 +1105,7 @@
       }
     }
 
-    for (const e of events) {
+    for (const e of graphEvents) {
       const actionText = actionLabel(e.action, (e as any).negation);
       const snippet = e.text.length > 58 ? e.text.slice(0, 58) + '...' : e.text;
       const actId = `act:${e.event_id}`;
@@ -611,13 +1151,17 @@
         ? edgeObjs
         : uniqueStrings(eventEntityObjects(e));
       for (const key of edgeObjKeys) if (objectSet.has(key)) edges.push({ from: actId, to: `obj:${key}`, kind: 'role' });
-      const edgeNums = Array.isArray((e as any).steps)
-        ? uniqueStrings((e as any).steps.flatMap((s: any) => stepNumericObjects(s)))
-        : [];
-      const edgeNumKeys = edgeNums.length
-        ? edgeNums
-        : uniqueStrings(eventNumericObjects(e));
-      for (const key of edgeNumKeys) if (numericSet.has(key)) edges.push({ from: actId, to: `num:${key}`, kind: 'role' });
+      for (const m of numericMentionsForEvent(e)) if (numericSet.has(m.key)) edges.push({ from: actId, to: `num:${m.key}`, kind: 'role' });
+      if (includeSources) {
+        for (const src of sourceLabelsForEvent(e)) {
+          if (sourceSet.has(src)) edges.push({ from: `src:${src}`, to: actId, kind: 'context' });
+        }
+      }
+      if (includeLenses) {
+        for (const lens of lensLabelsForEvent(e)) {
+          if (lensSet.has(lens)) edges.push({ from: `lens:${lens}`, to: actId, kind: 'context' });
+        }
+      }
 
       if (includeEvidence) {
         const evidenceKeys = evidenceLabelsFromEvent(e);
@@ -643,6 +1187,8 @@
     if (timeGranularity === 'day') {
       layers.push({ id: 'day', title: 'Day', nodes: Array.from(dayNodes.values()).sort((a, b) => a.id.localeCompare(b.id)) });
     }
+    if (includeSources) layers.push({ id: 'src', title: 'Source', nodes: sourceNodes.length ? sourceNodes : [node('src:none', '(none)', '#ffffff')] });
+    if (includeLenses) layers.push({ id: 'lens', title: 'Lens', nodes: lensNodes.length ? lensNodes : [node('lens:none', '(none)', '#ffffff')] });
     if (includeRequesters) layers.push({ id: 'req', title: 'Requester', nodes: requesterNodes.length ? requesterNodes : [node('req:none', '(none)', '#ffffff')] });
     layers.push({ id: 'sub', title: 'Subjects', nodes: subjectNodes.length ? subjectNodes : [node('sub:none', '(none)', '#ffffff')] });
     layers.push({ id: 'act', title: 'Action', nodes: actionNodes.length ? actionNodes : [node('act:none', '(none)', '#ffffff')] });
@@ -713,6 +1259,26 @@
         <span class="text-ink-800/70">Max numeric</span>
         <input type="number" min="10" max="600" step="10" bind:value={maxNumbers} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" />
       </label>
+      <label class="flex items-center gap-2">
+        <input type="checkbox" bind:checked={includeSources} />
+        <span class="text-ink-800/70">Source lane</span>
+      </label>
+      {#if includeSources}
+        <label class="flex items-center gap-2">
+          <span class="text-ink-800/70">Max sources</span>
+          <input type="number" min="10" max="400" step="10" bind:value={maxSources} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" />
+        </label>
+      {/if}
+      <label class="flex items-center gap-2">
+        <input type="checkbox" bind:checked={includeLenses} />
+        <span class="text-ink-800/70">Lens lane</span>
+      </label>
+      {#if includeLenses}
+        <label class="flex items-center gap-2">
+          <span class="text-ink-800/70">Max lenses</span>
+          <input type="number" min="10" max="500" step="10" bind:value={maxLenses} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" />
+        </label>
+      {/if}
       <label class="flex items-center gap-2">
         <input type="checkbox" bind:checked={includeEvidence} />
         <span class="text-ink-800/70">Evidence lane</span>
@@ -802,11 +1368,55 @@
         <div class="p-3 text-xs text-ink-800/70">
           This panel shows sentence-local timeline evidence for the selected node (from the extracted timeline substrate, not the full Wikipedia article).
         </div>
-      {:else if !contextRows.length}
-        <div class="p-3 text-xs text-ink-800/70">No matching extracted timeline rows for this node in the current event window.</div>
       {:else}
-        {#each contextRowsShown as r (r.key)}
-          <div class="border-b border-ink-950/10 p-3 last:border-b-0" data-ctx-id={r.event_id}>
+        {#if selectedNodeId === 'req:none'}
+          <div class="border-b border-ink-950/10 bg-amber-50/40 p-3 text-[11px]">
+            <div class="font-mono text-ink-900">
+              requester_window: signal={requesterCoverageWindow.requestSignalEvents} requester={requesterCoverageWindow.requesterEvents}
+              missing={requesterCoverageWindow.missingRequesterEventIds.length} total={requesterCoverageWindow.totalEvents}
+            </div>
+            {#if requesterCoverageGlobal}
+              <div class="mt-1 font-mono text-ink-900">
+                requester_global: signal={requesterCoverageGlobal.requestSignalEvents} requester={requesterCoverageGlobal.requesterEvents}
+                missing={requesterCoverageGlobal.missingRequesterEventIds.length} total={requesterCoverageGlobal.totalEvents}
+              </div>
+            {:else}
+              <div class="mt-1 font-mono text-ink-800/70">requester_global: unavailable (payload missing requester_coverage)</div>
+            {/if}
+            <div class="mt-2 flex flex-wrap gap-2 font-mono">
+              {#if requesterCoverageWindowGap}
+                <span class="rounded bg-red-100 px-1.5 py-0.5 text-red-900">window_gap: request-signal events exceed requester-tagged events</span>
+              {:else}
+                <span class="rounded bg-emerald-100 px-1.5 py-0.5 text-emerald-900">window_gap: none</span>
+              {/if}
+              {#if requesterCoverageGlobalGap}
+                <span class="rounded bg-red-100 px-1.5 py-0.5 text-red-900">global_gap: request-signal events exceed requester-tagged events</span>
+              {:else if requesterCoverageGlobal}
+                <span class="rounded bg-emerald-100 px-1.5 py-0.5 text-emerald-900">global_gap: none</span>
+              {/if}
+            </div>
+            {#if requesterCoverageWindow.missingRequesterEventIds.length}
+              <div class="mt-2">
+                <span class="font-mono text-ink-800/60">window_missing_ids</span>
+                {#each requesterCoverageWindow.missingRequesterEventIds as x (x)}
+                  <span class="ml-1 inline-block rounded bg-red-50 px-1.5 py-0.5 font-mono text-red-900">{x}</span>
+                {/each}
+              </div>
+            {:else if requesterCoverageGlobal?.missingRequesterEventIds.length}
+              <div class="mt-2">
+                <span class="font-mono text-ink-800/60">global_missing_ids</span>
+                {#each requesterCoverageGlobal.missingRequesterEventIds.slice(0, 24) as x (x)}
+                  <span class="ml-1 inline-block rounded bg-red-50 px-1.5 py-0.5 font-mono text-red-900">{x}</span>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        {/if}
+        {#if !contextRows.length}
+          <div class="p-3 text-xs text-ink-800/70">No matching extracted timeline rows for this node in the current event window.</div>
+        {:else}
+          {#each contextRowsShown as r (r.key)}
+            <div class="border-b border-ink-950/10 p-3 last:border-b-0" data-ctx-id={r.event_id}>
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div class="font-mono text-[10px] text-ink-800/60">{r.time} {r.event_id}</div>
               <div class="font-mono text-[10px] text-ink-800/60">section={r.section}</div>
@@ -853,6 +1463,30 @@
                 <span class="font-mono text-ink-800/50">connected</span>
                 {#each r.connected as x (r.event_id + ':conn:' + x)}
                   <span class="ml-1 inline-block rounded bg-slate-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
+                {/each}
+              </div>
+            {/if}
+            {#if r.numericClaims.length}
+              <div class="mt-2 text-[11px]">
+                <span class="font-mono text-ink-800/50">numeric_claims</span>
+                {#each r.numericClaims.slice(0, 8) as x (r.event_id + ':nclaim:' + x)}
+                  <span class="ml-1 inline-block rounded bg-rose-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
+                {/each}
+              </div>
+            {/if}
+            {#if r.sources.length}
+              <div class="mt-2 text-[11px]">
+                <span class="font-mono text-ink-800/50">sources</span>
+                {#each r.sources.slice(0, 8) as x (r.event_id + ':src:' + x)}
+                  <span class="ml-1 inline-block rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
+                {/each}
+              </div>
+            {/if}
+            {#if r.lenses.length}
+              <div class="mt-2 text-[11px]">
+                <span class="font-mono text-ink-800/50">lenses</span>
+                {#each r.lenses.slice(0, 8) as x (r.event_id + ':lens:' + x)}
+                  <span class="ml-1 inline-block rounded bg-violet-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
                 {/each}
               </div>
             {/if}
@@ -923,8 +1557,9 @@
                 {r.text}
               {/if}
             </div>
-          </div>
-        {/each}
+            </div>
+          {/each}
+        {/if}
       {/if}
     </div>
   </Panel>

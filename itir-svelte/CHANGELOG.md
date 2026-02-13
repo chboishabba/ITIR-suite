@@ -3,6 +3,33 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Graphs/AAO-all numeric lane ordering now sorts by parsed numeric magnitude
+  (largest first) instead of key lexicographic order, so values are ranked by
+  actual size in the lane.
+- Graphs/AAO-all: added dedicated `Source` and `Lens` lanes with context edges
+  (`kind=context`) so provenance/profile overlays stay separate from AAO role
+  lanes. Source labels are built from source entity/provider/parser hints; lens
+  labels are built from extraction profile + event lens tags
+  (claim-bearing/SL-lane markers).
+- Graph UI: `context` edges now render as low-weight dashed overlays and are
+  excluded from neighbor-centering, matching the non-spine overlay behavior.
+- Graphs/AAO-all requester lane: `req:none` is now a first-class diagnostics
+  node when requester gaps exist in the current event window, and selecting it
+  shows extractor-level `requester_coverage` counters plus window-level
+  request-signal vs requester-match checks (including missing event IDs) in the
+  context panel.
+- Graphs/AAO + AAO-all: numeric node keying now matches extractor scientific
+  currency normalization (`$5.6trillion` -> `5.6e12|usd`) instead of legacy
+  composite scale-currency tags (`trillion_usd`).
+- Graphs/AAO-all context: rows now render extractor `numeric_claims` summaries
+  (key, role, `time_years`, and compact `time_anchor`) so date attribution and
+  canonical numeric normalization are inspectable directly from the panel.
+- Graphs/AAO-all context: numeric claim summaries now also expose expression and
+  surface hints (`scale`, derived exponent, spacing pattern) from extractor
+  payloads to keep identity/expression/format layers visible.
+- Graphs/AAO-all context: row time now renders from each event's own anchor
+  precision (day/month/year) instead of downcasting to the active timeline
+  bucket granularity.
 - Graphs/AAO + AAO-all: add dedicated numeric lane wiring (`numeric_objects`)
   across loader, graph layers, and context panels so quantitative mentions are
   shown separately from entity object lanes.

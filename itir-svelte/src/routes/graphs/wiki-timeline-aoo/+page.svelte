@@ -185,7 +185,11 @@
 
   function nodeNeedle(nodeId: string): string {
     if (!nodeId) return '';
-    if (nodeId.startsWith('sub:') || nodeId.startsWith('obj:') || nodeId.startsWith('req:') || nodeId.startsWith('num:')) {
+    if (nodeId.startsWith('num:')) {
+      const key = nodeId.slice('num:'.length);
+      return numericLabelByKey.get(key) ?? numericLabelFromKey(key);
+    }
+    if (nodeId.startsWith('sub:') || nodeId.startsWith('obj:') || nodeId.startsWith('req:')) {
       const parts = nodeId.split(':');
       return parts[parts.length - 1] ?? '';
     }
@@ -222,6 +226,296 @@
     return Array.from(out);
   }
 
+  type NumericMention = { key: string; label: string };
+
+  const NUMERIC_UNITS = new Set([
+    '%',
+    'percent',
+    'million',
+    'billion',
+    'trillion',
+    'thousand',
+    'hundred',
+    'year',
+    'years',
+    'month',
+    'months',
+    'day',
+    'days',
+    'line',
+    'lines',
+    'point',
+    'points',
+    'dollar',
+    'dollars',
+    'usd',
+    'aud',
+    'eur',
+    'gbp'
+  ]);
+  const NUMERIC_SCALE_UNITS = new Set(['hundred', 'thousand', 'million', 'billion', 'trillion']);
+  const NUMERIC_CURRENCY_UNITS = new Set(['usd', 'aud', 'eur', 'gbp']);
+  const NUMERIC_SCALE_POW: Record<string, number> = {
+    hundred: 2,
+    thousand: 3,
+    million: 6,
+    billion: 9,
+    trillion: 12
+  };
+
+  function scientificFromScaled(value: string, pow: number): string {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return '';
+    const scaled = num * Math.pow(10, pow);
+    if (!Number.isFinite(scaled)) return '';
+    if (scaled === 0) return '0';
+    const exp = scaled.toExponential();
+    const parts = exp.split('e');
+    if (parts.length !== 2) return '';
+    let mantissa = String(parts[0] ?? '');
+    const exponent = Number.parseInt(String(parts[1] ?? ''), 10);
+    if (!Number.isFinite(exponent)) return '';
+    while (mantissa.includes('.') && mantissa.endsWith('0')) mantissa = mantissa.slice(0, -1);
+    if (mantissa.endsWith('.')) mantissa = mantissa.slice(0, -1);
+    return `${mantissa}e${exponent}`;
+  }
+
+  function canonicalUnitToken(raw: string): string {
+    const u = String(raw ?? '').toLowerCase();
+    if (!u) return '';
+    if (u === '%' || u === 'percentage' || u === 'percent') return 'percent';
+    if (u === 'dollar' || u === 'dollars' || u === 'usd') return 'usd';
+    if (u === 'years' || u === 'year') return 'year';
+    if (u === 'months' || u === 'month') return 'month';
+    if (u === 'days' || u === 'day') return 'day';
+    if (u === 'lines' || u === 'line') return 'line';
+    if (u === 'points' || u === 'point') return 'point';
+    if (u === 'aud' || u === 'eur' || u === 'gbp') return u;
+    return u;
+  }
+
+  function collapseWhitespace(raw: string): string {
+    let out = '';
+    let prevSpace = true;
+    for (const ch of String(raw ?? '')) {
+      const isSpace = ch.trim() === '';
+      if (isSpace) {
+        if (!prevSpace) out += ' ';
+      } else {
+        out += ch;
+      }
+      prevSpace = isSpace;
+    }
+    return out.trim();
+  }
+
+  function parseNumericValueToken(raw: string): string {
+    const compact = String(raw ?? '').trim().split(',').join('');
+    if (!compact) return '';
+    let i = 0;
+    let sign = '';
+    if (compact[0] === '+' || compact[0] === '-') {
+      sign = compact[0];
+      i = 1;
+    }
+    let seenDigit = false;
+    let seenDot = false;
+    let intPart = '';
+    let fracPart = '';
+    for (; i < compact.length; i++) {
+      const ch = compact[i] ?? '';
+      const isDigit = ch >= '0' && ch <= '9';
+      if (isDigit) {
+        seenDigit = true;
+        if (seenDot) fracPart += ch;
+        else intPart += ch;
+        continue;
+      }
+      if (ch === '.' && !seenDot) {
+        seenDot = true;
+        continue;
+      }
+      return '';
+    }
+    if (!seenDigit) return '';
+
+    while (intPart.startsWith('0') && intPart.length > 1) intPart = intPart.slice(1);
+    while (fracPart.endsWith('0')) fracPart = fracPart.slice(0, -1);
+
+    let value = fracPart ? `${intPart}.${fracPart}` : intPart;
+    if (value === '0') sign = '';
+    if (sign === '-') value = `-${value}`;
+    return value;
+  }
+
+  function normalizeNumericMention(raw: string): string {
+    const t = collapseWhitespace(String(raw ?? ''));
+    if (!t) return '';
+    const src = t.split(' ').filter(Boolean);
+    const toks: string[] = [];
+    for (let i = 0; i < src.length; i++) {
+      const low = String(src[i] ?? '').toLowerCase();
+      const next = i + 1 < src.length ? String(src[i + 1] ?? '').toLowerCase() : '';
+      if (low === 'per' && next === 'cent') {
+        toks.push('percent');
+        i += 1;
+      } else {
+        toks.push(String(src[i] ?? ''));
+      }
+    }
+    let currency = '';
+    if (toks.length) {
+      let first = String(toks[0] ?? '');
+      const low = first.toLowerCase();
+      if (low === '$') {
+        currency = 'usd';
+        toks.shift();
+      } else if (low === 'us$') {
+        currency = 'usd';
+        toks.shift();
+      } else if (low === 'a$') {
+        currency = 'aud';
+        toks.shift();
+      } else if (low === '€') {
+        currency = 'eur';
+        toks.shift();
+      } else if (low === '£') {
+        currency = 'gbp';
+        toks.shift();
+      } else if (low === 'usd' || low === 'aud' || low === 'eur' || low === 'gbp') {
+        currency = low;
+        toks.shift();
+      } else if (low.startsWith('$')) {
+        currency = 'usd';
+        first = first.slice(1);
+        toks[0] = first;
+      } else if (low.startsWith('us$')) {
+        currency = 'usd';
+        first = first.slice(3);
+        toks[0] = first;
+      } else if (low.startsWith('a$')) {
+        currency = 'aud';
+        first = first.slice(2);
+        toks[0] = first;
+      } else if (low.startsWith('€')) {
+        currency = 'eur';
+        first = first.slice(1);
+        toks[0] = first;
+      } else if (low.startsWith('£')) {
+        currency = 'gbp';
+        first = first.slice(1);
+        toks[0] = first;
+      }
+    }
+    if (!toks.length) return '';
+    if (toks.length === 1) {
+      const single = String(toks[0] ?? '');
+      let j = 0;
+      if (single[0] === '+' || single[0] === '-') j = 1;
+      let seenDigit = false;
+      let seenDot = false;
+      for (; j < single.length; j++) {
+        const ch = single[j] ?? '';
+        const isDigit = ch >= '0' && ch <= '9';
+        if (isDigit) {
+          seenDigit = true;
+          continue;
+        }
+        if (ch === ',' || (!seenDot && ch === '.')) {
+          if (ch === '.') seenDot = true;
+          continue;
+        }
+        break;
+      }
+      if (seenDigit && j < single.length) {
+        const left = single.slice(0, j);
+        const right = single.slice(j).toLowerCase();
+        if (NUMERIC_UNITS.has(right)) return currency ? `${left} ${right} ${currency}` : `${left} ${right}`;
+      }
+    }
+    for (let i = 1; i < toks.length; i++) {
+      const u = canonicalUnitToken(String(toks[i] ?? ''));
+      if (u) toks[i] = u;
+    }
+    if (currency) {
+      const lowParts = new Set(toks.map((x) => String(x ?? '').toLowerCase()));
+      if (!lowParts.has('usd') && !lowParts.has('aud') && !lowParts.has('eur') && !lowParts.has('gbp')) toks.push(currency);
+    }
+    return toks.join(' ');
+  }
+
+  function numericKey(raw: string): string {
+    const mention = normalizeNumericMention(raw);
+    if (!mention) return '';
+    const toks = mention.split(' ').filter(Boolean);
+    if (!toks.length) return '';
+    const value = parseNumericValueToken(toks[0] ?? '');
+    if (!value) return '';
+    const units = toks.slice(1).map((u) => canonicalUnitToken(u)).filter(Boolean);
+    if (!units.length) return `${value}|`;
+    const uniq = Array.from(new Set(units));
+    if (uniq.some((u) => !NUMERIC_UNITS.has(u))) return '';
+    let unit = '';
+    let outValue = value;
+    if (uniq.length === 1) {
+      unit = uniq[0] ?? '';
+    } else if (uniq.length === 2) {
+      const scale = uniq.find((u) => NUMERIC_SCALE_UNITS.has(u)) ?? '';
+      const ccy = uniq.find((u) => NUMERIC_CURRENCY_UNITS.has(u)) ?? '';
+      if (!scale || !ccy) return '';
+      const pow = NUMERIC_SCALE_POW[scale] ?? null;
+      if (pow === null) return '';
+      const sci = scientificFromScaled(value, pow);
+      if (!sci) return '';
+      outValue = sci;
+      unit = ccy;
+    } else {
+      return '';
+    }
+    return `${outValue}|${unit}`;
+  }
+
+  function numericMentionsFromValues(values: any[]): NumericMention[] {
+    const byKey = new Map<string, string>();
+    for (const raw of values ?? []) {
+      const label = normalizeNumericMention(String(raw ?? ''));
+      const key = numericKey(label);
+      if (!label || !key) continue;
+      if (!byKey.has(key)) byKey.set(key, label);
+    }
+    return Array.from(byKey.entries()).map(([key, label]) => ({ key, label }));
+  }
+
+  function numericMentionsForEvent(ev: any): NumericMention[] {
+    const stepNums = Array.isArray((ev as any)?.steps)
+      ? uniqueStrings((ev as any).steps.flatMap((s: any) => stepNumericObjects(s)))
+      : [];
+    const nums = stepNums.length ? stepNums : uniqueStrings(eventNumericObjects(ev));
+    return numericMentionsFromValues(nums);
+  }
+
+  function numericMentionsForStep(step: any): NumericMention[] {
+    return numericMentionsFromValues(stepNumericObjects(step));
+  }
+
+  function numericLabelFromKey(key: string): string {
+    const parts = String(key ?? '').split('|');
+    const value = parts[0] ?? '';
+    const unit = parts[1] ?? '';
+    if (!value) return String(key ?? '');
+    if (!unit) return value;
+    if (unit === 'percent') return `${value} percent`;
+    return `${value} ${unit}`;
+  }
+
+  $: numericLabelByKey = (() => {
+    const out = new Map<string, string>();
+    for (const ev of events ?? []) {
+      for (const m of numericMentionsForEvent(ev)) if (!out.has(m.key)) out.set(m.key, m.label);
+    }
+    return out;
+  })();
+
   $: selectedContext = (() => {
     if (!selected || !selectedNodeId) return null as null | { needle: string; summary: string[] };
     const steps = Array.isArray((selected as any).steps) ? ((selected as any).steps as Array<any>) : [];
@@ -239,19 +533,15 @@
           : eventEntityObjects(selected)
       )
     ).filter(Boolean) as string[];
-    const numerics = Array.from(
-      new Set(
-        steps.length
-          ? steps.flatMap((s) => stepNumericObjects(s))
-          : eventNumericObjects(selected)
-      )
-    ).filter(Boolean) as string[];
+    const numericMentions = steps.length
+      ? numericMentionsFromValues(steps.flatMap((s) => stepNumericObjects(s)))
+      : numericMentionsForEvent(selected);
     const actions = Array.from(new Set((steps.length ? steps.map((s) => actionLabel(s?.action, s?.negation)) : [actionLabel(selected.action, selected.negation)]).filter(Boolean)));
     const summary = [
       ...subjects.map((x) => `sub:${x}`),
       ...actions.map((x) => `act:${x}`),
       ...objects.map((x) => `obj:${x}`),
-      ...numerics.map((x) => `num:${x}`)
+      ...numericMentions.map((x) => `num:${x.key}`)
     ];
     return { needle: nodeNeedle(selectedNodeId), summary };
   })();
@@ -289,11 +579,9 @@
         ? steps.flatMap((s) => stepEntityObjects(s))
         : eventEntityObjects(selected)
     );
-    const numerics = uniqueStrings(
-      steps.length
-        ? steps.flatMap((s) => stepNumericObjects(s))
-        : eventNumericObjects(selected)
-    );
+    const numerics = (steps.length
+      ? numericMentionsFromValues(steps.flatMap((s) => stepNumericObjects(s)))
+      : numericMentionsForEvent(selected)).map((m) => m.label);
     const citations = uniqueStrings(((selected as any).citations ?? []).map((c: any) => String(c?.text ?? '')));
     const slRefs = uniqueStrings(
       ((selected as any).sl_references ?? []).map((r: any) => String(r?.text ?? `${r?.authority ?? ''} ${r?.ref_value ?? ''}`.trim()))
@@ -373,24 +661,14 @@
       }
     }
 
-    const numSeen = new Set<string>();
-    const numNodes: LayerNode[] = [];
+    const numByKey = new Map<string, string>();
     for (const s of steps) {
-      for (const t of stepNumericObjects(s)) {
-        const value = String(t ?? '').trim();
-        if (!value || numSeen.has(value)) continue;
-        numSeen.add(value);
-        numNodes.push(node(`num:${value}`, value, '#fee2e2'));
-      }
+      for (const m of numericMentionsForStep(s)) if (!numByKey.has(m.key)) numByKey.set(m.key, m.label);
     }
-    if (!numNodes.length) {
-      for (const valueRaw of eventNumericObjects(selected)) {
-        const value = String(valueRaw ?? '').trim();
-        if (!value || numSeen.has(value)) continue;
-        numSeen.add(value);
-        numNodes.push(node(`num:${value}`, value, '#fee2e2'));
-      }
+    if (!numByKey.size) {
+      for (const m of numericMentionsForEvent(selected)) if (!numByKey.has(m.key)) numByKey.set(m.key, m.label);
     }
+    const numNodes: LayerNode[] = Array.from(numByKey.entries()).map(([key, label]) => node(`num:${key}`, label, '#fee2e2', `key=${key}`));
 
     const purposeNodes: LayerNode[] = [];
     steps.forEach((s, i) => {
@@ -432,14 +710,14 @@
         if (!didOne) for (const s of subjectNodes) edges.push({ from: s.id, to: aid, label: 'do' });
 
         const objSet = new Set((st.objects ?? []).map((x) => String(x)).filter(Boolean));
-        const numSet = new Set(stepNumericObjects(st).map((x) => String(x)).filter(Boolean));
+        const numSet = new Set(numericMentionsForStep(st).map((m) => m.key));
         for (const o of objNodes) {
           const title = o.fullLabel ?? o.label;
           if (!objSet.size || objSet.has(title)) edges.push({ from: aid, to: o.id, label: 'object' });
         }
         for (const n of numNodes) {
-          const value = n.fullLabel ?? n.label;
-          if (!numSet.size || numSet.has(value)) edges.push({ from: aid, to: n.id, label: 'numeric' });
+          const key = String(n.id ?? '').startsWith('num:') ? String(n.id).slice('num:'.length) : '';
+          if (!numSet.size || (key && numSet.has(key))) edges.push({ from: aid, to: n.id, label: 'numeric' });
         }
         if (st.purpose) edges.push({ from: aid, to: `pur:${selected.event_id}:${i}`, label: 'purpose' });
         const next = actionNodes[i + 1];
@@ -469,9 +747,9 @@
       const stepObjectNodes = stepObjects.length
         ? stepObjects.map((o, j) => node(`obj:${sid}:${j}:${o}`, o, '#f6f6f6'))
         : [node(`obj:${sid}:none`, '(none)', '#ffffff')];
-      const stepNumbers = Array.from(new Set(stepNumericObjects(st).map((x) => String(x).trim()).filter(Boolean)));
+      const stepNumbers = numericMentionsForStep(st);
       const stepNumberNodes = stepNumbers.length
-        ? stepNumbers.map((n, j) => node(`num:${sid}:${j}:${n}`, n, '#fee2e2'))
+        ? stepNumbers.map((n, j) => node(`num:${sid}:${j}:${n.key}`, n.label, '#fee2e2', `key=${n.key}`))
         : [node(`num:${sid}:none`, '(none)', '#ffffff')];
       const stepPurposeNodes = st.purpose ? [node(`pur:${sid}`, st.purpose, '#fef3c7')] : [];
 
