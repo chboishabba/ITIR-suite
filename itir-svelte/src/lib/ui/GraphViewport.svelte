@@ -1,6 +1,9 @@
 <script lang="ts">
   export let width = 1200;
   export let height = 800;
+  export let fitToWidth = true;
+  export let scrollWhenOverflow = false;
+  export let resetKey: string | number = '';
 
   export let minScale = 0.2;
   export let maxScale = 6;
@@ -13,6 +16,7 @@
   let tx = 0;
   let ty = 0;
   let scale = 1;
+  let lastResetKey: string | number = '';
 
   function clamp(v: number, lo: number, hi: number): number {
     return Math.max(lo, Math.min(hi, v));
@@ -64,14 +68,24 @@
     ty = 0;
     scale = 1;
   }
+
+  $: if (resetKey !== lastResetKey) {
+    reset();
+    lastResetKey = resetKey;
+  }
 </script>
 
-<div class="relative w-full overflow-hidden rounded-xl border border-ink-950/10 bg-white">
+<div class="relative w-full rounded-xl border border-ink-950/10 bg-white {scrollWhenOverflow ? 'overflow-auto' : 'overflow-hidden'}">
   <svg
     bind:this={root}
     {width}
     {height}
-    class="block h-auto w-full touch-none select-none"
+    class="block touch-none select-none"
+    style={
+      fitToWidth
+        ? `width:100%; height:${height}px; max-width:100%;`
+        : `width:${width}px; height:${height}px; max-width:none;`
+    }
     role="application"
     aria-label="Interactive graph viewport"
     onpointerdown={onPointerDown}

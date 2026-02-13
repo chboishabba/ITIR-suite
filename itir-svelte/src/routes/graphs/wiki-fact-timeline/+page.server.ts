@@ -42,6 +42,90 @@ type FactRow = {
   chain_kinds: string[];
 };
 
+function normText(value: string): string {
+  return String(value || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLowerCase();
+}
+
+function normDeterminer(value: string): string {
+  const t = normText(value);
+  if (!t) return t;
+  const parts = t.split(' ').filter(Boolean);
+  if (parts.length <= 1) return t;
+  const first = String(parts[0] || '').toLowerCase();
+  if (first === 'the' || first === 'a' || first === 'an') return parts.slice(1).join(' ');
+  return t;
+}
+
+function sortedUnique(values: string[]): string[] {
+  return Array.from(new Set((values || []).map((x) => String(x)).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+}
+
+function factIdentityKey(row: FactRow): string {
+  const action = normText(String(row.action || ''));
+  const neg = normText(String(row.negation?.kind || ''));
+  const subjects = sortedUnique((row.subjects || []).map((s) => normDeterminer(s)));
+  const objects = sortedUnique((row.objects || []).map((o) => normDeterminer(o)));
+  const kinds = sortedUnique((row.chain_kinds || []).map((k) => normText(k)));
+  const a = row.anchor || { year: 0, month: null, day: null, precision: '', kind: '' };
+  return JSON.stringify({
+    event_id: String(row.event_id || ''),
+    anchor: {
+      year: Number(a.year || 0),
+      month: a.month == null ? null : Number(a.month),
+      day: a.day == null ? null : Number(a.day),
+      precision: String(a.precision || ''),
+      kind: String(a.kind || '')
+    },
+    action,
+    negation_kind: neg,
+    subjects,
+    objects,
+    chain_kinds: kinds
+  });
+}
+
+function coalesceFactRows(rows: FactRow[]): FactRow[] {
+  if (!rows.length) return rows;
+
+  const keyToCanon = new Map<string, FactRow>();
+  const factIdAlias = new Map<string, string>();
+
+  for (const row of rows) {
+    const key = factIdentityKey(row);
+    const current = keyToCanon.get(key);
+    if (!current) {
+      const base: FactRow = {
+        ...row,
+        prev_fact_ids: sortedUnique(row.prev_fact_ids || []),
+        next_fact_ids: sortedUnique(row.next_fact_ids || []),
+        chain_kinds: sortedUnique(row.chain_kinds || [])
+      };
+      keyToCanon.set(key, base);
+      factIdAlias.set(String(row.fact_id), String(base.fact_id));
+      continue;
+    }
+    factIdAlias.set(String(row.fact_id), String(current.fact_id));
+    current.prev_fact_ids = sortedUnique([...(current.prev_fact_ids || []), ...(row.prev_fact_ids || [])]);
+    current.next_fact_ids = sortedUnique([...(current.next_fact_ids || []), ...(row.next_fact_ids || [])]);
+    current.chain_kinds = sortedUnique([...(current.chain_kinds || []), ...(row.chain_kinds || [])]);
+  }
+
+  const out = Array.from(keyToCanon.values());
+  const canonIds = new Set(out.map((r) => String(r.fact_id)));
+  for (const row of out) {
+    const self = String(row.fact_id);
+    row.prev_fact_ids = sortedUnique((row.prev_fact_ids || []).map((x) => factIdAlias.get(String(x)) || String(x)))
+      .filter((x) => x !== self && canonIds.has(x));
+    row.next_fact_ids = sortedUnique((row.next_fact_ids || []).map((x) => factIdAlias.get(String(x)) || String(x)))
+      .filter((x) => x !== self && canonIds.has(x));
+    row.chain_kinds = sortedUnique(row.chain_kinds || []);
+  }
+  return out;
+}
+
 function resolveRepoRoot(): string {
   const candidates = [path.resolve('.'), path.resolve('..')];
   for (const c of candidates) {
@@ -214,10 +298,12 @@ export async function load({ url }: { url: URL }) {
       }
     }
 
-    const facts = rawFacts
+    const facts = coalesceFactRows(
+      rawFacts
       .map((f) => coerceFactRow(f, sectionByEvent, textByEvent, eventAnchorByEvent))
       .filter((f) => Boolean(f.fact_id) && Boolean(f.event_id))
-      .sort((a, b) => keyForAnchor(a.anchor) - keyForAnchor(b.anchor) || a.fact_id.localeCompare(b.fact_id));
+      .sort((a, b) => keyForAnchor(a.anchor) - keyForAnchor(b.anchor) || a.fact_id.localeCompare(b.fact_id))
+    );
 
     return {
       payload: {

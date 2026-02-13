@@ -3,9 +3,23 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
-- Graphs/AAO-all numeric lane ordering now sorts by parsed numeric magnitude
-  (largest first) instead of key lexicographic order, so values are ranked by
-  actual size in the lane.
+- Graphs/AAO (`/graphs/wiki-timeline-aoo`): widen role-layout lane spacing
+  (`colGap`, `leftPad`) and keep intrinsic-width + horizontal scroll in the
+  viewer to prevent stacked/squished lane labels in dense selections.
+- Graphs/fact timeline loader: add deterministic event-local fact coalescing
+  keyed on anchor + action + subject/object sets + negation + chain kind, with
+  canonical ID rewiring for `prev_fact_ids`/`next_fact_ids` so duplicate rows
+  are collapsed without merging clause-linked distinct facts.
+- Graph UI: `GraphViewport` now supports intrinsic-width rendering with
+  horizontal scroll (`fitToWidth=false`, `scrollWhenOverflow=true`) and
+  reset-key driven transform reset so timeline graphs do not remain visually
+  collapsed/squished across event/layout switches.
+- Graphs: `/graphs/wiki-fact-timeline` now uses a wider canvas and explicit
+  horizontal lane spacing (`colGap`, `leftPad`) so `Time -> Party -> Subjects ->
+  Facts -> Objects` columns are materially farther apart for readability.
+- Graphs/AAO + AAO-all numeric lane ordering now sorts by parsed numeric
+  magnitude (largest first) instead of key lexicographic order, so values are
+  ranked by actual size in the lane.
 - Graphs/AAO-all: added dedicated `Source` and `Lens` lanes with context edges
   (`kind=context`) so provenance/profile overlays stay separate from AAO role
   lanes. Source labels are built from source entity/provider/parser hints; lens
@@ -288,3 +302,10 @@ This changelog records user-visible behavior changes in the Svelte SB dashboard 
   links) as a first nesting/chain lane.
 - Wiki AAO per-event view now includes an "Object resolver hints" panel for quick curation checks on
   non-wikilink objects (exact/near matches from extraction hints).
+
+## 2026-02-13
+
+- Wiki graphs: `LayeredGraph` now respects requested `colGap` when `scrollWhenOverflow` is enabled (lanes no longer compress into each other; wider horizontal separation with scroll).
+- Wiki graphs: added deterministic SSR smoke script (`npm run ssr:smoke`) to catch SSR module-load regressions without binding a port.
+- SB Dashboard: removed `svelte/store` dependency from `waterfallColors` hook by switching to a minimal store-compatible `writable` implementation (SSR/import-cycle hardening).
+- Wiki graphs: added dataset selector wiring for `gwb_public_bios_v1` (source pack timeline + AAO output).

@@ -4,6 +4,14 @@ import { existsSync } from 'node:fs';
 import { loadWikiTimelineAoo } from '$lib/server/wikiTimelineAoo';
 
 const GWB_REL = path.join('SensibLaw', '.cache_local', 'wiki_timeline_gwb_aoo.json');
+const GWB_PUBLIC_BIOS_REL = path.join(
+  'SensibLaw',
+  'demo',
+  'ingest',
+  'gwb',
+  'public_bios_v1',
+  'wiki_timeline_gwb_public_bios_v1_aoo.json'
+);
 const HCA_REL = path.join('SensibLaw', '.cache_local', 'wiki_timeline_hca_s942025_aoo.json');
 const LEGAL_REL = path.join(
   'SensibLaw',
@@ -20,7 +28,13 @@ const LEGAL_FOLLOW_REL = path.join(
   'follow',
   'wiki_timeline_legal_principles_au_v1_follow_aoo.json'
 );
-const SOURCE_PATHS = { gwb: GWB_REL, hca: HCA_REL, legal: LEGAL_REL, legal_follow: LEGAL_FOLLOW_REL } as const;
+const SOURCE_PATHS = {
+  gwb: GWB_REL,
+  gwb_public_bios_v1: GWB_PUBLIC_BIOS_REL,
+  hca: HCA_REL,
+  legal: LEGAL_REL,
+  legal_follow: LEGAL_FOLLOW_REL
+} as const;
 const VIEW_TYPES = new Set(['roles', 'step-ribbon']);
 
 function resolveRepoRoot(): string {

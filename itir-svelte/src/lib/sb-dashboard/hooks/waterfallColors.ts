@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable } from '$lib/ui/simpleStore';
 
 export type WaterfallPaletteName = 'viridis' | 'magma' | 'plasma' | 'inferno' | 'custom';
 export type WaterfallAlgoName = 'thread' | 'hour' | 'role' | 'switch';

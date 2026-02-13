@@ -160,6 +160,7 @@
           }}
         >
           <option value="gwb">gwb</option>
+          <option value="gwb_public_bios_v1">gwb_public_bios_v1</option>
           <option value="hca">hca</option>
           <option value="legal">legal</option>
           <option value="legal_follow">legal_follow</option>

@@ -508,6 +508,37 @@
     return `${value} ${unit}`;
   }
 
+  function numericSortValueFromKey(key: string): number | null {
+    const raw = String(key ?? '').split('|')[0] ?? '';
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return null;
+    return n;
+  }
+
+  function numericSortUnitFromKey(key: string): string {
+    return String(key ?? '').split('|')[1] ?? '';
+  }
+
+  function compareNumericKeys(a: string, b: string): number {
+    const av = numericSortValueFromKey(a);
+    const bv = numericSortValueFromKey(b);
+    if (av !== null && bv !== null) {
+      const ad = Math.abs(av);
+      const bd = Math.abs(bv);
+      if (bd !== ad) return bd - ad;
+      if (bv !== av) return bv - av;
+    } else if (av !== null) {
+      return -1;
+    } else if (bv !== null) {
+      return 1;
+    }
+
+    const au = numericSortUnitFromKey(a);
+    const bu = numericSortUnitFromKey(b);
+    if (au !== bu) return au.localeCompare(bu);
+    return a.localeCompare(b);
+  }
+
   $: numericLabelByKey = (() => {
     const out = new Map<string, string>();
     for (const ev of events ?? []) {
@@ -581,7 +612,10 @@
     );
     const numerics = (steps.length
       ? numericMentionsFromValues(steps.flatMap((s) => stepNumericObjects(s)))
-      : numericMentionsForEvent(selected)).map((m) => m.label);
+      : numericMentionsForEvent(selected))
+      .slice()
+      .sort((a, b) => compareNumericKeys(a.key, b.key))
+      .map((m) => m.label);
     const citations = uniqueStrings(((selected as any).citations ?? []).map((c: any) => String(c?.text ?? '')));
     const slRefs = uniqueStrings(
       ((selected as any).sl_references ?? []).map((r: any) => String(r?.text ?? `${r?.authority ?? ''} ${r?.ref_value ?? ''}`.trim()))
@@ -668,7 +702,9 @@
     if (!numByKey.size) {
       for (const m of numericMentionsForEvent(selected)) if (!numByKey.has(m.key)) numByKey.set(m.key, m.label);
     }
-    const numNodes: LayerNode[] = Array.from(numByKey.entries()).map(([key, label]) => node(`num:${key}`, label, '#fee2e2', `key=${key}`));
+    const numNodes: LayerNode[] = Array.from(numByKey.entries())
+      .sort((a, b) => compareNumericKeys(a[0], b[0]))
+      .map(([key, label]) => node(`num:${key}`, label, '#fee2e2', `key=${key}`));
 
     const purposeNodes: LayerNode[] = [];
     steps.forEach((s, i) => {
@@ -676,15 +712,13 @@
     });
 
     if (layoutMode === 'roles') {
-      const layers = [
-        ...time.layers,
-        { id: 'request', title: 'Requester', nodes: requesterNodes.length ? requesterNodes : [node('req:none', '(none)', '#ffffff')] },
-        { id: 'subjects', title: 'Subjects', nodes: subjectNodes.length ? subjectNodes : [node('sub:none', '(none)', '#ffffff')] },
-        { id: 'action', title: 'Action', nodes: actionNodes.length ? actionNodes : [node('act:none', '(none)', '#ffffff')] },
-        { id: 'objects', title: 'Objects', nodes: objNodes.length ? objNodes : [node('obj:none', '(none)', '#ffffff')] },
-        { id: 'numeric', title: 'Numeric', nodes: numNodes.length ? numNodes : [node('num:none', '(none)', '#ffffff')] },
-        { id: 'purpose', title: 'Purpose', nodes: purposeNodes.length ? purposeNodes : [node('pur:none', '(none)', '#ffffff')] }
-      ];
+      const layers = [...time.layers] as Array<{ id: string; title: string; nodes: LayerNode[] }>;
+      if (requesterNodes.length) layers.push({ id: 'request', title: 'Requester', nodes: requesterNodes });
+      layers.push({ id: 'subjects', title: 'Subjects', nodes: subjectNodes.length ? subjectNodes : [node('sub:none', '(none)', '#ffffff')] });
+      layers.push({ id: 'action', title: 'Action', nodes: actionNodes.length ? actionNodes : [node('act:none', '(none)', '#ffffff')] });
+      layers.push({ id: 'objects', title: 'Objects', nodes: objNodes.length ? objNodes : [node('obj:none', '(none)', '#ffffff')] });
+      layers.push({ id: 'numeric', title: 'Numeric', nodes: numNodes.length ? numNodes : [node('num:none', '(none)', '#ffffff')] });
+      layers.push({ id: 'purpose', title: 'Purpose', nodes: purposeNodes.length ? purposeNodes : [node('pur:none', '(none)', '#ffffff')] });
 
       const edges: LayeredEdge[] = [];
       const firstActionId = actionNodes[0]?.id ?? 'act:none';
@@ -786,11 +820,14 @@
 
   $: graphWidth = (() => {
     if (!selected) return 1400;
-    const steps = Array.isArray((selected as any).steps) && (selected as any).steps.length ? (selected as any).steps.length : 1;
-    if (layoutMode !== 'step_ribbon') return 1500;
-    // time/request columns + 4-5 columns per step; keep deterministic width with room for expansion.
-    return Math.max(1800, 760 + steps * 640);
+    const cols = Array.isArray((graph as any)?.layers) ? (graph as any).layers.length : 10;
+    // Deterministic: width derived from rendered column count + configured gap.
+    // Keep headroom for expanded nodes and labels.
+    const colGap = 760;
+    const leftPad = 100;
+    return Math.max(2000, leftPad * 2 + Math.max(0, cols - 1) * colGap + 620);
   })();
+  $: graphViewportKey = selected ? `${selected.event_id}:${layoutMode}:${timeGranularity}` : 'none';
 </script>
 
 <div class="space-y-4 p-6">
@@ -814,6 +851,7 @@
           }}
         >
           <option value="gwb">gwb</option>
+          <option value="gwb_public_bios_v1">gwb_public_bios_v1</option>
           <option value="hca">hca</option>
           <option value="legal">legal</option>
           <option value="legal_follow">legal_follow</option>
@@ -938,6 +976,11 @@
           edges={graph.edges}
           width={graphWidth}
           height={920}
+          colGap={760}
+          leftPad={100}
+          fitToWidth={false}
+          scrollWhenOverflow={true}
+          viewportResetKey={graphViewportKey}
           on:nodeSelect={(e) => (selectedNodeId = (e as CustomEvent<{ nodeId: string }>).detail.nodeId)}
         />
 

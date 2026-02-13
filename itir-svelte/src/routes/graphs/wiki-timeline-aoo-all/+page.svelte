@@ -120,6 +120,15 @@
   let selectedNodeId: string | null = null;
   let contextBox: HTMLDivElement | null = null;
   let lastScrollKey = '';
+  // Wider lane spacing for readability in dense AAO-all layouts.
+  const GRAPH_HEIGHT = 900;
+  const GRAPH_COL_GAP = 800;
+  const GRAPH_LEFT_PAD = 100;
+  $: graphViewportKey = `${String(selectedNodeId ?? 'none')}:${String(timeGranularity)}:${String(graphEvents?.length ?? 0)}`;
+  $: graphWidth = Math.max(
+    3600,
+    GRAPH_LEFT_PAD * 2 + Math.max(0, (graph as any)?.layers?.length ? (graph as any).layers.length - 1 : 8) * GRAPH_COL_GAP + 720
+  );
 
   function node(id: string, label: string, color: string, tooltip?: string): LayerNode {
     const short = label.length > 54 ? label.slice(0, 54) + '...' : label;
@@ -552,6 +561,27 @@
       const parserVersion = String(extraction.parser_version ?? '').trim();
       if (parserVersion) out.push(`parser:${parserVersion}`);
     }
+
+    // For source-pack timelines, each row is its own source-ish artifact. Preserve
+    // the row title and any follow URL host so sources are visible per-event.
+    if (Array.isArray(e?.citations)) {
+      for (const c of e.citations) {
+        const kind = String((c as any)?.kind ?? '').trim().toLowerCase();
+        const text = String((c as any)?.text ?? '').trim();
+        if (kind === 'source_row' && text) out.push(`source_row:${text}`);
+        const follow = Array.isArray((c as any)?.follow) ? (c as any).follow : [];
+        for (const h of follow) {
+          const url = String((h as any)?.url ?? '').trim();
+          if (!url) continue;
+          try {
+            const host = new URL(url).host;
+            if (host) out.push(`host:${host}`);
+          } catch {
+            // ignore invalid URLs
+          }
+        }
+      }
+    }
     const citationProviders = Array.isArray(e?.citations) ? collectFollowProviders(e.citations) : [];
     const slRefProviders = Array.isArray(e?.sl_references) ? collectFollowProviders(e.sl_references) : [];
     for (const p of uniqueStrings([...citationProviders, ...slRefProviders])) out.push(`provider:${p}`);
@@ -728,7 +758,7 @@
     }
     if (nodeId.startsWith('req:')) {
       const key = nodeId.slice('req:'.length);
-      if (key === 'none') return missingRequesterEventIdSet.has(String((e as any)?.event_id ?? ''));
+      if (key === 'missing') return missingRequesterEventIdSet.has(String((e as any)?.event_id ?? ''));
       return (e.actors ?? []).some((a: any) => (a.role ?? '') === 'requester' && (a.resolved ?? a.label) === key);
     }
     if (nodeId.startsWith('obj:')) {
@@ -1063,19 +1093,6 @@
         .filter((eventId: string) => Boolean(eventId) && missingRequesterEventIdSet.has(eventId))
     );
     const requesterNodes = topRequesters.map(([k, c]) => node(`req:${k}`, `${k} (${c})`, '#e9d5ff'));
-    if (!topRequesters.length || missingRequesterIdsInWindow.length) {
-      const reqNoneLabel = missingRequesterIdsInWindow.length ? `(none missing: ${missingRequesterIdsInWindow.length})` : '(none)';
-      requesterNodes.push(
-        node(
-          'req:none',
-          reqNoneLabel,
-          '#ffffff',
-          missingRequesterIdsInWindow.length
-            ? `Request-signal events missing requester in current window: ${missingRequesterIdsInWindow.join(', ')}`
-            : 'No requester actors in current event window.'
-        )
-      );
-    }
     const subjectNodes = topSubjects.map(([k, c]) => node(`sub:${k}`, `${k} (${c})`, '#bbf7d0'));
     const objectNodes = topObjects.map(([k, c]) => node(`obj:${k}`, `${k} (${c})`, '#f6f6f6'));
     const numericNodes = topNumbers.map(([k, c]) => {
@@ -1189,7 +1206,24 @@
     }
     if (includeSources) layers.push({ id: 'src', title: 'Source', nodes: sourceNodes.length ? sourceNodes : [node('src:none', '(none)', '#ffffff')] });
     if (includeLenses) layers.push({ id: 'lens', title: 'Lens', nodes: lensNodes.length ? lensNodes : [node('lens:none', '(none)', '#ffffff')] });
-    if (includeRequesters) layers.push({ id: 'req', title: 'Requester', nodes: requesterNodes.length ? requesterNodes : [node('req:none', '(none)', '#ffffff')] });
+    if (includeRequesters) {
+      const reqLane: LayerNode[] = [];
+      if (requesterNodes.length) reqLane.push(...requesterNodes);
+      if (missingRequesterEventIdSet.size) {
+        const ids = Array.from(missingRequesterEventIdSet.values());
+        const sample = ids.slice(0, 30).join(', ');
+        const suffix = ids.length > 30 ? ` (+${ids.length - 30} more)` : '';
+        reqLane.push(
+          node(
+            'req:missing',
+            `(missing requester: ${missingRequesterEventIdSet.size})`,
+            '#fff7ed',
+            ids.length ? `Request-signal events missing requester: ${sample}${suffix}` : 'Request-signal events missing requester'
+          )
+        );
+      }
+      if (reqLane.length) layers.push({ id: 'req', title: 'Requester', nodes: reqLane });
+    }
     layers.push({ id: 'sub', title: 'Subjects', nodes: subjectNodes.length ? subjectNodes : [node('sub:none', '(none)', '#ffffff')] });
     layers.push({ id: 'act', title: 'Action', nodes: actionNodes.length ? actionNodes : [node('act:none', '(none)', '#ffffff')] });
     layers.push({ id: 'obj', title: 'Objects', nodes: objectNodes.length ? objectNodes : [node('obj:none', '(none)', '#ffffff')] });
@@ -1223,6 +1257,7 @@
           }}
         >
           <option value="gwb">gwb</option>
+          <option value="gwb_public_bios_v1">gwb_public_bios_v1</option>
           <option value="hca">hca</option>
           <option value="legal">legal</option>
           <option value="legal_follow">legal_follow</option>
@@ -1338,8 +1373,13 @@
   <LayeredGraph
     layers={graph.layers}
     edges={graph.edges}
-    width={1600}
-    height={900}
+    width={graphWidth}
+    height={GRAPH_HEIGHT}
+    colGap={GRAPH_COL_GAP}
+    leftPad={GRAPH_LEFT_PAD}
+    fitToWidth={false}
+    scrollWhenOverflow={true}
+    viewportResetKey={graphViewportKey}
     on:nodeSelect={(e) => (selectedNodeId = (e as CustomEvent<{ nodeId: string }>).detail.nodeId)}
   />
 
@@ -1369,7 +1409,7 @@
           This panel shows sentence-local timeline evidence for the selected node (from the extracted timeline substrate, not the full Wikipedia article).
         </div>
       {:else}
-        {#if selectedNodeId === 'req:none'}
+        {#if selectedNodeId === 'req:missing'}
           <div class="border-b border-ink-950/10 bg-amber-50/40 p-3 text-[11px]">
             <div class="font-mono text-ink-900">
               requester_window: signal={requesterCoverageWindow.requestSignalEvents} requester={requesterCoverageWindow.requesterEvents}

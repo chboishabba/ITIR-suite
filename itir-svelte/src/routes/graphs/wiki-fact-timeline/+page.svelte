@@ -49,6 +49,11 @@
   let selectedNodeId: string | null = null;
   let contextBox: HTMLDivElement | null = null;
   let lastScrollKey = '';
+  let graphWidth = 3200;
+  const GRAPH_HEIGHT = 920;
+  const GRAPH_COL_GAP = 800;
+  const GRAPH_LEFT_PAD = 100;
+  $: graphViewportKey = `${String(selectedNodeId ?? 'none')}:${String(granularity)}:${String(facts.length)}`;
 
   function pad2(n: number): string {
     return String(n).padStart(2, '0');
@@ -79,6 +84,10 @@
 
   $: factsAll = data.payload.facts ?? [];
   $: facts = factsAll.slice(0, Math.max(20, Math.min(factsAll.length, Math.floor(maxFacts))));
+  $: graphWidth = Math.max(
+    3600,
+    GRAPH_LEFT_PAD * 2 + Math.max(0, (graph as any)?.layers?.length ? (graph as any).layers.length - 1 : 8) * GRAPH_COL_GAP + 720
+  );
 
   function validateNodeFactScope(
     rows: typeof facts,
@@ -337,8 +346,13 @@
   <LayeredGraph
     layers={graph.layers}
     edges={graph.edges}
-    width={1700}
-    height={920}
+    width={graphWidth}
+    height={GRAPH_HEIGHT}
+    colGap={GRAPH_COL_GAP}
+    leftPad={GRAPH_LEFT_PAD}
+    fitToWidth={false}
+    scrollWhenOverflow={true}
+    viewportResetKey={graphViewportKey}
     on:nodeSelect={(e) => (selectedNodeId = (e as CustomEvent<{ nodeId: string }>).detail.nodeId)}
   />
 

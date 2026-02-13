@@ -26,6 +26,9 @@
 
   export let width = 1200;
   export let height = 820;
+  export let fitToWidth = true;
+  export let scrollWhenOverflow = false;
+  export let viewportResetKey: string | number = '';
 
   export let colGap = 200;
   export let leftPad = 70;
@@ -142,7 +145,9 @@
     const m = new Map<string, Pt>();
     const cols = Math.max(1, orderedLayers.length);
     const usableW = width - leftPad * 2;
-    const stepX = cols <= 1 ? 0 : Math.min(colGap, usableW / (cols - 1));
+    // If horizontal scrolling is enabled, keep a stable requested column gap
+    // rather than compressing lanes to fit within `width`.
+    const stepX = cols <= 1 ? 0 : scrollWhenOverflow ? colGap : Math.min(colGap, usableW / (cols - 1));
 
     orderedLayers.forEach((layer, i) => {
       const x = leftPad + i * stepX;
@@ -221,7 +226,7 @@
   }
 </script>
 
-<GraphViewport {width} {height}>
+<GraphViewport {width} {height} {fitToWidth} {scrollWhenOverflow} resetKey={viewportResetKey}>
   <g>
     {#each edges as e (e.from + '->' + e.to)}
       {@const a = pos.get(e.from)}
