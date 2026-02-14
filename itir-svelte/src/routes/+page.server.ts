@@ -33,6 +33,35 @@ async function tryReadJson(p: string): Promise<unknown | null> {
   }
 }
 
+async function fileExists(p: string): Promise<boolean> {
+  try {
+    await fs.stat(p);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function runPythonJson(repoRoot: string, args: string[]): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const script = path.join(repoRoot, 'StatiBaker', 'scripts', 'query_dashboard_db.py');
+    const child = spawn('python3', [script, ...args], { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'] });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (d) => (stdout += String(d)));
+    child.stderr.on('data', (d) => (stderr += String(d)));
+    child.on('error', (err) => reject(err));
+    child.on('close', (code) => {
+      if (code !== 0) return reject(new Error(`query_dashboard_db.py failed (exit ${code}).\n${stderr || stdout}`));
+      try {
+        resolve(JSON.parse(stdout));
+      } catch (err) {
+        reject(new Error(`query_dashboard_db.py returned non-JSON output.\n${stderr || ''}\n${stdout.slice(0, 2000)}`));
+      }
+    });
+  });
+}
+
 type NotebookMetaRow = {
   threadId: string;
   title: string;
@@ -128,13 +157,24 @@ function dateRangeInclusive(start: string, end: string): string[] {
 }
 
 async function listAvailableDates(runsRoot: string): Promise<string[]> {
+  const repoRoot = path.resolve('..');
+  const dbPath = process.env.SB_DASHBOARD_DB ? path.resolve(process.env.SB_DASHBOARD_DB) : path.join(runsRoot, 'dashboard.sqlite');
+  if (await fileExists(dbPath)) {
+    try {
+      const raw = await runPythonJson(repoRoot, ['--db-path', dbPath, '--view', 'daily', '--list-dates']);
+      if (Array.isArray(raw)) return raw.filter((d) => typeof d === 'string' && isDateText(d)).sort();
+    } catch {
+      // fall through to legacy disk scan
+    }
+  }
+
+  // Legacy fallback: scan `runs/<date>/outputs/dashboard*.json` when DB isn't available.
   try {
     const entries = await fs.readdir(runsRoot, { withFileTypes: true });
     const dates = entries
       .filter((e) => e.isDirectory() && isDateText(e.name))
       .map((e) => e.name)
       .sort();
-    // Only keep dates that look usable (some output exists).
     const out: string[] = [];
     for (const d of dates) {
       const p = path.join(runsRoot, d, 'outputs', 'dashboard.json');
@@ -148,7 +188,24 @@ async function listAvailableDates(runsRoot: string): Promise<string[]> {
   }
 }
 
-async function loadDashboardForDate(runsRoot: string, date: string): Promise<{ payload: DashboardPayload; source: string } | null> {
+async function loadDashboardForDate(
+  repoRoot: string,
+  runsRoot: string,
+  dbPath: string,
+  date: string
+): Promise<{ payload: DashboardPayload; source: string } | null> {
+  if (await fileExists(dbPath)) {
+    try {
+      const raw = await runPythonJson(repoRoot, ['--db-path', dbPath, '--view', 'daily', '--date', date, '--prefer-all']);
+      // Range query returns {date, scope, payload}; single-date returns the same when --prefer-all is set.
+      const tuple = raw as any;
+      const payloadRaw = tuple?.payload ?? null;
+      if (payloadRaw) return { payload: parseDashboardPayload(payloadRaw), source: `${dbPath}#daily:${date}:${String(tuple?.scope ?? '')}` };
+    } catch {
+      // fall through to legacy disk reads
+    }
+  }
+
   const pAll = path.join(runsRoot, date, 'outputs', 'dashboard_all.json');
   const p = path.join(runsRoot, date, 'outputs', 'dashboard.json');
   const rawAll = await tryReadJson(pAll);
@@ -156,6 +213,12 @@ async function loadDashboardForDate(runsRoot: string, date: string): Promise<{ p
   const raw = await tryReadJson(p);
   if (raw) return { payload: parseDashboardPayload(raw), source: p };
   return null;
+}
+
+function autoBuildMissingEnabled(): boolean {
+  const raw = String(process.env.ITIR_AUTO_BUILD_MISSING_DASHBOARDS ?? '').trim().toLowerCase();
+  if (!raw) return true; // default ON
+  return !['0', 'false', 'no', 'off', 'disable', 'disabled'].includes(raw);
 }
 
 async function isWritableDir(dir: string): Promise<boolean> {
@@ -192,7 +255,8 @@ async function addArtifactMtimes(links: DashboardArtifactLink[] | undefined): Pr
 function runBuildDashboard(repoRoot: string, runsRoot: string, date: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const script = path.join(repoRoot, 'StatiBaker', 'scripts', 'build_dashboard.py');
-    const args = [script, '--date', date, '--runs-root', runsRoot, '--repo-root', repoRoot];
+    const dbPath = process.env.SB_DASHBOARD_DB ? path.resolve(process.env.SB_DASHBOARD_DB) : path.join(runsRoot, 'dashboard.sqlite');
+    const args = [script, '--date', date, '--runs-root', runsRoot, '--repo-root', repoRoot, '--db-path', dbPath];
     const child = spawn('python3', args, { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'] });
     let stdout = '';
     let stderr = '';
@@ -225,6 +289,7 @@ type Heatmaps = {
   lane_totals: Record<string, number>;
   default_selected: string[];
   series: Record<string, number[][]>;
+  per_day?: Array<{ date: string; weekday: number; by_lane: Record<string, number[]> }>;
 };
 
 function emptyMatrix(): number[][] {
@@ -247,18 +312,22 @@ function buildHeatmaps(dailyPayloads: Array<{ date: string; payload: DashboardPa
     calendar: 'Calendar'
   };
   const matrices: Record<string, number[][]> = Object.fromEntries(lanes.map((l) => [l, emptyMatrix()]));
+  const per_day: Array<{ date: string; weekday: number; by_lane: Record<string, number[]> }> = [];
 
   for (const { date, payload } of dailyPayloads) {
     const freq = payload.frequency_by_hour ?? {};
     const weekday = weekdayIndex(date);
     weekday_day_counts[weekday] = (weekday_day_counts[weekday] ?? 0) + 1;
+    const by_lane: Record<string, number[]> = {};
     for (const lane of lanes) {
       const bins = (freq as any)[lane];
       if (!Array.isArray(bins) || bins.length !== 24) continue;
+      by_lane[lane] = bins.map((v: any) => Number(v ?? 0) || 0);
       const row = matrices[lane]?.[weekday];
       if (!row) continue;
       for (let hour = 0; hour < 24; hour++) row[hour] = (row[hour] ?? 0) + (Number(bins[hour] ?? 0) || 0);
     }
+    per_day.push({ date, weekday, by_lane });
   }
 
   const lane_totals: Record<string, number> = {};
@@ -276,7 +345,8 @@ function buildHeatmaps(dailyPayloads: Array<{ date: string; payload: DashboardPa
     lane_labels,
     lane_totals,
     default_selected,
-    series: matrices
+    series: matrices,
+    per_day: per_day.sort((a, b) => a.date.localeCompare(b.date))
   };
 }
 
@@ -639,10 +709,111 @@ function buildRangePayload(dailies: DashboardPayload[], { start, end }: { start:
 }
 
 export async function load({ url }: { url: URL }) {
+  const dbEnvPath = process.env.SB_DASHBOARD_DB;
   const envPath = process.env.SB_DASHBOARD_JSON;
   const runsRootEnv = process.env.SB_RUNS_ROOT;
   const dateEnv = process.env.SB_DATE;
 
+  // Canonical path: dashboard DB (preferred).
+  if (dbEnvPath) {
+    const dbPath = path.resolve(dbEnvPath);
+    const repoRoot = path.resolve('..');
+    const runsRoot = resolveRunsRoot(runsRootEnv);
+    const availableDates = await listAvailableDates(runsRoot);
+    const endCandidate = url.searchParams.get('end') ?? dateEnv ?? availableDates[availableDates.length - 1] ?? '2026-02-03';
+    const startCandidate = url.searchParams.get('start') ?? endCandidate;
+    const explicitSelection = url.searchParams.has('start') || url.searchParams.has('end') || Boolean(dateEnv) || Boolean(runsRootEnv);
+
+    const end = isDateText(endCandidate) ? endCandidate : (dateEnv ?? '2026-02-03');
+    const start = isDateText(startCandidate) ? startCandidate : end;
+
+    const dates = dateRangeInclusive(start, end);
+    const MAX_DAYS = 31;
+    const selectedDates = dates.slice(0, MAX_DAYS);
+    const truncated = dates.length > MAX_DAYS;
+
+    const dailies: DashboardPayload[] = [];
+    const dailyTuples: Array<{ date: string; payload: DashboardPayload }> = [];
+    const notebookMetaById = new Map<string, NotebookMetaRow>();
+    const sources: string[] = [];
+    const warnings: string[] = [];
+    const missingDates: string[] = [];
+    for (const d of selectedDates) {
+      const loaded = await loadDashboardForDate(repoRoot, runsRoot, dbPath, d);
+      if (!loaded) {
+        warnings.push(`Missing dashboard for ${d}`);
+        missingDates.push(d);
+        continue;
+      }
+      dailies.push(loaded.payload);
+      dailyTuples.push({ date: d, payload: loaded.payload });
+      sources.push(loaded.source);
+      for (const row of await loadNotebookMetaRowsForDate(runsRoot, d)) {
+        const current = notebookMetaById.get(row.threadId) ?? {
+          ...row,
+          messageCount: 0,
+          firstTs: undefined,
+          lastTs: undefined
+        };
+        current.messageCount += row.messageCount;
+        current.firstTs = minIso(current.firstTs, row.firstTs);
+        current.lastTs = maxIso(current.lastTs, row.lastTs);
+        notebookMetaById.set(row.threadId, current);
+      }
+    }
+    const notebookMetaRows = [...notebookMetaById.values()].sort(
+      (a, b) => b.messageCount - a.messageCount || a.title.localeCompare(b.title)
+    );
+
+    if (!dailies.length) {
+      if (explicitSelection) {
+        return {
+          payload: { date: end, generated_at: new Date().toISOString(), warnings } as DashboardPayload,
+          source: `range:${start}..${end}`,
+          parseError: null as string | null,
+          availableDates,
+          selected: { start, end },
+          missingDates,
+          heatmaps: buildHeatmaps([]),
+          notebookMetaRows: [] as NotebookMetaRow[]
+        };
+      }
+    }
+
+    if (truncated) warnings.push(`Range truncated to ${MAX_DAYS} days (start..end too large).`);
+
+    let payload: DashboardPayload;
+    if (start === end) {
+      payload = dailies[dailies.length - 1]!;
+    } else {
+      payload = buildRangePayload(dailies, { start, end });
+      payload.warnings = [...(payload.warnings ?? []), ...warnings];
+    }
+
+    if (payload.artifact_links) payload.artifact_links = await addArtifactMtimes(payload.artifact_links);
+
+    const builtCount = Number(url.searchParams.get('built') ?? 0) || 0;
+    const failedCount = Number(url.searchParams.get('failed') ?? 0) || 0;
+    const autoBuildEnabled = explicitSelection && autoBuildMissingEnabled();
+    const runsRootWritable = await isWritableDir(runsRoot);
+
+    return {
+      payload,
+      source: sources.length === 1 ? sources[0] : `range:${start}..${end}`,
+      parseError: null as string | null,
+      availableDates,
+      selected: { start, end },
+      missingDates,
+      heatmaps: buildHeatmaps(dailyTuples),
+      runsRoot,
+      buildSummary: builtCount || failedCount ? { built: builtCount, failed: failedCount } : null,
+      autoBuildEnabled: autoBuildEnabled && runsRootWritable,
+      runsRootWritable,
+      notebookMetaRows
+    };
+  }
+
+  // Legacy debug/regression path: dashboard JSON on disk.
   if (envPath) {
     const raw = await tryReadJson(envPath);
     if (!raw) throw new Error(`SB_DASHBOARD_JSON not readable: ${envPath}`);
@@ -667,8 +838,10 @@ export async function load({ url }: { url: URL }) {
     }
   }
 
+  const repoRoot = path.resolve('..');
   const runsRoot = resolveRunsRoot(runsRootEnv);
   const availableDates = await listAvailableDates(runsRoot);
+  const dbPath = dbEnvPath ? path.resolve(dbEnvPath) : path.join(runsRoot, 'dashboard.sqlite');
 
   const endCandidate = url.searchParams.get('end') ?? dateEnv ?? availableDates[availableDates.length - 1] ?? '2026-02-03';
   const startCandidate = url.searchParams.get('start') ?? endCandidate;
@@ -690,7 +863,7 @@ export async function load({ url }: { url: URL }) {
   const warnings: string[] = [];
   const missingDates: string[] = [];
   for (const d of selectedDates) {
-    const loaded = await loadDashboardForDate(runsRoot, d);
+    const loaded = await loadDashboardForDate(repoRoot, runsRoot, dbPath, d);
     if (!loaded) {
       warnings.push(`Missing dashboard for ${d}`);
       missingDates.push(d);
@@ -733,7 +906,20 @@ export async function load({ url }: { url: URL }) {
     // Repo-local fallback for first render (no env + no query params).
     const fallback = path.resolve('..', 'StatiBaker', 'runs', '2026-02-03', 'outputs', 'dashboard_all.json');
     const raw = await tryReadJson(fallback);
-    if (!raw) throw new Error(`No dashboard JSON found. Set SB_DASHBOARD_JSON or SB_RUNS_ROOT+SB_DATE. Tried: ${fallback}`);
+    if (!raw) {
+      // Keep the UI usable even when no local runs exist. This should be a
+      // recoverable configuration error, not a hard 500.
+      return {
+        payload: { date: end, generated_at: new Date().toISOString(), warnings } as DashboardPayload,
+        source: fallback,
+        parseError: `No dashboard found. Prefer SB_DASHBOARD_DB (or SB_RUNS_ROOT+SB_DATE with SB_RUNS_ROOT/dashboard.sqlite). Legacy fallback: SB_DASHBOARD_JSON. Tried: ${fallback}`,
+        availableDates,
+        selected: { start: end, end: end },
+        missingDates: [] as string[],
+        heatmaps: buildHeatmaps([]),
+        notebookMetaRows: [] as NotebookMetaRow[]
+      };
+    }
     try {
       const payload = parseDashboardPayload(raw);
       return {
@@ -775,6 +961,8 @@ export async function load({ url }: { url: URL }) {
 
   const builtCount = Number(url.searchParams.get('built') ?? 0) || 0;
   const failedCount = Number(url.searchParams.get('failed') ?? 0) || 0;
+  const autoBuildEnabled = explicitSelection && autoBuildMissingEnabled();
+  const runsRootWritable = await isWritableDir(runsRoot);
 
   return {
     payload,
@@ -786,6 +974,8 @@ export async function load({ url }: { url: URL }) {
     heatmaps: buildHeatmaps(dailyTuples),
     runsRoot,
     buildSummary: builtCount || failedCount ? { built: builtCount, failed: failedCount } : null,
+    autoBuildEnabled: autoBuildEnabled && runsRootWritable,
+    runsRootWritable,
     notebookMetaRows
   };
 }
@@ -801,6 +991,7 @@ export const actions = {
 
     const runsRoot = resolveRunsRoot(process.env.SB_RUNS_ROOT);
     const repoRoot = path.resolve('..');
+    const dbPath = process.env.SB_DASHBOARD_DB ? path.resolve(process.env.SB_DASHBOARD_DB) : path.join(runsRoot, 'dashboard.sqlite');
     if (!(await isWritableDir(runsRoot))) {
       return fail(400, {
         ok: false,
@@ -817,7 +1008,7 @@ export const actions = {
     const built: string[] = [];
     const failed: Array<{ date: string; error: string }> = [];
     for (const d of dates) {
-      const exists = await loadDashboardForDate(runsRoot, d);
+      const exists = await loadDashboardForDate(repoRoot, runsRoot, dbPath, d);
       if (exists) continue;
       try {
         await runBuildDashboard(repoRoot, runsRoot, d);

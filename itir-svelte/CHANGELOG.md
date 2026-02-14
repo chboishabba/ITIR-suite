@@ -3,6 +3,29 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Dev/SSR: work around intermittent Vite SSR resolution selecting Svelte's browser/client
+  entrypoints by pinning `ssr.resolve.conditions = ['node','default','development']`
+  (intentionally omits `browser`) in `vite.config.ts`, avoiding the
+  "dependency module is not yet fully initialized" circular-init failure.
+- Dev/SSR: also pin non-SSR `resolve.conditions = ['node','default','development']` and force SSR bundling for Svelte (`ssr.noExternal = ['svelte']`) to reduce recurrence.
+- Dev/SSR: add recovery tooling for the above:
+  - `npm run dev:clean` clears Vite prebundle cache + `.svelte-kit/output`
+  - `npm run dev:stable` runs dev server with a larger Node heap
+- Home (`/`): when no dashboard payload exists on disk (no env vars, no runs),
+  return a load error payload for in-page display instead of hard-500ing the
+  server route.
+- Home (`/`): hydrate dashboard payloads from the canonical dashboard DB (`SB_DASHBOARD_DB` or `SB_RUNS_ROOT/dashboard.sqlite`) via `StatiBaker/scripts/query_dashboard_db.py`; keep `SB_DASHBOARD_JSON` as a legacy regression/debug override.
+- Wiki graphs: hydrate wiki timeline AAO payloads from the canonical SQLite store (`SensibLaw/.cache_local/wiki_timeline_aoo.sqlite`) via `SensibLaw/scripts/query_wiki_timeline_aoo_db.py`; keep `wiki_timeline_*_aoo.json` as fallback fixtures.
+- Missing Runs: when a date range is explicitly selected and dashboards are
+  missing on disk, auto-run a local catch-up job (disable via
+  `ITIR_AUTO_BUILD_MISSING_DASHBOARDS=0`) that:
+  1) ingests newer Codex chats into `chat-export-structurer/my_archive.sqlite`
+     (best-effort, local-only)
+  2) runs `StatiBaker/scripts/build_dashboard.py` for missing days
+  The Missing Runs panel shows a spinner + estimated % while the job runs.
+- When You Work: added an optional per-day hour log view for selected ranges. When enabled,
+  the page renders day-by-day hour strips grouped into 7-day segments below the aggregate
+  weekday x hour heatmap (e.g. 14-day range -> 2 segments).
 - Graphs/AAO (`/graphs/wiki-timeline-aoo`): widen role-layout lane spacing
   (`colGap`, `leftPad`) and keep intrinsic-width + horizontal scroll in the
   viewer to prevent stacked/squished lane labels in dense selections.

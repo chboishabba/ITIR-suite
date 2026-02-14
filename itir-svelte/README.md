@@ -29,14 +29,69 @@ If you see a `.svelte-kit/tsconfig.json` warning, run:
 npx svelte-kit sync
 ```
 
-## Loading SB dashboard JSON
+## Troubleshooting
 
-The dev page reads a dashboard payload from disk on the server.
+### Vite SSR circular dependency: "module is not yet fully initialized"
+
+Symptom (SSR/dev):
+- Vite logs an error similar to:
+  `The dependency module is not yet fully initialized due to circular dependency`
+  while importing Svelte store internals (e.g. `svelte/src/internal/client/reactivity/store.js`).
+
+Fix (repo-local):
+- `vite.config.ts` pins SSR resolution conditions to avoid the `browser` export:
+  `resolve.conditions = ['node', 'default', 'development']` and
+  `ssr.resolve.conditions = ['node', 'default', 'development']`, plus
+  `ssr.noExternal = ['svelte']`.
+  This prevents SSR from accidentally selecting Svelte's browser/client entrypoints.
+
+If it reappears:
+- Check whether any plugin/config reintroduced a `browser`-biased SSR condition.
+- If the dev server has been running a while (or memory is constrained), Vite can end
+  up in a bad partial-initialization state. The reliable recovery sequence is:
+  1) stop `npm run dev`
+  2) `rm -rf node_modules/.vite .svelte-kit/output`
+  3) restart with `npm run dev:stable` (higher Node heap)
+
+### Home page 500 on `/` after a brief flash
+
+Cause:
+- The home route expects a StatiBaker dashboard payload to be queryable. If nothing is
+  available (no DB, no env vars, no dashboards built), the server load can fail.
+
+Fix:
+- Provide a dashboard source via one of:
+  - `SB_DASHBOARD_DB=/abs/path/to/dashboard.sqlite` (preferred)
+  - `SB_RUNS_ROOT=/abs/path/to/StatiBaker/runs_local` (so `SB_RUNS_ROOT/dashboard.sqlite` exists) and `SB_DATE=YYYY-MM-DD`
+  - Legacy fallback (regression/debug only): `SB_DASHBOARD_JSON=/abs/path/to/dashboard_all.json`
+
+### Auto-build missing days in a selected range
+
+Default behavior:
+- When a date range is explicitly selected (query params or env) and some days are
+  missing dashboards in the DB, the UI will auto-run a local “catch-up” job:
+  1) ingest newer Codex chats into the chat archive (best-effort, local-only)
+  2) run `StatiBaker/scripts/build_dashboard.py` for the missing days
+
+Progress:
+- The Missing Runs panel shows a spinner + estimated % during ingest/build.
+
+Disable (restore manual-only behavior):
+- Set `ITIR_AUTO_BUILD_MISSING_DASHBOARDS=0`.
+
+Notes:
+- Auto-build requires `SB_RUNS_ROOT` to be writable. If it is not writable, the
+  Missing Runs panel will list missing days and you can fix permissions or point
+  `SB_RUNS_ROOT` at a writable directory.
+
+## Loading SB dashboard Data (DB-first)
+
+The dev page hydrates dashboard payloads from the canonical dashboard DB.
 
 Priority order:
-1. `SB_DASHBOARD_JSON=/abs/path/to/dashboard_all.json`
-2. `SB_RUNS_ROOT=/abs/path/to/StatiBaker/runs_local` + `SB_DATE=YYYY-MM-DD`
-3. Fallback: `../StatiBaker/runs/2026-02-03/outputs/dashboard_all.json` (if present)
+1. `SB_DASHBOARD_DB=/abs/path/to/dashboard.sqlite`
+2. `SB_RUNS_ROOT=/abs/path/to/StatiBaker/runs_local` (DB defaults to `SB_RUNS_ROOT/dashboard.sqlite`) + `SB_DATE=YYYY-MM-DD`
+3. Legacy fallback (regression/debug only): `SB_DASHBOARD_JSON=/abs/path/to/dashboard_all.json`
 
 Example:
 

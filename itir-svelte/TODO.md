@@ -15,6 +15,9 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
     - data source: `dashboard_weekly_*.json` -> `weekday_hour_heatmaps`
     - controls: signal toggles, normalize(score), presets (all/none/intent set)
     - cell hover: per-signal breakdown + raw counts
+    - add an optional per-day log view for selected ranges: render day-by-day hour strips
+      grouped into 7-day segments below the aggregate weekday heatmap (for 14-day range,
+      render 2 segments; for month, render ~4 segments).
   - Above/Below rollups (weekday/hour + top weekday-hours table)
   - Totals grid cards
   - NotebookLM lifecycle (`notes_meta_summary`)
@@ -118,6 +121,22 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
 - Define explicit behavior for missing days inside a range:
   - display missing dates
   - offer a "build missing" action
+  - DB-first: missing days must be computed against the canonical dashboard DB, not `dashboard*.json` on disk.
+
+## Reliability
+
+- Home route (`/`): do not hard-500 when no dashboard payload exists on disk; render a
+  load-error panel with instructions to set `SB_DASHBOARD_JSON` or `SB_RUNS_ROOT+SB_DATE`.
+- DB-first: hydrate the home page from `SB_DASHBOARD_DB` / `SB_RUNS_ROOT/dashboard.sqlite`; keep `SB_DASHBOARD_JSON` as regression/debug only.
+- DONE (2026-02-14): Missing days in a selected range auto-run a local catch-up job by default
+  (disable via `ITIR_AUTO_BUILD_MISSING_DASHBOARDS=0`):
+  - ingest Codex chats into `chat-export-structurer/my_archive.sqlite` (best-effort)
+  - run `StatiBaker/scripts/build_dashboard.py` for missing dates
+  - show spinner + estimated % in the Missing Runs panel while running
+- DONE (2026-02-14): Vite/Svelte SSR circular-init regression recovery tooling:
+  - `npm run dev:clean` clears Vite prebundle cache + `.svelte-kit/output`
+  - `npm run dev:stable` runs dev server with a larger Node heap
+  - recovery steps documented in `README.md`
   - do not silently backfill with invented values
 
 ## Engineering Hygiene

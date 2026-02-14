@@ -30,6 +30,9 @@
     heatmaps: any;
     runsRoot: string;
     buildSummary: { built: number; failed: number } | null;
+    buildError?: string | null;
+    autoBuildEnabled?: boolean;
+    runsRootWritable?: boolean;
     notebookMetaRows?: ThreadRow[];
   };
 
@@ -58,7 +61,8 @@
     end={data.selected.end || payload.date}
     runsRoot={data.runsRoot}
     buildSummary={data.buildSummary}
-    buildError={form?.error ?? null}
+    buildError={form?.error ?? data.buildError ?? null}
+    autoBuildEnabled={Boolean(data.autoBuildEnabled)}
   />
 
   {#if data.parseError}
@@ -77,7 +81,12 @@
 
   <NotebookLMLifecycle {payload} />
 
-  <WhenYouWorkHeatmap heatmaps={data.heatmaps} />
+  <WhenYouWorkHeatmap
+    heatmaps={data.heatmaps}
+    start={data.selected.start || payload.date}
+    end={data.selected.end || payload.date}
+    missingDates={data.missingDates}
+  />
 
   <FrequencyBars frequencyByHour={payload.frequency_by_hour} />
   <ArtifactLinks links={payload.artifact_links} />
