@@ -213,8 +213,8 @@ function normalizeActionAndNegation(rawAction: unknown, rawNegation: unknown): {
 }
 
 export async function loadWikiTimelineAoo(repoRoot: string, relPath: string): Promise<WikiTimelineAooPayload> {
-  // Canonical DB-first: attempt to load from the local AAO SQLite store when present.
-  // Legacy fallback remains JSON on disk for regression/debug.
+  // Canonical DB-first: the AAO UI hydrates exclusively from the SQLite store.
+  // JSON artifacts are regression fixtures only and are not read here.
   const dbEnv = process.env.SL_WIKI_TIMELINE_AOO_DB;
   const dbPath = dbEnv && dbEnv.trim() ? path.resolve(repoRoot, dbEnv.trim()) : path.resolve(repoRoot, 'SensibLaw', '.cache_local', 'wiki_timeline_aoo.sqlite');
 
@@ -468,10 +468,21 @@ export async function loadWikiTimelineAoo(repoRoot: string, relPath: string): Pr
         return out;
       }
     } catch {
-      // fall back to legacy JSON
+      // continue to hard error below
     }
   }
 
+  throw new Error(
+    [
+      'No AAO payload found in the canonical store.',
+      `DB path checked: ${dbPath}`,
+      `timeline suffix: ${timelineSuffix}`,
+      'Fix: rerun wiki_timeline_aoo_extract with DB persistence, or set SL_WIKI_TIMELINE_AOO_DB to the correct sqlite path.'
+    ].join(' ')
+  );
+
+  // Unreachable: we no longer fall back to JSON artifacts for runtime hydration.
+  // The block below is retained for clarity and to aid future reintroduction if needed.
   const p = path.resolve(repoRoot, relPath);
   const raw = await fs.readFile(p, 'utf-8');
   const parsed = JSON.parse(raw) as any;

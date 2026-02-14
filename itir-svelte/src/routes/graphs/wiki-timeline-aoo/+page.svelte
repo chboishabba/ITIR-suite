@@ -128,6 +128,13 @@
     const first = events[0];
     if (!selectedId && first) selectedId = first.event_id;
   }
+
+  function handleNodeSelect(event: CustomEvent<{ nodeId: string }>) {
+    const nodeId = event.detail.nodeId;
+    selectedNodeId = nodeId;
+    const m = /ev:\d+/.exec(nodeId);
+    if (m) selectedId = m[0];
+  }
   $: selected = selectedId ? events.find((e) => e.event_id === selectedId) ?? null : null;
   $: spanSorted =
     selected?.span_candidates?.slice().sort((a, b) => {
@@ -548,7 +555,7 @@
   })();
 
   $: selectedContext = (() => {
-    if (!selected || !selectedNodeId) return null as null | { needle: string; summary: string[] };
+    if (!selected) return null as null | { needle: string; summary: string[] };
     const steps = Array.isArray((selected as any).steps) ? ((selected as any).steps as Array<any>) : [];
     const subjects = Array.from(
       new Set(
@@ -574,7 +581,7 @@
       ...objects.map((x) => `obj:${x}`),
       ...numericMentions.map((x) => `num:${x.key}`)
     ];
-    return { needle: nodeNeedle(selectedNodeId), summary };
+    return { needle: selectedNodeId ? nodeNeedle(selectedNodeId) : '', summary };
   })();
 
   $: selectedContextDetails = (() => {
@@ -973,23 +980,23 @@
 
         <LayeredGraph
           layers={graph.layers}
-          edges={graph.edges}
-          width={graphWidth}
-          height={920}
-          colGap={760}
-          leftPad={100}
-          fitToWidth={false}
-          scrollWhenOverflow={true}
-          viewportResetKey={graphViewportKey}
-          on:nodeSelect={(e) => (selectedNodeId = (e as CustomEvent<{ nodeId: string }>).detail.nodeId)}
-        />
+        edges={graph.edges}
+        width={graphWidth}
+        height={920}
+        colGap={760}
+        leftPad={100}
+        fitToWidth={false}
+        scrollWhenOverflow={true}
+        viewportResetKey={graphViewportKey}
+        on:nodeSelect={(e) => handleNodeSelect(e as CustomEvent<{ nodeId: string }>)}
+      />
 
         <Panel>
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Context</div>
             <div class="text-[11px] font-mono text-ink-800/60">
-              {#if selectedNodeId}
-                selected: {selectedNodeId}
+              {#if selected}
+                selected: {selected.event_id}{#if selectedNodeId} ({selectedNodeId}){/if}
                 <button
                   class="ml-2 rounded border border-ink-950/10 bg-white px-2 py-0.5 text-[10px] hover:border-ink-950/25"
                   on:click={() => (expandContextDetails = !expandContextDetails)}
@@ -1001,7 +1008,7 @@
               {/if}
             </div>
           </div>
-          {#if selectedNodeId && selectedContext}
+          {#if selected && selectedContext}
             <div class="mt-3 rounded-lg border border-ink-950/10 bg-white p-3">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <div class="font-mono text-[10px] text-ink-800/60">{fmtTime(selected.anchor)} {selected.event_id}</div>

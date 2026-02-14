@@ -3,17 +3,9 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [sveltekit()],
-  // Work around intermittent Vite SSR resolution choosing browser-side Svelte
-  // entrypoints, which can trigger a circular-import init error inside Svelte 5
-  // (`index-client` <-> `store/utils` <-> `internal/client/...`).
-  //
   // SSR should prefer non-browser exports (Svelte's `default`/server entries).
-  // Also set non-SSR resolve conditions so dependency optimization doesn't pick
-  // browser-first export maps and poison the SSR graph.
-  resolve: {
-    // Intentionally omit "browser" here.
-    conditions: ['node', 'default', 'development']
-  },
+  // Do NOT remove the "browser" condition globally, otherwise client-side
+  // packages like `esm-env` resolve `BROWSER=false` and hydration never starts.
   ssr: {
     resolve: {
       // Intentionally omit "browser" here.
