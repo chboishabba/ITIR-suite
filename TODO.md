@@ -1,7 +1,7 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-02-10
+- 2026-03-04
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
@@ -43,6 +43,29 @@
   - DONE: AAO time rendering toggle (`auto|year|month|day`) that splits time into separate nodes (Year -> Month -> Day) for the AAO mini-graph UI
   - DONE: whole-article combined AAO graph view that renders many events at once (event-heavy is ok; rely on pan/zoom + optional caps instead of pre-trimming)
   - DONE: add Fact Timeline graph (`/graphs/wiki-fact-timeline`) with deterministic loader fallback from `fact_timeline[]` -> nested `timeline_facts[]` -> synthesized `events[].steps[]`.
+  - Follow-up: inter-fact linking + dedupe hardening (R25):
+    - DONE (2026-02-13): enforce deterministic fact-row identity key
+      (event-local, anchor-aware) in `wiki-fact-timeline` loader coalescing so
+      clause-linked pairs (`f01`/`f02`) are preserved when action lemmas differ.
+  - DONE (2026-02-13): harden AAO action extraction to require verb-overlap for
+    regex/pattern action matches when parser tokens are available (prevents
+    nominalization leaks like `death -> die` in action lanes).
+  - DONE (2026-02-13): add parser-first action classifier wiring for AAO
+    action selection (`lemma + dependency`), with regex action patterns retained
+    as fallback-only path when parser/classifier cannot resolve an action.
+  - DONE (2026-02-13): enforce deterministic/non-generative semantic-backbone
+    profile guard in AAO extraction (`semantic_backbone` metadata normalization
+    + fail-fast for non-deterministic WSD/LLM settings).
+  - DONE (2026-02-13): add timeline sentence guard for infobox/template residue
+    lines (`| key = value` style) so lead extraction does not emit template
+    payload fragments as timeline events.
+  - DONE (2026-02-13): widen `/graphs/wiki-timeline-aoo` lane spacing and keep
+    intrinsic-width rendering + horizontal scroll to avoid collapsed/squished
+    lane labels in dense role layout.
+    - add regression fixtures for chain-linked sentence pairs
+      (`content_clause`/`infinitive_clause`) to prevent accidental collapse by
+      sentence text similarity.
+    - add explicit tests asserting no cross-`event_id` fact coalescing.
   - Follow-up: enrich wiki timeline graph with first-class link layer (time -> event -> link) as optional lane; keep event-only mode default for readability.
   - Implement: OAC v1.0 span lane + promotion gate:
     - emit `span_candidates[]` as **unresolved mentions only** (spaCy pinned; structure only):
@@ -132,11 +155,22 @@
   - decide collector path (Prometheus vs Grafana Agent vs OTEL Collector) and hosting
   - add Grafana Alerting webhook ingest as an observer lane (link-first)
   - add a thin sitrep that reports alert state + links to Grafana, not charts
+- Time-series transformation layer (cross-domain functional derivations):
+  - define transformation interface and invariants:
+    `docs/planning/time_series_transformations.md`
+  - map SL fact→rule→conclusion derivations onto the same transform model
+  - define SB/ITIR handling of derived series (traceable, non-authoritative)
 - SensibLaw Ontology DB migration hygiene:
   - DONE: Make SQLite ontology migrations idempotent by tracking applied migrations (do not re-run `001_normative_schema.sql` after `002_normalize_countries.sql` drops transitional columns).
   - DONE: Add guardrails so we don’t accidentally point ontology migrations at VersionedStore ingest DBs (different schema families).
   - DONE: Unblock DBpedia external ref upserts by making `ensure_database()` safe on repeated CLI calls.
   - DONE: DBpedia curation UX: emit a curated batch skeleton from Lookup API results (compatible with `ontology external-refs-upsert`) so we don’t copy/paste candidate URIs by hand.
+  - DONE (2026-02-13): implement LegalSystem authority-boundary migration:
+    - added sovereignty tier + parent-system hierarchy fields (`sovereignty_type`, `parent_system_id`)
+    - added constitutional boundary fields (`commencement_date`, `constitutional_source_id`)
+    - added legal-tradition flags (`recognises_common_law`, `recognises_equity`)
+  - DONE (2026-02-13): backfill LegalSystem hierarchy seeds for AU sub-sovereign systems (`AU.STATE.*`) and map parent references to `AU.COMMON`.
+  - DONE (2026-02-13): add migration tests for authority-boundary invariants (parent link + sovereignty tier + constitutional source linkage).
 - Execute assumption stress controls from
   `docs/planning/assumption_stress_test_20260208.md`:
   - add axis hierarchy policy fixtures and collision tests (`A1` / `Q1`)

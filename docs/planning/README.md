@@ -37,6 +37,12 @@ Casey-derived superposition VCS planning artifacts live under:
 Suite-wide interface contract index:
 - `docs/planning/project_interfaces.md`
 
+## Time-Series Transformations (2026-03-04)
+
+Defines a cross-domain transformation model for time-indexed observations
+(facts → rules → derived observations), aligned to SL/ITIR/SB:
+- `docs/planning/time_series_transformations.md`
+
 ## Capability Posture (Audit-Safe) (2026-02-08)
 
 Separates current capabilities from roadmap targets to prevent over-claiming:
@@ -124,6 +130,14 @@ thread `698c1cec-51c0-839a-a81b-c821aa4eabbb` ("Browne v Dunn Parsing").
 
 Document:
 - `docs/planning/legal_principles_ingest_bootstrap_au_20260211.md`
+
+## Chat Archive Pull + Ingest Run Results (2026-02-13)
+
+Live benchmark + targeted stale/missing synchronization notes for `re-gpt` ->
+`chat-export-structurer` single-canonical DB workflow.
+
+Document:
+- `docs/planning/chat_archive_pull_ingest_results_20260213.md`
 
 ## SL/TiRCorder/Ribbon/SB Intersection (2026-02-08)
 

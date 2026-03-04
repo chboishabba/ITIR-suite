@@ -54,7 +54,8 @@ Notes:
 - `SHA256SUMS` + `verify.sh`:
   hash verification utilities (baseline invariant).
 - `manifest.json`:
-  canonical machine-readable index of all files + provenance fields.
+  canonical machine-readable index of all files + provenance fields
+  (planned output; not yet emitted).
 
 ## Manifest contract (target fields)
 - `pack_id`

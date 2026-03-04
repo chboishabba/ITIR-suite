@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import importlib.util
 import json
 import os
 import re
@@ -1007,8 +1008,16 @@ def _build_parser() -> argparse.ArgumentParser:
         "--persist-web-miss",
         action="store_true",
         help=(
-            "When DB lookup misses and web fallback runs, also run export download + "
-            "ingest into structurer DB. Disabled by default for faster lookups."
+            "When DB lookup misses and web fallback runs, persist the fetched "
+            "conversation directly into structurer DB (no JSON export by default)."
+        ),
+    )
+    parser.add_argument(
+        "--allow-json-fallback",
+        action="store_true",
+        help=(
+            "Allow legacy JSON export + ingest fallback when direct live capture "
+            "persistence fails. Disabled by default."
         ),
     )
     parser.add_argument(
@@ -1135,6 +1144,108 @@ def _extract_downloaded_json_paths(stdout: str, repo_root: Path) -> list[Path]:
     return paths
 
 
+def _load_structurer_ingest_module(repo_root: Path):
+    ingest_script = repo_root / "chat-export-structurer/src/ingest.py"
+    if not ingest_script.exists():
+        raise FileNotFoundError(f"Missing ingest script: {ingest_script}")
+
+    spec = importlib.util.spec_from_file_location(
+        "chat_export_structurer_ingest",
+        str(ingest_script),
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Unable to load module spec from {ingest_script}")
+
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    if not callable(getattr(module, "ingest_parsed_messages", None)):
+        raise RuntimeError("ingest.py does not expose ingest_parsed_messages()")
+    return module
+
+
+def _resolver_live_payload_to_messages(payload: dict) -> list[dict]:
+    conversation_id = str(payload.get("conversation_id") or "").strip()
+    title = str(payload.get("title") or "")
+    messages = payload.get("messages") or []
+    if not conversation_id or not isinstance(messages, list):
+        return []
+
+    normalized: list[dict] = []
+    for idx, msg in enumerate(messages):
+        if not isinstance(msg, dict):
+            continue
+        role = str(msg.get("author") or msg.get("role") or "")
+        content = str(msg.get("content") or msg.get("text") or "")
+        created_raw = msg.get("create_time")
+        if created_raw is None:
+            created_raw = msg.get("created_at")
+        try:
+            created_at = float(created_raw) if created_raw is not None else 0.0
+        except (TypeError, ValueError):
+            created_at = 0.0
+
+        source_message_id = str(
+            msg.get("source_message_id")
+            or msg.get("message_id")
+            or msg.get("id")
+            or f"idx:{idx}"
+        )
+
+        normalized.append(
+            {
+                "thread_id": conversation_id,
+                "thread_title": title,
+                "role": role,
+                "content": content,
+                "created_at": created_at,
+                "source_message_id": source_message_id,
+            }
+        )
+
+    return normalized
+
+
+def _ingest_live_payload_to_structurer(
+    payload: dict,
+    db_path: Path,
+    repo_root: Path,
+    *,
+    source_id: str,
+) -> dict:
+    try:
+        ingest_module = _load_structurer_ingest_module(repo_root)
+    except Exception as exc:
+        return {"ok": False, "error": f"Unable to load structurer ingest module: {exc}"}
+
+    normalized_messages = _resolver_live_payload_to_messages(payload)
+    if not normalized_messages:
+        return {
+            "ok": False,
+            "error": "Live payload did not contain ingestible messages.",
+            "mode": "direct",
+        }
+
+    try:
+        stats = ingest_module.ingest_parsed_messages(
+            normalized_messages,
+            db_path=str(db_path),
+            platform="chatgpt",
+            account_id="main",
+            source_id=source_id,
+            upsert_empty_text=True,
+        )
+    except Exception as exc:
+        return {"ok": False, "error": f"Direct ingest failed: {exc}", "mode": "direct"}
+
+    return {
+        "ok": True,
+        "mode": "direct",
+        "source_id": source_id,
+        "ingested_count": 1,
+        "stats": stats,
+    }
+
+
 def _ingest_exports_to_structurer(
     json_paths: list[Path],
     db_path: Path,
@@ -1243,14 +1354,16 @@ def _persist_selector_to_structurer(
     db_path: Path,
     venv_python: Path,
     timeout: int,
+    *,
+    allow_json_fallback: bool = False,
 ) -> dict:
-    # Prefer live capture over `re-gpt --download`. We keep the download path as a
-    # last-ditch fallback, but avoid waiting on it by default.
+    # Prefer live capture over `re-gpt --download`, then ingest directly into the
+    # canonical archive without writing intermediate JSON.
+    source_id = f"resolver_auto_{dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
     download = {"ok": False, "skipped": True, "note": "preferred_live_capture"}
     json_paths: list[Path] = []
     fallback: Optional[dict] = None
-    fmt = "chatgpt"
-    platform = None
+    ingest: dict = {"ok": False, "error": "ingest_not_run", "ingested_count": 0}
     print(f"[persist] live capture start selector={selector!r}", file=sys.stderr, flush=True)
     live_started = time.monotonic()
     live = _capture_live_conversation(
@@ -1261,20 +1374,23 @@ def _persist_selector_to_structurer(
     )
     live_elapsed = round(float(time.monotonic() - live_started), 3)
     if live.get("ok"):
-        export_dir = repo_root / "chat_exports"
-        export_dir.mkdir(parents=True, exist_ok=True)
         payload = live.get("payload") or {}
-        cid = str(payload.get("conversation_id") or "unknown")
-        title = str(payload.get("title") or "untitled")
-        safe = re.sub(r"[^A-Za-z0-9._-]+", "-", title.strip().lower()).strip("-")[:80] or "untitled"
-        ts = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        out_path = export_dir / f"resolver-live__{safe}__{cid[:8]}__{ts}.json"
-        out_path.write_text(json.dumps(payload, ensure_ascii=True, indent=2), encoding="utf-8")
-        json_paths = [out_path]
-        fallback = {"kind": "live_capture", "duration_s": live_elapsed, "json_path": str(out_path)}
-        fmt = "resolver_live"
-        platform = "chatgpt"
+        fallback = {"kind": "live_capture", "duration_s": live_elapsed}
         print(f"[persist] live capture ok duration_s={live_elapsed}", file=sys.stderr, flush=True)
+        print("[persist] direct ingest start mode=live_capture", file=sys.stderr, flush=True)
+        ingest_started = time.monotonic()
+        ingest = _ingest_live_payload_to_structurer(
+            payload,
+            db_path=db_path,
+            repo_root=repo_root,
+            source_id=source_id,
+        )
+        ingest["duration_s"] = round(float(time.monotonic() - ingest_started), 3)
+        print(
+            f"[persist] direct ingest done ok={ingest.get('ok')} ingested_count={ingest.get('ingested_count')} duration_s={ingest.get('duration_s')}",
+            file=sys.stderr,
+            flush=True,
+        )
     else:
         fallback = {"kind": "live_capture_failed", "duration_s": live_elapsed, "error": live.get("error")}
         print(
@@ -1282,40 +1398,50 @@ def _persist_selector_to_structurer(
             file=sys.stderr,
             flush=True,
         )
-        # Last-resort fallback: try `re-gpt --download` if live capture couldn't run.
-        print(f"[persist] legacy download fallback start selector={selector!r}", file=sys.stderr, flush=True)
-        download = _run_web_download(
-            selector,
-            repo_root=repo_root,
-            venv_python=venv_python,
-            timeout=timeout,
-        )
-        print(
-            f"[persist] legacy download fallback done ok={download.get('ok')} duration_s={download.get('duration_s')}",
-            file=sys.stderr,
-            flush=True,
-        )
-        json_paths = _extract_downloaded_json_paths(download.get("stdout") or "", repo_root=repo_root)
+        if allow_json_fallback:
+            print(f"[persist] legacy download fallback start selector={selector!r}", file=sys.stderr, flush=True)
+            download = _run_web_download(
+                selector,
+                repo_root=repo_root,
+                venv_python=venv_python,
+                timeout=timeout,
+            )
+            print(
+                f"[persist] legacy download fallback done ok={download.get('ok')} duration_s={download.get('duration_s')}",
+                file=sys.stderr,
+                flush=True,
+            )
+            json_paths = _extract_downloaded_json_paths(download.get("stdout") or "", repo_root=repo_root)
+            print(f"[persist] ingest start json_count={len(json_paths)}", file=sys.stderr, flush=True)
+            ingest_started = time.monotonic()
+            ingest = _ingest_exports_to_structurer(
+                json_paths=json_paths,
+                db_path=db_path,
+                venv_python=venv_python,
+                repo_root=repo_root,
+                timeout=timeout,
+                fmt="chatgpt",
+                platform=None,
+            )
+            ingest["duration_s"] = round(float(time.monotonic() - ingest_started), 3)
+            print(
+                f"[persist] ingest done ok={ingest.get('ok')} ingested_count={ingest.get('ingested_count')} duration_s={ingest.get('duration_s')}",
+                file=sys.stderr,
+                flush=True,
+            )
+        else:
+            ingest = {
+                "ok": False,
+                "ingested_count": 0,
+                "error": "live_capture_failed_and_json_fallback_disabled",
+            }
 
-    print(f"[persist] ingest start json_count={len(json_paths)}", file=sys.stderr, flush=True)
-    ingest_started = time.monotonic()
-    ingest = _ingest_exports_to_structurer(
-        json_paths=json_paths,
-        db_path=db_path,
-        venv_python=venv_python,
-        repo_root=repo_root,
-        timeout=timeout,
-        fmt=fmt,
-        platform=platform,
-    )
-    ingest["duration_s"] = round(float(time.monotonic() - ingest_started), 3)
-    print(
-        f"[persist] ingest done ok={ingest.get('ok')} ingested_count={ingest.get('ingested_count')} duration_s={ingest.get('duration_s')}",
-        file=sys.stderr,
-        flush=True,
+    ok = bool(ingest.get("ok")) and (
+        (fallback or {}).get("kind") == "live_capture"
+        or bool(download.get("ok"))
     )
     return {
-        "ok": bool(ingest.get("ok")) and (bool(download.get("ok")) or (fallback or {}).get("kind") == "live_capture"),
+        "ok": ok,
         "download": download,
         "downloaded_json_paths": [str(path) for path in json_paths],
         "ingest": ingest,
@@ -1573,10 +1699,10 @@ def main() -> int:
             needs_web = False
             reason = "db_fts_candidates"
         elif chat_exports_result and chat_exports_result.get("ok"):
-            # We have a local export match but no structurer-DB match; prefer DB-first
-            # and avoid web fallback unless explicitly requested.
-            needs_web = False
-            reason = "chat_exports_match_only"
+            # chat_exports is a non-canonical helper source; require web fallback
+            # to refresh canonical structurer DB state.
+            needs_web = True
+            reason = "chat_exports_noncanonical_db_miss"
         else:
             needs_web = True
             reason = "not_found_in_db"
@@ -1677,6 +1803,7 @@ def main() -> int:
                     db_path=db_path,
                     venv_python=venv_python_path,
                     timeout=args.web_timeout,
+                    allow_json_fallback=args.allow_json_fallback,
                 )
                 if not persist_result.get("ok"):
                     extra = "Persistence pipeline failed (download and/or ingest)."
@@ -1721,19 +1848,6 @@ def main() -> int:
             payload["db_warning"] = db_error
         _print_result(payload, args.json)
         return 1
-
-    if db_match is None and chat_exports_result and chat_exports_result.get("ok"):
-        match = dict(chat_exports_result.get("match") or {})
-        match["match_type"] = "conversation_id_exact"
-        payload = {
-            "source": "chat_exports",
-            "decision_reason": reason,
-            "chat_exports_match": match,
-        }
-        if chat_exports_hint:
-            payload["hint"] = chat_exports_hint
-        _print_result(payload, args.json)
-        return 0
 
     payload = {
         "source": "db",

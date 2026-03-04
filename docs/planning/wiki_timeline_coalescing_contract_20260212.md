@@ -47,6 +47,25 @@ Two steps are coalescible only when all are equal:
 
 If any field differs, keep both steps.
 
+## Inter-fact Linking and Duplicate Guards
+1. Fact rows (`ev:NNNN:fMM`) are sentence-local projections of steps; `fMM`
+   preserves step order inside the same event.
+2. Sequence links (`prev_fact_ids` / `next_fact_ids`) are derived from
+   `event.chains[]` and remain non-causal.
+3. Clause-linked pairs must remain distinct facts when actions differ, even with
+   identical sentence text:
+   - governing + complement (`content_clause`)
+   - governing + infinitive (`infinitive_clause`)
+4. Fact rows are coalescible only when all are equal:
+   - `event_id`
+   - canonical action lemma
+   - normalized subject set
+   - normalized object set
+   - anchor payload (`year/month/day/precision/kind`)
+   - chain role metadata (`prev/next/kind`) where present
+5. Never coalesce across different `event_id` values, even when sentence text is
+   identical.
+
 ## Evidence Coalescing Rules
 1. Evidence overlays must not mutate role lanes.
 2. Evidence nodes/edges may coalesce only when their source anchors match (same citation/reference key and frame context).

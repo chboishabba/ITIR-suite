@@ -44,6 +44,15 @@
 
   let expandedId: string | null = null;
   const dispatch = createEventDispatcher<{ nodeSelect: { nodeId: string } }>();
+  $: edgeCounts = (() => {
+    let evidence = 0;
+    let context = 0;
+    for (const e of edges) {
+      if (e.kind === 'evidence') evidence += 1;
+      else if (e.kind === 'context') context += 1;
+    }
+    return { evidence, context };
+  })();
 
   function isExpanded(n: LayerNode): boolean {
     return Boolean(expandedId) && n.id === expandedId;
@@ -180,12 +189,21 @@
   }
 
   function edgeStroke(e: LayeredEdge): { stroke: string; w: number; dasharray?: string } {
+    // NOTE: dashed strokes look great, but they're expensive when the graph is dense.
+    // We keep them for small graphs and for "hot" edges when a node is expanded.
+    const DASH_EVIDENCE_LIMIT = 250;
+    // Context edges (Source/Lens -> action) tend to connect broadly; be more conservative.
+    const DASH_CONTEXT_LIMIT = 120;
+    const allowDashedEvidence = edgeCounts.evidence <= DASH_EVIDENCE_LIMIT;
+    const allowDashedContext = edgeCounts.context <= DASH_CONTEXT_LIMIT;
+
     if (e.kind === 'evidence') {
-      if (!expandedId) return { stroke: 'rgba(44, 96, 140, 0.42)', w: 1.1, dasharray: '3 4' };
+      if (!expandedId)
+        return allowDashedEvidence ? { stroke: 'rgba(44, 96, 140, 0.42)', w: 1.1, dasharray: '3 4' } : { stroke: 'rgba(44, 96, 140, 0.30)', w: 1.05 };
       const hot = e.from === expandedId || e.to === expandedId;
       return hot
         ? { stroke: 'rgba(44, 96, 140, 0.58)', w: 1.4, dasharray: '3 4' }
-        : { stroke: 'rgba(44, 96, 140, 0.28)', w: 1.0, dasharray: '3 4' };
+        : { stroke: 'rgba(44, 96, 140, 0.24)', w: 0.95 };
     }
     if (e.kind === 'sequence') {
       if (!expandedId) return { stroke: 'rgba(10,10,10,0.26)', w: 1.25 };
@@ -193,11 +211,13 @@
       return hot ? { stroke: 'rgba(10,10,10,0.50)', w: 1.9 } : { stroke: 'rgba(10,10,10,0.20)', w: 1.15 };
     }
     if (e.kind === 'context') {
-      if (!expandedId) return { stroke: 'rgba(79, 70, 229, 0.34)', w: 1.05, dasharray: '2 5' };
+      // Used for cross-lane "context" links (e.g. Source/Lens -> action). Prefer dashed only when sparse.
+      if (!expandedId)
+        return allowDashedContext ? { stroke: 'rgba(79, 70, 229, 0.34)', w: 1.05, dasharray: '2 5' } : { stroke: 'rgba(79, 70, 229, 0.22)', w: 1.0 };
       const hot = e.from === expandedId || e.to === expandedId;
       return hot
         ? { stroke: 'rgba(79, 70, 229, 0.52)', w: 1.3, dasharray: '2 5' }
-        : { stroke: 'rgba(79, 70, 229, 0.22)', w: 0.95, dasharray: '2 5' };
+        : { stroke: 'rgba(79, 70, 229, 0.18)', w: 0.92 };
     }
     if (!expandedId) return { stroke: 'rgba(10,10,10,0.22)', w: 1.2 };
     const hot = e.from === expandedId || e.to === expandedId;

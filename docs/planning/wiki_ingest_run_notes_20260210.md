@@ -118,7 +118,7 @@ We should standardize who writes under `.cache_local/` in our normal workflow.
 ## Next planned step (not done yet)
 Extraction pass: transform wikitext snapshots into a reviewable, provenance-carrying “fact tree” seed envelope
 (no normative claims), likely under:
-- `data/concepts/wiki_gwb_v1.json` (or a gitignored draft before promotion)
+- `data/concepts/wiki_gwb_v1.json` (planned output; not yet created; or a gitignored draft before promotion)
 
 ## Candidate distribution sanity check (new)
 We added a small heuristic report tool:

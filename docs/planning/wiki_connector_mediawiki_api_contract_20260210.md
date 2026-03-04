@@ -90,6 +90,7 @@ Storage target:
    - `actor_external_refs` payload compatible with `ontology external-refs-upsert`
 3. **(Later) fact-tree seed envelope**
    - `data/concepts/wiki_gwb_v1.json` with extracted claims + provenance
+     (planned output; not yet created)
 
 ## Next steps
 - Implement a minimal pull tool (`SensibLaw/scripts/wiki_pull_api.py`) that:

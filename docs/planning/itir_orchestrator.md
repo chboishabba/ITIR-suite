@@ -69,6 +69,11 @@ component internals; it coordinates them through explicit contracts.
   `docs/planning/three_locks_narrative_sovereignty_contract_20260208.md`
   (public artifact quality gates + anti-gaming lock enforcement).
 
+## Time-Series Transformation Alignment
+- Functional transformation model for time-indexed observations:
+  `docs/planning/time_series_transformations.md`
+  (aligns SL derivations with ITIR/SB time-series algebra).
+
 ## Operational Rule
 - Docs define orchestration intent first.
 - TODO tracks executable orchestration steps second.

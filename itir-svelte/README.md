@@ -117,6 +117,21 @@ Tool messages:
 Performance:
 - The thread viewer progressively mounts a tail-window of messages and prepends more as you scroll upward, to keep DOM size reasonable for long threads.
 
+## Graph Rendering Notes (LayeredGraph)
+
+The interactive graph views (`/graphs/*`) use `itir-svelte/src/lib/ui/LayeredGraph.svelte`.
+
+Edge kinds + default styling:
+- `sequence`: solid neutral stroke (time chain + primary flow)
+- `role`: solid neutral stroke (subject/object/requester connections)
+- `context`: indigo/blue dashed Bezier (`stroke-dasharray: 2 5`) used for cross-lane context links, notably Source/Lens -> action
+- `evidence`: blue dashed Bezier (`stroke-dasharray: 3 4`) used for action -> evidence
+
+Performance note (important):
+- SVG `stroke-dasharray` on hundreds/thousands of Bezier `<path>` elements is expensive and can tank pan/zoom FPS.
+- Policy: keep dashed edges for small graphs; for dense graphs we only show dashed styling on "hot" edges when a node is expanded, and fall back to solid strokes otherwise.
+- If we add new lanes that connect broadly (like Source/Lens), prefer solid strokes by default and reserve dashed for focused/filtered interactions.
+
 ## Chat Threads (Dashboard)
 
 The Chat Threads table supports source-based filtering so you can enable/disable

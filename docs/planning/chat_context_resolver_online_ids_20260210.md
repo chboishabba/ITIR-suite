@@ -98,7 +98,17 @@ Update (2026-02-10, later):
 
 Update (2026-02-10):
 - `--web-timeout` now bounds both subprocess web fallbacks and the SyncChatGPT
-  live-capture path (best-effort via SIGALRM on POSIX) to avoid "hangs" with no output.
+live-capture path (best-effort via SIGALRM on POSIX) to avoid "hangs" with no output.
+
+Update (2026-02-13):
+- Resolver persistence now ingests live captures directly into
+  `chat-export-structurer/my_archive.sqlite` via structurer's
+  `ingest_parsed_messages()` API.
+- Intermediate JSON export files are no longer required by default.
+- Legacy `re-gpt --download` JSON fallback is opt-in
+  (`--allow-json-fallback`) and intended only as a last resort.
+- `chat_exports` mapping is treated as a non-canonical helper source; canonical
+  resolution remains structurer DB first.
 
 Update (2026-02-11):
 - Verified live resolution for online ID
@@ -109,3 +119,15 @@ Update (2026-02-11):
 - Action taken: recorded the thread in `__CONTEXT/convo_ids.md` and captured
   ingest implications in:
   `docs/planning/legal_principles_ingest_bootstrap_au_20260211.md`.
+
+Update (2026-02-13, throughput + canonical alignment):
+- Canonical ingest path now uses direct DB writes into
+  `chat-export-structurer/my_archive.sqlite` (`reverse-engineered-chatgpt/scripts/pull_to_structurer.py` and resolver
+  live persistence), with JSON export disabled by default.
+- Practical stale detection for already-ingested threads uses metadata-only compare:
+  `reverse-engineered-chatgpt/scripts/list_sync_candidates.py` against canonical DB.
+- Recommended stale triage uses `--stale-threshold-sec` (for example `60`) to avoid
+  noise from sub-minute timestamp drift.
+- Reproducible commands, measured throughput, net-new insert counts, and image ingest
+  diagnostics are documented in:
+  `docs/planning/chat_archive_pull_ingest_results_20260213.md`.

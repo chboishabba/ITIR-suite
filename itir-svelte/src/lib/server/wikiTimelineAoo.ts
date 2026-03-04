@@ -151,6 +151,16 @@ export type WikiTimelineAooPayload = {
   events: AooEvent[];
   fact_timeline?: AooTimelineFact[];
   parser?: any;
+  // Metadata carried by the extraction/DB export; optional because older payloads
+  // or minimal builds may omit it. The UI uses this to populate Source/Lens lanes.
+  source_entity?: unknown;
+  extraction_record?: unknown;
+  extraction_profile?: unknown;
+  requester_coverage?: unknown;
+  source_timeline?: unknown;
+  generated_at?: string;
+  run_id?: string;
+  __loaded_from_db?: boolean;
 };
 
 function isObj(v: unknown): v is Record<string, unknown> {
@@ -463,7 +473,16 @@ export async function loadWikiTimelineAoo(repoRoot: string, relPath: string): Pr
           root_actor: { label: String(root_actor.label ?? ''), surname: String(root_actor.surname ?? '') },
           events: outEvents,
           fact_timeline: Array.isArray(fact_timeline) ? (fact_timeline as any) : undefined,
-          parser
+          parser,
+          // Preserve DB/meta fields so the UI can render Source/Lens lanes.
+          source_entity: (p as any).source_entity,
+          extraction_record: (p as any).extraction_record,
+          extraction_profile: (p as any).extraction_profile,
+          requester_coverage: (p as any).requester_coverage,
+          source_timeline: (p as any).source_timeline,
+          generated_at: typeof (p as any).generated_at === 'string' ? String((p as any).generated_at) : undefined,
+          run_id: typeof (p as any).run_id === 'string' ? String((p as any).run_id) : undefined,
+          __loaded_from_db: Boolean((p as any).__loaded_from_db)
         };
         return out;
       }

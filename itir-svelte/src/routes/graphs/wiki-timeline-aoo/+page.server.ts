@@ -12,6 +12,14 @@ const GWB_PUBLIC_BIOS_REL = path.join(
   'public_bios_v1',
   'wiki_timeline_gwb_public_bios_v1_aoo.json'
 );
+const GWB_CORPUS_REL = path.join(
+  'SensibLaw',
+  'demo',
+  'ingest',
+  'gwb',
+  'corpus_v1',
+  'wiki_timeline_gwb_corpus_v1_aoo.json'
+);
 const HCA_REL = path.join('SensibLaw', '.cache_local', 'wiki_timeline_hca_s942025_aoo.json');
 const LEGAL_REL = path.join(
   'SensibLaw',
@@ -31,6 +39,7 @@ const LEGAL_FOLLOW_REL = path.join(
 const SOURCE_PATHS = {
   gwb: GWB_REL,
   gwb_public_bios_v1: GWB_PUBLIC_BIOS_REL,
+  gwb_corpus_v1: GWB_CORPUS_REL,
   hca: HCA_REL,
   legal: LEGAL_REL,
   legal_follow: LEGAL_FOLLOW_REL

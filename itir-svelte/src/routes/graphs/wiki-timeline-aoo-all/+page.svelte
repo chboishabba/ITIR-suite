@@ -35,6 +35,10 @@
         predicate_classifier?: string;
         path?: string;
       };
+      run_id?: string;
+      generated_at?: string;
+      __loaded_from_db?: boolean;
+      source_timeline?: { path?: string; snapshot?: any } | null;
       events: Array<{
         event_id: string;
         anchor: { year: number; month: number | null; day: number | null; precision: string; text: string; kind: string };
@@ -97,6 +101,7 @@
     };
     relPath: string;
     source?: string;
+    corpusDocs?: Array<{ relPath: string; name: string; bytes: number; ext: string }>;
     error: string | null;
   };
 
@@ -124,7 +129,23 @@
   const GRAPH_HEIGHT = 900;
   const GRAPH_COL_GAP = 800;
   const GRAPH_LEFT_PAD = 100;
-  $: graphViewportKey = `${String(selectedNodeId ?? 'none')}:${String(timeGranularity)}:${String(graphEvents?.length ?? 0)}`;
+  // Reset the viewport only when the graph layout meaningfully changes (dataset/filters),
+  // not when the user clicks around selecting nodes.
+  $: graphViewportKey = [
+    String(data?.source ?? 'gwb'),
+    String(timeGranularity),
+    String(limitEvents),
+    String(maxSubjects),
+    String(maxObjects),
+    String(maxNumbers),
+    includeSources ? `src:${maxSources}` : 'src:off',
+    includeLenses ? `lens:${maxLenses}` : 'lens:off',
+    includeEvidence ? `evd:${maxEvidence}` : 'evd:off',
+    includeRequesters ? 'req:on' : 'req:off',
+    includePurpose ? 'purpose:on' : 'purpose:off',
+    orderByFactDate ? 'fact_date:on' : 'fact_date:off',
+    String(graphEvents?.length ?? 0)
+  ].join('|');
   $: graphWidth = Math.max(
     3600,
     GRAPH_LEFT_PAD * 2 + Math.max(0, (graph as any)?.layers?.length ? (graph as any).layers.length - 1 : 8) * GRAPH_COL_GAP + 720
@@ -137,6 +158,60 @@
 
   function pad2(n: number): string {
     return String(n).padStart(2, '0');
+  }
+
+  function fmtBytes(n: number): string {
+    const v = Number(n);
+    if (!Number.isFinite(v) || v <= 0) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let u = 0;
+    let x = v;
+    while (x >= 1024 && u < units.length - 1) {
+      x /= 1024;
+      u += 1;
+    }
+    const digits = u === 0 ? 0 : u === 1 ? 1 : 2;
+    return `${x.toFixed(digits)} ${units[u]}`;
+  }
+
+  function referencedCorpusPaths(): Set<string> {
+    const out = new Set<string>();
+    for (const e of eventsAll ?? []) {
+      const cits = Array.isArray((e as any).citations) ? (e as any).citations : [];
+      for (const c of cits) {
+        const follow = Array.isArray(c?.follow) ? c.follow : [];
+        for (const f of follow) {
+          const p = String(f?.path ?? '').trim();
+          const u = String(f?.url ?? '').trim();
+          if (p) out.add(p);
+          if (u) out.add(u);
+        }
+      }
+      const refs = Array.isArray((e as any).sl_references) ? (e as any).sl_references : [];
+      for (const r of refs) {
+        const follow = Array.isArray(r?.follow) ? r.follow : [];
+        for (const f of follow) {
+          const p = String(f?.path ?? '').trim();
+          const u = String(f?.url ?? '').trim();
+          if (p) out.add(p);
+          if (u) out.add(u);
+        }
+      }
+    }
+    return out;
+  }
+
+  function refHasDoc(ref: Set<string>, relPath: string, name: string): boolean {
+    const relNorm = String(relPath || '').replaceAll('\\', '/');
+    const nameNorm = String(name || '').trim();
+    if (!relNorm && !nameNorm) return false;
+    for (const raw of ref) {
+      const x = String(raw || '').replaceAll('\\', '/');
+      if (!x) continue;
+      if (relNorm && (x === relNorm || x.endsWith('/' + relNorm))) return true;
+      if (nameNorm && (x === nameNorm || x.endsWith('/' + nameNorm))) return true;
+    }
+    return false;
   }
 
   function fmtYM(a: { year: number; month: number | null }): string {
@@ -166,6 +241,9 @@
 
   type CtxRow = {
     key: string;
+    // Disambiguates duplicate event_ids in some merged/union datasets.
+    // This keeps Svelte keyed {#each} stable and prevents runtime crashes.
+    instance: number;
     event_id: string;
     time: string;
     section: string;
@@ -561,6 +639,37 @@
       const parserVersion = String(extraction.parser_version ?? '').trim();
       if (parserVersion) out.push(`parser:${parserVersion}`);
     }
+    const timeline = (data.payload as any)?.source_timeline;
+    if (timeline && typeof timeline === 'object') {
+      const p = String((timeline as any)?.path ?? '').trim();
+      if (p) out.push(`timeline:${p.split('/').slice(-2).join('/')}`);
+    }
+
+    // Always show per-event extraction provenance signals (even when citations are empty),
+    // otherwise the Source lane collapses to "(none)" for the wiki datasets.
+    if (e && typeof e === 'object') {
+      const actSrc = String((e as any)?.action_meta?.source ?? '').trim();
+      if (actSrc) out.push(`action_meta:${actSrc}`);
+
+      if (Array.isArray((e as any)?.actors)) {
+        for (const a of (e as any).actors) {
+          const s = String(a?.source ?? '').trim();
+          if (s) out.push(`actor_source:${s}`);
+        }
+      }
+      if (Array.isArray((e as any)?.objects)) {
+        for (const o of (e as any).objects) {
+          const s = String(o?.source ?? '').trim();
+          if (s) out.push(`object_source:${s}`);
+        }
+      }
+      if (Array.isArray((e as any)?.steps)) {
+        for (const step of (e as any).steps) {
+          const s = String(step?.action_meta?.source ?? '').trim();
+          if (s) out.push(`step_action_meta:${s}`);
+        }
+      }
+    }
 
     // For source-pack timelines, each row is its own source-ish artifact. Preserve
     // the row title and any follow URL host so sources are visible per-event.
@@ -832,8 +941,12 @@
     if (!selectedNodeId) return [] as CtxRow[];
     const { kind, key } = keyFromNodeId(selectedNodeId);
     const rows: CtxRow[] = [];
+    const eventIdCounts = new Map<string, number>();
     for (const e of contextEvents) {
       if (!eventMatchesNode(e, selectedNodeId)) continue;
+      const eventId = String(e.event_id ?? '');
+      const instance = (eventIdCounts.get(eventId) ?? 0) + 1;
+      eventIdCounts.set(eventId, instance);
       const reqs = (e.actors ?? []).filter((a: any) => (a.role ?? '') === 'requester').map((a: any) => String(a.resolved ?? a.label ?? '')).filter(Boolean);
       const stepSubs = Array.isArray((e as any).steps)
         ? uniqueStrings((e as any).steps.flatMap((s: any) => (Array.isArray(s?.subjects) ? s.subjects : [])))
@@ -883,7 +996,7 @@
           )
         : [];
       const stepActs = Array.isArray((e as any).steps)
-        ? (e as any).steps.map((s: any) => actionLabel(s?.action, s?.negation)).filter(Boolean)
+        ? uniqueStrings((e as any).steps.map((s: any) => actionLabel(s?.action, s?.negation)).filter(Boolean))
         : [];
       const citations = Array.isArray((e as any).citations)
         ? uniqueStrings((e as any).citations.map((c: any) => String(c?.text ?? '')).filter(Boolean))
@@ -949,8 +1062,9 @@
         ...lenses.map((x: string) => `lens:${x}`)
       ]);
       rows.push({
-        key: `${selectedNodeId}:${e.event_id}`,
-        event_id: e.event_id,
+        key: `${selectedNodeId}:${eventId}:${instance}`,
+        instance,
+        event_id: eventId,
         time: timeKeyForEvent(e, 'day'),
         section: e.section ?? '',
         text: e.text ?? '',
@@ -1239,7 +1353,14 @@
   <Panel>
     <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Wiki timeline AAO: whole-article combined</div>
     <div class="mt-2 text-sm text-ink-950">
-      Source: <span class="font-mono text-xs">{data.relPath}</span>
+      Timeline input: <span class="font-mono text-xs">{data.relPath}</span>
+    </div>
+    <div class="mt-2 text-xs text-ink-800/60">
+      DB run: <span class="font-mono break-all">{data.payload.run_id ?? '(unknown)'}</span>
+      <span class="mx-2">|</span>
+      stored timeline_path: <span class="font-mono break-all">{(data.payload.source_timeline as any)?.path ?? '(unknown)'}</span>
+      <span class="mx-2">|</span>
+      loaded_from_db: <span class="font-mono">{data.payload.__loaded_from_db ? 'true' : 'false'}</span>
     </div>
     <div class="mt-2 text-xs text-ink-800/60">
       Union graph over many sentence-local AAO extractions. Non-causal. Non-authoritative.
@@ -1258,6 +1379,7 @@
         >
           <option value="gwb">gwb</option>
           <option value="gwb_public_bios_v1">gwb_public_bios_v1</option>
+          <option value="gwb_corpus_v1">gwb_corpus_v1</option>
           <option value="hca">hca</option>
           <option value="legal">legal</option>
           <option value="legal_follow">legal_follow</option>
@@ -1362,6 +1484,55 @@
       </a>
     </div>
   </Panel>
+
+  {#if (data.corpusDocs ?? []).length}
+    {@const ref = referencedCorpusPaths()}
+    {@const refCount = ref.size}
+    <Panel>
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Corpus docs</div>
+          <div class="mt-1 text-xs text-ink-800/60">
+            root: <span class="font-mono">SensibLaw/demo/ingest/gwb</span> | files:{' '}
+            <span class="font-mono">{(data.corpusDocs ?? []).length}</span>
+            <span class="mx-2">|</span>
+            follow_hints_in_run: <span class="font-mono">{refCount}</span>
+          </div>
+        </div>
+      </div>
+      {#if refCount === 0}
+        <div class="mt-2 text-xs text-ink-800/70">
+          This selected dataset/run emitted no citation/sl_ref follow hints, so everything below will show as <span class="font-mono">unreferenced</span>.
+          If you want the corpus files to appear as sources, switch Dataset to <span class="font-mono">gwb_corpus_v1</span>.
+        </div>
+      {/if}
+      <div class="mt-3 flex flex-wrap gap-2 text-[11px]">
+        {#each data.corpusDocs ?? [] as d (d.relPath)}
+          {@const isRef = refHasDoc(ref, d.relPath, d.name)}
+          <span
+            class={`inline-flex items-center gap-2 rounded ring-1 ring-ink-900/10 px-2 py-1 ${
+              isRef ? 'bg-emerald-50' : 'bg-paper-100'
+            }`}
+          >
+            <span class="font-mono text-ink-900">{d.name}</span>
+            <span class="font-mono text-ink-800/60">{d.ext}</span>
+            <span class="font-mono text-ink-800/60">{fmtBytes(d.bytes)}</span>
+            <span
+              class={`rounded px-1.5 py-0.5 font-mono ${
+                isRef ? 'bg-emerald-200/60 text-emerald-900' : 'bg-ink-950/5 text-ink-800/70'
+              }`}
+              title={d.relPath}
+            >
+              {isRef ? 'referenced' : 'unreferenced'}
+            </span>
+          </span>
+        {/each}
+      </div>
+      <div class="mt-2 text-xs text-ink-800/60">
+        \"Referenced\" means the current AAO run emitted a citation/sl_ref follow hint pointing at that file path/URL. It does not guarantee we extracted semantic events from the doc content.
+      </div>
+    </Panel>
+  {/if}
 
   {#if data.error}
     <Panel tone="danger">

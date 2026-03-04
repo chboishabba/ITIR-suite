@@ -38,7 +38,9 @@ Root: `George W. Bush` (actor).
 3) **Claim extraction**: rule-based heuristics first (sentences with dates, verbs indicating office/action), optionally LLM-assisted summarization with *no tool calls*; produce candidate triples.
 4) **Normalize entities**: for linked titles, derive DBpedia URI (`http://dbpedia.org/resource/<Title_with_spaces_as_underscores>`); fall back to label text if unresolved.
 5) **Assemble seed envelope**: write `data/concepts/wiki_gwb_v1.json` with `concepts` (nodes) + `relations` (edges/facts) and provenance metadata.
+   - planned output; not yet created
 6) **External ref batch**: emit `data/external_refs/wiki_gwb_dbpedia.json` with `actor_external_refs` rows (provider `dbpedia`, full URI, notes).
+   - planned output; not yet created
 7) **Upsert**: use `python -m cli ontology external-refs-upsert --db <path> --file data/external_refs/wiki_gwb_dbpedia.json` after curator review.
 8) **Review loop**: load seed into graph/CLI inspector; mark low-confidence facts for human edit; re-export graph.
 
@@ -83,7 +85,7 @@ Fallback (when Graphviz `dot` is not available in the runtime environment):
   - SB event/provenance/claim substrates (non-normative)
 
 ## Next actions (if we proceed)
-- Implement `scripts/wiki_ingest.py` to fetch page + rev_id, chunk, and emit a draft seed + external_ref batch for a given Wikipedia title list.
+- Implement `scripts/wiki_ingest.py` to fetch page + rev_id, chunk, and emit a draft seed + external_ref batch for a given Wikipedia title list (planned script; not yet implemented).
 - Add fixtures + tests for deterministic expansion of DBpedia URIs from page titles (spaces/parentheses/Unicode) and provenance capture.
 - Wire a small CLI wrapper: `python -m cli wiki ingest --titles <...> --out data/concepts/wiki_gwb_v1.json --rev-lock`.
 - Add a curation checklist doc for reviewing extracted facts before upsert.

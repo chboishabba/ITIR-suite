@@ -35,7 +35,7 @@ Operational follow-ups for `SensibLaw/scripts/hca_case_demo_ingest.py` and demo 
 - Parser-first sentence filtering is in place (spaCy token/POS/dependency features), with regex reserved for fallback hygiene.
 - Adapter emits deterministic `citations[]` plus ordered follower hints (`wikipedia -> wiki_connector -> source_document -> source_pdf`).
 - Adapter emits parser-native `sl_references[]` from `provisions[].references`, `rule_tokens.references`, and `rule_atoms[*]` reference lanes, with provenance (`source_document_json`, `provision_stable_id`, `rule_atom_stable_id`).
-- `sb_signals.json` carries both `citations[]` and `sl_references[]` as separate observer lanes.
+- `SensibLaw/demo/ingest/hca_case_s942025/sb_signals.json` carries both `citations[]` and `sl_references[]` as separate observer lanes.
 - Adapter output remains explicitly non-authoritative and reversible for SB observer use.
 
 ### Target (not yet implemented)

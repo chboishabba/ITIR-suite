@@ -10,8 +10,11 @@
 
   let root: SVGSVGElement | null = null;
   let dragging = false;
+  let panning = false;
   let lastX = 0;
   let lastY = 0;
+  let downX = 0;
+  let downY = 0;
 
   let tx = 0;
   let ty = 0;
@@ -25,13 +28,29 @@
   function onPointerDown(e: PointerEvent) {
     if (!root) return;
     dragging = true;
+    panning = false;
     lastX = e.clientX;
     lastY = e.clientY;
-    (e.currentTarget as Element).setPointerCapture(e.pointerId);
+    downX = e.clientX;
+    downY = e.clientY;
   }
 
   function onPointerMove(e: PointerEvent) {
     if (!dragging) return;
+    const dx0 = e.clientX - downX;
+    const dy0 = e.clientY - downY;
+    if (!panning) {
+      // Only capture and pan after a small threshold, so simple clicks on nodes
+      // don't get retargeted and break click handlers.
+      if (Math.hypot(dx0, dy0) < 2.5) return;
+      panning = true;
+      // Some synthetic events (tests) and some embedded browser contexts can throw here.
+      try {
+        (e.currentTarget as Element).setPointerCapture(e.pointerId);
+      } catch {
+        // no-op
+      }
+    }
     const dx = e.clientX - lastX;
     const dy = e.clientY - lastY;
     lastX = e.clientX;
@@ -42,6 +61,7 @@
 
   function onPointerUp() {
     dragging = false;
+    panning = false;
   }
 
   function onWheel(e: WheelEvent) {
@@ -88,11 +108,11 @@
     }
     role="application"
     aria-label="Interactive graph viewport"
-    onpointerdown={onPointerDown}
-    onpointermove={onPointerMove}
-    onpointerup={onPointerUp}
-    onpointercancel={onPointerUp}
-    onwheel={onWheel}
+    on:pointerdown|capture={onPointerDown}
+    on:pointermove|capture={onPointerMove}
+    on:pointerup|capture={onPointerUp}
+    on:pointercancel|capture={onPointerUp}
+    on:wheel={onWheel}
   >
     <g transform={`translate(${tx} ${ty}) scale(${scale})`}>
       <slot />

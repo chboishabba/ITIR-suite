@@ -834,7 +834,13 @@
     const leftPad = 100;
     return Math.max(2000, leftPad * 2 + Math.max(0, cols - 1) * colGap + 620);
   })();
-  $: graphViewportKey = selected ? `${selected.event_id}:${layoutMode}:${timeGranularity}` : 'none';
+  // Reset only when the graph configuration meaningfully changes, not when the user clicks around.
+  $: graphViewportKey = [
+    String(data?.source ?? 'gwb'),
+    String(layoutMode),
+    String(timeGranularity),
+    String(events?.length ?? 0),
+  ].join('|');
 </script>
 
 <div class="space-y-4 p-6">
@@ -859,6 +865,7 @@
         >
           <option value="gwb">gwb</option>
           <option value="gwb_public_bios_v1">gwb_public_bios_v1</option>
+          <option value="gwb_corpus_v1">gwb_corpus_v1</option>
           <option value="hca">hca</option>
           <option value="legal">legal</option>
           <option value="legal_follow">legal_follow</option>
