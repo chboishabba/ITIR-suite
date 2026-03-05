@@ -17,6 +17,22 @@ explicit spans.
 - No profile-specific admissibility decisions (see `docs/planning/profile_contracts.md`).
 - No semantic normalization beyond deterministic tokenization.
 
+## Current Implementation (SL Baseline)
+Existing SL components that already satisfy parts of this engine:
+- Canonical text + span anchoring:
+  - `SensibLaw/docs/tokenizer_contract.md`
+- Lexeme normalization + occurrence indexing (deterministic, span-anchored):
+  - `SensibLaw/src/text/lexeme_normalizer.py`
+  - `SensibLaw/src/text/lexeme_index.py`
+  - `SensibLaw/docs/lexeme_layer.md`
+- Lexeme occurrences persisted in DB:
+  - `SensibLaw/src/storage/versioned_store.py` (tables `lexemes`, `lexeme_occurrences`)
+
+What is **not** implemented yet:
+- Engine-level output artifact with `engine_id`, `engine_version`, `source_hash`.
+- Declared groups, axes, and overlays with provenance.
+- Cross-profile acceptance/rejection gates over overlays.
+
 ## Core Concepts
 
 ### 1) Canonical Token Stream
@@ -159,3 +175,11 @@ See also:
 - Do we need a normalized token form for search, separate from canonical tokens?
 - How do we store multi-language tokenization without drifting offsets?
 - Should group and axis IDs be centrally registered or per-profile?
+
+## Progress Checklist
+- [x] Canonical text immutability + span anchoring (SL tokenizer contract)
+- [x] Deterministic lexeme normalization (lexeme_normalizer_v1)
+- [x] Span-anchored lexeme occurrences persisted
+- [ ] Engine metadata artifact (engine_id/version/source_hash)
+- [ ] Declared group/axis/overlay structures + provenance
+- [ ] Cross-profile admissibility gates + lint rules
