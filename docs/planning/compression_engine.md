@@ -32,6 +32,7 @@ What is **not** implemented yet:
 - Engine-level output artifact with `engine_id`, `engine_version`, `source_hash`.
 - Declared groups, axes, and overlays with provenance.
 - Cross-profile acceptance/rejection gates over overlays.
+ - Deterministic multilingual tokenizer (current lexeme tokenization uses regex).
 
 ## Core Concepts
 
@@ -175,6 +176,7 @@ See also:
 - Do we need a normalized token form for search, separate from canonical tokens?
 - How do we store multi-language tokenization without drifting offsets?
 - Should group and axis IDs be centrally registered or per-profile?
+ - Which deterministic tokenizer replaces regex (`spaCy` config vs ICU/UDPipe)?
 
 ## Progress Checklist
 - [x] Canonical text immutability + span anchoring (SL tokenizer contract)
@@ -183,3 +185,5 @@ See also:
 - [ ] Engine metadata artifact (engine_id/version/source_hash)
 - [ ] Declared group/axis/overlay structures + provenance
 - [ ] Cross-profile admissibility gates + lint rules
+- [ ] Deterministic multilingual tokenizer (replace regex tokenization)
+- [ ] Checkpoint parity: HTML hydration payloads match pre-upgrade snapshots

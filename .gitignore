@@ -61,3 +61,5 @@ notebooklm_snapshots/
 
 # Built docs site outputs
 docs/_site/
+
+# Generated artifacts\n__pycache__/\n*.pyc\n.pytest_cache/\ndist/\nbuild/\ntarget/\n*.swp\n*.kate-swp\n.DS_Store\n
