@@ -12,6 +12,8 @@ __pycache__/
 codex_history.sqlite
 *.sqlite
 *.sqlite3
+# NOTE: sqlite artifacts are generally ignored; remove this if you need to track
+# specific demo DBs for reproducibility.
 *.db
 *.log
 .env
