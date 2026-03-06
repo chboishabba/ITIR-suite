@@ -19,7 +19,7 @@ This changelog records user-visible behavior changes in the Svelte SB dashboard 
 - Missing Runs: when a date range is explicitly selected and dashboards are
   missing on disk, auto-run a local catch-up job (disable via
   `ITIR_AUTO_BUILD_MISSING_DASHBOARDS=0`) that:
-  1) ingests newer Codex chats into `chat-export-structurer/my_archive.sqlite`
+  1) ingests newer Codex chats into `~/.chat_archive.sqlite`
      (best-effort, local-only)
   2) runs `StatiBaker/scripts/build_dashboard.py` for missing days
   The Missing Runs panel shows a spinner + estimated % while the job runs.

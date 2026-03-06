@@ -1,5 +1,35 @@
 # Compactified Context (ITIR-suite)
 
+## 2026-03-06
+- Aligned priority execution sequencing for lexeme layer, tokenizer migration,
+  compression engine followthrough, Wikidata projection, and GWB/AAO pipelines.
+- Added planning docs:
+  - `docs/planning/priority_execution_sequence_20260306.md`
+  - `docs/planning/tokenizer_migration_plan_20260306.md`
+- Updated `TODO.md` to reflect dependencies and tokenizer migration as a P0 item.
+- Tightened tokenizer migration acceptance to two explicit backtest lanes:
+  - GWB route payload parity
+  - Existing SL ingest regression corpus (`Mabo [No 2]`, `House v The King`,
+    `Plaintiff S157`, `Native Title (NSW) Act 1994`)
+  - StatiBaker reducer and UI invariants (shared canonical IDs, no
+    re-tokenization, compress->expand, no summary injection/re-segmentation,
+    context-bound rendering, tool-use/chat-context metric stability)
+- Added Phase 18 planning scaffolding:
+  - `.planning/phases/18-priority-stack/phase.md`
+  - `.planning/phases/18-priority-stack/18-01-PLAN.md`
+  - `.planning/phases/18-priority-stack/18-02-PLAN.md`
+- Robust context fetch attempt for thread
+  `69aa6b40-6c0c-839a-a4a8-2d325db05451` failed:
+  - local DB missing (`/home/c/.chat_archive.sqlite`)
+  - web fallback failed due to DNS/network resolution for `chatgpt.com`
+- Robust context fetch retried with outbound access:
+  - web view succeeded (no local storage)
+  - persist/download timed out (no export ingested)
+- Pulled online thread `69aa6b40-6c0c-839a-a4a8-2d325db05451` into
+  `/home/c/chat_archive.sqlite` via `reverse-engineered-chatgpt/scripts/pull_to_structurer.py`
+  (38 messages). Canonical thread id:
+  `fa3fda1d40351d824c9e886012ae6721a721cba5` (title: "Token Stream Decisions").
+
 ## 2026-02-06
 - Documented suite-wide user stories and invariants for context preservation,
   claim typing, and pattern-only exposure across ITIR/SL/SB.
@@ -72,7 +102,7 @@
 - Added doctrine page clarifying separation of powers:
   - `docs/planning/why_itir_not_sl.md`
 - Ran targeted archive sweep for `SL` (whole-word), `sensiblaw`, `itir`, and
-  `suite` over `chat-export-structurer/my_archive.sqlite` with
+  `suite` over `~/.chat_archive.sqlite` with
   `role IN ('user','assistant')`.
 - Captured sweep artifacts:
   - `__CONTEXT/last_sync/20260207T043655Z_term_sweep_sl_sensiblaw_itir_suite.json`

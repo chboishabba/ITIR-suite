@@ -5,7 +5,7 @@ Document the live fetch + canonical ingest workflow for ChatGPT threads using:
 
 - `reverse-engineered-chatgpt/scripts/pull_to_structurer.py`
 - `reverse-engineered-chatgpt/scripts/list_sync_candidates.py`
-- canonical archive: `chat-export-structurer/my_archive.sqlite`
+- canonical archive: `~/.chat_archive.sqlite`
 
 This run validates:
 
@@ -42,7 +42,7 @@ Values observed during this run:
 Command:
 
 ```bash
-TIMEFORMAT='elapsed_s=%3R'; time sqlite3 chat-export-structurer/my_archive.sqlite \
+TIMEFORMAT='elapsed_s=%3R'; time sqlite3 ~/.chat_archive.sqlite \
   "SELECT COUNT(*) AS total_messages FROM messages;"
 ```
 
@@ -54,7 +54,7 @@ Observed output:
 Thread-count check:
 
 ```bash
-TIMEFORMAT='elapsed_s=%3R'; time sqlite3 chat-export-structurer/my_archive.sqlite \
+TIMEFORMAT='elapsed_s=%3R'; time sqlite3 ~/.chat_archive.sqlite \
   "SELECT COUNT(DISTINCT canonical_thread_id) AS total_threads FROM messages;"
 ```
 
@@ -108,7 +108,7 @@ Candidate discovery command (bounded to first 2 pages):
 
 ```bash
 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candidates.py \
-  --archive-db chat-export-structurer/my_archive.sqlite \
+  --archive-db ~/.chat_archive.sqlite \
   --max-pages 2 --format ids > /tmp/stale_ids.txt
 ```
 
@@ -150,7 +150,7 @@ Cheap pre-check exists and does not require pulling full message bodies:
 
 ```bash
 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candidates.py \
-  --archive-db chat-export-structurer/my_archive.sqlite \
+  --archive-db ~/.chat_archive.sqlite \
   --format table
 ```
 
@@ -180,7 +180,7 @@ Example (same 2-page window) with threshold:
 ```bash
 TIMEFORMAT='elapsed_s=%3R'; time timeout 60 \
   .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candidates.py \
-  --archive-db chat-export-structurer/my_archive.sqlite \
+  --archive-db ~/.chat_archive.sqlite \
   --max-pages 2 --stale-threshold-sec 60 --format summary
 ```
 
@@ -302,7 +302,7 @@ Conclusion:
 
 1. Use `list_sync_candidates` first, with `--stale-threshold-sec`, to avoid high duplicate pulls.
 2. Pull by candidate IDs (`--ids-file`) and measure `inserted` vs `duplicates` from JSON summary.
-3. Keep canonical source as `chat-export-structurer/my_archive.sqlite`; avoid JSON intermediates unless debugging.
+3. Keep canonical source as `~/.chat_archive.sqlite`; avoid JSON intermediates unless debugging.
 4. For image-heavy threads, install Playwright browsers and re-test fallback path.
 
 ## Complete command log (executed)
@@ -328,14 +328,14 @@ timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/pull_to_structure
 
 ```bash
 timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candidates.py \
-  --archive-db chat-export-structurer/my_archive.sqlite \
+  --archive-db ~/.chat_archive.sqlite \
   --max-pages 2 --format ids > /tmp/stale_ids.txt
 ```
 
 4. Pre-targeted-pull message count:
 
 ```bash
-sqlite3 chat-export-structurer/my_archive.sqlite "SELECT COUNT(*) FROM messages;"
+sqlite3 ~/.chat_archive.sqlite "SELECT COUNT(*) FROM messages;"
 ```
 
 5. Targeted stale/missing pull:
@@ -349,13 +349,13 @@ timeout 300 .venv/bin/python reverse-engineered-chatgpt/scripts/pull_to_structur
 6. Post-targeted-pull message count:
 
 ```bash
-sqlite3 chat-export-structurer/my_archive.sqlite "SELECT COUNT(*) FROM messages;"
+sqlite3 ~/.chat_archive.sqlite "SELECT COUNT(*) FROM messages;"
 ```
 
 7. Thread-count check:
 
 ```bash
-sqlite3 chat-export-structurer/my_archive.sqlite \
+sqlite3 ~/.chat_archive.sqlite \
   "SELECT COUNT(DISTINCT canonical_thread_id) FROM messages;"
 ```
 
@@ -363,7 +363,7 @@ sqlite3 chat-export-structurer/my_archive.sqlite \
 
 ```bash
 timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candidates.py \
-  --archive-db chat-export-structurer/my_archive.sqlite \
+  --archive-db ~/.chat_archive.sqlite \
   --max-pages 2 --stale-threshold-sec 60 --format table
 ```
 
@@ -372,7 +372,7 @@ timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candida
 ```bash
 TIMEFORMAT='elapsed_s=%3R'; time timeout 60 \
   .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candidates.py \
-  --archive-db chat-export-structurer/my_archive.sqlite \
+  --archive-db ~/.chat_archive.sqlite \
   --max-pages 2 --stale-threshold-sec 60 --format summary
 ```
 
@@ -380,7 +380,7 @@ TIMEFORMAT='elapsed_s=%3R'; time timeout 60 \
 
 ```bash
 timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candidates.py \
-  --archive-db chat-export-structurer/my_archive.sqlite \
+  --archive-db ~/.chat_archive.sqlite \
   --max-pages 2 --stale-threshold-sec 60 --format summary
 ```
 
@@ -388,7 +388,7 @@ timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candida
 
 ```bash
 timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candidates.py \
-  --archive-db chat-export-structurer/my_archive.sqlite \
+  --archive-db ~/.chat_archive.sqlite \
   --page-size 50 --max-pages 2 --stale-threshold-sec 60 --format summary
 ```
 
@@ -397,21 +397,21 @@ timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candida
 ```bash
 TIMEFORMAT='elapsed_s=%3R'; time timeout 120 \
   .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candidates.py \
-  --archive-db chat-export-structurer/my_archive.sqlite \
+  --archive-db ~/.chat_archive.sqlite \
   --page-size 50 --max-pages 5 --stale-threshold-sec 60 --format summary
 ```
 
 10. Timed canonical `total_messages` query:
 
 ```bash
-TIMEFORMAT='elapsed_s=%3R'; time sqlite3 chat-export-structurer/my_archive.sqlite \
+TIMEFORMAT='elapsed_s=%3R'; time sqlite3 ~/.chat_archive.sqlite \
   "SELECT COUNT(*) AS total_messages FROM messages;"
 ```
 
 11. Timed canonical `total_threads` query:
 
 ```bash
-TIMEFORMAT='elapsed_s=%3R'; time sqlite3 chat-export-structurer/my_archive.sqlite \
+TIMEFORMAT='elapsed_s=%3R'; time sqlite3 ~/.chat_archive.sqlite \
   "SELECT COUNT(DISTINCT canonical_thread_id) AS total_threads FROM messages;"
 ```
 
@@ -501,7 +501,7 @@ title:Browne v Dunn Parsing
 EOF
 
 timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candidates.py \
-  --archive-db chat-export-structurer/my_archive.sqlite \
+  --archive-db ~/.chat_archive.sqlite \
   --selectors-file /tmp/chat_selectors.txt \
   --title-match exact \
   --max-pages 5 \
@@ -554,7 +554,7 @@ python3 -m py_compile reverse-engineered-chatgpt/scripts/pull_to_structurer.py
 
 ```bash
 timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candidates.py \
-  --archive-db chat-export-structurer/my_archive.sqlite \
+  --archive-db ~/.chat_archive.sqlite \
   --ids "6963a49a-b484-8324-89d7-8f2b456011a9" \
   --titles "Browne v Dunn Parsing" \
   --title-match exact \
@@ -567,7 +567,7 @@ timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candida
 
 ```bash
 timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candidates.py \
-  --archive-db chat-export-structurer/my_archive.sqlite \
+  --archive-db ~/.chat_archive.sqlite \
   --selectors-file /tmp/chat_selectors.txt \
   --title-match exact \
   --max-pages 5 \
@@ -579,7 +579,7 @@ timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candida
 
 ```bash
 timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candidates.py \
-  --archive-db chat-export-structurer/my_archive.sqlite \
+  --archive-db ~/.chat_archive.sqlite \
   --max-pages 1 \
   --stale-threshold-sec 60 \
   --format summary
@@ -602,7 +602,7 @@ timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/pull_to_structure
 
 ```bash
 timeout 60 .venv/bin/python reverse-engineered-chatgpt/scripts/list_sync_candidates.py \
-  --archive-db chat-export-structurer/my_archive.sqlite \
+  --archive-db ~/.chat_archive.sqlite \
   --titles "Browne" \
   --title-match contains \
   --max-pages 1 \

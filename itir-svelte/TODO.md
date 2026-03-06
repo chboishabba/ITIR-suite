@@ -130,7 +130,7 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
 - DB-first: hydrate the home page from `SB_DASHBOARD_DB` / `SB_RUNS_ROOT/dashboard.sqlite`; keep `SB_DASHBOARD_JSON` as regression/debug only.
 - DONE (2026-02-14): Missing days in a selected range auto-run a local catch-up job by default
   (disable via `ITIR_AUTO_BUILD_MISSING_DASHBOARDS=0`):
-  - ingest Codex chats into `chat-export-structurer/my_archive.sqlite` (best-effort)
+  - ingest Codex chats into `~/.chat_archive.sqlite` (best-effort)
   - run `StatiBaker/scripts/build_dashboard.py` for missing dates
   - show spinner + estimated % in the Missing Runs panel while running
 - DONE (2026-02-14): Vite/Svelte SSR circular-init regression recovery tooling:

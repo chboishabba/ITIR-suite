@@ -12,7 +12,7 @@ Definition ratification draft (accepted/rejected/pending clauses):
 - `__CONTEXT/ITIR_DEFINITION_RATIFICATION.md`
 
 Canonical product identity (from archived doctrine threads in
-`chat-export-structurer/my_archive.sqlite`):
+`~/.chat_archive.sqlite`):
 - `SensibLaw`: deterministic ground-truth substrate and provenance spine.
 - `ITIR`: investigative/interpretive coordination layer over evidence, not a
   command authority.

@@ -216,7 +216,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Ingest Codex local history into SQLite")
     ap.add_argument("--history", default=str(Path.home() / ".codex/history.jsonl"))
     ap.add_argument("--log", default=str(Path.home() / ".codex/log/codex-tui.log"))
-    ap.add_argument("--db", default="codex_history.sqlite")
+    ap.add_argument("--db", default="~/.chat_archive.sqlite")
     ap.add_argument("--account", default="local")
     ap.add_argument("--platform", default="codex")
     ap.add_argument("--source-id", default="codex_0001")

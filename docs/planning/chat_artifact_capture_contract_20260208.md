@@ -8,7 +8,7 @@ replayable evidence.
 This is a planning/contract artifact only.
 
 ## Evidence (DB scan)
-Source: `chat-export-structurer/my_archive.sqlite`, `platform='chatgpt'`,
+Source: `~/.chat_archive.sqlite`, `platform='chatgpt'`,
 `role='assistant'`.
 
 - Messages with `sandbox:/mnt/data/` download links: `121`

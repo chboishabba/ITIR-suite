@@ -5,7 +5,7 @@ Collect high-signal ITIR definition snippets from the canonical chat archive
 without adding new interpretation.
 
 ## Source and Method
-- Source DB: `chat-export-structurer/my_archive.sqlite`
+- Source DB: `~/.chat_archive.sqlite`
 - Extraction mode: read-only SQLite queries (`sqlite3 -readonly`)
 - Filter style: explicit definition phrases (`ITIR is ...`, `ITIR-suite ...`,
   `one system, multiple operating modes`, `daily state distillation engine`,

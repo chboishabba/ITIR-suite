@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import os from 'node:os';
 import path from 'node:path';
 
 export type ChatArchiveMessage = {
@@ -40,12 +41,16 @@ function runQueryScript(args: string[], cwd: string): Promise<string> {
   });
 }
 
+function resolveChatArchivePath(): string {
+  return path.join(os.homedir(), '.chat_archive.sqlite');
+}
+
 export async function fetchThreadTail(
   repoRoot: string,
   canonicalThreadId: string,
   opts: QueryOpts = {}
 ): Promise<{ title: string | null; total: number; messages: ChatArchiveMessage[] }> {
-  const dbPath = path.join(repoRoot, 'chat-export-structurer', 'my_archive.sqlite');
+  const dbPath = resolveChatArchivePath();
   const script = path.join(repoRoot, 'itir-svelte', 'scripts', 'query_chat_archive.py');
   const tail = Math.max(1, Math.min(2000, Math.floor(opts.tail ?? 400)));
 
@@ -75,7 +80,7 @@ export async function fetchThreadTailBySourceThreadId(
   sourceThreadId: string,
   opts: QueryOpts = {}
 ): Promise<{ canonicalThreadId: string | null; title: string | null; total: number; messages: ChatArchiveMessage[] }> {
-  const dbPath = path.join(repoRoot, 'chat-export-structurer', 'my_archive.sqlite');
+  const dbPath = resolveChatArchivePath();
   const script = path.join(repoRoot, 'itir-svelte', 'scripts', 'query_chat_archive.py');
   const tail = Math.max(1, Math.min(2000, Math.floor(opts.tail ?? 400)));
 
@@ -98,7 +103,7 @@ export async function fetchMessageAtTs(
   canonicalThreadId: string,
   ts: string
 ): Promise<ChatArchiveMessage | null> {
-  const dbPath = path.join(repoRoot, 'chat-export-structurer', 'my_archive.sqlite');
+  const dbPath = resolveChatArchivePath();
   const script = path.join(repoRoot, 'itir-svelte', 'scripts', 'query_chat_archive.py');
 
   const argv = [script, '--db', dbPath, '--thread-id', canonicalThreadId, '--ts', ts];
@@ -115,7 +120,7 @@ export async function fetchLastMessageInRange(
   range: { startTs: string | null; endTs: string | null },
   opts: { preferNonEmpty?: boolean } = {}
 ): Promise<ChatArchiveMessage | null> {
-  const dbPath = path.join(repoRoot, 'chat-export-structurer', 'my_archive.sqlite');
+  const dbPath = resolveChatArchivePath();
   const script = path.join(repoRoot, 'itir-svelte', 'scripts', 'query_chat_archive.py');
 
   const argv = [script, '--db', dbPath, '--thread-id', canonicalThreadId];

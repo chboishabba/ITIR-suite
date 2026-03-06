@@ -631,8 +631,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("selector", help="Conversation canonical_thread_id or title selector")
     parser.add_argument(
         "--db",
-        default="chat-export-structurer/my_archive.sqlite",
-        help="Path to chat-export-structurer SQLite archive (default: %(default)s)",
+        default="~/.chat_archive.sqlite",
+        help="Path to canonical chat archive SQLite DB (default: %(default)s)",
     )
     parser.add_argument(
         "--if-newer-than",

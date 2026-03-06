@@ -1,7 +1,7 @@
 # Chat Context Resolver Hardening (SQLite temp_store) (2026-02-08)
 
 ## Why this exists
-While querying `chat-export-structurer/my_archive.sqlite` (large DB, FTS enabled),
+While querying `~/.chat_archive.sqlite` (large DB, FTS enabled),
 we observed intermittent SQLite failures like:
 
 - `Error: stepping, unable to open database file (14)`

@@ -7,7 +7,7 @@ We routinely get "online IDs" that look like:
 
 These are **ChatGPT conversation IDs** (UUIDs).
 
-But `chat-export-structurer/my_archive.sqlite` is keyed by:
+But `~/.chat_archive.sqlite` is keyed by:
 
 - `messages.canonical_thread_id` (an internal canonical ID, typically a hash-like string)
 
@@ -20,7 +20,7 @@ requiring a live ChatGPT session by consulting local chat export caches first.
 
 Resolution order:
 
-1. Structurer DB (`chat-export-structurer/my_archive.sqlite`)
+1. Structurer DB (`~/.chat_archive.sqlite`)
    - `source_thread_id` exact (when upstream IDs exist in `messages`)
    - `canonical_thread_id` exact
    - title exact / title contains
@@ -49,7 +49,7 @@ If an online ID does not resolve:
 1. Check whether local chat export backups are current.
    - If not, run the chat export sync job (chat-context-sync) to refresh
      `chat_exports/backups/*chatgpt_history_*.sqlite3`.
-2. If you need the thread in `my_archive.sqlite` as canonical truth:
+2. If you need the thread in `~/.chat_archive.sqlite` as canonical truth:
    - run the structurer ingest pipeline on the relevant exports and retry.
 3. If you need live messages right now:
    - provide a valid ChatGPT session token and use web fallback.
@@ -63,7 +63,7 @@ Even if the UUID cannot be resolved locally, the load-bearing outcome can still
 be captured in repo docs, and later reconciled into the archive when exports are
 ingested.
 
-## Why Not Option 2 (store conversation_id in my_archive.sqlite) Yet
+## Why Not Option 2 (store conversation_id in ~/.chat_archive.sqlite) Yet
 We likely *should* store stable upstream IDs in the structurer archive, e.g.:
 
 - `source_conversation_id` (ChatGPT conversation UUID)
@@ -102,7 +102,7 @@ live-capture path (best-effort via SIGALRM on POSIX) to avoid "hangs" with no ou
 
 Update (2026-02-13):
 - Resolver persistence now ingests live captures directly into
-  `chat-export-structurer/my_archive.sqlite` via structurer's
+  `~/.chat_archive.sqlite` via structurer's
   `ingest_parsed_messages()` API.
 - Intermediate JSON export files are no longer required by default.
 - Legacy `re-gpt --download` JSON fallback is opt-in
@@ -122,7 +122,7 @@ Update (2026-02-11):
 
 Update (2026-02-13, throughput + canonical alignment):
 - Canonical ingest path now uses direct DB writes into
-  `chat-export-structurer/my_archive.sqlite` (`reverse-engineered-chatgpt/scripts/pull_to_structurer.py` and resolver
+  `~/.chat_archive.sqlite` (`reverse-engineered-chatgpt/scripts/pull_to_structurer.py` and resolver
   live persistence), with JSON export disabled by default.
 - Practical stale detection for already-ingested threads uses metadata-only compare:
   `reverse-engineered-chatgpt/scripts/list_sync_candidates.py` against canonical DB.

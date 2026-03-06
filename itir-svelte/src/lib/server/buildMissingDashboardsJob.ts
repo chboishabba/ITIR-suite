@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import crypto from 'node:crypto';
@@ -70,7 +71,7 @@ async function tryIngestCodexChats(repoRoot: string, job: JobInternal): Promise<
   const history = process.env.CODEX_HISTORY_PATH || path.join(home, '.codex', 'history.jsonl');
   const toolLog = process.env.CODEX_LOG_PATH || path.join(home, '.codex', 'log', 'codex-tui.log');
   const snapshotsDir = process.env.CODEX_SHELL_SNAPSHOTS_DIR || path.join(home, '.codex', 'shell_snapshots');
-  const dbPath = path.join(repoRoot, 'chat-export-structurer', 'my_archive.sqlite');
+  const dbPath = path.join(os.homedir(), '.chat_archive.sqlite');
   const ingestPy = path.join(repoRoot, 'chat-export-structurer', 'src', 'ingest.py');
 
   const haveHistory = await fileExists(history);

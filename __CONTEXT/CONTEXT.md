@@ -1170,7 +1170,7 @@ Multi-modal system doctrine:
 - Latest assistant content reframed Fuzzymodo as a speculative execution
   engine: dominant-branch exploration, normative retirement buffer, and
   explicit rollback semantics.
-- Local canonical archive (`chat-export-structurer/my_archive.sqlite`) had no
+- Local canonical archive (`~/.chat_archive.sqlite`) had no
   rows for this conversation before the live fetch, so this run is the current
   authoritative sync point.
 

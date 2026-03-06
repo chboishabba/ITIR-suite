@@ -172,7 +172,7 @@ stores.
 I cross-checked project naming against:
 - workspace repos/submodules,
 - your profile snapshot list,
-- and chat archive mentions in `chat-export-structurer/my_archive.sqlite`.
+- and chat archive mentions in `~/.chat_archive.sqlite`.
 
 ## Threat-model mapping (what overlaps vs what replaces)
 

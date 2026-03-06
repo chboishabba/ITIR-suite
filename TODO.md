@@ -16,6 +16,36 @@
 - pyThunderbird: no TODOs found.
 
 ## Active TODOs
+## Priority legend
+- [P0] Blocking / core platform correctness
+- [P1] Near-term platform capability unlocks
+- [P2] Important but deferrable
+- [P3] Nice-to-have / polish
+
+- [P2] Wikidata ontology integration working (end-to-end):
+  - align with `SensibLaw/docs/wikidata_queries.md` and `SensibLaw/docs/ONTOLOGY_EXTERNAL_REFS.md`
+  - implement the deterministic projection/instability model in `docs/planning/time_series_transformations.md`
+  - confirm ontology DB upsert flow + provenance contract for Wikidata refs
+  - Dependencies:
+    - operator spec: `SensibLaw/docs/wikidata_epistemic_projection_operator_spec_v0_1.md`
+    - transition plan + slice decision: `SensibLaw/docs/planning/wikidata_transition_plan_20260306.md`
+    - reproducible input slice (two dumps or two edit windows)
+- [P3] GWB seed pipeline completion (Wikipedia -> seed envelope -> ontology refs):
+  - see `docs/planning/wiki_ingest_fact_tree_gwb_20260210.md` and `docs/planning/wiki_ingest_run_notes_20260210.md`
+  - Dependencies:
+    - revision-locked snapshots via pywikibot/MediaWiki (`SensibLaw/.cache_local/wiki_snapshots*`)
+    - candidate extraction artifacts (`SensibLaw/scripts/wiki_candidates_extract.py`, `SensibLaw/.cache_local/wiki_candidates_gwb.json`)
+    - ontology external-refs upsert path (`python -m cli ontology external-refs-upsert`)
+    - optional: Graphviz `dot` for SVG rendering
+- [P3] AAO timeline graph surface stabilization:
+  - ensure `itir-svelte` AAO routes stay aligned with `docs/planning/wiki_timeline_extraction_gwb_20260211.md`
+  - Dependencies:
+    - base timeline artifact `SensibLaw/.cache_local/wiki_timeline_gwb.json`
+    - AAO extractor `SensibLaw/scripts/wiki_timeline_aoo_extract.py`
+    - extraction profile `SensibLaw/policies/wiki_timeline_aoo_profile_v1.json`
+    - run with project venv for spaCy parser lane (see `docs/planning/wiki_timeline_extraction_gwb_20260211.md`)
+    - admissibility gate: `docs/planning/oac_object_admissibility_contract_v1_20260211.md`
+
 - Come back to the Duncan/Emma response draft:
   - `docs/planning/response_to_duncan_emma_itir_hospital_advocacy_20260208.md` missed the intended mark (needs a better synthesis/voice and should be evaluated against the actual posting context).
 - Tool Use Summary view follow-up:
@@ -125,7 +155,25 @@
   - implement casey operation-contract tests (`2.1`-`2.5`)
   - formalize JesusCrust execution-boundary integration notes and ADR text
     (`3.1`-`3.5`)
-- Execute SL engine/profile followthrough from
+- [P0] Execute tokenizer migration plan (regex → deterministic) with parity checks:
+  - `docs/planning/tokenizer_migration_plan_20260306.md`
+  - GWB route payload parity:
+    - `/graphs/wiki-timeline`
+    - `/graphs/wiki-timeline-aoo`
+    - `/graphs/wiki-timeline-aoo-all`
+  - Existing SL ingest regression corpus:
+    - `Mabo [No 2]`
+    - `House v The King`
+    - `Plaintiff S157`
+    - `Native Title (NSW) Act 1994`
+  - StatiBaker reducer and UI invariants:
+    - shared canonical ID stability (same source text via SL/SB paths => same IDs)
+    - no SB re-tokenization
+    - compress -> expand invariant
+    - no summary injection / no re-segmentation
+    - context-bound rendering invariants
+    - tool-use / chat-context metric stability
+- [P1] Execute SL engine/profile followthrough from
   `docs/planning/sl_lce_profile_followthrough_20260208.md`:
   - draft domain-neutral engine spec (`docs/planning/compression_engine.md`)
   - define profile contracts (`docs/planning/profile_contracts.md`) for
@@ -135,6 +183,12 @@
   - define cross-profile safety tests
     (`docs/planning/cross_profile_safety_tests.md`) that keep compression
     mechanics fixed while admissibility varies
+  - Dependencies:
+    - SL tokenizer contract: `SensibLaw/docs/tokenizer_contract.md`
+    - lexeme layer baseline (see `[P0]` below)
+    - decision: canonical token stream (lexeme-derived vs dedicated tokenizer)
+    - deterministic multilingual tokenizer replacing regex (Layer‑1 only)
+    - migration plan: `docs/planning/tokenizer_migration_plan_20260306.md`
 - Apply refreshed SB boundary guidance from
   `docs/planning/sb_casey_jesuscrust_followthrough_20260207.md`:
   - codify "post-mortem forensic analyzers are observers, not memory
@@ -271,7 +325,12 @@
 - Re-run docTR timing on SensibLaw root PDFs using `/Whisper-WebUI/venv` (GPU if available) and record results in `doctr/PROFILE_RUNTIME_NOTES.md` on 2026-02-06.
 - Implement timeline ribbon UI: conserved-quantity lens selector, conservation badge, lens inspector, segment tooltips, split/merge checks, and compare overlay (see `SensibLaw/docs/timeline_ribbon.md`).
 - Wire ribbon UI to selector contract (`itir-ribbon/ui_contract.md`) and expose conservation metadata for Playwright tests.
-- Implement SensibLaw lexeme layer tables + ingestion + tests (see `SensibLaw/docs/lexeme_layer.md`).
+- [P0] Implement SensibLaw lexeme layer tables + ingestion + tests (see `SensibLaw/docs/lexeme_layer.md`).
+  - Dependencies:
+    - canonical text + span invariants (`SensibLaw/docs/tokenizer_contract.md`)
+    - deterministic normalization (`SensibLaw/src/text/lexeme_normalizer.py`)
+    - lexeme indexing (`SensibLaw/src/text/lexeme_index.py`)
+    - storage tables in `SensibLaw/src/storage/versioned_store.py`
 - Wire TiRCorder WhisperX-WebUI outputs to SB execution envelopes (adapter + tests + fixture). (Done)
 - Fix missing TextSpan errors during PDF ingest for `Mabo [No 2]`, `House v The King`, `Native Title (NSW) Act 1994`, and `Plaintiff S157` (or add an explicit allow-missing-spans flag).
 - Implement suite-level context safeguards: context-bound artifact view, epistemic state overlay, and context drift warnings (see `docs/user_stories.md`).

@@ -24,8 +24,7 @@ export default defineConfig({
         '../StatiBaker/runs/**',
         '**/reverse-engineered-chatgpt/chat_exports/**',
         '../reverse-engineered-chatgpt/chat_exports/**',
-        '**/chat-export-structurer/my_archive.sqlite*',
-        '../chat-export-structurer/my_archive.sqlite*',
+        '**/.chat_archive.sqlite*',
         '**/*.sqlite-shm',
         '**/*.sqlite-wal'
       ]
