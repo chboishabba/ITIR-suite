@@ -25,6 +25,13 @@ Implementation status:
 - deterministic-mode candidates are available behind `ITIR_LEXEME_TOKENIZER_MODE`.
 - per-revision tokenizer profile is now persisted in revision metadata.
 - shadow mode is implemented via `ITIR_LEXEME_TOKENIZER_SHADOW`.
+- canonical deterministic stream has since been expanded beyond v1 section spans:
+  it now emits structural legal atoms for act/section/article/rule/schedule/etc.
+  and seeded institution/court references, with explicit ambiguity guards.
+- seeded institutional identity is now treated as a bridge:
+  canonical lexer output stays internal/pre-semantic (`institution:*`, `court:*`)
+  and a downstream deterministic bridge attaches Wikidata IDs for the low-ambiguity
+  seed set.
 
 Current execution (2026-03-06):
 - Tokenizer regression lanes run in project venv:
@@ -36,6 +43,26 @@ Current execution (2026-03-06):
   now hash-equal to checkpoints for all three routes (events=142 each). No live
   server bind required; offline extractor keeps deterministic canonical aligned.
   Gate condition satisfied; proceed to lock canonical tokenizer metadata.
+
+Follow-through status (2026-03-07):
+- Deterministic lexer upgraded to `deterministic_legal_v2` /
+  `itir_legal_lexer_v2`.
+- Cross-corpus benchmark now records:
+  - structural legal-atom capture
+  - linked-entity capture (via the bridge layer)
+- Current benchmark signal:
+  - GWB prose: deterministic legal-atom capture `1.0`, linked-entity capture `1.0`
+  - mixed legal refs: deterministic legal-atom capture `0.8`, linked-entity capture `1.0`
+  - GWB reference snippets: deterministic legal-atom capture `1.0`, linked-entity capture `1.0`
+  - dense legal fixtures remain the main structural dedupe opportunity
+    (`case_ref`, `section_ref`, `act_ref`, `paragraph_ref` dominate)
+- `legal_principles` timeline lane contains no meaningful structural legal refs,
+  so deterministic and legacy remain identical there by design.
+- Follow-through implementation now also includes:
+  - leading-determiner normalization for canonical act/instrument refs
+  - structural atom dictionary persistence in `VersionedStore`
+  - a deterministic bridge batch emitter for the existing ontology
+    external-ref upsert flow
 
 ## Decision Gates
 1. **Tokenizer replacement path**
@@ -143,6 +170,15 @@ Tokenizer migration signoff requires all three of these lanes:
     deterministic canonical mode; checksum changed from the previous checkpoint artifact.
 - Route payload parity remains a required final gate; next step is byte-level
   `/graphs/wiki-timeline*` comparison in a full route-render check.
+- Cross-corpus benchmark should continue to demonstrate:
+  - deterministic legal-atom capture above regex/spaCy baselines on legal/GWB lanes
+  - linked-entity capture for the seeded bridge set without changing canonical
+    lexeme identity
+- Canonical lexeme identity must remain free of external IDs; Wikidata stays in
+  the bridge/entity layer, not in tokenizer identity.
+- Repeated structural atoms are now eligible for dedicated dictionary storage;
+  external IDs remain outside lexeme identity and flow through the curated
+  external-ref substrate.
 
 ## Rollback Strategy
 If parity fails:
