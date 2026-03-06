@@ -68,7 +68,7 @@ Rules:
 - High jargon density with still-valid receipt linkage.
 
 ### Build outputs
-- `three_locks_report.json` with pass/fail reasons (planned output; not yet emitted).
+- `three_locks_report.json` with pass/fail reasons.
 - Machine-readable lock status per artifact section.
 
 ## Integration with existing invariants

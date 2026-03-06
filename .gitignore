@@ -13,11 +13,6 @@ codex_history.sqlite
 *.sqlite
 *.sqlite3
 *.db
-.chatgpt_history.sqlite3*
-
-# Common local scratch/caches (never commit)
-apicache/
-throttle.ctrl
 *.log
 .env
 .env.*
@@ -43,23 +38,12 @@ logs/
 
 # Chat exports and context sync artifacts (often contain PII)
 chat_exports/
-reverse-engineered-chatgpt/chat_exports/
-chatgpt-conversations-json-format__*.json
 __CONTEXT/last_sync/
-
-# re-gpt local cache DB (should never be committed)
-.chatgpt_history.sqlite3
-.chatgpt_history.sqlite3-*
 
 # NotebookLM auth export (contains session cookies/tokens)
 /storage_state.json
-.notebooklm/
-notebooklm_exports/
-notebooklm_downloads/
-notebooklm_artifacts/
-notebooklm_snapshots/
 
 # Built docs site outputs
 docs/_site/
-
-# Generated artifacts\n__pycache__/\n*.pyc\n.pytest_cache/\ndist/\nbuild/\ntarget/\n*.swp\n*.kate-swp\n.DS_Store\n
+.chatgpt_history.sqlite3*
+**/chatgpt_history.sqlite3*

@@ -66,7 +66,7 @@ Thread:
   admissibility differences.
 
 ## 2. Planned Artifacts
-- `docs/planning/compression_engine.md` (domain-neutral engine spec; planned, not yet written)
-- `docs/planning/profile_contracts.md` (SL/SB/infra profile boundaries; planned, not yet written)
-- `docs/planning/profile_lint_rules.md` (forbidden axes/groups per profile; planned, not yet written)
-- `docs/planning/cross_profile_safety_tests.md` (determinism + admissibility; planned, not yet written)
+- `docs/planning/compression_engine.md` (domain-neutral engine spec)
+- `docs/planning/profile_contracts.md` (SL/SB/infra profile boundaries)
+- `docs/planning/profile_lint_rules.md` (forbidden axes/groups per profile)
+- `docs/planning/cross_profile_safety_tests.md` (determinism + admissibility)

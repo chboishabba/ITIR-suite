@@ -63,7 +63,3 @@ separate `threads` table. When doing ad-hoc SQL, set:
   2) a follow-up SQL query to locate threads by title/text patterns, then fetch
      by canonical_thread_id.
 
-- ChatGPT "online IDs" (UUID conversation IDs) are not necessarily present in
-  `chat-export-structurer/my_archive.sqlite` as keys. If you only have an online
-  UUID, follow:
-  - `docs/planning/chat_context_resolver_online_ids_20260210.md`

@@ -162,7 +162,7 @@ Primary lanes:
   tasks (including trading-oriented tests).
 - `dashiQ`: quantum-oriented Dashi research lane.
 - `dashitest`, `dashifine`, `dashi_cli.py`: testbench, analysis, and
-  utility/tooling surfaces (external to ITIR-suite).
+  utility/tooling surfaces.
 
 In this article, Dashi repos are method R&D inputs, not canonical authority
 stores.

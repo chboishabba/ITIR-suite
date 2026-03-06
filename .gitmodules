@@ -16,9 +16,6 @@
 [submodule "chat-export-structurer"]
 	path = chat-export-structurer
 	url = https://github.com/1ch1n/chat-export-structurer.git
-[submodule "JesusCrust"]
-	path = JesusCrust
-	url = https://github.com/chboishabba/JesusCrust.git
 [submodule "StatiBaker"]
 	path = StatiBaker
 	url = https://github.com/chboishabba/StatiBaker.git

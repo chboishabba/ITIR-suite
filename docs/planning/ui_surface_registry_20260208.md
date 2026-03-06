@@ -13,8 +13,6 @@ to.
   irreversible lock.
 - Existing SB migration plan source:
   `StatiBaker/docs/svelte_migration_sprint.md`.
-- Update note (2026-02-10): `itir-svelte/` exists and is the current working
-  SvelteKit port of the SB dashboard modules.
 
 ## Stable user-facing entrypoints
 | Component | Surface | Access | Launch command | Authority lane |
@@ -25,7 +23,6 @@ to.
 | `StatiBaker` | Static daily dashboard | `StatiBaker/runs/<date>/outputs/dashboard.html` | `cd StatiBaker && python scripts/build_dashboard.py --date <YYYY-MM-DD>` | Temporal (`SB`) projection |
 | `StatiBaker` | Static weekly dashboard | `StatiBaker/runs/<date>/outputs/dashboard_weekly_<N>d.html` | `cd StatiBaker && python scripts/build_dashboard.py --date <YYYY-MM-DD> --weekly --weekly-days <N>` | Temporal (`SB`) projection |
 | `StatiBaker` | Static lifetime dashboard | `StatiBaker/runs/<date>/outputs/dashboard_lifetime.html` | `cd StatiBaker && python scripts/build_dashboard.py --date <YYYY-MM-DD> --lifetime` | Temporal (`SB`) projection |
-| `itir-svelte` | SvelteKit SB dashboard port | `http://127.0.0.1:5173` | `cd itir-svelte && npm install && SB_RUNS_ROOT=../StatiBaker/runs SB_DATE=<YYYY-MM-DD> npm run dev` | Temporal (`SB`) projection |
 | `ITIR-suite` | Repo-wide docs browser | `http://127.0.0.1:8001/docs/_site/index.html` | `python scripts/build_docs_site.py && python -m http.server 8001` | Read-only (non-canonical) |
 
 ## Interfaces without standalone local web renderer (current)

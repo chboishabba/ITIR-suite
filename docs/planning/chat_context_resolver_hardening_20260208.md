@@ -31,12 +31,3 @@ to reduce “mysterious” failures during FTS candidate lookups and other queri
   title contains -> FTS candidates).
 - No web fallback policy changes.
 
-## Related: "online IDs" (ChatGPT conversation UUIDs)
-When the selector is a ChatGPT conversation UUID (an "online ID"), the structurer
-archive may not be able to resolve it unless the upstream IDs have been ingested.
-We now store these as nullable columns on `messages`:
-- `messages.source_thread_id` (conversation UUID)
-- `messages.source_message_id` (upstream message ID, when present)
-
-Operational guidance and the intended local fallback are captured in:
-- `docs/planning/chat_context_resolver_online_ids_20260210.md`

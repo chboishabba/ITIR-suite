@@ -6,14 +6,9 @@ captures the intended phases for ingesting ChatGPT history into a structured
 SQLite-backed corpus with TIRC and SL-style views.
 
 ## Timeline (Target Months)
-- Phase 1: Feb 2026 (target)
-- Phase 2: Mar 2026 (target)
-- Phase 3: Apr 2026 (target)
-
-## Status (As Of 2026-03-04)
-- Phase 1: Needs confirmation
-- Phase 2: Needs confirmation
-- Phase 3: Needs confirmation
+- Phase 1: Feb 2026
+- Phase 2: Mar 2026
+- Phase 3: Apr 2026
 
 ## Ownership (Role-Based)
 - Lead: You
@@ -54,7 +49,7 @@ SQLite-backed corpus with TIRC and SL-style views.
 
 ## Milestones, Risks, Dependencies
 
-## Milestone M1: Deterministic Ingest Baseline (Feb 2026, target)
+## Milestone M1: Deterministic Ingest Baseline (Feb 2026)
 - Deliverables:
   - SQLite schema for `threads`, `turns`, `turns_fts`
   - Deterministic ingest of `conversations.json`
@@ -65,7 +60,7 @@ SQLite-backed corpus with TIRC and SL-style views.
 - Dependencies:
   - Access to `conversations.json` exports
 
-## Milestone M2: TIRC + Interpretive Layers (Mar 2026, target)
+## Milestone M2: TIRC + Interpretive Layers (Mar 2026)
 - Deliverables:
   - Claims/questions layer tables or views
   - Recurrence detection queries (n-grams, concept recurrence)
@@ -77,7 +72,7 @@ SQLite-backed corpus with TIRC and SL-style views.
   - Stable Phase 1 schema
   - Agreed recurrence/query definitions
 
-## Milestone M3: SL Views + Meta-Analysis (Apr 2026, target)
+## Milestone M3: SL Views + Meta-Analysis (Apr 2026)
 - Deliverables:
   - SL-style views for definitions/contradictions/canonical claims
   - Meta-analysis framing (training trace, theory evolution log, self-audit)
