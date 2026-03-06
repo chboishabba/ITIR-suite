@@ -10,8 +10,6 @@ __pycache__/
 *.pdf
 .hypothesis/
 codex_history.sqlite
-*.sqlite
-*.sqlite3
 # NOTE: sqlite artifacts are generally ignored; remove this if you need to track
 # specific demo DBs for reproducibility.
 *.db
@@ -50,3 +48,11 @@ docs/_site/
 .chatgpt_history.sqlite3*
 **/chatgpt_history.sqlite3*
 apicache/
+
+# Chat history / local DBs
+chat*_history*.sqlite*
+chatgpt_history*.sqlite*
+codex_history*.sqlite*
+*chat_history*.sqlite*
+*.sqlite
+*.sqlite3
