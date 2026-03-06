@@ -19,7 +19,8 @@ explicit spans.
 
 ## Transition Roadmap (Docs-Only)
 1. Declare tokenizer contract explicitly:
-   - tokenization is a deterministic Layer‑1 step; regex allowed only here.
+   - tokenization is a deterministic Layer‑1 step; regex avoided unless strictly
+     required and isolated to non-canonical formatting/cleanup lanes.
 2. Engine metadata artifact:
    - add `engine_id`, `engine_version`, `source_hash`, `created_at`.
 3. Canonical token stream definition:
@@ -214,4 +215,5 @@ See also:
 - [ ] Declared group/axis/overlay structures + provenance
 - [ ] Cross-profile admissibility gates + lint rules
 - [ ] Deterministic multilingual tokenizer (replace regex tokenization)
+  - no-regex candidate added behind `ITIR_LEXEME_TOKENIZER_MODE=deterministic_legal`
 - [ ] Checkpoint parity: HTML hydration payloads match pre-upgrade snapshots

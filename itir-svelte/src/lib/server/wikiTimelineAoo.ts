@@ -167,6 +167,22 @@ function isObj(v: unknown): v is Record<string, unknown> {
   return Boolean(v) && typeof v === 'object';
 }
 
+let warnedLegacyAooDbEnv = false;
+
+function resolveItirDbPath(repoRoot: string): string {
+  const modern = process.env.ITIR_DB_PATH?.trim();
+  if (modern) return path.resolve(repoRoot, modern);
+  const legacy = process.env.SL_WIKI_TIMELINE_AOO_DB?.trim() || process.env.SL_WIKI_TIMELINE_DB?.trim();
+  if (legacy) {
+    if (!warnedLegacyAooDbEnv) {
+      warnedLegacyAooDbEnv = true;
+      console.warn('SL_WIKI_TIMELINE_AOO_DB / SL_WIKI_TIMELINE_DB is deprecated; use ITIR_DB_PATH.');
+    }
+    return path.resolve(repoRoot, legacy);
+  }
+  return path.resolve(repoRoot, '.cache_local', 'itir.sqlite');
+}
+
 async function fileExists(p: string): Promise<boolean> {
   try {
     await fs.stat(p);
@@ -225,8 +241,7 @@ function normalizeActionAndNegation(rawAction: unknown, rawNegation: unknown): {
 export async function loadWikiTimelineAoo(repoRoot: string, relPath: string): Promise<WikiTimelineAooPayload> {
   // Canonical DB-first: the AAO UI hydrates exclusively from the SQLite store.
   // JSON artifacts are regression fixtures only and are not read here.
-  const dbEnv = process.env.SL_WIKI_TIMELINE_AOO_DB;
-  const dbPath = dbEnv && dbEnv.trim() ? path.resolve(repoRoot, dbEnv.trim()) : path.resolve(repoRoot, 'SensibLaw', '.cache_local', 'wiki_timeline_aoo.sqlite');
+  const dbPath = resolveItirDbPath(repoRoot);
 
   // Heuristic mapping: AOO artifact path suffix -> timeline input path suffix.
   // Example: `.../wiki_timeline_gwb_public_bios_v1_aoo.json` -> `.../wiki_timeline_gwb_public_bios_v1.json`
@@ -496,7 +511,7 @@ export async function loadWikiTimelineAoo(repoRoot: string, relPath: string): Pr
       'No AAO payload found in the canonical store.',
       `DB path checked: ${dbPath}`,
       `timeline suffix: ${timelineSuffix}`,
-      'Fix: rerun wiki_timeline_aoo_extract with DB persistence, or set SL_WIKI_TIMELINE_AOO_DB to the correct sqlite path.'
+      'Fix: rerun wiki_timeline_aoo_extract with DB persistence, or set ITIR_DB_PATH to the canonical sqlite path.'
     ].join(' ')
   );
 
