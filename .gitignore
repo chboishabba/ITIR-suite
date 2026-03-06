@@ -56,3 +56,8 @@ codex_history*.sqlite*
 *chat_history*.sqlite*
 *.sqlite
 *.sqlite3
+
+# Explicit local-only personal archive test DBs/backups
+.cache_local/itir_chat_test.sqlite*
+.cache_local/itir_messenger_test.sqlite*
+.cache_local/itir.sqlite.bak-pre-chat-*

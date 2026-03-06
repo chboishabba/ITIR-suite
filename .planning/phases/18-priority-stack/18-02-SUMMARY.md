@@ -79,3 +79,100 @@ Deterministic tokenizer migration is promoted to canonical with persisted profil
   wiki timeline path; the current GWB route run reports `21` structural atom
   occurrences, `17` unique atoms, and `144` duplicate canonical bytes on the
   refreshed storage report.
+- Canonical wiki-timeline storage has now moved off JSON-bearing list/tail
+  rows for the route/report-critical path. Event fields, step fields, object
+  resolver hints, and event/run list items persist through typed path/value
+  tables instead, and the refreshed GWB storage report shows
+  `residual_blob_bytes = 0`.
+- Important scope clarification: this zero-residual push is about canonical
+  product semantics, not about preserving arbitrary historical JSON export
+  shapes losslessly inside the DB. If a field is not used by route/query/report
+  behavior, it does not justify blob retention by itself.
+- The eager rewrite into `.cache_local/itir.sqlite` was rerun after the
+  zero-residual patch and now completes cleanly under foreign keys after
+  replacing parent-run `INSERT OR REPLACE` writes with conflict updates and
+  clearing legacy compatibility list rows during repersist.
+- Live file sizes after the rewrite:
+  - `.cache_local/itir.sqlite`: `9,605,120` bytes
+  - backup `.cache_local/itir.sqlite.bak-pre-chat-20260306T163537Z`: `9,596,928` bytes
+  - isolated `.cache_local/itir_chat_test.sqlite`: `552,960` bytes
+- A bounded local chat-sample ingest path now exists for tokenizer/storage
+  experiments only. It reads `~/chat_archive.sqlite`, stores hashed thread IDs
+  plus minimal message fields into `.cache_local/itir_chat_test.sqlite`, and
+  keeps chat-derived rows out of canonical `itir.sqlite`.
+- Personal archive–derived test DBs are local-only and must never be promoted
+  into canonical/shared repo artifacts. The isolated chat/Messenger test DBs
+  exist only for local experiments and reporting.
+- Chat-sample tokenizer/compression smoke pass on the isolated test DB:
+  - messages: `100`
+  - raw characters: `465,653`
+  - tokens: `104,974`
+  - avg chars/token: `4.4359`
+  - avg tokens/message: `1049.74`
+  - unique `(norm_text, kind)` pairs: `7,173`
+  - reuse ratio: `0.9317`
+  - structural tokens: `52`
+- Richer chat structure breakdown:
+  - token kinds: `word=62557`, `punct=31351`, `symbol=6143`, `number=4569`,
+    `other=302`
+  - structural kinds: `act_ref=36`, `section_ref=7`, `instrument_ref=6`,
+    `part_ref=2`, `case_ref=1`
+  - isolated chat DB structural atom dedupe: `52` occurrences, `44` unique atoms
+- Relevant comparison points from existing deterministic corpus lanes:
+  - GWB timeline prose: `4621` tokens at `5.04` chars/token
+  - dense legal fixture bodies: `235395` tokens at `5.02` chars/token
+  - mixed legal refs: `127` tokens at `6.79` chars/token
+  - GWB reference snippets: `501` tokens at `5.83` chars/token
+- Next scope now splits cleanly:
+  - bridge expansion for the reviewed U.S. bodies/courts still missing from the
+    live slice
+  - structural-atom dedupe/storage reporting beyond wiki timeline
+  - chat-ingest hardening with explicit retention/redaction metadata and richer
+    kind-level reporting
+  - first deterministic GWB U.S.-law linkage seed pack
+- Bridge expansion progress this pass:
+  - reviewed slice now includes `Department of Defense` (`Q11209`) and the
+    `United States Court of Appeals for the Sixth Circuit` (`Q250472`)
+  - live bridge import reports `12` entities and `49` aliases
+- First deterministic GWB U.S.-law linkage starter pack is now checked in as
+  `SensibLaw/data/ontology/gwb_us_law_linkage_seed_v1.json`.
+- Structure reporting is no longer limited to legal `_ref` families. There is
+  now a second deterministic operational/discourse lane covering:
+  - chat/dialogue roles and speakers
+  - shell/command blocks, flags, env vars, paths, code fences
+  - transcript-style speaker/timestamp/QA/procedure markers
+- The isolated chat report now answers the questions we actually needed:
+  - what the structural atoms were
+  - which atoms were most reused
+  - which atoms were most interlinked/co-occurring
+  - which atoms are likely more useful than junk according to a deterministic
+    repeat/co-occurrence heuristic
+- Updated isolated chat sample after operational false-positive tightening:
+  - messages: `100`
+  - raw characters: `465653`
+  - token count: `107523`
+  - structural token count: `2601`
+  - unique structural atoms: `1027`
+  - dominant kinds: `path_ref=777`, `message_boundary_ref=589`,
+    `code_block_ref=508`, `timestamp_ref=351`, `task_ref=223`
+  - legal kinds still present but much smaller: `act_ref=36`, `section_ref=7`,
+    `instrument_ref=6`, `part_ref=2`, `case_ref=1`
+- `SeaMeInIt/COMPACTIFIED_CONTEXT.md` and other large repo context files are
+  now valid report inputs through the same corpus report path. Current context
+  aggregate across `SeaMeInIt`, `StatiBaker`, `SensibLaw`, `__CONTEXT`, and
+  `JesusCrust`:
+  - units: `54`
+  - raw chars: `48909`
+  - tokens: `10729`
+  - structural tokens: `352`
+  - unique structural atoms: `316`
+- Transcript input is now grounded in both a generic bracketed-message fixture
+  and a real transcript-like sample under
+  `/home/c/Documents/code/__OTHER/tirc_test_audio`.
+- Transcript handling is now message/range aware:
+  - one unit per bracketed/unbracketed speaker-timestamp message
+  - one unit per subtitle-style timed utterance range
+  - canonical range atoms like `tsrange:00_00_00_030__00_00_21_970`
+- Side-by-side corpus comparison now exists through
+  `report_structure_corpora.py --by-source`, so chat/context/transcript runs
+  can be compared in one deterministic report.
