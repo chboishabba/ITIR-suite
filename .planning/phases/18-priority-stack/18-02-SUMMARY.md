@@ -35,6 +35,8 @@ Deterministic tokenizer migration is promoted to canonical with persisted profil
 - `SensibLaw/src/ontology/entity_bridge.py` - DB-backed deterministic bridge
   substrate over `itir.sqlite` with seeded reviewed body/court slice and
   bridge-match receipts.
+- `SensibLaw/data/ontology/wikidata_bridge_bodies_gwb_v1.json` - checked-in
+  reviewed bridge slice for the current deterministic body/court set.
 - `SensibLaw/docs/tokenizer_contract.md` - canonical stream description updated.
 - `docs/planning/tokenizer_migration_plan_20260306.md` - execution status and checkpoint notes updated.
 - `SensibLaw/todo.md` - migration milestone status updated.
@@ -73,3 +75,7 @@ Deterministic tokenizer migration is promoted to canonical with persisted profil
   `ontology bridge-report`; next follow-through is importing reviewed bridge
   slices for the remaining GWB U.S.-law bodies/courts that are lexically
   recognized but not yet seeded with pinned QIDs.
+- Live `itir.sqlite` has now been backfilled through the new atom-persisting
+  wiki timeline path; the current GWB route run reports `21` structural atom
+  occurrences, `17` unique atoms, and `144` duplicate canonical bytes on the
+  refreshed storage report.
