@@ -49,3 +49,4 @@ __CONTEXT/last_sync/
 docs/_site/
 .chatgpt_history.sqlite3*
 **/chatgpt_history.sqlite3*
+apicache/
