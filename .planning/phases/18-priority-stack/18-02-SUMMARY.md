@@ -32,6 +32,9 @@ Deterministic tokenizer migration is promoted to canonical with persisted profil
   refs alongside normalized events.
 - `SensibLaw/scripts/emit_bridge_external_refs_batch.py` - curated bridge batch
   emitter exercised end-to-end against `ontology external-refs-upsert`.
+- `SensibLaw/src/ontology/entity_bridge.py` - DB-backed deterministic bridge
+  substrate over `itir.sqlite` with seeded reviewed body/court slice and
+  bridge-match receipts.
 - `SensibLaw/docs/tokenizer_contract.md` - canonical stream description updated.
 - `docs/planning/tokenizer_migration_plan_20260306.md` - execution status and checkpoint notes updated.
 - `SensibLaw/todo.md` - migration milestone status updated.
@@ -66,3 +69,7 @@ Deterministic tokenizer migration is promoted to canonical with persisted profil
   via emitted batches and the existing CLI upsert path; broader automatic
   persistence policy remains a separate design question, not an unimplemented
   blocker.
+- Shared DB bridge management now exists via `ontology bridge-import` /
+  `ontology bridge-report`; next follow-through is importing reviewed bridge
+  slices for the remaining GWB U.S.-law bodies/courts that are lexically
+  recognized but not yet seeded with pinned QIDs.
