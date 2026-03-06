@@ -176,9 +176,14 @@ Tokenizer migration signoff requires all three of these lanes:
     lexeme identity
 - Canonical lexeme identity must remain free of external IDs; Wikidata stays in
   the bridge/entity layer, not in tokenizer identity.
-- Repeated structural atoms are now eligible for dedicated dictionary storage;
-  external IDs remain outside lexeme identity and flow through the curated
-  external-ref substrate.
+- Repeated structural atoms now have dedicated dictionary storage in both
+  `VersionedStore` and the root wiki-timeline SQLite store for the current
+  high-yield kinds (`case_ref`, `section_ref`, `subsection_ref`, `act_ref`,
+  `paragraph_ref`, `article_ref`, `instrument_ref`, `institution_ref`,
+  `court_ref`).
+- External IDs remain outside lexeme identity and now flow through the curated
+  bridge-batch -> `ontology external-refs-upsert` path with regression
+  coverage.
 
 ## Rollback Strategy
 If parity fails:

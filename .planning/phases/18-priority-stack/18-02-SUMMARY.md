@@ -27,6 +27,11 @@ Deterministic tokenizer migration is promoted to canonical with persisted profil
 - `SensibLaw/src/text/lexeme_index.py` - default canonical mode set to deterministic.
 - `SensibLaw/src/ontology/entity_bridge.py` - deterministic seeded bridge from
   canonical refs to Wikidata IDs.
+- `SensibLaw/src/wiki_timeline/sqlite_store.py` - root wiki-timeline DB now
+  persists structural atom dictionaries/occurrences for high-yield canonical
+  refs alongside normalized events.
+- `SensibLaw/scripts/emit_bridge_external_refs_batch.py` - curated bridge batch
+  emitter exercised end-to-end against `ontology external-refs-upsert`.
 - `SensibLaw/docs/tokenizer_contract.md` - canonical stream description updated.
 - `docs/planning/tokenizer_migration_plan_20260306.md` - execution status and checkpoint notes updated.
 - `SensibLaw/todo.md` - migration milestone status updated.
@@ -53,9 +58,11 @@ Deterministic tokenizer migration is promoted to canonical with persisted profil
 - Keep offline payload extraction script (Node/vm) as the non-HTTP parity lane for future checkpoints.
 - Normalize leading determiners in canonical act/instrument refs (`the ...`) so
   equivalent references collapse to one atom before DB atom-dictionary work. ✅
-- Design root-DB structural atom dictionary storage around the high-yield kinds:
-  `case_ref`, `section_ref`, `subsection_ref`, `act_ref`, `paragraph_ref`, plus
-  `institution_ref`/`court_ref`. Baseline implemented in `VersionedStore`; root
-  DB follow-through still pending.
-- Connect bridge outputs into the ontology external-ref substrate via curated
-  batch emission; direct root-DB persistence remains follow-up work.
+- Root-DB structural atom dictionary storage is now in place for the current
+  high-yield kinds and includes `article_ref` / `instrument_ref` in addition to
+  `case_ref`, `section_ref`, `subsection_ref`, `act_ref`, `paragraph_ref`,
+  `institution_ref`, and `court_ref`.
+- Bridge outputs now flow through the curated ontology external-ref substrate
+  via emitted batches and the existing CLI upsert path; broader automatic
+  persistence policy remains a separate design question, not an unimplemented
+  blocker.
