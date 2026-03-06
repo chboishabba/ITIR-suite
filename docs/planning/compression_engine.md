@@ -17,6 +17,18 @@ explicit spans.
 - No profile-specific admissibility decisions (see `docs/planning/profile_contracts.md`).
 - No semantic normalization beyond deterministic tokenization.
 
+## Transition Roadmap (Docs-Only)
+1. Declare tokenizer contract explicitly:
+   - tokenization is a deterministic Layer‑1 step; regex allowed only here.
+2. Engine metadata artifact:
+   - add `engine_id`, `engine_version`, `source_hash`, `created_at`.
+3. Canonical token stream definition:
+   - decide whether canonical tokens are lexeme-derived or a dedicated tokenizer stream.
+4. Overlay structures:
+   - SL/SB/infra accept/reject overlays only; no token changes.
+5. Conformance tests:
+   - determinism, span integrity, overlay reversibility, profile isolation.
+
 ## Current Implementation (SL Baseline)
 Existing SL components that already satisfy parts of this engine:
 - Canonical text + span anchoring:
@@ -32,7 +44,8 @@ What is **not** implemented yet:
 - Engine-level output artifact with `engine_id`, `engine_version`, `source_hash`.
 - Declared groups, axes, and overlays with provenance.
 - Cross-profile acceptance/rejection gates over overlays.
- - Deterministic multilingual tokenizer (current lexeme tokenization uses regex).
+- Deterministic multilingual tokenizer (current lexeme tokenization uses regex
+  in `SensibLaw/src/text/lexeme_index.py`; allowed only at Layer 1).
 
 ## Core Concepts
 
@@ -48,6 +61,10 @@ Rules:
 - Tokenization is deterministic for a given engine version and input bytes.
 - Token offsets map to original text, not a normalized copy.
 - All further overlays must reference these offsets.
+- Canonical tokens are either:
+  - lexeme-derived, or
+  - a dedicated tokenizer stream.
+  This choice must be explicit and versioned.
 
 ### 2) Span Anchoring
 Every annotation (group/axis) must link to explicit text spans.
@@ -102,6 +119,16 @@ Each output artifact must include:
 - `source_hash` (hash of raw input bytes)
 - `created_at` (UTC timestamp)
 - `declared_by` for each overlay (human, rule id, or tool id)
+
+## Required Fields (Engine Output)
+- `engine_id`
+- `engine_version`
+- `source_id`
+- `source_hash`
+- `created_at`
+- `tokens[]` (canonical)
+- `groups[]` (span-anchored, `declared_by` per entry)
+- `provenance` (per overlay/group/axis)
 
 ## Minimal Data Shape (Illustrative)
 ```json
@@ -176,7 +203,8 @@ See also:
 - Do we need a normalized token form for search, separate from canonical tokens?
 - How do we store multi-language tokenization without drifting offsets?
 - Should group and axis IDs be centrally registered or per-profile?
- - Which deterministic tokenizer replaces regex (`spaCy` config vs ICU/UDPipe)?
+- Which deterministic tokenizer replaces regex (`spaCy` config vs ICU/UDPipe)?
+- Are canonical tokens lexeme-derived or from a dedicated tokenizer stream?
 
 ## Progress Checklist
 - [x] Canonical text immutability + span anchoring (SL tokenizer contract)

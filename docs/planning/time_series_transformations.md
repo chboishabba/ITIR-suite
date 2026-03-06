@@ -79,6 +79,13 @@ SB summaries and ITIR overlays should treat derived views as:
 - explicitly computed transformations
 - never authoritative over raw observations
 
+## Link to Wikidata Control-Plane Work
+The Wikidata projection + instability work mirrors this model: a deterministic
+transformation from raw statement bundles into a derived, auditable state
+without mutating the source. See:
+- `SensibLaw/docs/wikidata_epistemic_projection_operator_spec_v0_1.md`
+- `SensibLaw/docs/planning/wikidata_transition_plan_20260306.md`
+
 ## Non-goals
 - Implementing the computation engine in this document.
 - Defining domain-specific functions beyond the minimal set.
