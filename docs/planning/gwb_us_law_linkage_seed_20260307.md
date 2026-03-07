@@ -95,7 +95,26 @@ On the current DB-backed GWB run:
   Nondiscrimination Act`, `NSA surveillance review`, `Supreme Court
   appointments`)
 
-## Next Step
-Tighten generic cue handling so broad cues like `Congress`, `Iraq`, `veto`, and
-`Supreme Court` require stronger co-signals before promotion, while keeping the
-current DB-backed report and receipt surface stable.
+## Current Broad-Cue Posture
+Generic cue tightening is now active for broad surfaces like `Congress`,
+`Iraq`, `veto`, and `Supreme Court`.
+
+Boundary clarification:
+- broad surfaces may still be extracted as mentions/entities in their own
+  right (`Iraq` as a location-like geopolitical mention, `Congress` as an
+  institution/body mention, `Supreme Court` as a court mention, `veto` as an
+  action cue)
+- the tightening target is promotion into a specific reviewed U.S.-law linkage
+  lane, not suppression of mention extraction
+- promotion should require stronger co-signals such as:
+  - a reviewed authority title or legal reference
+  - a stronger action/object pairing
+  - court/body context that narrows the legal lane
+  - multiple receipts that converge on the same reviewed seed
+- ambiguous broad-cue hits should remain visible in receipts/candidate output
+  rather than disappearing
+- current bounded behavior:
+  - broad-cue-only hits may remain visible as low-confidence matched/candidate
+    output when they win unambiguously
+  - broad cues no longer escalate medium/high confidence without stronger
+    non-broad receipts

@@ -47,10 +47,22 @@ semantic v1.1 storage shape.
   - accused
   - applicant
 - titled individuals may resolve to document-local actors
-- legal representatives now have first deterministic coverage:
-  - `counsel for the appellant/respondent`
-  - `senior counsel for the appellant/respondent`
-  - titled representative surfaces ending in `SC` / `KC` / `QC`
+- legal-representative cue surfaces are now treated as a versioned lexical
+  resource, not as inline Python-only vocabulary
+- current cue coverage is parameterized by controlled party-role expansion:
+  - `counsel for the {party_role}`
+  - `senior counsel for the {party_role}`
+  - `junior counsel for the {party_role}`
+  - `appeared for the {party_role}`
+- cue matches do not create synthetic role-label actors; they bind onto
+  document-local representative mentions when a clause-local named
+  representative signal exists
+- named representative signals currently include:
+  - titled person surfaces
+  - titled/suffixed representative surfaces ending in `SC` / `KC` / `QC`
+  - dotted suffix variants such as `S.C.` / `K.C.` / `Q.C.`
+- cue-only matches without a named representative signal abstain with explicit
+  receipts
 - explicit office surfaces now have first deterministic coverage:
   - `Attorney-General`
   - `Registrar`
@@ -75,3 +87,9 @@ Wave 2 predicates enabled for candidate/promoted coverage where supported:
 
 Promotion remains conservative and receipt-derived. Candidate-only rows are
 preferred over weak promotion.
+
+## Deferred next step
+- if AU and non-AU lanes both need the same lexical-rule runtime shape, promote
+  the current versioned cue catalog into a shared DB-backed lexical-trigger
+  substrate with explicit rule receipts rather than extending inline extractor
+  logic further

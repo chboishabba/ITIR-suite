@@ -121,3 +121,20 @@ yet broadly promoted.
     relation_candidate -> semantic_relation` shape can express court/forum/
     authority/review patterns without schema changes
   - keep ambiguous forum/title labels abstained unless stronger evidence exists
+
+## Transcript Pressure-Test Lane
+- bounded freeform/transcript semantic v1 is now the next active pressure-test
+  corpus rather than a deferred widening target
+- current posture:
+  - exercise the same frozen semantic spine against noisier text
+  - pressure-test abstention, speaker/actor ambiguity, and candidate-only
+    relation behavior
+  - verify that broad entity extraction can coexist with conservative relation
+    promotion
+- current implementation boundary:
+  - freeform/transcript mention extraction may be broad
+  - speaker/event-role artifacts persist in the shared semantic tables
+  - conversational relation output may remain candidate-only
+  - ambiguous speaker/actor cases abstain rather than invent structure
+- current transcript lane note:
+  - `docs/planning/transcript_semantic_phase_v1_20260308.md`
