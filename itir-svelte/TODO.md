@@ -41,6 +41,9 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
   - `FolderListViewer.svelte` (generic file/folder picker lane)
   - `transcript.ts` (deterministic cue/timestamp parsing utilities ported from tircorder behavior)
 - DONE (2026-02-12): add `/viewers/hca-case` workbench route to exercise transcript + document + folder viewers against `SensibLaw/demo/ingest/hca_case_s942025`.
+- Keep the `workbench` concept documented and consistent:
+  - workbenches are inspection/debug routes, not parity/dashboard modules
+  - they may carry richer reviewer affordances, but no independent semantic authority
 - Follow-up:
   - wire these viewers into SB thread/event detail surfaces where transcript/document artifacts are present.
   - define a shared span contract (`char_start/end`, `token span`, `source artifact id`) for graph <-> viewer cross-highlighting.
@@ -104,6 +107,26 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
 - Whole-article AAO view: add optional edge labels/weights and filters (by section, by action verb) without changing extraction artifacts.
 - Whole-article AAO view: add a "show hidden counts" summary (subjects/objects dropped by display caps).
 - Whole-article AAO view: add evidence overlay lane (`citations[]`, `sl_references[]`) with edge-kind toggle (`role|sequence|evidence`) and keep evidence edges out of layout-neighbor centering logic.
+
+## Semantic Report Workbench
+
+- Add a token-arc debug inspector to `/graphs/semantic-report` for text-rich
+  semantic events:
+  - render event text as hoverable tokens
+  - draw SVG arcs on hover
+  - color by relation family/type
+  - opacity by confidence tier
+  - visually distinguish promoted vs candidate-only rows
+- Keep this surface debug-only:
+  - derive anchors from existing mentions/receipts/label-text fallback
+  - do not invent canonical spans or write back new semantic facts
+- Follow-up:
+  - extract a shared text-debug payload contract for token/text-local relation
+    inspection instead of keeping semantic-report-specific arc types in the
+    route loader
+  - prove the contract with a transcript/freeform semantic producer so the
+    workbench is demonstrably reusable beyond legal-only lanes
+  - revisit a shared graph <-> document span contract after this view is stable
 
 ## Chat Flow Waterfall (Semantics)
 

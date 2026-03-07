@@ -132,6 +132,52 @@ Performance note (important):
 - Policy: keep dashed edges for small graphs; for dense graphs we only show dashed styling on "hot" edges when a node is expanded, and fall back to solid strokes otherwise.
 - If we add new lanes that connect broadly (like Source/Lens), prefer solid strokes by default and reserve dashed for focused/filtered interactions.
 
+## Workbench Surfaces
+
+`itir-svelte` uses the term `workbench` for routes that are intentionally more
+inspection-heavy than the main dashboard surfaces.
+
+Workbench characteristics:
+- built for debugging, review, and interaction with a bounded payload or artifact
+- may expose richer controls, overlays, provenance, and temporary diagnostics
+- can use stronger developer/reviewer affordances than the main user-facing
+  dashboard modules
+- remain display-layer tools; they do not gain independent semantic authority
+
+Current examples:
+- `/viewers/hca-case`: transcript + document viewer workbench
+- `/graphs/semantic-report`: semantic report workbench for graph + token-arc
+  debugging
+
+Why the term matters:
+- it separates exploratory/debug UI from parity/dashboard UI
+- it gives us one stable label for routes that are intentionally more “lab
+  bench” than “finished report”
+
+## Semantic Report Debug Surface
+
+The semantic report route (`/graphs/semantic-report`) is also the current
+workbench for text-local semantic debugging.
+
+Current intended direction:
+- keep the corpus summary + predicate graph
+- add an event-local token arc inspector for text-rich semantic events
+- on token hover, draw relation arcs colored by semantic family/type and faded
+  by confidence tier
+- support click-to-pin debugging so arcs stay visible while receipts/anchors are
+  inspected
+- surface anchor provenance (`mention`, `receipt`, `label_fallback`) so weak
+  fallback anchoring is visible rather than hidden
+- consume a shared text-debug payload contract so the same workbench primitive
+  can be fed by multiple producers instead of only the legal semantic-report
+  loader
+- prove that contract against transcript/freeform semantic payloads as the
+  first non-legal producer
+
+Important boundary:
+- this is a display/debug layer over report payloads and receipts
+- it does not change semantic extraction, promotion, or canonical spans
+
 ## Chat Threads (Dashboard)
 
 The Chat Threads table supports source-based filtering so you can enable/disable

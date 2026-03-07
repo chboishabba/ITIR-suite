@@ -3,6 +3,27 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Docs: define `workbench` explicitly in the `itir-svelte` README as the label
+  for inspection-heavy debug/review routes (for example `/viewers/hca-case` and
+  `/graphs/semantic-report`), distinct from parity/dashboard modules.
+- Graphs/semantic report: add a token-arc debugger workbench to
+  `/graphs/semantic-report` for text-rich semantic events. The new view renders
+  hoverable event tokens, draws SVG relation arcs colored by semantic
+  family/type and faded by confidence tier, and lists the hovered
+  subject/predicate/object anchors for debug/review. This is a display-only
+  semantic debugging surface; it does not write canonical spans or alter
+  extraction/promotion behavior.
+- Graphs/semantic report: extend the token-arc debugger with click-to-pin /
+  clear-pin behavior so arc sets stay visible during inspection, and expose
+  anchor provenance (`mention`, `receipt`, `label_fallback`) in the side panel.
+  The provenance model is intentionally generic so the same component can later
+  be reused beyond legal-only semantic lanes.
+- Graphs/semantic report: extract the token-arc payload into a shared
+  `textDebug` contract and make the inspector consume that generic event/text /
+  relation / anchor shape directly instead of semantic-report-local types.
+- Graphs/semantic report: add a transcript/freeform semantic producer as a
+  third selectable corpus so the token-arc workbench is proven against a real
+  non-legal source rather than only GWB/HCA legal report payloads.
 - Dev/SSR: work around intermittent Vite SSR resolution selecting Svelte's browser/client
   entrypoints by pinning `ssr.resolve.conditions = ['node','default','development']`
   (intentionally omits `browser`) in `vite.config.ts`, avoiding the

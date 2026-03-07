@@ -1,5 +1,6 @@
 <script lang="ts">
   import LayeredGraph from '$lib/ui/LayeredGraph.svelte';
+  import TokenArcInspector from '$lib/semantic/TokenArcInspector.svelte';
 
   export let data: {
     source: string;
@@ -10,6 +11,7 @@
     comparison?: any;
     graphGate?: any;
     semanticGraph?: any;
+    tokenArcDebug?: any;
     error: string | null;
   };
 
@@ -38,6 +40,7 @@
   const graphGate = data.graphGate ?? compare?.graphGate;
   const semanticGraph = data.semanticGraph ?? compare?.semanticGraph;
   const graphViewportKey = `${String(graphGate?.enabled ?? false)}:${String(graphGate?.predicateTypeCount ?? 0)}:${String(graphGate?.totalRelationCandidates ?? 0)}`;
+  const tokenArcDebug = data.tokenArcDebug ?? { events: [], unavailableReason: null };
 </script>
 
 <svelte:head>
@@ -205,6 +208,10 @@
         {/if}
       </section>
     {/if}
+
+    <div class="mb-6">
+      <TokenArcInspector events={tokenArcDebug.events ?? []} unavailableReason={tokenArcDebug.unavailableReason ?? null} />
+    </div>
 
     <div class="grid gap-6 xl:grid-cols-3">
       <section class="rounded border border-zinc-200 bg-white p-4">

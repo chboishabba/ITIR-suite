@@ -5,7 +5,15 @@ export async function load({ url }: { url: URL }) {
   const available = listSemanticCorpora();
   try {
     const [payload, comparison] = await Promise.all([loadSemanticReport(source), loadSemanticComparison()]);
-    return { ...payload, comparison, graphGate: comparison.graphGate, semanticGraph: comparison.semanticGraph, available, error: null as string | null };
+    return {
+      ...payload,
+      comparison,
+      graphGate: comparison.graphGate,
+      semanticGraph: comparison.semanticGraph,
+      tokenArcDebug: payload.tokenArcDebug,
+      available,
+      error: null as string | null
+    };
   } catch (e) {
     return {
       source,
@@ -14,6 +22,7 @@ export async function load({ url }: { url: URL }) {
       comparison: null,
       graphGate: null,
       semanticGraph: null,
+      tokenArcDebug: { events: [], unavailableReason: null },
       available,
       error: e instanceof Error ? e.message : String(e)
     };

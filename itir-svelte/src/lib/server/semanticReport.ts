@@ -1,13 +1,21 @@
 import path from 'node:path';
 import { existsSync } from 'node:fs';
 import { spawn } from 'node:child_process';
+import type {
+  TextDebugAnchor,
+  TextDebugEvent,
+  TextDebugPayload,
+  TextDebugRelation,
+  TextDebugToken
+} from '$lib/semantic/textDebug';
 
 type SemanticCorpusConfig = {
   key: string;
   label: string;
   script: string;
-  timelineSuffix: string;
+  timelineSuffix?: string;
   importSeed?: boolean;
+  reportArgs?: string[];
 };
 
 export type SemanticSeedCoverage = {
@@ -42,6 +50,19 @@ export type SemanticRelation = {
   receipts: Array<{ kind: string; value: string }>;
 };
 
+export type SemanticPerEventRow = {
+  event_id: string;
+  text?: string;
+  mentions?: Array<{
+    surface_text: string;
+    resolved_entity?: SemanticEntity | null;
+    resolution_status?: string;
+    resolution_rule?: string;
+  }>;
+  promoted_relations?: SemanticRelation[];
+  candidate_only_relations?: SemanticRelation[];
+};
+
 export type SemanticMention = {
   event_id: string;
   cluster_id: number;
@@ -70,6 +91,7 @@ export type SemanticReportPayload = {
     promoted_relation_count: number;
     candidate_relation_count?: number;
   }>;
+  per_event?: SemanticPerEventRow[];
   au_linkage?: {
     ambiguous_events: Array<{ event_id: string; matches: unknown[] }>;
     per_seed: Array<{ seed_id: string; matched_count: number; candidate_count: number }>;
@@ -151,6 +173,12 @@ const SEMANTIC_CORPORA: Record<string, SemanticCorpusConfig> = {
     script: path.join('SensibLaw', 'scripts', 'au_semantic.py'),
     timelineSuffix: 'wiki_timeline_hca_s942025_aoo.json',
     importSeed: true
+  },
+  transcript: {
+    key: 'transcript',
+    label: 'Transcript / freeform',
+    script: path.join('SensibLaw', 'scripts', 'transcript_semantic.py'),
+    reportArgs: ['report']
   }
 };
 
@@ -186,6 +214,211 @@ async function readStdout(cmd: string, args: string[], cwd: string): Promise<str
 
 function parseReport(raw: string): SemanticReportPayload {
   return JSON.parse(raw) as SemanticReportPayload;
+}
+
+function tokenizeEventText(text: string): TextDebugToken[] {
+  const tokens: TextDebugToken[] = [];
+  const re = /[A-Za-z0-9][A-Za-z0-9.'’:/-]*/g;
+  let match: RegExpExecArray | null;
+  let index = 0;
+  while ((match = re.exec(text)) !== null) {
+    tokens.push({
+      index,
+      text: String(match[0]),
+      start: Number(match.index),
+      end: Number(match.index) + String(match[0]).length
+    });
+    index += 1;
+  }
+  return tokens;
+}
+
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function normalizeSurface(text: string): string {
+  return text.trim().replace(/\s+/g, ' ');
+}
+
+function findSurfaceRange(text: string, surface: string): { start: number; end: number } | null {
+  const trimmed = normalizeSurface(surface);
+  if (!trimmed) return null;
+  const re = new RegExp(escapeRegExp(trimmed), 'i');
+  const match = re.exec(text);
+  if (!match || match.index < 0) return null;
+  return { start: match.index, end: match.index + match[0].length };
+}
+
+function findReceiptRange(text: string, relation: SemanticRelation): { start: number; end: number; source: 'receipt' | 'label_fallback' } | null {
+  const preferred = ['cue_surface', 'verb', 'role_marker', 'authority_title', 'provenance_cue'];
+  for (const kind of preferred) {
+    const receipt = relation.receipts.find((row) => String(row.kind) === kind && String(row.value).trim());
+    if (!receipt) continue;
+    const range = findSurfaceRange(text, String(receipt.value));
+    if (range) return { ...range, source: 'receipt' };
+  }
+  const fallback = findSurfaceRange(text, String(relation.display_label || relation.predicate_key || '').replaceAll('_', ' '));
+  return fallback ? { ...fallback, source: 'label_fallback' } : null;
+}
+
+function charRangeToTokenRange(
+  tokens: TextDebugToken[],
+  start: number,
+  end: number
+): { tokenStart: number; tokenEnd: number } | null {
+  const overlapping = tokens.filter((token) => token.end > start && token.start < end);
+  if (!overlapping.length) return null;
+  return {
+    tokenStart: overlapping[0]?.index ?? 0,
+    tokenEnd: overlapping[overlapping.length - 1]?.index ?? 0
+  };
+}
+
+function entityAnchorRange(
+  text: string,
+  tokens: TextDebugToken[],
+  mentions: Array<{
+    surface_text: string;
+    resolved_entity?: SemanticEntity | null;
+    resolution_status?: string;
+  }>,
+  entity: SemanticEntity,
+  fallbackLabel: string
+): { tokenStart: number; tokenEnd: number; source: 'mention' | 'label_fallback' } | null {
+  const matchingMention = mentions.find(
+    (mention) =>
+      mention.resolution_status === 'resolved' &&
+      mention.resolved_entity &&
+      String(mention.resolved_entity.canonical_key) === String(entity.canonical_key)
+  );
+  if (matchingMention) {
+    const range = findSurfaceRange(text, String(matchingMention.surface_text));
+    const tokenRange = range ? charRangeToTokenRange(tokens, range.start, range.end) : null;
+    if (tokenRange) return { ...tokenRange, source: 'mention' };
+  }
+  const fallback = findSurfaceRange(text, fallbackLabel);
+  if (fallback) {
+    const tokenRange = charRangeToTokenRange(tokens, fallback.start, fallback.end);
+    if (tokenRange) return { ...tokenRange, source: 'label_fallback' };
+  }
+  const keyTail = String(entity.canonical_key).split(':').pop()?.replaceAll('_', ' ') ?? '';
+  if (keyTail) {
+    const keyRange = findSurfaceRange(text, keyTail);
+    if (keyRange) {
+      const tokenRange = charRangeToTokenRange(tokens, keyRange.start, keyRange.end);
+      if (tokenRange) return { ...tokenRange, source: 'label_fallback' };
+    }
+  }
+  return null;
+}
+
+function relationFamily(predicateKey: string): { family: string; color: string } {
+  if (['ruled_by', 'challenged_in', 'subject_of_review_by', 'appealed', 'challenged', 'heard_by', 'decided_by'].includes(predicateKey)) {
+    return { family: 'review', color: '#2563eb' };
+  }
+  if (['applied', 'followed', 'distinguished', 'held_that'].includes(predicateKey)) {
+    return { family: 'authority', color: '#059669' };
+  }
+  if (['signed', 'vetoed', 'nominated', 'confirmed_by', 'authorized', 'funded_by', 'sanctioned'].includes(predicateKey)) {
+    return { family: 'governance', color: '#d97706' };
+  }
+  if (['replied_to'].includes(predicateKey)) {
+    return { family: 'conversation', color: '#e11d48' };
+  }
+  if (['felt_state'].includes(predicateKey)) {
+    return { family: 'state', color: '#7c3aed' };
+  }
+  return { family: 'semantic', color: '#475569' };
+}
+
+function confidenceOpacity(confidenceTier: string, promotionStatus: string): number {
+  const base =
+    confidenceTier === 'high' ? 0.92 : confidenceTier === 'medium' ? 0.7 : confidenceTier === 'low' ? 0.42 : 0;
+  return promotionStatus === 'promoted' ? base : Math.max(0.18, base * 0.82);
+}
+
+function buildTokenArcDebug(report: SemanticReportPayload): TextDebugPayload {
+  const perEvent = Array.isArray(report.per_event) ? report.per_event : [];
+  const events: TextDebugEvent[] = [];
+  for (const event of perEvent) {
+    const text = String(event.text ?? '').trim();
+    if (!text) continue;
+    const tokens = tokenizeEventText(text);
+    if (!tokens.length) continue;
+    const mentions = Array.isArray(event.mentions) ? event.mentions : [];
+    const rows = [
+      ...(Array.isArray(event.promoted_relations) ? event.promoted_relations : []),
+      ...(Array.isArray(event.candidate_only_relations) ? event.candidate_only_relations : [])
+    ];
+    const relations: TextDebugRelation[] = [];
+    for (const row of rows) {
+      const subjectRange = entityAnchorRange(text, tokens, mentions, row.subject, String(row.subject?.canonical_label ?? ''));
+      const objectRange = entityAnchorRange(text, tokens, mentions, row.object, String(row.object?.canonical_label ?? ''));
+      const predicateCharRange = findReceiptRange(text, row);
+      const predicateTokenRange = predicateCharRange ? charRangeToTokenRange(tokens, predicateCharRange.start, predicateCharRange.end) : null;
+      const predicateRange =
+        predicateCharRange && predicateTokenRange ? { ...predicateTokenRange, source: predicateCharRange.source } : null;
+      const anchors: TextDebugAnchor[] = [];
+      if (subjectRange) {
+        anchors.push({
+          key: `${row.candidate_id}:subject`,
+          role: 'subject',
+          label: String(row.subject?.canonical_label ?? row.subject?.canonical_key ?? 'subject'),
+          source: subjectRange.source,
+          tokenStart: subjectRange.tokenStart,
+          tokenEnd: subjectRange.tokenEnd
+        });
+      }
+      if (predicateRange) {
+        anchors.push({
+          key: `${row.candidate_id}:predicate`,
+          role: 'predicate',
+          label: String(row.display_label || row.predicate_key),
+          source: predicateRange.source,
+          tokenStart: predicateRange.tokenStart,
+          tokenEnd: predicateRange.tokenEnd
+        });
+      }
+      if (objectRange) {
+        anchors.push({
+          key: `${row.candidate_id}:object`,
+          role: 'object',
+          label: String(row.object?.canonical_label ?? row.object?.canonical_key ?? 'object'),
+          source: objectRange.source,
+          tokenStart: objectRange.tokenStart,
+          tokenEnd: objectRange.tokenEnd
+        });
+      }
+      if (anchors.length < 2) continue;
+      const familyMeta = relationFamily(String(row.predicate_key || ''));
+      relations.push({
+        relationId: `${event.event_id}:${row.candidate_id}`,
+        predicateKey: String(row.predicate_key || ''),
+        displayLabel: String(row.display_label || row.predicate_key || ''),
+        promotionStatus: String(row.promotion_status || 'candidate'),
+        confidenceTier: String(row.confidence_tier || 'low'),
+        family: familyMeta.family,
+        color: familyMeta.color,
+        opacity: confidenceOpacity(String(row.confidence_tier || 'low'), String(row.promotion_status || 'candidate')),
+        anchors
+      });
+    }
+    if (!relations.length) continue;
+    events.push({
+      eventId: String(event.event_id),
+      text,
+      tokenCount: tokens.length,
+      relationCount: relations.length,
+      promotedCount: relations.filter((row) => row.promotionStatus === 'promoted').length,
+      tokens,
+      relations
+    });
+  }
+  return {
+    events: events.slice(0, 24),
+    unavailableReason: events.length ? null : 'No text-rich semantic events with defensible token anchors are available for this corpus yet.'
+  };
 }
 
 const GRAPH_GATE_THRESHOLD = {
@@ -361,7 +594,13 @@ export function listSemanticCorpora(): Array<{ key: string; label: string }> {
 
 export async function loadSemanticReport(
   source: string
-): Promise<{ source: string; label: string; report: SemanticReportPayload; reviewedLinkage: SemanticReviewedLinkage | null }> {
+): Promise<{
+  source: string;
+  label: string;
+  report: SemanticReportPayload;
+  reviewedLinkage: SemanticReviewedLinkage | null;
+  tokenArcDebug: TextDebugPayload;
+}> {
   const cfg = SEMANTIC_CORPORA[source] ?? SEMANTIC_CORPORA.gwb;
   if (!cfg) {
     throw new Error('semantic corpus configuration missing');
@@ -371,13 +610,16 @@ export async function loadSemanticReport(
   if (cfg.importSeed) {
     await readStdout('python', [path.join(repoRoot, cfg.script), '--db-path', dbPath, 'import-seed'], repoRoot);
   }
-  const raw = await readStdout(
-    'python',
-    [path.join(repoRoot, cfg.script), '--db-path', dbPath, 'report', '--timeline-suffix', cfg.timelineSuffix],
-    repoRoot
-  );
+  const reportArgs = cfg.reportArgs ?? ['report', '--timeline-suffix', cfg.timelineSuffix ?? ''];
+  const raw = await readStdout('python', [path.join(repoRoot, cfg.script), '--db-path', dbPath, ...reportArgs], repoRoot);
   const report = parseReport(raw);
-  return { source: cfg.key, label: cfg.label, report, reviewedLinkage: normalizeReviewedLinkage(report) };
+  return {
+    source: cfg.key,
+    label: cfg.label,
+    report,
+    reviewedLinkage: normalizeReviewedLinkage(report),
+    tokenArcDebug: buildTokenArcDebug(report)
+  };
 }
 
 export async function loadSemanticComparison(): Promise<SemanticComparisonPayload> {
