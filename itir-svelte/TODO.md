@@ -120,12 +120,16 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
 - Keep this surface debug-only:
   - derive anchors from existing mentions/receipts/label-text fallback
   - do not invent canonical spans or write back new semantic facts
+- DONE (2026-03-08): extract a shared `text-debug` payload contract for
+  token/text-local relation inspection instead of keeping semantic-report-
+  specific arc types in the route loader.
+- DONE (2026-03-08): prove the contract with a transcript/freeform semantic
+  producer so the workbench is demonstrably reusable beyond legal-only lanes.
 - Follow-up:
-  - extract a shared text-debug payload contract for token/text-local relation
-    inspection instead of keeping semantic-report-specific arc types in the
-    route loader
-  - prove the contract with a transcript/freeform semantic producer so the
-    workbench is demonstrably reusable beyond legal-only lanes
+  - add relation-level pin/freeze from the side panel, not just token-triggered
+    arc sets
+  - expose anchor provenance/source confidence more explicitly when a producer
+    falls back from mention/receipt anchoring to label-text matching
   - revisit a shared graph <-> document span contract after this view is stable
 
 ## Chat Flow Waterfall (Semantics)
