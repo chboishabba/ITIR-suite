@@ -176,3 +176,51 @@ Deterministic tokenizer migration is promoted to canonical with persisted profil
 - Side-by-side corpus comparison now exists through
   `report_structure_corpora.py --by-source`, so chat/context/transcript runs
   can be compared in one deterministic report.
+- Messenger test DBs now flow through that shared comparison path as well.
+- Messenger test DBs now also have a deterministic speaker-inference report
+  surface. Current receipts are high-confidence explicit bracketed senders, and
+  the first conservative multi-turn coalescence rule is live for
+  single-gap `insufficient_evidence` units bracketed by the same speaker.
+- Messenger/report path cleanup now strips URL schemes before `path_ref`
+  canonicalization. Remaining live noise is mostly sender-label contamination
+  from some platform system rows, not the earlier generic slash-heavy prose
+  false positives.
+- Speaker inference is no longer docs-only. Current deterministic v1 emits
+  receipts for explicit headers, role prefixes, cautious `Q:/A:` mapping when
+  known participants are supplied, and explicit abstention on timing-only
+  ranges. Remaining work is conservative multi-turn coalescence and a compact
+  inference report surface.
+- GWB U.S.-law linkage is no longer just a checked-in starter JSON. The seed
+  has been expanded to an 11-lane reviewed corpus sweep and imported into
+  shared `itir.sqlite` tables with deterministic match and receipt storage:
+  - `gwb_us_law_linkage_seeds`
+  - `gwb_us_law_linkage_seed_authorities`
+  - `gwb_us_law_linkage_seed_refs`
+  - `gwb_us_law_linkage_seed_cues`
+  - `gwb_us_law_linkage_matches`
+  - `gwb_us_law_linkage_match_receipts`
+- Live DB-backed GWB linkage run status:
+  - event count: `142`
+  - matched events: `15`
+  - ambiguous events: `8`
+  - all `11` reviewed seeds surfaced in the report
+- Current cleanest linkage lanes are the explicit reviewed title / reviewed
+  court-body lanes:
+  - `clear_skies_2003`
+  - `syria_accountability_act`
+  - `stem_cell_research_enhancement_act`
+  - `genetic_information_nondiscrimination_act`
+  - `nsa_surveillance_review`
+  - `supreme_court_appointments`
+- Current next matcher-quality target is broad cue tightening:
+  generic cues like `Congress`, `Iraq`, `veto`, and `Supreme Court` currently
+  still create low-confidence candidate noise and should require stronger
+  co-signals before promotion.
+- GWB semantic v1.1 is now frozen around the unified entity spine and
+  edge-first relation model:
+  - courts are stored as `institution_actor` plus classification
+  - person and office remain explicitly separate
+  - ambiguous discourse/title mentions like `Bush administration`, `the
+    President`, and `the court` abstain by default
+  - low-support relation rows remain visible as `candidate` outputs instead of
+    being promoted prematurely

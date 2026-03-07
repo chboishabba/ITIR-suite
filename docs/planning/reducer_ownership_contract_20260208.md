@@ -172,6 +172,24 @@ IDs without silent replacement.
 ### T3: SB boundary tests
 SB reducer changes do not alter canonical token/concept identity assignments.
 
+Clarification:
+- SB is not a legal-semantic authority surface.
+- SB only consumes or extends SL-owned lexer/compression outputs for
+  shell-like, transcript-like, message-like, and related ITIR/TiRC workflows.
+- If a boundary fixture carries a legal case label or legal-looking canonical
+  ID, that fixture is acting only as an opaque SL-origin canonical payload for
+  preservation testing, not as a sign that SB is modeling legal semantics.
+
+Minimum fixture-driven forms:
+- segmentation preservation
+  - SB must not mutate SL-provided segment boundaries for the same fixture
+- canonical ID preservation
+  - SB must preserve shared SL canonical IDs for the same reducer/profile
+    version
+- no summary injection
+  - SB must not inject summary-only synthetic segments/content into the
+    canonical evidence lane
+
 ### T4: Drift prevention tests
 Build/test checks fail when SB/TiRCorder introduce unapproved canonical identity
 stores.

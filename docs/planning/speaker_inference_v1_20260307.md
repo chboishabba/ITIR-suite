@@ -43,6 +43,17 @@ The inference layer must preserve the distinction between:
 - inferred speaker assignments
 - unresolved turns
 
+The initial implementation is intentionally staged:
+- stage 1: direct deterministic receipts from explicit headers, role prefixes,
+  cautious `Q:/A:` mapping when known participants are supplied, and explicit
+  abstention on timing-only transcript ranges
+- stage 2: conservative multi-turn coalescence only where adjacent unit
+  structure supports a deterministic carry-over receipt. This is now partially
+  implemented for single-gap `insufficient_evidence` units bracketed by the
+  same explicit speaker in the same source, with `neighbor_consensus` receipts.
+- stage 3: reviewed disagreement/entropy heuristics after they are separately
+  pinned
+
 ## Current repo alignment
 
 - TiRCorder already has sentiment utilities and planning/docs that treat
@@ -56,6 +67,11 @@ The inference layer must preserve the distinction between:
 
 - Formalize deterministic disagreement/entropy heuristics for speaker
   coalescence in DASHI/ITIR terms.
+- Tighten sender extraction for archive-derived message sources where platform
+  system strings can bleed into sender labels.
+- Extend the new speaker-inference report surface so assigned speakers,
+  abstentions, confidence tiers, and dominant reason codes can be compared
+  cleanly across chat, Messenger, context, and transcript corpora.
 - Define how participant rosters enter the inference path for archive/chat
   sources.
 - Add fixture-backed acceptance tests only after those heuristics are pinned.

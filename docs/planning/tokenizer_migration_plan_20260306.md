@@ -165,6 +165,11 @@ Tokenizer migration signoff requires all three of these lanes:
   - `docs/user_stories.md`
   - `docs/planning/ui_invariant_test_runner.md`
   - `StatiBaker/runs/2026-01-22/outputs/dashboard_all.json`
+- Small deterministic integration tests that should close most of the current
+  SL -> SB boundary risk:
+  - segmentation preservation test
+  - canonical ID preservation test
+  - no summary injection / no synthetic segment creation test
 
 ## Verification Requirements
 - Determinism: same input bytes + tokenizer version => identical token stream.
@@ -221,6 +226,18 @@ Tokenizer migration signoff requires all three of these lanes:
 - The isolated chat ingest path now persists explicit retention/redaction
   metadata (`source_namespace`, `source_class`, `retention_policy`,
   `redaction_policy`) and its own structural atom dictionary/occurrence tables.
+- The deterministic storage/tokenizer/bridge/report stack is now being used by
+  a substantive target: GWB U.S.-law linkage. The current reviewed seed has
+  been expanded to an 11-lane corpus-visible sweep and imported into
+  shared `itir.sqlite` tables with deterministic matching and receipts.
+- Current live GWB linkage result over the DB-backed timeline:
+  - events: `142`
+  - promoted matches: `15`
+  - ambiguous events: `8`
+  - all `11` reviewed seeds present in the report
+- This confirms the current migration work is past “rails only”: the canonical
+  deterministic storage/tokenization path is now feeding a substantive
+  legal-linkage report without reintroducing regex/JSON-first canonical logic.
 - Reviewed bridge slice `seeded_body_refs_v1` now includes:
   - `institution:united_states_department_of_defense -> wikidata:Q11209`
   - `court:united_states_court_of_appeals_for_the_sixth_circuit -> wikidata:Q250472`
@@ -313,6 +330,28 @@ Tokenizer migration signoff requires all three of these lanes:
 - `report_structure_corpora.py` now supports `--by-source` to emit an overall
   summary plus per-source breakdowns for chat DB runs, context files, and
   transcript inputs in one deterministic report.
+- Messenger test DBs now flow through that shared comparison path as well
+- Messenger test DBs now also flow through a dedicated deterministic speaker
+  inference report path; current high-confidence assignments come from explicit
+  bracketed sender headers, and the first conservative multi-turn coalescence
+  rule is implemented for single-gap `insufficient_evidence` units bracketed by
+  the same speaker.
+- Messenger URL/path normalization was tightened again so canonical path refs
+  now strip URL schemes before slugging. Remaining live noise is concentrated in
+  sender/header contamination from some platform system rows rather than the
+  earlier broad slash-prose path false positives.
+- A deterministic top-k relation-neighborhood view now exists in
+  `scripts/report_relation_neighborhoods.py` so recurring actors/topics in
+  chat/context/transcript corpora can be inspected through (a) parser-local
+  dependency/co-occurrence evidence and (b) reviewed bridge/Wikidata matches
+  when a pinned slice exists. This remains report-time evidence, not canonical
+  ontology mutation.
+  rather than relying on a stand-alone ad hoc summary script only.
+- Speaker inference has moved from design-only to staged implementation:
+  current receipts handle explicit message headers, role prefixes, cautious
+  `Q:/A:` mapping with known participants, and abstention on timing-only
+  subtitle ranges; next steps are conservative multi-turn coalescence plus a
+  compact inference summary surface.
 
 ## Rollback Strategy
 If parity fails:

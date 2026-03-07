@@ -85,6 +85,7 @@ def _connect_sqlite_ro(db_path: Path) -> sqlite3.Connection:
 class DbMatch:
     match_type: str
     canonical_thread_id: str
+    online_thread_id: Optional[str]
     title: str
     latest_ts: str
     latest_role: str
@@ -128,6 +129,39 @@ def _query_thread_message_count(cur: sqlite3.Cursor, thread_id: str) -> int:
     cur.execute(
         "SELECT COUNT(*) FROM messages WHERE LOWER(canonical_thread_id) = LOWER(?)",
         (thread_id,),
+    )
+    row = cur.fetchone()
+    return int(row[0]) if row and row[0] is not None else 0
+
+
+def _fetch_latest_for_online_thread_id(
+    cur: sqlite3.Cursor, online_thread_id: str, *, require_text: bool = False
+) -> Optional[tuple]:
+    text_clause = ""
+    if require_text:
+        text_clause = "AND text IS NOT NULL AND TRIM(text) <> ''"
+
+    cur.execute(
+        f"""
+        SELECT canonical_thread_id, source_thread_id, COALESCE(NULLIF(title, ''), '(no title)') AS title, ts, role, text
+        FROM messages
+        WHERE LOWER(source_thread_id) = LOWER(?)
+          {text_clause}
+        ORDER BY ts DESC, rowid DESC
+        LIMIT 1
+        """,
+        (online_thread_id,),
+    )
+    row = cur.fetchone()
+    if row or not require_text:
+        return row
+    return _fetch_latest_for_online_thread_id(cur, online_thread_id, require_text=False)
+
+
+def _query_online_thread_message_count(cur: sqlite3.Cursor, online_thread_id: str) -> int:
+    cur.execute(
+        "SELECT COUNT(*) FROM messages WHERE LOWER(source_thread_id) = LOWER(?)",
+        (online_thread_id,),
     )
     row = cur.fetchone()
     return int(row[0]) if row and row[0] is not None else 0
@@ -210,7 +244,25 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
         con.close()
         return None
 
-    # 1) Exact canonical thread id match.
+    # 1) Exact online thread id match.
+    online_row = _fetch_latest_for_online_thread_id(cur, selector, require_text=True)
+    if online_row:
+        count = _query_online_thread_message_count(cur, str(online_row["source_thread_id"]))
+        con.close()
+        return DbMatch(
+            match_type="online_thread_id_exact",
+            canonical_thread_id=online_row["canonical_thread_id"],
+            online_thread_id=online_row["source_thread_id"],
+            title=online_row["title"],
+            latest_ts=online_row["ts"],
+            latest_role=online_row["role"],
+            latest_text=online_row["text"],
+            thread_message_count=count,
+            matched_thread_count=1,
+            db_path=str(db_path.expanduser().resolve()),
+        )
+
+    # 2) Exact canonical thread id match.
     row = _fetch_latest_for_thread(cur, selector, require_text=True)
     if row:
         count = _query_thread_message_count(cur, row["canonical_thread_id"])
@@ -218,6 +270,7 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
         return DbMatch(
             match_type="canonical_thread_id_exact",
             canonical_thread_id=row["canonical_thread_id"],
+            online_thread_id=None,
             title=row["title"],
             latest_ts=row["ts"],
             latest_role=row["role"],
@@ -227,10 +280,10 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
             db_path=str(db_path.expanduser().resolve()),
         )
 
-    # 2) Exact title match (case-insensitive); choose most recent thread.
+    # 3) Exact title match (case-insensitive); choose most recent thread.
     cur.execute(
         """
-        SELECT canonical_thread_id, COALESCE(NULLIF(title, ''), '(no title)') AS title, ts, role, text
+        SELECT canonical_thread_id, source_thread_id, COALESCE(NULLIF(title, ''), '(no title)') AS title, ts, role, text
         FROM messages
         WHERE LOWER(title) = LOWER(?)
           AND text IS NOT NULL
@@ -253,6 +306,7 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
         return DbMatch(
             match_type="title_exact",
             canonical_thread_id=thread_id,
+            online_thread_id=exact_title_row["source_thread_id"],
             title=exact_title_row["title"],
             latest_ts=exact_title_row["ts"],
             latest_role=exact_title_row["role"],
@@ -262,12 +316,12 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
             db_path=str(db_path.expanduser().resolve()),
         )
 
-    # 3) Fuzzy title match (contains), only if selector is non-trivial.
+    # 4) Fuzzy title match (contains), only if selector is non-trivial.
     if len(selector.strip()) >= 3:
         like = f"%{selector.strip().lower()}%"
         cur.execute(
             """
-            SELECT canonical_thread_id, COALESCE(NULLIF(title, ''), '(no title)') AS title, ts, role, text
+            SELECT canonical_thread_id, source_thread_id, COALESCE(NULLIF(title, ''), '(no title)') AS title, ts, role, text
             FROM messages
             WHERE LOWER(title) LIKE ?
               AND text IS NOT NULL
@@ -290,6 +344,7 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
             return DbMatch(
                 match_type="title_contains",
                 canonical_thread_id=thread_id,
+                online_thread_id=fuzzy_row["source_thread_id"],
                 title=fuzzy_row["title"],
                 latest_ts=fuzzy_row["ts"],
                 latest_role=fuzzy_row["role"],
@@ -489,7 +544,7 @@ def _run_web_download(selector: str, repo_root: Path, venv_python: Path, timeout
     )
 
 
-def _looks_like_conversation_id(selector: str) -> bool:
+def _looks_like_online_thread_id(selector: str) -> bool:
     return bool(
         re.fullmatch(
             r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}",
@@ -502,11 +557,11 @@ def _resolve_live_conversation(chatgpt: object, selector: str) -> Optional[dict]
     normalized = selector.strip()
     if not normalized:
         return None
-    if _looks_like_conversation_id(normalized):
+    if _looks_like_online_thread_id(normalized):
         return {
             "conversation_id": normalized,
             "title": None,
-            "match_type": "conversation_id",
+            "match_type": "online_thread_id",
         }
 
     target = normalized.lower()
@@ -628,7 +683,10 @@ def _build_parser() -> argparse.ArgumentParser:
             "fallback to re-gpt --view when missing/stale."
         )
     )
-    parser.add_argument("selector", help="Conversation canonical_thread_id or title selector")
+    parser.add_argument(
+        "selector",
+        help="Conversation selector: online_thread_id, canonical_thread_id, or title",
+    )
     parser.add_argument(
         "--db",
         default="~/.chat_archive.sqlite",
@@ -964,6 +1022,7 @@ def _print_result(payload: dict, as_json: bool) -> None:
         if db:
             print(f"match_type: {db.get('match_type')}")
             print(f"title: {db.get('title')}")
+            print(f"online_thread_id: {db.get('online_thread_id')}")
             print(f"canonical_thread_id: {db.get('canonical_thread_id')}")
             print(f"latest_ts_utc: {db.get('latest_ts_utc')}")
             print(f"latest_role: {db.get('latest_role')}")
