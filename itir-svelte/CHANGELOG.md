@@ -3,6 +3,16 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Graphs/narrative compare: the thread-derived FriendlyJordies fixture now
+  surfaces two structured cross-source dispute families instead of leaving them
+  as flat source-only rows. The workbench can inspect both the CPRS
+  `contribute_to` vs `delay` consequence split and the Woolworths
+  `direct grocery impacts` vs `direct cost pass-through` statement split via
+  explicit `undermines` comparison links.
+- Graphs/narrative compare: FriendlyJordies comparison now also lifts the
+  majority-vs-minority government climate-policy argument into a structured
+  dispute family, so governance-capacity claims appear as explicit comparison
+  links instead of isolated source-only propositions.
 - Graphs/narrative compare: add a third FriendlyJordies authority-wrapper
   fixture and surface cross-source comparison links, so the workbench can show
   nested `assert/report -> hold -> fact` attribution stacks and explicit

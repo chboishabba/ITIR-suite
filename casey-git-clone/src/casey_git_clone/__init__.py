@@ -1,5 +1,7 @@
 """Casey Git Clone core package."""
 
+from .adapters import emit_casey_observer_artifacts
+from .adapters import emit_casey_observer_artifacts
 from .exchange import CaseyOverlayRefs, casey_to_sb_overlay_record
 from .ledger_sqlite import BuildLedgerRecord, OperationLedgerRecord
 from .models import (
@@ -31,4 +33,6 @@ __all__ = [
     "BuildLedgerRecord",
     "CaseyOverlayRefs",
     "casey_to_sb_overlay_record",
+    "emit_casey_observer_artifacts",
+    "emit_casey_observer_artifacts",
 ]

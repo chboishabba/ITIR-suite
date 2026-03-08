@@ -49,7 +49,13 @@
   - DONE: define the first monitor pack and dedicated runner/state-store contract
   - DONE: define a second curated high-contestation monitor pack to complement
     the ontology-stress pack
-  - land rolling current-vs-last-seen runner over live Wikipedia article packs
+  - DONE: land rolling current-vs-last-seen runner over live Wikipedia article packs
+  - DONE: document the history-aware runner contract and suite interface
+    posture for SB / SL-reasoner / fuzzymodo / casey-git-clone
+  - implement bounded revision-history polling and candidate-pair scoring over
+    recent article history windows
+  - add section-aware diff targeting and pair-level report wrappers over the
+    existing revision harness
   - attach bounded review-context joins from existing Wikidata diagnostics and
     bridge aliases to revision issue packets
   - run repeated live passes over both curated packs so the lane accumulates
@@ -61,8 +67,10 @@
   - Dependencies:
     - `SensibLaw/docs/wiki_revision_harness_contract_v0_1.md`
     - `SensibLaw/docs/wiki_revision_pack_runner_contract_v0_1.md`
+    - `SensibLaw/docs/wiki_revision_pack_runner_contract_v0_2.md`
     - `SensibLaw/docs/planning/wiki_revision_harness_first_pass_20260309.md`
     - `SensibLaw/docs/planning/wiki_revision_contested_pack_20260309.md`
+    - `SensibLaw/docs/planning/wiki_revision_history_runner_20260309.md`
     - `SensibLaw/scripts/wiki_revision_harness.py`
     - `SensibLaw/data/source_packs/wiki_revision_monitor_v1.json`
     - `SensibLaw/data/source_packs/wiki_revision_contested_v1.json`

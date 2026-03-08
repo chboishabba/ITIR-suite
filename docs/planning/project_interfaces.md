@@ -42,6 +42,10 @@ channels for each core project directory in this workspace.
   minimal observer-only contract for `casey-git-clone` workspace/collapse/build
   receipts entering `StatiBaker` as append-only events or reference-heavy
   overlays.
+- `SensibLaw/docs/wiki_revision_pack_runner_contract_v0_2.md`:
+  bounded history-aware Wikipedia revision monitor contract, including
+  candidate-pair scoring, section-delta targeting, and observer-only
+  cross-project handoff posture.
 - `docs/planning/itir_idempotency_dedupe_cooperation_20260208.md`:
   shared-vs-siloed idempotency/dedupe model, authority-crossing handshake,
   and schema-freeze decision queue (`Q1`-`Q11`).
