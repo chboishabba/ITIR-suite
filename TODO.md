@@ -46,15 +46,18 @@
     - run with project venv for spaCy parser lane (see `docs/planning/wiki_timeline_extraction_gwb_20260211.md`)
     - admissibility gate: `docs/planning/oac_object_admissibility_contract_v1_20260211.md`
 - [P2] Wikipedia revision harness followthrough:
+  - DONE: define the first monitor pack and dedicated runner/state-store contract
   - land rolling current-vs-last-seen runner over live Wikipedia article packs
-  - attach bounded review-context joins from existing Wikidata diagnostics to
-    revision issue packets
+  - attach bounded review-context joins from existing Wikidata diagnostics and
+    bridge aliases to revision issue packets
   - decide whether triage dashboards should later emit clearly-advisory edit
-    suggestions
+    suggestions or move directly to a workbench
   - Dependencies:
     - `SensibLaw/docs/wiki_revision_harness_contract_v0_1.md`
+    - `SensibLaw/docs/wiki_revision_pack_runner_contract_v0_1.md`
     - `SensibLaw/docs/planning/wiki_revision_harness_first_pass_20260309.md`
     - `SensibLaw/scripts/wiki_revision_harness.py`
+    - `SensibLaw/data/source_packs/wiki_revision_monitor_v1.json`
 
 - Come back to the Duncan/Emma response draft:
   - `docs/planning/response_to_duncan_emma_itir_hospital_advocacy_20260208.md` missed the intended mark (needs a better synthesis/voice and should be evaluated against the actual posting context).

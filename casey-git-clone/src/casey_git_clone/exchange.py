@@ -40,6 +40,14 @@ def casey_to_sb_overlay_record(
     operation_ledger_id: str | None = None,
     build_ledger_id: str | None = None,
 ) -> dict[str, Any]:
+    if operation_ledger_id:
+        for op in refs.operation_refs:
+            op.setdefault("operation_ledger_locator", operation_ledger_locator(operation_ledger_id))
+
+    if build_ledger_id:
+        for b in refs.build_refs:
+            b.setdefault("build_ledger_locator", build_ledger_locator(build_ledger_id))
+
     return {
         "activity_event_id": str(activity_event_id),
         "annotation_id": str(annotation_id),

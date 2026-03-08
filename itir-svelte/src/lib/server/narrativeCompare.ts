@@ -66,6 +66,7 @@ export type NarrativeComparisonReport = {
     shared_fact_count: number;
     disputed_fact_count: number;
     link_difference_count: number;
+    comparison_link_count: number;
   };
   shared_propositions: Array<{
     signature: string;
@@ -83,6 +84,13 @@ export type NarrativeComparisonReport = {
   shared_facts: Array<{ signature: string; left: any; right: any }>;
   disputed_facts: Array<{ left: any; right: any }>;
   link_differences: Array<{ signature: string; left_attributions: string[]; right_attributions: string[] }>;
+  comparison_links: Array<{
+    link_id: string;
+    link_kind: string;
+    left_proposition_id: string;
+    right_proposition_id: string;
+    receipts?: Array<{ kind: string; value: string }>;
+  }>;
   comparison_receipts: Array<{ kind: string; value: string }>;
   abstentions: Record<string, any[]>;
   corroboration_refs: Record<string, any[]>;
@@ -130,7 +138,8 @@ export async function loadNarrativeComparison(fixture = 'friendlyjordies_demo'):
     comparison: parsed.comparison as NarrativeComparisonReport,
     availableFixtures: [
       { key: 'friendlyjordies_demo', label: 'FriendlyJordies public-media demo' },
-      { key: 'friendlyjordies_chat_arguments', label: 'FriendlyJordies chat-derived arguments' }
+      { key: 'friendlyjordies_chat_arguments', label: 'FriendlyJordies chat-derived arguments' },
+      { key: 'friendlyjordies_authority_wrappers', label: 'FriendlyJordies authority wrappers' }
     ]
   };
 }

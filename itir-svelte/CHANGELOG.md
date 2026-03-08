@@ -3,6 +3,11 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Graphs/narrative compare: add a third FriendlyJordies authority-wrapper
+  fixture and surface cross-source comparison links, so the workbench can show
+  nested `assert/report -> hold -> fact` attribution stacks and explicit
+  `undermines` links for disputed causal propositions instead of only flat
+  disagreement buckets.
 - Graphs/narrative compare: add a second selectable FriendlyJordies
   chat-derived argument fixture so the workbench can inspect a richer
   archive-derived claim set in addition to the smaller public-media demo.
