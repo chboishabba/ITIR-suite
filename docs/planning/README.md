@@ -43,6 +43,11 @@ Cross-project SB seam note:
 Suite-wide interface contract index:
 - `docs/planning/project_interfaces.md`
 
+## Narrative Validation / Comparison (2026-03-09)
+
+Public-media narrative-validation and competing-narratives followthrough note:
+- `docs/planning/friendlyjordies_narrative_validation_and_competing_narratives_20260309.md`
+
 ## Capability Posture (Audit-Safe) (2026-02-08)
 
 Separates current capabilities from roadmap targets to prevent over-claiming:

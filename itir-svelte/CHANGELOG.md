@@ -3,6 +3,10 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Docs: add follow-up workbench planning for public media/transcript ingress
+  and competing-narratives comparison, so the current semantic review surfaces
+  point toward a future URL-driven narrative-validation flow instead of staying
+  purely fixture-first.
 - Graphs/semantic report: the workbench correction seam is now DB-backed via
   `itir.sqlite` review tables instead of local JSONL, while preserving the same
   route-owned review UX and recent-correction history.

@@ -197,6 +197,16 @@
     </div>
   </Panel>
 
+  <Panel>
+    <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Narrative Validation</div>
+    <div class="mt-2 text-sm text-ink-950">
+      <a class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50" href="/graphs/narrative-compare"
+        >Public media narrative comparison workbench</a
+      >
+      <span class="ml-2 text-xs text-ink-800/60 font-mono">FriendlyJordies public-media demo fixture</span>
+    </div>
+  </Panel>
+
   <div class="text-xs text-ink-800/60">
     Source: <span class="font-mono">{data.source}</span>
   </div>

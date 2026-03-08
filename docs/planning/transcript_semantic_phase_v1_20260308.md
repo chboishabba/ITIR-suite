@@ -152,6 +152,32 @@ Boundary:
 - no promotion into canonical semantic relations
 - no SB authority transfer; SB consumes the overlays as read-only/additive refs
 
+## Next Corpus / Validation Direction
+The next transcript/freeform proving case should widen from chat/task text into
+public-media narrative material.
+
+Chosen public case:
+- FriendlyJordies as a reproducible public-media/transcript validation fixture
+
+Why:
+- the user story is not only conversation/state extraction
+- the lane should also support narrative validation from transcript/media text
+- proposition extraction, attribution, and later comparison need a public
+  proving corpus before broader web-backed validation work
+
+Expected followthrough:
+- URL/transcript ingest into the future ingress hub
+- transcript/media text processed through the same bounded narrative/semantic
+  pipeline
+- later corroboration lanes (wiki, Wikidata, web) remain explicit and cited
+  rather than replacing transcript-local extraction as authority
+
+This lane should therefore be read as supporting:
+- conversation/state/social cues
+- mission/follow-up cues
+- public-media narrative validation
+- later competing-narratives comparison
+
 ## Review Feedback Seam
 The transcript/freeform lane now also participates in the semantic workbench's
 append-only review-feedback seam.
@@ -185,3 +211,9 @@ Current v1 posture:
    - explicit named patterns only
    - no institutional-custody inference from labels alone
    - no first-person kinship/care inference until speaker grounding is stronger
+5. widen the bounded proposition-layer followthrough from current HCA-first
+   reasoning idioms into transcript/media-friendly attribution structures:
+   - cited holdings (`X held that ...`)
+   - attribution wrappers (`X submits that ...`)
+   - current-speaker vs cited-authority separation
+   - proposition-to-proposition comparison hooks for disputed narratives

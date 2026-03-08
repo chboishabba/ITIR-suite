@@ -46,6 +46,19 @@ Acceptance criteria:
   context horizon, and medium shifts (private to public, comedy to moral claim).
 - A warning banner indicates the drift and offers the original frame.
 
+## ITIR-US-08: Public Media Narrative Validation
+As a user, I want to drop a public media URL or transcript into ITIR so the
+system can ingest it, preserve its source context, and show which parts of the
+narrative are sourced, unsupported, contradictory, or still unresolved.
+
+Acceptance criteria:
+- URL/transcript ingest preserves source metadata and transcript provenance.
+- Extracted narrative output distinguishes propositions, rhetoric, and
+  abstentions.
+- Later corroboration lanes (wiki, Wikidata, web) remain cited and reviewable
+  rather than silently becoming truth.
+- The system does not output an unreviewed trust score or verdict.
+
 ---
 
 # SL (SensibLaw) - Claim Discipline
@@ -67,6 +80,18 @@ Acceptance criteria:
 - Similar denial language is clustered and timestamped.
 - Counsel or PR involvement is flagged when known.
 - The system does not infer guilt; it only shows patterning.
+
+## SL-US-08: Competing Narrative Comparison
+As a user, I want to compare two competing narratives so I can see their common
+facts, disagreements, predicate/flow differences, and evidentiary support
+without the system prematurely choosing a winner.
+
+Acceptance criteria:
+- Shared facts/propositions are surfaced explicitly.
+- Conflicting facts/propositions and reasoning links are surfaced explicitly.
+- Source-local receipts remain attached to every compared item.
+- Comparison does not silently merge incompatible narratives into one story.
+- The system may abstain when overlap or disagreement is unresolved.
 
 ---
 

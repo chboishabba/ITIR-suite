@@ -150,6 +150,15 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
     rather than only a recent-submissions list
   - if mission observer review becomes regular, split it into a dedicated
     workbench route rather than overloading `/graphs/semantic-report`
+- Follow-up:
+  - add a future ingress-hub workbench for public media/transcript URLs so
+    transcript/narrative validation can start from a dropped source rather than
+    only checked-in fixtures
+  - add a narrative-comparison workbench or panel for shared-vs-disputed
+    facts/propositions across two source narratives
+  - render widened proposition-layer output (attribution wrappers, cited
+    holdings, proposition links) distinctly once the current bounded v1 grows
+    beyond HCA-first idioms
 - DONE (2026-03-08): add `/graphs/mission-lens` as a fused actual-vs-should
   workbench over ITIR mission planning + SB dashboard data using a bipartite
   flow graph, layered hierarchy graph, deadline panel, drift panel, and
