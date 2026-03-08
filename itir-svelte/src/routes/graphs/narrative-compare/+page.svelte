@@ -59,6 +59,17 @@
           <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Source</div>
           <div class="mt-2 text-lg font-semibold text-ink-950">{source.title}</div>
           <div class="mt-1 text-xs text-ink-800/60">{source.source_type}</div>
+          {#if source.origin}
+            <div class="mt-2 flex flex-wrap gap-2 text-[11px]">
+              <span class="rounded-full border border-ink-950/10 bg-ink-50 px-2 py-1 text-ink-800/75">{source.origin.kind}</span>
+              {#if source.origin.host}
+                <span class="rounded-full border border-ink-950/10 bg-ink-50 px-2 py-1 text-ink-800/75">{source.origin.host}</span>
+              {/if}
+              {#if source.origin.video_id}
+                <span class="rounded-full border border-ink-950/10 bg-ink-50 px-2 py-1 text-ink-800/75">video {source.origin.video_id}</span>
+              {/if}
+            </div>
+          {/if}
           {#if source.origin_url}
             <a class="mt-2 block break-all text-sm text-sky-800 underline decoration-sky-800/20 underline-offset-4 hover:decoration-sky-800/50" href={source.origin_url} target="_blank" rel="noreferrer">
               {source.origin_url}

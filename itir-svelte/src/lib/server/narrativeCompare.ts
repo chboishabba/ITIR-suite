@@ -7,6 +7,13 @@ export type NarrativeValidationReport = {
     source_id: string;
     title: string;
     origin_url?: string | null;
+    origin?: {
+      kind: string;
+      host?: string | null;
+      canonical_url?: string | null;
+      video_id?: string | null;
+      conversation_id?: string | null;
+    } | null;
     source_type: string;
   };
   summary: {
@@ -56,6 +63,13 @@ export type NarrativeComparisonReport = {
     source_id: string;
     title: string;
     origin_url?: string | null;
+    origin?: {
+      kind: string;
+      host?: string | null;
+      canonical_url?: string | null;
+      video_id?: string | null;
+      conversation_id?: string | null;
+    } | null;
     source_type: string;
   }>;
   reports: Record<string, NarrativeValidationReport>;
@@ -139,7 +153,8 @@ export async function loadNarrativeComparison(fixture = 'friendlyjordies_demo'):
     availableFixtures: [
       { key: 'friendlyjordies_demo', label: 'FriendlyJordies public-media demo' },
       { key: 'friendlyjordies_chat_arguments', label: 'FriendlyJordies chat-derived arguments' },
-      { key: 'friendlyjordies_authority_wrappers', label: 'FriendlyJordies authority wrappers' }
+      { key: 'friendlyjordies_authority_wrappers', label: 'FriendlyJordies authority wrappers' },
+      { key: 'friendlyjordies_thread_extract', label: 'FriendlyJordies thread extract' }
     ]
   };
 }
