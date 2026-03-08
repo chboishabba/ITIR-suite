@@ -3,6 +3,11 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Graphs/narrative compare: add `/graphs/narrative-compare` as a dedicated
+  workbench for producer-owned public-media narrative comparison. The first
+  slice loads the FriendlyJordies demo fixture and shows shared propositions,
+  disputed propositions, attribution-link differences, corroboration refs, and
+  abstentions without overloading the semantic report route.
 - Docs: add follow-up workbench planning for public media/transcript ingress
   and competing-narratives comparison, so the current semantic review surfaces
   point toward a future URL-driven narrative-validation flow instead of staying

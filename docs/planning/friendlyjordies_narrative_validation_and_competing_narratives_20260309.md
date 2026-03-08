@@ -82,6 +82,19 @@ The next bounded corpus fixture should be:
 
 FriendlyJordies is the first named public case for this lane.
 
+Current first slice now implemented:
+- checked-in public demo fixture:
+  `SensibLaw/demo/narrative/friendlyjordies_demo.json`
+- producer-owned comparison entrypoint:
+  `SensibLaw/scripts/narrative_compare.py`
+- dedicated review surface:
+  `/graphs/narrative-compare`
+
+Current boundary:
+- fixture-first, not URL-ingress-first
+- read-only comparison workbench
+- external corroboration remains explicit and bounded
+
 ## Proposition Graph Followthrough
 The current proposition-layer v1 is additive, HCA-first, and strongest for:
 - factual proposition scaffolding
@@ -106,6 +119,17 @@ Canonical storage decision remains:
 
 Operator syntax like `!negate` can still exist as display sugar, but it should
 not become canonical storage.
+
+Implemented bounded widening in the first slice:
+- attribution wrappers for `said/argued/submitted/reported/held/showed that`
+- proposition link `attributes_to`
+- shared-vs-disputed proposition comparison over the same source-agnostic
+  report path
+
+Still pending:
+- richer cited-authority subgroup handling such as `majority in Lepore`
+- broader proposition-link families beyond `attributes_to`
+- ingress-hub URL/media fetch and transcript normalization
 
 ## Privacy Rule
 - public-figure and public-media examples may be named

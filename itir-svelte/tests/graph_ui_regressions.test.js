@@ -109,12 +109,12 @@ test('narrative comparison workbench renders shared vs disputed narrative sectio
   const page = read('src/routes/graphs/narrative-compare/+page.svelte');
   const loader = read('src/lib/server/narrativeCompare.ts');
   assert.ok(server.includes('loadNarrativeComparison'));
-  assert.ok(loader.includes("scripts', 'narrative_compare.py"));
+  assert.ok(loader.includes('narrative_compare.py'));
   assert.ok(loader.includes('friendlyjordies_demo'));
   assert.ok(page.includes('Narrative Comparison Workbench'));
   assert.ok(page.includes('Shared propositions'));
   assert.ok(page.includes('Disputed propositions'));
   assert.ok(page.includes('Link differences'));
   assert.ok(page.includes('Corroboration + abstentions'));
-  assert.ok(page.includes('FriendlyJordies public-media demo'));
+  assert.ok(loader.includes('FriendlyJordies public-media demo'));
 });

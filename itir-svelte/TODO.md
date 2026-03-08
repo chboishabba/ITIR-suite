@@ -154,8 +154,8 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
   - add a future ingress-hub workbench for public media/transcript URLs so
     transcript/narrative validation can start from a dropped source rather than
     only checked-in fixtures
-  - add a narrative-comparison workbench or panel for shared-vs-disputed
-    facts/propositions across two source narratives
+  - extend the new `/graphs/narrative-compare` workbench from fixture-first to
+    ingress-backed URL/media sources
   - render widened proposition-layer output (attribution wrappers, cited
     holdings, proposition links) distinctly once the current bounded v1 grows
     beyond HCA-first idioms
