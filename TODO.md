@@ -221,9 +221,19 @@
 - Implement Fuzzymodo exchange channels defined in
   `fuzzymodo/docs/interfaces.md`: selector ingress, norm ingress, facts feed,
   decision egress, and replay artifact emission.
+- Implement the DB-backed `fuzzymodo -> StatiBaker` seam from
+  `docs/planning/fuzzymodo_statiBaker_interface_20260309.md`:
+  - SB-owned overlay extension tables for `fuzzymodo_selector_v1`
+  - separate decision-ledger persistence with SB reference-only joins
+  - end-to-end adapter tests proving no selector/norm authority transfer
 - Implement Casey exchange channels defined in
   `casey-git-clone/docs/interfaces.md`: publish ingress, sync command, collapse
   command, build snapshot egress, and fuzzymodo facts export adapter.
+- Implement the DB-backed `casey-git-clone -> StatiBaker` seam from
+  `docs/planning/casey_git_clone_statiBaker_interface_20260309.md`:
+  - SB-owned overlay extension tables for `casey_workspace_v1`
+  - separate Casey operation/build ledgers with SB reference-only joins
+  - end-to-end adapter tests proving SB cannot own mutable candidate graphs
 - Implement cross-project channel adapters and validators per
   `docs/planning/project_interfaces.md` for:
   `SensibLaw/`, `SL-reasoner/`, `tircorder-JOBBIE/`, `StatiBaker/`,

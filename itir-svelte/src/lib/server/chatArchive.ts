@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -41,8 +42,15 @@ function runQueryScript(args: string[], cwd: string): Promise<string> {
   });
 }
 
-function resolveChatArchivePath(): string {
-  return path.join(os.homedir(), '.chat_archive.sqlite');
+export function resolveChatArchivePath(): string {
+  const envPath = process.env.ITIR_CHAT_ARCHIVE_DB_PATH?.trim() || process.env.CHAT_ARCHIVE_DB_PATH?.trim();
+  if (envPath) return path.resolve(envPath);
+
+  const candidates = [path.join(os.homedir(), '.chat_archive.sqlite'), path.join(os.homedir(), 'chat_archive.sqlite')];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) return candidate;
+  }
+  return candidates[0]!;
 }
 
 export async function fetchThreadTail(

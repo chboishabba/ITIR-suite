@@ -27,10 +27,16 @@ Fuzzymodo planning artifacts live under:
 This pack defines selector DSL contracts, norm-constraint schemas, canonical
 hashing rules, and fixture samples for implementation scaffolding.
 
+Cross-project SB seam note:
+- `docs/planning/fuzzymodo_statiBaker_interface_20260309.md`
+
 ## Casey Git Clone Pack
 
 Casey-derived superposition VCS planning artifacts live under:
 - `docs/planning/casey-git-clone/`
+
+Cross-project SB seam note:
+- `docs/planning/casey_git_clone_statiBaker_interface_20260309.md`
 
 ## Project Interface Contracts
 

@@ -14,7 +14,7 @@ const GWB_PUBLIC_BIOS_REL = path.join(
   'wiki_timeline_gwb_public_bios_v1.json'
 );
 const GWB_CORPUS_REL = path.join('SensibLaw', 'demo', 'ingest', 'gwb', 'corpus_v1', 'wiki_timeline_gwb_corpus_v1.json');
-const HCA_REL = path.join('SensibLaw', 'demo', 'ingest', 'hca_case_s942025', 'graph', 'hca_case_narrative.timeline.json');
+const HCA_REL = path.join('SensibLaw', '.cache_local', 'wiki_timeline_hca_s942025_aoo.json');
 const LEGAL_REL = path.join(
   'SensibLaw',
   'demo',

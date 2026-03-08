@@ -9,6 +9,9 @@
 - Cross-project consumer:
   `fuzzymodo/` (future adapter) for selector-based filtering over candidate
   file-version state.
+- Observer-only SB seam:
+  `../docs/planning/casey_git_clone_statiBaker_interface_20260309.md` at the
+  suite root defines the minimal safe handoff into `StatiBaker`.
 - Downstream consumers:
   reproducible build/test tools that consume immutable `BuildView` snapshots.
 
@@ -48,3 +51,15 @@
 - Transport: JSON bundle (future adapter).
 - Suggested fields: path, candidate ids, provenance metadata, change lineage.
 - Consumer: Fuzzymodo selector evaluator over structural/execution/build facts.
+
+### Channel F: Observer Handoff to `StatiBaker`
+- Transport: DB-backed observer rows or reference-heavy overlay rows only.
+- Contract:
+  - suite-level seam note:
+    `docs/planning/casey_git_clone_statiBaker_interface_20260309.md`
+- Allowed role:
+  - emit append-only operation/build receipts and refs into SB-owned observer
+    tables
+- Forbidden role:
+  - transfer mutable candidate graphs or collapse authority into SB canonical
+    state

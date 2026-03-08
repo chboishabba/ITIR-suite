@@ -36,6 +36,27 @@ test('AAO server supports gwb_corpus_v1', () => {
   assert.ok(s.includes('wiki_timeline_gwb_corpus_v1_aoo.json'));
 });
 
+test('AAO-all server uses canonical HCA AAO suffix instead of thin narrative timeline', () => {
+  const s = read('src/routes/graphs/wiki-timeline-aoo-all/+page.server.ts');
+  assert.ok(s.includes("SensibLaw', '.cache_local', 'wiki_timeline_hca_s942025_aoo.json"));
+  assert.ok(!s.includes('hca_case_narrative.timeline.json'));
+});
+
+test('wikiTimelineAoo overlays richer HCA AAO events onto DB-backed metadata when needed', () => {
+  const s = read('src/lib/server/wikiTimelineAoo.ts');
+  assert.ok(s.includes('maybeOverlayHcaPayload'));
+  assert.ok(s.includes('needsHcaEventOverlay'));
+  assert.ok(s.includes('wiki_timeline_hca_s942025_aoo.json'));
+});
+
+test('chat archive path resolver falls back to non-dot chat archive path', () => {
+  const s = read('src/lib/server/chatArchive.ts');
+  assert.ok(s.includes('ITIR_CHAT_ARCHIVE_DB_PATH'));
+  assert.ok(s.includes('CHAT_ARCHIVE_DB_PATH'));
+  assert.ok(s.includes("'.chat_archive.sqlite'"));
+  assert.ok(s.includes("'chat_archive.sqlite'"));
+});
+
 test('LayeredGraph keeps dashed Source/Lens line style but gates it for performance', () => {
   const s = read('src/lib/ui/LayeredGraph.svelte');
   // Pretty but expensive dashed strokes: keep the signature styles.

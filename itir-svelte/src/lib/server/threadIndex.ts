@@ -1,6 +1,6 @@
-import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
+import { resolveChatArchivePath } from '$lib/server/chatArchive';
 
 export type ThreadIndexRow = {
   canonical_thread_id: string;
@@ -33,7 +33,7 @@ export async function listThreads(
   repoRoot: string,
   opts: { q?: string; limit?: number; offset?: number } = {}
 ): Promise<{ threads: ThreadIndexRow[]; q: string; limit: number; offset: number }> {
-  const dbPath = path.join(os.homedir(), '.chat_archive.sqlite');
+  const dbPath = resolveChatArchivePath();
   const script = path.join(repoRoot, 'itir-svelte', 'scripts', 'list_threads.py');
   const limit = Math.max(1, Math.min(500, Math.floor(opts.limit ?? 200)));
   const offset = Math.max(0, Math.floor(opts.offset ?? 0));

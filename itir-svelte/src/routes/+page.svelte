@@ -173,7 +173,7 @@
     <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Archive</div>
     <div class="mt-2 text-sm text-ink-950">
       <a class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50" href="/threads">Browse threads</a>
-      <span class="ml-2 text-xs text-ink-800/60 font-mono">~/.chat_archive.sqlite</span>
+      <span class="ml-2 text-xs text-ink-800/60 font-mono">~/.chat_archive.sqlite or ~/chat_archive.sqlite</span>
     </div>
   </Panel>
 

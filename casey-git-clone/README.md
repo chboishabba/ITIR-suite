@@ -18,6 +18,9 @@ persist as candidates until explicitly collapsed.
   filtering and replay checks.
 - ITIR suite orchestration can consume build snapshots as reproducible analysis
   inputs.
+- The current `casey-git-clone -> StatiBaker` seam is observer-only and
+  DB-backed, documented in
+  `../docs/planning/casey_git_clone_statiBaker_interface_20260309.md`.
 
 ## Interaction Flow
 1. Publish edits into `Blob` and `FileVersion` objects.
@@ -32,6 +35,7 @@ persist as candidates until explicitly collapsed.
   id).
 - Output channel: tree/workspace state snapshots for UI or CLI tooling.
 - Output channel: build-view manifest for deterministic replay/debug.
+- Output channel: observer-only DB refs for SB overlays/ledgers (planned).
 
 ## Planning Docs
 See `docs/planning/casey-git-clone/`.

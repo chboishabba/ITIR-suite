@@ -35,6 +35,13 @@ channels for each core project directory in this workspace.
 - `docs/planning/sl_tircorder_ribbon_sb_intersection_20260208.md`:
   four-way contract map for `SensibLaw`, `tircorder-JOBBIE`, `itir-ribbon`,
   and `StatiBaker`.
+- `docs/planning/fuzzymodo_statiBaker_interface_20260309.md`:
+  minimal observer-only contract for `fuzzymodo` selector decisions entering
+  `StatiBaker` as append-only events or reference-heavy overlays.
+- `docs/planning/casey_git_clone_statiBaker_interface_20260309.md`:
+  minimal observer-only contract for `casey-git-clone` workspace/collapse/build
+  receipts entering `StatiBaker` as append-only events or reference-heavy
+  overlays.
 - `docs/planning/itir_idempotency_dedupe_cooperation_20260208.md`:
   shared-vs-siloed idempotency/dedupe model, authority-crossing handshake,
   and schema-freeze decision queue (`Q1`-`Q11`).

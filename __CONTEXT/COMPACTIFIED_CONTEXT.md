@@ -110,6 +110,43 @@
 - Synced follow-up planning into `TODO.md` for runbook formalization,
   high-signal thread index refresh, and `suite` false-positive triage.
 
+## 2026-03-09
+- Resolved archived fuzzymodo context from the canonical DB using
+  `robust-context-fetch`:
+  - online UUID `698686e2-6e48-839e-ad0f-91e6fa4697f8`
+  - title `OSS-Fuzz Bug Detection`
+  - canonical thread id `f007250c85c623e16ea46238451cdbb00c745743`
+  - source used `db`
+- Confirmed the archived fuzzymodo discussion treats selector/decision outputs
+  as control-plane or observer-class artifacts, not as SB authority.
+- Added suite planning note
+  `docs/planning/fuzzymodo_statiBaker_interface_20260309.md` to freeze the
+  minimal seam:
+  - `fuzzymodo -> StatiBaker` is observer-only
+  - DB-backed overlay rows or reference-heavy ledger refs only
+  - selector DSL and norm constraints stay outside SB canonical state/policy
+- Synced `fuzzymodo` and `StatiBaker` interface docs to that boundary and
+  clarified that the full clause-rich `fuzzymodo` decision egress is still
+  planned rather than fully implemented.
+- Resolved archived Casey context from the canonical DB using
+  `robust-context-fetch`:
+  - title `Git Coordination Debate`
+  - online UUID `697c4c95-e1cc-839e-ac27-c262a27574eb`
+  - canonical thread id `b8800296148a7c14e0b84a152e0c67a2ba32acb0`
+  - source used `db`
+  - main topics: candidate-per-path superposition, explicit workspace
+    selection, explicit collapse, immutable build views
+  - title `Casey's Git idea summary`
+  - canonical thread id `be7800224c818a1b8d029595c915727fffcdea04`
+  - source used `db`
+  - main topic: keep ambiguity visible until explicit collapse
+- Added suite planning note
+  `docs/planning/casey_git_clone_statiBaker_interface_20260309.md` to freeze
+  the minimal Casey seam:
+  - `casey-git-clone -> StatiBaker` is observer-only
+  - DB-backed overlay rows or reference-heavy ledger refs only
+  - Casey keeps workspace/candidate/build authority; SB stores receipts and refs
+
 ## 2026-02-07 (additional live context refresh)
 - Synced conversation `6986c9f5-3988-839d-ad80-9338ea8a04eb`
   (`Conductor vs SB/ITIR`); latest assistant timestamp:
