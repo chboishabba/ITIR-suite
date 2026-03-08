@@ -46,3 +46,28 @@ test('LayeredGraph keeps dashed Source/Lens line style but gates it for performa
   assert.ok(s.includes('DASH_CONTEXT_LIMIT'));
   assert.ok(s.includes('DASH_EVIDENCE_LIMIT'));
  });
+
+test('mission lens workbench uses fused bipartite plus layered mission graph', () => {
+  const s = read('src/routes/graphs/mission-lens/+page.svelte');
+  assert.ok(s.includes('BipartiteGraph'));
+  assert.ok(s.includes('LayeredGraph'));
+  assert.ok(s.includes('Actual vs Should'));
+  assert.ok(s.includes('Deadline Semantics'));
+  assert.ok(s.includes('Add Planning Node'));
+  assert.ok(s.includes('Review Actual Mapping'));
+  assert.ok(s.includes('Observed Activity Rows'));
+  assert.ok(s.includes('Reassign to selected node'));
+  assert.ok(s.includes('Unlink'));
+  assert.ok(s.includes('Abstain / leave unresolved'));
+  assert.ok(s.includes('Lexical Explanation'));
+  assert.ok(s.includes('Top Alternative'));
+  assert.ok(s.includes('Keep primary lexical match'));
+  assert.ok(s.includes('Link to top alternative'));
+  assert.ok(s.includes('Apply Safe Recommendations'));
+  assert.ok(s.includes('recommended:'));
+  assert.ok(s.includes('Effective Provenance'));
+  assert.ok(s.includes('selectedActivityCurrent.receipts?.length'));
+  assert.ok(s.includes('mapping.receipts?.length'));
+  assert.ok(s.includes('receipt.kind'));
+  assert.ok(s.includes('receipt.value'));
+});

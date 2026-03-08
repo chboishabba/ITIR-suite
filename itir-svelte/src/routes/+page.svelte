@@ -187,6 +187,16 @@
     </div>
   </Panel>
 
+  <Panel>
+    <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Mission Lens</div>
+    <div class="mt-2 text-sm text-ink-950">
+      <a class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50" href="/graphs/mission-lens"
+        >Actual vs should mission workbench</a
+      >
+      <span class="ml-2 text-xs text-ink-800/60 font-mono">ITIR-owned planning lens rendered against SB dashboard data</span>
+    </div>
+  </Panel>
+
   <div class="text-xs text-ink-800/60">
     Source: <span class="font-mono">{data.source}</span>
   </div>

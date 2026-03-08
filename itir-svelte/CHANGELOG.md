@@ -3,6 +3,58 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Graphs/semantic report: the workbench correction seam is now DB-backed via
+  `itir.sqlite` review tables instead of local JSONL, while preserving the same
+  route-owned review UX and recent-correction history.
+- Graphs/mission lens: add `/graphs/mission-lens` as a fused actual-vs-should
+  workbench over ITIR mission planning plus SB dashboard data. The first slice
+  renders a bipartite flow graph, layered mission hierarchy, deadline semantics,
+  drift summary, and a bounded planning-node creation form.
+- Graphs/mission lens: add reviewed actual-to-mission mapping controls and an
+  observed-activity review panel, so concrete SB activity rows can be linked to
+  the selected planning node and distinguished from lexical fallback/unmapped
+  rows in the workbench.
+- Graphs/semantic report: event/source document viewers can now push selection
+  back into the token-arc inspector by clicking highlighted lines, so review
+  can start from text as well as arcs.
+- Graphs/semantic report: transcript/freeform mission/follow-up observer
+  payloads are now surfaced in the workbench with compact summary cards and a
+  JSON download action for SB-safe loose import.
+- Graphs/semantic report: the semantic report loader now consumes producer-
+  owned `text_debug` payloads emitted by SensibLaw report builders instead of
+  re-deriving token anchors, relation families, and confidence opacity in TS.
+- Graphs/semantic report: the workbench now also consumes producer-owned
+  `review_summary` payloads so predicate counts, cue surfaces, and excluded
+  token-arc rows are visible in a compact review panel.
+- Graphs/semantic report: token-arc anchors now include producer-owned char
+  spans and `sourceArtifactId` values in addition to token ranges, tightening
+  the shared span contract for future document cross-highlighting.
+- Graphs/semantic report: when a token/anchor is active, the token field now
+  lightly echoes other anchors sharing the same role and relation family within
+  the event text, using the active family color with opacity scaled by source
+  relation strength.
+- Graphs/semantic report: the workbench now also renders an event-local
+  document viewer driven by producer-owned `charStart/charEnd` anchor spans, so
+  token-arc selection cross-highlights the selected event text. A separate
+  source-document panel is shown but remains explicitly unavailable unless a
+  real source text payload exists.
+- Graphs/semantic report: transcript/freeform semantic reports can now drive a
+  real source-document viewer via producer-owned grouped source texts and
+  source-level event spans, so anchor selection can be projected from the
+  event-local viewer into the original source text without TS offset
+  re-derivation.
+- Graphs/semantic report: GWB/AU semantic reports now also drive the
+  source-document viewer using grouped timeline-source text from the normalized
+  wiki timeline store, so the legal lanes no longer fall back to an
+  unavailable source panel just because the viewer is not transcript-based.
+- Graphs/semantic report: the token-arc side panel now supports direct
+  relation-level pin/freeze and shows compact provenance-strength summaries, so
+  reviewers can lock a specific relation and quickly see whether it is
+  mention-backed, receipt-anchored, or fallback-heavy.
+- Graphs/semantic report: event/source document viewers now carry provenance-
+  aware highlight styling plus an active anchor-quality strip, so mention,
+  receipt, and fallback spans communicate different certainty levels where the
+  text is actually being reviewed.
 - Docs: define `workbench` explicitly in the `itir-svelte` README as the label
   for inspection-heavy debug/review routes (for example `/viewers/hca-case` and
   `/graphs/semantic-report`), distinct from parity/dashboard modules.
@@ -24,6 +76,11 @@ This changelog records user-visible behavior changes in the Svelte SB dashboard 
 - Graphs/semantic report: add a transcript/freeform semantic producer as a
   third selectable corpus so the token-arc workbench is proven against a real
   non-legal source rather than only GWB/HCA legal report payloads.
+- Graphs/semantic report: transcript/freeform token arcs now also recognize a
+  social relation family (`sibling_of`, `parent_of`, `child_of`, `spouse_of`,
+  `friend_of`, `guardian_of`, `caregiver_of`) and render it with a dedicated
+  social/teal family color instead of collapsing it into the generic fallback
+  lane.
 - Dev/SSR: work around intermittent Vite SSR resolution selecting Svelte's browser/client
   entrypoints by pinning `ssr.resolve.conditions = ['node','default','development']`
   (intentionally omits `browser`) in `vite.config.ts`, avoiding the

@@ -125,12 +125,42 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
   specific arc types in the route loader.
 - DONE (2026-03-08): prove the contract with a transcript/freeform semantic
   producer so the workbench is demonstrably reusable beyond legal-only lanes.
+- DONE (2026-03-08): move token/anchor/relation-family shaping for the semantic
+  workbench into Python report producers so `semanticReport.ts` consumes a
+  producer-owned `text_debug` artifact instead of re-deriving anchors locally.
+- DONE (2026-03-08): add a compact producer-owned semantic review summary
+  (`review_summary`) so the workbench can compare predicate/cue/anchor coverage
+  without depending on raw relation tables.
+- DONE (2026-03-08): wire the semantic report workbench to use producer-owned
+  `charStart/charEnd/sourceArtifactId` spans for event-local cross-highlighting
+  in a document viewer, while keeping the source-document slot explicit about
+  unavailable source text.
+- DONE (2026-03-08): add append-only correction submission to the semantic
+  report workbench, now backed by `itir.sqlite` review tables keyed by
+  source/run/event/relation/anchor refs.
+- DONE (2026-03-08): let event/source document viewers request selection back
+  into the token-arc inspector by clicking highlighted lines, so review can
+  start from text as well as arcs.
+- DONE (2026-03-08): surface transcript/freeform `mission_observer` payloads in
+  the semantic report workbench and provide a download/export surface for the
+  SB-safe observer bundle.
 - Follow-up:
-  - add relation-level pin/freeze from the side panel, not just token-triggered
-    arc sets
-  - expose anchor provenance/source confidence more explicitly when a producer
-    falls back from mention/receipt anchoring to label-text matching
   - revisit a shared graph <-> document span contract after this view is stable
+  - add a replay/review surface over submitted DB-backed correction receipts
+    rather than only a recent-submissions list
+  - if mission observer review becomes regular, split it into a dedicated
+    workbench route rather than overloading `/graphs/semantic-report`
+- DONE (2026-03-08): add `/graphs/mission-lens` as a fused actual-vs-should
+  workbench over ITIR mission planning + SB dashboard data using a bipartite
+  flow graph, layered hierarchy graph, deadline panel, drift panel, and
+  bounded planning-node authoring.
+- DONE (2026-03-08): add reviewed actual-to-mission mapping controls to
+  `/graphs/mission-lens`, so concrete SB activity rows can be linked to the
+  selected planning node instead of relying only on lexical fallback.
+- Follow-up:
+  - add richer reviewed mapping management (unlink/reassign/status review)
+    instead of only append-only linking
+  - surface why a lexical mapping matched when no reviewed link exists
 
 ## Chat Flow Waterfall (Semantics)
 

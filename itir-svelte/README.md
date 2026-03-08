@@ -148,6 +148,8 @@ Current examples:
 - `/viewers/hca-case`: transcript + document viewer workbench
 - `/graphs/semantic-report`: semantic report workbench for graph + token-arc
   debugging
+- `/graphs/mission-lens`: fused actual-vs-should mission workbench over ITIR
+  planning artifacts and SB dashboard data
 
 Why the term matters:
 - it separates exploratory/debug UI from parity/dashboard UI
@@ -166,6 +168,8 @@ Current intended direction:
   by confidence tier
 - support click-to-pin debugging so arcs stay visible while receipts/anchors are
   inspected
+- when an anchor is active, lightly echo other same-role anchors in the same
+  relation family within the event text so local structure is easier to debug
 - surface anchor provenance (`mention`, `receipt`, `label_fallback`) so weak
   fallback anchoring is visible rather than hidden
 - consume a shared text-debug payload contract so the same workbench primitive
@@ -173,10 +177,33 @@ Current intended direction:
   loader
 - prove that contract against transcript/freeform semantic payloads as the
   first non-legal producer
+- keep semantic anchor/token shaping out of TS where possible; report producers
+  should emit `text_debug`, and the Svelte layer should stay a thin renderer
+- pair the arc view with a compact producer-owned review summary so predicate
+  counts, cue surfaces, and excluded arc rows are visible without opening raw
+  report JSON
+- move the workbench span contract toward producer-owned char spans plus source
+  artifact ids; token spans should remain render helpers, not the only anchor
+  contract
+- use those char spans in an event-local document viewer inside
+  `/graphs/semantic-report`; keep any source-document panel explicit about
+  unavailable source text rather than faking it from event-local content
+- transcript/freeform is the first lane expected to provide a real source
+  document payload for that second viewer; timeline-driven legal lanes should
+  emit grouped timeline-source text from normalized payloads rather than fake
+  full documents in TS
+- keep the workbench as a real review surface:
+  - document/source viewers can push selection back into the token-arc panel
+  - reviewers can submit append-only correction records keyed by
+    event/relation/anchor refs
+  - recent correction submissions should stay visible for the active corpus/run
+- surface producer-owned mission/follow-up observer artifacts when present so
+  SB-facing overlays can be inspected before export/import
 
 Important boundary:
 - this is a display/debug layer over report payloads and receipts
-- it does not change semantic extraction, promotion, or canonical spans
+- it may emit append-only review/correction artifacts, but it does not rewrite
+  semantic extraction, promotion, or canonical spans in place
 
 ## Chat Threads (Dashboard)
 

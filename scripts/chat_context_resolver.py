@@ -17,6 +17,51 @@ from pathlib import Path
 from typing import Optional
 
 
+_TOKEN_RE = re.compile(r"[A-Za-z0-9_]{2,}")
+_DEFAULT_STOPWORDS = {
+    "the",
+    "and",
+    "for",
+    "that",
+    "with",
+    "this",
+    "from",
+    "have",
+    "your",
+    "were",
+    "what",
+    "when",
+    "where",
+    "which",
+    "would",
+    "could",
+    "should",
+    "into",
+    "about",
+    "there",
+    "their",
+    "they",
+    "them",
+    "then",
+    "than",
+    "just",
+    "also",
+    "because",
+    "while",
+    "been",
+    "being",
+    "over",
+    "under",
+    "more",
+    "most",
+    "some",
+    "will",
+    "need",
+    "next",
+    "task",
+}
+
+
 def _parse_datetime(value: str) -> dt.datetime:
     text = value.strip()
     if not text:
@@ -87,6 +132,7 @@ class DbMatch:
     canonical_thread_id: str
     online_thread_id: Optional[str]
     title: str
+    earliest_ts: Optional[str]
     latest_ts: str
     latest_role: str
     latest_text: str
@@ -97,6 +143,22 @@ class DbMatch:
     @property
     def latest_datetime(self) -> Optional[dt.datetime]:
         return _parse_message_ts(self.latest_ts)
+
+    @property
+    def earliest_datetime(self) -> Optional[dt.datetime]:
+        return _parse_message_ts(self.earliest_ts)
+
+
+@dataclass
+class TranscriptLine:
+    thread_line: int
+    message_index: int
+    message_id: str
+    role: str
+    ts: str
+    ts_utc: Optional[str]
+    message_line: int
+    text: str
 
 
 def _fetch_latest_for_thread(
@@ -125,13 +187,23 @@ def _fetch_latest_for_thread(
     return _fetch_latest_for_thread(cur, thread_id, require_text=False)
 
 
-def _query_thread_message_count(cur: sqlite3.Cursor, thread_id: str) -> int:
+def _query_thread_span(cur: sqlite3.Cursor, thread_id: str) -> tuple[int, Optional[str], Optional[str]]:
     cur.execute(
-        "SELECT COUNT(*) FROM messages WHERE LOWER(canonical_thread_id) = LOWER(?)",
+        """
+        SELECT COUNT(*) AS message_count, MIN(ts) AS earliest_ts, MAX(ts) AS latest_ts
+        FROM messages
+        WHERE LOWER(canonical_thread_id) = LOWER(?)
+        """,
         (thread_id,),
     )
     row = cur.fetchone()
-    return int(row[0]) if row and row[0] is not None else 0
+    if not row:
+        return 0, None, None
+    return (
+        int(row["message_count"] or 0),
+        row["earliest_ts"],
+        row["latest_ts"],
+    )
 
 
 def _fetch_latest_for_online_thread_id(
@@ -158,13 +230,25 @@ def _fetch_latest_for_online_thread_id(
     return _fetch_latest_for_online_thread_id(cur, online_thread_id, require_text=False)
 
 
-def _query_online_thread_message_count(cur: sqlite3.Cursor, online_thread_id: str) -> int:
+def _query_online_thread_span(
+    cur: sqlite3.Cursor, online_thread_id: str
+) -> tuple[int, Optional[str], Optional[str]]:
     cur.execute(
-        "SELECT COUNT(*) FROM messages WHERE LOWER(source_thread_id) = LOWER(?)",
+        """
+        SELECT COUNT(*) AS message_count, MIN(ts) AS earliest_ts, MAX(ts) AS latest_ts
+        FROM messages
+        WHERE LOWER(source_thread_id) = LOWER(?)
+        """,
         (online_thread_id,),
     )
     row = cur.fetchone()
-    return int(row[0]) if row and row[0] is not None else 0
+    if not row:
+        return 0, None, None
+    return (
+        int(row["message_count"] or 0),
+        row["earliest_ts"],
+        row["latest_ts"],
+    )
 
 
 def _fts_query(selector: str) -> Optional[str]:
@@ -247,14 +331,17 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
     # 1) Exact online thread id match.
     online_row = _fetch_latest_for_online_thread_id(cur, selector, require_text=True)
     if online_row:
-        count = _query_online_thread_message_count(cur, str(online_row["source_thread_id"]))
+        count, earliest_ts, latest_ts = _query_online_thread_span(
+            cur, str(online_row["source_thread_id"])
+        )
         con.close()
         return DbMatch(
             match_type="online_thread_id_exact",
             canonical_thread_id=online_row["canonical_thread_id"],
             online_thread_id=online_row["source_thread_id"],
             title=online_row["title"],
-            latest_ts=online_row["ts"],
+            earliest_ts=earliest_ts,
+            latest_ts=latest_ts or online_row["ts"],
             latest_role=online_row["role"],
             latest_text=online_row["text"],
             thread_message_count=count,
@@ -265,14 +352,15 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
     # 2) Exact canonical thread id match.
     row = _fetch_latest_for_thread(cur, selector, require_text=True)
     if row:
-        count = _query_thread_message_count(cur, row["canonical_thread_id"])
+        count, earliest_ts, latest_ts = _query_thread_span(cur, row["canonical_thread_id"])
         con.close()
         return DbMatch(
             match_type="canonical_thread_id_exact",
             canonical_thread_id=row["canonical_thread_id"],
             online_thread_id=None,
             title=row["title"],
-            latest_ts=row["ts"],
+            earliest_ts=earliest_ts,
+            latest_ts=latest_ts or row["ts"],
             latest_role=row["role"],
             latest_text=row["text"],
             thread_message_count=count,
@@ -301,14 +389,15 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
         )
         matched_count = int(cur.fetchone()[0])
         thread_id = exact_title_row["canonical_thread_id"]
-        count = _query_thread_message_count(cur, thread_id)
+        count, earliest_ts, latest_ts = _query_thread_span(cur, thread_id)
         con.close()
         return DbMatch(
             match_type="title_exact",
             canonical_thread_id=thread_id,
             online_thread_id=exact_title_row["source_thread_id"],
             title=exact_title_row["title"],
-            latest_ts=exact_title_row["ts"],
+            earliest_ts=earliest_ts,
+            latest_ts=latest_ts or exact_title_row["ts"],
             latest_role=exact_title_row["role"],
             latest_text=exact_title_row["text"],
             thread_message_count=count,
@@ -339,14 +428,15 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
             )
             matched_count = int(cur.fetchone()[0])
             thread_id = fuzzy_row["canonical_thread_id"]
-            count = _query_thread_message_count(cur, thread_id)
+            count, earliest_ts, latest_ts = _query_thread_span(cur, thread_id)
             con.close()
             return DbMatch(
                 match_type="title_contains",
                 canonical_thread_id=thread_id,
                 online_thread_id=fuzzy_row["source_thread_id"],
                 title=fuzzy_row["title"],
-                latest_ts=fuzzy_row["ts"],
+                earliest_ts=earliest_ts,
+                latest_ts=latest_ts or fuzzy_row["ts"],
                 latest_role=fuzzy_row["role"],
                 latest_text=fuzzy_row["text"],
                 thread_message_count=count,
@@ -759,6 +849,73 @@ def _build_parser() -> argparse.ArgumentParser:
             "if web appears newer than DB."
         ),
     )
+    parser.add_argument(
+        "--analyze-term",
+        action="append",
+        default=[],
+        help="Analyze one or more terms (comma-separated allowed) against the resolved thread or cross-thread result set.",
+    )
+    parser.add_argument(
+        "--term-file",
+        help="Read additional analysis terms from a file (one term per line).",
+    )
+    parser.add_argument(
+        "--case-sensitive",
+        action="store_true",
+        help="Use case-sensitive term matching for analysis mode.",
+    )
+    parser.add_argument(
+        "--regex",
+        action="store_true",
+        help="Treat analysis terms as regular expressions instead of exact substrings.",
+    )
+    parser.add_argument(
+        "--range",
+        dest="thread_range",
+        help="Restrict thread-local analysis to stitched transcript lines START:END.",
+    )
+    parser.add_argument(
+        "--message-range",
+        help="Restrict thread-local analysis to message ordinals START:END.",
+    )
+    parser.add_argument(
+        "--show-lines",
+        action="store_true",
+        help="Include stitched transcript lines in thread-local analysis output.",
+    )
+    parser.add_argument(
+        "--show-line-context",
+        type=int,
+        default=0,
+        help="For each mention, include N surrounding stitched transcript lines.",
+    )
+    parser.add_argument(
+        "--term-frequency",
+        action="store_true",
+        help="Emit term frequency statistics for analysis terms.",
+    )
+    parser.add_argument(
+        "--mention-density",
+        action="store_true",
+        help="Emit mention density metrics for analysis terms.",
+    )
+    parser.add_argument(
+        "--top-terms",
+        type=int,
+        default=0,
+        help="Include the top N simple lexical terms for the selected transcript slice.",
+    )
+    parser.add_argument(
+        "--cross-thread",
+        action="store_true",
+        help="Run archive-wide ranking for the analysis terms instead of a single resolved thread.",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=10,
+        help="Max rows for cross-thread analysis results (default: %(default)s).",
+    )
     return parser
 
 
@@ -822,6 +979,362 @@ def _query_recent_turns(
             }
         )
     return turns
+
+
+def _parse_terms(values: list[str]) -> list[str]:
+    terms: list[str] = []
+    seen: set[str] = set()
+    for raw in values:
+        for chunk in str(raw or "").split(","):
+            term = chunk.strip()
+            if not term:
+                continue
+            key = term.casefold()
+            if key in seen:
+                continue
+            seen.add(key)
+            terms.append(term)
+    return terms
+
+
+def _compile_pattern(term: str, *, regex: bool, case_sensitive: bool) -> re.Pattern[str]:
+    flags = 0 if case_sensitive else re.IGNORECASE
+    return re.compile(term if regex else re.escape(term), flags)
+
+
+def _parse_range_spec(spec: str, label: str) -> tuple[int, int]:
+    match = re.fullmatch(r"\s*(\d+)\s*:\s*(\d+)\s*", spec or "")
+    if not match:
+        raise ValueError(f"Invalid {label}: expected START:END")
+    start = int(match.group(1))
+    end = int(match.group(2))
+    if start <= 0 or end <= 0:
+        raise ValueError(f"Invalid {label}: values must be >= 1")
+    if start > end:
+        raise ValueError(f"Invalid {label}: start must be <= end")
+    return start, end
+
+
+def _query_thread_messages(
+    db_path: Path,
+    thread_id: str,
+) -> list[dict]:
+    con = _connect_sqlite_ro(db_path)
+    cur = con.cursor()
+    cur.execute(
+        """
+        SELECT message_id, ts, role, text
+        FROM messages
+        WHERE LOWER(canonical_thread_id) = LOWER(?)
+          AND text IS NOT NULL
+          AND TRIM(text) <> ''
+        ORDER BY ts ASC, rowid ASC
+        """,
+        (thread_id,),
+    )
+    rows = cur.fetchall()
+    con.close()
+    return [dict(row) for row in rows]
+
+
+def _build_stitched_transcript(rows: list[dict], *, max_text_chars: int = 0) -> list[TranscriptLine]:
+    transcript: list[TranscriptLine] = []
+    thread_line = 0
+    for message_index, row in enumerate(rows, start=1):
+        raw_text = str(row.get("text") or "")
+        lines = raw_text.splitlines() or [raw_text]
+        parsed_ts = _parse_message_ts(row.get("ts"))
+        for message_line, line_text in enumerate(lines, start=1):
+            thread_line += 1
+            transcript.append(
+                TranscriptLine(
+                    thread_line=thread_line,
+                    message_index=message_index,
+                    message_id=str(row.get("message_id") or f"thread-msg-{message_index}"),
+                    role=str(row.get("role") or ""),
+                    ts=str(row.get("ts") or ""),
+                    ts_utc=_iso_utc_precise(parsed_ts),
+                    message_line=message_line,
+                    text=_truncate_text(line_text, max_text_chars) if max_text_chars else line_text,
+                )
+            )
+    return transcript
+
+
+def _filter_transcript_lines(
+    transcript: list[TranscriptLine],
+    *,
+    thread_range: tuple[int, int] | None,
+    message_range: tuple[int, int] | None,
+) -> list[TranscriptLine]:
+    out: list[TranscriptLine] = []
+    for line in transcript:
+        if thread_range and not (thread_range[0] <= line.thread_line <= thread_range[1]):
+            continue
+        if message_range and not (message_range[0] <= line.message_index <= message_range[1]):
+            continue
+        out.append(line)
+    return out
+
+
+def _window_excerpt(
+    transcript: list[TranscriptLine],
+    line: TranscriptLine,
+    before: int,
+    after: int,
+) -> list[dict]:
+    start = max(1, line.thread_line - before)
+    end = min(len(transcript), line.thread_line + after)
+    return [
+        {
+            "thread_line": item.thread_line,
+            "message_index": item.message_index,
+            "message_line": item.message_line,
+            "role": item.role,
+            "ts": item.ts,
+            "text": item.text,
+        }
+        for item in transcript[start - 1 : end]
+    ]
+
+
+def _analyze_thread_terms(
+    transcript: list[TranscriptLine],
+    *,
+    terms: list[str],
+    regex: bool,
+    case_sensitive: bool,
+    show_line_context: int,
+) -> dict:
+    text_joined = "\n".join(line.text for line in transcript)
+    message_ids = {line.message_id for line in transcript}
+    message_count = len({line.message_index for line in transcript})
+    line_count = len(transcript)
+    char_count = len(text_joined)
+    term_stats: list[dict] = []
+    mentions: list[dict] = []
+    for term in terms:
+        pattern = _compile_pattern(term, regex=regex, case_sensitive=case_sensitive)
+        raw_count = 0
+        line_hits: set[int] = set()
+        message_hits: set[int] = set()
+        for line in transcript:
+            matches = list(pattern.finditer(line.text))
+            if not matches:
+                continue
+            raw_count += len(matches)
+            line_hits.add(line.thread_line)
+            message_hits.add(line.message_index)
+            for match in matches:
+                mention = {
+                    "term": term,
+                    "thread_line_start": line.thread_line,
+                    "thread_line_end": line.thread_line,
+                    "message_index": line.message_index,
+                    "message_id": line.message_id,
+                    "message_line_start": line.message_line,
+                    "message_line_end": line.message_line,
+                    "role": line.role,
+                    "ts": line.ts,
+                    "ts_utc": line.ts_utc,
+                    "matched_text": match.group(0),
+                    "line_text": line.text,
+                }
+                if show_line_context > 0:
+                    mention["line_context"] = _window_excerpt(
+                        transcript,
+                        line,
+                        before=show_line_context,
+                        after=show_line_context,
+                    )
+                mentions.append(mention)
+        term_stats.append(
+            {
+                "term": term,
+                "raw_count": raw_count,
+                "line_hit_count": len(line_hits),
+                "message_hit_count": len(message_hits),
+                "density_per_100_lines": round((raw_count / line_count) * 100, 3) if line_count else 0.0,
+                "density_per_1000_chars": round((raw_count / char_count) * 1000, 3) if char_count else 0.0,
+                "density_per_100_messages": round((raw_count / message_count) * 100, 3) if message_count else 0.0,
+            }
+        )
+    return {
+        "transcript_stats": {
+            "message_count": message_count,
+            "stitched_line_count": line_count,
+            "character_count": char_count,
+            "message_id_count": len(message_ids),
+        },
+        "term_stats": term_stats,
+        "mentions": mentions,
+    }
+
+
+def _top_terms(transcript: list[TranscriptLine], limit: int) -> list[dict]:
+    counts: dict[str, int] = {}
+    for line in transcript:
+        for token in _TOKEN_RE.findall(line.text.casefold()):
+            if token in _DEFAULT_STOPWORDS:
+                continue
+            counts[token] = counts.get(token, 0) + 1
+    ranked = sorted(counts.items(), key=lambda item: (-item[1], item[0]))[:limit]
+    return [{"term": term, "count": count} for term, count in ranked]
+
+
+def _thread_analysis_payload(
+    db_path: Path,
+    thread_id: str,
+    *,
+    terms: list[str],
+    regex: bool,
+    case_sensitive: bool,
+    thread_range: tuple[int, int] | None,
+    message_range: tuple[int, int] | None,
+    show_lines: bool,
+    show_line_context: int,
+    top_terms_limit: int,
+    max_text_chars: int,
+) -> dict:
+    rows = _query_thread_messages(db_path, thread_id)
+    transcript_full = _build_stitched_transcript(rows, max_text_chars=max_text_chars)
+    transcript = _filter_transcript_lines(
+        transcript_full,
+        thread_range=thread_range,
+        message_range=message_range,
+    )
+    analysis = _analyze_thread_terms(
+        transcript,
+        terms=terms,
+        regex=regex,
+        case_sensitive=case_sensitive,
+        show_line_context=show_line_context,
+    )
+    payload = {
+        "analysis_scope": "thread_local",
+        "transcript_stats": analysis["transcript_stats"],
+        "term_stats": analysis["term_stats"],
+        "mentions": analysis["mentions"],
+    }
+    if thread_range or message_range:
+        payload["range_excerpt"] = {
+            "thread_range": list(thread_range) if thread_range else None,
+            "message_range": list(message_range) if message_range else None,
+            "stitched_line_count": len(transcript),
+        }
+    if show_lines:
+        payload["lines"] = [
+            {
+                "thread_line": line.thread_line,
+                "message_index": line.message_index,
+                "message_id": line.message_id,
+                "role": line.role,
+                "ts": line.ts,
+                "ts_utc": line.ts_utc,
+                "message_line": line.message_line,
+                "text": line.text,
+            }
+            for line in transcript
+        ]
+    if top_terms_limit > 0:
+        payload["top_terms"] = _top_terms(transcript, top_terms_limit)
+    return payload
+
+
+def _cross_thread_analysis_payload(
+    db_path: Path,
+    selector: str,
+    *,
+    terms: list[str],
+    regex: bool,
+    case_sensitive: bool,
+    limit: int,
+    max_text_chars: int,
+) -> dict:
+    con = _connect_sqlite_ro(db_path)
+    cur = con.cursor()
+    query_seed = " ".join(terms) if terms else selector
+    candidates = _query_db_fts_candidates(cur, query_seed, limit=max(10, limit * 4))
+    if not candidates:
+        rows = cur.execute(
+            """
+            SELECT canonical_thread_id, COALESCE(NULLIF(title, ''), '(no title)') AS title, MAX(ts) AS latest_ts
+            FROM messages
+            WHERE text IS NOT NULL
+              AND TRIM(text) <> ''
+            GROUP BY canonical_thread_id, title
+            ORDER BY latest_ts DESC
+            LIMIT ?
+            """,
+            (max(25, limit * 10),),
+        ).fetchall()
+        candidates = [
+            {
+                "canonical_thread_id": row["canonical_thread_id"],
+                "title": row["title"],
+                "latest_ts": row["latest_ts"],
+                "hit_count": 0,
+            }
+            for row in rows
+        ]
+    con.close()
+    if not candidates:
+        return {
+            "analysis_scope": "cross_thread",
+            "query_terms": terms,
+            "results": [],
+        }
+    results: list[dict] = []
+    for candidate in candidates:
+        transcript = _build_stitched_transcript(
+            _query_thread_messages(db_path, str(candidate["canonical_thread_id"])),
+            max_text_chars=max_text_chars,
+        )
+        if not transcript:
+            continue
+        analysis = _analyze_thread_terms(
+            transcript,
+            terms=terms or [selector],
+            regex=regex,
+            case_sensitive=case_sensitive,
+            show_line_context=0,
+        )
+        raw_count = sum(int(item["raw_count"]) for item in analysis["term_stats"])
+        line_hits = sum(int(item["line_hit_count"]) for item in analysis["term_stats"])
+        if raw_count <= 0:
+            continue
+        results.append(
+            {
+                "canonical_thread_id": candidate["canonical_thread_id"],
+                "title": candidate["title"],
+                "latest_ts": candidate["latest_ts"],
+                "message_count": analysis["transcript_stats"]["message_count"],
+                "stitched_line_count": analysis["transcript_stats"]["stitched_line_count"],
+                "raw_count": raw_count,
+                "line_hit_count": line_hits,
+                "density_per_100_lines": round((raw_count / analysis["transcript_stats"]["stitched_line_count"]) * 100, 3)
+                if analysis["transcript_stats"]["stitched_line_count"]
+                else 0.0,
+                "density_per_1000_chars": round((raw_count / analysis["transcript_stats"]["character_count"]) * 1000, 3)
+                if analysis["transcript_stats"]["character_count"]
+                else 0.0,
+                "first_hits": analysis["mentions"][:3],
+            }
+        )
+    results.sort(
+        key=lambda row: (
+            -int(row["raw_count"]),
+            -int(row["line_hit_count"]),
+            -float(row["density_per_100_lines"]),
+            str(row["latest_ts"]),
+        )
+    )
+    return {
+        "analysis_scope": "cross_thread",
+        "query_terms": terms or [selector],
+        "results": results[:limit],
+        "best_match": results[0] if results else None,
+    }
 
 
 def _extract_downloaded_json_paths(stdout: str, repo_root: Path) -> list[Path]:
@@ -982,6 +1495,7 @@ def _db_payload(
     latest_text_full = match.latest_text or ""
     payload = {
         **asdict(match),
+        "earliest_ts_utc": _iso_utc(match.earliest_datetime),
         "latest_ts_utc": _iso_utc(match.latest_datetime),
     }
     payload["latest_text"] = _truncate_text(latest_text_full, max_text_chars)
@@ -1018,12 +1532,14 @@ def _print_result(payload: dict, as_json: bool) -> None:
     if source == "db":
         db = payload.get("db_match") or {}
         candidates = payload.get("db_candidates") or []
+        analysis = payload.get("analysis") or {}
 
         if db:
             print(f"match_type: {db.get('match_type')}")
             print(f"title: {db.get('title')}")
             print(f"online_thread_id: {db.get('online_thread_id')}")
             print(f"canonical_thread_id: {db.get('canonical_thread_id')}")
+            print(f"earliest_ts_utc: {db.get('earliest_ts_utc')}")
             print(f"latest_ts_utc: {db.get('latest_ts_utc')}")
             print(f"latest_role: {db.get('latest_role')}")
             print(f"thread_message_count: {db.get('thread_message_count')}")
@@ -1057,6 +1573,45 @@ def _print_result(payload: dict, as_json: bool) -> None:
                     f"id={candidate.get('canonical_thread_id')} "
                     f"title={candidate.get('title')}"
                 )
+        if analysis:
+            print(f"analysis_scope: {analysis.get('analysis_scope')}")
+            if analysis.get("analysis_scope") == "thread_local":
+                stats = analysis.get("transcript_stats") or {}
+                print(
+                    "transcript_stats: "
+                    f"messages={stats.get('message_count', 0)} "
+                    f"lines={stats.get('stitched_line_count', 0)} "
+                    f"chars={stats.get('character_count', 0)}"
+                )
+                for item in analysis.get("term_stats") or []:
+                    print(
+                        "term_stat: "
+                        f"term={item.get('term')} raw={item.get('raw_count')} "
+                        f"line_hits={item.get('line_hit_count')} "
+                        f"message_hits={item.get('message_hit_count')} "
+                        f"density_100_lines={item.get('density_per_100_lines')}"
+                    )
+                if analysis.get("top_terms"):
+                    print("top_terms:")
+                    for item in analysis["top_terms"]:
+                        print(f"  {item.get('term')}: {item.get('count')}")
+                if analysis.get("mentions"):
+                    print("mentions:")
+                    for mention in analysis["mentions"]:
+                        print(
+                            f"  term={mention.get('term')} "
+                            f"thread_line={mention.get('thread_line_start')} "
+                            f"message={mention.get('message_index')}:{mention.get('message_line_start')} "
+                            f"role={mention.get('role')} text={mention.get('line_text')}"
+                        )
+            elif analysis.get("analysis_scope") == "cross_thread":
+                print("cross_thread_results:")
+                for item in analysis.get("results") or []:
+                    print(
+                        f"  raw={item.get('raw_count')} lines={item.get('line_hit_count')} "
+                        f"density={item.get('density_per_100_lines')} "
+                        f"id={item.get('canonical_thread_id')} title={item.get('title')}"
+                    )
         return
 
     if source == "web":
@@ -1097,6 +1652,43 @@ def main() -> int:
         (repo_root / Path(args.venv_python).expanduser())
         if not Path(args.venv_python).is_absolute()
         else Path(args.venv_python).expanduser()
+    )
+    analysis_terms = _parse_terms(args.analyze_term)
+    if args.term_file:
+        term_file = Path(args.term_file).expanduser()
+        if not term_file.is_absolute():
+            term_file = repo_root / term_file
+        if not term_file.exists():
+            payload = {"source": "error", "error": f"Term file does not exist: {term_file}"}
+            _print_result(payload, args.json)
+            return 2
+        analysis_terms.extend(
+            _parse_terms(
+                [line.strip() for line in term_file.read_text(encoding="utf-8").splitlines() if line.strip()]
+            )
+        )
+        analysis_terms = _parse_terms(analysis_terms)
+    thread_range: tuple[int, int] | None = None
+    message_range: tuple[int, int] | None = None
+    try:
+        if args.thread_range:
+            thread_range = _parse_range_spec(args.thread_range, "--range")
+        if args.message_range:
+            message_range = _parse_range_spec(args.message_range, "--message-range")
+    except ValueError as exc:
+        payload = {"source": "error", "error": str(exc)}
+        _print_result(payload, args.json)
+        return 2
+    analysis_requested = bool(
+        analysis_terms
+        or args.top_terms > 0
+        or args.show_lines
+        or args.show_line_context > 0
+        or thread_range
+        or message_range
+        or args.cross_thread
+        or args.term_frequency
+        or args.mention_density
     )
 
     threshold: Optional[dt.datetime] = None
@@ -1190,6 +1782,27 @@ def main() -> int:
         else:
             extra = f"Web freshness check failed: {preloaded_web_recent.get('error')}"
             db_error = f"{db_error}; {extra}" if db_error else extra
+
+    if args.cross_thread and db_path.exists():
+        payload = {
+            "source": "db",
+            "decision_reason": "cross_thread_analysis",
+        }
+        if db_candidates:
+            payload["db_candidates"] = db_candidates
+        payload["analysis"] = _cross_thread_analysis_payload(
+            db_path,
+            args.selector,
+            terms=analysis_terms,
+            regex=args.regex,
+            case_sensitive=args.case_sensitive,
+            limit=max(1, args.limit),
+            max_text_chars=args.max_text_chars,
+        )
+        if db_error:
+            payload["db_warning"] = db_error
+        _print_result(payload, args.json)
+        return 0
 
     if needs_web:
         if args.no_web:
@@ -1308,6 +1921,32 @@ def main() -> int:
         payload["requested_threshold_utc"] = _iso_utc(threshold)
     if db_error:
         payload["db_warning"] = db_error
+    if analysis_requested:
+        if db_match is None:
+            payload = {
+                "source": "error",
+                "decision_reason": reason,
+                "error": "Thread-local analysis requires a resolved DB thread. Use --cross-thread for archive-wide ranking.",
+            }
+            if db_candidates:
+                payload["db_candidates"] = db_candidates
+            if db_error:
+                payload["db_warning"] = db_error
+            _print_result(payload, args.json)
+            return 1
+        payload["analysis"] = _thread_analysis_payload(
+            db_path,
+            db_match.canonical_thread_id,
+            terms=analysis_terms,
+            regex=args.regex,
+            case_sensitive=args.case_sensitive,
+            thread_range=thread_range,
+            message_range=message_range,
+            show_lines=args.show_lines,
+            show_line_context=max(0, args.show_line_context),
+            top_terms_limit=max(0, args.top_terms),
+            max_text_chars=args.max_text_chars,
+        )
     _print_result(payload, args.json)
     return 0
 
