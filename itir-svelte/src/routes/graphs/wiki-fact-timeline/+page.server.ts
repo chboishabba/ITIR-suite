@@ -1,7 +1,12 @@
 import path from 'node:path';
 import { existsSync } from 'node:fs';
 
-import { loadWikiTimelineAoo, type AooTimelineFact } from '$lib/server/wikiTimelineAoo';
+import {
+  loadWikiTimelineAoo,
+  type AooTimelineFact,
+  type AooProposition,
+  type AooPropositionLink
+} from '$lib/server/wikiTimelineAoo';
 
 const GWB_REL = path.join('SensibLaw', '.cache_local', 'wiki_timeline_gwb_aoo.json');
 const HCA_REL = path.join('SensibLaw', '.cache_local', 'wiki_timeline_hca_s942025_aoo.json');
@@ -40,6 +45,28 @@ type FactRow = {
   prev_fact_ids: string[];
   next_fact_ids: string[];
   chain_kinds: string[];
+};
+
+type PropositionRow = {
+  proposition_id: string;
+  event_id: string;
+  proposition_kind: string;
+  predicate_key: string;
+  negation?: { kind: string; scope?: string; source?: string };
+  source_fact_id?: string;
+  source_signal?: string;
+  anchor_text?: string;
+  arguments: Array<{ role: string; value: string }>;
+  receipts: Array<{ kind: string; value: string }>;
+};
+
+type PropositionLinkRow = {
+  link_id: string;
+  event_id: string;
+  source_proposition_id: string;
+  target_proposition_id: string;
+  link_kind: string;
+  receipts: Array<{ kind: string; value: string }>;
 };
 
 function normText(value: string): string {
@@ -267,6 +294,57 @@ function synthesizeFactsFromEvents(payload: Awaited<ReturnType<typeof loadWikiTi
   return rows;
 }
 
+function coerceProposition(raw: AooProposition): PropositionRow | null {
+  const proposition_id = String(raw.proposition_id || '');
+  const event_id = String(raw.event_id || '');
+  const proposition_kind = String(raw.proposition_kind || '');
+  const predicate_key = String(raw.predicate_key || '');
+  if (!proposition_id || !event_id || !proposition_kind || !predicate_key) return null;
+  return {
+    proposition_id,
+    event_id,
+    proposition_kind,
+    predicate_key,
+    negation: raw.negation && typeof raw.negation.kind === 'string'
+      ? { kind: String(raw.negation.kind), scope: raw.negation.scope, source: raw.negation.source }
+      : undefined,
+    source_fact_id: typeof raw.source_fact_id === 'string' ? String(raw.source_fact_id) : undefined,
+    source_signal: typeof raw.source_signal === 'string' ? String(raw.source_signal) : undefined,
+    anchor_text: typeof raw.anchor_text === 'string' ? String(raw.anchor_text) : undefined,
+    arguments: Array.isArray(raw.arguments)
+      ? raw.arguments
+          .filter((arg) => typeof arg?.role === 'string' && typeof arg?.value === 'string')
+          .map((arg) => ({ role: String(arg.role), value: String(arg.value) }))
+      : [],
+    receipts: Array.isArray(raw.receipts)
+      ? raw.receipts
+          .filter((receipt) => typeof receipt?.kind === 'string' && typeof receipt?.value === 'string')
+          .map((receipt) => ({ kind: String(receipt.kind), value: String(receipt.value) }))
+      : []
+  };
+}
+
+function coercePropositionLink(raw: AooPropositionLink): PropositionLinkRow | null {
+  const link_id = String(raw.link_id || '');
+  const event_id = String(raw.event_id || '');
+  const source_proposition_id = String(raw.source_proposition_id || '');
+  const target_proposition_id = String(raw.target_proposition_id || '');
+  const link_kind = String(raw.link_kind || '');
+  if (!link_id || !event_id || !source_proposition_id || !target_proposition_id || !link_kind) return null;
+  return {
+    link_id,
+    event_id,
+    source_proposition_id,
+    target_proposition_id,
+    link_kind,
+    receipts: Array.isArray(raw.receipts)
+      ? raw.receipts
+          .filter((receipt) => typeof receipt?.kind === 'string' && typeof receipt?.value === 'string')
+          .map((receipt) => ({ kind: String(receipt.kind), value: String(receipt.value) }))
+      : []
+  };
+}
+
 export async function load({ url }: { url: URL }) {
   const repoRoot = resolveRepoRoot();
   const source = (url.searchParams.get('source') || 'hca').toLowerCase();
@@ -304,12 +382,20 @@ export async function load({ url }: { url: URL }) {
       .filter((f) => Boolean(f.fact_id) && Boolean(f.event_id))
       .sort((a, b) => keyForAnchor(a.anchor) - keyForAnchor(b.anchor) || a.fact_id.localeCompare(b.fact_id))
     );
+    const propositions = Array.isArray(payload.propositions)
+      ? payload.propositions.map(coerceProposition).filter(Boolean) as PropositionRow[]
+      : [];
+    const proposition_links = Array.isArray(payload.proposition_links)
+      ? payload.proposition_links.map(coercePropositionLink).filter(Boolean) as PropositionLinkRow[]
+      : [];
 
     return {
       payload: {
         root_actor: payload.root_actor,
         parser: payload.parser ?? null,
         facts,
+        propositions,
+        proposition_links,
         diagnostics: {
           event_count: payload.events.length,
           fact_row_source: factRowSource,
@@ -327,6 +413,8 @@ export async function load({ url }: { url: URL }) {
         root_actor: { label: '', surname: '' },
         parser: null,
         facts: [] as FactRow[],
+        propositions: [] as PropositionRow[],
+        proposition_links: [] as PropositionLinkRow[],
         diagnostics: {
           event_count: 0,
           fact_row_source: 'native_fact_timeline',

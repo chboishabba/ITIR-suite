@@ -67,6 +67,33 @@ export type AooTimelineFact = {
   chain_kinds?: string[];
 };
 
+export type AooPropositionArgument = {
+  role: string;
+  value: string;
+};
+
+export type AooProposition = {
+  proposition_id: string;
+  event_id: string;
+  proposition_kind: string;
+  predicate_key: string;
+  negation?: AooNegation;
+  source_fact_id?: string;
+  source_signal?: string;
+  anchor_text?: string;
+  arguments?: AooPropositionArgument[];
+  receipts?: Array<{ kind: string; value: string }>;
+};
+
+export type AooPropositionLink = {
+  link_id: string;
+  event_id: string;
+  source_proposition_id: string;
+  target_proposition_id: string;
+  link_kind: string;
+  receipts?: Array<{ kind: string; value: string }>;
+};
+
 export type SpanCandidate = {
   span_id: string;
   event_id: string;
@@ -150,6 +177,8 @@ export type WikiTimelineAooPayload = {
   root_actor: { label: string; surname: string };
   events: AooEvent[];
   fact_timeline?: AooTimelineFact[];
+  propositions?: AooProposition[];
+  proposition_links?: AooPropositionLink[];
   parser?: any;
   // Metadata carried by the extraction/DB export; optional because older payloads
   // or minimal builds may omit it. The UI uses this to populate Source/Lens lanes.
@@ -165,6 +194,28 @@ export type WikiTimelineAooPayload = {
 
 function isObj(v: unknown): v is Record<string, unknown> {
   return Boolean(v) && typeof v === 'object';
+}
+
+function normalizePropositionArgument(raw: unknown): AooPropositionArgument | null {
+  if (!isObj(raw)) return null;
+  const role = String(raw.role ?? '').trim();
+  const value = String(raw.value ?? '').trim();
+  if (!role || !value) return null;
+  return { role, value };
+}
+
+function normalizeReceipts(raw: unknown): Array<{ kind: string; value: string }> | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const receipts = raw
+    .map((entry) => {
+      if (!isObj(entry)) return null;
+      const kind = String(entry.kind ?? '').trim();
+      const value = String(entry.value ?? '').trim();
+      if (!kind || !value) return null;
+      return { kind, value };
+    })
+    .filter(Boolean) as Array<{ kind: string; value: string }>;
+  return receipts.length ? receipts : undefined;
 }
 
 let warnedLegacyAooDbEnv = false;
@@ -235,6 +286,8 @@ function normalizePayloadObject(p: any): WikiTimelineAooPayload {
   const events = Array.isArray(p?.events) ? (p.events as any[]) : [];
   const root_actor = isObj(p?.root_actor) ? p.root_actor : { label: '', surname: '' };
   const fact_timeline = Array.isArray(p?.fact_timeline) ? (p.fact_timeline as any[]) : undefined;
+  const propositions = Array.isArray(p?.propositions) ? (p.propositions as any[]) : undefined;
+  const proposition_links = Array.isArray(p?.proposition_links) ? (p.proposition_links as any[]) : undefined;
   const parser = p?.parser;
 
   const outEvents: AooEvent[] = [];
@@ -460,6 +513,49 @@ function normalizePayloadObject(p: any): WikiTimelineAooPayload {
     root_actor: { label: String(root_actor.label ?? ''), surname: String(root_actor.surname ?? '') },
     events: outEvents,
     fact_timeline: Array.isArray(fact_timeline) ? (fact_timeline as any) : undefined,
+    propositions: propositions
+      ?.map((raw) => {
+        if (!isObj(raw)) return null;
+        const proposition_id = String(raw.proposition_id ?? '').trim();
+        const event_id = String(raw.event_id ?? '').trim();
+        const proposition_kind = String(raw.proposition_kind ?? '').trim();
+        const predicate_key = String(raw.predicate_key ?? '').trim();
+        if (!proposition_id || !event_id || !proposition_kind || !predicate_key) return null;
+        return {
+          proposition_id,
+          event_id,
+          proposition_kind,
+          predicate_key,
+          negation: parseNegation(raw.negation),
+          source_fact_id: typeof raw.source_fact_id === 'string' ? String(raw.source_fact_id) : undefined,
+          source_signal: typeof raw.source_signal === 'string' ? String(raw.source_signal) : undefined,
+          anchor_text: typeof raw.anchor_text === 'string' ? String(raw.anchor_text) : undefined,
+          arguments: Array.isArray(raw.arguments)
+            ? raw.arguments.map(normalizePropositionArgument).filter(Boolean) as AooPropositionArgument[]
+            : undefined,
+          receipts: normalizeReceipts(raw.receipts)
+        } satisfies AooProposition;
+      })
+      .filter(Boolean) as AooProposition[] | undefined,
+    proposition_links: proposition_links
+      ?.map((raw) => {
+        if (!isObj(raw)) return null;
+        const link_id = String(raw.link_id ?? '').trim();
+        const event_id = String(raw.event_id ?? '').trim();
+        const source_proposition_id = String(raw.source_proposition_id ?? '').trim();
+        const target_proposition_id = String(raw.target_proposition_id ?? '').trim();
+        const link_kind = String(raw.link_kind ?? '').trim();
+        if (!link_id || !event_id || !source_proposition_id || !target_proposition_id || !link_kind) return null;
+        return {
+          link_id,
+          event_id,
+          source_proposition_id,
+          target_proposition_id,
+          link_kind,
+          receipts: normalizeReceipts(raw.receipts)
+        } satisfies AooPropositionLink;
+      })
+      .filter(Boolean) as AooPropositionLink[] | undefined,
     parser,
     source_entity: (p as any).source_entity,
     extraction_record: (p as any).extraction_record,

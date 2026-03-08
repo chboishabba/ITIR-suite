@@ -32,6 +32,26 @@
         next_fact_ids: string[];
         chain_kinds: string[];
       }>;
+      propositions: Array<{
+        proposition_id: string;
+        event_id: string;
+        proposition_kind: string;
+        predicate_key: string;
+        negation?: { kind: string; scope?: string; source?: string };
+        source_fact_id?: string;
+        source_signal?: string;
+        anchor_text?: string;
+        arguments: Array<{ role: string; value: string }>;
+        receipts: Array<{ kind: string; value: string }>;
+      }>;
+      proposition_links: Array<{
+        link_id: string;
+        event_id: string;
+        source_proposition_id: string;
+        target_proposition_id: string;
+        link_kind: string;
+        receipts: Array<{ kind: string; value: string }>;
+      }>;
     };
     relPath: string;
     source?: string;
@@ -79,6 +99,15 @@
     const base = String(action ?? '').trim();
     if (!base) return '(no action)';
     if (String(negation?.kind ?? '').toLowerCase() === 'not') return `not_${base}`;
+    return base;
+  }
+  function propositionLabel(predicate: string | null | undefined, negation?: { kind?: string | null }): string {
+    const base = String(predicate ?? '').trim();
+    if (!base) return '(no predicate)';
+    if (String(negation?.kind ?? '').toLowerCase() === 'not') {
+      if (base === 'negate') return 'does_not_negate';
+      return `not_${base}`;
+    }
     return base;
   }
 
@@ -250,6 +279,17 @@
     if (!ids?.size) return [] as typeof facts;
     return facts.filter((f) => ids.has(f.fact_id));
   })();
+  $: selectedEventIds = new Set(selectedFacts.map((f) => String(f.event_id || '')));
+  $: selectedFactIds = new Set(selectedFacts.map((f) => String(f.fact_id || '')));
+  $: selectedPropositions = (data.payload.propositions ?? []).filter(
+    (prop) =>
+      selectedEventIds.has(String(prop.event_id || '')) ||
+      (prop.source_fact_id ? selectedFactIds.has(String(prop.source_fact_id)) : false)
+  );
+  $: selectedPropositionLinks = (data.payload.proposition_links ?? []).filter((link) =>
+    selectedEventIds.has(String(link.event_id || ''))
+  );
+  $: propositionById = new Map(selectedPropositions.map((prop) => [prop.proposition_id, prop]));
 
   afterUpdate(() => {
     if (!contextBox || !selectedNodeId || !selectedFacts.length) return;
@@ -393,6 +433,71 @@
               {/each}
             </div>
             <div class="mt-2 text-sm text-ink-950">{f.text}</div>
+          </div>
+        {/each}
+      </div>
+    {/if}
+  </Panel>
+
+  <Panel>
+    <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Propositions</div>
+    <div class="mt-2 text-xs text-ink-800/65">
+      Proposition-scoped reasoning overlay. Additive to facts; authoritative only for bounded debug/review.
+    </div>
+    {#if !selectedNodeId}
+      <div class="mt-2 text-xs text-ink-800/70">Select a node to inspect event-local propositions and proposition links.</div>
+    {:else if !selectedPropositions.length}
+      <div class="mt-2 text-xs text-ink-800/70">No proposition rows for the current fact/event selection.</div>
+    {:else}
+      <div class="mt-3 space-y-3">
+        {#each selectedPropositions as prop (prop.proposition_id)}
+          <div class="rounded-lg border border-ink-950/10 bg-white p-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="font-mono text-[10px] text-ink-800/60">{prop.proposition_id}</div>
+              <div class="flex flex-wrap items-center gap-2 font-mono text-[10px] text-ink-800/65">
+                <span>{prop.proposition_kind}</span>
+                <span>event={prop.event_id}</span>
+                {#if prop.source_fact_id}<span>fact={prop.source_fact_id}</span>{/if}
+              </div>
+            </div>
+            <div class="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-ink-950">
+              <span class="rounded bg-amber-100 px-1.5 py-0.5 font-mono">
+                [{propositionLabel(prop.predicate_key, prop.negation)}]
+              </span>
+              {#if prop.source_signal}
+                <span class="rounded bg-sky-50 px-1.5 py-0.5 font-mono text-sky-900">{prop.source_signal}</span>
+              {/if}
+            </div>
+            {#if prop.arguments.length}
+              <div class="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-ink-950">
+                {#each prop.arguments as arg}
+                  <span class="rounded bg-slate-100 px-1.5 py-0.5 font-mono">[{arg.role}: {arg.value}]</span>
+                {/each}
+              </div>
+            {/if}
+            {#if prop.receipts.length}
+              <div class="mt-2 flex flex-wrap items-center gap-2 font-mono text-[10px] text-ink-800/65">
+                {#each prop.receipts as receipt}
+                  <span class="rounded bg-ink-950/[0.04] px-1.5 py-0.5">{receipt.kind}={receipt.value}</span>
+                {/each}
+              </div>
+            {/if}
+            {#if prop.anchor_text}
+              <div class="mt-2 text-sm text-ink-950">{prop.anchor_text}</div>
+            {/if}
+            {#if selectedPropositionLinks.some((link) => link.source_proposition_id === prop.proposition_id || link.target_proposition_id === prop.proposition_id)}
+              <div class="mt-3 space-y-1 font-mono text-[10px] text-ink-800/70">
+                {#each selectedPropositionLinks.filter((link) => link.source_proposition_id === prop.proposition_id || link.target_proposition_id === prop.proposition_id) as link (link.link_id)}
+                  <div class="rounded border border-ink-950/8 bg-ink-950/[0.02] px-2 py-1">
+                    {#if link.source_proposition_id === prop.proposition_id}
+                      <span>{link.link_kind} -> {propositionById.get(link.target_proposition_id)?.predicate_key ?? link.target_proposition_id}</span>
+                    {:else}
+                      <span>{link.link_kind} {'<-'} {propositionById.get(link.source_proposition_id)?.predicate_key ?? link.source_proposition_id}</span>
+                    {/if}
+                  </div>
+                {/each}
+              </div>
+            {/if}
           </div>
         {/each}
       </div>

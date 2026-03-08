@@ -92,3 +92,14 @@ test('mission lens workbench uses fused bipartite plus layered mission graph', (
   assert.ok(s.includes('receipt.kind'));
   assert.ok(s.includes('receipt.value'));
 });
+
+test('wiki fact timeline surfaces proposition overlay details', () => {
+  const server = read('src/routes/graphs/wiki-fact-timeline/+page.server.ts');
+  const page = read('src/routes/graphs/wiki-fact-timeline/+page.svelte');
+  assert.ok(server.includes('type AooProposition'));
+  assert.ok(server.includes('proposition_links'));
+  assert.ok(page.includes('Propositions'));
+  assert.ok(page.includes('propositionLabel('));
+  assert.ok(page.includes('does_not_negate'));
+  assert.ok(page.includes('source_signal'));
+});
