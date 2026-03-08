@@ -3,6 +3,9 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Graphs/narrative compare: add a second selectable FriendlyJordies
+  chat-derived argument fixture so the workbench can inspect a richer
+  archive-derived claim set in addition to the smaller public-media demo.
 - Graphs/narrative compare: add `/graphs/narrative-compare` as a dedicated
   workbench for producer-owned public-media narrative comparison. The first
   slice loads the FriendlyJordies demo fixture and shows shared propositions,

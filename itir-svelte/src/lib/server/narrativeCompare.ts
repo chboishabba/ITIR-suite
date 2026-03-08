@@ -128,6 +128,9 @@ export async function loadNarrativeComparison(fixture = 'friendlyjordies_demo'):
   return {
     fixture: parsed.fixture ?? {},
     comparison: parsed.comparison as NarrativeComparisonReport,
-    availableFixtures: [{ key: 'friendlyjordies_demo', label: 'FriendlyJordies public-media demo' }]
+    availableFixtures: [
+      { key: 'friendlyjordies_demo', label: 'FriendlyJordies public-media demo' },
+      { key: 'friendlyjordies_chat_arguments', label: 'FriendlyJordies chat-derived arguments' }
+    ]
   };
 }

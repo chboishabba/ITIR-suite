@@ -73,6 +73,10 @@
               <div class="text-[11px] uppercase tracking-[0.24em] text-ink-800/60">Propositions</div>
               <div class="mt-1 text-xl font-semibold text-ink-950">{reports[source.source_id]?.summary?.proposition_count ?? 0}</div>
             </div>
+            <div class="rounded border border-ink-950/10 bg-ink-50 p-3 col-span-2">
+              <div class="text-[11px] uppercase tracking-[0.24em] text-ink-800/60">Proposition links</div>
+              <div class="mt-1 text-xl font-semibold text-ink-950">{reports[source.source_id]?.summary?.proposition_link_count ?? 0}</div>
+            </div>
           </div>
         </Panel>
       {/each}
@@ -170,6 +174,30 @@
           </div>
         {/each}
       </Panel>
+    </div>
+
+    <div class="grid gap-4 lg:grid-cols-2">
+      {#each sources as source}
+        <Panel>
+          <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Source proposition links</div>
+          <div class="mt-2 text-sm font-semibold text-ink-950">{source.title}</div>
+          <div class="mt-3 space-y-2">
+            {#each reports[source.source_id]?.proposition_links ?? [] as row}
+              <div class="rounded border border-ink-950/10 bg-ink-50 p-3">
+                <div class="font-medium text-ink-950">{row.link_kind}</div>
+                <div class="mt-1 text-xs text-ink-800/70">{row.source_proposition_id} → {row.target_proposition_id}</div>
+                {#if row.receipts?.length}
+                  <div class="mt-2 flex flex-wrap gap-2">
+                    {#each row.receipts as receipt}
+                      <span class="rounded-full border border-ink-950/10 bg-white px-2 py-1 text-[11px] text-ink-800/75">{receipt.kind}: {receipt.value}</span>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        </Panel>
+      {/each}
     </div>
   {/if}
 </div>

@@ -20,6 +20,14 @@ class CaseyOverlayRefs:
     build_refs: list[dict[str, Any]]
 
 
+def operation_ledger_locator(operation_id: str) -> str:
+    return f"casey_operation_ledger:{operation_id}"
+
+
+def build_ledger_locator(build_id: str) -> str:
+    return f"casey_build_ledger:{build_id}"
+
+
 def casey_to_sb_overlay_record(
     *,
     activity_event_id: str,
@@ -29,6 +37,8 @@ def casey_to_sb_overlay_record(
     refs: CaseyOverlayRefs,
     status: str | None = None,
     confidence: str | None = None,
+    operation_ledger_id: str | None = None,
+    build_ledger_id: str | None = None,
 ) -> dict[str, Any]:
     return {
         "activity_event_id": str(activity_event_id),
