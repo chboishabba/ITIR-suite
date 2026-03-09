@@ -120,3 +120,21 @@ test('narrative comparison workbench renders shared vs disputed narrative sectio
   assert.ok(page.includes('Corroboration + abstentions'));
   assert.ok(loader.includes('FriendlyJordies public-media demo'));
 });
+
+test('arguments workbench route renders split transcript plus inspector tabs', () => {
+  const server = read('src/routes/arguments/thread/[threadId]/+page.server.ts');
+  const page = read('src/routes/arguments/thread/[threadId]/+page.svelte');
+  const loader = read('src/lib/server/threadArguments.ts');
+  assert.ok(server.includes('loadThreadArgumentsWorkbench'));
+  assert.ok(page.includes('Thread transcript'));
+  assert.ok(page.includes('Claim inspector'));
+  assert.ok(page.includes('Literal'));
+  assert.ok(page.includes('Family'));
+  assert.ok(page.includes('Counterpoints'));
+  assert.ok(page.includes('Graph'));
+  assert.ok(page.includes('Thread mini-map'));
+  assert.ok(page.includes('Open graph focus'));
+  assert.ok(loader.includes('friendlyjordies_thread_extract'));
+  assert.ok(loader.includes('friendlyjordies_chat_arguments'));
+  assert.ok(loader.includes('friendlyjordies_authority_wrappers'));
+});

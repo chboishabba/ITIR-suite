@@ -779,7 +779,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--db",
-        default="~/.chat_archive.sqlite",
+        default="~/chat_archive.sqlite",
         help="Path to canonical chat archive SQLite DB (default: %(default)s)",
     )
     parser.add_argument(
