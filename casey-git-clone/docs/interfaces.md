@@ -13,9 +13,9 @@
   `../docs/planning/casey_git_clone_statiBaker_interface_20260309.md` at the
   suite root defines the minimal safe handoff into `StatiBaker`.
 - Future read-only revision-monitor seam:
-  `SensibLaw` revision-monitor run and pair artifacts may be referenced for
-  orchestration or build provenance, but Casey does not own pair scoring,
-  article state, or revision selection.
+  `SensibLaw` revision-monitor run, pair, and contested-region graph artifacts
+  may be referenced for orchestration or build provenance, but Casey does not
+  own pair scoring, article state, graph production, or revision selection.
 - Downstream consumers:
   reproducible build/test tools that consume immutable `BuildView` snapshots.
 

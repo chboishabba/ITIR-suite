@@ -27,6 +27,7 @@ const KNOWN_TOOLS = new Set([
   'exec_command',
   'write_stdin',
   'update_plan',
+  'request_user_input',
   'notebooklm_meta_event',
   // tool wrappers / variants that may appear in logs
   'parallel',

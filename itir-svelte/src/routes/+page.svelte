@@ -167,6 +167,14 @@
     <div class="mt-2 text-xs text-ink-800/60">
       Visualizes the pre-graph extraction substrate (page -&gt; candidate evidence edges).
     </div>
+    <div class="mt-3 text-sm text-ink-950">
+      <a
+        class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50"
+        href="/graphs/wiki-revision-contested"
+        >Contested region graphs (Wikipedia revisions)</a
+      >
+      <span class="ml-2 text-xs text-ink-800/60 font-mono">wiki_revision_contested_v2 / wiki_revision_harness.sqlite</span>
+    </div>
   </Panel>
 
   <Panel>

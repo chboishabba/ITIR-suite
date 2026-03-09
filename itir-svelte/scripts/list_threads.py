@@ -15,6 +15,11 @@ import sys
 from pathlib import Path
 
 
+def _message_columns(cur: sqlite3.Cursor) -> set[str]:
+    cur.execute("select * from messages limit 0")
+    return {str(col[0]) for col in (cur.description or [])}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--db", required=True)
@@ -31,10 +36,20 @@ def main() -> int:
     offset = max(0, int(args.offset))
     q = (args.q or "").strip()
 
-    con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    con = sqlite3.connect(f"file:{db_path}?mode=ro&immutable=1", uri=True)
     con.row_factory = sqlite3.Row
     cur = con.cursor()
     cur.execute("pragma temp_store=memory")
+    columns = _message_columns(cur)
+
+    has_source_thread_id = "source_thread_id" in columns
+    source_thread_expr = "source_thread_id" if has_source_thread_id else "null"
+    source_thread_filter = "lower(coalesce(latest.source_thread_id, '')) like ?" if has_source_thread_id else "0"
+    any_source_thread_expr = (
+        "max(case when source_thread_id is not null and trim(source_thread_id) <> '' then source_thread_id else null end)"
+        if has_source_thread_id
+        else "null"
+    )
 
     # We use a "latest row per canonical_thread_id" window to get title/source_id/platform.
     where_sql = ""
@@ -46,9 +61,11 @@ def main() -> int:
           lower(coalesce(latest.title, '')) like ?
           or lower(latest.canonical_thread_id) like ?
           or lower(coalesce(latest.source_id, '')) like ?
-          or lower(coalesce(latest.source_thread_id, '')) like ?
+          or {source_thread_filter}
         """
-        params.extend([like, like, like, like])
+        params.extend([like, like, like])
+        if has_source_thread_id:
+            params.append(like)
 
     cur.execute(
         f"""
@@ -59,7 +76,7 @@ def main() -> int:
             count(*) as message_count,
             max(ts) as latest_ts,
             sum(case when trim(coalesce(text,'')) = '' then 1 else 0 end) as empty_text_count,
-            max(case when source_thread_id is not null and trim(source_thread_id) <> '' then source_thread_id else null end) as any_source_thread_id
+            {any_source_thread_expr} as any_source_thread_id
           from messages
           group by canonical_thread_id
         ),
@@ -73,7 +90,7 @@ def main() -> int:
               source_id,
               platform,
               account_id,
-              source_thread_id,
+              {source_thread_expr} as source_thread_id,
               row_number() over (partition by canonical_thread_id order by ts desc, rowid desc) as rn
             from messages
           )
@@ -106,4 +123,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -46,6 +46,9 @@ channels for each core project directory in this workspace.
   bounded history-aware Wikipedia revision monitor contract, including
   candidate-pair scoring, section-delta targeting, and observer-only
   cross-project handoff posture.
+- `SensibLaw/docs/wiki_revision_pack_runner_contract_v0_3.md`:
+  contested-region graph extension over the revision monitor, including
+  graph artifacts/read models and the dedicated `itir-svelte` graph page.
 - `docs/planning/itir_idempotency_dedupe_cooperation_20260208.md`:
   shared-vs-siloed idempotency/dedupe model, authority-crossing handshake,
   and schema-freeze decision queue (`Q1`-`Q11`).

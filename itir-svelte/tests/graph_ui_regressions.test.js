@@ -55,6 +55,7 @@ test('chat archive path resolver falls back to non-dot chat archive path', () =>
   assert.ok(s.includes('CHAT_ARCHIVE_DB_PATH'));
   assert.ok(s.includes("'.chat_archive.sqlite'"));
   assert.ok(s.includes("'chat_archive.sqlite'"));
+  assert.ok(s.indexOf("'chat_archive.sqlite'") < s.indexOf("'.chat_archive.sqlite'"));
 });
 
 test('LayeredGraph keeps dashed Source/Lens line style but gates it for performance', () => {
@@ -137,4 +138,13 @@ test('arguments workbench route renders split transcript plus inspector tabs', (
   assert.ok(loader.includes('friendlyjordies_thread_extract'));
   assert.ok(loader.includes('friendlyjordies_chat_arguments'));
   assert.ok(loader.includes('friendlyjordies_authority_wrappers'));
+});
+
+test('chat tool renderer handles request_user_input as structured questions', () => {
+  const parse = read('src/lib/chat/parseToolCall.ts');
+  const block = read('src/lib/chat/ToolCallBlock.svelte');
+  assert.ok(parse.includes("'request_user_input'"));
+  assert.ok(block.includes("tool === 'request_user_input'"));
+  assert.ok(block.includes('user input request'));
+  assert.ok(block.includes('No structured questions found in payload.'));
 });

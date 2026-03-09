@@ -44,7 +44,7 @@ def main() -> int:
     if not db_path.exists():
         raise SystemExit(f"DB not found: {db_path}")
 
-    con = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    con = sqlite3.connect(f"file:{db_path}?mode=ro&immutable=1", uri=True)
     con.row_factory = sqlite3.Row
     cur = con.cursor()
 

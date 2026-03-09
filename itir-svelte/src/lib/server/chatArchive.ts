@@ -46,7 +46,7 @@ export function resolveChatArchivePath(): string {
   const envPath = process.env.ITIR_CHAT_ARCHIVE_DB_PATH?.trim() || process.env.CHAT_ARCHIVE_DB_PATH?.trim();
   if (envPath) return path.resolve(envPath);
 
-  const candidates = [path.join(os.homedir(), '.chat_archive.sqlite'), path.join(os.homedir(), 'chat_archive.sqlite')];
+  const candidates = [path.join(os.homedir(), 'chat_archive.sqlite'), path.join(os.homedir(), '.chat_archive.sqlite')];
   for (const candidate of candidates) {
     if (fs.existsSync(candidate)) return candidate;
   }

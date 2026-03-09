@@ -23,6 +23,7 @@
     if (s === 'exec_command') return 'teal';
     if (s === 'write_stdin') return 'indigo';
     if (s === 'update_plan') return 'warn';
+    if (s === 'request_user_input') return 'warn';
     if (s === 'notebooklm_meta_event') return 'indigo';
     if (s === 'apply_patch') return 'danger';
     return 'neutral';
@@ -135,6 +136,40 @@
     return out;
   }
 
+  type ChoiceQuestion = {
+    header: string;
+    id: string;
+    question: string;
+    options: Array<{ label: string; description: string }>;
+  };
+
+  function choiceQuestions(): ChoiceQuestion[] {
+    const raw = payload?.questions;
+    if (!Array.isArray(raw)) return [];
+    const out: ChoiceQuestion[] = [];
+    for (const item of raw) {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
+      const rec = item as Record<string, unknown>;
+      const header = typeof rec.header === 'string' ? rec.header.trim() : '';
+      const id = typeof rec.id === 'string' ? rec.id.trim() : '';
+      const question = typeof rec.question === 'string' ? rec.question.trim() : '';
+      const optsRaw = Array.isArray(rec.options) ? rec.options : [];
+      const options = optsRaw
+        .map((opt) => {
+          if (!opt || typeof opt !== 'object' || Array.isArray(opt)) return null;
+          const o = opt as Record<string, unknown>;
+          return {
+            label: typeof o.label === 'string' ? o.label.trim() : '',
+            description: typeof o.description === 'string' ? o.description.trim() : ''
+          };
+        })
+        .filter((opt): opt is { label: string; description: string } => Boolean(opt && (opt.label || opt.description)));
+      if (!header && !id && !question && !options.length) continue;
+      out.push({ header, id, question, options });
+    }
+    return out;
+  }
+
   function statusPill(status: string): { cls: string; label: string } {
     const s = (status ?? '').toLowerCase().trim();
     if (s === 'completed' || s === 'done')
@@ -169,6 +204,7 @@
   $: maxOut = getNum(payload?.max_output_tokens);
   $: explanation = getString(payload?.explanation);
   $: plan = planItems();
+  $: questions = choiceQuestions();
   $: nbEvent = getString(payload?.event);
   $: nbNotebookHash = getString(payload?.notebook_id_hash);
   $: nbNoteHash = getString(payload?.note_id_hash);
@@ -326,6 +362,50 @@
         </div>
       {:else}
         <div class="mt-2 text-[12px] text-ink-800/60">No plan items found in payload.</div>
+      {/if}
+    </div>
+  {/if}
+
+  {#if tool === 'request_user_input'}
+    <div class="rounded-xl bg-paper-50 ring-1 ring-ink-900/10 px-3 py-2">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="text-[10px] font-mono uppercase tracking-widest text-ink-800/60">user input request</div>
+        <div class="text-[11px] font-mono text-ink-800/60">{questions.length.toLocaleString()} question(s)</div>
+      </div>
+      {#if questions.length}
+        <div class="mt-3 space-y-3">
+          {#each questions as q, idx (`q_${idx}_${q.id}`)}
+            <div class="rounded-lg bg-paper-100 ring-1 ring-ink-900/10 px-3 py-3">
+              <div class="flex flex-wrap items-center gap-2">
+                {#if q.header}
+                  <span class="inline-flex items-center rounded-full bg-amber-500/10 text-amber-950 ring-1 ring-amber-900/20 px-2 py-[2px] text-[10px] font-mono uppercase tracking-widest">
+                    {q.header}
+                  </span>
+                {/if}
+                {#if q.id}
+                  <span class="font-mono text-[10px] uppercase tracking-widest text-ink-800/55">{q.id}</span>
+                {/if}
+              </div>
+              {#if q.question}
+                <div class="mt-2 text-[13px] leading-snug text-ink-950/90">{q.question}</div>
+              {/if}
+              {#if q.options.length}
+                <div class="mt-3 space-y-2">
+                  {#each q.options as opt, j (`opt_${j}_${opt.label}`)}
+                    <div class="rounded-md bg-paper-50 ring-1 ring-ink-900/10 px-3 py-2">
+                      <div class="text-[12px] font-semibold leading-snug text-ink-950/90">{opt.label}</div>
+                      {#if opt.description}
+                        <div class="mt-1 text-[12px] leading-snug text-ink-800/75">{opt.description}</div>
+                      {/if}
+                    </div>
+                  {/each}
+                </div>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      {:else}
+        <div class="mt-2 text-[12px] text-ink-800/60">No structured questions found in payload.</div>
       {/if}
     </div>
   {/if}

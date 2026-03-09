@@ -52,16 +52,27 @@
   - DONE: land rolling current-vs-last-seen runner over live Wikipedia article packs
   - DONE: document the history-aware runner contract and suite interface
     posture for SB / SL-reasoner / fuzzymodo / casey-git-clone
-  - implement bounded revision-history polling and candidate-pair scoring over
-    recent article history windows
-  - add section-aware diff targeting and pair-level report wrappers over the
-    existing revision harness
-  - attach bounded review-context joins from existing Wikidata diagnostics and
-    bridge aliases to revision issue packets
+  - DONE: implement bounded revision-history polling and candidate-pair
+    scoring over recent article history windows
+  - DONE: add section-aware diff targeting and pair-level report wrappers over
+    the existing revision harness
+  - DONE: attach bounded review-context joins from existing Wikidata
+    diagnostics and bridge aliases to revision issue packets
+  - DONE: add pack-level triage summaries and direct-consumer article severity
+    surfaces
+  - DONE: add contested-region graph artifacts/read models plus a dedicated
+    `itir-svelte` page over the contested pack
+  - DONE: expand the contested pack into `wiki_revision_contested_v2` with
+    deeper bounded history defaults and graphing enabled
   - run repeated live passes over both curated packs so the lane accumulates
     real `changed` reports rather than mostly baseline/unchanged runs
   - compare volatility classes across packs (ontology-stress vs contested-live)
     before deciding what belongs in a default monitor set
+  - decide whether `wiki_revision_contested_v2` should replace
+    `wiki_revision_contested_v1` as the canonical contested live pack in docs
+    and runbooks, or whether v1 should remain a smaller/lightweight sibling
+  - add a bounded query/report contract for mining candidate contested titles
+    without turning the lane into an open crawler
   - decide whether triage dashboards should later emit clearly-advisory edit
     suggestions or move directly to a workbench
   - Dependencies:
@@ -71,9 +82,18 @@
     - `SensibLaw/docs/planning/wiki_revision_harness_first_pass_20260309.md`
     - `SensibLaw/docs/planning/wiki_revision_contested_pack_20260309.md`
     - `SensibLaw/docs/planning/wiki_revision_history_runner_20260309.md`
+    - `SensibLaw/docs/planning/wiki_revision_contested_region_graph_20260309.md`
     - `SensibLaw/scripts/wiki_revision_harness.py`
     - `SensibLaw/data/source_packs/wiki_revision_monitor_v1.json`
     - `SensibLaw/data/source_packs/wiki_revision_contested_v1.json`
+    - `SensibLaw/data/source_packs/wiki_revision_contested_v2.json`
+- [P1] Recent `itir-svelte` page audit followthrough:
+  - DONE: add repeatable localhost audit runner `scripts/check_recent_pages.py`
+  - DONE: record first audit findings in `docs/planning/recent_page_audit_20260309.md`
+  - fix `/arguments/thread/69ac40e0-0cfc-839b-b2a8-0de3019379a9` returning HTTP `500`
+  - fix the contested wiki graph lane so a changed `wiki_revision_contested_v1` run can hydrate `selected_graph` rather than returning `null`
+  - distinguish `producer run error` vs `changed run with missing graph payload` vs `valid populated graph` in `/graphs/wiki-revision-contested`
+  - keep `python scripts/check_recent_pages.py` in the manual verification loop whenever recent `itir-svelte` routes or upstream producer contracts change
 
 - Come back to the Duncan/Emma response draft:
   - `docs/planning/response_to_duncan_emma_itir_hospital_advocacy_20260208.md` missed the intended mark (needs a better synthesis/voice and should be evaluated against the actual posting context).
