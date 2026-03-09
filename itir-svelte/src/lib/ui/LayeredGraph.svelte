@@ -10,6 +10,7 @@
   };
 
   export type LayeredEdge = {
+    id?: string;
     from: string;
     to: string;
     label?: string;
@@ -248,7 +249,7 @@
 
 <GraphViewport {width} {height} {fitToWidth} {scrollWhenOverflow} resetKey={viewportResetKey}>
   <g>
-    {#each edges as e (e.from + '->' + e.to)}
+    {#each edges as e (e.id ?? `${e.from}->${e.to}:${e.kind ?? ''}:${e.label ?? ''}`)}
       {@const a = pos.get(e.from)}
       {@const b = pos.get(e.to)}
       {#if a && b}

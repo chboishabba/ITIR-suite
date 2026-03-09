@@ -53,9 +53,11 @@ test('chat archive path resolver falls back to non-dot chat archive path', () =>
   const s = read('src/lib/server/chatArchive.ts');
   assert.ok(s.includes('ITIR_CHAT_ARCHIVE_DB_PATH'));
   assert.ok(s.includes('CHAT_ARCHIVE_DB_PATH'));
+  assert.ok(s.includes('resolveChatArchiveCandidates'));
+  assert.ok(s.includes("'/tmp/dashig_chat_archive_latest.sqlite'"));
   assert.ok(s.includes("'.chat_archive.sqlite'"));
   assert.ok(s.includes("'chat_archive.sqlite'"));
-  assert.ok(s.indexOf("'chat_archive.sqlite'") < s.indexOf("'.chat_archive.sqlite'"));
+  assert.ok(s.indexOf("'chat_archive.sqlite'") < s.indexOf("'/tmp/dashig_chat_archive_latest.sqlite'"));
 });
 
 test('LayeredGraph keeps dashed Source/Lens line style but gates it for performance', () => {
@@ -110,7 +112,9 @@ test('narrative comparison workbench renders shared vs disputed narrative sectio
   const page = read('src/routes/graphs/narrative-compare/+page.svelte');
   const loader = read('src/lib/server/narrativeCompare.ts');
   assert.ok(server.includes('loadNarrativeComparison'));
+  assert.ok(server.includes("url.searchParams.get('threadId')"));
   assert.ok(loader.includes('narrative_compare.py'));
+  assert.ok(loader.includes("'--thread-id'"));
   assert.ok(loader.includes('friendlyjordies_demo'));
   assert.ok(loader.includes('friendlyjordies_thread_extract'));
   assert.ok(page.includes('Narrative Comparison Workbench'));
@@ -138,6 +142,17 @@ test('arguments workbench route renders split transcript plus inspector tabs', (
   assert.ok(loader.includes('friendlyjordies_thread_extract'));
   assert.ok(loader.includes('friendlyjordies_chat_arguments'));
   assert.ok(loader.includes('friendlyjordies_authority_wrappers'));
+  assert.ok(loader.includes('thread.sourceThreadId ?? thread.canonicalThreadId'));
+});
+
+test('arguments workbench anchors only matched spans and does not fan out by family keywords', () => {
+  const loader = read('src/lib/server/threadArguments.ts');
+  assert.ok(loader.includes('function claimCandidates'));
+  assert.ok(loader.includes('function findFamilySentenceSpan'));
+  assert.ok(loader.includes('return null;'));
+  assert.ok(!loader.includes("FAMILY_META[claim.familyId]?.keywords[0]"));
+  assert.ok(!loader.includes('findMessageMatches('));
+  assert.ok(!loader.includes('end: Math.min(haystack.length, Math.max(32'));
 });
 
 test('chat tool renderer handles request_user_input as structured questions', () => {
@@ -151,19 +166,20 @@ test('chat tool renderer handles request_user_input as structured questions', ()
 
 test('wiki revision contested page distinguishes producer errors from missing or ready graph payloads', () => {
   const page = read('src/routes/graphs/wiki-revision-contested/+page.svelte');
-  assert.ok(page.includes('Selected article state'));
+  assert.ok(page.includes('Selected article status'));
   assert.ok(page.includes('producer_error'));
   assert.ok(page.includes('graph_not_enabled'));
   assert.ok(page.includes('missing_graph_payload'));
   assert.ok(page.includes('graph_ready'));
   assert.ok(page.includes('Producer error: the selected article did not complete revision processing'));
   assert.ok(page.includes('Graph not enabled: this pack only persisted pair-level revision analysis'));
-  assert.ok(page.includes('Missing graph payload: the run indicates a graph artifact'));
+  assert.ok(page.includes('The run marked a contested graph as available, but the selected graph payload did not hydrate.'));
 });
 
-test('graphs catch-all route redirects canonical chat-archive graph refs to the arguments workbench', () => {
+test('graphs catch-all route redirects canonical chat-archive graph refs to the narrative comparison workbench', () => {
   const server = read('src/routes/graphs/[...graphRef]/+page.server.ts');
   assert.ok(server.includes('chat_archive://canonical_thread/'));
-  assert.ok(server.includes('/arguments/thread/'));
+  assert.ok(server.includes("friendlyjordies_thread_extract"));
+  assert.ok(server.includes('/graphs/narrative-compare?fixture='));
   assert.ok(server.includes("'/graphs/narrative-compare'"));
 });

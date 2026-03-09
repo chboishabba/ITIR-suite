@@ -26,6 +26,34 @@ def end_bound(v: str) -> str:
     return f"{v}T23:59:59Z" if is_date_text(v) else v
 
 
+def table_columns(cur: sqlite3.Cursor, table: str) -> set[str]:
+    return {str(row[1]) for row in cur.execute(f"pragma table_info({table})")}
+
+
+def message_select_sql(cols: set[str]) -> str:
+    optional = {
+        "title": "title",
+        "source_id": "source_id",
+        "source_thread_id": "source_thread_id",
+        "source_message_id": "source_message_id",
+    }
+    fields = [
+        "message_id",
+        "canonical_thread_id",
+        "platform",
+        "account_id",
+        "ts",
+        "role",
+        "text",
+    ]
+    for alias, column in optional.items():
+        if column in cols:
+            fields.append(column)
+        else:
+            fields.append(f"NULL AS {alias}")
+    return ", ".join(fields)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--db", required=True)
@@ -52,6 +80,8 @@ def main() -> int:
     con = sqlite3.connect(f"file:{db_path}?mode=ro&immutable=1", uri=True)
     con.row_factory = sqlite3.Row
     cur = con.cursor()
+    cols = table_columns(cur, "messages")
+    select_fields = message_select_sql(cols)
 
     # Prevent temp file failures in some environments.
     cur.execute("pragma temp_store=memory")
@@ -104,8 +134,7 @@ def main() -> int:
 
         cur.execute(
             f"""
-            select message_id, canonical_thread_id, platform, account_id, ts, role, text, title,
-                   source_id, source_thread_id, source_message_id
+            select {select_fields}
             from messages
             {where_sql}
             {order_sql}
@@ -123,6 +152,9 @@ def main() -> int:
     # If present, we resolve to the most-populated canonical thread for that upstream id.
     canonical = thread_id
     if source_thread_id:
+        if "source_thread_id" not in cols:
+            json.dump({"canonical_thread_id": None, "title": None, "total": 0, "tail": tail, "messages": []}, fp=sys.stdout, ensure_ascii=True)
+            return 0
         cur.execute(
             """
             select canonical_thread_id, count(*) as c
@@ -145,8 +177,8 @@ def main() -> int:
     where = ["canonical_thread_id = ?"]
     params: list[str] = [canonical]
     if args.start.strip():
-      where.append("ts >= ?")
-      params.append(start_bound(args.start.strip()))
+        where.append("ts >= ?")
+        params.append(start_bound(args.start.strip()))
     if args.end.strip():
         where.append("ts <= ?")
         params.append(end_bound(args.end.strip()))
@@ -157,8 +189,7 @@ def main() -> int:
 
     cur.execute(
         f"""
-        select message_id, canonical_thread_id, platform, account_id, ts, role, text, title,
-               source_id, source_thread_id, source_message_id
+        select {select_fields}
         from messages
         {where_sql}
         order by ts desc

@@ -4,7 +4,6 @@ import { fetchThreadTail, fetchThreadTailBySourceThreadId } from '$lib/server/ch
 import { loadNarrativeComparison, type NarrativeComparisonReport, type NarrativeValidationReport } from '$lib/server/narrativeCompare';
 import type { ArgumentAnchor, ArgumentBadge, ArgumentClaim, ArgumentEdge, ArgumentFamily, ThreadArgumentsWorkbench } from '$lib/arguments/workbench';
 
-const FRIENDLYJORDIES_SOURCE_THREAD_ID = '69ac40e0-0cfc-839b-b2a8-0de3019379a9';
 const THEME_ORDER = [
   'cprs_blocking',
   'woolworths_price',
@@ -120,14 +119,6 @@ async function loadThread(repoRoot: string, threadId: string): Promise<LoadedThr
   };
 }
 
-function isFriendlyJordiesThread(thread: LoadedThread): boolean {
-  if (thread.sourceThreadId && thread.sourceThreadId === FRIENDLYJORDIES_SOURCE_THREAD_ID) return true;
-  const title = compactLower(thread.title);
-  if (title.includes('climate change politics au')) return true;
-  const corpus = compactLower(thread.messages.map((row) => row.text).join('\n'));
-  return corpus.includes('cprs') && corpus.includes('woolworths') && corpus.includes('greens');
-}
-
 function buildBadgeMap(messages: ChatArchiveMessage[], anchors: ArgumentAnchor[], claimsById: Map<string, ArgumentClaim>): ArgumentBadge[] {
   return messages.map((message) => {
     const messageAnchors = anchors.filter((row) => row.messageId === message.message_id);
@@ -188,48 +179,84 @@ function buildEdges(report: NarrativeComparisonReport, claimsByPropId: Map<strin
   return edges;
 }
 
-function findMessageMatches(messages: ChatArchiveMessage[], familyId: string): ChatArchiveMessage[] {
-  const meta = familyMeta(familyId);
-  const matched = messages.filter((message) => {
-    const text = compactLower(message.text);
-    return meta.keywords.some((keyword) => text.includes(keyword.toLowerCase()));
-  });
-  return matched.length ? matched : messages.filter((row) => row.role === 'assistant').slice(-1);
+function claimCandidates(claim: ArgumentClaim): string[] {
+  const values = [
+    claim.surfaceText,
+    claim.normalizedText,
+    ...claim.receipts.filter((row) => row.kind === 'claim_text').map((row) => row.value),
+    ...claim.arguments.filter((row) => row.role === 'content').map((row) => row.value)
+  ]
+    .map((value) => normalizeText(value))
+    .filter((value) => value.length >= 12);
+  return Array.from(new Set(values)).sort((a, b) => b.length - a.length);
 }
 
-function findLiteralSpan(message: ChatArchiveMessage, claim: ArgumentClaim): { start: number; end: number; exact: boolean; preview: string } {
+function sentenceChunks(text: string): Array<{ text: string; start: number; end: number }> {
+  const chunks: Array<{ text: string; start: number; end: number }> = [];
+  const pattern = /[^\n.!?]+(?:[.!?]+|\n+|$)/g;
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(text)) !== null) {
+    const raw = match[0];
+    const trimmed = raw.trim();
+    if (!trimmed) continue;
+    const startOffset = raw.indexOf(trimmed);
+    const start = match.index + Math.max(0, startOffset);
+    const end = start + trimmed.length;
+    chunks.push({ text: trimmed, start, end });
+  }
+  return chunks.length ? chunks : [{ text, start: 0, end: text.length }];
+}
+
+function findFamilySentenceSpan(message: ChatArchiveMessage, claim: ArgumentClaim): { start: number; end: number; exact: boolean; preview: string } | null {
   const haystack = message.text ?? '';
-  const anchorText = claim.surfaceText || claim.normalizedText;
-  const candidates = [
-    anchorText,
-    claim.arguments.find((row) => row.role === 'content')?.value ?? '',
-    FAMILY_META[claim.familyId]?.keywords[0] ?? ''
-  ].filter(Boolean);
+  const meta = familyMeta(claim.familyId);
+  if (!meta.keywords.length) return null;
+  const chunks = sentenceChunks(haystack);
+  let best:
+    | { start: number; end: number; exact: boolean; preview: string; score: number; length: number }
+    | null = null;
+  for (const chunk of chunks) {
+    const lowered = chunk.text.toLowerCase();
+    const matched = meta.keywords.filter((keyword) => lowered.includes(keyword.toLowerCase()));
+    if (matched.length < 2) continue;
+    const candidate = {
+      start: chunk.start,
+      end: chunk.end,
+      exact: false,
+      preview: chunk.text,
+      score: matched.length,
+      length: chunk.text.length
+    };
+    if (!best || candidate.score > best.score || (candidate.score === best.score && candidate.length < best.length)) {
+      best = candidate;
+    }
+  }
+  return best ? { start: best.start, end: best.end, exact: false, preview: best.preview } : null;
+}
+
+function findLiteralSpan(message: ChatArchiveMessage, claim: ArgumentClaim): { start: number; end: number; exact: boolean; preview: string } | null {
+  const haystack = message.text ?? '';
+  const candidates = claimCandidates(claim);
   for (const candidate of candidates) {
     const idx = haystack.toLowerCase().indexOf(candidate.toLowerCase());
     if (idx >= 0) {
       return {
         start: idx,
         end: Math.min(haystack.length, idx + candidate.length),
-        exact: candidate === anchorText,
+        exact: candidate === normalizeText(claim.surfaceText) || candidate === normalizeText(claim.normalizedText),
         preview: candidate
       };
     }
   }
-  return {
-    start: 0,
-    end: Math.min(haystack.length, Math.max(32, anchorText.length)),
-    exact: false,
-    preview: anchorText
-  };
+  return findFamilySentenceSpan(message, claim);
 }
 
 function buildAnchors(messages: ChatArchiveMessage[], claims: ArgumentClaim[]): ArgumentAnchor[] {
   const anchors: ArgumentAnchor[] = [];
   for (const claim of claims) {
-    const matchedMessages = findMessageMatches(messages, claim.familyId);
-    for (const message of matchedMessages) {
+    for (const message of messages) {
       const span = findLiteralSpan(message, claim);
+      if (!span) continue;
       anchors.push({
         id: `${claim.id}:${message.message_id}`,
         claimId: claim.id,
@@ -304,17 +331,11 @@ export async function loadThreadArgumentsWorkbench(repoRoot: string, threadId: s
     defaultSelectedClaimIds: [],
     sourceThreadId: thread.sourceThreadId
   };
-  if (!isFriendlyJordiesThread(thread)) {
-    return {
-      ...base,
-      unavailableReason: 'Argument overlay is currently implemented for the archive-backed FriendlyJordies proving thread only.'
-    };
-  }
-
+  const narrativeThreadId = thread.sourceThreadId ?? thread.canonicalThreadId;
   const comparisons = await Promise.all([
-    loadNarrativeComparison('friendlyjordies_thread_extract'),
-    loadNarrativeComparison('friendlyjordies_chat_arguments'),
-    loadNarrativeComparison('friendlyjordies_authority_wrappers')
+    loadNarrativeComparison('friendlyjordies_thread_extract', { threadId: narrativeThreadId, threadTitle: thread.title }),
+    loadNarrativeComparison('friendlyjordies_chat_arguments', { threadId: narrativeThreadId, threadTitle: thread.title }),
+    loadNarrativeComparison('friendlyjordies_authority_wrappers', { threadId: narrativeThreadId, threadTitle: thread.title })
   ]);
 
   const allClaims: ArgumentClaim[] = [];
@@ -332,6 +353,12 @@ export async function loadThreadArgumentsWorkbench(repoRoot: string, threadId: s
   }
 
   const dedupedClaims = Array.from(new Map(allClaims.map((row) => [row.id, row])).values());
+  if (!dedupedClaims.length) {
+    return {
+      ...base,
+      unavailableReason: 'No argument overlay could be derived from this archive thread.'
+    };
+  }
   const anchors = buildAnchors(thread.messages, dedupedClaims);
   addClaimCounterpoints(dedupedClaims, allEdges);
   const claimsById = new Map(dedupedClaims.map((row) => [row.id, row]));

@@ -113,9 +113,9 @@ export type NarrativeComparisonReport = {
 function resolveRepoRoot(): string {
   const candidates = [path.resolve('.'), path.resolve('..')];
   for (const candidate of candidates) {
-    if (existsSync(path.join(candidate, 'SensibLaw'))) return candidate;
+    if (existsSync(path.join(candidate, 'SensibLaw')) && existsSync(path.join(candidate, 'itir-svelte'))) return candidate;
   }
-  return path.resolve('..');
+  return path.resolve('.');
 }
 
 async function readStdout(cmd: string, args: string[], cwd: string): Promise<string> {
@@ -135,21 +135,27 @@ async function readStdout(cmd: string, args: string[], cwd: string): Promise<str
   });
 }
 
-export async function loadNarrativeComparison(fixture = 'friendlyjordies_demo'): Promise<{
+export async function loadNarrativeComparison(
+  fixture = 'friendlyjordies_demo',
+  opts: { threadId?: string | null; threadTitle?: string | null } = {}
+): Promise<{
   fixture: { fixture_id?: string; label?: string };
   comparison: NarrativeComparisonReport;
   availableFixtures: Array<{ key: string; label: string }>;
 }> {
   const repoRoot = resolveRepoRoot();
+  const args = [
+    path.join('SensibLaw', 'scripts', 'narrative_compare.py'),
+    '--fixture',
+    fixture,
+    '--archive-backed'
+  ];
+  if (opts.threadId?.trim()) args.push('--thread-id', opts.threadId.trim());
+  if (opts.threadTitle?.trim()) args.push('--thread-title-hint', opts.threadTitle.trim());
+  args.push('compare');
   const raw = await readStdout(
     'python3',
-    [
-      path.join('SensibLaw', 'scripts', 'narrative_compare.py'),
-      '--fixture',
-      fixture,
-      '--archive-backed',
-      'compare'
-    ],
+    args,
     repoRoot
   );
   const parsed = JSON.parse(raw);

@@ -42,15 +42,25 @@ function runQueryScript(args: string[], cwd: string): Promise<string> {
   });
 }
 
-export function resolveChatArchivePath(): string {
+export function resolveChatArchiveCandidates(): string[] {
   const envPath = process.env.ITIR_CHAT_ARCHIVE_DB_PATH?.trim() || process.env.CHAT_ARCHIVE_DB_PATH?.trim();
-  if (envPath) return path.resolve(envPath);
+  if (envPath) return [path.resolve(envPath)];
 
-  const candidates = [path.join(os.homedir(), 'chat_archive.sqlite'), path.join(os.homedir(), '.chat_archive.sqlite')];
+  const candidates = [
+    path.join(os.homedir(), 'chat_archive.sqlite'),
+    '/tmp/dashig_chat_archive_latest.sqlite',
+    path.join(os.homedir(), '.chat_archive.sqlite')
+  ];
+  const resolved: string[] = [];
   for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) return candidate;
+    if (fs.existsSync(candidate) && !resolved.includes(candidate)) resolved.push(candidate);
   }
-  return candidates[0]!;
+  if (!resolved.length) resolved.push(path.join(os.homedir(), 'chat_archive.sqlite'));
+  return resolved;
+}
+
+export function resolveChatArchivePath(): string {
+  return resolveChatArchiveCandidates()[0]!;
 }
 
 export async function fetchThreadTail(
@@ -58,29 +68,26 @@ export async function fetchThreadTail(
   canonicalThreadId: string,
   opts: QueryOpts = {}
 ): Promise<{ title: string | null; total: number; messages: ChatArchiveMessage[] }> {
-  const dbPath = resolveChatArchivePath();
   const script = path.join(repoRoot, 'itir-svelte', 'scripts', 'query_chat_archive.py');
   const tail = Math.max(1, Math.min(2000, Math.floor(opts.tail ?? 400)));
+  let fallback: { title: string | null; total: number; messages: ChatArchiveMessage[] } | null = null;
 
-  const argv = [
-    script,
-    '--db',
-    dbPath,
-    '--thread-id',
-    canonicalThreadId,
-    '--tail',
-    String(tail)
-  ];
-  if (opts.startIso && isDateText(opts.startIso)) argv.push('--start', opts.startIso);
-  if (opts.endIso && isDateText(opts.endIso)) argv.push('--end', opts.endIso);
+  for (const dbPath of resolveChatArchiveCandidates()) {
+    const argv = [script, '--db', dbPath, '--thread-id', canonicalThreadId, '--tail', String(tail)];
+    if (opts.startIso && isDateText(opts.startIso)) argv.push('--start', opts.startIso);
+    if (opts.endIso && isDateText(opts.endIso)) argv.push('--end', opts.endIso);
+    const raw = await runQueryScript(argv, repoRoot);
+    const parsed = JSON.parse(raw) as any;
+    const payload = {
+      title: typeof parsed?.title === 'string' ? parsed.title : parsed?.title ?? null,
+      total: Number(parsed?.total ?? 0) || 0,
+      messages: Array.isArray(parsed?.messages) ? (parsed.messages as ChatArchiveMessage[]) : []
+    };
+    if (!fallback) fallback = payload;
+    if (payload.total > 0 || payload.messages.length > 0) return payload;
+  }
 
-  const raw = await runQueryScript(argv, repoRoot);
-  const parsed = JSON.parse(raw) as any;
-  return {
-    title: typeof parsed?.title === 'string' ? parsed.title : parsed?.title ?? null,
-    total: Number(parsed?.total ?? 0) || 0,
-    messages: Array.isArray(parsed?.messages) ? (parsed.messages as ChatArchiveMessage[]) : []
-  };
+  return fallback ?? { title: null, total: 0, messages: [] };
 }
 
 export async function fetchThreadTailBySourceThreadId(
@@ -88,22 +95,27 @@ export async function fetchThreadTailBySourceThreadId(
   sourceThreadId: string,
   opts: QueryOpts = {}
 ): Promise<{ canonicalThreadId: string | null; title: string | null; total: number; messages: ChatArchiveMessage[] }> {
-  const dbPath = resolveChatArchivePath();
   const script = path.join(repoRoot, 'itir-svelte', 'scripts', 'query_chat_archive.py');
   const tail = Math.max(1, Math.min(2000, Math.floor(opts.tail ?? 400)));
+  let fallback: { canonicalThreadId: string | null; title: string | null; total: number; messages: ChatArchiveMessage[] } | null = null;
 
-  const argv = [script, '--db', dbPath, '--source-thread-id', sourceThreadId, '--tail', String(tail)];
-  if (opts.startIso && isDateText(opts.startIso)) argv.push('--start', opts.startIso);
-  if (opts.endIso && isDateText(opts.endIso)) argv.push('--end', opts.endIso);
+  for (const dbPath of resolveChatArchiveCandidates()) {
+    const argv = [script, '--db', dbPath, '--source-thread-id', sourceThreadId, '--tail', String(tail)];
+    if (opts.startIso && isDateText(opts.startIso)) argv.push('--start', opts.startIso);
+    if (opts.endIso && isDateText(opts.endIso)) argv.push('--end', opts.endIso);
+    const raw = await runQueryScript(argv, repoRoot);
+    const parsed = JSON.parse(raw) as any;
+    const payload = {
+      canonicalThreadId: typeof parsed?.canonical_thread_id === 'string' ? parsed.canonical_thread_id : null,
+      title: typeof parsed?.title === 'string' ? parsed.title : parsed?.title ?? null,
+      total: Number(parsed?.total ?? 0) || 0,
+      messages: Array.isArray(parsed?.messages) ? (parsed.messages as ChatArchiveMessage[]) : []
+    };
+    if (!fallback) fallback = payload;
+    if (payload.canonicalThreadId || payload.total > 0 || payload.messages.length > 0) return payload;
+  }
 
-  const raw = await runQueryScript(argv, repoRoot);
-  const parsed = JSON.parse(raw) as any;
-  return {
-    canonicalThreadId: typeof parsed?.canonical_thread_id === 'string' ? parsed.canonical_thread_id : null,
-    title: typeof parsed?.title === 'string' ? parsed.title : parsed?.title ?? null,
-    total: Number(parsed?.total ?? 0) || 0,
-    messages: Array.isArray(parsed?.messages) ? (parsed.messages as ChatArchiveMessage[]) : []
-  };
+  return fallback ?? { canonicalThreadId: null, title: null, total: 0, messages: [] };
 }
 
 export async function fetchMessageAtTs(
@@ -111,15 +123,15 @@ export async function fetchMessageAtTs(
   canonicalThreadId: string,
   ts: string
 ): Promise<ChatArchiveMessage | null> {
-  const dbPath = resolveChatArchivePath();
   const script = path.join(repoRoot, 'itir-svelte', 'scripts', 'query_chat_archive.py');
-
-  const argv = [script, '--db', dbPath, '--thread-id', canonicalThreadId, '--ts', ts];
-  const raw = await runQueryScript(argv, repoRoot);
-  const parsed = JSON.parse(raw) as any;
-  const m = parsed?.message;
-  if (!m || typeof m !== 'object') return null;
-  return m as ChatArchiveMessage;
+  for (const dbPath of resolveChatArchiveCandidates()) {
+    const argv = [script, '--db', dbPath, '--thread-id', canonicalThreadId, '--ts', ts];
+    const raw = await runQueryScript(argv, repoRoot);
+    const parsed = JSON.parse(raw) as any;
+    const m = parsed?.message;
+    if (m && typeof m === 'object') return m as ChatArchiveMessage;
+  }
+  return null;
 }
 
 export async function fetchLastMessageInRange(
@@ -128,17 +140,17 @@ export async function fetchLastMessageInRange(
   range: { startTs: string | null; endTs: string | null },
   opts: { preferNonEmpty?: boolean } = {}
 ): Promise<ChatArchiveMessage | null> {
-  const dbPath = resolveChatArchivePath();
   const script = path.join(repoRoot, 'itir-svelte', 'scripts', 'query_chat_archive.py');
+  for (const dbPath of resolveChatArchiveCandidates()) {
+    const argv = [script, '--db', dbPath, '--thread-id', canonicalThreadId];
+    if (range.startTs) argv.push('--ts-start', range.startTs);
+    if (range.endTs) argv.push('--ts-end', range.endTs);
+    if (opts.preferNonEmpty) argv.push('--prefer-non-empty');
 
-  const argv = [script, '--db', dbPath, '--thread-id', canonicalThreadId];
-  if (range.startTs) argv.push('--ts-start', range.startTs);
-  if (range.endTs) argv.push('--ts-end', range.endTs);
-  if (opts.preferNonEmpty) argv.push('--prefer-non-empty');
-
-  const raw = await runQueryScript(argv, repoRoot);
-  const parsed = JSON.parse(raw) as any;
-  const m = parsed?.message;
-  if (!m || typeof m !== 'object') return null;
-  return m as ChatArchiveMessage;
+    const raw = await runQueryScript(argv, repoRoot);
+    const parsed = JSON.parse(raw) as any;
+    const m = parsed?.message;
+    if (m && typeof m === 'object') return m as ChatArchiveMessage;
+  }
+  return null;
 }
