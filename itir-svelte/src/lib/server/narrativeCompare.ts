@@ -143,7 +143,13 @@ export async function loadNarrativeComparison(fixture = 'friendlyjordies_demo'):
   const repoRoot = resolveRepoRoot();
   const raw = await readStdout(
     'python3',
-    [path.join('SensibLaw', 'scripts', 'narrative_compare.py'), '--fixture', fixture, 'compare'],
+    [
+      path.join('SensibLaw', 'scripts', 'narrative_compare.py'),
+      '--fixture',
+      fixture,
+      '--archive-backed',
+      'compare'
+    ],
     repoRoot
   );
   const parsed = JSON.parse(raw);
