@@ -20,7 +20,7 @@ WIKI_QUERY_SCRIPT = ROOT / 'SensibLaw' / 'scripts' / 'query_wiki_revision_monito
 FRIENDLYJORDIES_SOURCE_THREAD_ID = '69ac40e0-0cfc-839b-b2a8-0de3019379a9'
 WIKI_MONITOR_ERROR_RUN = 'run:wiki_revision_monitor_v1:2026-03-08T16:32:32+00:00:1af5177b'
 WIKI_MONITOR_ERROR_ARTICLE = 'stress_high_german'
-WIKI_CONTESTED_RUN = 'run:wiki_revision_contested_v1:2026-03-09T07:46:59+00:00:05900d8c'
+WIKI_CONTESTED_RUN = 'run:wiki_revision_contested_v2:2026-03-09T12:37:58+00:00:ab17b3eb'
 WIKI_CONTESTED_ARTICLE = 'contest_donald_trump'
 
 
@@ -231,7 +231,7 @@ def build_route_specs(base_url: str) -> list[tuple[str, str, str]]:
         ),
         (
             'wiki_revision_contested_contested_run',
-            f'/graphs/wiki-revision-contested?pack=wiki_revision_contested_v1&run={urllib.parse.quote(WIKI_CONTESTED_RUN, safe="")}&article={WIKI_CONTESTED_ARTICLE}',
+            f'/graphs/wiki-revision-contested?pack=wiki_revision_contested_v2&run={urllib.parse.quote(WIKI_CONTESTED_RUN, safe="")}&article={WIKI_CONTESTED_ARTICLE}',
             'Contested region graphs',
         ),
         ('wiki_timeline', '/graphs/wiki-timeline?source=gwb', 'Timeline'),
@@ -299,7 +299,7 @@ def main() -> int:
         probe_chat_archive(),
         probe_wiki_revision_db(),
         probe_wiki_revision_run('wiki_revision_monitor_v1', WIKI_MONITOR_ERROR_RUN, WIKI_MONITOR_ERROR_ARTICLE, 'wiki_revision_monitor_error_run'),
-        probe_wiki_revision_run('wiki_revision_contested_v1', WIKI_CONTESTED_RUN, WIKI_CONTESTED_ARTICLE, 'wiki_revision_contested_run'),
+        probe_wiki_revision_run('wiki_revision_contested_v2', WIKI_CONTESTED_RUN, WIKI_CONTESTED_ARTICLE, 'wiki_revision_contested_run'),
     ]
 
     if args.format == 'json':

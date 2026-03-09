@@ -29,7 +29,7 @@ def end_bound(v: str) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--db", required=True)
-    ap.add_argument("--thread-id", required=True)
+    ap.add_argument("--thread-id", default="")
     ap.add_argument("--source-thread-id", default="")
     ap.add_argument("--ts", default="")
     ap.add_argument("--ts-start", default="")
@@ -43,6 +43,11 @@ def main() -> int:
     db_path = Path(args.db)
     if not db_path.exists():
         raise SystemExit(f"DB not found: {db_path}")
+
+    thread_id = args.thread_id.strip()
+    source_thread_id = args.source_thread_id.strip()
+    if not thread_id and not source_thread_id:
+        raise SystemExit("Either --thread-id or --source-thread-id is required.")
 
     con = sqlite3.connect(f"file:{db_path}?mode=ro&immutable=1", uri=True)
     con.row_factory = sqlite3.Row
@@ -66,7 +71,7 @@ def main() -> int:
         ts_alt = f"{ts[:-1]}+00:00" if ts.endswith("Z") else ts
 
         where = ["canonical_thread_id = ?"]
-        params: list[str] = [args.thread_id]
+        params: list[str] = [thread_id]
 
         if args.ts_start.strip():
             where.append("ts >= ?")
@@ -116,8 +121,8 @@ def main() -> int:
 
     # Optional mapping: source_thread_id (online conversation UUID) -> canonical_thread_id.
     # If present, we resolve to the most-populated canonical thread for that upstream id.
-    canonical = args.thread_id
-    if args.source_thread_id.strip():
+    canonical = thread_id
+    if source_thread_id:
         cur.execute(
             """
             select canonical_thread_id, count(*) as c
@@ -127,11 +132,13 @@ def main() -> int:
             order by c desc
             limit 1
             """,
-            [args.source_thread_id.strip()],
+            [source_thread_id],
         )
         row = cur.fetchone()
         if row and row["canonical_thread_id"]:
             canonical = row["canonical_thread_id"]
+    if not canonical:
+        raise SystemExit("Could not resolve canonical thread id from --source-thread-id.")
 
     tail = max(1, min(2000, int(args.tail)))
 

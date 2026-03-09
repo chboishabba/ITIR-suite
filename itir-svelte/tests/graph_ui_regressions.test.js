@@ -148,3 +148,22 @@ test('chat tool renderer handles request_user_input as structured questions', ()
   assert.ok(block.includes('user input request'));
   assert.ok(block.includes('No structured questions found in payload.'));
 });
+
+test('wiki revision contested page distinguishes producer errors from missing or ready graph payloads', () => {
+  const page = read('src/routes/graphs/wiki-revision-contested/+page.svelte');
+  assert.ok(page.includes('Selected article state'));
+  assert.ok(page.includes('producer_error'));
+  assert.ok(page.includes('graph_not_enabled'));
+  assert.ok(page.includes('missing_graph_payload'));
+  assert.ok(page.includes('graph_ready'));
+  assert.ok(page.includes('Producer error: the selected article did not complete revision processing'));
+  assert.ok(page.includes('Graph not enabled: this pack only persisted pair-level revision analysis'));
+  assert.ok(page.includes('Missing graph payload: the run indicates a graph artifact'));
+});
+
+test('graphs catch-all route redirects canonical chat-archive graph refs to the arguments workbench', () => {
+  const server = read('src/routes/graphs/[...graphRef]/+page.server.ts');
+  assert.ok(server.includes('chat_archive://canonical_thread/'));
+  assert.ok(server.includes('/arguments/thread/'));
+  assert.ok(server.includes("'/graphs/narrative-compare'"));
+});

@@ -1,6 +1,15 @@
 <script lang="ts">
   import Panel from '$lib/ui/Panel.svelte';
 
+  type PageState =
+    | 'load_error'
+    | 'producer_error'
+    | 'graph_not_enabled'
+    | 'missing_graph_payload'
+    | 'graph_ready'
+    | 'no_graph';
+  type PanelTone = 'neutral' | 'warn';
+
   export let data: {
     payload: any;
     error: string | null;
@@ -8,6 +17,8 @@
 
   $: payload = data.payload ?? {};
   $: summary = payload.summary ?? {};
+  $: selectedPack = (payload.packs ?? []).find((row: any) => row.pack_id === payload.selected_pack_id) ?? null;
+  $: packGraphEnabled = Boolean(selectedPack?.graph_enabled);
   $: triage = summary.pack_triage ?? {};
   $: articles = summary.articles ?? [];
   $: selectedArticle = articles.find((row: any) => row.article_id === payload.selected_article_id) ?? articles[0] ?? null;
@@ -17,6 +28,22 @@
   $: topCycles = triage.top_contested_cycles ?? [];
   $: topRegions = triage.top_contested_regions ?? [];
   $: topPairs = triage.top_high_severity_pairs ?? [];
+  $: selectedArticleStatus = String(selectedArticle?.status ?? '').toLowerCase();
+  $: selectedArticleError = selectedArticle?.error ?? null;
+  $: hasGraphPayload = Boolean(graphSummary);
+  $: hasGraphCounts = Boolean(summary.contested_graph_counts);
+  $: pageState = (data.error
+    ? 'load_error'
+    : selectedArticleStatus === 'error'
+      ? 'producer_error'
+      : selectedArticle && !packGraphEnabled
+        ? 'graph_not_enabled'
+      : selectedArticle && selectedArticle.contested_graph_available && !hasGraphPayload
+        ? 'missing_graph_payload'
+        : selectedArticle && hasGraphPayload
+          ? 'graph_ready'
+          : 'no_graph') as PageState;
+  $: pageStateTone = (pageState === 'producer_error' || pageState === 'missing_graph_payload' ? 'warn' : 'neutral') as PanelTone;
 </script>
 
 <div class="space-y-4 p-6">
@@ -84,6 +111,51 @@
     </Panel>
   {/if}
 
+  {#if !data.error && selectedArticle}
+    <Panel tone={pageStateTone}>
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Selected article state</div>
+        <span class="rounded bg-white/80 px-2 py-0.5 font-mono text-[11px] text-ink-950">{pageState}</span>
+      </div>
+      {#if pageState === 'producer_error'}
+        <div class="mt-2 text-sm text-ink-950">
+          This article row is a producer-run error, so contested graph detail is unavailable for this run.
+        </div>
+        {#if selectedArticleError}
+          <pre class="mt-3 whitespace-pre-wrap rounded-lg border border-ink-950/10 bg-white p-3 font-mono text-xs text-ink-950">{selectedArticleError}</pre>
+        {/if}
+      {:else if pageState === 'missing_graph_payload'}
+        <div class="mt-2 text-sm text-ink-950">
+          The run marked a contested graph as available, but the selected graph payload did not hydrate. This is a contract/read-path problem rather than a producer error row.
+        </div>
+        {#if selectedArticle.contested_graph_path}
+          <div class="mt-3 text-xs text-ink-800/70">
+            expected graph artifact: <span class="font-mono">{selectedArticle.contested_graph_path}</span>
+          </div>
+        {/if}
+      {:else if pageState === 'graph_not_enabled'}
+        <div class="mt-2 text-sm text-ink-950">
+          This pack does not have contested-region graph generation enabled. Pair reports and article diffs may exist, but graph detail is not expected for this run.
+        </div>
+      {:else if pageState === 'graph_ready'}
+        <div class="mt-2 text-sm text-ink-950">
+          Graph-backed contested detail is available for this article and run.
+        </div>
+      {:else}
+        <div class="mt-2 text-sm text-ink-950">
+          No contested graph is available for the selected article in this run.
+        </div>
+      {/if}
+      <div class="mt-3 flex flex-wrap gap-2 text-[11px] text-ink-800/70">
+        <span class="rounded bg-white/80 px-2 py-0.5 font-mono">article_status={selectedArticleStatus || 'none'}</span>
+        <span class="rounded bg-white/80 px-2 py-0.5 font-mono">pack_graph_enabled={packGraphEnabled ? 'true' : 'false'}</span>
+        <span class="rounded bg-white/80 px-2 py-0.5 font-mono">graph_available={selectedArticle.contested_graph_available ? 'true' : 'false'}</span>
+        <span class="rounded bg-white/80 px-2 py-0.5 font-mono">graph_payload={hasGraphPayload ? 'true' : 'false'}</span>
+        <span class="rounded bg-white/80 px-2 py-0.5 font-mono">graph_counts={hasGraphCounts ? 'true' : 'false'}</span>
+      </div>
+    </Panel>
+  {/if}
+
   <div class="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
     <Panel>
       <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Run summary</div>
@@ -128,6 +200,11 @@
             </div>
           </a>
         {/each}
+        {#if !topArticles.length}
+          <div class="rounded-lg border border-dashed border-ink-950/15 bg-white p-3 text-sm text-ink-800/70">
+            No contested graph summaries are available for the selected run.
+          </div>
+        {/if}
       </div>
     </Panel>
   </div>
@@ -147,6 +224,11 @@
             </div>
           </div>
         {/each}
+        {#if !topCycles.length}
+          <div class="rounded-lg border border-dashed border-ink-950/15 bg-white p-3 text-sm text-ink-800/70">
+            No contested cycles were detected for the selected run.
+          </div>
+        {/if}
       </div>
     </Panel>
 
@@ -164,6 +246,11 @@
             </div>
           </div>
         {/each}
+        {#if !topRegions.length}
+          <div class="rounded-lg border border-dashed border-ink-950/15 bg-white p-3 text-sm text-ink-800/70">
+            No contested regions were detected for the selected run.
+          </div>
+        {/if}
       </div>
     </Panel>
   </div>
@@ -222,6 +309,11 @@
             {/if}
           </div>
         {/each}
+        {#if !(selectedArticle?.pair_reports?.length)}
+          <div class="rounded-lg border border-dashed border-ink-950/15 bg-white p-3 text-sm text-ink-800/70">
+            No candidate pair reports were persisted for the selected article.
+          </div>
+        {/if}
       </div>
     </Panel>
 
@@ -258,6 +350,11 @@
               {/if}
             </div>
           {/each}
+          {#if !(graph?.regions?.length)}
+            <div class="rounded-lg border border-dashed border-ink-950/15 bg-white p-3 text-sm text-ink-800/70">
+              Graph summary exists, but no region rows were included in the hydrated payload.
+            </div>
+          {/if}
         </div>
         <div class="mt-4 text-xs uppercase tracking-[0.28em] text-ink-800/70">Cycles</div>
         <div class="mt-3 space-y-2">
@@ -272,9 +369,28 @@
               </div>
             </div>
           {/each}
+          {#if !(graph?.cycles?.length)}
+            <div class="rounded-lg border border-dashed border-ink-950/15 bg-white p-3 text-sm text-ink-800/70">
+              No contested cycles were emitted for this selected graph.
+            </div>
+          {/if}
         </div>
       {:else}
-        <div class="mt-3 text-sm text-ink-800/70">No contested graph available for the selected article/run.</div>
+        {#if pageState === 'producer_error'}
+          <div class="mt-3 text-sm text-ink-800/70">
+            Producer error: the selected article did not complete revision processing, so graph detail is unavailable.
+          </div>
+        {:else if pageState === 'graph_not_enabled'}
+          <div class="mt-3 text-sm text-ink-800/70">
+            Graph not enabled: this pack only persisted pair-level revision analysis, not contested-region graphs.
+          </div>
+        {:else if pageState === 'missing_graph_payload'}
+          <div class="mt-3 text-sm text-ink-800/70">
+            Missing graph payload: the run indicates a graph artifact, but the hydrated payload is empty.
+          </div>
+        {:else}
+          <div class="mt-3 text-sm text-ink-800/70">No contested graph available for the selected article/run.</div>
+        {/if}
       {/if}
     </Panel>
   </div>
@@ -293,6 +409,11 @@
           </div>
         </div>
       {/each}
+      {#if !topPairs.length}
+        <div class="rounded-lg border border-dashed border-ink-950/15 bg-white p-3 text-sm text-ink-800/70">
+          No high-severity pairs were recorded for the selected run.
+        </div>
+      {/if}
     </div>
   </Panel>
 </div>

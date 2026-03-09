@@ -90,9 +90,10 @@
 - [P1] Recent `itir-svelte` page audit followthrough:
   - DONE: add repeatable localhost audit runner `scripts/check_recent_pages.py`
   - DONE: record first audit findings in `docs/planning/recent_page_audit_20260309.md`
-  - fix `/arguments/thread/69ac40e0-0cfc-839b-b2a8-0de3019379a9` returning HTTP `500`
-  - fix the contested wiki graph lane so a changed `wiki_revision_contested_v1` run can hydrate `selected_graph` rather than returning `null`
+  - DONE: fix `/arguments/thread/69ac40e0-0cfc-839b-b2a8-0de3019379a9` returning HTTP `500`
+  - DONE: fix the contested wiki graph lane so a graph-enabled `wiki_revision_contested_v2` run can hydrate `selected_graph` from DB or artifact-backed payloads rather than returning `null`
   - distinguish `producer run error` vs `changed run with missing graph payload` vs `valid populated graph` in `/graphs/wiki-revision-contested`
+  - refresh the contested wiki page defaults/docs so graph-enabled checks target `wiki_revision_contested_v2` rather than stale `wiki_revision_contested_v1` samples
   - keep `python scripts/check_recent_pages.py` in the manual verification loop whenever recent `itir-svelte` routes or upstream producer contracts change
 
 - Come back to the Duncan/Emma response draft:

@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 
 export type WikiRevisionMonitorPayload = {
   db_path: string;
-  packs: Array<{ pack_id: string; version: number; scope: string; manifest_path: string; updated_at: string }>;
+  packs: Array<{ pack_id: string; version: number; scope: string; graph_enabled?: boolean; manifest_path: string; updated_at: string }>;
   selected_pack_id: string | null;
   runs: Array<{ run_id: string; pack_id: string; started_at: string; completed_at: string | null; status: string; out_dir: string }>;
   selected_run_id: string | null;
