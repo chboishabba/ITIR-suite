@@ -59,6 +59,18 @@ Acceptance criteria:
   rather than silently becoming truth.
 - The system does not output an unreviewed trust score or verdict.
 
+## ITIR-US-09: OpenRecall Capture Reuse
+As a user, I want OpenRecall-style screen/OCR captures to enter ITIR as
+observer-class evidence so that ambient work context can feed reviewable
+activity, mission, and semantic pipelines without becoming hidden authority.
+
+Acceptance criteria:
+- Imported captures preserve app/window/time provenance.
+- OCR text is available as source-local text for downstream extraction.
+- Captures appear as reviewable activity evidence rather than silently
+  rewriting mission or semantic state.
+- Promotion from capture evidence into stronger state remains explicit.
+
 ---
 
 # SL (SensibLaw) - Claim Discipline

@@ -156,6 +156,9 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
     only checked-in fixtures
   - extend the new `/graphs/narrative-compare` workbench from fixture-first to
     ingress-backed URL/media sources
+  - if/when OpenRecall import becomes stable, consume the normalized ITIR
+    capture read model rather than wiring `openrecall/` directly into Svelte;
+    GUI work stays downstream of the importer/read-model seam
   - render widened proposition-layer output (attribution wrappers, cited
     holdings, proposition links) distinctly once the current bounded v1 grows
     beyond HCA-first idioms
