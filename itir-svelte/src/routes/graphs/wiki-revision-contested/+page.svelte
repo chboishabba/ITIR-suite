@@ -1,6 +1,8 @@
 <script lang="ts">
   import LayeredGraph, { type LayerNode, type LayeredEdge } from '$lib/ui/LayeredGraph.svelte';
   import Panel from '$lib/ui/Panel.svelte';
+  import { createSelectionBridge } from '$lib/workbench/selectionBridge';
+  import { wikiContestedReviewState } from '$lib/workbench/reviewState';
 
   type PageState =
     | 'load_error'
@@ -13,6 +15,7 @@
 
   export let data: {
     payload: any;
+    stateReason?: string;
     error: string | null;
   };
 
@@ -33,18 +36,17 @@
   $: selectedArticleError = selectedArticle?.error ?? null;
   $: hasGraphPayload = Boolean(graphSummary);
   $: hasGraphCounts = Boolean(summary.contested_graph_counts);
+  const graphNodeSelectionBridge = createSelectionBridge<string>(null);
   let selectedGraphNodeId: string | null = null;
-  $: pageState = (data.error
-    ? 'load_error'
-    : selectedArticleStatus === 'error'
-      ? 'producer_error'
-      : selectedArticle && !packGraphEnabled
-        ? 'graph_not_enabled'
-      : selectedArticle && selectedArticle.contested_graph_available && !hasGraphPayload
-        ? 'missing_graph_payload'
-        : selectedArticle && hasGraphPayload
-          ? 'graph_ready'
-          : 'no_graph') as PageState;
+  $: reviewState = data.stateReason ?? wikiContestedReviewState({
+    hasLoadError: Boolean(data.error),
+    selectedArticleStatus,
+    packGraphEnabled,
+    selectedArticleExists: Boolean(selectedArticle),
+    selectedArticleGraphAvailable: Boolean(selectedArticle?.contested_graph_available),
+    hasGraphPayload
+  });
+  $: pageState = (reviewState === 'ready' ? 'graph_ready' : reviewState) as PageState;
   $: pageStateTone = (pageState === 'producer_error' || pageState === 'missing_graph_payload' ? 'warn' : 'neutral') as PanelTone;
   $: cycleRegionIds = new Set((graph?.cycles ?? []).map((row: any) => String(row.region_id ?? '')).filter(Boolean));
   $: graphPairNodes = (graph?.selected_pairs ?? []).map((pair: any) => ({
@@ -130,6 +132,7 @@
   $: graphNodeLookup = new Map(
     graphLayers.flatMap((layer) => layer.nodes.map((node) => [node.id, { ...node, layerTitle: layer.title }]))
   );
+  $: selectedGraphNodeId = $graphNodeSelectionBridge.active;
   $: selectedGraphNode = selectedGraphNodeId ? graphNodeLookup.get(selectedGraphNodeId) ?? null : null;
 </script>
 
@@ -201,7 +204,7 @@
   {#if !data.error && selectedArticle}
     <Panel tone={pageStateTone}>
       <div class="flex flex-wrap items-center gap-2">
-        <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Selected article status</div>
+        <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Selected article state</div>
         <span class="rounded bg-white/80 px-2 py-0.5 font-mono text-[11px] text-ink-950">{pageState}</span>
       </div>
       {#if pageState === 'producer_error'}
@@ -443,7 +446,7 @@
               colGap={240}
               nodeW={180}
               expandedNodeW={360}
-              on:nodeSelect={(e) => (selectedGraphNodeId = (e as CustomEvent<{ nodeId: string }>).detail.nodeId)}
+              on:nodeSelect={(e) => graphNodeSelectionBridge.setActive((e as CustomEvent<{ nodeId: string }>).detail.nodeId, 'select')}
             />
           </div>
           <div class="mt-3 rounded-lg border border-ink-950/10 bg-white p-3">

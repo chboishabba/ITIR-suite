@@ -1,7 +1,7 @@
 # OpenRecall Observer Integration v1
 
 Date: 2026-03-09
-Status: planning note
+Status: first slice implemented
 
 ## Intent
 Integrate the vendored `openrecall/` project into ITIR as an upstream
@@ -39,6 +39,21 @@ It should *not* initially be:
 - a direct mission/state authority
 - a direct SB writer
 - a hidden memory substrate that silently upgrades noisy OCR into truth
+
+## Implemented first slice
+
+The bounded v1 seam now exists:
+- `SensibLaw/scripts/import_openrecall.py` imports OpenRecall `entries` rows
+  into normalized ITIR-owned tables in `itir.sqlite`
+- imported captures are stored as append-only observer rows plus text units and
+  refs
+- `mission_lens.py` now includes imported captures as a new
+  `openrecall_capture` actual-side activity kind
+- `structure_report.py` now exposes `load_openrecall_units(...)` so imported
+  OCR text can feed the existing transcript/freeform semantic lane as
+  source-local text
+
+This remains explicitly non-authoritative on ingest.
 
 ## Initial integration shape
 
@@ -128,15 +143,16 @@ That standard should be reached before any expectation of rich GUI integration.
 - embedding-native cross-source retrieval as authority logic
 
 ## Initial milestone
-**OpenRecall Observer Integration v1**
+**OpenRecall Observer Integration v1** is now implemented in bounded form.
 
-Deliver:
+Delivered:
 - DB-backed importer into `itir.sqlite`
 - normalized capture tables/read models
 - mission-lens actual-side reuse as a new source kind
 - source-local text reuse for semantic/transcript lanes
 
-Do not deliver yet:
+Still deferred:
 - GUI-first OpenRecall browser
 - canonical semantic/state promotion
 - implicit memory authority
+- live capture stabilization in vendored OpenRecall itself

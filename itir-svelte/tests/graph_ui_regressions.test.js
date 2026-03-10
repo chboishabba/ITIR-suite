@@ -111,6 +111,8 @@ test('narrative comparison workbench renders shared vs disputed narrative sectio
   const server = read('src/routes/graphs/narrative-compare/+page.server.ts');
   const page = read('src/routes/graphs/narrative-compare/+page.svelte');
   const loader = read('src/lib/server/narrativeCompare.ts');
+  const reviewState = read('src/lib/workbench/reviewState.ts');
+  const selectionBridge = read('src/lib/workbench/selectionBridge.ts');
   assert.ok(server.includes('loadNarrativeComparison'));
   assert.ok(server.includes("url.searchParams.get('threadId')"));
   assert.ok(loader.includes('narrative_compare.py'));
@@ -118,11 +120,17 @@ test('narrative comparison workbench renders shared vs disputed narrative sectio
   assert.ok(loader.includes('friendlyjordies_demo'));
   assert.ok(loader.includes('friendlyjordies_thread_extract'));
   assert.ok(page.includes('Narrative Comparison Workbench'));
-  assert.ok(page.includes('Shared propositions'));
-  assert.ok(page.includes('Disputed propositions'));
-  assert.ok(page.includes('Link differences'));
-  assert.ok(page.includes('source.origin.kind'));
-  assert.ok(page.includes('Corroboration + abstentions'));
+  assert.ok(page.includes('Review rows'));
+  assert.ok(page.includes('Inspector'));
+  assert.ok(page.includes('Open graph focus'));
+  assert.ok(page.includes('Scoped graph'));
+  assert.ok(page.includes('selectionBadge'));
+  assert.ok(page.includes('createSelectionBridge'));
+  assert.ok(page.includes('rowSelectionBridge'));
+  assert.ok(server.includes('stateReason'));
+  assert.ok(server.includes('narrativeCompareReviewState'));
+  assert.ok(reviewState.includes('narrativeCompareReviewState'));
+  assert.ok(selectionBridge.includes('createSelectionBridge'));
   assert.ok(loader.includes('FriendlyJordies public-media demo'));
 });
 
@@ -130,6 +138,8 @@ test('arguments workbench route renders split transcript plus inspector tabs', (
   const server = read('src/routes/arguments/thread/[threadId]/+page.server.ts');
   const page = read('src/routes/arguments/thread/[threadId]/+page.svelte');
   const loader = read('src/lib/server/threadArguments.ts');
+  const reviewState = read('src/lib/workbench/reviewState.ts');
+  const selectionBridge = read('src/lib/workbench/selectionBridge.ts');
   assert.ok(server.includes('loadThreadArgumentsWorkbench'));
   assert.ok(page.includes('Thread transcript'));
   assert.ok(page.includes('Claim inspector'));
@@ -139,10 +149,17 @@ test('arguments workbench route renders split transcript plus inspector tabs', (
   assert.ok(page.includes('Graph'));
   assert.ok(page.includes('Thread mini-map'));
   assert.ok(page.includes('Open graph focus'));
+  assert.ok(page.includes('data.stateReason'));
+  assert.ok(page.includes('claimSelectionBridge'));
+  assert.ok(page.includes('setHovered'));
+  assert.ok(server.includes('stateReason'));
+  assert.ok(server.includes('threadReviewState'));
   assert.ok(loader.includes('friendlyjordies_thread_extract'));
   assert.ok(loader.includes('friendlyjordies_chat_arguments'));
   assert.ok(loader.includes('friendlyjordies_authority_wrappers'));
   assert.ok(loader.includes('thread.sourceThreadId ?? thread.canonicalThreadId'));
+  assert.ok(reviewState.includes('threadReviewState'));
+  assert.ok(selectionBridge.includes('SelectionBridgeState'));
 });
 
 test('arguments workbench anchors only matched spans and does not fan out by family keywords', () => {
@@ -166,7 +183,12 @@ test('chat tool renderer handles request_user_input as structured questions', ()
 
 test('wiki revision contested page distinguishes producer errors from missing or ready graph payloads', () => {
   const page = read('src/routes/graphs/wiki-revision-contested/+page.svelte');
-  assert.ok(page.includes('Selected article status'));
+  const server = read('src/routes/graphs/wiki-revision-contested/+page.server.ts');
+  const reviewState = read('src/lib/workbench/reviewState.ts');
+  const selectionBridge = read('src/lib/workbench/selectionBridge.ts');
+  assert.ok(page.includes('Selected article state'));
+  assert.ok(page.includes('wikiContestedReviewState'));
+  assert.ok(page.includes('graphNodeSelectionBridge'));
   assert.ok(page.includes('producer_error'));
   assert.ok(page.includes('graph_not_enabled'));
   assert.ok(page.includes('missing_graph_payload'));
@@ -174,6 +196,22 @@ test('wiki revision contested page distinguishes producer errors from missing or
   assert.ok(page.includes('Producer error: the selected article did not complete revision processing'));
   assert.ok(page.includes('Graph not enabled: this pack only persisted pair-level revision analysis'));
   assert.ok(page.includes('The run marked a contested graph as available, but the selected graph payload did not hydrate.'));
+  assert.ok(server.includes('computeStateReason'));
+  assert.ok(server.includes('stateReason'));
+  assert.ok(reviewState.includes('wikiContestedReviewState'));
+  assert.ok(selectionBridge.includes('SelectionBridgeReason'));
+});
+
+test('workbench routes do not persist UI state through JSON blobs/localStorage', () => {
+  const argsPage = read('src/routes/arguments/thread/[threadId]/+page.svelte');
+  const narrativePage = read('src/routes/graphs/narrative-compare/+page.svelte');
+  const wikiPage = read('src/routes/graphs/wiki-revision-contested/+page.svelte');
+  assert.ok(!argsPage.includes('localStorage'));
+  assert.ok(!narrativePage.includes('localStorage'));
+  assert.ok(!wikiPage.includes('localStorage'));
+  assert.ok(!argsPage.includes('JSON.stringify('));
+  assert.ok(!narrativePage.includes('JSON.stringify('));
+  assert.ok(!wikiPage.includes('JSON.stringify('));
 });
 
 test('graphs catch-all route redirects canonical chat-archive graph refs to the narrative comparison workbench', () => {

@@ -4,9 +4,10 @@
   import DashboardShell from '$lib/sb-dashboard/components/DashboardShell.svelte';
   import LayeredGraph from '$lib/ui/LayeredGraph.svelte';
   import { buildClaimGraph, type ThreadArgumentsWorkbench } from '$lib/arguments/workbench';
+  import { createSelectionBridge } from '$lib/workbench/selectionBridge';
   import { tick } from 'svelte';
 
-  export let data: { workbench: ThreadArgumentsWorkbench };
+export let data: { workbench: ThreadArgumentsWorkbench; stateReason?: string };
 
   type HighlightMode = 'literal' | 'family';
   type InspectorTab = 'Claim' | 'Counterpoints' | 'Graph';
@@ -45,6 +46,7 @@
   let activeTab: InspectorTab = 'Claim';
   let selectedClaimIds = [...workbench.defaultSelectedClaimIds];
   let hoveredClaimId: string | null = null;
+  const claimSelectionBridge = createSelectionBridge<string>(workbench.defaultSelectedClaimIds[0] ?? null);
 
   const claimsById = new Map(workbench.claims.map((row) => [row.id, row]));
   const anchorsByMessage = new Map<string, typeof workbench.anchors>();
@@ -120,6 +122,7 @@
   function selectClaim(claimId: string, additive = false) {
     if (!additive) {
       selectedClaimIds = [claimId];
+      claimSelectionBridge.setActive(claimId, 'select');
       activeTab = 'Claim';
       void scrollClaimIntoView(claimId);
       return;
@@ -130,6 +133,7 @@
     } else {
       selectedClaimIds = [...selectedClaimIds, claimId].slice(0, 3);
     }
+    claimSelectionBridge.setActive(selectedClaimIds[0] ?? null, 'sync');
   }
 
   async function scrollClaimIntoView(claimId: string) {
@@ -162,6 +166,8 @@
 
   $: currentClaims = selectedClaims();
   $: currentClaim = primaryClaim();
+  $: hoveredClaimId = $claimSelectionBridge.hovered;
+  $: reviewState = data.stateReason ?? (workbench.unavailableReason ? 'unsupported' : 'ready');
   $: graphPayload = buildClaimGraph(workbench, selectedClaimIds);
   $: graphViewportKey = `${selectedClaimIds.join('|')}:${graphPayload.edges.length}:${graphPayload.layers.map((row) => row.nodes.length).join(',')}`;
   $: counterpoints = Array.from(
@@ -187,24 +193,34 @@
     title={workbench.title ?? '(untitled thread)'}
     subtitle={`thread_id=${workbench.threadId}${workbench.sourceThreadId ? ` | source=${workbench.sourceThreadId}` : ''}`}
   >
+    <div class="mb-3 flex items-center gap-2">
+      <span class="text-xs uppercase tracking-[0.24em] text-ink-800/70">state</span>
+      <span class="rounded bg-paper-100 px-2 py-1 font-mono text-[11px]">{reviewState}</span>
+    </div>
     <div slot="actions" class="flex flex-wrap items-center gap-2">
       <button
         type="button"
         class={`rounded-lg px-3 py-2 text-xs uppercase tracking-widest ring-1 ${highlightMode === 'literal' ? 'bg-ink-900 text-paper-50 ring-ink-900' : 'bg-paper-100 ring-ink-900/10'}`}
-        on:click={() => (highlightMode = 'literal')}
+        on:click={() => {
+          highlightMode = 'literal';
+          claimSelectionBridge.setScope('local');
+        }}
       >
         Literal
       </button>
       <button
         type="button"
         class={`rounded-lg px-3 py-2 text-xs uppercase tracking-widest ring-1 ${highlightMode === 'family' ? 'bg-ink-900 text-paper-50 ring-ink-900' : 'bg-paper-100 ring-ink-900/10'}`}
-        on:click={() => (highlightMode = 'family')}
+        on:click={() => {
+          highlightMode = 'family';
+          claimSelectionBridge.setScope('expanded');
+        }}
       >
         Family
       </button>
       <a
         class="rounded-lg bg-paper-100 px-3 py-2 text-xs uppercase tracking-widest ring-1 ring-ink-900/10"
-        href={`/thread/${encodeURIComponent(workbench.sourceThreadId ?? workbench.threadId)}`}
+        href={`/thread/${encodeURIComponent(workbench.threadId)}`}
       >
         Open raw thread
       </a>
@@ -257,8 +273,8 @@
                               class={`rounded px-0.5 py-[1px] underline decoration-dotted underline-offset-2 ${selectedClaimIds.includes(claim?.id ?? '') ? 'ring-1 ring-ink-900/20' : ''}`}
                               style={`background:${familyColor(claim?.familyId ?? 'other')}22; text-decoration-color:${familyColor(claim?.familyId ?? 'other')}`}
                               title={`${claim?.predicateKey ?? 'claim'}: ${claim?.normalizedText ?? ''}`}
-                              on:mouseenter={() => (hoveredClaimId = claim?.id ?? null)}
-                              on:mouseleave={() => (hoveredClaimId = null)}
+                              on:mouseenter={() => claimSelectionBridge.setHovered(claim?.id ?? null, 'hover')}
+                              on:mouseleave={() => claimSelectionBridge.setHovered(null, 'clear')}
                               on:click={(event) => onAnchorClick(event, claim?.id ?? '')}
                             >
                               {segment.text}

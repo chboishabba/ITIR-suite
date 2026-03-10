@@ -1,5 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { loadThreadArgumentsWorkbench } from '$lib/server/threadArguments';
+import { threadReviewState } from '$lib/workbench/reviewState';
 import path from 'node:path';
 import fs from 'node:fs';
 
@@ -22,5 +23,8 @@ export async function load({ params }: { params: { threadId: string } }) {
   if (!threadId || threadId.length < 8) throw error(400, 'Invalid thread id.');
   const repoRoot = resolveRepoRoot();
   const workbench = await loadThreadArgumentsWorkbench(repoRoot, threadId);
-  return { workbench };
+  return {
+    workbench,
+    stateReason: threadReviewState(workbench.unavailableReason)
+  };
 }
