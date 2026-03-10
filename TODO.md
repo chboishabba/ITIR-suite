@@ -94,6 +94,9 @@
   - DONE: fix the contested wiki graph lane so a graph-enabled `wiki_revision_contested_v2` run can hydrate `selected_graph` from DB or artifact-backed payloads rather than returning `null`
   - distinguish `producer run error` vs `changed run with missing graph payload` vs `valid populated graph` in `/graphs/wiki-revision-contested`
   - refresh the contested wiki page defaults/docs so graph-enabled checks target `wiki_revision_contested_v2` rather than stale `wiki_revision_contested_v1` samples
+  - align future UX/interaction work on `/arguments/thread/[threadId]`,
+    `/graphs/narrative-compare`, and `/graphs/wiki-revision-contested` against
+    `docs/planning/recent_workbench_page_user_stories_20260310.md`
   - keep `python scripts/check_recent_pages.py` in the manual verification loop whenever recent `itir-svelte` routes or upstream producer contracts change
 
 - Come back to the Duncan/Emma response draft:

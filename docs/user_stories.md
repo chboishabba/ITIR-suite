@@ -55,6 +55,8 @@ Acceptance criteria:
 - URL/transcript ingest preserves source metadata and transcript provenance.
 - Extracted narrative output distinguishes propositions, rhetoric, and
   abstentions.
+- Review surfaces may include bounded workbench pages that keep transcript or
+  source context visible while extracted claims are inspected in place.
 - Later corroboration lanes (wiki, Wikidata, web) remain cited and reviewable
   rather than silently becoming truth.
 - The system does not output an unreviewed trust score or verdict.
@@ -102,8 +104,29 @@ Acceptance criteria:
 - Shared facts/propositions are surfaced explicitly.
 - Conflicting facts/propositions and reasoning links are surfaced explicitly.
 - Source-local receipts remain attached to every compared item.
+- Bounded comparison workbenches may expose inspector and graph drill-in views,
+  but they stay scoped to the compared material rather than a global graph.
 - Comparison does not silently merge incompatible narratives into one story.
 - The system may abstain when overlap or disagreement is unresolved.
+
+## ITIR-US-10: Thread-Grounded Argument Inspection
+As a user, I want a workbench that keeps a conversation transcript and its
+derived argument structure side by side so I can inspect claims, counterpoints,
+and focused graph links without losing the underlying chat context.
+
+Acceptance criteria:
+- The transcript remains readable as chat first, not as a replaced summary.
+- Claim overlays are visibly grounded in source-local text, message blocks, or
+  explicit family participation.
+- The inspector distinguishes claim detail, counterpoints, and focused graph
+  drill-in.
+- Message-level density cues and family markers help navigation without hiding
+  the raw messages.
+- Missing overlays or extraction gaps are shown as explicit states, not silent
+  emptiness.
+
+Detailed page deliverables for this workbench family are tracked in
+`docs/planning/recent_workbench_page_user_stories_20260310.md`.
 
 ---
 
