@@ -3,6 +3,20 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Graphs/workbench state contract: route loaders for `/arguments/thread/[threadId]`,
+  `/graphs/narrative-compare`, and `/graphs/wiki-revision-contested` now emit
+  explicit `stateReason` telemetry so page state is server-owned instead of
+  inferred ad hoc by each route.
+- Graphs/workbench selection contract: added a shared in-memory selection bridge
+  (`src/lib/workbench/selectionBridge.ts`) and wired it through the arguments
+  thread, narrative compare, and wiki contested routes for explicit
+  `select|hover|sync|scope|clear` transitions.
+- Graphs/narrative compare: reworked into a row-first review flow with
+  selectable comparison rows, inspector tabs, bounded local graph drill-in, and
+  explicit posture chips (`shared|disputed|source_only|corroboration|abstention`).
+- Graphs/workbench persistence safety: added regression guards that these
+  workbench routes do not persist UI selection state via `localStorage` or
+  JSON string blobs.
 - Graphs/narrative compare: the thread-derived FriendlyJordies fixture now
   surfaces two structured cross-source dispute families instead of leaving them
   as flat source-only rows. The workbench can inspect both the CPRS

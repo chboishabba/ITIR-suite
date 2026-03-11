@@ -362,3 +362,11 @@ If parity fails:
 ## Tooling Notes
 - Run extraction/hydration with the project venv to ensure parser lane consistency.
 - Avoid introducing non-deterministic language model steps.
+
+## Verification Refresh (2026-03-10)
+- Re-ran the core deterministic migration lane in the project venv
+  (`/home/c/Documents/code/ITIR-suite/.venv`) using:
+  - `tests/test_deterministic_legal_tokenizer.py`
+  - `tests/test_lexeme_layer.py`
+  - `tests/test_tokenizer_migration_sl_regression.py`
+- Result: `30 passed` in one bounded run.

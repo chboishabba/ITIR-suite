@@ -1,6 +1,6 @@
 # Cross-Profile Safety Tests
 
-Status: draft (2026-03-04).
+Status: implementation-backed v1 (2026-03-10).
 
 These tests ensure upgrades do not regress determinism, reversibility, or
 profile isolation while the compression engine evolves.
@@ -43,3 +43,13 @@ References:
 - Tokenization differences across profiles.
 - Span changes across profiles.
 - Unanchored or generated content.
+
+## Implemented test slice (2026-03-10)
+Implemented in `SensibLaw/tests/test_profile_admissibility.py`:
+- deterministic token stream invariance across `sl_profile`, `sb_profile`,
+  `infra_profile`
+- span invariance across profiles
+- forbidden overlay/group/axis rejection by profile
+- global payload linting for out-of-bounds/empty spans and unknown structures
+- profile filtering drops inadmissible overlays/groups/axes without mutating
+  canonical `tokens[]`

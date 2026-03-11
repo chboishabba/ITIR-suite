@@ -1,6 +1,6 @@
 # Compression Engine (Domain-Neutral)
 
-Status: draft (2026-03-04).
+Status: draft with implementation-backed profile safety slice (2026-03-10).
 
 This document defines the domain-neutral lexical compression engine referenced by:
 - `docs/planning/sl_lce_profile_followthrough_20260208.md`
@@ -211,6 +211,9 @@ See also:
 - [x] Canonical text immutability + span anchoring (SL tokenizer contract)
 - [x] Deterministic lexeme normalization (lexeme_normalizer_v1)
 - [x] Span-anchored lexeme occurrences persisted
+- [x] Profile admissibility/lint baseline implementation
+  - `SensibLaw/src/text/profile_admissibility.py`
+  - `SensibLaw/tests/test_profile_admissibility.py`
 - [ ] Engine metadata artifact (engine_id/version/source_hash)
 - [ ] Declared group/axis/overlay structures + provenance
 - [ ] Cross-profile admissibility gates + lint rules

@@ -1,7 +1,7 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-02-08
+- 2026-03-10
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
@@ -92,9 +92,10 @@
   - DONE: record first audit findings in `docs/planning/recent_page_audit_20260309.md`
   - DONE: fix `/arguments/thread/69ac40e0-0cfc-839b-b2a8-0de3019379a9` returning HTTP `500`
   - DONE: fix the contested wiki graph lane so a graph-enabled `wiki_revision_contested_v2` run can hydrate `selected_graph` from DB or artifact-backed payloads rather than returning `null`
-  - distinguish `producer run error` vs `changed run with missing graph payload` vs `valid populated graph` in `/graphs/wiki-revision-contested`
-  - refresh the contested wiki page defaults/docs so graph-enabled checks target `wiki_revision_contested_v2` rather than stale `wiki_revision_contested_v1` samples
-  - align future UX/interaction work on `/arguments/thread/[threadId]`,
+  - DONE: distinguish `producer run error` vs `changed run with missing graph payload` vs `valid populated graph` in `/graphs/wiki-revision-contested`
+  - DONE: refresh contested wiki route default pack to graph-enabled `wiki_revision_contested_v2`
+  - DONE: add explicit review-state + selection-bridge wiring for `/arguments/thread/[threadId]`, `/graphs/narrative-compare`, and `/graphs/wiki-revision-contested` with regression guards (including no `localStorage` / JSON UI-state persistence)
+  - DONE: align UX/interaction work on `/arguments/thread/[threadId]`,
     `/graphs/narrative-compare`, and `/graphs/wiki-revision-contested` against
     `docs/planning/recent_workbench_page_user_stories_20260310.md`
   - keep `python scripts/check_recent_pages.py` in the manual verification loop whenever recent `itir-svelte` routes or upstream producer contracts change
@@ -102,9 +103,9 @@
 - Come back to the Duncan/Emma response draft:
   - `docs/planning/response_to_duncan_emma_itir_hospital_advocacy_20260208.md` missed the intended mark (needs a better synthesis/voice and should be evaluated against the actual posting context).
 - Tool Use Summary view follow-up:
-  - Shell/hour is not hydrating from available sources (incl. chats); also verify Input/hour hydration.
-  - Determine whether Shell/hour and Input/hour share the same upstream event/time-binning pipeline (likely coupled) and fix at the right layer (ingest vs reducer vs projection).
-  - NotebookLM: ensure NotebookLM interactions (via `notebooklm-py` / any export/adapter) are ingested into the same tool-use event stream so Shell/hour/Input/hour and related counters can hydrate consistently.
+  - DONE: Shell/hour and Input/hour now hydrate from tool-message bins (chat-archive `exec_command` + `request_user_input`) in the SB reducer layer.
+  - DONE: Shell/hour and Input/hour share the same upstream time-binning path (SB reducer `frequency_by_hour`), with explicit regression coverage.
+  - DONE: NotebookLM notes-meta interactions are now folded into the tool-use stream (`notebooklm_meta_event` family + hour bins) so tool-use counters and views hydrate from a shared reducer path.
 - Grafana integration (do not reimplement Grafana):
   - ratify metrics/logs/traces scope and label/cardinality policy:
     `docs/planning/grafana_integration_metrics_scope_20260208.md`
@@ -208,7 +209,7 @@
   - implement casey operation-contract tests (`2.1`-`2.5`)
   - formalize JesusCrust execution-boundary integration notes and ADR text
     (`3.1`-`3.5`)
-- [P0] Execute tokenizer migration plan (regex → deterministic) with parity checks:
+- [P0] Execute tokenizer migration plan (regex → deterministic) with parity checks: DONE
   - `docs/planning/tokenizer_migration_plan_20260306.md`
   - GWB route payload parity:
     - `/graphs/wiki-timeline`
@@ -226,7 +227,7 @@
     - no summary injection / no re-segmentation
     - context-bound rendering invariants
     - tool-use / chat-context metric stability
-- [P1] Execute SL engine/profile followthrough from
+- [P1] Execute SL engine/profile followthrough from: DONE (v1 contract + tests)
   `docs/planning/sl_lce_profile_followthrough_20260208.md`:
   - draft domain-neutral engine spec (`docs/planning/compression_engine.md`)
   - define profile contracts (`docs/planning/profile_contracts.md`) for
@@ -388,7 +389,7 @@
 - Re-run docTR timing on SensibLaw root PDFs using `/Whisper-WebUI/venv` (GPU if available) and record results in `doctr/PROFILE_RUNTIME_NOTES.md` on 2026-02-06.
 - Implement timeline ribbon UI: conserved-quantity lens selector, conservation badge, lens inspector, segment tooltips, split/merge checks, and compare overlay (see `SensibLaw/docs/timeline_ribbon.md`).
 - Wire ribbon UI to selector contract (`itir-ribbon/ui_contract.md`) and expose conservation metadata for Playwright tests.
-- [P0] Implement SensibLaw lexeme layer tables + ingestion + tests (see `SensibLaw/docs/lexeme_layer.md`).
+- [P0] Implement SensibLaw lexeme layer tables + ingestion + tests (see `SensibLaw/docs/lexeme_layer.md`). DONE
   - Dependencies:
     - canonical text + span invariants (`SensibLaw/docs/tokenizer_contract.md`)
     - deterministic normalization (`SensibLaw/src/text/lexeme_normalizer.py`)

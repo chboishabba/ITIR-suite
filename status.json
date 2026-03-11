@@ -4,9 +4,9 @@
   "architecture": "complete",
   "audit": "unknown",
   "external_reasoning": "off",
-  "tests": "unknown",
-  "milestones_remaining": 1,
-  "last_action": "Completed stateReason server telemetry, narrative posture chips, and no-JSON UI state persistence guards across thread/narrative/wiki workbench routes.",
-  "active_milestone": "F",
-  "next_milestone": "F"
+  "tests": "passing",
+  "milestones_remaining": 0,
+  "last_action": "Completed Milestone I: unified Tool Use Summary hydration in StatiBaker (exec_command + request_user_input + NotebookLM notes-meta folded into tool-use families/hour bins) with regression coverage and docs/TODO/changelog sync.",
+  "active_milestone": "I",
+  "next_milestone": "TBD"
 }

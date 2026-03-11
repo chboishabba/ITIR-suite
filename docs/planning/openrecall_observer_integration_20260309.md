@@ -1,7 +1,7 @@
 # OpenRecall Observer Integration v1
 
 Date: 2026-03-09
-Status: first slice implemented
+Status: importer slice and query/read-model slice implemented
 
 ## Intent
 Integrate the vendored `openrecall/` project into ITIR as an upstream
@@ -156,3 +156,21 @@ Still deferred:
 - canonical semantic/state promotion
 - implicit memory authority
 - live capture stabilization in vendored OpenRecall itself
+
+## Query/read-model followthrough
+The next functional standardization slice is now also in place.
+
+Delivered in this followthrough:
+- query-first helpers over imported captures
+- a small CLI/read-model surface:
+  - latest import runs
+  - capture counts by app/title/date
+  - screenshot coverage
+  - recent capture rows with bounded filters
+- a stable seam other pipelines can call without reopening raw tables
+
+Implemented shape:
+- helper/query functions in the neutral OpenRecall import module
+- `SensibLaw/scripts/query_openrecall_import.py`
+- mission-lens and later consumers can read the same normalized summaries
+  rather than inventing local capture queries

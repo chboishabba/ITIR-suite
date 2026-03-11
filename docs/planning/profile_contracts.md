@@ -1,6 +1,6 @@
 # Profile Contracts
 
-Status: draft (2026-03-04).
+Status: ratified for implementation slice v1 (2026-03-10).
 
 Profile contracts define **admissibility boundaries** for a shared compression
 engine. Profiles may only accept/reject overlays; they must not alter the
@@ -33,8 +33,45 @@ Profiles may not define:
 - Alternative span anchoring
 - Profile-specific overlay generation that is not span-anchored
 
-## Open Items (To Be Filled)
-- SL allow/deny sets (groups, axes, overlays)
-- SB allow/deny sets
-- infra allow/deny sets
-- Shared lint severity thresholds
+## Profile Rule Sets (v1)
+
+### `sl_profile`
+- Allowed groups:
+  - `statute_ref`, `case_ref`, `principle_ref`, `actor_role`
+- Allowed axes:
+  - `jurisdiction`, `authority_level`, `modality`
+- Allowed overlays:
+  - `citation`, `holding`, `norm_constraint`, `actor_role`
+- Explicitly forbidden:
+  - groups: `system_component`, `pipeline_step`, `signal_ref`
+  - axes: `hosting`, `deployment_scope`
+  - overlays: `ops_label`, `incident_marker`, `metric_annotation`
+
+### `sb_profile`
+- Allowed groups:
+  - `task_ref`, `actor_role`, `state_transition`, `evidence_ref`
+- Allowed axes:
+  - `state_phase`, `adapter_source`, `confidence_tier`
+- Allowed overlays:
+  - `activity_label`, `transition_label`, `evidence_link`, `receipt`
+- Explicitly forbidden:
+  - groups: `system_component`, `pipeline_step`, `signal_ref`
+  - overlays: `ops_label`, `incident_marker`, `metric_annotation`
+
+### `infra_profile`
+- Allowed groups:
+  - `system_component`, `service_ref`, `pipeline_step`, `signal_ref`
+- Allowed axes:
+  - `deployment_scope`, `hosting`, `severity`
+- Allowed overlays:
+  - `ops_label`, `incident_marker`, `metric_annotation`
+- Explicitly forbidden:
+  - groups: `statute_ref`, `case_ref`, `principle_ref`
+  - overlays: `citation`, `holding`, `norm_constraint`
+
+## Shared lint severities
+- `error`:
+  - span or payload invariants violated
+  - forbidden or unknown group/axis/overlay for profile
+- `warn`:
+  - profile-adjacent but non-canonical metadata that can be dropped safely
