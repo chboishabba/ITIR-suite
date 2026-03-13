@@ -1,7 +1,7 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-03-10
+- 2026-03-14
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
@@ -11,7 +11,23 @@
 - reverse-engineered-chatgpt: README TODOs remaining (better error handling, improve documentation); TODO.md items all completed.
 - chat-export-structurer: no TODOs found.
 - StatiBaker: pending work across intent/scope, temporal reduction rules (carryover/new/resolved), atom/handle definitions, integration adapters for TIRC/SL/ITIR refs, and guard tests that prevent content summarization.
-- notebooklm-py: no TODOs found.
+- notebooklm-py:
+  - keep a bounded live E2E smoke path healthy (`auth check --test` + readonly
+    notebook/query smoke) before attempting broader network/generation runs
+  - ensure the local test environment actually carries NotebookLM dev test deps
+    (`pytest-asyncio`, `pytest-timeout`) in the repo-root `.venv` before
+    treating E2E failures as API/auth issues
+- NotebookLM suite standardization:
+  - DONE: bounded live smoke in the repo-root `.venv`
+  - DONE: first metadata/review parity slice via producer-owned observer
+    read-model/query helpers and source-summary text-unit projection
+  - DONE: define and implement the bounded NotebookLM interaction lane
+    (`conversation_observed`, `note_observed`, separate normalized signal,
+    query/read-model helpers, no dashboard session claims)
+  - next: decide whether a later interaction-grade capture/session contract
+    should be sourced from richer NotebookLM events or remain review-only
+  - later: define a separate interaction-grade NotebookLM activity contract
+    before treating NotebookLM as a first-class SB usage lane
 - Chatistics: no TODOs found.
 - pyThunderbird: no TODOs found.
 
@@ -30,6 +46,29 @@
     - operator spec: `SensibLaw/docs/wikidata_epistemic_projection_operator_spec_v0_1.md`
     - transition plan + slice decision: `SensibLaw/docs/planning/wikidata_transition_plan_20260306.md`
     - reproducible input slice (two dumps or two edit windows)
+- [P1] SL observation + case-construction followthrough:
+  - use `docs/planning/sl_whitepaper_followthrough_20260314.md` as the
+    planning source for the next SL-facing architecture/spec pass
+  - ratify explicit `Observation` and `Claim` contracts before adding more
+    doctrinal node types
+  - define the deterministic seam for
+    `source/excerpt -> observation -> event/fact -> norm -> claim`
+  - define RDF/Wikidata projection/export as an interoperability boundary, not
+    the core SL authority model
+  - queue legal versioning and jurisdiction as the next infrastructure slice
+    after the observation seam is explicit
+  - add a bounded typed-transition receipt design for
+    `state + observation + norm -> updated state`
+  - define a narrow Wikidata prepopulation target
+    (jurisdictions, courts, legislation, cases/citations, actor identity,
+    temporal validity relations) instead of generic triple sync
+  - decide whether to prototype p-adic / ultrametric case similarity as an
+    explanation-first retrieval lane before any embedding-first default
+  - Dependencies:
+    - archived thread `Insights from Whitepaper`
+      (`69b41f22-a514-839f-946c-fa0e9f75cc46`)
+    - `docs/user_stories.md` claim-discipline requirements
+    - current Wikidata planning docs and ontology external-ref contracts
 - [P3] GWB seed pipeline completion (Wikipedia -> seed envelope -> ontology refs):
   - see `docs/planning/wiki_ingest_fact_tree_gwb_20260210.md` and `docs/planning/wiki_ingest_run_notes_20260210.md`
   - Dependencies:
@@ -120,9 +159,9 @@
   - DONE: DBpedia curation UX: emit a curated batch skeleton from Lookup API results (compatible with `ontology external-refs-upsert`) so we don’t copy/paste candidate URIs by hand.
 - Execute assumption stress controls from
   `docs/planning/assumption_stress_test_20260208.md`:
-  - add axis hierarchy policy fixtures and collision tests (`A1` / `Q1`)
-  - implement SB fold-policy receipt + anti-nudge red-team tests (`A2` / `Q2`)
-  - add claim-link provenance quality gates for receipts-backed artifacts (`A3`)
+  - DONE: add axis hierarchy policy fixtures and collision tests (`A1` / `Q1`)
+  - DONE: implement SB fold-policy receipt + anti-nudge red-team tests (`A2` / `Q2`)
+  - DONE: add claim-link provenance quality gates for receipts-backed artifacts (`A3`)
   - add plural-law non-reduction preservation fixtures (`A4` / `Q7`)
   - define encrypted-local performance budget benchmarks and degradation
     contracts (`A5`)
@@ -131,7 +170,7 @@
   - add deterministic lexical-noise guard fixtures:
     stopwords/number-heavy spans, cross-page artifacts, citation boilerplate
     flooding (`A7`)
-  - add fail-closed CI stub tests for unresolved AIDs/Qx controls, with explicit
+  - DONE: add fail-closed CI stub tests for unresolved AIDs/Qx controls, with explicit
     waiver receipt path (`A8`)
   - add summary-lineage guards that block summary-of-summary canonical paths
     unless expanded to raw IDs first (`A9`)

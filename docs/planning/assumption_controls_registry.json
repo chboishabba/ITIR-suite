@@ -1,0 +1,71 @@
+{
+  "version": "2026-03-11",
+  "source": "docs/planning/assumption_stress_test_20260208.md",
+  "controls": [
+    {
+      "aid": "A1",
+      "decision_linkage": "Q1",
+      "status": "waived",
+      "waiver_receipt": "docs/planning/waivers/assumption_controls_waiver_20260311.md"
+    },
+    {
+      "aid": "A2",
+      "decision_linkage": "Q2",
+      "status": "implemented",
+      "test_refs": [
+        "StatiBaker/tests/test_fold.py",
+        "StatiBaker/tests/test_fold_policy_redteam.py"
+      ]
+    },
+    {
+      "aid": "A3",
+      "decision_linkage": "Q6",
+      "status": "waived",
+      "waiver_receipt": "docs/planning/waivers/assumption_controls_waiver_20260311.md"
+    },
+    {
+      "aid": "A4",
+      "decision_linkage": "Q7",
+      "status": "waived",
+      "waiver_receipt": "docs/planning/waivers/assumption_controls_waiver_20260311.md"
+    },
+    {
+      "aid": "A5",
+      "decision_linkage": "perf_privacy_gate",
+      "status": "waived",
+      "waiver_receipt": "docs/planning/waivers/assumption_controls_waiver_20260311.md"
+    },
+    {
+      "aid": "A6",
+      "decision_linkage": "Q6_action_policy",
+      "status": "waived",
+      "waiver_receipt": "docs/planning/waivers/assumption_controls_waiver_20260311.md"
+    },
+    {
+      "aid": "A7",
+      "decision_linkage": "Q11",
+      "status": "waived",
+      "waiver_receipt": "docs/planning/waivers/assumption_controls_waiver_20260311.md"
+    },
+    {
+      "aid": "A8",
+      "decision_linkage": "refactor_merge_gate_policy",
+      "status": "implemented",
+      "test_refs": [
+        "SensibLaw/tests/test_assumption_controls_fail_closed.py"
+      ]
+    },
+    {
+      "aid": "A9",
+      "decision_linkage": "expansion_invariant_policy",
+      "status": "waived",
+      "waiver_receipt": "docs/planning/waivers/assumption_controls_waiver_20260311.md"
+    },
+    {
+      "aid": "A10",
+      "decision_linkage": "loss_profile_schema_freeze",
+      "status": "waived",
+      "waiver_receipt": "docs/planning/waivers/assumption_controls_waiver_20260311.md"
+    }
+  ]
+}

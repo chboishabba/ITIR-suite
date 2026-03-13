@@ -135,6 +135,11 @@ The important standard is convergence with the suite’s stronger pipelines:
 
 That standard should be reached before any expectation of rich GUI integration.
 
+This is now also the immediate standard for NotebookLM metadata:
+- producer-owned read models first
+- source-local text reuse first
+- no waterfall/timeline parity claims until capture fidelity improves
+
 ## Deferred
 - live capture stabilization inside vendored OpenRecall
 - direct GUI/workbench route for OpenRecall-specific browsing

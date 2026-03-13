@@ -57,6 +57,8 @@ pyaudio
 pycparser==2.22
 pynput
 pytest
+pytest-asyncio
+pytest-timeout
 # Python dependencies for Chat Export Structurer
 pytubefix
 pyyaml

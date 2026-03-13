@@ -71,3 +71,11 @@ The architecture is considered hardened only when each AID has:
 - explicit policy text,
 - corresponding tests,
 - and merge gates preventing silent regression.
+
+## Implementation status (2026-03-11)
+- DONE: `A1` axis hierarchy collision + deterministic 2D fallback fixtures.
+- DONE: `A2` fold-policy receipts + anti-nudge red-team tests.
+- DONE: `A3` claim-link provenance minimum for public causal outputs:
+  `link_type`, `confidence`, `counter_hypothesis_ref` plus fail-closed payload
+  validation in `src/reporting/narrative_compare.py`.
+- DONE: `A8` fail-closed CI stubs + explicit waiver path.

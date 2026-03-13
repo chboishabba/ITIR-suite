@@ -61,3 +61,67 @@
 3. Add a bounded CLI around those helpers without introducing GUI-first
    coupling.
 4. Add focused tests and record the shipped behavior in the changelog.
+
+## Milestone K: NotebookLM bounded live smoke (completed)
+1. Define the intended bounded live smoke in docs/context/TODOs.
+2. Add a repeatable runner over:
+   - `auth check --test`
+   - readonly notebook list/get
+   - one bounded readonly chat ask
+   - source listing
+3. Run the smoke against live auth after token refresh/network approval.
+4. Record outcomes and any auth/network blockers without widening into the full
+   generation-heavy E2E suite.
+
+## Milestone K: Assumption Stress Controls Slice (completed)
+1. Implement `A8` fail-closed CI stubs with explicit waiver-receipt path.
+2. Implement `A1/Q1` axis hierarchy fixture coverage (collision + deterministic 2D fallback).
+3. Update TODO/changelog/project-memory artifacts with verification output.
+
+## Milestone L: Assumption Stress A2/Q2 Fold Neutrality (completed)
+1. Implement SB fold-policy receipt surface with explicit machine flags.
+2. Add explicit fold loss-profile declaration for the minimal fold path.
+3. Add anti-nudge red-team tests for fold-policy/loss-profile outputs.
+
+## Milestone M: Next Assumption Stress Slice (completed)
+1. Implement `A3` claim-link provenance quality gates for receipts-backed artifacts.
+
+## Milestone N: Next Assumption Stress Slice (pending)
+1. Implement `A4` plural-law non-reduction preservation fixtures (`Q7`).
+2. Add deterministic lexical-noise guard fixtures (`A7`) for stopwords and citation-noise flooding.
+
+## Milestone O: NotebookLM metadata/review parity (completed)
+1. Update docs/TODO/context to freeze NotebookLM as metadata-first until a
+   separate activity contract exists.
+2. Add a neutral NotebookLM observer report/query seam over
+   `runs/<date>/logs/notes/*.jsonl`.
+3. Add NotebookLM source-summary `TextUnit` projection for downstream
+   structure/semantic reuse.
+4. Add focused tests and a bounded query CLI.
+
+## Milestone P: NotebookLM interaction capture (completed)
+1. Document the additive interaction contract over history + notes.
+2. Add bounded raw capture for `conversation_observed` and `note_observed`.
+3. Normalize into a separate `notebooklm_activity` signal.
+4. Add query/read-model helpers plus preview `TextUnit` projection.
+5. Keep the lane out of dashboard activity/session accounting for now.
+
+## Milestone Q: NotebookLM later activity/session contract (planned)
+1. Decide whether future capture should use richer ask/request/result events
+   instead of history-only observation.
+2. Define stronger timestamp/dedupe guarantees before any dashboard parity.
+3. Keep mission-lens and SB accounting deferred until those guarantees exist.
+
+## Milestone R: SL observation + case-construction architecture pass (planned)
+1. Ratify the whitepaper-derived planning note
+   `docs/planning/sl_whitepaper_followthrough_20260314.md`.
+2. Define explicit `Observation` / `Claim` / evidence-link contracts before any
+   broader ontology growth.
+3. Freeze RDF/Wikidata as a projection/export boundary over the richer SL
+   event/observation model.
+4. Queue temporal-law/versioning and jurisdiction as the follow-on milestone
+   after the observation seam is explicit.
+5. Define a typed-transition receipt surface for norm application and state
+   progression.
+6. Decide whether to run a bounded p-adic / ultrametric similarity prototype as
+   an explanation-first retrieval experiment.

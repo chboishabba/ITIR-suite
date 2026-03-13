@@ -1766,22 +1766,35 @@ def main() -> int:
         and not args.no_web
     ):
         preview_limit = max(1, args.recent_turns)
-        preloaded_web_recent = _fetch_web_recent_turns(
-            selector=db_match.canonical_thread_id,
-            repo_root=repo_root,
-            limit=preview_limit,
-            max_text_chars=args.max_text_chars,
-        )
-        if preloaded_web_recent.get("ok"):
-            web_turns = preloaded_web_recent.get("recent_turns") or []
-            web_latest = _latest_turn_datetime(web_turns)
-            db_latest = db_match.latest_datetime
-            if web_latest is not None and (db_latest is None or web_latest > db_latest):
-                needs_web = True
-                reason = "web_newer_than_db"
-        else:
-            extra = f"Web freshness check failed: {preloaded_web_recent.get('error')}"
+        # Prefer online thread id (UUID) or a title for live lookups; canonical ids
+        # are local-only and cannot be resolved by re_gpt.
+        web_selector: Optional[str] = None
+        if db_match.online_thread_id:
+            web_selector = db_match.online_thread_id
+        elif _looks_like_online_thread_id(args.selector):
+            web_selector = args.selector.strip()
+        elif db_match.title and db_match.title != "(no title)":
+            web_selector = db_match.title
+        if web_selector is None:
+            extra = "Web freshness check skipped: no online id or title available"
             db_error = f"{db_error}; {extra}" if db_error else extra
+        else:
+            preloaded_web_recent = _fetch_web_recent_turns(
+                selector=web_selector,
+                repo_root=repo_root,
+                limit=preview_limit,
+                max_text_chars=args.max_text_chars,
+            )
+            if preloaded_web_recent.get("ok"):
+                web_turns = preloaded_web_recent.get("recent_turns") or []
+                web_latest = _latest_turn_datetime(web_turns)
+                db_latest = db_match.latest_datetime
+                if web_latest is not None and (db_latest is None or web_latest > db_latest):
+                    needs_web = True
+                    reason = "web_newer_than_db"
+            else:
+                extra = f"Web freshness check failed: {preloaded_web_recent.get('error')}"
+                db_error = f"{db_error}; {extra}" if db_error else extra
 
     if args.cross_thread and db_path.exists():
         payload = {
