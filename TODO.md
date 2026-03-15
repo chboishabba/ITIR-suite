@@ -38,6 +38,41 @@
 - [P2] Important but deferrable
 - [P3] Nice-to-have / polish
 
+- [P1] Mary-parity fact-management roadmap (new top SL-facing priority):
+  - use `docs/planning/mary_parity_roadmap_20260315.md` as the planning source
+    for near-term SL execution
+  - treat Mary Technology as the benchmark for:
+    - fact management
+    - chronology / timeline handling
+    - provenance and contestation of statements
+    - litigation-workflow operator surfaces
+  - position current ontology/bridge/branch-set work as support infrastructure
+    for that parity target rather than as a standalone ontology milestone
+  - define the minimum parity deliverable as:
+    - source/excerpt/statement capture
+    - a small explicit observation layer with a stable low-cardinality
+      predicate catalog for the first factual substrate
+    - chronology over captured facts/statements
+    - contestable fact/claim handling
+    - operator review / curation surfaces
+    - external-reference/linkage support for the fact layer
+  - immediate scaffold followthrough:
+    - add canonical `ObservationRecord` storage/reporting between statements and
+      facts
+    - keep the first predicate catalog small and stable rather than trying to
+      encode the whole law at intake time
+    - compare/align this lane against existing projection-style observation
+      types (`CaseObservation`, `ActionObservation`, `DecisionObservation`)
+  - after parity substrate is credible, fold back into:
+    - explicit Observation / Claim contracts
+    - deterministic `source/excerpt -> observation -> event/fact -> norm -> claim`
+    - typed guarded state transitions
+    - p-adic / ultrametric retrieval experiments
+  - Dependencies:
+    - archived thread `Insights from Whitepaper`
+      (`69b41f22-a514-839f-946c-fa0e9f75cc46`)
+    - `docs/planning/sl_whitepaper_followthrough_20260314.md`
+    - current ontology bridge / external-ref / branch-set work in `SensibLaw`
 - [P2] Wikidata ontology integration working (end-to-end):
   - align with `SensibLaw/docs/wikidata_queries.md` and `SensibLaw/docs/ONTOLOGY_EXTERNAL_REFS.md`
   - implement the deterministic projection/instability model in `docs/planning/time_series_transformations.md`
@@ -47,6 +82,8 @@
     - transition plan + slice decision: `SensibLaw/docs/planning/wikidata_transition_plan_20260306.md`
     - reproducible input slice (two dumps or two edit windows)
 - [P1] SL observation + case-construction followthrough:
+  - note: now explicitly phase-two after Mary-parity fact-layer work, not the
+    first user-facing SL milestone
   - use `docs/planning/sl_whitepaper_followthrough_20260314.md` as the
     planning source for the next SL-facing architecture/spec pass
   - ratify explicit `Observation` and `Claim` contracts before adding more

@@ -1,5 +1,37 @@
 # Devlog
 
+## 2026-03-15
+- Re-ran `robust-context-fetch` for whitepaper thread
+  `69b41f22-a514-839f-946c-fa0e9f75cc46` after the earlier fetch process was
+  interrupted:
+  - title: `Insights from Whitepaper`
+  - canonical thread id:
+    `eab13fe32136bc69aebdb9a21888b76215faab11`
+  - source used for final resolution: `db`
+  - archived thread now resolves with `122` messages
+  - latest archived assistant timestamp:
+    `2026-03-13T15:19:54+00:00`
+- Extracted the thread's Mary-comparison takeaway into a new planning note
+  `docs/planning/mary_parity_roadmap_20260315.md`:
+  - Mary Technology should be treated as the near-term benchmark for fact
+    management, chronology, provenance, contestation, and operator-facing
+    litigation workflow
+  - current SL ontology / branch-set / external-ref work is now explicitly
+    support infrastructure for that parity target
+  - SL's richer Observation / Claim / typed-transition agenda remains valid but
+    moves to phase-two followthrough after the fact layer is credible
+- Updated `COMPACTIFIED_CONTEXT.md`, `TODO.md`, `plan.md`, and `status.json`
+  so Mary parity is the top SL-facing roadmap priority.
+- Interpreted the next Mary-parity seam more concretely:
+  - the first fact substrate should include a text-grounded
+    `statement -> observation -> fact` path rather than jumping directly from
+    statements to facts
+  - the initial observation layer should use a small stable predicate catalog
+    aimed at broad factual coverage instead of a large doctrinal ontology
+  - existing `CaseObservation` / `ActionObservation` /
+    `AlignmentObservation` / `DecisionObservation` shapes remain adjacent
+    projection or aggregation surfaces rather than the canonical intake lane
+
 ## 2026-03-14
 - Used `robust-context-fetch` to pull online thread
   `69b41f22-a514-839f-946c-fa0e9f75cc46` into the canonical archive and resolve

@@ -28,6 +28,47 @@
     - prioritize Wikidata shapes that help with jurisdiction, court hierarchy,
       legislation/case relations, party/actor identity, temporal validity, and
       external-reference prepopulation rather than importing generic triples
+- 2026-03-15 whitepaper thread re-resolved after further posts:
+  - title: `Insights from Whitepaper`
+  - online UUID: `69b41f22-a514-839f-946c-fa0e9f75cc46`
+  - canonical thread ID: `eab13fe32136bc69aebdb9a21888b76215faab11`
+  - source used: `db`
+  - archived message count at refresh: `122`
+  - latest archived assistant timestamp: `2026-03-13T15:19:54+00:00`
+  - Mary Technology / parity takeaway:
+    - near-term product priority should be parity with Mary's practical
+      fact-management / chronology / provenance / contestation workflow layer
+    - current SL whitepaper priorities remain valid, but should be treated as
+      layer-two legal-semantic followthrough over a Mary-equivalent fact
+      substrate rather than the first user-facing milestone
+    - ontology bridge / branch-set / external-ref work should be framed as
+      support infrastructure for that parity target
+    - typed transitions, burden policy, and p-adic retrieval remain strategic
+      differentiators after the fact layer is credible
+- 2026-03-15 Mary-parity fact-substrate interpretation update:
+  - source: current working turn, aligned against
+    `docs/planning/mary_parity_roadmap_20260315.md`
+  - main decision:
+    - the first Mary-parity fact substrate should not jump directly from
+      `statement -> fact`
+    - it should introduce a text-grounded `ObservationRecord` seam using a
+      small stable predicate catalog for roughly 80-90% of factual statements
+  - comparison with existing repo concepts:
+    - existing `CaseObservation`, `ActionObservation`, `AlignmentObservation`,
+      and `DecisionObservation` types are projection/aggregation shapes, not
+      the canonical fact-intake observation lane
+    - the new fact-intake observation layer should remain text-grounded and
+      provenance-linked to statements/excerpts/sources
+  - initial predicate families to scaffold:
+    - actor identification
+    - actions / events
+    - object / target
+    - temporal
+    - harm / consequence
+    - legal / procedural
+  - design rule:
+    - keep predicates few and stable, keep objects rich, and treat Wikidata as
+      enrichment for objects rather than authority for predicate vocabulary
 - Completed slices:
   - workbench graph/review contract implementation in `itir-svelte`
   - P0 tokenizer/lexeme migration verification refresh with passing regression lane

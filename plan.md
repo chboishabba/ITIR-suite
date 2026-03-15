@@ -125,3 +125,22 @@
    progression.
 6. Decide whether to run a bounded p-adic / ultrametric similarity prototype as
    an explanation-first retrieval experiment.
+
+## Milestone S: Mary-Parity Fact Layer (planned)
+1. Use `docs/planning/mary_parity_roadmap_20260315.md` as the near-term SL
+   planning source.
+2. Treat Mary Technology as the benchmark for fact-management, chronology,
+   provenance, contestation, and operator-facing litigation workflow surfaces.
+3. Reframe current ontology/bridge/branch-set work as support infrastructure
+   for a credible fact layer rather than as the primary milestone by itself.
+4. Define and implement the minimum parity substrate:
+   - source/excerpt/statement capture
+   - explicit text-grounded observations with a small stable predicate catalog
+   - chronology over captured facts/statements
+   - contestable fact/claim handling
+   - review/curation surfaces
+   - external-reference/linkage support
+5. Keep Milestone R as the next semantic/reasoning followthrough after the
+   parity substrate is credible.
+6. Treat existing projection-style observation types as adjacent downstream
+   views, not substitutes for the canonical fact-intake observation seam.
