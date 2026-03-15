@@ -69,6 +69,82 @@
   - design rule:
     - keep predicates few and stable, keep objects rich, and treat Wikidata as
       enrichment for objects rather than authority for predicate vocabulary
+- 2026-03-15 event-candidate followthrough:
+  - source: current working turn, aligned against the new fact-observation
+    scaffold
+  - main decision:
+    - the next deterministic seam after observations is a derived
+      `EventCandidate` layer
+    - events should be reconstructable from observations and never become the
+      primary source of truth
+  - storage shape:
+    - `event_candidates`
+    - `event_attributes`
+    - `event_evidence`
+  - assembly stance:
+    - rule-based and conservative
+    - create events from event-trigger predicates plus actor/context anchors
+    - merge only on stable explicit signatures
+    - keep contestation observation-first, even when observations attach to the
+      same event
+- 2026-03-15 fact-substrate tightening pass:
+  - reserve explicit distinction between:
+    - structural/content-derived identity
+    - run/execution metadata
+  - make abstention explicit rather than inferring it from missing rows
+  - keep event assembly language- and jurisdiction-neutral by consuming only
+    normalized observation predicates; variation belongs in dictionaries,
+    mappings, and parser-backed normalization packs instead
+- 2026-03-15 Mary-parity role-pressure expansion:
+  - expanded the new Mary-parity user stories in `docs/user_stories.md` for:
+    - community legal centre intake
+    - NGO litigation/campaign assembly
+    - paralegal, solicitor, barrister, and judge/associate workflows
+    - personal ITIR, investigative ITIR, trauma-survivor, and support-worker
+      workflows
+    - contested Wikipedia / Wikidata moderation and legality-assessment roles
+    - adversarial public-figure and source-shopping / overstatement /
+      sanitization pressures
+    - family-law, child-sensitive, and cross-side handoff workflows
+    - medical-negligence and professional-discipline overlap workflows
+    - personal-to-professional handoff workflows
+    - anti-AI-psychosis / false-coherence-resistance workflows
+  - added the planning follow-ons:
+    - `docs/planning/mary_parity_user_story_acceptance_matrix_20260315.md`
+    - `docs/planning/mary_parity_gap_analysis_20260315.md`
+  - story-informed near-term Mary-parity priority order:
+    1. richer review queue reasons and contested/chronology triage
+    2. source workflow run -> fact-review run reopen mapping
+    3. widened legal/procedural observation visibility
+- 2026-03-15 Mary-parity acceptance expansion status:
+  - explicit passing gates now exist for:
+    - `wave1_legal`
+    - `wave2_balanced`
+    - `wave3_trauma_advocacy`
+    - `wave3_public_knowledge`
+    - `wave4_family_law`
+    - `wave4_medical_regulatory`
+    - `wave5_handoff_false_coherence`
+  - Wave 5 is no longer synthetic-only; it now includes repo-curated real
+    transcript fixtures for professional handoff and contradiction-preserving
+    false-coherence review
+  - current Mary-parity limiting factor is no longer missing substrate
+  - current limiting factors are:
+    - real-fixture breadth in some newer waves
+    - operator/workbench/export polish
+  - planning baseline for the next loop:
+    - `docs/planning/mary_parity_status_audit_20260315.md`
+- 2026-03-15 Mary-parity Wave 1 legal gate:
+  - added a canonical fixture manifest at
+    `SensibLaw/data/fact_review/wave1_legal_fixture_manifest_v1.json`
+  - added `SensibLaw/scripts/run_fact_review_acceptance_wave.py` to build the
+    canonical transcript/AU + synthetic fixtures and emit a batch acceptance
+    report for `wave1_legal`
+  - tightened acceptance results with failed-check IDs and gap tags so the
+    next implementation loop can be backlog-driven from real story failures
+  - tightened the fact-review workbench with grouped issue filters,
+    source-centric reopen links, approximate chronology visibility, and a
+    clearer assertion/outcome/annotation distinction
 - Completed slices:
   - workbench graph/review contract implementation in `itir-svelte`
   - P0 tokenizer/lexeme migration verification refresh with passing regression lane
@@ -97,6 +173,29 @@
     (`docs/planning/assumption_controls_registry.json`).
   - DONE: `A1/Q1` axis hierarchy fixture coverage (collision detection +
     deterministic 2D fallback) in SensibLaw ribbon utilities/tests.
+- Ribbon ownership/context alignment:
+  - archive thread resolved from local DB:
+    - title: `Timeline Ribbon Overview`
+    - online UUID: `69857c15-29ec-8398-ab2d-11f89180f79e`
+    - canonical thread ID: `44e84563357cc580eb3f33faa72bf5658202364e`
+    - source used: `db`
+  - supporting historical concept thread also resolved from local DB:
+    - title: `Feature timeline visualization`
+    - online UUID: unknown / not stored
+    - canonical thread ID: `f8170d36e0b2c28b2bb0366a7dc35a433e26ca00`
+    - source used: `db`
+  - current repo-facing decision:
+    - `itir-ribbon/` remains the contract/spec source for ribbon invariants,
+      lens DSL, and phase packs
+    - `itir-svelte/` is the active UI/dev front where richer ribbon surfaces
+      should live
+    - when stream-oriented language appears in planning or pitches, treat it as
+      the substrate feeding Ribbon rather than as a separate product surface
+    - Ribbon remains general-purpose across conserved-allocation / timeline
+      views; finance/social/legal streams are examples, not the boundary of the
+      surface
+    - existing `step-ribbon` wiki layout is a deterministic graph placement
+      mode, not the full conserved-allocation ribbon surface
 - NotebookLM current testing posture:
   - prefer a bounded live E2E smoke before broader network/generation runs
   - smoke should cover:

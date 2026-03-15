@@ -24,3 +24,9 @@ not encode narrative meaning.
 
 - `SensibLaw/docs/timeline_ribbon.md`
 - `SensibLaw/schemas/timeline.ribbon.v1.schema.json`
+
+## Backlog note
+
+- Adopt `sensiblaw.interfaces.shared_reducer` for any ribbon producer/read-model
+  path that needs canonical lexeme/structure refs, so ribbon projections consume
+  SL-owned canonical outputs instead of inventing local tokenizer semantics.

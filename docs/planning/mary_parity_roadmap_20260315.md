@@ -57,10 +57,19 @@ Required slices:
 - source/excerpt/statement capture with stable provenance handles
 - a small explicit `Observation` layer over factual statements, using a stable
   low-cardinality predicate catalog rather than a sprawling intake ontology
+- deterministic `EventCandidate` assembly over observations so chronology and
+  review work on stable derived event objects rather than isolated rows
 - chronology / timeline organization over captured facts/statements
 - explicit contestation / ambiguity support over statements
 - operator review surfaces for fact curation and external-ref linking
 - robust external identity/reference support for the fact layer
+- explicit abstention/status semantics and clean separation between structural
+  identity and run/execution metadata
+- public-knowledge review surfaces that can distinguish:
+  - allegation vs finding
+  - public-summary wording vs primary legal material
+  - moderation/defamation risk vs adjudicated legal status
+  - person vs office vs organization vs jurisdiction structure
 
 This is the primary use of the current ontology/bridge work:
 
@@ -107,6 +116,25 @@ So current work should be prioritized as:
 2. review + linkage ergonomics
 3. observation/claim seam
 4. typed-transition / advanced reasoning followthrough
+
+## Current status snapshot
+
+As of 2026-03-15, the parity program has explicit passing acceptance gates for:
+- `wave1_legal`
+- `wave2_balanced`
+- `wave3_trauma_advocacy`
+- `wave3_public_knowledge`
+- `wave4_family_law`
+- `wave4_medical_regulatory`
+- `wave5_handoff_false_coherence`
+
+The current status audit is tracked in:
+- `docs/planning/mary_parity_status_audit_20260315.md`
+
+Interpretation:
+- substrate parity is now credible
+- the next limiting factors are real-fixture breadth and operator/workbench
+  polish rather than missing core architecture
 
 ## Current in-flight work that already fits
 

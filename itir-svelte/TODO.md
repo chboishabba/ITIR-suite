@@ -48,6 +48,9 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
   - wire these viewers into SB thread/event detail surfaces where transcript/document artifacts are present.
   - define a shared span contract (`char_start/end`, `token span`, `source artifact id`) for graph <-> viewer cross-highlighting.
   - evaluate extracting a shared “transcript cue sync” store so audio time, selected cue, and graph node focus can synchronize across pages.
+  - adopt `sensiblaw.interfaces.shared_reducer` in producer/read-model paths
+    where canonical lexeme/structure refs are needed, instead of re-deriving
+    local tokenizer behavior in the UI layer.
 
 ## Chat Threads
 
@@ -92,9 +95,21 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
 
 ## Timeline Surfaces
 
-- Ribbon: align richer ribbon implementation to the existing ribbon contract docs:
+- Ribbon ownership: keep richer ribbon implementation work in `itir-svelte/`;
+  treat `itir-ribbon/` as the contract/spec source, not the main runtime UI.
+- Ribbon: align richer `itir-svelte` ribbon surfaces to the existing ribbon contract docs:
   - `SensibLaw/docs/timeline_ribbon.md`
   - `itir-ribbon/docs/interfaces.md`
+  - `itir-ribbon/ui_contract.md`
+- DONE (2026-03-15): dashboard ribbon and `/graphs/timeline-ribbon` now expose:
+  - named conserved quantity + total mass badge
+  - contract selectors for viewport/segments/lens switcher
+  - explicit separation between mass-carrying segments and non-mass thread/source callouts
+- Ribbon: keep `step-ribbon` scoped as AAO graph placement/linearization only;
+  do not let it silently become the conserved-allocation ribbon surface.
+- Ribbon: next Svelte implementation slice should add:
+  - producer-owned lens/context envelopes instead of dashboard-only derived hour bins
+  - compare-overlay and inspector behavior backed by explicit acceptance tests, not only source regression guards
 - Timeline list: keep "accounting surface" posture (compact rows, full ISO on hover).
 - DONE (2026-02-12): `/graphs/wiki-fact-timeline` now has:
   - frame-scoped node->fact scope validator (`scope_validator`, leak samples),

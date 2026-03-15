@@ -175,7 +175,9 @@
     if (selection.nodeHints.length >= 2) {
       const first = selection.nodeHints[0];
       const second = selection.nodeHints[1];
-      edges.push({ id: `${selection.key}:relation`, from: first.id, to: second.id, label: selection.kind === 'disputed' ? 'dispute' : 'compare', kind: 'context' });
+      if (first && second) {
+        edges.push({ id: `${selection.key}:relation`, from: first.id, to: second.id, label: selection.kind === 'disputed' ? 'dispute' : 'compare', kind: 'context' });
+      }
     }
 
     const scopedIds = new Set(selection.nodeHints.map((row) => row.id));

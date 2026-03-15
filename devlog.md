@@ -31,6 +31,76 @@
   - existing `CaseObservation` / `ActionObservation` /
     `AlignmentObservation` / `DecisionObservation` shapes remain adjacent
     projection or aggregation surfaces rather than the canonical intake lane
+- Defined the immediate follow-on seam after observations:
+  - add a deterministic `ObservationRecord -> EventCandidate` assembler
+  - keep event candidates derived and reconstructable from observation
+    evidence, with separate event-attribute and event-evidence tables
+  - keep contestation observation-first rather than duplicating base events
+- Tightened the Mary-parity fact substrate contracts further:
+  - separate structural/content identity from run/execution metadata
+  - make abstention explicit in status semantics instead of silent omission
+  - keep event assembly portable by consuming normalized observation predicates
+    only, with language/jurisdiction variation pushed into dictionaries,
+    mappings, and parser-backed normalization layers
+- Expanded the new Mary-parity user-story set in `docs/user_stories.md` to
+  make the role pressure more concrete for:
+  - community legal centre intake
+  - NGO litigation/campaign assembly
+  - paralegal, solicitor, barrister, and judge/associate workflows
+  - personal ITIR, investigative ITIR, trauma-survivor, and support-worker
+    workflows
+- Added two planning follow-ons to turn those stories into implementation
+  pressure:
+  - `docs/planning/mary_parity_user_story_acceptance_matrix_20260315.md`
+  - `docs/planning/mary_parity_gap_analysis_20260315.md`
+- Updated TODO/plan to make the next Mary-parity loop explicitly story-driven:
+  - richer review queue reasons and contested/chronology triage first
+  - workflow run -> fact-review run reopen mapping second
+  - legal/procedural observation visibility widening third
+- Added the next Mary-parity operator/workbench slice:
+  - role-meaningful review queue reasons
+  - source-label-centric fact-run listing and reopen support
+  - bounded operator views for intake, chronology, procedure, and contested work
+  - story-driven acceptance reports over persisted fact-review runs
+  - a thin read-only `itir-svelte` fact-review workbench at
+    `/graphs/fact-review`
+- Expanded the role/acceptance pressure again after implementation so the next
+  fixture families are explicit:
+  - contested Wikipedia/Wikidata moderation and defamation-sensitive review
+  - public-figure legality assessment and lawyer-vs-maintainer conflict lanes
+  - family-law / child-sensitive / cross-side handoff lanes
+  - medical-negligence / professional-discipline overlap lanes
+  - personal-to-professional handoff and anti-AI-psychosis / anti-false-
+    coherence lanes
+- Added the Wave 1 legal parity gate itself:
+  - canonical transcript/AU + synthetic fixture manifest
+  - batch acceptance runner over persisted fact-review runs
+  - stricter story results with failed-check IDs and gap tags
+  - workbench grouping/navigation updates around those same issue classes
+  - additive AU legal/procedural signal widening for `claimed`, `denied`,
+    `ordered`, and `ruled`
+- Continued the Mary-parity acceptance program through later waves:
+  - greened `wave2_balanced`
+  - greened `wave3_trauma_advocacy`
+  - greened `wave3_public_knowledge`
+  - greened `wave4_family_law`
+  - greened `wave4_medical_regulatory`
+  - greened `wave5_handoff_false_coherence`
+- Broadened Wave 5 beyond synthetic-only coverage by adding repo-curated real
+  transcript fixtures for:
+  - professional handoff
+  - contradiction-preserving false-coherence review
+- Added additive workbench/operator views for:
+  - `trauma_handoff`
+  - `professional_handoff`
+  - `false_coherence_review`
+  - `public_claim_review`
+  - `wiki_fidelity`
+  - `claim_alignment`
+- Added a parity status audit and synced the Mary-planning files:
+  - `docs/planning/mary_parity_status_audit_20260315.md`
+  - roadmap/gap-analysis updates
+  - TODO/plan/compactified-context sync
 
 ## 2026-03-14
 - Used `robust-context-fetch` to pull online thread

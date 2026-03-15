@@ -1,184 +1,355 @@
 <script lang="ts">
   import Section from '$lib/ui/Section.svelte';
   import type { DashboardTimelineEvent } from '../contracts/dashboard';
-
-  type LensId = 'chat_chars' | 'chat_events' | 'events';
-  type LayoutMode = 'time' | 'mass';
+  import {
+    buildTimelineRibbonModel,
+    type RibbonLayoutMode,
+    type RibbonLensId,
+    type RibbonSegment,
+    type TimelineRibbonModel
+  } from '../adapters/ribbon';
 
   export let events: DashboardTimelineEvent[] | undefined;
-  export let initialLens: LensId = 'chat_chars';
+  export let initialLens: RibbonLensId = 'chat_chars';
+  export let mode: 'dashboard' | 'workbench' = 'dashboard';
+  export let title = mode === 'workbench' ? 'Timeline Ribbon Workbench' : 'Ribbon';
+  export let subtitle =
+    mode === 'workbench'
+      ? 'Contract-aware ribbon over the selected SB timeline payload. Read-only and projection-only.'
+      : 'Accounting strip over the selected events. Conserves a named quantity under the active lens.';
 
-  let lens: LensId = initialLens;
-  let layout: LayoutMode = 'time';
-
-  const lensMeta: Record<LensId, { name: string; units: string }> = {
-    chat_chars: { name: 'Chat chars', units: 'chars' },
-    chat_events: { name: 'Chat events', units: 'events' },
-    events: { name: 'All events', units: 'events' }
-  };
-
-  function massFor(e: DashboardTimelineEvent): number {
-    if (lens === 'events') return 1;
-    if (lens === 'chat_events') return e.kind === 'chat' ? 1 : 0;
-    // chat_chars
-    if (e.kind !== 'chat') return 0;
-    const chars = (e.meta as any)?.chars;
-    return typeof chars === 'number' && Number.isFinite(chars) ? Math.max(0, chars) : 0;
-  }
-
-  function roleFor(e: DashboardTimelineEvent): string {
-    const role = (e.meta as any)?.role;
-    return typeof role === 'string' && role.trim() ? role.trim().toLowerCase() : 'unknown';
-  }
+  let lens: RibbonLensId = initialLens;
+  let layout: RibbonLayoutMode = 'mass';
+  let previousLens: RibbonLensId | null = null;
+  let showCompareOverlay = false;
+  let selectedSegmentId = '';
 
   const roleColors: Record<string, string> = {
-    user: '#1d4ed8',
-    assistant: '#0f766e',
-    tool: '#a16207',
-    system: '#b91c1c',
-    unknown: '#6b7280'
+    User: '#1d4ed8',
+    Assistant: '#0f766e',
+    Tool: '#a16207',
+    System: '#b91c1c',
+    Unknown: '#6b7280'
   };
 
-  type HourBin = {
-    hour: number;
-    mass: number;
-    count: number;
-    byRole: Record<string, number>;
-  };
+  $: model = buildTimelineRibbonModel(events, lens);
+  $: compareModel = showCompareOverlay && previousLens ? buildTimelineRibbonModel(events, previousLens) : null;
+  $: defaultSegmentId = firstMassSegment(model)?.id ?? model.segments[0]?.id ?? '';
+  $: if ((!selectedSegmentId && defaultSegmentId) || (selectedSegmentId && !model.segments.some((segment) => segment.id === selectedSegmentId))) {
+    selectedSegmentId = defaultSegmentId;
+  }
+  $: selectedSegment = model.segments.find((segment) => segment.id === selectedSegmentId) ?? firstMassSegment(model) ?? model.segments[0];
+  $: totalEvents = model.segments.reduce((sum, segment) => sum + segment.event_count, 0);
 
-  $: bins = (() => {
-    const out: HourBin[] = Array.from({ length: 24 }, (_, hour) => ({
-      hour,
-      mass: 0,
-      count: 0,
-      byRole: {}
-    }));
-    for (const e of events ?? []) {
-      const h = typeof e.hour === 'number' ? e.hour : Number(String(e.ts).slice(11, 13));
-      if (!Number.isFinite(h) || h < 0 || h > 23) continue;
-      const m = massFor(e);
-      out[h]!.mass += m;
-      out[h]!.count += 1;
-      if (e.kind === 'chat') {
-        const r = roleFor(e);
-        out[h]!.byRole[r] = (out[h]!.byRole[r] ?? 0) + m;
-      }
-    }
-    return out;
-  })();
-
-  $: totalMass = bins.reduce((acc, b) => acc + b.mass, 0);
-  $: totalCount = bins.reduce((acc, b) => acc + b.count, 0);
-  $: maxBinMass = Math.max(1, ...bins.map((b) => b.mass));
-
-  function pct(v: number): string {
-    if (!totalMass) return '0.0%';
-    return `${((v / totalMass) * 100).toFixed(1)}%`;
+  function firstMassSegment(input: TimelineRibbonModel): RibbonSegment | undefined {
+    return input.segments.find((segment) => segment.mass > 0);
   }
 
-  function tooltip(b: HourBin): string {
-    const base = `${String(b.hour).padStart(2, '0')}:00 - ${String(b.hour).padStart(2, '0')}:59 | mass=${b.mass.toFixed(0)} ${lensMeta[lens].units} | width=${pct(b.mass)} | events=${b.count}`;
-    if (lens !== 'chat_chars') return base;
-    const roles = Object.entries(b.byRole)
-      .sort((a, z) => z[1] - a[1])
-      .slice(0, 4)
-      .map(([r, m]) => `${r}=${m.toFixed(0)}`)
-      .join(' ');
-    return roles ? `${base} | ${roles}` : base;
+  function chooseLens(next: RibbonLensId) {
+    if (next === lens) return;
+    previousLens = lens;
+    lens = next;
+    if (mode !== 'workbench') showCompareOverlay = false;
   }
 
-  function hourLabelText(hour: number): string {
-    return String(hour).padStart(2, '0');
+  function selectSegment(segmentId: string) {
+    selectedSegmentId = segmentId;
   }
 
-  function alphaForMass(mass: number): number {
-    if (mass <= 0) return 0.08;
-    const r = Math.max(0, Math.min(1, mass / maxBinMass));
-    return 0.18 + 0.78 * r;
+  function pct(value: number): string {
+    return `${(value * 100).toFixed(1)}%`;
+  }
+
+  function segmentTitle(segment: RibbonSegment): string {
+    const lines = [
+      segment.label,
+      `mass=${segment.mass.toFixed(0)} ${model.lens.units}`,
+      `width=${pct(segment.width_norm)}`,
+      `events=${segment.event_count}`
+    ];
+    return [...lines, ...segment.top_detail].join(' | ');
+  }
+
+  function roleColor(label: string): string {
+    return roleColors[label] ?? '#6b7280';
+  }
+
+  function segmentFillStyle(segment: RibbonSegment): string {
+    if (segment.mass <= 0 || model.zero_mass) return 'background: rgba(15,23,42,0.06);';
+    const top = segment.contributors[0];
+    return `background: ${top ? roleColor(top.label) : '#64748b'}; opacity: 0.22;`;
   }
 </script>
 
-<Section
-  title="Ribbon (Lite)"
-  subtitle="Accounting strip over the selected events. Conserves a named quantity under the active lens."
->
-  <div slot="actions" class="flex flex-wrap items-center gap-2">
-    <label class="text-xs uppercase tracking-widest text-ink-800/60" for="lens">Lens</label>
-    <select
-      id="lens"
-      class="rounded-lg bg-paper-100 ring-1 ring-ink-900/10 px-2 py-1 text-sm"
-      bind:value={lens}
+<Section {title} {subtitle}>
+  <div slot="actions" class="flex flex-wrap items-center gap-3">
+    <div class="flex items-center gap-2" data-testid="lens-switcher">
+      <span class="text-xs uppercase tracking-widest text-ink-800/60">Lens</span>
+      {#each [
+        { id: 'chat_chars', label: 'Chat chars' },
+        { id: 'chat_events', label: 'Chat events' },
+        { id: 'events', label: 'All events' }
+      ] as item (item.id)}
+        <button
+          type="button"
+          class={`rounded-full border px-3 py-1 text-xs font-mono ${lens === item.id ? 'border-ink-950/40 bg-ink-950 text-white' : 'border-ink-950/15 bg-white text-ink-950 hover:border-ink-950/30'}`}
+          data-testid={`lens-item:${item.id}`}
+          on:click={() => chooseLens(item.id as RibbonLensId)}
+        >
+          {item.label}
+        </button>
+      {/each}
+    </div>
+
+    <div class="flex items-center gap-2">
+      <span class="text-xs uppercase tracking-widest text-ink-800/60">Layout</span>
+      <button
+        type="button"
+        class={`rounded-full border px-3 py-1 text-xs font-mono ${layout === 'mass' ? 'border-ink-950/40 bg-ink-950 text-white' : 'border-ink-950/15 bg-white text-ink-950 hover:border-ink-950/30'}`}
+        on:click={() => (layout = 'mass')}
+      >
+        mass
+      </button>
+      <button
+        type="button"
+        class={`rounded-full border px-3 py-1 text-xs font-mono ${layout === 'time' ? 'border-ink-950/40 bg-ink-950 text-white' : 'border-ink-950/15 bg-white text-ink-950 hover:border-ink-950/30'}`}
+        on:click={() => (layout = 'time')}
+      >
+        time
+      </button>
+    </div>
+
+    {#if mode === 'workbench'}
+      <label class="flex items-center gap-2 text-xs uppercase tracking-widest text-ink-800/60">
+        <input type="checkbox" bind:checked={showCompareOverlay} />
+        Compare previous lens
+      </label>
+    {/if}
+
+    <div
+      class="rounded-full border border-ink-950/15 bg-paper-100 px-3 py-1 text-xs text-ink-950"
+      data-testid="conservation-badge"
+      data-total-mass={String(model.lens.total_mass)}
+      data-lens-id={model.lens.id}
     >
-      <option value="chat_chars">Chat chars</option>
-      <option value="chat_events">Chat events</option>
-      <option value="events">All events</option>
-    </select>
-    <label class="ml-3 text-xs uppercase tracking-widest text-ink-800/60" for="layout">Layout</label>
-    <select
-      id="layout"
-      class="rounded-lg bg-paper-100 ring-1 ring-ink-900/10 px-2 py-1 text-sm"
-      bind:value={layout}
-    >
-      <option value="time">Time (uniform)</option>
-      <option value="mass">Mass (conserved)</option>
-    </select>
-    <div class="ml-2 text-xs text-ink-800/60">
-      Conserved: <span class="font-mono">{lensMeta[lens].units}</span>,
-      total mass: <span class="font-mono">{totalMass.toFixed(0)}</span>,
-      total events: <span class="font-mono">{totalCount}</span>
+      <span class="font-mono">{model.lens.id}</span>
+      <span class="mx-2 text-ink-800/50">|</span>
+      total mass <span class="font-mono">{model.lens.total_mass.toFixed(0)}</span> {model.lens.units}
+      <span class="mx-2 text-ink-800/50">|</span>
+      events <span class="font-mono">{totalEvents}</span>
     </div>
   </div>
 
   {#if !events || !events.length}
     <div class="text-sm text-ink-800/70">No timeline events.</div>
   {:else}
-    <div class="rounded-xl bg-paper-100 ring-1 ring-ink-900/10 p-3">
-      {#if layout === 'time'}
-        <div class="grid w-full overflow-hidden rounded-lg bg-paper-50 ring-1 ring-ink-900/10" style="grid-template-columns: repeat(24, minmax(0, 1fr)); height: 40px;">
-          {#each bins as b (b.hour)}
-            {@const a = alphaForMass(b.mass)}
-            <div class="relative h-full" title={tooltip(b)}>
-              <div class="absolute inset-0 bg-ink-900/5"></div>
-              {#if lens === 'chat_chars'}
-                {@const roles = Object.entries(b.byRole).sort((x, y) => y[1] - x[1]).slice(0, 3)}
-                <div class="absolute inset-0 flex" style={`opacity:${a.toFixed(3)};`}>
-                  {#each roles as [r, m] (r)}
-                    <div style={`flex: ${Math.max(0, m)} 0 0; background: ${roleColors[r] ?? roleColors.unknown};`}></div>
+    <div class="space-y-4 rounded-2xl bg-paper-100 p-4 ring-1 ring-ink-900/10">
+      <div class="text-xs text-ink-800/65">
+        <span class="font-semibold text-ink-950">Conserved quantity:</span>
+        <span class="ml-2 font-mono">{model.lens.units}</span>
+        <span class="mx-2 text-ink-800/45">|</span>
+        {model.lens.definition}
+      </div>
+
+      {#if layout === 'mass'}
+        {#if model.zero_mass}
+          <div class="rounded-xl border border-dashed border-ink-950/15 bg-white px-4 py-6 text-sm text-ink-800/70">
+            The active lens has zero total mass for this payload. No width allocation is rendered.
+          </div>
+        {:else}
+          <div class="space-y-2">
+            <div
+              class="relative flex h-14 w-full overflow-hidden rounded-xl bg-white ring-1 ring-ink-900/10"
+              data-testid="ribbon-viewport"
+            >
+              {#each model.segments as segment (segment.id)}
+                <button
+                  type="button"
+                  class={`group relative h-full min-w-0 border-r border-ink-950/8 last:border-r-0 ${selectedSegmentId === segment.id ? 'ring-2 ring-inset ring-ink-950/25' : ''}`}
+                  style={`flex: ${Math.max(segment.mass, 0)} 0 0;`}
+                  title={segmentTitle(segment)}
+                  data-testid="segment"
+                  data-seg-id={segment.id}
+                  data-mass={String(segment.mass)}
+                  data-width-norm={String(segment.width_norm)}
+                  on:click={() => selectSegment(segment.id)}
+                >
+                  <div class="absolute inset-0" style={segmentFillStyle(segment)}></div>
+                  {#if segment.contributors.length}
+                    <div class="absolute inset-0 flex">
+                      {#each segment.contributors.slice(0, 3) as contributor (segment.id + contributor.id)}
+                        <div
+                          class="h-full"
+                          style={`flex: ${Math.max(contributor.mass, 0)} 0 0; background: ${roleColor(contributor.label)}; opacity: 0.65;`}
+                        ></div>
+                      {/each}
+                    </div>
+                  {/if}
+                  <div class="absolute inset-x-1 bottom-1 flex items-end justify-between gap-2 text-[10px] font-mono text-white">
+                    <span>{String(segment.hour).padStart(2, '0')}</span>
+                    {#if segment.width_norm >= 0.08}
+                      <span>{pct(segment.width_norm)}</span>
+                    {/if}
+                  </div>
+                </button>
+              {/each}
+
+              {#if compareModel && !compareModel.zero_mass}
+                <div class="pointer-events-none absolute inset-0 flex opacity-25" data-testid="compare-overlay">
+                  {#each compareModel.segments as segment (segment.id)}
+                    <div style={`flex: ${Math.max(segment.mass, 0)} 0 0;`} class="h-full border-r border-sky-700/20 bg-sky-500/35 last:border-r-0"></div>
                   {/each}
                 </div>
-              {:else}
-                <div class="absolute inset-0 bg-accent-600" style={`opacity:${a.toFixed(3)};`}></div>
               {/if}
             </div>
-          {/each}
-        </div>
 
-        <div class="mt-2 grid text-[10px] text-ink-800/60 font-mono" style="grid-template-columns: repeat(24, minmax(0, 1fr));">
-          {#each bins as b (b.hour)}
-            <div class="text-center">{b.hour % 3 === 0 ? hourLabelText(b.hour) : ''}</div>
-          {/each}
+            <div class="grid text-[10px] font-mono text-ink-800/60" style="grid-template-columns: repeat(24, minmax(0, 1fr));">
+              {#each model.segments as segment (segment.id)}
+                <div class="text-center">{segment.hour % 3 === 0 ? String(segment.hour).padStart(2, '0') : ''}</div>
+              {/each}
+            </div>
+          </div>
+        {/if}
+      {:else}
+        <div class="space-y-2">
+          <div
+            class="grid h-14 w-full overflow-hidden rounded-xl bg-white ring-1 ring-ink-900/10"
+            style="grid-template-columns: repeat(24, minmax(0, 1fr));"
+            data-testid="ribbon-viewport"
+          >
+            {#each model.segments as segment (segment.id)}
+              <button
+                type="button"
+                class={`relative h-full border-r border-ink-950/8 last:border-r-0 ${selectedSegmentId === segment.id ? 'ring-2 ring-inset ring-ink-950/25' : ''}`}
+                title={segmentTitle(segment)}
+                data-testid="segment"
+                data-seg-id={segment.id}
+                data-mass={String(segment.mass)}
+                data-width-norm={String(segment.width_norm)}
+                on:click={() => selectSegment(segment.id)}
+              >
+                <div class="absolute inset-0" style={segmentFillStyle(segment)}></div>
+                <div class="absolute inset-x-1 bottom-1 text-left text-[10px] font-mono text-ink-950/75">
+                  {String(segment.hour).padStart(2, '0')}
+                </div>
+              </button>
+            {/each}
+          </div>
+          <div class="text-[11px] text-ink-800/60">
+            Uniform time layout keeps hour widths fixed; conservation is still shown via tooltip mass and the badge.
+          </div>
+        </div>
+      {/if}
+
+      {#if mode === 'dashboard'}
+        <div class="text-xs text-ink-800/65">
+          Normalization basis: {model.lens.normalization_basis}
         </div>
       {:else}
-        <!-- Mass-conserved layout: widths scale with mass, so hour markers won't land on a fixed time axis. -->
-        <div class="flex h-10 w-full overflow-hidden rounded-lg bg-paper-50 ring-1 ring-ink-900/10">
-          {#each bins as b (b.hour)}
-            <div class="relative h-full" style={`flex: ${totalMass ? Math.max(0, b.mass) : 1} 0 0; min-width: 3px;`} title={tooltip(b)}>
-              <div class="absolute inset-0 bg-ink-900/5"></div>
-              {#if lens === 'chat_chars'}
-                {@const roles = Object.entries(b.byRole).sort((a, z) => z[1] - a[1]).slice(0, 3)}
-                <div class="absolute inset-0 flex">
-                  {#each roles as [r, m] (r)}
-                    <div style={`flex: ${m} 0 0; background: ${roleColors[r] ?? roleColors.unknown}; opacity: 0.55;`}></div>
-                  {/each}
-                </div>
-              {:else}
-                <div class="absolute inset-0 bg-accent-600/40"></div>
-              {/if}
+        <div class="grid gap-4 xl:grid-cols-[1.1fr,0.9fr]">
+          <article class="rounded-2xl border border-ink-950/10 bg-white p-4">
+            <div class="text-xs uppercase tracking-[0.24em] text-ink-800/55">Lens Inspector</div>
+            <div class="mt-3 space-y-2 text-sm text-ink-950/80">
+              <div><span class="font-semibold text-ink-950">Lens:</span> {model.lens.name}</div>
+              <div><span class="font-semibold text-ink-950">Units:</span> {model.lens.units}</div>
+              <div><span class="font-semibold text-ink-950">Definition:</span> {model.lens.definition}</div>
+              <div><span class="font-semibold text-ink-950">Normalization:</span> {model.lens.normalization_basis}</div>
+              <div><span class="font-semibold text-ink-950">Threads:</span> Callouts are read-only annotations anchored to segments and do not contribute mass.</div>
             </div>
-          {/each}
+          </article>
+
+          <article class="rounded-2xl border border-ink-950/10 bg-white p-4">
+            <div class="text-xs uppercase tracking-[0.24em] text-ink-800/55">Selected Segment</div>
+            {#if selectedSegment}
+              <div class="mt-3 space-y-3 text-sm text-ink-950/80">
+                <div>
+                  <div class="font-semibold text-ink-950">{selectedSegment.label}</div>
+                  <div class="mt-1 text-ink-800/65">
+                    mass <span class="font-mono">{selectedSegment.mass.toFixed(0)}</span> {model.lens.units}
+                    <span class="mx-2 text-ink-800/45">|</span>
+                    width <span class="font-mono">{pct(selectedSegment.width_norm)}</span>
+                    <span class="mx-2 text-ink-800/45">|</span>
+                    events <span class="font-mono">{selectedSegment.event_count}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="text-xs uppercase tracking-[0.18em] text-ink-800/55">Top Contributors</div>
+                  <div class="mt-2 space-y-2">
+                    {#if selectedSegment.contributors.length}
+                      {#each selectedSegment.contributors.slice(0, 4) as contributor (selectedSegment.id + contributor.id)}
+                        <div class="flex items-center justify-between gap-3 rounded-xl bg-paper-100 px-3 py-2">
+                          <div class="flex items-center gap-2">
+                            <span class="inline-block h-2.5 w-2.5 rounded-full" style={`background: ${roleColor(contributor.label)};`}></span>
+                            <span>{contributor.label}</span>
+                          </div>
+                          <div class="font-mono text-xs text-ink-800/70">
+                            {contributor.mass.toFixed(0)} {model.lens.units} / {contributor.eventCount} ev
+                          </div>
+                        </div>
+                      {/each}
+                    {:else}
+                      <div class="rounded-xl bg-paper-100 px-3 py-2 text-ink-800/65">No contributors for this segment.</div>
+                    {/if}
+                  </div>
+                </div>
+
+                <div>
+                  <div class="text-xs uppercase tracking-[0.18em] text-ink-800/55">Anchored Threads</div>
+                  <div class="mt-2 space-y-2">
+                    {#if selectedSegment.threads.length}
+                      {#each selectedSegment.threads as thread (thread.id)}
+                        <div class="rounded-xl bg-paper-100 px-3 py-2 text-sm text-ink-950/80">
+                          <div class="font-medium text-ink-950">{thread.label}</div>
+                          <div class="mt-1 font-mono text-xs text-ink-800/70">
+                            {thread.event_count} ev
+                            {#if thread.mass > 0}
+                              <span class="mx-2 text-ink-800/45">|</span>
+                              {thread.mass.toFixed(0)} {model.lens.units}
+                            {/if}
+                          </div>
+                        </div>
+                      {/each}
+                    {:else}
+                      <div class="rounded-xl bg-paper-100 px-3 py-2 text-ink-800/65">No anchored thread/source callouts for this segment.</div>
+                    {/if}
+                  </div>
+                </div>
+              </div>
+            {/if}
+          </article>
         </div>
-        <div class="mt-2 text-[11px] text-ink-800/60">
-          Layout note: mass is conserved by width; hour markers are meaningful only via hover tooltip.
+
+        <div class="rounded-2xl border border-ink-950/10 bg-white p-4">
+          <div class="text-xs uppercase tracking-[0.24em] text-ink-800/55">Segment Table</div>
+          <div class="mt-3 overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead class="text-left text-ink-800/55">
+                <tr>
+                  <th class="px-3 py-2 font-medium">Hour</th>
+                  <th class="px-3 py-2 font-medium">Mass</th>
+                  <th class="px-3 py-2 font-medium">Width</th>
+                  <th class="px-3 py-2 font-medium">Events</th>
+                  <th class="px-3 py-2 font-medium">Top detail</th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each model.segments as segment (segment.id)}
+                  <tr class={`border-t border-ink-950/8 ${selectedSegmentId === segment.id ? 'bg-paper-100' : ''}`}>
+                    <td class="px-3 py-2">
+                      <button type="button" class="font-mono hover:underline" on:click={() => selectSegment(segment.id)}>
+                        {segment.label}
+                      </button>
+                    </td>
+                    <td class="px-3 py-2 font-mono">{segment.mass.toFixed(0)} {model.lens.units}</td>
+                    <td class="px-3 py-2 font-mono">{pct(segment.width_norm)}</td>
+                    <td class="px-3 py-2 font-mono">{segment.event_count}</td>
+                    <td class="px-3 py-2 text-ink-800/70">{segment.top_detail.join(' | ')}</td>
+                  </tr>
+                {/each}
+              </tbody>
+            </table>
+          </div>
         </div>
       {/if}
     </div>

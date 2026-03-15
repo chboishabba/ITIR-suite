@@ -71,6 +71,29 @@ test('LayeredGraph keeps dashed Source/Lens line style but gates it for performa
   assert.ok(s.includes('DASH_EVIDENCE_LIMIT'));
  });
 
+test('timeline ribbon workbench is distinct from step-ribbon and wires the ribbon UI contract', () => {
+  const home = read('src/routes/+page.svelte');
+  const page = read('src/routes/graphs/timeline-ribbon/+page.svelte');
+  const server = read('src/routes/graphs/timeline-ribbon/+page.server.ts');
+  const ribbon = read('src/lib/sb-dashboard/components/TimelineRibbonLite.svelte');
+  const adapter = read('src/lib/sb-dashboard/adapters/ribbon.ts');
+  assert.ok(home.includes('/graphs/timeline-ribbon'));
+  assert.ok(page.includes('Timeline Ribbon Workbench'));
+  assert.ok(page.includes('This keeps conserved-allocation ribbon behavior separate from AAO step-ribbon graph placement.'));
+  assert.ok(server.includes('buildTimelinePayload'));
+  assert.ok(server.includes('query_dashboard_db.py'));
+  assert.ok(server.includes('timeline'));
+  assert.ok(ribbon.includes('data-testid="ribbon-viewport"'));
+  assert.ok(ribbon.includes('data-testid="conservation-badge"'));
+  assert.ok(ribbon.includes('data-testid="segment"'));
+  assert.ok(ribbon.includes('data-testid="lens-switcher"'));
+  assert.ok(ribbon.includes('data-testid={`lens-item:${item.id}`}'));
+  assert.ok(ribbon.includes('data-testid="compare-overlay"'));
+  assert.ok(adapter.includes("export type RibbonLensId = 'chat_chars' | 'chat_events' | 'events';"));
+  assert.ok(adapter.includes('width_norm'));
+  assert.ok(adapter.includes('threads: RibbonThreadCallout[]'));
+});
+
 test('mission lens workbench uses fused bipartite plus layered mission graph', () => {
   const s = read('src/routes/graphs/mission-lens/+page.svelte');
   assert.ok(s.includes('BipartiteGraph'));
@@ -220,4 +243,30 @@ test('graphs catch-all route redirects canonical chat-archive graph refs to the 
   assert.ok(server.includes("friendlyjordies_thread_extract"));
   assert.ok(server.includes('/graphs/narrative-compare?fixture='));
   assert.ok(server.includes("'/graphs/narrative-compare'"));
+});
+
+test('fact review workbench route loads persisted workbench and acceptance payloads', () => {
+  const server = read('src/routes/graphs/fact-review/+page.server.ts');
+  const page = read('src/routes/graphs/fact-review/+page.svelte');
+  const loader = read('src/lib/server/factReview.ts');
+  const home = read('src/routes/+page.svelte');
+  assert.ok(server.includes('loadFactReviewWorkbench'));
+  assert.ok(server.includes('loadFactReviewAcceptance'));
+  assert.ok(server.includes("url.searchParams.get('workflow')"));
+  assert.ok(server.includes("url.searchParams.get('wave')"));
+  assert.ok(loader.includes('query_fact_review.py'));
+  assert.ok(loader.includes("'workbench'"));
+  assert.ok(loader.includes("'acceptance'"));
+  assert.ok(loader.includes("'sources'"));
+  assert.ok(page.includes('Fact Review Workbench'));
+  assert.ok(page.includes('Read-only Mary-parity inspection'));
+  assert.ok(page.includes('Operator views'));
+  assert.ok(page.includes('Story acceptance'));
+  assert.ok(page.includes('Recent sources'));
+  assert.ok(page.includes('Approximate chronology'));
+  assert.ok(page.includes('Observation signals:'));
+  assert.ok(page.includes('Source provenance:'));
+  assert.ok(page.includes('Inspector'));
+  assert.ok(page.includes('chronology_groups'));
+  assert.ok(home.includes('Mary-parity fact review workbench'));
 });

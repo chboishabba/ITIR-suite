@@ -3,6 +3,13 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Graphs/timeline ribbon: add `/graphs/timeline-ribbon` as a dedicated
+  workbench over the SB dashboard timeline payload and upgrade the dashboard
+  ribbon strip to a contract-aware conserved-allocation surface. The first
+  slice derives hourly segments client-side from `payload.timeline`, exposes
+  conservation badge + `data-testid` hooks (`ribbon-viewport`, `segment`,
+  `conservation-badge`, `lens-switcher`, optional `compare-overlay`), and keeps
+  thread/source callouts explicitly separate from mass-carrying segment widths.
 - Graphs/workbench state contract: route loaders for `/arguments/thread/[threadId]`,
   `/graphs/narrative-compare`, and `/graphs/wiki-revision-contested` now emit
   explicit `stateReason` telemetry so page state is server-owned instead of

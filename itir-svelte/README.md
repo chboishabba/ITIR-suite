@@ -4,6 +4,22 @@ SvelteKit + Tailwind implementation workspace for ITIR-suite UIs.
 
 Initial focus: StatiBaker dashboard componentization.
 
+## Ribbon Ownership
+
+`itir-svelte` is the active UI/dev front for ribbon work.
+
+- `itir-ribbon/` remains the contract/spec package:
+  invariants, lens DSL, phase-regime packs, and UI-test selectors.
+- `itir-svelte/` is where richer ribbon surfaces should be implemented and
+  iterated.
+- The existing `step-ribbon` wiki graph mode is a deterministic AAO layout
+  transform, not the full conserved-allocation ribbon UI.
+
+When implementing or extending ribbon views here, align with:
+- `SensibLaw/docs/timeline_ribbon.md`
+- `itir-ribbon/docs/interfaces.md`
+- `itir-ribbon/ui_contract.md`
+
 ## Migration Docs
 
 Use these as the current docs baseline for SB legacy -> Svelte transition:
@@ -146,6 +162,8 @@ Workbench characteristics:
 
 Current examples:
 - `/viewers/hca-case`: transcript + document viewer workbench
+- `/graphs/timeline-ribbon`: conserved-allocation ribbon workbench over SB
+  dashboard timeline payloads
 - `/graphs/semantic-report`: semantic report workbench for graph + token-arc
   debugging
 - `/graphs/mission-lens`: fused actual-vs-should mission workbench over ITIR

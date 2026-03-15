@@ -38,6 +38,35 @@
 - [P2] Important but deferrable
 - [P3] Nice-to-have / polish
 
+- [P1] Shared SL reducer adoption across products:
+  - use `sensiblaw.interfaces.shared_reducer` as the supported cross-product
+    lexer/reducer API
+  - migrate first real runtime consumer paths in SB, TiRC, and ITIR-facing UI
+    from doc-only boundary assumptions to adapter-backed canonical refs
+  - keep any local tokenizer/indexing heuristics explicitly non-canonical
+  - add cross-product guard tests so no product imports SL tokenizer internals
+    directly for runtime integration
+  - make adapter-produced tokenizer profile / canonical refs visible in
+    receipts, overlays, or read models where cross-product preservation matters
+- [P2] SensibLaw x Glasslane / Mirror packaging slice:
+  - use chat thread `Aptos cryptocurrency overview`
+    (`691ac8a3-4a30-8320-bd5f-f66efc3145e7`,
+    canonical `dff5b29b89818300e7e352c0247c4cef3823bcfd`) as the current
+    product-positioning source
+  - package SensibLaw/TiRC for Mirror as the missing `human risk layer` rather
+    than as a competing crypto research assistant
+  - draft product-facing materials for:
+    - `Crypto Consumer Harm Observatory (CCHO)`
+    - `Risk & Behavioural Pattern Analytics` for exchanges/wallets
+    - `High-Trust Explainability Layer` for boards/regulators
+  - define the minimum reusable Ribbon stream-layer surface for this pitch:
+    - Ribbon remains the named operator-facing surface / embed target
+    - stream types for finance, conversation, obligation, and other
+      timeline-aligned conserved/derived signals feed Ribbon
+    - change-point / pattern-event outputs
+    - provenance-safe API/export surfaces for partner embedding
+  - keep crypto/regtech positioning focused on provenance, guardrails, and
+    explainable pattern detection instead of generic market commentary
 - [P1] Mary-parity fact-management roadmap (new top SL-facing priority):
   - use `docs/planning/mary_parity_roadmap_20260315.md` as the planning source
     for near-term SL execution
@@ -59,10 +88,75 @@
   - immediate scaffold followthrough:
     - add canonical `ObservationRecord` storage/reporting between statements and
       facts
+    - add deterministic `EventCandidate` assembly over observations with
+      evidence/attribute tables
+    - formalize structural IDs vs run IDs so execution context never rewrites
+      content identity
+    - make abstention explicit in fact/observation/event status handling rather
+      than relying on row absence
     - keep the first predicate catalog small and stable rather than trying to
       encode the whole law at intake time
     - compare/align this lane against existing projection-style observation
       types (`CaseObservation`, `ActionObservation`, `DecisionObservation`)
+    - keep events derived and reconstructable from observation evidence rather
+      than treating them as a new canonical truth layer
+    - keep language/jurisdiction variation in normalization packs and concept
+      mappings rather than branching assembler logic
+  - user-story-informed next slice:
+    - expand Mary-parity operator pressure against
+      `docs/user_stories.md`
+    - use
+      `docs/planning/mary_parity_user_story_acceptance_matrix_20260315.md`
+      as the acceptance matrix for transcript/AU fact-review work
+    - use
+      `docs/planning/mary_parity_gap_analysis_20260315.md`
+      to prioritize:
+      1. richer review queue reasons and contested/chronology triage
+      2. source workflow run -> fact-review run reopen mapping
+      3. widened legal/procedural observation visibility
+  - DONE in current loop:
+    - add role-meaningful review queue reasons
+      (`missing_date`, `missing_actor`, `contradictory_chronology`,
+      `statement_only_fact`, `procedural_significance`, `source_conflict`)
+    - add source-label-centric listing and latest reopen/query support for
+      persisted fact-review runs
+    - add bounded operator views (`intake_triage`, `chronology_prep`,
+      `procedural_posture`, `contested_items`)
+    - add story-driven acceptance reports over persisted runs
+    - add a thin read-only fact-review workbench in `itir-svelte`
+      (`/graphs/fact-review`) over the same persisted contract
+  - next parity pressure:
+    - DONE: add a canonical Wave 1 legal fixture manifest plus batch acceptance
+      runner over transcript/AU persisted runs
+    - DONE: tighten workbench/operator surfaces with grouped issue filters,
+      source-centric reopen navigation, and dated/approximate/undated
+      chronology separation
+    - tighten role-specific pass/partial/fail gaps exposed by the new Wave 1
+      batch report before moving to claim/theory layers
+    - explicitly add fixture families for:
+      - contested Wikipedia/Wikidata/public-figure moderation
+      - lawyer/public-knowledge legality assessment (including GWB and Trump
+        style lanes, with proven-illegal, legally dubious, and clearly
+        authorized comparisons where possible)
+      - family-law / child-sensitive / cross-side handoff
+      - medical-negligence / professional-discipline overlap
+      - personal-to-professional handoff and anti-AI-psychosis resistance
+    - DONE: green the explicit acceptance-wave program through:
+      - `wave1_legal`
+      - `wave2_balanced`
+      - `wave3_trauma_advocacy`
+      - `wave3_public_knowledge`
+      - `wave4_family_law`
+      - `wave4_medical_regulatory`
+      - `wave5_handoff_false_coherence`
+    - next parity audit priority:
+      - broaden real-fixture depth for waves that remain synthetic-heavy,
+        especially:
+        - `wave3_public_knowledge`
+        - `wave4_family_law`
+        - `wave4_medical_regulatory`
+      - run an operator/workbench/export polish audit over the green waves
+        before adding another major semantic family
   - after parity substrate is credible, fold back into:
     - explicit Observation / Claim contracts
     - deterministic `source/excerpt -> observation -> event/fact -> norm -> claim`

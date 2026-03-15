@@ -136,6 +136,9 @@
 4. Define and implement the minimum parity substrate:
    - source/excerpt/statement capture
    - explicit text-grounded observations with a small stable predicate catalog
+   - deterministic event-candidate assembly over observations
+   - explicit abstention/status handling and clean structural-identity vs run
+     metadata separation
    - chronology over captured facts/statements
    - contestable fact/claim handling
    - review/curation surfaces
@@ -144,3 +147,57 @@
    parity substrate is credible.
 6. Treat existing projection-style observation types as adjacent downstream
    views, not substitutes for the canonical fact-intake observation seam.
+7. Use the expanded role stories in `docs/user_stories.md` plus:
+   - `docs/planning/mary_parity_user_story_acceptance_matrix_20260315.md`
+   - `docs/planning/mary_parity_gap_analysis_20260315.md`
+   as the checkpoint discipline for the next implementation loop.
+8. Prioritize the resumed loop as:
+   - richer review queue reasons and contested/chronology triage
+   - source workflow run -> fact-review run reopen ergonomics
+   - widened legal/procedural observation visibility
+9. Add the next Mary-parity operator slice:
+   - story-driven acceptance reports over persisted fact-review runs
+   - source-label-centric listing/reopen helpers
+   - bounded operator views for intake/chronology/procedure/contestation
+   - a thin read-only `itir-svelte` fact-review workbench over the same
+     persisted contract
+10. Expand the Mary-parity fixture/acceptance family beyond transcript/AU-only
+    pressure:
+   - contested Wikipedia/Wikidata moderation and public-figure legality lanes
+   - family-law / child-sensitive / cross-side handoff lanes
+   - medical-negligence / professional-discipline overlap lanes
+   - personal-to-professional handoff and anti-false-coherence lanes
+11. Keep Wave 1 legal parity explicitly gated by:
+   - the canonical fixture manifest
+   - the batch acceptance runner over transcript/AU persisted runs
+   - pass/partial/fail backlog triage against `SL-US-09` to `SL-US-14`
+12. Use the next implementation loop to close the highest-friction Wave 1 gaps
+    surfaced by that batch report before moving to Wave 2 ITIR parity.
+
+## Milestone T: Mary-Parity Acceptance Expansion (completed)
+1. Greened explicit acceptance gates for:
+   - `wave1_legal`
+   - `wave2_balanced`
+   - `wave3_trauma_advocacy`
+   - `wave3_public_knowledge`
+   - `wave4_family_law`
+   - `wave4_medical_regulatory`
+   - `wave5_handoff_false_coherence`
+2. Added later-wave fixture families for:
+   - contested wiki / Wikidata / public-knowledge moderation
+   - family-law / child-sensitive / cross-side handoff
+   - medical / regulatory review
+   - personal-to-professional handoff
+   - anti-false-coherence / anti-AI-psychosis pressure
+3. Broadened Wave 5 beyond synthetic-only coverage with repo-curated real
+   transcript fixtures.
+
+## Milestone U: Post-Gate Parity Audit (planned)
+1. Use `docs/planning/mary_parity_status_audit_20260315.md` as the next
+   Mary-parity planning baseline.
+2. Broaden real-fixture depth for waves that are still synthetic-heavy.
+3. Audit workbench/export ergonomics across the currently green wave set.
+4. Only then decide whether the next move is:
+   - another real-fixture expansion
+   - operator/workbench polish
+   - or a genuinely new family.
