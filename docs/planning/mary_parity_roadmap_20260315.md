@@ -136,6 +136,26 @@ Interpretation:
 - the next limiting factors are real-fixture breadth and operator/workbench
   polish rather than missing core architecture
 
+## Test → Ingest → Zelph bridge path (Mary-parity lens)
+
+- Test surfaces to keep in the loop:
+  - Wave 1–5 fact-review acceptance suites (transcript/AU + later families)
+  - ingest regression corpus (legal fixtures + GWB/AAO payload parity)
+  - chat-archive context pulls when upstream threads drive positioning
+- Ingest seam (must stay deterministic and provenance-first):
+  - run standard SL ingest paths (fact/observation/event) with explicit
+    abstention/status and run-vs-structural IDs
+  - treat uploaded/chat snippets as partial; fall back to file-search/full-doc
+    lookup before answering or promoting to canonical facts
+  - keep operator review surfaces (fact-review runs) as the gating layer
+- Zelph bridge demo (scope explicitly tiny):
+  - ≤20 facts, deterministic, legally meaningful negligence slice
+  - source: ingested/curated fact graph from the acceptance substrates above
+  - output: minimal SL -> Zelph handoff that shows immediate reasoning on the
+    SL fact graph without live LLMs
+  - positioning: SL upstream fact construction + provenance; Zelph downstream
+    reasoning; avoid framing as dependency
+
 ## Current in-flight work that already fits
 
 - reviewed ontology bridge / external-ref prepopulation

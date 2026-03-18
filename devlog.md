@@ -130,6 +130,10 @@
   repo context layer as well as the sync helper layer.
 - Updated `TODO.md` to reflect the full-conversation archive pass and the
   sharpened SL boundary notes.
+- Added a “Test → Ingest → Zelph bridge path” section to
+  `docs/planning/mary_parity_roadmap_20260315.md` so Mary-parity execution keeps
+  the Wave acceptance suites, deterministic ingest, and the tiny SL -> Zelph
+  demo aligned.
 - No code changes were needed for this turn; the work was docs/context only.
 
 ## 2026-03-14
