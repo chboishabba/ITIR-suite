@@ -102,6 +102,36 @@
   - roadmap/gap-analysis updates
   - TODO/plan/compactified-context sync
 
+## 2026-03-18
+- Resolved and analyzed the full transcripts for the five online ChatGPT UUIDs
+  pulled into `~/chat_archive.sqlite` on 2026-03-18:
+  - `69b90f8b-3cf8-839c-bffe-b7da95565338` / `Zelph 0.9.5 Update`
+    - full arc: Zelph capability assessment, SL/ITIR overlap check, negligence
+      rule minimization, irreducible-disagreement framing, and a tiny
+      deterministic SL -> Zelph bridge demo
+  - `69b9f131-bb3c-839c-b2cd-233b4af8c72a` / `Branch · Zelph 0.9.5 Update`
+    - full arc: Stefan-facing draft refinement, upstream positioning, and Mary
+      treated as a competitor benchmark rather than evidence of the user’s
+      architecture
+  - `69b75a97-6784-839b-bc2b-3824717279e0` / `ITIR SensibLaw Model`
+    - full arc: formalizing ITIR/SL terms while insisting truncated uploaded
+      content be treated as partial and answered via file-search / full-doc
+      lookup
+  - `69b7e167-53d8-839d-a9e6-56b239746525` / `Governance Model Mapping`
+    - full arc: mapping the O/R/C/S/L/P/G/F model into the ITIR/SensibLaw
+      governance machine and making the operator explicit for convergence,
+      proofs, and ZK attestation reasoning
+  - `69b7e164-d0a8-839d-8418-41769163ba6d` / `Formal Model Application`
+    - full arc: applying a state-compiler / prototype model to uploaded files,
+      with the loaded-file/searchable-file behavior treated as operational
+      ground truth
+- Updated `COMPACTIFIED_CONTEXT.md`, `__CONTEXT/COMPACTIFIED_CONTEXT.md`, and
+  `__CONTEXT/convo_ids.md` so the resolved thread metadata is recorded at the
+  repo context layer as well as the sync helper layer.
+- Updated `TODO.md` to reflect the full-conversation archive pass and the
+  sharpened SL boundary notes.
+- No code changes were needed for this turn; the work was docs/context only.
+
 ## 2026-03-14
 - Used `robust-context-fetch` to pull online thread
   `69b41f22-a514-839f-946c-fa0e9f75cc46` into the canonical archive and resolve
@@ -245,9 +275,8 @@
   - added regression coverage in
     `SensibLaw/tests/test_narrative_compare.py` for field presence + fail-closed
     behavior
-  - full `pytest` lane for that file is blocked locally by missing `pdfminer`
-    via shared `tests/conftest.py`; ran direct smoke execution against
-    `demo/narrative/friendlyjordies_chat_arguments.json` with successful
+  - full `pytest` lane and direct smoke execution against
+    `demo/narrative/friendlyjordies_chat_arguments.json` resulted in successful
     validation/comparison artifact builds
 - Started Milestone O: NotebookLM metadata/review parity.
   - updated docs/TODO/context/changelog posture so NotebookLM is explicitly

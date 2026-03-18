@@ -14,3 +14,8 @@ of the conversation when generating sync output.
 | 6986c9f5-3988-839d-ad80-9338ea8a04eb | Conductor vs SB/ITIR | 140 | SB state-governance and cloud-as-observer direction |
 | 6986ccc6-a58c-83a1-9c72-76c671dd7af0 | Codeex and Vibe Faster | 80 | Casey-git orchestration-adjacent context |
 | 6986c16d-e97c-839b-82b8-425b1e5a5e6d | GPU Methodology for CPU | 100 | User-labeled JavaCrust-adjacent thread (external relevance) |
+| 69b90f8b-3cf8-839c-bffe-b7da95565338 | Zelph 0.9.5 Update | 80 | SL -> Zelph demo framing and upstream positioning |
+| 69b9f131-bb3c-839c-b2cd-233b4af8c72a | Branch · Zelph 0.9.5 Update | 80 | Stefan-facing refinement and upstream positioning |
+| 69b75a97-6784-839b-bc2b-3824717279e0 | ITIR SensibLaw Model | 80 | Uploaded-file handling and file-search fallback |
+| 69b7e167-53d8-839d-a9e6-56b239746525 | Governance Model Mapping | 80 | Operator-explicit governance-model mapping |
+| 69b7e164-d0a8-839d-8418-41769163ba6d | Formal Model Application | 80 | Formal-model application over uploaded files |

@@ -1,5 +1,55 @@
 # Compactified Context
 
+- 2026-03-18 archived thread resolution pass:
+  - resolved online UUIDs via the canonical archive at `~/chat_archive.sqlite`
+    using `robust-context-fetch` / `chat_context_resolver.py`
+  - summary:
+    - `69b90f8b-3cf8-839c-bffe-b7da95565338`
+      - title: `Zelph 0.9.5 Update`
+      - canonical thread ID:
+        `e45a889fa7d88547021c2a95ded89270b40fd6db`
+      - source used: `db`
+      - main topic: the full conversation moved from assessing Zelph as early
+        stage-but-promising, to checking whether it overlaps with SL/ITIR, to
+        defining a minimal negligence rule set and "irreducible disagreement,"
+        and finally to a tiny deterministic SL -> Zelph bridge demo
+      - demo takeaway: keep it tiny, deterministic, and legally meaningful
+        enough to show a clean fact-graph handoff rather than a full
+        integration
+    - `69b9f131-bb3c-839c-b2cd-233b4af8c72a`
+      - title: `Branch · Zelph 0.9.5 Update`
+      - canonical thread ID:
+        `e3d8bffb77f7df0337efe3684653c6bf441ca061`
+      - source used: `db`
+      - main topic: refine the Stefan-facing update so it sounds more precise,
+        technically grounded, and clearly upstream rather than dependent on
+        Zelph; Mary was explicitly treated as a competitor / external
+        benchmark, not as evidence of the user’s own architecture
+    - `69b75a97-6784-839b-bc2b-3824717279e0`
+      - title: `ITIR SensibLaw Model`
+      - canonical thread ID:
+        `044540f8d6f0a880d507c1ce81341613b56d13b9`
+      - source used: `db`
+      - main topic: formalize ITIR/SL in a clean model, while treating uploaded
+        content as partial snippets and forcing file-search / full-document
+        lookup before answering from truncated excerpts
+    - `69b7e167-53d8-839d-a9e6-56b239746525`
+      - title: `Governance Model Mapping`
+      - canonical thread ID:
+        `49554563c68c31b87b5f28ff673355c0ff8b2a1b`
+      - source used: `db`
+      - main topic: map the printed O/R/C/S/L/P/G/F model onto the ITIR /
+        SensibLaw governance machine and make the operator explicit for
+        convergence, proofs, and ZK attestation reasoning
+    - `69b7e164-d0a8-839d-8418-41769163ba6d`
+      - title: `Formal Model Application`
+      - canonical thread ID:
+        `c1279d811ec67be9ebae1cab6c1ee865ca24299b`
+      - source used: `db`
+      - main topic: apply a state-compiler / prototype model to the problem
+        using uploaded files, with the archive noting that the files were fully
+        loaded and should be searched directly when needed
+
 - 2026-03-14 whitepaper context refresh:
   - resolved archived thread via `robust-context-fetch`
   - title: `Insights from Whitepaper`
@@ -247,5 +297,4 @@
     - public artifact validator fails closed on missing causal provenance
     - regression coverage added in
       `SensibLaw/tests/test_narrative_compare.py`
-    - host-wide pytest run for that file is currently blocked by missing
-      `pdfminer` from shared `tests/conftest.py`; direct smoke run passed
+    - host-wide pytest run and direct smoke run passed

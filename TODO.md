@@ -1,7 +1,7 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-03-14
+- 2026-03-18
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
@@ -70,6 +70,17 @@
 - [P1] Mary-parity fact-management roadmap (new top SL-facing priority):
   - use `docs/planning/mary_parity_roadmap_20260315.md` as the planning source
     for near-term SL execution
+  - archived context inputs resolved on 2026-03-18:
+    - `69b90f8b-3cf8-839c-bffe-b7da95565338` / `Zelph 0.9.5 Update`
+      -> tiny deterministic SL -> Zelph bridge demo
+    - `69b9f131-bb3c-839c-b2cd-233b4af8c72a` / `Branch · Zelph 0.9.5 Update`
+      -> Stefan-facing upstream-positioning refinement
+    - `69b75a97-6784-839b-bc2b-3824717279e0` / `ITIR SensibLaw Model`
+      -> formalization plus file-search fallback for partial snippets
+    - `69b7e167-53d8-839d-a9e6-56b239746525` / `Governance Model Mapping`
+      -> explicit operator mapping for convergence/proof/ZK reasoning
+    - `69b7e164-d0a8-839d-8418-41769163ba6d` / `Formal Model Application`
+      -> state-compiler / prototype application over uploaded files
   - treat Mary Technology as the benchmark for:
     - fact management
     - chronology / timeline handling
@@ -178,6 +189,11 @@
 - [P1] SL observation + case-construction followthrough:
   - note: now explicitly phase-two after Mary-parity fact-layer work, not the
     first user-facing SL milestone
+  - the 2026-03-18 archive pass sharpened the implementation boundary:
+    - keep uploaded-file handling explicitly partial and file-search backed
+    - keep the governance/proof operator explicit rather than implicit
+    - frame the bridge work as a compact demo or state-compiler prototype,
+      not a full Zelph integration
   - use `docs/planning/sl_whitepaper_followthrough_20260314.md` as the
     planning source for the next SL-facing architecture/spec pass
   - ratify explicit `Observation` and `Claim` contracts before adding more

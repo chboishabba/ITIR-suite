@@ -1,5 +1,39 @@
 # Compactified Context (ITIR-suite)
 
+## 2026-03-18
+- Resolved five online ChatGPT UUIDs through the canonical archive at
+  `~/chat_archive.sqlite` using `robust-context-fetch` / `chat_context_resolver.py`.
+- Recorded the resolved thread metadata for downstream context sync:
+  - `69b90f8b-3cf8-839c-bffe-b7da95565338`
+    - title: `Zelph 0.9.5 Update`
+    - canonical thread ID: `e45a889fa7d88547021c2a95ded89270b40fd6db`
+    - source: `db`
+    - topic: full arc from Zelph capability assessment to a tiny deterministic
+      SL -> Zelph bridge demo
+  - `69b9f131-bb3c-839c-b2cd-233b4af8c72a`
+    - title: `Branch · Zelph 0.9.5 Update`
+    - canonical thread ID: `e3d8bffb77f7df0337efe3684653c6bf441ca061`
+    - source: `db`
+    - topic: Stefan-facing update refinement and upstream positioning, with
+      Mary treated as a competitor benchmark
+  - `69b75a97-6784-839b-bc2b-3824717279e0`
+    - title: `ITIR SensibLaw Model`
+    - canonical thread ID: `044540f8d6f0a880d507c1ce81341613b56d13b9`
+    - source: `db`
+    - topic: ITIR/SL formalization plus uploaded-file handling and
+      file-search fallback for partial snippets
+  - `69b7e167-53d8-839d-a9e6-56b239746525`
+    - title: `Governance Model Mapping`
+    - canonical thread ID: `49554563c68c31b87b5f28ff673355c0ff8b2a1b`
+    - source: `db`
+    - topic: operator-explicit mapping of the governance model into the
+      ITIR/SensibLaw machine
+  - `69b7e164-d0a8-839d-8418-41769163ba6d`
+    - title: `Formal Model Application`
+    - canonical thread ID: `c1279d811ec67be9ebae1cab6c1ee865ca24299b`
+    - source: `db`
+    - topic: state-compiler / prototype application over uploaded files
+
 ## 2026-03-06
 - Aligned priority execution sequencing for lexeme layer, tokenizer migration,
   compression engine followthrough, Wikidata projection, and GWB/AAO pipelines.
