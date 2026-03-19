@@ -6,6 +6,40 @@ Standalone superposition-style versioning prototype.
 Prototype coexistence-first conflict handling where divergent file edits can
 persist as candidates until explicitly collapsed.
 
+## Core Model
+- Per-path candidate lattice, not a single mutable file state.
+- Workspace view as explicit selection over candidates, not a fixed checkout.
+- Conflict collapse as a deliberate governance action, not an implicit merge.
+- Immutable build snapshots as deterministic projections of a chosen view.
+
+## Local Testbed
+- Casey now includes a minimal CLI-backed local testbed with a Casey-owned
+  SQLite runtime store.
+- Runtime state is separate from the observer ledgers: the runtime persists
+  mutable tree/workspace/build state for local exercises, while ledger tables
+  remain reference-only surfaces for downstream observers.
+- Intended v1 walkthrough:
+  - initialize runtime
+  - create a second workspace
+  - publish conflicting edits from stale/synced views
+  - inspect tree/workspace state
+  - collapse explicitly
+  - freeze a build snapshot
+
+Example:
+
+```bash
+python -m casey_git_clone init --db /tmp/casey.sqlite --workspace alice
+python -m casey_git_clone workspace create --db /tmp/casey.sqlite --workspace bob
+python -m casey_git_clone publish --db /tmp/casey.sqlite --workspace alice --path src/main.c --content "base"
+python -m casey_git_clone sync --db /tmp/casey.sqlite --workspace bob
+python -m casey_git_clone publish --db /tmp/casey.sqlite --workspace alice --path src/main.c --content "alice edit"
+python -m casey_git_clone publish --db /tmp/casey.sqlite --workspace bob --path src/main.c --content "bob edit"
+python -m casey_git_clone show tree --db /tmp/casey.sqlite
+python -m casey_git_clone export --db /tmp/casey.sqlite --workspace alice --json
+python -m casey_git_clone advise --db /tmp/casey.sqlite --workspace alice --json
+```
+
 ## Layout
 - `src/casey_git_clone/`: core model and operation primitives.
 - `tests/`: model and operation tests.
@@ -21,6 +55,12 @@ persist as candidates until explicitly collapsed.
 - The current `casey-git-clone -> StatiBaker` seam is observer-only and
   DB-backed, documented in
   `../docs/planning/casey_git_clone_statiBaker_interface_20260309.md`.
+- The current `casey-git-clone -> fuzzymodo` seam is read-only and advisory,
+  documented in
+  `../docs/planning/casey_fuzzymodo_interface_contract_20260319.md`.
+- The sharpened Casey observer receipt semantics for `StatiBaker` are
+  documented in
+  `../docs/planning/casey_statiBaker_receipt_schema_20260319.md`.
 
 ## Interaction Flow
 1. Publish edits into `Blob` and `FileVersion` objects.
@@ -35,7 +75,12 @@ persist as candidates until explicitly collapsed.
   id).
 - Output channel: tree/workspace state snapshots for UI or CLI tooling.
 - Output channel: build-view manifest for deterministic replay/debug.
-- Output channel: observer-only DB refs for SB overlays/ledgers (planned).
+- Output channel: `casey.facts.v1` read-only export for Casey -> fuzzymodo
+  advisory evaluation.
+- Output channel: `fuzzymodo.casey.advisory.v1` rendered back through Casey
+  CLI without granting collapse authority to fuzzymodo.
+- Output channel: observer-only DB refs for SB overlays/ledgers via Casey
+  receipt builders.
 
 ## Planning Docs
 See `docs/planning/casey-git-clone/`.

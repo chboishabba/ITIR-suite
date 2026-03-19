@@ -1,8 +1,12 @@
 # Compactified Context
 
-- 2026-03-18 archived thread resolution pass:
-  - resolved online UUIDs via the canonical archive at `~/chat_archive.sqlite`
-    using `robust-context-fetch` / `chat_context_resolver.py`
+- 2026-03-19 archived thread resolution pass:
+  - resolved nine online UUIDs using `robust-context-fetch`
+  - canonical source path: `~/chat_archive.sqlite`
+  - write persistence for the newly supplied IDs was blocked during this pass by
+    `sqlite3.OperationalError: database is locked`, so exact archive matches are
+    marked `db` and the remaining titles/topics were captured via live read-only
+    web fetches
   - summary:
     - `69b90f8b-3cf8-839c-bffe-b7da95565338`
       - title: `Zelph 0.9.5 Update`
@@ -49,6 +53,63 @@
       - main topic: apply a state-compiler / prototype model to the problem
         using uploaded files, with the archive noting that the files were fully
         loaded and should be searched directly when needed
+    - `69ba8956-35b8-839b-9707-f8c91c2b02dd`
+      - title: `Ambiguity of "Community"`
+      - online UUID only; canonical thread ID not persisted during this pass
+      - source used: `web`
+      - main topic: `"community"` in legal text is often a normative
+        placeholder rather than a concrete entity, so SL should not expect
+        Wikidata/entity linking to resolve it automatically
+      - design takeaway: keep this lane text-grounded and support unresolved
+        normative-reference handling instead of forcing entity resolution
+    - `69bab27a-cb28-8398-b3ea-940d4fb47772`
+      - title: `Branch · Ambiguity of "Community"`
+      - online UUID only; canonical thread ID not persisted during this pass
+      - source used: `web`
+      - main topic: branch follow-up reinforcing the same ambiguity boundary
+        and the need to preserve underdetermined legal placeholders
+    - `69ba8c55-163c-839d-86b9-6c366a8dc29a`
+      - title: `Formal Model to Engine`
+      - online UUID only; canonical thread ID not persisted during this pass
+      - source used: `web`
+      - main topic: map the O/R/C/S/L/P/G/F-style formal model directly onto
+        the ingest / lexer / compression engine so organization, demand, code,
+        state, lattice, proposal, and gap remain explicit in that pipeline
+    - `69b7eb5b-0c78-839d-9012-a484905fdf0c`
+      - title: `Model Mapping to Casey`
+      - online UUID only; canonical thread ID not persisted during this pass
+      - source used: `web`
+      - main topic: map the same formal model onto Casey with
+        `TreeState + WorkspaceView` as state, the per-path candidate set as the
+        lattice, collapse as explicit governance, and divergence as a first
+        class measurable gap
+    - `69b89b50-5554-839d-b9cf-f50f6eab3b8b`
+      - title: `Debugging UX in Games`
+      - online UUID only; canonical thread ID not persisted during this pass
+      - source used: `web`
+      - main topic: stream/debugging isolation discussion; recorded for
+        completeness but not treated as a current repo-facing planning input
+    - `69ba3af2-5df8-839b-bd8a-7c865be0b052`
+      - title: `Casey Git Clone Differences`
+      - online UUID only; canonical thread ID not persisted during this pass
+      - source used: `web`
+      - main topic: concise Casey differentiators: superposition instead of
+        snapshots, conflicts as valid state, explicit collapse, workspace as
+        selection over candidates, and immutable build projections
+- 2026-03-19 ITIR surface-boundary followthrough:
+  - source: current working turn
+  - main decision:
+    - `SL` owns representation/compression
+    - `casey-git-clone` owns mutable possibility state and operational
+      collapse/build authority
+    - `fuzzymodo` owns read-only reasoning over exported Casey state
+    - `StatiBaker` owns observer-only governance memory and alignment judgment
+  - documentation artifacts added:
+    - `docs/planning/casey_fuzzymodo_interface_contract_20260319.md`
+    - `docs/planning/casey_statiBaker_receipt_schema_20260319.md`
+  - immediate implementation priority:
+    - implement Casey -> fuzzymodo as the next boundary
+    - then implement the sharpened Casey -> StatiBaker receipt seam
 
 - 2026-03-14 whitepaper context refresh:
   - resolved archived thread via `robust-context-fetch`
@@ -291,10 +352,26 @@
     machine `mechanical_should_flags`, explicit fold `loss_profile`, and
     anti-nudge red-team tests.
   - DONE: `A3` causal claim-link provenance gates in
-    `SensibLaw/src/reporting/narrative_compare.py`:
+      `SensibLaw/src/reporting/narrative_compare.py`:
     - `supports`/`undermines` now emit required
       `link_type`, `confidence`, `counter_hypothesis_ref`
     - public artifact validator fails closed on missing causal provenance
     - regression coverage added in
       `SensibLaw/tests/test_narrative_compare.py`
     - host-wide pytest run and direct smoke run passed
+  - DONE: additive fact-intake semantic normalization in `SensibLaw`
+    - raw source/excerpt/statement/observation/fact/event tables remain the
+      canonical observed layer
+    - new sidecar semantic tables persist:
+      - controlled classifications
+      - inference results
+      - cross-entity relations
+      - policy outcomes
+      - semantic refresh receipts
+    - `persist_fact_intake_payload(...)` now dual-writes semantic
+      materialization for new runs
+    - `scripts/backfill_fact_semantics.py` rebuilds normalized semantics for
+      existing runs without migration-time auto-backfill
+    - review summary/workbench now prefer normalized semantic rows and only
+      fall back to legacy derivation for non-materialized runs
+    - lexical Zelph graphs remain derived/materialized, not OLTP-normalized

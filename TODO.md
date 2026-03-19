@@ -81,6 +81,19 @@
       -> explicit operator mapping for convergence/proof/ZK reasoning
     - `69b7e164-d0a8-839d-8418-41769163ba6d` / `Formal Model Application`
       -> state-compiler / prototype application over uploaded files
+    - `69ba8956-35b8-839b-9707-f8c91c2b02dd` /
+      `Ambiguity of "Community"`
+      -> treat legal placeholders like `community` as unresolved
+         normative-reference surfaces, not assumed KB entities
+    - `69ba8c55-163c-839d-86b9-6c366a8dc29a` /
+      `Formal Model to Engine`
+      -> keep ingest/lexer/compression state/lattice/gap roles explicit
+    - `69b7eb5b-0c78-839d-9012-a484905fdf0c` / `Model Mapping to Casey`
+      -> keep Casey state/lattice/governance boundaries explicit
+    - `69ba3af2-5df8-839b-bd8a-7c865be0b052` /
+      `Casey Git Clone Differences`
+      -> emphasize candidate lattice, explicit collapse, workspace selection,
+         and immutable build projections in Casey-facing docs/adapters
   - treat Mary Technology as the benchmark for:
     - fact management
     - chronology / timeline handling
@@ -206,6 +219,9 @@
     after the observation seam is explicit
   - add a bounded typed-transition receipt design for
     `state + observation + norm -> updated state`
+  - keep unresolved normative placeholders (for example `community`) as
+    text-grounded observation/norm-reference surfaces until explicit legal
+    context resolves them; do not force Wikidata/entity identity too early
   - define a narrow Wikidata prepopulation target
     (jurisdictions, courts, legislation, cases/citations, actor identity,
     temporal validity relations) instead of generic triple sync
@@ -469,11 +485,23 @@
 - Implement Casey exchange channels defined in
   `casey-git-clone/docs/interfaces.md`: publish ingress, sync command, collapse
   command, build snapshot egress, and fuzzymodo facts export adapter.
+- Implement the Casey -> fuzzymodo contract from
+  `docs/planning/casey_fuzzymodo_interface_contract_20260319.md`:
+  - export Casey tree/workspace/build state as `casey.facts.v1`
+  - keep candidate multiplicity explicit in the exported path payloads
+  - add fuzzymodo advisory result handling for
+    `fuzzymodo.casey.advisory.v1`
+  - end-to-end tests over the minimal alice/bob Casey testbed
 - Implement the DB-backed `casey-git-clone -> StatiBaker` seam from
   `docs/planning/casey_git_clone_statiBaker_interface_20260309.md`:
   - SB-owned overlay extension tables for `casey_workspace_v1`
   - separate Casey operation/build ledgers with SB reference-only joins
   - end-to-end adapter tests proving SB cannot own mutable candidate graphs
+- Implement the sharpened Casey receipt families from
+  `docs/planning/casey_statiBaker_receipt_schema_20260319.md`:
+  - workspace refs
+  - operation receipts with before/after tree ids
+  - build refs with immutable selection digests/selection refs
 - Implement cross-project channel adapters and validators per
   `docs/planning/project_interfaces.md` for:
   `SensibLaw/`, `SL-reasoner/`, `tircorder-JOBBIE/`, `StatiBaker/`,

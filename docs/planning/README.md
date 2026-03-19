@@ -29,6 +29,7 @@ hashing rules, and fixture samples for implementation scaffolding.
 
 Cross-project SB seam note:
 - `docs/planning/fuzzymodo_statiBaker_interface_20260309.md`
+- `docs/planning/casey_fuzzymodo_interface_contract_20260319.md`
 
 ## Casey Git Clone Pack
 
@@ -37,11 +38,16 @@ Casey-derived superposition VCS planning artifacts live under:
 
 Cross-project SB seam note:
 - `docs/planning/casey_git_clone_statiBaker_interface_20260309.md`
+- `docs/planning/casey_statiBaker_receipt_schema_20260319.md`
 
 ## Project Interface Contracts
 
 Suite-wide interface contract index:
 - `docs/planning/project_interfaces.md`
+
+Background-agent routing and validation:
+- `docs/planning/agent_test_loop.md`
+- `docs/planning/agent_surface_map.json`
 
 ## Narrative Validation / Comparison (2026-03-09)
 

@@ -1,7 +1,7 @@
 # Phase 17: Casey Git Clone - Context
 
 **Gathered:** 2026-02-07
-**Status:** Ready for planning
+**Status:** Updated 2026-03-19
 
 <vision>
 ## How This Should Work
@@ -40,9 +40,23 @@ resolution is deferred until a human or policy chooses a buildable view.
 
 Source thread from local archive: `Git Coordination Debate`
 (`canonical_thread_id: b8800296148a7c14e0b84a152e0c67a2ba32acb0`).
+
+Current local reality:
+- Casey now has a Casey-owned sqlite runtime and minimal CLI-backed testbed.
+- The local alice/bob divergent same-path workflow is test-covered.
+- The next missing work is not more internal Casey theory; it is the two
+  external boundaries:
+  - Casey -> fuzzymodo
+  - Casey -> StatiBaker
+
+Current contract docs:
+- `docs/planning/casey_fuzzymodo_interface_contract_20260319.md`
+- `docs/planning/casey_git_clone_statiBaker_interface_20260309.md`
+- `docs/planning/casey_statiBaker_receipt_schema_20260319.md`
+- `docs/planning/casey-git-clone/sqlite_runtime_decision_20260319.md`
 </notes>
 
 ---
 
 *Phase: 17-casey-git-clone*
-*Context gathered: 2026-02-07*
+*Context gathered: 2026-02-07; refreshed: 2026-03-19*

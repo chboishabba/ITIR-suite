@@ -1,0 +1,410 @@
+{
+  "version": "2026-03-19.agent-surface-map.v1",
+  "purpose": "Machine-readable path-to-surface routing for low-judgment background agents in ITIR-suite.",
+  "report_template_fields": [
+    "scope",
+    "surface_id",
+    "changed_paths",
+    "local_gate",
+    "wider_gate",
+    "result",
+    "blocker",
+    "next"
+  ],
+  "cross_surface_triggers": [
+    {
+      "match": "database/migrations/",
+      "reason": "schema_change"
+    },
+    {
+      "match": "docs/interfaces.md",
+      "reason": "interface_contract_change"
+    },
+    {
+      "match": "docs/planning/",
+      "reason": "planning_or_contract_change"
+    },
+    {
+      "match": "scripts/query_fact_review.py",
+      "reason": "cli_contract_change"
+    },
+    {
+      "match": "scripts/run_fact_semantic_benchmark_matrix.py",
+      "reason": "benchmark_orchestration_change"
+    },
+    {
+      "match": "itir-svelte/src/lib/server/",
+      "reason": "cross_project_server_adapter_change"
+    }
+  ],
+  "projects": [
+    {
+      "project_id": "itir_suite_root",
+      "project_root": ".",
+      "default_role": "control_plane",
+      "surfaces": [
+        {
+          "surface_id": "root_docs_planning",
+          "path_prefixes": [
+            "docs/planning/"
+          ],
+          "surface_kind": "docs_contract",
+          "default_action": "update_docs_and_report",
+          "local_gates": [],
+          "wider_gates": [],
+          "contract_refs": [
+            "docs/planning/project_interfaces.md",
+            "docs/planning/itir_orchestrator.md"
+          ]
+        },
+        {
+          "surface_id": "root_scripts",
+          "path_prefixes": [
+            "scripts/"
+          ],
+          "surface_kind": "orchestration_script",
+          "default_action": "add_or_extend_smoke_test",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite && pytest -q tests"
+          ],
+          "wider_gates": [],
+          "contract_refs": [
+            "docs/planning/project_interfaces.md"
+          ]
+        },
+        {
+          "surface_id": "root_state_files",
+          "path_prefixes": [
+            "plan.md",
+            "status.json",
+            "TODO.md",
+            "COMPACTIFIED_CONTEXT.md"
+          ],
+          "surface_kind": "orchestration_state",
+          "default_action": "update_and_report",
+          "local_gates": [],
+          "wider_gates": []
+        },
+        {
+          "surface_id": "root_tests",
+          "path_prefixes": [
+            "tests/"
+          ],
+          "surface_kind": "root_test_surface",
+          "default_action": "expand_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite && pytest -q tests"
+          ],
+          "wider_gates": []
+        }
+      ]
+    },
+    {
+      "project_id": "sensiblaw",
+      "project_root": "SensibLaw",
+      "default_role": "canonical_ingest_and_review",
+      "surfaces": [
+        {
+          "surface_id": "sl_fact_intake",
+          "path_prefixes": [
+            "SensibLaw/src/fact_intake/",
+            "SensibLaw/src/zelph_bridge.py"
+          ],
+          "surface_kind": "canonical_read_model",
+          "default_action": "expand_unit_and_acceptance_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/python -m pytest -q tests/test_fact_intake_read_model.py",
+            "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/python -m pytest -q tests/test_query_fact_review_script.py"
+          ],
+          "wider_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/python -m pytest -q tests/test_fact_review_acceptance_wave.py"
+          ],
+          "contract_refs": [
+            "SensibLaw/docs/fact_intake_contract.md",
+            "docs/planning/project_interfaces.md"
+          ]
+        },
+        {
+          "surface_id": "sl_schema",
+          "path_prefixes": [
+            "SensibLaw/database/migrations/"
+          ],
+          "surface_kind": "schema",
+          "default_action": "expand_schema_and_read_model_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/python -m pytest -q tests/test_fact_intake_read_model.py",
+            "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/python -m pytest -q tests/test_query_fact_review_script.py"
+          ],
+          "wider_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/python -m pytest -q tests/test_fact_review_acceptance_wave.py"
+          ]
+        },
+        {
+          "surface_id": "sl_query_cli",
+          "path_prefixes": [
+            "SensibLaw/scripts/query_fact_review.py"
+          ],
+          "surface_kind": "operator_cli",
+          "default_action": "expand_cli_regression_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/python -m pytest -q tests/test_query_fact_review_script.py"
+          ],
+          "wider_gates": []
+        },
+        {
+          "surface_id": "sl_acceptance_runner",
+          "path_prefixes": [
+            "SensibLaw/scripts/run_fact_review_acceptance_wave.py"
+          ],
+          "surface_kind": "acceptance_runner",
+          "default_action": "expand_acceptance_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/python -m pytest -q tests/test_fact_review_acceptance_wave.py"
+          ],
+          "wider_gates": []
+        },
+        {
+          "surface_id": "sl_benchmark_scripts",
+          "path_prefixes": [
+            "SensibLaw/scripts/benchmark_fact_semantics.py",
+            "SensibLaw/scripts/run_fact_semantic_benchmark_matrix.py",
+            "SensibLaw/tests/fixtures/fact_semantic_bench/"
+          ],
+          "surface_kind": "benchmark_surface",
+          "default_action": "expand_benchmark_and_corpus_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/python -m pytest -q tests/test_fact_semantic_benchmark_script.py tests/test_fact_semantic_benchmark_matrix_script.py"
+          ],
+          "wider_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/python scripts/run_fact_semantic_benchmark_matrix.py --max-tier 100"
+          ]
+        },
+        {
+          "surface_id": "sl_wiki_public_knowledge",
+          "path_prefixes": [
+            "SensibLaw/src/wiki_timeline/",
+            "SensibLaw/src/behavior_projection/",
+            "SensibLaw/src/gwb_us_law/"
+          ],
+          "surface_kind": "wiki_and_public_knowledge",
+          "default_action": "expand_acceptance_and_fixture_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/python -m pytest -q tests/test_fact_review_acceptance_wave.py"
+          ],
+          "wider_gates": []
+        },
+        {
+          "surface_id": "sl_transcript_au_semantic",
+          "path_prefixes": [
+            "SensibLaw/src/transcript_semantic/",
+            "SensibLaw/src/au_semantic/"
+          ],
+          "surface_kind": "semantic_source_pack",
+          "default_action": "expand_source_specific_regression_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/python -m pytest -q tests/test_fact_intake_read_model.py"
+          ],
+          "wider_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/python -m pytest -q tests/test_fact_review_acceptance_wave.py"
+          ]
+        },
+        {
+          "surface_id": "sl_ui_e2e",
+          "path_prefixes": [
+            "SensibLaw/playwright/tests/",
+            "SensibLaw/ui/",
+            "SensibLaw/sensiblaw_streamlit/"
+          ],
+          "surface_kind": "ui_surface",
+          "default_action": "expand_e2e_or_ui_smoke_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/SensibLaw && npm run test:e2e"
+          ],
+          "wider_gates": []
+        }
+      ]
+    },
+    {
+      "project_id": "itir_svelte",
+      "project_root": "itir-svelte",
+      "default_role": "ui_and_server_adapter",
+      "surfaces": [
+        {
+          "surface_id": "itir_svelte_server_adapters",
+          "path_prefixes": [
+            "itir-svelte/src/lib/server/"
+          ],
+          "surface_kind": "server_adapter",
+          "default_action": "expand_server_adapter_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/itir-svelte && npm test",
+            "cd /home/c/Documents/code/ITIR-suite/itir-svelte && npm run check"
+          ],
+          "wider_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/itir-svelte && npm run build"
+          ],
+          "contract_refs": [
+            "docs/planning/project_interfaces.md",
+            "docs/planning/ui_surface_registry_20260208.md"
+          ]
+        },
+        {
+          "surface_id": "itir_svelte_graph_routes",
+          "path_prefixes": [
+            "itir-svelte/src/routes/graphs/",
+            "itir-svelte/src/lib/workbench/",
+            "itir-svelte/src/lib/semantic/",
+            "itir-svelte/src/lib/viewers/"
+          ],
+          "surface_kind": "ui_graph_surface",
+          "default_action": "expand_route_and_render_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/itir-svelte && npm test",
+            "cd /home/c/Documents/code/ITIR-suite/itir-svelte && npm run check"
+          ],
+          "wider_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/itir-svelte && npm run build"
+          ]
+        }
+      ]
+    },
+    {
+      "project_id": "statibaker",
+      "project_root": "StatiBaker",
+      "default_role": "observer_and_receipt_reporting",
+      "surfaces": [
+        {
+          "surface_id": "statibaker_tests_and_receipts",
+          "path_prefixes": [
+            "StatiBaker/tests/",
+            "StatiBaker/"
+          ],
+          "surface_kind": "observer_reporting",
+          "default_action": "expand_observer_and_receipt_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/StatiBaker && pytest -q"
+          ],
+          "wider_gates": [],
+          "contract_refs": [
+            "docs/planning/fuzzymodo_statiBaker_interface_20260309.md",
+            "docs/planning/casey_git_clone_statiBaker_interface_20260309.md"
+          ]
+        }
+      ]
+    },
+    {
+      "project_id": "sl_reasoner",
+      "project_root": "SL-reasoner",
+      "default_role": "interpretive_layer",
+      "surfaces": [
+        {
+          "surface_id": "sl_reasoner_core",
+          "path_prefixes": [
+            "SL-reasoner/tests/",
+            "SL-reasoner/"
+          ],
+          "surface_kind": "interpretive_logic",
+          "default_action": "expand_non_authoritative_reasoning_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/SL-reasoner && pytest -q tests"
+          ],
+          "wider_gates": []
+        }
+      ]
+    },
+    {
+      "project_id": "tircorder_jobbie",
+      "project_root": "tircorder-JOBBIE",
+      "default_role": "capture_and_handoff",
+      "surfaces": [
+        {
+          "surface_id": "tircorder_capture_handoff",
+          "path_prefixes": [
+            "tircorder-JOBBIE/tests/",
+            "tircorder-JOBBIE/src/tests/",
+            "tircorder-JOBBIE/"
+          ],
+          "surface_kind": "capture_handoff",
+          "default_action": "expand_capture_and_handoff_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/tircorder-JOBBIE && pytest -q tests"
+          ],
+          "wider_gates": [],
+          "contract_refs": [
+            "docs/planning/tirc_sl_context_envelope_promotion_receipts_contract_20260208.md"
+          ]
+        }
+      ]
+    },
+    {
+      "project_id": "whisperx_webui",
+      "project_root": "WhisperX-WebUI",
+      "default_role": "transcription_pipeline",
+      "surfaces": [
+        {
+          "surface_id": "whisperx_backend_and_pipeline",
+          "path_prefixes": [
+            "WhisperX-WebUI/backend/tests/",
+            "WhisperX-WebUI/tests/",
+            "WhisperX-WebUI/backend/",
+            "WhisperX-WebUI/modules/"
+          ],
+          "surface_kind": "pipeline_and_api",
+          "default_action": "expand_backend_or_pipeline_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/WhisperX-WebUI && pytest -q tests backend/tests"
+          ],
+          "wider_gates": [],
+          "notes": [
+            "Use the container-backed environment when GPU/runtime-specific code is touched."
+          ]
+        }
+      ]
+    },
+    {
+      "project_id": "openrecall",
+      "project_root": "openrecall",
+      "default_role": "observer_capture",
+      "surfaces": [
+        {
+          "surface_id": "openrecall_import_and_tests",
+          "path_prefixes": [
+            "openrecall/tests/",
+            "openrecall/"
+          ],
+          "surface_kind": "observer_capture",
+          "default_action": "expand_import_and_observer_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/openrecall && pytest -q tests"
+          ],
+          "wider_gates": [],
+          "notes": [
+            "Preserve the observer-not-authority boundary when reporting findings."
+          ]
+        }
+      ]
+    },
+    {
+      "project_id": "chat_export_structurer",
+      "project_root": "chat-export-structurer",
+      "default_role": "archive_structuring",
+      "surfaces": [
+        {
+          "surface_id": "chat_export_structurer_cli",
+          "path_prefixes": [
+            "chat-export-structurer/"
+          ],
+          "surface_kind": "cli_and_sqlite_archive",
+          "default_action": "expand_cli_smoke_and_archive_coverage",
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite/chat-export-structurer && python -m ingest --help"
+          ],
+          "wider_gates": [],
+          "notes": [
+            "If output feeds SensibLaw or StatiBaker, name the downstream seam in the report."
+          ]
+        }
+      ]
+    }
+  ]
+}

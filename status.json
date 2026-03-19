@@ -6,7 +6,7 @@
   "external_reasoning": "off",
   "tests": "passing",
   "milestones_remaining": 1,
-  "last_action": "Re-resolved whitepaper thread 69b41f22-a514-839f-946c-fa0e9f75cc46 from the canonical archive, extracted Mary-parity as the top SL-facing roadmap priority, added docs/planning/mary_parity_roadmap_20260315.md, and reframed current SL ontology/branch-set work as fact-layer support infrastructure.",
-  "active_milestone": "S",
-  "next_milestone": "R"
+  "last_action": "Updated Casey phase memory and cross-project contracts after shipping the local sqlite runtime + CLI testbed; next priority is Casey -> fuzzymodo export/advisory, then Casey -> StatiBaker observer receipts.",
+  "active_milestone": "17-casey-git-clone",
+  "next_milestone": "casey-boundary-seams"
 }

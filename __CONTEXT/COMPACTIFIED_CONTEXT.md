@@ -1,8 +1,10 @@
 # Compactified Context (ITIR-suite)
 
-## 2026-03-18
-- Resolved five online ChatGPT UUIDs through the canonical archive at
-  `~/chat_archive.sqlite` using `robust-context-fetch` / `chat_context_resolver.py`.
+## 2026-03-19
+- Resolved nine online ChatGPT UUIDs using `robust-context-fetch`.
+- Canonical archive path: `~/chat_archive.sqlite`.
+- Exact DB matches were recorded from the archive; remaining supplied UUIDs were
+  resolved via live read-only fetch because write persistence hit a locked DB.
 - Recorded the resolved thread metadata for downstream context sync:
   - `69b90f8b-3cf8-839c-bffe-b7da95565338`
     - title: `Zelph 0.9.5 Update`
@@ -33,6 +35,53 @@
     - canonical thread ID: `c1279d811ec67be9ebae1cab6c1ee865ca24299b`
     - source: `db`
     - topic: state-compiler / prototype application over uploaded files
+  - `69ba8956-35b8-839b-9707-f8c91c2b02dd`
+    - title: `Ambiguity of "Community"`
+    - canonical thread ID: unresolved during this pass
+    - source: `web`
+    - topic: `"community"` behaves like a legal normative placeholder; do not
+      assume Wikidata/entity linking can resolve it
+  - `69bab27a-cb28-8398-b3ea-940d4fb47772`
+    - title: `Branch · Ambiguity of "Community"`
+    - canonical thread ID: unresolved during this pass
+    - source: `web`
+    - topic: branch confirmation of the same unresolved normative-placeholder
+      boundary
+  - `69ba8c55-163c-839d-86b9-6c366a8dc29a`
+    - title: `Formal Model to Engine`
+    - canonical thread ID: unresolved during this pass
+    - source: `web`
+    - topic: explicit O/R/C/S/L/P/G/F mapping for ingest, lexer, and
+      compression lanes
+  - `69b7eb5b-0c78-839d-9012-a484905fdf0c`
+    - title: `Model Mapping to Casey`
+    - canonical thread ID: unresolved during this pass
+    - source: `web`
+    - topic: Casey state/lattice/governance mapping via
+      `TreeState + WorkspaceView`, candidate lattice, and explicit collapse
+  - `69b89b50-5554-839d-b9cf-f50f6eab3b8b`
+    - title: `Debugging UX in Games`
+    - canonical thread ID: unresolved during this pass
+    - source: `web`
+    - topic: debugging/stream isolation discussion; not promoted to active
+      repo planning
+  - `69ba3af2-5df8-839b-bd8a-7c865be0b052`
+    - title: `Casey Git Clone Differences`
+    - canonical thread ID: unresolved during this pass
+    - source: `web`
+    - topic: Casey differentiators centered on superposition, explicit
+      collapse, workspace selection, and immutable build projections
+- Surface-boundary followthrough for the ITIR stack:
+  - `SL` = shared representation/compression substrate
+  - `casey-git-clone` = mutable possibility / lattice surface
+  - `fuzzymodo` = read-only reasoning / compression-gap surface
+  - `StatiBaker` = observer-only governance-memory / alignment-gap surface
+- Added planning artifacts to lock the next two boundaries:
+  - `docs/planning/casey_fuzzymodo_interface_contract_20260319.md`
+  - `docs/planning/casey_statiBaker_receipt_schema_20260319.md`
+- Priority order sharpened:
+  1. implement Casey -> fuzzymodo export/advisory contract
+  2. implement Casey -> StatiBaker receipt/reference seam
 
 ## 2026-03-06
 - Aligned priority execution sequencing for lexeme layer, tokenizer migration,

@@ -7,6 +7,8 @@ versioning prototype based on the Casey thread.
 - `model.md`: core data model and invariants.
 - `workflow.md`: operations and expected state transitions.
 - `mvp_backlog.md`: prioritized implementation tasks.
+- `sqlite_runtime_decision_20260319.md`: sqlite-first runtime decision for the
+  local Casey testbed.
 - `conversation_step_map.md`: Casey/Muratori thread steps mapped to code/docs.
 
 ## Scope

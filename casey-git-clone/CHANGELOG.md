@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-03-19
+- Refined `README.md` and `docs/interfaces.md` to state Casey's core posture
+  more explicitly: per-path candidate lattice, workspace-as-selection,
+  governance-explicit collapse, and immutable build projections.
+- Added a minimal local CLI testbed backed by a Casey-owned SQLite runtime
+  store, covering init, workspace creation, publish, sync, explicit collapse,
+  tree/workspace inspection, and build snapshot flow.
+- Added suite-level contract references for the next two Casey boundaries:
+  read-only Casey -> fuzzymodo export/advisory flow and the sharpened
+  Casey -> StatiBaker receipt/reference schema.
+- Implemented the first Casey -> fuzzymodo boundary slice:
+  `export_casey_facts(...)` now emits `casey.facts.v1`, and the CLI exposes it
+  via `casey export --json`.
+- Added export-focused tests covering deterministic Casey fact export and the
+  Alice/Bob divergence case.
+- Added Casey advisory rendering via `casey advise --json`, which evaluates the
+  exported Casey facts through the fuzzymodo Casey adapter without transferring
+  collapse authority.
+- Added first-class Casey receipt builders for the observer-only
+  Casey -> StatiBaker seam, including workspace summary refs, operation
+  receipts, build receipts, and overlay emission helpers backed by the Casey
+  ledgers.
+
 ## 2026-03-09
 - Clarified the intended `casey-git-clone -> StatiBaker` seam as observer-only
   and DB-backed via suite planning note

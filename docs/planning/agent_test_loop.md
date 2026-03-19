@@ -6,6 +6,10 @@ This is the default low-judgment test procedure for background agents working in
 Use it when the task is coverage-heavy and the agent should keep churning
 without needing architectural judgment each cycle.
 
+Machine-readable companion:
+
+- `docs/planning/agent_surface_map.json`
+
 ## Primary Objective
 
 Give every agent the same loop:
@@ -369,7 +373,9 @@ from reality.
 ## Surface Map
 
 Background agents should not guess what a file means from its name alone. Use
-this section to classify the touched path before choosing a test loop.
+this section to classify the touched path before choosing a test loop. If a
+script or agent can read JSON, prefer `docs/planning/agent_surface_map.json`
+for routing and use this section as the human-readable explanation.
 
 Rule:
 

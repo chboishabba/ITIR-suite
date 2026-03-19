@@ -38,10 +38,16 @@ channels for each core project directory in this workspace.
 - `docs/planning/fuzzymodo_statiBaker_interface_20260309.md`:
   minimal observer-only contract for `fuzzymodo` selector decisions entering
   `StatiBaker` as append-only events or reference-heavy overlays.
+- `docs/planning/casey_fuzzymodo_interface_contract_20260319.md`:
+  minimal read-only contract for exporting Casey candidate/workspace/build
+  state into fuzzymodo as advisory reasoning input.
 - `docs/planning/casey_git_clone_statiBaker_interface_20260309.md`:
   minimal observer-only contract for `casey-git-clone` workspace/collapse/build
   receipts entering `StatiBaker` as append-only events or reference-heavy
   overlays.
+- `docs/planning/casey_statiBaker_receipt_schema_20260319.md`:
+  exact Casey workspace/operation/build receipt semantics for the
+  `casey_workspace_v1` observer seam.
 - `SensibLaw/docs/wiki_revision_pack_runner_contract_v0_2.md`:
   bounded history-aware Wikipedia revision monitor contract, including
   candidate-pair scoring, section-delta targeting, and observer-only

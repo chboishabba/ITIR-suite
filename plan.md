@@ -208,3 +208,17 @@
    - another real-fixture expansion
    - operator/workbench polish
    - or a genuinely new family.
+
+## Milestone V: Fact-Intake Semantic Normalization (completed)
+1. Added additive semantic sidecar storage over `fact_intake`:
+   - vocab tables
+   - entity class assertions
+   - entity relations
+   - policy outcomes
+   - semantic refresh receipts
+2. Kept raw fact/source/excerpt/statement/observation/event tables as the
+   canonical observed layer.
+3. Dual-wrote semantic materialization during `persist_fact_intake_payload(...)`
+   and added a bounded `backfill_fact_semantics.py` script for legacy runs.
+4. Cut review summary/workbench projections over to normalized semantic rows
+   with fallback for non-materialized runs.

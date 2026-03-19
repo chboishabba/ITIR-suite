@@ -2,17 +2,19 @@
 
 **Owner:** Codex
 **Date:** 2026-02-07
-**Status:** Planned -> Implementing
+**Status:** Implementing
 
 ## Goal
-Create a standalone project scaffold for a superposition-style VCS prototype so
-implementation can start without reshaping docs or directory layout.
+Create a standalone Casey prototype that proves superposition-style candidate
+state, explicit workspace selection, explicit collapse, and frozen build views
+through a local runtime + CLI testbed.
 
 ## Objectives
-- Define MVP data model and operations.
-- Define deterministic storage and hashing expectations.
-- Scaffold Python package and tests for model invariants.
-- Keep this project isolated in its own folder.
+- Prove the core model and operation spine.
+- Lock sqlite-first runtime/state posture for the local testbed.
+- Expose a minimal human-usable CLI for the alice/bob divergence walkthrough.
+- Freeze the next external boundaries:
+  Casey -> fuzzymodo and Casey -> StatiBaker.
 
 ## Constraints
 - Additive only; do not alter existing git workflows in ITIR-suite.
@@ -20,21 +22,26 @@ implementation can start without reshaping docs or directory layout.
 - Human-controlled collapse of conflicts.
 
 ## Deliverables
-- `casey-git-clone/` standalone folder with package scaffold.
-- Planning docs under `docs/planning/casey-git-clone/`.
-- Initial model/test stubs for core object invariants.
+- `casey-git-clone/` standalone package with model/ops/runtime/CLI.
+- Planning docs under `docs/planning/casey-git-clone/` plus cross-project
+  contract notes in `docs/planning/`.
+- Passing model, operation, runtime, and CLI test coverage for the local
+  superposition walkthrough.
 
 ## Acceptance Criteria
-- Project appears as top-level component in `README.md`.
-- Data model docs cover required object set and operations.
-- Test scaffold executes in root `.venv`.
+- Casey local runtime and CLI testbed execute in the root environment.
+- The alice/bob divergent same-path walkthrough is test-covered.
+- Cross-project contracts exist for the next two boundaries:
+  Casey -> fuzzymodo and Casey -> StatiBaker.
 
 ## Open Questions
-- Whether to persist object store as sqlite first or filesystem blobs first.
-- How to interop with Git pointers in early iterations.
-- Whether `ChangeGroup` lands in MVP or post-MVP.
+- Exact Casey -> fuzzymodo export adapter shape in code.
+- Exact Casey -> StatiBaker receipt emission hooks in code.
+- Whether `ChangeGroup` remains post-MVP after the boundary work lands.
 
 ## Next Actions
-1. Implement dataclass models and canonical hashing helpers.
-2. Add operations: publish, sync, collapse, build-view snapshot.
-3. Add fixture-based tests for candidate-set behavior.
+1. Implement Casey -> fuzzymodo `casey.facts.v1` export over runtime state.
+2. Implement fuzzymodo advisory consumption for
+   `fuzzymodo.casey.advisory.v1`.
+3. Implement Casey -> StatiBaker receipt emission aligned to the observer-only
+   seam.
