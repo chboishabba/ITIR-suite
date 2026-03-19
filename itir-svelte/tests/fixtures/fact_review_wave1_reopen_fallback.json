@@ -1,0 +1,70 @@
+{
+  "workbench": {
+    "run": {
+      "run_id": "factrun:wave1-fallback",
+      "source_label": "wave1:synthetic_sparse_dates_v1",
+      "workflow_link": {
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_sparse_dates_v1"
+      },
+      "contract_version": "fact.review.workbench.v1"
+    },
+    "facts": [],
+    "operator_views": {
+      "intake_triage": {
+        "title": "Intake triage",
+        "groups": {},
+        "items": []
+      }
+    },
+    "issue_filters": {
+      "default_filter": "all",
+      "available_filters": ["all"],
+      "filters": [],
+      "summary": {}
+    },
+    "inspector_classification": {
+      "status_order": ["party_assertion", "procedural_outcome", "later_annotation"],
+      "selected_fact_id": null,
+      "facts": {}
+    },
+    "inspector_defaults": {
+      "selected_fact_id": null,
+      "default_view": "intake_triage"
+    },
+    "reopen_navigation": {
+      "current": {
+        "run_id": "factrun:wave1-fallback",
+        "source_label": "wave1:synthetic_sparse_dates_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_sparse_dates_v1"
+      },
+      "query": {
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_sparse_dates_v1",
+        "source_label": "wave1:synthetic_sparse_dates_v1"
+      },
+      "recent_sources": []
+    },
+    "chronology_groups": {
+      "dated_events": [],
+      "approximate_events": [],
+      "undated_events": [],
+      "contested_chronology_items": []
+    }
+  },
+  "sources": [
+    {
+      "source_id": "source:fallback",
+      "source_order": 1,
+      "source_type": "context_file",
+      "source_label": "wave1:synthetic_sparse_dates_v1",
+      "provenance": {},
+      "latest_workflow_link": {
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_sparse_dates_v1",
+        "fact_run_id": "factrun:wave1-fallback"
+      }
+    }
+  ]
+}

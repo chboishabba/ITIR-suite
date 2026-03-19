@@ -112,6 +112,7 @@ export interface FactReviewViewItem {
   label?: string;
   latest_review_status?: string | null;
   candidate_status?: string | null;
+  contestation_count?: number | null;
   reason_labels?: string[];
   primary_contested_reason_text?: string | null;
   signal_classes?: string[];

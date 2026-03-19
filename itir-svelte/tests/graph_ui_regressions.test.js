@@ -259,8 +259,8 @@ test('fact review workbench route loads persisted workbench and acceptance paylo
   assert.ok(loader.includes("'acceptance'"));
   assert.ok(loader.includes("'sources'"));
   assert.ok(page.includes('Recent / source-centric reopen'));
-  assert.ok(page.includes('reopenNavigation?.recent_sources'));
-  assert.ok(page.includes('data.workbench?.issue_filters?.available_filters'));
+  assert.ok(page.includes('resolveFactReviewSourceRows'));
+  assert.ok(page.includes('resolveFactReviewAvailableIssueFilters'));
   assert.ok(page.includes('Inspector classification'));
   assert.ok(page.includes("filterKey.replaceAll('_', ' ')"));
   assert.ok(page.includes('Fact Review Workbench'));
@@ -271,6 +271,6 @@ test('fact review workbench route loads persisted workbench and acceptance paylo
   assert.ok(page.includes('Observation signals:'));
   assert.ok(page.includes('Source provenance:'));
   assert.ok(page.includes('Inspector'));
-  assert.ok(page.includes('chronology_groups'));
+  assert.ok(page.includes('resolveChronologyBuckets'));
   assert.ok(home.includes('Mary-parity fact review workbench'));
 });

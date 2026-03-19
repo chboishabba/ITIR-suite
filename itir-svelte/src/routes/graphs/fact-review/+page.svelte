@@ -10,6 +10,15 @@
     FactReviewStatement,
     FactReviewViewItem
   } from '$lib/server/factReview';
+  import {
+    buildFactReviewHrefForSource,
+    resolveChronologyBuckets,
+    resolveFactReviewAvailableIssueFilters,
+    resolveFactReviewFilteredItems,
+    resolveFactReviewSourceRows,
+    resolveInspectorClassification,
+    resolveSelectedFact
+  } from '$lib/workbench/factReview.js';
 
   type FactReviewSourceRow = FactReviewSource | FactReviewRecentSource;
 
@@ -33,23 +42,15 @@
 
   $: selectedView = data.workbench?.operator_views?.[data.view] ?? null;
   $: issueGroups = selectedView?.groups ?? {};
-  $: canonicalIssueFilters = data.workbench?.issue_filters?.available_filters ?? ['all'];
-  $: availableIssueFilters = data.view === 'intake_triage' ? canonicalIssueFilters : ['all'];
-  $: filteredItems = (
-    data.view === 'intake_triage' && selectedIssueFilter !== 'all'
-      ? issueGroups?.[selectedIssueFilter] ?? []
-      : selectedView?.items ?? []
-  ) as FactReviewViewItem[];
+  $: availableIssueFilters = resolveFactReviewAvailableIssueFilters(data.workbench, data.view);
+  $: filteredItems = resolveFactReviewFilteredItems(data.workbench, data.view, selectedIssueFilter) as FactReviewViewItem[];
   $: reopenNavigation = data.workbench?.reopen_navigation ?? null;
-  $: selectedFact = (
-    (data.workbench?.facts ?? []).find((row) => row.fact_id === selectedFactId) ??
-    (data.workbench?.facts ?? [])[0] ??
-    null
-  ) as FactReviewFact | null;
-  $: selectedClassification = (
-    (selectedFact?.inspector_classification as FactReviewInspectorClassification | undefined) ??
-    data.workbench?.inspector_classification?.facts?.[selectedFact?.fact_id ?? ''] ??
-    null
+  $: reopenSourceRows = resolveFactReviewSourceRows(data.workbench, data.sources) as FactReviewSourceRow[];
+  $: chronologyBuckets = resolveChronologyBuckets(data.workbench);
+  $: selectedFact = resolveSelectedFact(data.workbench, selectedFactId) as FactReviewFact | null;
+  $: selectedClassification = resolveInspectorClassification(
+    data.workbench,
+    selectedFact
   ) as FactReviewInspectorClassification | null;
   $: selectedStatements = (data.workbench?.statements ?? []).filter((row) =>
     selectedFact?.statement_ids?.includes(row.statement_id)
@@ -72,15 +73,11 @@
   }
 
   function hrefForSource(source: FactReviewSourceRow): string {
-    const params = new URLSearchParams();
-    const workflowKind = source?.latest_workflow_link?.workflow_kind ?? source?.workflow_kind ?? data.workflowKind;
-    const workflowRunId = source?.latest_workflow_link?.workflow_run_id ?? source?.workflow_run_id ?? null;
-    params.set('workflow', workflowKind);
-    if (workflowRunId) params.set('workflowRunId', workflowRunId);
-    if (source?.source_label) params.set('sourceLabel', source.source_label);
-    if (data.wave) params.set('wave', data.wave);
-    params.set('view', data.view);
-    return `/graphs/fact-review?${params.toString()}`;
+    return buildFactReviewHrefForSource(source, {
+      workflowKind: data.workflowKind,
+      wave: data.wave,
+      view: data.view
+    });
   }
 
   function clickFact(factId: string): void {
@@ -143,7 +140,7 @@
       <div class="mb-4">
         <div class="text-xs uppercase tracking-[0.24em] text-zinc-500">Recent / source-centric reopen</div>
         <div class="mt-3 flex flex-wrap gap-2">
-          {#each reopenNavigation?.recent_sources ?? data.sources ?? [] as source}
+          {#each reopenSourceRows as source}
             <a class={`rounded border px-3 py-1 text-sm ${data.sourceLabel === source.source_label ? 'border-amber-300 bg-amber-50 text-amber-950' : 'border-zinc-200 bg-zinc-50 text-zinc-700'}`} href={hrefForSource(source)}>
               {source.source_label}
             </a>
@@ -180,8 +177,14 @@
             <div class="grid gap-3 md:grid-cols-3">
               <div class="rounded border border-zinc-200 bg-zinc-50 p-3">
                 <div class="text-xs uppercase tracking-[0.18em] text-zinc-500">Dated events</div>
-                {#each data.workbench.chronology_groups.dated_events as row}
-                  <button class="mt-2 block w-full rounded border border-zinc-200 bg-white px-3 py-2 text-left text-sm" on:click={() => clickFact(row.fact_id)}>
+                {#each chronologyBuckets.dated as row}
+                  <button
+                    class="mt-2 block w-full rounded border border-zinc-200 bg-white px-3 py-2 text-left text-sm"
+                    disabled={!row.fact_id}
+                    on:click={() => {
+                      if (row.fact_id) clickFact(row.fact_id);
+                    }}
+                  >
                     <div class="font-medium">{row.event_type}</div>
                     <div class="text-xs text-zinc-600">{row.time_start} · {row.primary_actor ?? 'unknown actor'}</div>
                   </button>
@@ -189,7 +192,7 @@
               </div>
               <div class="rounded border border-zinc-200 bg-zinc-50 p-3">
                 <div class="text-xs uppercase tracking-[0.18em] text-zinc-500">Approximate chronology</div>
-                {#each data.workbench.chronology_groups.approximate_events as row}
+                {#each chronologyBuckets.approximate as row}
                   <div class="mt-2 rounded border border-zinc-200 bg-white px-3 py-2 text-sm">
                     <div class="font-medium">{row.label ?? row.event_type}</div>
                     <div class="text-xs text-zinc-600">{row.time_start ?? 'approximate'}</div>
@@ -198,7 +201,7 @@
               </div>
               <div class="rounded border border-zinc-200 bg-zinc-50 p-3">
                 <div class="text-xs uppercase tracking-[0.18em] text-zinc-500">Undated / contested chronology</div>
-                {#each [...data.workbench.chronology_groups.undated_events, ...data.workbench.chronology_groups.contested_chronology_items] as row}
+                {#each chronologyBuckets.undatedOrContested as row}
                   <div class="mt-2 rounded border border-zinc-200 bg-white px-3 py-2 text-sm">
                     <div class="font-medium">{row.label ?? row.event_type}</div>
                     <div class="text-xs text-zinc-600">{row.time_start ?? 'undated'}</div>
