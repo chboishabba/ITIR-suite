@@ -40,6 +40,15 @@ The contract must preserve:
     rust-driver/plugin tooling
   - this strengthens the split between shared identity substrate and separate
     planning/governance/execution control planes
+  - later turns in the same archived thread extend the bridge from pure
+    architecture into a concrete provenance bundle and post-entropy metric
+    story:
+    - typed shards should carry declared input refs, witnesses, cost, and score
+    - post-entropy is meant to measure corpus-compression efficiency plus
+      divergence from the existing corpus, not just local compression in
+      isolation
+    - the ZK target becomes proving that a shard/spore was derived from a
+      declared corpus by a declared pipeline with honest summary metrics
 
 ## ZKP Framing
 Let the bridge be:
@@ -118,6 +127,14 @@ The bridge optimises for:
 - divergence explainability
 - shard-boundary quality
 - corpus accessibility for agents
+
+For the post-entropy lane specifically, the archived thread sharpens the score
+surface into:
+
+- corpus-relative compression efficiency
+- divergence/novelty relative to the current corpus model
+- completeness/coverage so compression alone does not reward noise
+- replayability as a hard admissibility condition
 
 ## Core Contract Principle
 The bridge is not object replacement.
@@ -267,6 +284,99 @@ Advisory suggestions for future JMD structuring:
 - a cluster should be materialized as a reusable unit
 
 These are explicitly non-authoritative until accepted.
+
+## Provenance Bundle Interpretation
+The archived `Full Stack Architecture` thread adds a concrete maintainers'
+reading for the bridge: some JMD-side artefacts should be treated as replayable
+provenance bundles, not just standalone shards.
+
+Normalized bundle shape:
+
+```text
+bundle = {
+  binaries,
+  source,
+  debug_symbols,
+  traces,
+  models,
+  prior_events
+}
+```
+
+Mapped onto the bridge:
+
+- `binaries`: execution artefact emitted or referenced from JMD space
+- `source + debug_symbols`: explanatory and structural context for replay
+- `traces`: runtime evidence
+- `models`: compressed or derived representation
+- `prior_events`: causal chain into the current artefact
+
+Maintainer implication:
+
+- the bridge should be able to ingest not only bare text objects but also
+  replayable provenance bundles whose parts remain linked by source refs
+- SL overlays should be able to reference bundle components independently
+  without flattening them into one opaque blob
+- Casey proposals may later compare alternative bundle interpretations or
+  alternative organisation plans without mutating the canonical JMD bundle
+
+## Public Statement / Metric Commitment Pattern
+For post-entropy- and scoring-related shards, the thread now gives a clearer
+public statement pattern:
+
+```text
+corpus_root
+pipeline_id
+params_hash
+output_hash
+metric_commitment
+score_commitment
+```
+
+Maintainer reading:
+
+- `corpus_root`: CID set root / Merkle root of the declared source corpus
+- `pipeline_id`: named transform pipeline responsible for the output
+- `params_hash`: commitment to parameterization without exposing everything
+- `output_hash`: commitment to the output artefact/bundle
+- `metric_commitment`: commitment to published summary metrics
+- `score_commitment`: commitment to the derived score used for evaluation
+
+This does not force a concrete proof system yet. It does mean the bridge should
+reserve room for:
+
+- declared corpus roots
+- declared pipeline identifiers
+- replay-verifiable metric claims
+- score claims that are separable from raw execution cost
+
+## Minimal Scoring Interpretation
+The same thread provides a first practical scoring model for typed shards:
+
+```text
+cost_steps(S)
+mdl_gain(S)
+coverage_gain(S)
+replay_ok(S)
+novelty(S)
+```
+
+With maintainer-level interpretation:
+
+- `cost_steps`: provable execution cost or bounded proxy
+- `mdl_gain`: compression gain against a declared before/after representation
+- `coverage_gain`: useful new coverage added to corpus/shard graph
+- `replay_ok`: deterministic replay passes
+- `novelty`: distance from existing corpus/shard set
+
+Bridge implication:
+
+- cost and value must remain distinct; raw execution cost is not the whole score
+- novelty must eventually become corpus-relative rather than a local heuristic
+- replayability is a hard guard, not just a ranking bonus
+- any bridge implementation that emits optimisation hints should keep metrics
+  separately named so maintainers can evolve them without confusing cost, value,
+  and admissibility
 
 ## Authority Rules
 ### JMD authoritative

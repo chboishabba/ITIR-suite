@@ -3,6 +3,8 @@ node_modules/
 dist/
 .build/
 .vercel/
+playwright-report/
+test-results/
 
 .env
 .env.*

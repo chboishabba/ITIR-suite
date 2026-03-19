@@ -34,7 +34,7 @@
   })();
 </script>
 
-<div class="rounded-2xl bg-paper-50 shadow-crisp ring-1 ring-ink-900/10">
+<div class="rounded-2xl bg-paper-50 shadow-crisp ring-1 ring-ink-900/10" role="region" aria-label={title}>
   <div class="flex items-center justify-between gap-3 border-b border-ink-900/10 px-4 py-3">
     <div class="font-display text-sm tracking-tight text-ink-950">{title}</div>
     <div class="font-mono text-[10px] text-ink-800/70">entries={entries.length}</div>

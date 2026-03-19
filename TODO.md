@@ -562,6 +562,18 @@
   - keep any Rust-facing bridge work at the "programmable transform layer"
     boundary first; do not let Rust/plugin exploration silently become a
     canonical bridge contract before the object/anchor/overlay model is proven
+  - define a first provenance-bundle ingest shape for JMD objects that can
+    carry:
+    binaries, source, debug symbols, traces, models, and prior events as
+    linked bundle members rather than a single opaque blob
+  - reserve explicit bridge fields for:
+    `corpus_root`, `pipeline_id`, `params_hash`, `metric_commitment`, and
+    `score_commitment` so post-entropy style proofs can later attest to corpus,
+    transform, and metric honesty without redesigning the object boundary
+  - make post-entropy metrics corpus-relative by default in planning/docs:
+    `mdl_gain` alone is not enough; maintain separate notions of compression
+    gain, novelty/divergence from corpus, coverage/completeness, and replay
+    validity
 - Implement cross-project channel adapters and validators per
   `docs/planning/project_interfaces.md` for:
   `SensibLaw/`, `SL-reasoner/`, `tircorder-JOBBIE/`, `StatiBaker/`,

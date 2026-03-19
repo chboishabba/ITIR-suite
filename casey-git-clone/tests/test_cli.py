@@ -338,3 +338,41 @@ def test_cli_ops_emit_receipts_and_optional_sb_ingest(capsys) -> None:
     assert len(overlays) == 1
     assert overlays[0]["observer_kind"] == "casey_workspace_v1"
     assert overlays[0]["operation_refs"][0]["operation_kind"] == "publish"
+
+
+def test_cli_no_observer_skips_receipt_emission(capsys) -> None:
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        db_path = tmp_path / "casey_runtime.sqlite"
+        ledger_db = tmp_path / "casey_ledgers.sqlite"
+        out_root = tmp_path / "artifacts"
+
+        assert main(["init", "--db", str(db_path), "--workspace", "alice"]) == 0
+        capsys.readouterr()
+        assert (
+            main(
+                [
+                    "--json",
+                    "publish",
+                    "--db",
+                    str(db_path),
+                    "--workspace",
+                    "alice",
+                    "--path",
+                    "src/main.c",
+                    "--content",
+                    "base",
+                    "--no-observer",
+                    "--ledger-db",
+                    str(ledger_db),
+                    "--observer-out-root",
+                    str(out_root),
+                ]
+            )
+            == 0
+        )
+        payload = json.loads(capsys.readouterr().out)
+
+    assert "observer" not in payload
+    assert ledger_db.exists() is False
+    assert out_root.exists() is False

@@ -76,14 +76,25 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
 
 - Keep `/graphs/fact-review` as a read-only consumer of the persisted
   `SensibLaw` fact-review workbench/acceptance contract.
+- DONE (2026-03-19): route validation now runs against a real captured
+  `wave1_legal` transcript baseline exported through
+  `SensibLaw/scripts/query_fact_review.py demo-bundle`:
+  - `source_label`: `wave1:real_transcript_intake_v1`
+  - `workflow_kind`: `transcript_semantic`
+  - `workflow_run_id`: `transcript_acceptance_real_intake_v1`
+- DONE (2026-03-19): route regressions now map directly to the transcript-side
+  wave-1 Mary operator expectations:
+  - `SL-US-09` intake triage filters, chronology split, contested-item flow
+  - `SL-US-10` current-run reopen + recent/source-centric reopen path
+  - `SL-US-11` assertion vs later-annotation visibility
+  - `SL-US-12` to `SL-US-14` procedural-posture visibility from the persisted bundle
 - Near-term priority:
-  - validate the route against persisted `wave1_legal` runs rather than only
-    string-level route regressions
-  - expand focused route coverage for:
-    - source-centric reopen chip behavior
-    - canonical issue-filter switching from backend-provided fields
-    - inspector classification rendering / fallback order
-    - chronology bucket rendering
+  - document the exact command sequence from `demo-bundle` to
+    `/graphs/fact-review` wherever Mary operator demo instructions live
+  - widen the same real-path proof to AU/legal using
+    `wave1:real_au_procedural_v1`
+  - only after transcript + AU real-path parity are locked, widen to
+    trauma/handoff real-path proof
 - Keep low-judgment agents focused on route-consumer coverage first:
   - do not invent new fact-review backend semantics in Svelte
   - prefer seam tests over speculative UI refactors

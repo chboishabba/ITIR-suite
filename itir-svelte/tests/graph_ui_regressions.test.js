@@ -225,10 +225,16 @@ test('FolderListViewer exposes labeled filter and selected entry state', () => {
 
 test('HCA viewbench keeps transcript/document viewer components wired together', () => {
   const page = read('src/routes/viewers/hca-case/+page.svelte');
+  const transcript = read('src/lib/viewers/TranscriptViewer.svelte');
+  const document = read('src/lib/viewers/DocumentViewer.svelte');
+  const folder = read('src/lib/viewers/FolderListViewer.svelte');
   assert.ok(page.includes('TranscriptViewer'));
   assert.ok(page.includes('DocumentViewer'));
   assert.ok(page.includes('FolderListViewer'));
   assert.ok(page.includes('selectionState'));
+  assert.ok(transcript.includes('role="region" aria-label={title}'));
+  assert.ok(document.includes('role="region" aria-label={title}'));
+  assert.ok(folder.includes('role="region" aria-label={title}'));
 });
 
 test('chat tool renderer handles request_user_input as structured questions', () => {

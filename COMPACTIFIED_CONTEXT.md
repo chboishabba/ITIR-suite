@@ -199,6 +199,9 @@
   - online UUID: `69bb70ca-19ac-83a0-a087-8d2416e8be07`
   - canonical thread ID: `fe1aead0a943806609b767cf3c27e2eeef2e54f1`
   - source used: `db` after direct UUID pull into `~/chat_archive.sqlite`
+  - archived refresh after later pull:
+    - latest archived assistant timestamp: `2026-03-19T13:27:48+00:00`
+    - archived message count after refresh: `137`
   - main topics / decisions pulled from the thread:
     - Rabbit is the process/queue I/O fabric rather than just a loose
       orchestration helper
@@ -209,6 +212,13 @@
       driver/plugin tooling
     - this sharpens the bridge posture: shared identity substrate first,
       separate planning/governance/execution control planes second
+    - later turns sharpen the scoring/provenance side:
+      - post-entropy should measure corpus-relative compression efficiency plus
+        divergence/novelty relative to corpus, not just local compression gain
+      - typed shards need declared corpus/pipeline/metric commitments rather
+        than vague "necessary cycles" rhetoric
+      - a replayable provenance bundle should keep binaries, source, debug
+        symbols, traces, models, and prior events linked together
 
 - 2026-03-14 whitepaper context refresh:
   - resolved archived thread via `robust-context-fetch`

@@ -11,7 +11,6 @@ from typing import Any, Iterable
 from .export import export_casey_facts
 from .models import BuildView, WorkspaceView
 from .operations import build_snapshot, collapse_conflict, publish_edits, sync_workspace
-from .receipts import emit_runtime_observer_artifacts, operation_record
 from .runtime_sqlite import (
     create_workspace,
     initialize_runtime,
@@ -55,6 +54,10 @@ def _attach_observer(
     operation,
     build: BuildView | None = None,
 ) -> dict[str, Any]:
+    if getattr(args, "no_observer", False):
+        return payload
+    from .receipts import emit_runtime_observer_artifacts
+
     observer = emit_runtime_observer_artifacts(
         ledger_db_path=args.ledger_db or _default_ledger_db_path(args.db),
         workspace=workspace,
@@ -273,12 +276,11 @@ def cmd_publish(args: argparse.Namespace) -> dict[str, Any]:
         "candidates": list(result.tree_state.paths[args.path].candidates),
         "workspace_selection": updated.selection[args.path],
     }
-    return _attach_observer(
-        args=args,
-        payload=payload,
-        command="publish",
-        workspace=updated,
-        operation=operation_record(
+    operation = None
+    if not args.no_observer:
+        from .receipts import operation_record
+
+        operation = operation_record(
             operation_kind="publish",
             workspace=updated,
             path=args.path,
@@ -287,7 +289,13 @@ def cmd_publish(args: argparse.Namespace) -> dict[str, Any]:
             chosen_fv_id=workspace.selection.get(args.path),
             resolved_fv_id=new_fv_id,
             actor=author,
-        ),
+        )
+    return _attach_observer(
+        args=args,
+        payload=payload,
+        command="publish",
+        workspace=updated,
+        operation=operation,
     )
 
 
@@ -308,18 +316,23 @@ def cmd_sync(args: argparse.Namespace) -> dict[str, Any]:
         "kind": "sync",
         "workspace": _workspace_payload(updated),
     }
-    return _attach_observer(
-        args=args,
-        payload=payload,
-        command="sync",
-        workspace=updated,
-        operation=operation_record(
+    operation = None
+    if not args.no_observer:
+        from .receipts import operation_record
+
+        operation = operation_record(
             operation_kind="sync",
             workspace=updated,
             tree_id_before=workspace.head,
             tree_id_after=updated.head,
             actor=workspace.user,
-        ),
+        )
+    return _attach_observer(
+        args=args,
+        payload=payload,
+        command="sync",
+        workspace=updated,
+        operation=operation,
     )
 
 
@@ -384,12 +397,11 @@ def cmd_collapse(args: argparse.Namespace) -> dict[str, Any]:
         "tree_id": result.tree_state.tree_id,
         "candidates": list(result.tree_state.paths[args.path].candidates),
     }
-    return _attach_observer(
-        args=args,
-        payload=payload,
-        command="collapse",
-        workspace=updated,
-        operation=operation_record(
+    operation = None
+    if not args.no_observer:
+        from .receipts import operation_record
+
+        operation = operation_record(
             operation_kind="collapse",
             workspace=updated,
             path=args.path,
@@ -398,7 +410,13 @@ def cmd_collapse(args: argparse.Namespace) -> dict[str, Any]:
             chosen_fv_id=args.choose,
             resolved_fv_id=resolved_fv_id,
             actor=args.author or workspace.user,
-        ),
+        )
+    return _attach_observer(
+        args=args,
+        payload=payload,
+        command="collapse",
+        workspace=updated,
+        operation=operation,
     )
 
 
@@ -421,18 +439,23 @@ def cmd_build(args: argparse.Namespace) -> dict[str, Any]:
         "workspace": _workspace_payload(workspace),
         "build": _build_payload(stored),
     }
-    return _attach_observer(
-        args=args,
-        payload=payload,
-        command="build",
-        workspace=workspace,
-        operation=operation_record(
+    operation = None
+    if not args.no_observer:
+        from .receipts import operation_record
+
+        operation = operation_record(
             operation_kind="build",
             workspace=workspace,
             tree_id_before=workspace.head,
             tree_id_after=build.tree_id,
             actor=workspace.user,
-        ),
+        )
+    return _attach_observer(
+        args=args,
+        payload=payload,
+        command="build",
+        workspace=workspace,
+        operation=operation,
         build=stored,
     )
 
@@ -502,6 +525,7 @@ def build_parser() -> argparse.ArgumentParser:
     publish.add_argument("--path", required=True)
     publish.add_argument("--content", required=True)
     publish.add_argument("--author")
+    publish.add_argument("--no-observer", action="store_true")
     publish.add_argument("--ledger-db", type=Path)
     publish.add_argument("--sb-db", type=Path)
     publish.add_argument("--observer-out-root", type=Path)
@@ -510,6 +534,7 @@ def build_parser() -> argparse.ArgumentParser:
     sync = subparsers.add_parser("sync")
     sync.add_argument("--db", type=Path, required=True)
     sync.add_argument("--workspace", required=True)
+    sync.add_argument("--no-observer", action="store_true")
     sync.add_argument("--ledger-db", type=Path)
     sync.add_argument("--sb-db", type=Path)
     sync.add_argument("--observer-out-root", type=Path)
@@ -532,6 +557,7 @@ def build_parser() -> argparse.ArgumentParser:
     collapse.add_argument("--choose")
     collapse.add_argument("--merged-content")
     collapse.add_argument("--author")
+    collapse.add_argument("--no-observer", action="store_true")
     collapse.add_argument("--ledger-db", type=Path)
     collapse.add_argument("--sb-db", type=Path)
     collapse.add_argument("--observer-out-root", type=Path)
@@ -540,6 +566,7 @@ def build_parser() -> argparse.ArgumentParser:
     build = subparsers.add_parser("build")
     build.add_argument("--db", type=Path, required=True)
     build.add_argument("--workspace", required=True)
+    build.add_argument("--no-observer", action="store_true")
     build.add_argument("--ledger-db", type=Path)
     build.add_argument("--sb-db", type=Path)
     build.add_argument("--observer-out-root", type=Path)

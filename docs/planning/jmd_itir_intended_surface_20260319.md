@@ -22,6 +22,10 @@ and the current ITIR stack without promoting it to an active repo contract.
       an embedding layer
     - Rust appears as a programmable transform/execution layer via custom rust
       driver/plugin tooling
+    - later turns add a concrete provenance-bundle and scoring picture:
+      declared corpus roots, pipeline ids, metric commitments, and
+      score commitments become the more realistic ZK/public-proof target for
+      post-entropy-style shards
 
 ## Intended surface only
 This note is awareness/documentation only.

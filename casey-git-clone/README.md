@@ -22,6 +22,9 @@ persist as candidates until explicitly collapsed.
   small Casey observer bundle for replay/debug, and may ingest the resulting
   `casey_workspace_v1` overlay into a StatiBaker dashboard DB when `--sb-db` is
   supplied.
+- For raw operational measurement or lightweight local use, `publish`, `sync`,
+  `collapse`, and `build` also accept `--no-observer` to skip receipt/bundle
+  emission on that command.
 - Intended v1 walkthrough:
   - initialize runtime
   - create a second workspace

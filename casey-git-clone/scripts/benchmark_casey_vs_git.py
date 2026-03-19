@@ -287,6 +287,14 @@ def _casey_cli_receipt_args(command: str, ledger_db: Path, bundle_root: Path) ->
     return ["--ledger-db", str(ledger_db), "--observer-out-root", str(bundle_root)]
 
 
+def _casey_cli_lane_args(lane: str, command: str, ledger_db: Path, bundle_root: Path) -> list[str]:
+    if command not in {"publish", "sync", "collapse", "build"}:
+        return []
+    if lane != "traceability_cost":
+        return ["--no-observer"]
+    return _casey_cli_receipt_args(command, ledger_db, bundle_root)
+
+
 def _clear_observer_state(ledger_db: Path, bundle_root: Path) -> None:
     if ledger_db.exists():
         ledger_db.unlink()
@@ -318,7 +326,7 @@ def _casey_lane_cli(spec: TierSpec, lane: str) -> dict[str, Any]:
             command = argv[0]
             return _run_casey_cli(
                 _CASEY_ROOT,
-                argv + _casey_cli_receipt_args(command, ledger_db, bundle_root),
+                argv + _casey_cli_lane_args(lane, command, ledger_db, bundle_root),
             )
 
         run(["init", "--db", str(runtime_db), "--workspace", "alice"])

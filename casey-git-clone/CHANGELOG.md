@@ -48,6 +48,9 @@
 - Added a benchmark smoke test at
   `tests/test_benchmark_casey_vs_git_smoke.py` and documented the benchmark
   surface in `docs/benchmarking.md`.
+- Added `--no-observer` to Casey `publish`, `sync`, `collapse`, and `build` so
+  the benchmark and local operators can separate core CLI/runtime cost from
+  observer receipt and bundle overhead.
 
 ## 2026-03-09
 - Clarified the intended `casey-git-clone -> StatiBaker` seam as observer-only

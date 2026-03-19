@@ -16,6 +16,13 @@ This changelog records user-visible behavior changes in the Svelte SB dashboard 
   for reopen navigation, canonical issue filters, and inspector
   classification, and add focused regressions for source-centric reopen,
   canonical filter selection, and inspector fallback behavior.
+- Graphs/fact review: `/graphs/fact-review` is now anchored to a real captured
+  `wave1_legal` transcript baseline exported through
+  `SensibLaw/scripts/query_fact_review.py demo-bundle`
+  (`wave1:real_transcript_intake_v1` /
+  `transcript_acceptance_real_intake_v1`), and the route regressions now map
+  directly to the Mary wave-1 operator stories instead of only checking
+  fixture/bundle shape.
 - Graphs/timeline ribbon: add `/graphs/timeline-ribbon` as a dedicated
   workbench over the SB dashboard timeline payload and upgrade the dashboard
   ribbon strip to a contract-aware conserved-allocation surface. The first

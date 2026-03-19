@@ -75,7 +75,7 @@ test('fact review page consumes typed Mary-parity helpers and page data', () => 
   assert.ok(s.includes('resolveChronologyBuckets'));
 });
 
-test('fact review CLI parser accepts captured workbench, acceptance, and source payloads', () => {
+test('fact review CLI parser accepts the real Mary wave1 demo bundle payloads', () => {
   const bundlePayload = read('tests/fixtures/fact_review_wave1_real_demo_bundle.json');
   const bundle = JSON.parse(bundlePayload);
   const workbench = parseFactReviewCliPayload(bundlePayload, 'workbench');
@@ -101,7 +101,7 @@ test('fact review real demo bundle preserves the persisted Mary selector and con
   assert.ok(Array.isArray(bundle.sources));
 });
 
-test('fact review helpers preserve the real demo bundle reopen path and current-run href', () => {
+test('SL-US-10 reopen behavior stays anchored to the real Mary transcript baseline', () => {
   const bundle = readJson('tests/fixtures/fact_review_wave1_real_demo_bundle.json');
   const sourceRows = resolveFactReviewSourceRows(bundle.workbench, bundle.sources);
   const currentHref = buildFactReviewCurrentHref(bundle.workbench, {
@@ -124,6 +124,75 @@ test('fact review CLI error classifier distinguishes missing runs and parse fail
 
   assert.equal(missingRun.kind, 'missing_run');
   assert.equal(parseFailure.kind, 'parse_error');
+});
+
+test('SL-US-09 intake triage uses canonical issue filters and grouped queue rows from the real bundle', () => {
+  const bundle = readJson('tests/fixtures/fact_review_wave1_real_demo_bundle.json');
+  const filters = resolveFactReviewAvailableIssueFilters(bundle.workbench, 'intake_triage');
+  const missingActor = resolveFactReviewFilteredItems(bundle.workbench, 'intake_triage', 'missing_actor');
+  const contradictory = resolveFactReviewFilteredItems(bundle.workbench, 'intake_triage', 'contradictory_chronology');
+
+  assert.deepEqual(filters, ['all', 'missing_actor', 'missing_date', 'contradictory_chronology', 'procedural_significance']);
+  assert.equal(missingActor.length, 1);
+  assert.equal(missingActor[0].fact_id, 'fact:66bb2f25f2473baf');
+  assert.equal(contradictory.length, 1);
+  assert.equal(contradictory[0].fact_id, 'fact:548917ce2a38675e');
+});
+
+test('SL-US-09 chronology and contested-item reading flow stay visible in the real bundle', () => {
+  const bundle = readJson('tests/fixtures/fact_review_wave1_real_demo_bundle.json');
+  const chronology = resolveChronologyBuckets(bundle.workbench);
+  const contestedItems = bundle.workbench.operator_views.contested_items.items;
+
+  assert.equal(chronology.dated.length, 0);
+  assert.equal(chronology.approximate.length, 0);
+  assert.equal(chronology.contested.length, 1);
+  assert.equal(chronology.contested[0].fact_id, 'fact:548917ce2a38675e');
+  assert.equal(contestedItems.length, 1);
+  assert.equal(contestedItems[0].fact_id, 'fact:548917ce2a38675e');
+});
+
+test('SL-US-11 transcript lane keeps party assertion and later annotation distinct in the inspector', () => {
+  const bundle = readJson('tests/fixtures/fact_review_wave1_real_demo_bundle.json');
+  const assertionFact = resolveSelectedFact(bundle.workbench, 'fact:548917ce2a38675e');
+  const laterNoteFact = resolveSelectedFact(bundle.workbench, 'fact:66bb2f25f2473baf');
+  const assertionStatuses = resolveInspectorStatusRows(resolveInspectorClassification(bundle.workbench, assertionFact));
+  const laterStatuses = resolveInspectorStatusRows(resolveInspectorClassification(bundle.workbench, laterNoteFact));
+
+  assert.deepEqual(
+    assertionStatuses.map((row) => [row.key, row.active]),
+    [
+      ['party_assertion', true],
+      ['procedural_outcome', false],
+      ['later_annotation', false],
+    ]
+  );
+  assert.deepEqual(
+    laterStatuses.map((row) => [row.key, row.active]),
+    [
+      ['party_assertion', false],
+      ['procedural_outcome', false],
+      ['later_annotation', true],
+    ]
+  );
+});
+
+test('SL-US-12 through SL-US-14 keep procedural posture visible from the real transcript bundle', () => {
+  const bundle = readJson('tests/fixtures/fact_review_wave1_real_demo_bundle.json');
+  const proceduralItems = bundle.workbench.operator_views.procedural_posture.items;
+  const proceduralFact = resolveSelectedFact(bundle.workbench, 'fact:847888989678a140');
+  const proceduralStatuses = resolveInspectorStatusRows(resolveInspectorClassification(bundle.workbench, proceduralFact));
+
+  assert.equal(proceduralItems.length, 2);
+  assert.ok(proceduralItems.some((row) => row.fact_id === 'fact:847888989678a140'));
+  assert.deepEqual(
+    proceduralStatuses.map((row) => [row.key, row.active]),
+    [
+      ['party_assertion', false],
+      ['procedural_outcome', true],
+      ['later_annotation', false],
+    ]
+  );
 });
 
 test('fact review helpers prefer recent reopen rows and fall back to listed sources', () => {

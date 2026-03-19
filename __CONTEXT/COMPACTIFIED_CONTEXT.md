@@ -120,6 +120,9 @@
   `fe1aead0a943806609b767cf3c27e2eeef2e54f1`) after direct UUID pull into the
   canonical DB:
   - source used: `db`
+  - latest archived assistant timestamp after refresh:
+    `2026-03-19T13:27:48+00:00`
+  - archived message count after refresh: `137`
   - Rabbit is the process/queue I/O fabric
   - pastebin/IPFS acts like persistent shared memory/state
   - ERDFA is better treated as structural/shard substrate than as an embedding
@@ -127,6 +130,12 @@
   - Rust plugin/driver tooling behaves like a programmable transformation layer
   - this reinforces the current bridge framing: identity substrate first,
     control-plane split second
+  - later turns add:
+    - corpus-root / pipeline-id / metric-commitment / score-commitment style
+      public statement framing for post-entropy or proof-carrying shards
+    - corpus-relative post-entropy metrics rather than local compression alone
+    - provenance-bundle interpretation:
+      binaries, source, debug symbols, traces, models, prior events
 
 ## 2026-03-06
 - Aligned priority execution sequencing for lexeme layer, tokenizer migration,

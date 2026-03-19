@@ -24,6 +24,11 @@ The script reports:
 - JSON on stdout
 - a Markdown summary table on stderr
 
+For the Casey CLI lane, the harness uses `--no-observer` in
+`baseline_linear`, `divergence_native`, and `build_freeze` so those lanes
+measure core CLI/runtime cost rather than bundled observer overhead.
+`traceability_cost` leaves observer emission enabled.
+
 ## Fixed v1 matrix
 ### Tiers
 - `small`
