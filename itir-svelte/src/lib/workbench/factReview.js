@@ -18,6 +18,18 @@ export function buildFactReviewHrefForSource(source, params) {
   return `/graphs/fact-review?${searchParams.toString()}`;
 }
 
+export function buildFactReviewCurrentHref(workbench, params) {
+  const query = workbench?.reopen_navigation?.query ?? {};
+  return buildFactReviewHrefForSource(
+    {
+      source_label: query?.source_label ?? workbench?.run?.source_label,
+      workflow_kind: query?.workflow_kind ?? workbench?.run?.workflow_link?.workflow_kind ?? params.workflowKind,
+      workflow_run_id: query?.workflow_run_id ?? workbench?.run?.workflow_link?.workflow_run_id ?? null,
+    },
+    params
+  );
+}
+
 export function resolveFactReviewAvailableIssueFilters(workbench, view) {
   if (view !== 'intake_triage') {
     return ['all'];
@@ -46,6 +58,15 @@ export function resolveInspectorClassification(workbench, selectedFact) {
     workbench?.inspector_classification?.facts?.[selectedFact?.fact_id ?? ''] ??
     null
   );
+}
+
+export function resolveInspectorStatusRows(classification) {
+  const statusKeys = classification?.status_keys ?? {};
+  return [
+    { key: 'party_assertion', label: 'Party assertion', active: Boolean(statusKeys.party_assertion) },
+    { key: 'procedural_outcome', label: 'Procedural outcome', active: Boolean(statusKeys.procedural_outcome) },
+    { key: 'later_annotation', label: 'Later annotation', active: Boolean(statusKeys.later_annotation) },
+  ];
 }
 
 export function resolveChronologyBuckets(workbench) {

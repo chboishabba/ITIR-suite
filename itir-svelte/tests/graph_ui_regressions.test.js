@@ -249,6 +249,7 @@ test('fact review workbench route loads persisted workbench and acceptance paylo
   const server = read('src/routes/graphs/fact-review/+page.server.ts');
   const page = read('src/routes/graphs/fact-review/+page.svelte');
   const loader = read('src/lib/server/factReview.ts');
+  const helpers = read('src/lib/workbench/factReview.js');
   const home = read('src/routes/+page.svelte');
   assert.ok(server.includes('loadFactReviewWorkbench'));
   assert.ok(server.includes('loadFactReviewAcceptance'));
@@ -258,10 +259,16 @@ test('fact review workbench route loads persisted workbench and acceptance paylo
   assert.ok(loader.includes("'workbench'"));
   assert.ok(loader.includes("'acceptance'"));
   assert.ok(loader.includes("'sources'"));
+  assert.ok(loader.includes('parseFactReviewCliPayload'));
   assert.ok(page.includes('Recent / source-centric reopen'));
   assert.ok(page.includes('resolveFactReviewSourceRows'));
   assert.ok(page.includes('resolveFactReviewAvailableIssueFilters'));
+  assert.ok(page.includes('Open current persisted run'));
   assert.ok(page.includes('Inspector classification'));
+  assert.ok(page.includes('resolveInspectorStatusRows'));
+  assert.ok(helpers.includes("label: 'Party assertion'"));
+  assert.ok(helpers.includes("label: 'Procedural outcome'"));
+  assert.ok(helpers.includes("label: 'Later annotation'"));
   assert.ok(page.includes("filterKey.replaceAll('_', ' ')"));
   assert.ok(page.includes('Fact Review Workbench'));
   assert.ok(page.includes('Read-only Mary-parity inspection'));
@@ -272,5 +279,8 @@ test('fact review workbench route loads persisted workbench and acceptance paylo
   assert.ok(page.includes('Source provenance:'));
   assert.ok(page.includes('Inspector'));
   assert.ok(page.includes('resolveChronologyBuckets'));
+  assert.ok(page.includes('No reopen sources are available for this workflow yet.'));
+  assert.ok(page.includes('No acceptance stories were recorded for this selector.'));
+  assert.ok(page.includes('No items are available for this operator view and filter yet.'));
   assert.ok(home.includes('Mary-parity fact review workbench'));
 });

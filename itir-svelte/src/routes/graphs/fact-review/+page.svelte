@@ -11,12 +11,14 @@
     FactReviewViewItem
   } from '$lib/server/factReview';
   import {
+    buildFactReviewCurrentHref,
     buildFactReviewHrefForSource,
     resolveChronologyBuckets,
     resolveFactReviewAvailableIssueFilters,
     resolveFactReviewFilteredItems,
     resolveFactReviewSourceRows,
     resolveInspectorClassification,
+    resolveInspectorStatusRows,
     resolveSelectedFact
   } from '$lib/workbench/factReview.js';
 
@@ -46,12 +48,18 @@
   $: filteredItems = resolveFactReviewFilteredItems(data.workbench, data.view, selectedIssueFilter) as FactReviewViewItem[];
   $: reopenNavigation = data.workbench?.reopen_navigation ?? null;
   $: reopenSourceRows = resolveFactReviewSourceRows(data.workbench, data.sources) as FactReviewSourceRow[];
+  $: currentRunHref = buildFactReviewCurrentHref(data.workbench, {
+    workflowKind: data.workflowKind,
+    wave: data.wave,
+    view: data.view
+  });
   $: chronologyBuckets = resolveChronologyBuckets(data.workbench);
   $: selectedFact = resolveSelectedFact(data.workbench, selectedFactId) as FactReviewFact | null;
   $: selectedClassification = resolveInspectorClassification(
     data.workbench,
     selectedFact
   ) as FactReviewInspectorClassification | null;
+  $: inspectorStatuses = resolveInspectorStatusRows(selectedClassification);
   $: selectedStatements = (data.workbench?.statements ?? []).filter((row) =>
     selectedFact?.statement_ids?.includes(row.statement_id)
   ) as FactReviewStatement[];
@@ -105,7 +113,10 @@
   </div>
 
   {#if data.error}
-    <div class="rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">{data.error}</div>
+    <div class="rounded border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+      <div class="font-medium">{data.errorTitle ?? 'Fact review load error'}</div>
+      <div class="mt-1">{data.error}</div>
+    </div>
   {:else if data.workbench}
     <div class="mb-6 grid gap-4 lg:grid-cols-4">
       <div class="rounded border border-zinc-200 bg-white p-4">
@@ -138,14 +149,25 @@
 
     <section class="mb-6 rounded border border-zinc-200 bg-white p-4">
       <div class="mb-4">
-        <div class="text-xs uppercase tracking-[0.24em] text-zinc-500">Recent / source-centric reopen</div>
-        <div class="mt-3 flex flex-wrap gap-2">
-          {#each reopenSourceRows as source}
-            <a class={`rounded border px-3 py-1 text-sm ${data.sourceLabel === source.source_label ? 'border-amber-300 bg-amber-50 text-amber-950' : 'border-zinc-200 bg-zinc-50 text-zinc-700'}`} href={hrefForSource(source)}>
-              {source.source_label}
-            </a>
-          {/each}
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="text-xs uppercase tracking-[0.24em] text-zinc-500">Recent / source-centric reopen</div>
+          <a class="rounded border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs text-zinc-700" href={currentRunHref}>
+            Open current persisted run
+          </a>
         </div>
+        {#if reopenSourceRows.length > 0}
+          <div class="mt-3 flex flex-wrap gap-2">
+            {#each reopenSourceRows as source}
+              <a class={`rounded border px-3 py-1 text-sm ${data.sourceLabel === source.source_label ? 'border-amber-300 bg-amber-50 text-amber-950' : 'border-zinc-200 bg-zinc-50 text-zinc-700'}`} href={hrefForSource(source)}>
+                {source.source_label}
+              </a>
+            {/each}
+          </div>
+        {:else}
+          <div class="mt-3 rounded border border-dashed border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-600">
+            No reopen sources are available for this workflow yet.
+          </div>
+        {/if}
       </div>
       <div class="mb-3 flex flex-wrap items-center gap-3">
         <div class="text-xs uppercase tracking-[0.24em] text-zinc-500">Operator views</div>
@@ -210,30 +232,36 @@
               </div>
             </div>
           {:else}
-            {#each filteredItems as row}
-              <button class="mt-2 block w-full rounded border border-zinc-200 bg-zinc-50 px-3 py-3 text-left" on:click={() => clickFact(row.fact_id)}>
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                  <div class="font-medium text-zinc-900">{row.label}</div>
-                  <div class="text-xs text-zinc-500">{row.latest_review_status ?? row.candidate_status ?? ''}</div>
-                </div>
-                <div class="mt-2 text-xs text-zinc-600">
-                  {(row.reason_labels ?? []).join(' · ') || `${row.contestation_count ?? 0} contested`}
-                </div>
-                {#if row.primary_contested_reason_text}
-                  <div class="mt-2 text-sm text-zinc-800">{row.primary_contested_reason_text}</div>
-                {/if}
-                {#if row.signal_classes?.length}
+            {#if filteredItems.length > 0}
+              {#each filteredItems as row}
+                <button class="mt-2 block w-full rounded border border-zinc-200 bg-zinc-50 px-3 py-3 text-left" on:click={() => clickFact(row.fact_id)}>
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="font-medium text-zinc-900">{row.label}</div>
+                    <div class="text-xs text-zinc-500">{row.latest_review_status ?? row.candidate_status ?? ''}</div>
+                  </div>
                   <div class="mt-2 text-xs text-zinc-600">
-                    Observation signals: {(row.signal_classes ?? []).join(' · ')}
+                    {(row.reason_labels ?? []).join(' · ') || `${row.contestation_count ?? 0} contested`}
                   </div>
-                {/if}
-                {#if row.source_signal_classes?.length}
-                  <div class="mt-1 text-xs text-zinc-600">
-                    Source provenance: {(row.source_signal_classes ?? []).join(' · ')}
-                  </div>
-                {/if}
-              </button>
-            {/each}
+                  {#if row.primary_contested_reason_text}
+                    <div class="mt-2 text-sm text-zinc-800">{row.primary_contested_reason_text}</div>
+                  {/if}
+                  {#if row.signal_classes?.length}
+                    <div class="mt-2 text-xs text-zinc-600">
+                      Observation signals: {(row.signal_classes ?? []).join(' · ')}
+                    </div>
+                  {/if}
+                  {#if row.source_signal_classes?.length}
+                    <div class="mt-1 text-xs text-zinc-600">
+                      Source provenance: {(row.source_signal_classes ?? []).join(' · ')}
+                    </div>
+                  {/if}
+                </button>
+              {/each}
+            {:else}
+              <div class="rounded border border-dashed border-zinc-300 bg-zinc-50 px-3 py-3 text-sm text-zinc-600">
+                No items are available for this operator view and filter yet.
+              </div>
+            {/if}
           {/if}
         </div>
         <div class="rounded border border-zinc-200 bg-zinc-50 p-4">
@@ -247,6 +275,14 @@
               <div class="mt-2 flex flex-wrap gap-2">
                 {#each selectedClassification.display_labels ?? [] as label}
                   <div class="rounded border border-zinc-200 bg-white px-3 py-1 text-xs text-zinc-800">{label}</div>
+                {/each}
+              </div>
+              <div class="mt-3 grid gap-2 md:grid-cols-3">
+                {#each inspectorStatuses as status}
+                  <div class={`rounded border px-3 py-2 text-sm ${status.active ? 'border-amber-300 bg-amber-50 text-amber-950' : 'border-zinc-200 bg-white text-zinc-500'}`}>
+                    <div class="text-[11px] uppercase tracking-[0.16em]">{status.label}</div>
+                    <div class="mt-1 font-medium">{status.active ? 'present' : 'not present'}</div>
+                  </div>
                 {/each}
               </div>
             {/if}
@@ -303,20 +339,30 @@
 
     <section class="rounded border border-zinc-200 bg-white p-4">
       <div class="text-xs uppercase tracking-[0.24em] text-zinc-500">Story acceptance</div>
-      <div class="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {#each data.acceptance?.stories ?? [] as story}
-          <div class="rounded border border-zinc-200 bg-zinc-50 p-3">
-            <div class="flex items-center justify-between gap-3">
-              <div class="font-medium text-zinc-950">{story.story_id}</div>
-              <div class={`rounded px-2 py-1 text-xs ${story.status === 'pass' ? 'bg-emerald-100 text-emerald-900' : story.status === 'partial' ? 'bg-amber-100 text-amber-900' : 'bg-rose-100 text-rose-900'}`}>
-                {story.status}
+      {#if (data.acceptance?.stories ?? []).length > 0}
+        <div class="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {#each data.acceptance?.stories ?? [] as story}
+            <div class="rounded border border-zinc-200 bg-zinc-50 p-3">
+              <div class="flex items-center justify-between gap-3">
+                <div class="font-medium text-zinc-950">{story.story_id}</div>
+                <div class={`rounded px-2 py-1 text-xs ${story.status === 'pass' ? 'bg-emerald-100 text-emerald-900' : story.status === 'partial' ? 'bg-amber-100 text-amber-900' : 'bg-rose-100 text-rose-900'}`}>
+                  {story.status}
+                </div>
               </div>
+              <div class="mt-1 text-sm text-zinc-700">{story.label}</div>
+              <div class="mt-2 text-xs text-zinc-600">{story.passed_check_count}/{story.check_count} checks passed</div>
             </div>
-            <div class="mt-1 text-sm text-zinc-700">{story.label}</div>
-            <div class="mt-2 text-xs text-zinc-600">{story.passed_check_count}/{story.check_count} checks passed</div>
-          </div>
-        {/each}
-      </div>
+          {/each}
+        </div>
+      {:else}
+        <div class="mt-3 rounded border border-dashed border-zinc-300 bg-zinc-50 px-3 py-3 text-sm text-zinc-600">
+          No acceptance stories were recorded for this selector.
+        </div>
+      {/if}
     </section>
+  {:else}
+    <div class="rounded border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
+      No persisted fact-review payload is available for this selector.
+    </div>
   {/if}
 </div>

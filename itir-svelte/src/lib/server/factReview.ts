@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { spawn } from 'node:child_process';
+import { parseFactReviewCliPayload } from '$lib/server/factReviewCli.js';
 
 export type FactReviewSelector = {
   runId?: string | null;
@@ -201,13 +202,6 @@ export interface FactReviewAcceptanceReport {
   stories: FactReviewStoryResult[];
 }
 
-interface FactReviewCliResponse {
-  ok: boolean;
-  dbPath: string;
-  error?: string;
-  [key: string]: unknown;
-}
-
 function resolveRepoRoot(): string {
   return path.resolve('..');
 }
@@ -254,23 +248,7 @@ async function runQuery<T>(commandArgs: string[], field: string): Promise<T> {
     [queryScriptPath(repoRoot), '--db-path', resolveItirDbPath(repoRoot), ...commandArgs],
     repoRoot
   );
-  
-  let payload: FactReviewCliResponse;
-  try {
-    payload = JSON.parse(raw);
-  } catch (e) {
-    throw new Error(`Failed to parse SensibLaw CLI output as JSON: ${e}\nRaw output: ${raw.slice(0, 500)}`);
-  }
-
-  if (!payload.ok) {
-    throw new Error(`SensibLaw CLI reported failure: ${payload.error || 'Unknown error'}`);
-  }
-
-  if (!(field in payload)) {
-    throw new Error(`SensibLaw CLI response missing expected field: ${field}`);
-  }
-
-  return payload[field] as T;
+  return parseFactReviewCliPayload<T>(raw, field);
 }
 
 export async function loadFactReviewWorkbench(selector: FactReviewSelector): Promise<FactReviewWorkbench> {

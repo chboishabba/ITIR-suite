@@ -24,6 +24,15 @@ export function buildFactReviewHrefForSource(
   }
 ): string;
 
+export function buildFactReviewCurrentHref(
+  workbench: FactReviewWorkbench | null | undefined,
+  params: {
+    workflowKind?: string | null;
+    wave?: string | null;
+    view?: string | null;
+  }
+): string;
+
 export function resolveFactReviewAvailableIssueFilters(
   workbench: FactReviewWorkbench | null | undefined,
   view: string | null | undefined
@@ -44,6 +53,14 @@ export function resolveInspectorClassification(
   workbench: FactReviewWorkbench | null | undefined,
   selectedFact: FactReviewFact | null | undefined
 ): FactReviewInspectorClassification | null;
+
+export function resolveInspectorStatusRows(
+  classification: FactReviewInspectorClassification | null | undefined
+): Array<{
+  key: 'party_assertion' | 'procedural_outcome' | 'later_annotation';
+  label: string;
+  active: boolean;
+}>;
 
 export function resolveChronologyBuckets(
   workbench: FactReviewWorkbench | null | undefined

@@ -1,0 +1,45 @@
+{
+  "ok": true,
+  "dbPath": "/home/c/Documents/code/ITIR-suite/.cache_local/itir.sqlite",
+  "acceptance": {
+    "version": "fact.acceptance.v1",
+    "wave": "wave1_legal",
+    "fixture_kind": "real",
+    "run": {
+      "run_id": "factrun:wave1-intake",
+      "source_label": "wave1:real_transcript_intake_v1",
+      "workflow_link": {
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_intake_v1"
+      }
+    },
+    "summary": {
+      "story_count": 1,
+      "pass_count": 1,
+      "partial_count": 0,
+      "fail_count": 0
+    },
+    "stories": [
+      {
+        "story_id": "SL-W1-01",
+        "label": "Wave-1 legal operator baseline",
+        "status": "pass",
+        "check_count": 2,
+        "passed_check_count": 2,
+        "failed_check_ids": [],
+        "gap_tags": [],
+        "blocking_explanation": null,
+        "checks": [
+          {
+            "check_id": "reopen_navigation",
+            "passed": true
+          },
+          {
+            "check_id": "inspector_distinction",
+            "passed": true
+          }
+        ]
+      }
+    ]
+  }
+}

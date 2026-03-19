@@ -3,14 +3,20 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  buildFactReviewCurrentHref,
   buildFactReviewHrefForSource,
   resolveChronologyBuckets,
   resolveFactReviewAvailableIssueFilters,
   resolveFactReviewFilteredItems,
   resolveFactReviewSourceRows,
   resolveInspectorClassification,
+  resolveInspectorStatusRows,
   resolveSelectedFact,
 } from '../src/lib/workbench/factReview.js';
+import {
+  classifyFactReviewErrorMessage,
+  parseFactReviewCliPayload,
+} from '../src/lib/server/factReviewCli.js';
 
 const ROOT = new URL('..', import.meta.url);
 
@@ -37,9 +43,7 @@ test('factReview server adapter defines expected workbench and acceptance interf
 test('factReview server adapter implements robust runQuery with JSON and error validation', () => {
   const s = read('src/lib/server/factReview.ts');
   assert.ok(s.includes('async function runQuery<T>(commandArgs: string[], field: string): Promise<T>'));
-  assert.ok(s.includes('JSON.parse(raw)'));
-  assert.ok(s.includes('if (!payload.ok)'));
-  assert.ok(s.includes('if (!(field in payload))'));
+  assert.ok(s.includes('parseFactReviewCliPayload<T>(raw, field)'));
 });
 
 test('factReview server adapter exported loaders are correctly typed', () => {
@@ -54,17 +58,43 @@ test('fact review route server uses SvelteKit PageServerLoad typing', () => {
   const s = read('src/routes/graphs/fact-review/+page.server.ts');
   assert.ok(s.includes("import type { PageServerLoad } from './$types';"));
   assert.ok(s.includes('export const load: PageServerLoad = async ({ url }) => {'));
+  assert.ok(s.includes('Promise.allSettled'));
+  assert.ok(s.includes('classifyFactReviewErrorMessage'));
 });
 
 test('fact review page consumes typed Mary-parity helpers and page data', () => {
   const s = read('src/routes/graphs/fact-review/+page.svelte');
   assert.ok(s.includes("import type { PageData } from './$types';"));
   assert.ok(s.includes('export let data: PageData;'));
+  assert.ok(s.includes('buildFactReviewCurrentHref'));
   assert.ok(s.includes('resolveFactReviewAvailableIssueFilters'));
   assert.ok(s.includes('resolveFactReviewFilteredItems'));
   assert.ok(s.includes('resolveFactReviewSourceRows'));
   assert.ok(s.includes('resolveInspectorClassification'));
+  assert.ok(s.includes('resolveInspectorStatusRows'));
   assert.ok(s.includes('resolveChronologyBuckets'));
+});
+
+test('fact review CLI parser accepts captured workbench, acceptance, and source payloads', () => {
+  const workbenchPayload = read('tests/fixtures/fact_review_cli_workbench_response.json');
+  const acceptancePayload = read('tests/fixtures/fact_review_cli_acceptance_response.json');
+  const sourcesPayload = read('tests/fixtures/fact_review_cli_sources_response.json');
+
+  const workbench = parseFactReviewCliPayload(workbenchPayload, 'workbench');
+  const acceptance = parseFactReviewCliPayload(acceptancePayload, 'acceptance');
+  const sources = parseFactReviewCliPayload(sourcesPayload, 'sources');
+
+  assert.equal(workbench.run.run_id, 'factrun:wave1-intake');
+  assert.equal(acceptance.wave, 'wave1_legal');
+  assert.equal(sources[0].source_label, 'wave1:real_transcript_intake_v1');
+});
+
+test('fact review CLI error classifier distinguishes missing runs and parse failures', () => {
+  const missingRun = classifyFactReviewErrorMessage('ValueError: No fact workflow link found for transcript_semantic');
+  const parseFailure = classifyFactReviewErrorMessage('Failed to parse SensibLaw CLI output as JSON: SyntaxError: Unexpected token');
+
+  assert.equal(missingRun.kind, 'missing_run');
+  assert.equal(parseFailure.kind, 'parse_error');
 });
 
 test('fact review helpers prefer recent reopen rows and fall back to listed sources', () => {
@@ -102,6 +132,20 @@ test('fact review helpers build reopen links from both workflow row shapes', () 
   );
 });
 
+test('fact review helpers build a repeatable current persisted-run href from workbench metadata', () => {
+  const intake = readJson('tests/fixtures/fact_review_wave1_intake.json');
+  const currentHref = buildFactReviewCurrentHref(intake.workbench, {
+    workflowKind: 'fact_review',
+    wave: 'wave1_legal',
+    view: 'intake_triage',
+  });
+
+  assert.equal(
+    currentHref,
+    '/graphs/fact-review?workflow=transcript_semantic&workflowRunId=real_transcript_intake_v1&sourceLabel=wave1%3Areal_transcript_intake_v1&wave=wave1_legal&view=intake_triage'
+  );
+});
+
 test('fact review helpers use canonical issue filters instead of deriving keys from group objects', () => {
   const intake = readJson('tests/fixtures/fact_review_wave1_intake.json');
   const filters = resolveFactReviewAvailableIssueFilters(intake.workbench, 'intake_triage');
@@ -126,6 +170,22 @@ test('fact review helpers resolve selected fact and prefer inline inspector clas
   assert.equal(selectedFallback?.fact_id, 'fact:injury-date');
   assert.deepEqual(explicitClassification.display_labels, ['party assertion', 'later annotation']);
   assert.deepEqual(fallbackClassification.display_labels, ['unclassified']);
+});
+
+test('fact review helpers expose distinct inspector status rows for Mary classifications', () => {
+  const procedural = readJson('tests/fixtures/fact_review_wave1_procedural.json');
+  const selectedFact = resolveSelectedFact(procedural.workbench, 'fact:outcome');
+  const classification = resolveInspectorClassification(procedural.workbench, selectedFact);
+  const statuses = resolveInspectorStatusRows(classification);
+
+  assert.deepEqual(
+    statuses.map((row) => [row.key, row.active]),
+    [
+      ['party_assertion', false],
+      ['procedural_outcome', true],
+      ['later_annotation', true],
+    ]
+  );
 });
 
 test('fact review helpers keep chronology buckets distinct and preserve contested chronology rows', () => {
