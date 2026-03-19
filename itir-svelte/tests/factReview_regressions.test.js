@@ -285,6 +285,99 @@ test('SL-US-14 AU real-path bundle keeps reopen and read-only procedural reconst
   assert.ok(bundle.acceptance.stories.some((story) => story.story_id === 'SL-US-14'));
 });
 
+test('fact review CLI parser accepts the real trauma/support and handoff demo bundle payloads', () => {
+  const wave3Payload = read('tests/fixtures/fact_review_wave3_real_fragmented_support_demo_bundle.json');
+  const wave5Payload = read('tests/fixtures/fact_review_wave5_real_professional_handoff_demo_bundle.json');
+  const wave3Bundle = JSON.parse(wave3Payload);
+  const wave5Bundle = JSON.parse(wave5Payload);
+  const wave3Acceptance = parseFactReviewCliPayload(wave3Payload, 'acceptance');
+  const wave5Acceptance = parseFactReviewCliPayload(wave5Payload, 'acceptance');
+
+  assert.equal(wave3Bundle.selector.wave, 'wave3_trauma_advocacy');
+  assert.equal(wave3Bundle.selector.workflow_run_id, 'real_transcript_fragmented_support_v1');
+  assert.equal(wave3Acceptance.wave, 'wave3_trauma_advocacy');
+  assert.equal(wave5Bundle.selector.wave, 'wave5_handoff_false_coherence');
+  assert.equal(wave5Bundle.selector.workflow_run_id, 'real_transcript_professional_handoff_v1');
+  assert.equal(wave5Acceptance.wave, 'wave5_handoff_false_coherence');
+});
+
+test('ITIR-US-13 trauma real-path bundle keeps abstention, source distinction, and contested chronology visible', () => {
+  const bundle = readJson('tests/fixtures/fact_review_wave3_real_fragmented_support_demo_bundle.json');
+  const chronology = resolveChronologyBuckets(bundle.workbench);
+  const traumaItems = bundle.workbench.operator_views.trauma_handoff.items;
+  const abstainedFact = bundle.workbench.facts.find((fact) => fact.fact_id === 'fact:c4706bc1e1e5f402');
+
+  assert.equal(bundle.workbench.summary.abstained_fact_count, 1);
+  assert.equal(chronology.contested.length, 1);
+  assert.equal(bundle.workbench.operator_views.contested_items.items.length, 1);
+  assert.equal(traumaItems.length, 2);
+  assert.deepEqual(abstainedFact?.source_signal_classes, ['later_annotation', 'support_worker_note']);
+  assert.ok(abstainedFact?.policy_outcomes.includes('bounded_context_required'));
+  assert.ok(bundle.acceptance.stories.some((story) => story.story_id === 'ITIR-US-13'));
+});
+
+test('ITIR-US-14 trauma real-path bundle keeps support handoff posture anchored to the persisted selector', () => {
+  const bundle = readJson('tests/fixtures/fact_review_wave3_real_fragmented_support_demo_bundle.json');
+  const sourceRows = resolveFactReviewSourceRows(bundle.workbench, bundle.sources);
+  const currentHref = buildFactReviewCurrentHref(bundle.workbench, {
+    workflowKind: bundle.selector.workflow_kind,
+    wave: bundle.selector.wave,
+    view: 'trauma_handoff',
+  });
+
+  assert.ok(bundle.workbench.operator_views.professional_handoff.items.length >= 1);
+  assert.ok(bundle.workbench.operator_views.trauma_handoff.items.length >= 1);
+  assert.ok(sourceRows.some((row) => row.source_label === 'wave3:real_transcript_fragmented_support_v1'));
+  assert.ok(sourceRows.some((row) => row.workflow_kind === 'transcript_semantic' || row.latest_workflow_link?.workflow_kind === 'transcript_semantic'));
+  assert.equal(
+    currentHref,
+    '/graphs/fact-review?workflow=transcript_semantic&workflowRunId=real_transcript_fragmented_support_v1&sourceLabel=wave3%3Areal_transcript_fragmented_support_v1&wave=wave3_trauma_advocacy&view=trauma_handoff'
+  );
+  assert.ok(bundle.acceptance.stories.some((story) => story.story_id === 'ITIR-US-14'));
+});
+
+test('ITIR-US-15 professional handoff real-path bundle preserves source boundaries and bounded context', () => {
+  const bundle = readJson('tests/fixtures/fact_review_wave5_real_professional_handoff_demo_bundle.json');
+  const sourceRows = resolveFactReviewSourceRows(bundle.workbench, bundle.sources);
+  const therapistFact = bundle.workbench.facts.find((fact) => fact.fact_id === 'fact:2499c1b666ccd133');
+  const journalFact = bundle.workbench.facts.find((fact) => fact.fact_id === 'fact:e0667b55061037f4');
+  const currentHref = buildFactReviewCurrentHref(bundle.workbench, {
+    workflowKind: bundle.selector.workflow_kind,
+    wave: bundle.selector.wave,
+    view: 'professional_handoff',
+  });
+
+  assert.equal(bundle.workbench.operator_views.professional_handoff.items.length, 2);
+  assert.equal(bundle.workbench.operator_views.trauma_handoff.items.length, 2);
+  assert.deepEqual(therapistFact?.source_signal_classes, ['later_annotation', 'professional_interpretation', 'professional_note']);
+  assert.ok(therapistFact?.policy_outcomes.includes('preserve_source_boundary'));
+  assert.deepEqual(journalFact?.source_signal_classes, ['client_account', 'user_authored']);
+  assert.ok(journalFact?.policy_outcomes.includes('preserve_source_boundary'));
+  assert.ok(sourceRows.some((row) => row.source_label === 'wave5:real_transcript_professional_handoff_v1'));
+  assert.equal(
+    currentHref,
+    '/graphs/fact-review?workflow=transcript_semantic&workflowRunId=real_transcript_professional_handoff_v1&sourceLabel=wave5%3Areal_transcript_professional_handoff_v1&wave=wave5_handoff_false_coherence&view=professional_handoff'
+  );
+  assert.ok(bundle.acceptance.stories.some((story) => story.story_id === 'ITIR-US-15'));
+});
+
+test('ITIR-US-16 false-coherence real-path bundle keeps contradiction clusters and contested review visible', () => {
+  const bundle = readJson('tests/fixtures/fact_review_wave5_real_false_coherence_demo_bundle.json');
+  const falseCoherenceItems = bundle.workbench.operator_views.false_coherence_review.items;
+  const contestedItems = bundle.workbench.operator_views.contested_items.items;
+  const fragmentA = bundle.workbench.facts.find((fact) => fact.fact_id === 'fact:23fbeeeccea59b14');
+  const supportNote = bundle.workbench.facts.find((fact) => fact.fact_id === 'fact:b4fa09470be846ce');
+
+  assert.equal(falseCoherenceItems.length, 4);
+  assert.equal(contestedItems.length, 1);
+  assert.ok(fragmentA?.signal_classes.includes('contradiction_cluster'));
+  assert.ok(fragmentA?.signal_classes.includes('fragmentary_account'));
+  assert.ok(supportNote?.policy_outcomes.includes('bounded_context_required'));
+  assert.ok(supportNote?.policy_outcomes.includes('preserve_source_boundary'));
+  assert.equal(bundle.workbench.summary.review_queue_count, 4);
+  assert.ok(bundle.acceptance.stories.some((story) => story.story_id === 'ITIR-US-16'));
+});
+
 test('fact review helpers prefer recent reopen rows and fall back to listed sources', () => {
   const intake = readJson('tests/fixtures/fact_review_wave1_intake.json');
   const fallback = readJson('tests/fixtures/fact_review_wave1_reopen_fallback.json');

@@ -1,0 +1,1970 @@
+{
+  "acceptance": {
+    "fixture_kind": "real",
+    "run": {
+      "run_id": "factrun:7c3275b6c4d303154ddf3b0ec11f20fde5a740466421c23a2ac9a547d15ba37d",
+      "source_label": "wave5:real_transcript_professional_handoff_v1",
+      "workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:7c3275b6c4d303154ddf3b0ec11f20fde5a740466421c23a2ac9a547d15ba37d",
+        "source_label": "wave5:real_transcript_professional_handoff_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_professional_handoff_v1"
+      }
+    },
+    "stories": [
+      {
+        "blocking_explanation": null,
+        "check_count": 5,
+        "checks": [
+          {
+            "check_id": "workflow_link",
+            "explanation": "Stored run cannot be reopened cleanly from workflow metadata.",
+            "passed": true
+          },
+          {
+            "check_id": "provenance_drilldown",
+            "explanation": "Missing drill-down from fact/event rows to source statements and excerpts.",
+            "passed": true
+          },
+          {
+            "check_id": "professional_handoff_posture",
+            "explanation": "Personal, documentary, and later professional layers are not distinguishable enough across handoff.",
+            "passed": true
+          },
+          {
+            "check_id": "source_class_distinction",
+            "explanation": "User-authored, support-note, and third-party source classes are not distinguishable enough.",
+            "passed": true
+          },
+          {
+            "check_id": "abstention_visibility",
+            "explanation": "Abstained or not-ready material is not visible enough in the review surface.",
+            "passed": true
+          }
+        ],
+        "failed_check_ids": [],
+        "gap_tags": [],
+        "label": "Personal-to-professional provenance handoff",
+        "passed_check_count": 5,
+        "status": "pass",
+        "story_id": "ITIR-US-15"
+      },
+      {
+        "blocking_explanation": null,
+        "check_count": 5,
+        "checks": [
+          {
+            "check_id": "false_coherence_resistance",
+            "explanation": "High-conflict sparse material is still too easy to collapse into one narrative.",
+            "passed": true
+          },
+          {
+            "check_id": "provenance_drilldown",
+            "explanation": "Missing drill-down from fact/event rows to source statements and excerpts.",
+            "passed": true
+          },
+          {
+            "check_id": "read_only_posture",
+            "explanation": "Review surface does not clearly maintain read-only, non-reasoning posture.",
+            "passed": true
+          },
+          {
+            "check_id": "abstention_visibility",
+            "explanation": "Abstained or not-ready material is not visible enough in the review surface.",
+            "passed": true
+          },
+          {
+            "check_id": "contested_summary",
+            "explanation": "Contested items are not summarized separately from the main review flow.",
+            "passed": true
+          }
+        ],
+        "failed_check_ids": [],
+        "gap_tags": [],
+        "label": "Combating AI psychosis / false-coherence escalation",
+        "passed_check_count": 5,
+        "status": "pass",
+        "story_id": "ITIR-US-16"
+      }
+    ],
+    "summary": {
+      "fail_count": 0,
+      "partial_count": 0,
+      "pass_count": 2,
+      "story_count": 2
+    },
+    "version": "fact.review.acceptance.v1",
+    "wave": "wave5_handoff_false_coherence"
+  },
+  "dbPath": "/home/c/Documents/code/ITIR-suite/.cache_local/itir.sqlite",
+  "ok": true,
+  "selector": {
+    "fixture_kind": "real",
+    "run_id": "factrun:7c3275b6c4d303154ddf3b0ec11f20fde5a740466421c23a2ac9a547d15ba37d",
+    "source_label": "wave5:real_transcript_professional_handoff_v1",
+    "wave": "wave5_handoff_false_coherence",
+    "workflow_kind": "transcript_semantic",
+    "workflow_run_id": "real_transcript_professional_handoff_v1"
+  },
+  "sources": [
+    {
+      "latest_created_at": "2026-03-19 14:35:55",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:55",
+        "fact_run_id": "factrun:fedbf065ba750fa9f719294a646c3c28be20b6f1247fd942d55d36ca52c2b2fd",
+        "source_label": "wave5:synthetic_false_coherence_pressure_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_false_coherence_pressure_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave5:synthetic_false_coherence_pressure_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:71459217037410765e0a10bd53af409925ad12c319653d9574a613d1602ef326",
+        "source_label": "wave5:synthetic_personal_professional_handoff_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_personal_professional_handoff_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave5:synthetic_personal_professional_handoff_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:ae4e1ef3a933fe2e0ebb393b49a54724132b56adda5d326a68939fb51d1600a1",
+        "source_label": "wave5:synthetic_multi_professional_reopen_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_multi_professional_reopen_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave5:synthetic_multi_professional_reopen_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:7c3275b6c4d303154ddf3b0ec11f20fde5a740466421c23a2ac9a547d15ba37d",
+        "source_label": "wave5:real_transcript_professional_handoff_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_professional_handoff_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave5:real_transcript_professional_handoff_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:83198f9318e190df46ea33a50bffb32f6ccb07a10786348a9212568731c3f4cb",
+        "source_label": "wave5:real_transcript_false_coherence_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_false_coherence_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave5:real_transcript_false_coherence_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:2a5f3cdfdabd948a9131a4fbfd2012c0b6e3091a6ffce3f806f646eb3f56566d",
+        "source_label": "wave3:synthetic_trauma_fragment_cluster_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_trauma_fragment_cluster_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave3:synthetic_trauma_fragment_cluster_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:f7334e00285ccfeb3ea882ac782fb6d4852dfcc620b691c80d604efd62c881ad",
+        "source_label": "wave3:synthetic_support_worker_handoff_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_support_worker_handoff_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave3:synthetic_support_worker_handoff_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:d3bdabfac4bda3198d76037f9d56cb1929009701a0e6079854e1bb3ae8f0f9b7",
+        "source_label": "wave3:real_transcript_fragmented_support_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_fragmented_support_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave3:real_transcript_fragmented_support_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:31",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:31",
+        "fact_run_id": "factrun:15dd326a477fd2237d75b817b671fc0f29f756757bec52c54d306498771e530b",
+        "source_label": "wave1:synthetic_sparse_dates_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_sparse_dates_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave1:synthetic_sparse_dates_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:31",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:31",
+        "fact_run_id": "factrun:2853fd77df087011195190b7c6de66f0e148a60301a4326a08acc9d97550132f",
+        "source_label": "wave1:synthetic_conflict_cluster_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_conflict_cluster_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave1:synthetic_conflict_cluster_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:31",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:31",
+        "fact_run_id": "factrun:e82b0742b88f1839f1b359d53f0ffa60dd1764bb5e33a98b43e2ad392892554b",
+        "source_label": "wave1:real_transcript_intake_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "transcript_acceptance_real_intake_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave1:real_transcript_intake_v1"
+    }
+  ],
+  "workbench": {
+    "chronology": {
+      "events": [],
+      "facts": [
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "rph-3",
+          "chronology_sort_key": null,
+          "fact_id": "fact:2499c1b666ccd133",
+          "order": 1
+        },
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "rph-1",
+          "chronology_sort_key": null,
+          "fact_id": "fact:e0667b55061037f4",
+          "order": 2
+        },
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "rph-2",
+          "chronology_sort_key": null,
+          "fact_id": "fact:f5b42c5d8feb0ec6",
+          "order": 3
+        }
+      ]
+    },
+    "chronology_groups": {
+      "approximate_events": [],
+      "contested_chronology_items": [],
+      "dated_events": [],
+      "facts_with_no_event": [
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "rph-3",
+          "fact_id": "fact:2499c1b666ccd133",
+          "label": "Therapist note",
+          "source_ids": [
+            "src:5e78e41d87374808"
+          ],
+          "statement_ids": [
+            "statement:6a76d26b680c03e9"
+          ]
+        },
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "rph-1",
+          "fact_id": "fact:e0667b55061037f4",
+          "label": "User journal account",
+          "source_ids": [
+            "src:816003715d9b4ab0"
+          ],
+          "statement_ids": [
+            "statement:9d022f16a280c923"
+          ]
+        },
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "rph-2",
+          "fact_id": "fact:f5b42c5d8feb0ec6",
+          "label": "Clinic letter",
+          "source_ids": [
+            "src:aae9767bfc03c41a"
+          ],
+          "statement_ids": [
+            "statement:0b109faaec28961a"
+          ]
+        }
+      ],
+      "undated_events": []
+    },
+    "chronology_summary": {
+      "approximate_event_count": 0,
+      "contested_chronology_item_count": 0,
+      "dated_event_count": 0,
+      "dated_fact_count": 0,
+      "event_count": 0,
+      "fact_count": 3,
+      "no_event_fact_count": 3,
+      "undated_event_count": 0,
+      "undated_fact_count": 3
+    },
+    "contested_summary": {
+      "chronology_impacted_count": 0,
+      "chronology_impacted_items": [],
+      "count": 0,
+      "items": [],
+      "needs_followup_count": 0,
+      "needs_followup_items": [],
+      "reviewed_count": 0,
+      "reviewed_items": []
+    },
+    "events": [],
+    "excerpts": [
+      {
+        "anchor_label": "rph-3",
+        "char_end": 96,
+        "char_start": 0,
+        "excerpt_id": "excerpt:c019b17459af4953",
+        "excerpt_order": 3,
+        "excerpt_text": "Therapist note keeps the user wording separate and marks the earlier panic timing as unresolved.",
+        "provenance": {
+          "semantic_run_id": "real_transcript_professional_handoff_v1",
+          "source_event_id": "rph-3"
+        },
+        "source_id": "src:5e78e41d87374808"
+      },
+      {
+        "anchor_label": "rph-1",
+        "char_end": 101,
+        "char_start": 0,
+        "excerpt_id": "excerpt:12d1b8e5eff08812",
+        "excerpt_order": 1,
+        "excerpt_text": "I wrote that the panic episode happened before the GP visit, but I was still unsure of the exact day.",
+        "provenance": {
+          "semantic_run_id": "real_transcript_professional_handoff_v1",
+          "source_event_id": "rph-1"
+        },
+        "source_id": "src:816003715d9b4ab0"
+      },
+      {
+        "anchor_label": "rph-2",
+        "char_end": 82,
+        "char_start": 0,
+        "excerpt_id": "excerpt:50ff1ae28a4d190e",
+        "excerpt_order": 2,
+        "excerpt_text": "The clinic letter confirms a GP visit on 2025-03-18 and records medication advice.",
+        "provenance": {
+          "semantic_run_id": "real_transcript_professional_handoff_v1",
+          "source_event_id": "rph-2"
+        },
+        "source_id": "src:aae9767bfc03c41a"
+      }
+    ],
+    "facts": [
+      {
+        "candidate_status": "candidate",
+        "canonical_label": "Therapist note",
+        "chronology_label": "rph-3",
+        "chronology_sort_key": null,
+        "contestations": [],
+        "event_ids": [],
+        "excerpt_ids": [
+          "excerpt:c019b17459af4953"
+        ],
+        "fact_id": "fact:2499c1b666ccd133",
+        "fact_text": "Therapist note keeps the user wording separate and marks the earlier panic timing as unresolved.",
+        "fact_type": "transcript_statement_capture",
+        "inferred_signal_classes": [
+          "handoff_context_signal",
+          "sequence_signal"
+        ],
+        "inferred_source_signal_classes": [],
+        "inspector_classification": {
+          "display_labels": [
+            "later annotation"
+          ],
+          "dominant_label": "later_annotation",
+          "status_keys": {
+            "later_annotation": true,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "latest_review_note": "Professional note preserves the user account and should not harden unresolved timing.",
+        "latest_review_status": "needs_followup",
+        "legal_procedural_predicates": [],
+        "lexical_projection_mode": "transcript_handoff",
+        "observations": [
+          {
+            "created_at": "2026-03-19 14:35:54",
+            "excerpt_id": "excerpt:c019b17459af4953",
+            "object_ref": null,
+            "object_text": "earlier panic timing unresolved",
+            "object_type": "note",
+            "observation_id": "obs:ea7285f7d36b4782",
+            "observation_order": 1,
+            "observation_status": "abstained",
+            "predicate_family": "temporal",
+            "predicate_key": "sequence_marker",
+            "provenance": {
+              "fixture_key": "real_transcript_professional_handoff_gap",
+              "signal_classes": [
+                "uncertainty_preserved",
+                "not_enough_evidence"
+              ],
+              "source": "acceptance_fixture"
+            },
+            "source_id": "src:5e78e41d87374808",
+            "statement_id": "statement:6a76d26b680c03e9",
+            "subject_text": null
+          }
+        ],
+        "policy_outcomes": [
+          "bounded_context_required",
+          "preserve_source_boundary"
+        ],
+        "primary_statement_id": "statement:6a76d26b680c03e9",
+        "provenance": {
+          "semantic_run_id": "real_transcript_professional_handoff_v1",
+          "source_event_id": "rph-3"
+        },
+        "reviews": [
+          {
+            "created_at": "2026-03-19 14:35:54",
+            "note": "Professional note preserves the user account and should not harden unresolved timing.",
+            "provenance": {
+              "fixture_key": "real_transcript_professional_handoff_review",
+              "source": "acceptance_fixture"
+            },
+            "review_id": "review:7d0b3f63118d8c30",
+            "review_status": "needs_followup",
+            "reviewer": "mary-parity-acceptance"
+          }
+        ],
+        "signal_classes": [
+          "handoff_context_signal",
+          "not_enough_evidence",
+          "sequence_signal",
+          "uncertainty_preserved"
+        ],
+        "source_ids": [
+          "src:5e78e41d87374808"
+        ],
+        "source_signal_classes": [
+          "later_annotation",
+          "professional_interpretation",
+          "professional_note"
+        ],
+        "source_types": [
+          "professional_note"
+        ],
+        "statement_ids": [
+          "statement:6a76d26b680c03e9"
+        ],
+        "statement_roles": [
+          "transcript_statement"
+        ],
+        "statement_texts": [
+          "Therapist note keeps the user wording separate and marks the earlier panic timing as unresolved."
+        ]
+      },
+      {
+        "candidate_status": "candidate",
+        "canonical_label": "User journal account",
+        "chronology_label": "rph-1",
+        "chronology_sort_key": null,
+        "contestations": [],
+        "event_ids": [],
+        "excerpt_ids": [
+          "excerpt:12d1b8e5eff08812"
+        ],
+        "fact_id": "fact:e0667b55061037f4",
+        "fact_text": "I wrote that the panic episode happened before the GP visit, but I was still unsure of the exact day.",
+        "fact_type": "transcript_statement_capture",
+        "inferred_signal_classes": [
+          "sequence_signal",
+          "uncertainty_preserved"
+        ],
+        "inferred_source_signal_classes": [],
+        "inspector_classification": {
+          "display_labels": [
+            "unclassified"
+          ],
+          "dominant_label": "unclassified",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_predicates": [],
+        "lexical_projection_mode": null,
+        "observations": [
+          {
+            "created_at": "2026-03-19 14:35:54",
+            "excerpt_id": "excerpt:12d1b8e5eff08812",
+            "object_ref": "actor:transcript:user_journal:user",
+            "object_text": "User",
+            "object_type": "actor",
+            "observation_id": "obs:2fdb6d1279ba00f1",
+            "observation_order": 1,
+            "observation_status": "captured",
+            "predicate_family": "actor_identification",
+            "predicate_key": "actor",
+            "provenance": {
+              "role_kind": "speaker",
+              "semantic_run_id": "real_transcript_professional_handoff_v1",
+              "source_event_id": "rph-1"
+            },
+            "source_id": "src:816003715d9b4ab0",
+            "statement_id": "statement:9d022f16a280c923",
+            "subject_text": null
+          }
+        ],
+        "policy_outcomes": [
+          "preserve_source_boundary",
+          "review_required"
+        ],
+        "primary_statement_id": "statement:9d022f16a280c923",
+        "provenance": {
+          "semantic_run_id": "real_transcript_professional_handoff_v1",
+          "source_event_id": "rph-1"
+        },
+        "reviews": [],
+        "signal_classes": [
+          "sequence_signal",
+          "uncertainty_preserved"
+        ],
+        "source_ids": [
+          "src:816003715d9b4ab0"
+        ],
+        "source_signal_classes": [
+          "client_account",
+          "user_authored"
+        ],
+        "source_types": [
+          "personal_note"
+        ],
+        "statement_ids": [
+          "statement:9d022f16a280c923"
+        ],
+        "statement_roles": [
+          "transcript_statement"
+        ],
+        "statement_texts": [
+          "I wrote that the panic episode happened before the GP visit, but I was still unsure of the exact day."
+        ]
+      },
+      {
+        "candidate_status": "candidate",
+        "canonical_label": "Clinic letter",
+        "chronology_label": "rph-2",
+        "chronology_sort_key": null,
+        "contestations": [],
+        "event_ids": [],
+        "excerpt_ids": [
+          "excerpt:50ff1ae28a4d190e"
+        ],
+        "fact_id": "fact:f5b42c5d8feb0ec6",
+        "fact_text": "The clinic letter confirms a GP visit on 2025-03-18 and records medication advice.",
+        "fact_type": "transcript_statement_capture",
+        "inferred_signal_classes": [],
+        "inferred_source_signal_classes": [],
+        "inspector_classification": {
+          "display_labels": [
+            "unclassified"
+          ],
+          "dominant_label": "unclassified",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_predicates": [],
+        "lexical_projection_mode": null,
+        "observations": [
+          {
+            "created_at": "2026-03-19 14:35:54",
+            "excerpt_id": "excerpt:50ff1ae28a4d190e",
+            "object_ref": "actor:transcript:clinic_letter:gp",
+            "object_text": "Gp",
+            "object_type": "actor",
+            "observation_id": "obs:4f4ff81a95ed4f3f",
+            "observation_order": 1,
+            "observation_status": "captured",
+            "predicate_family": "actor_identification",
+            "predicate_key": "actor",
+            "provenance": {
+              "role_kind": "speaker",
+              "semantic_run_id": "real_transcript_professional_handoff_v1",
+              "source_event_id": "rph-2"
+            },
+            "source_id": "src:aae9767bfc03c41a",
+            "statement_id": "statement:0b109faaec28961a",
+            "subject_text": null
+          },
+          {
+            "created_at": "2026-03-19 14:35:54",
+            "excerpt_id": "excerpt:50ff1ae28a4d190e",
+            "object_ref": null,
+            "object_text": "2025-03-18",
+            "object_type": "date",
+            "observation_id": "obs:cbbfc49dc725bb11",
+            "observation_order": 2,
+            "observation_status": "captured",
+            "predicate_family": "temporal",
+            "predicate_key": "event_date",
+            "provenance": {
+              "fixture_key": "real_transcript_professional_handoff_date",
+              "source": "acceptance_fixture"
+            },
+            "source_id": "src:aae9767bfc03c41a",
+            "statement_id": "statement:0b109faaec28961a",
+            "subject_text": null
+          }
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_statement_id": "statement:0b109faaec28961a",
+        "provenance": {
+          "semantic_run_id": "real_transcript_professional_handoff_v1",
+          "source_event_id": "rph-2"
+        },
+        "reviews": [],
+        "signal_classes": [],
+        "source_ids": [
+          "src:aae9767bfc03c41a"
+        ],
+        "source_signal_classes": [
+          "documentary_record",
+          "third_party_record"
+        ],
+        "source_types": [
+          "documentary_record"
+        ],
+        "statement_ids": [
+          "statement:0b109faaec28961a"
+        ],
+        "statement_roles": [
+          "transcript_statement"
+        ],
+        "statement_texts": [
+          "The clinic letter confirms a GP visit on 2025-03-18 and records medication advice."
+        ]
+      }
+    ],
+    "inspector_classification": {
+      "facts": {
+        "fact:2499c1b666ccd133": {
+          "display_labels": [
+            "later annotation"
+          ],
+          "dominant_label": "later_annotation",
+          "status_keys": {
+            "later_annotation": true,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "fact:e0667b55061037f4": {
+          "display_labels": [
+            "unclassified"
+          ],
+          "dominant_label": "unclassified",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "fact:f5b42c5d8feb0ec6": {
+          "display_labels": [
+            "unclassified"
+          ],
+          "dominant_label": "unclassified",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        }
+      },
+      "selected_fact_id": "fact:f5b42c5d8feb0ec6",
+      "status_order": [
+        "party_assertion",
+        "procedural_outcome",
+        "later_annotation"
+      ]
+    },
+    "inspector_defaults": {
+      "default_view": "intake_triage",
+      "selected_fact_id": "fact:f5b42c5d8feb0ec6"
+    },
+    "issue_filters": {
+      "available_filters": [
+        "all",
+        "missing_date"
+      ],
+      "default_filter": "all",
+      "filters": [
+        {
+          "count": 1,
+          "fact_ids": [
+            "fact:e0667b55061037f4"
+          ],
+          "filter_key": "missing_date",
+          "label": "Missing date"
+        },
+        {
+          "count": 0,
+          "fact_ids": [],
+          "filter_key": "missing_actor",
+          "label": "Missing actor"
+        },
+        {
+          "count": 0,
+          "fact_ids": [],
+          "filter_key": "contradictory_chronology",
+          "label": "Contradictory chronology"
+        },
+        {
+          "count": 0,
+          "fact_ids": [],
+          "filter_key": "procedural_significance",
+          "label": "Procedural significance"
+        }
+      ],
+      "summary": {
+        "contradictory_chronology_review_queue_count": 0,
+        "missing_actor_review_queue_count": 0,
+        "missing_date_review_queue_count": 1,
+        "procedural_significance_review_queue_count": 0
+      }
+    },
+    "observations": [
+      {
+        "created_at": "2026-03-19 14:35:54",
+        "excerpt_id": "excerpt:50ff1ae28a4d190e",
+        "object_ref": "actor:transcript:clinic_letter:gp",
+        "object_text": "Gp",
+        "object_type": "actor",
+        "observation_id": "obs:4f4ff81a95ed4f3f",
+        "observation_order": 1,
+        "observation_status": "captured",
+        "predicate_family": "actor_identification",
+        "predicate_key": "actor",
+        "provenance": {
+          "role_kind": "speaker",
+          "semantic_run_id": "real_transcript_professional_handoff_v1",
+          "source_event_id": "rph-2"
+        },
+        "source_id": "src:aae9767bfc03c41a",
+        "statement_id": "statement:0b109faaec28961a",
+        "subject_text": null
+      },
+      {
+        "created_at": "2026-03-19 14:35:54",
+        "excerpt_id": "excerpt:50ff1ae28a4d190e",
+        "object_ref": null,
+        "object_text": "2025-03-18",
+        "object_type": "date",
+        "observation_id": "obs:cbbfc49dc725bb11",
+        "observation_order": 2,
+        "observation_status": "captured",
+        "predicate_family": "temporal",
+        "predicate_key": "event_date",
+        "provenance": {
+          "fixture_key": "real_transcript_professional_handoff_date",
+          "source": "acceptance_fixture"
+        },
+        "source_id": "src:aae9767bfc03c41a",
+        "statement_id": "statement:0b109faaec28961a",
+        "subject_text": null
+      },
+      {
+        "created_at": "2026-03-19 14:35:54",
+        "excerpt_id": "excerpt:c019b17459af4953",
+        "object_ref": null,
+        "object_text": "earlier panic timing unresolved",
+        "object_type": "note",
+        "observation_id": "obs:ea7285f7d36b4782",
+        "observation_order": 1,
+        "observation_status": "abstained",
+        "predicate_family": "temporal",
+        "predicate_key": "sequence_marker",
+        "provenance": {
+          "fixture_key": "real_transcript_professional_handoff_gap",
+          "signal_classes": [
+            "uncertainty_preserved",
+            "not_enough_evidence"
+          ],
+          "source": "acceptance_fixture"
+        },
+        "source_id": "src:5e78e41d87374808",
+        "statement_id": "statement:6a76d26b680c03e9",
+        "subject_text": null
+      },
+      {
+        "created_at": "2026-03-19 14:35:54",
+        "excerpt_id": "excerpt:12d1b8e5eff08812",
+        "object_ref": "actor:transcript:user_journal:user",
+        "object_text": "User",
+        "object_type": "actor",
+        "observation_id": "obs:2fdb6d1279ba00f1",
+        "observation_order": 1,
+        "observation_status": "captured",
+        "predicate_family": "actor_identification",
+        "predicate_key": "actor",
+        "provenance": {
+          "role_kind": "speaker",
+          "semantic_run_id": "real_transcript_professional_handoff_v1",
+          "source_event_id": "rph-1"
+        },
+        "source_id": "src:816003715d9b4ab0",
+        "statement_id": "statement:9d022f16a280c923",
+        "subject_text": null
+      }
+    ],
+    "operator_views": {
+      "chronology_prep": {
+        "groups": {
+          "approximate_events": [],
+          "contested_chronology_items": [],
+          "dated_events": [],
+          "facts_with_no_event": [
+            {
+              "candidate_status": "candidate",
+              "chronology_label": "rph-3",
+              "fact_id": "fact:2499c1b666ccd133",
+              "label": "Therapist note",
+              "source_ids": [
+                "src:5e78e41d87374808"
+              ],
+              "statement_ids": [
+                "statement:6a76d26b680c03e9"
+              ]
+            },
+            {
+              "candidate_status": "candidate",
+              "chronology_label": "rph-1",
+              "fact_id": "fact:e0667b55061037f4",
+              "label": "User journal account",
+              "source_ids": [
+                "src:816003715d9b4ab0"
+              ],
+              "statement_ids": [
+                "statement:9d022f16a280c923"
+              ]
+            },
+            {
+              "candidate_status": "candidate",
+              "chronology_label": "rph-2",
+              "fact_id": "fact:f5b42c5d8feb0ec6",
+              "label": "Clinic letter",
+              "source_ids": [
+                "src:aae9767bfc03c41a"
+              ],
+              "statement_ids": [
+                "statement:0b109faaec28961a"
+              ]
+            }
+          ],
+          "undated_events": []
+        },
+        "summary": {
+          "approximate_event_count": 0,
+          "contested_chronology_item_count": 0,
+          "dated_event_count": 0,
+          "dated_fact_count": 0,
+          "event_count": 0,
+          "fact_count": 3,
+          "no_event_fact_count": 3,
+          "undated_event_count": 0,
+          "undated_fact_count": 3
+        },
+        "title": "Chronology prep"
+      },
+      "claim_alignment": {
+        "items": [],
+        "summary": {
+          "structural_boundary_count": 0,
+          "wikidata_claim_count": 0
+        },
+        "title": "Claim alignment"
+      },
+      "contested_items": {
+        "items": [],
+        "summary": {
+          "chronology_impacted_count": 0,
+          "count": 0,
+          "needs_followup_count": 0
+        },
+        "title": "Contested items"
+      },
+      "false_coherence_review": {
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rph-2",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:f5b42c5d8feb0ec6",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "Clinic letter",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [],
+            "source_ids": [
+              "src:aae9767bfc03c41a"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "documentary_record",
+              "third_party_record"
+            ],
+            "source_types": [
+              "documentary_record"
+            ],
+            "statement_ids": [
+              "statement:0b109faaec28961a"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rph-1",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:e0667b55061037f4",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "sequence_signal",
+              "uncertainty_preserved"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "User journal account",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification"
+            ],
+            "policy_outcomes": [
+              "preserve_source_boundary",
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "sequence_signal",
+              "uncertainty_preserved"
+            ],
+            "source_ids": [
+              "src:816003715d9b4ab0"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "client_account",
+              "user_authored"
+            ],
+            "source_types": [
+              "personal_note"
+            ],
+            "statement_ids": [
+              "statement:9d022f16a280c923"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "abstained_count": 0,
+          "contested_count": 0,
+          "no_event_fact_count": 3
+        },
+        "title": "False-coherence review"
+      },
+      "intake_triage": {
+        "groups": {
+          "chronology_conflict": [],
+          "contradictory_chronology": [],
+          "missing_actor": [],
+          "missing_date": [
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "no_event",
+              "chronology_impacted": false,
+              "chronology_label": "rph-1",
+              "contestation_count": 0,
+              "event_ids": [],
+              "fact_id": "fact:e0667b55061037f4",
+              "has_legal_procedural_observations": false,
+              "label": "User journal account",
+              "latest_review_note": null,
+              "latest_review_status": null,
+              "legal_procedural_observation_count": 0,
+              "legal_procedural_predicates": [],
+              "needs_review": true,
+              "observation_families": [
+                "actor_identification"
+              ],
+              "policy_outcomes": [
+                "preserve_source_boundary",
+                "review_required"
+              ],
+              "primary_contested_reason_text": null,
+              "reason_codes": [
+                "unreviewed",
+                "event_missing",
+                "chronology_undated",
+                "missing_date",
+                "statement_only_fact"
+              ],
+              "reason_labels": [
+                "Unreviewed",
+                "No assembled event",
+                "Chronology is undated",
+                "Missing date",
+                "Statement-only fact"
+              ],
+              "review_statuses": [],
+              "signal_classes": [
+                "sequence_signal",
+                "uncertainty_preserved"
+              ],
+              "source_ids": [
+                "src:816003715d9b4ab0"
+              ],
+              "source_projection_modes": [],
+              "source_signal_classes": [
+                "client_account",
+                "user_authored"
+              ],
+              "source_types": [
+                "personal_note"
+              ],
+              "statement_ids": [
+                "statement:9d022f16a280c923"
+              ],
+              "statement_roles": [
+                "transcript_statement"
+              ]
+            }
+          ],
+          "procedural_significance": []
+        },
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rph-2",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:f5b42c5d8feb0ec6",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "Clinic letter",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [],
+            "source_ids": [
+              "src:aae9767bfc03c41a"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "documentary_record",
+              "third_party_record"
+            ],
+            "source_types": [
+              "documentary_record"
+            ],
+            "statement_ids": [
+              "statement:0b109faaec28961a"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rph-1",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:e0667b55061037f4",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "sequence_signal",
+              "uncertainty_preserved"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "User journal account",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification"
+            ],
+            "policy_outcomes": [
+              "preserve_source_boundary",
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "sequence_signal",
+              "uncertainty_preserved"
+            ],
+            "source_ids": [
+              "src:816003715d9b4ab0"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "client_account",
+              "user_authored"
+            ],
+            "source_types": [
+              "personal_note"
+            ],
+            "statement_ids": [
+              "statement:9d022f16a280c923"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "missing_actor_review_queue_count": 0,
+          "missing_date_review_queue_count": 1,
+          "needs_followup_count": 0,
+          "review_queue_count": 2,
+          "statement_only_review_queue_count": 2
+        },
+        "title": "Intake triage"
+      },
+      "procedural_posture": {
+        "items": [],
+        "summary": {
+          "contested_item_count": 0,
+          "legal_procedural_review_queue_count": 0
+        },
+        "title": "Procedural posture"
+      },
+      "professional_handoff": {
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rph-2",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:f5b42c5d8feb0ec6",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "Clinic letter",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [],
+            "source_ids": [
+              "src:aae9767bfc03c41a"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "documentary_record",
+              "third_party_record"
+            ],
+            "source_types": [
+              "documentary_record"
+            ],
+            "statement_ids": [
+              "statement:0b109faaec28961a"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rph-1",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:e0667b55061037f4",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "sequence_signal",
+              "uncertainty_preserved"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "User journal account",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification"
+            ],
+            "policy_outcomes": [
+              "preserve_source_boundary",
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "sequence_signal",
+              "uncertainty_preserved"
+            ],
+            "source_ids": [
+              "src:816003715d9b4ab0"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "client_account",
+              "user_authored"
+            ],
+            "source_types": [
+              "personal_note"
+            ],
+            "statement_ids": [
+              "statement:9d022f16a280c923"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "documentary_count": 1,
+          "professional_note_count": 0,
+          "user_authored_count": 1
+        },
+        "title": "Professional handoff"
+      },
+      "public_claim_review": {
+        "items": [],
+        "summary": {
+          "procedural_record_count": 0,
+          "public_claim_count": 0
+        },
+        "title": "Public claim review"
+      },
+      "trauma_handoff": {
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rph-2",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:f5b42c5d8feb0ec6",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "Clinic letter",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [],
+            "source_ids": [
+              "src:aae9767bfc03c41a"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "documentary_record",
+              "third_party_record"
+            ],
+            "source_types": [
+              "documentary_record"
+            ],
+            "statement_ids": [
+              "statement:0b109faaec28961a"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rph-1",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:e0667b55061037f4",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "sequence_signal",
+              "uncertainty_preserved"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "User journal account",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification"
+            ],
+            "policy_outcomes": [
+              "preserve_source_boundary",
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "sequence_signal",
+              "uncertainty_preserved"
+            ],
+            "source_ids": [
+              "src:816003715d9b4ab0"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "client_account",
+              "user_authored"
+            ],
+            "source_types": [
+              "personal_note"
+            ],
+            "statement_ids": [
+              "statement:9d022f16a280c923"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "abstained_count": 0,
+          "support_handoff_count": 2
+        },
+        "title": "Trauma handoff"
+      },
+      "wiki_fidelity": {
+        "items": [],
+        "summary": {
+          "wiki_fidelity_count": 0
+        },
+        "title": "Wiki fidelity"
+      }
+    },
+    "reopen_navigation": {
+      "current": {
+        "run_id": "factrun:7c3275b6c4d303154ddf3b0ec11f20fde5a740466421c23a2ac9a547d15ba37d",
+        "source_label": "wave5:real_transcript_professional_handoff_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_professional_handoff_v1"
+      },
+      "query": {
+        "source_label": "wave5:real_transcript_professional_handoff_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_professional_handoff_v1"
+      },
+      "recent_sources": [
+        {
+          "fact_run_id": "factrun:fedbf065ba750fa9f719294a646c3c28be20b6f1247fd942d55d36ca52c2b2fd",
+          "run_count": null,
+          "source_label": "wave5:synthetic_false_coherence_pressure_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_false_coherence_pressure_v1"
+        },
+        {
+          "fact_run_id": "factrun:71459217037410765e0a10bd53af409925ad12c319653d9574a613d1602ef326",
+          "run_count": null,
+          "source_label": "wave5:synthetic_personal_professional_handoff_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_personal_professional_handoff_v1"
+        },
+        {
+          "fact_run_id": "factrun:ae4e1ef3a933fe2e0ebb393b49a54724132b56adda5d326a68939fb51d1600a1",
+          "run_count": null,
+          "source_label": "wave5:synthetic_multi_professional_reopen_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_multi_professional_reopen_v1"
+        },
+        {
+          "fact_run_id": "factrun:7c3275b6c4d303154ddf3b0ec11f20fde5a740466421c23a2ac9a547d15ba37d",
+          "run_count": null,
+          "source_label": "wave5:real_transcript_professional_handoff_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "real_transcript_professional_handoff_v1"
+        },
+        {
+          "fact_run_id": "factrun:83198f9318e190df46ea33a50bffb32f6ccb07a10786348a9212568731c3f4cb",
+          "run_count": null,
+          "source_label": "wave5:real_transcript_false_coherence_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "real_transcript_false_coherence_v1"
+        },
+        {
+          "fact_run_id": "factrun:2a5f3cdfdabd948a9131a4fbfd2012c0b6e3091a6ffce3f806f646eb3f56566d",
+          "run_count": null,
+          "source_label": "wave3:synthetic_trauma_fragment_cluster_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_trauma_fragment_cluster_v1"
+        },
+        {
+          "fact_run_id": "factrun:f7334e00285ccfeb3ea882ac782fb6d4852dfcc620b691c80d604efd62c881ad",
+          "run_count": null,
+          "source_label": "wave3:synthetic_support_worker_handoff_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_support_worker_handoff_v1"
+        },
+        {
+          "fact_run_id": "factrun:d3bdabfac4bda3198d76037f9d56cb1929009701a0e6079854e1bb3ae8f0f9b7",
+          "run_count": null,
+          "source_label": "wave3:real_transcript_fragmented_support_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "real_transcript_fragmented_support_v1"
+        },
+        {
+          "fact_run_id": "factrun:15dd326a477fd2237d75b817b671fc0f29f756757bec52c54d306498771e530b",
+          "run_count": null,
+          "source_label": "wave1:synthetic_sparse_dates_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_sparse_dates_v1"
+        },
+        {
+          "fact_run_id": "factrun:2853fd77df087011195190b7c6de66f0e148a60301a4326a08acc9d97550132f",
+          "run_count": null,
+          "source_label": "wave1:synthetic_conflict_cluster_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_conflict_cluster_v1"
+        },
+        {
+          "fact_run_id": "factrun:e82b0742b88f1839f1b359d53f0ffa60dd1764bb5e33a98b43e2ad392892554b",
+          "run_count": null,
+          "source_label": "wave1:real_transcript_intake_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "transcript_acceptance_real_intake_v1"
+        }
+      ]
+    },
+    "review_queue": [
+      {
+        "candidate_status": "candidate",
+        "chronology_bucket": "no_event",
+        "chronology_impacted": false,
+        "chronology_label": "rph-2",
+        "contestation_count": 0,
+        "event_ids": [],
+        "fact_id": "fact:f5b42c5d8feb0ec6",
+        "has_legal_procedural_observations": false,
+        "inferred_signal_classes": [],
+        "inferred_source_signal_classes": [],
+        "label": "Clinic letter",
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_observation_count": 0,
+        "legal_procedural_predicates": [],
+        "needs_review": true,
+        "observation_families": [
+          "actor_identification",
+          "temporal"
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_contested_reason_text": null,
+        "reason_codes": [
+          "unreviewed",
+          "event_missing",
+          "chronology_undated",
+          "statement_only_fact"
+        ],
+        "reason_labels": [
+          "Unreviewed",
+          "No assembled event",
+          "Chronology is undated",
+          "Statement-only fact"
+        ],
+        "review_statuses": [],
+        "signal_classes": [],
+        "source_ids": [
+          "src:aae9767bfc03c41a"
+        ],
+        "source_projection_modes": [],
+        "source_signal_classes": [
+          "documentary_record",
+          "third_party_record"
+        ],
+        "source_types": [
+          "documentary_record"
+        ],
+        "statement_ids": [
+          "statement:0b109faaec28961a"
+        ],
+        "statement_roles": [
+          "transcript_statement"
+        ]
+      },
+      {
+        "candidate_status": "candidate",
+        "chronology_bucket": "no_event",
+        "chronology_impacted": false,
+        "chronology_label": "rph-1",
+        "contestation_count": 0,
+        "event_ids": [],
+        "fact_id": "fact:e0667b55061037f4",
+        "has_legal_procedural_observations": false,
+        "inferred_signal_classes": [
+          "sequence_signal",
+          "uncertainty_preserved"
+        ],
+        "inferred_source_signal_classes": [],
+        "label": "User journal account",
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_observation_count": 0,
+        "legal_procedural_predicates": [],
+        "needs_review": true,
+        "observation_families": [
+          "actor_identification"
+        ],
+        "policy_outcomes": [
+          "preserve_source_boundary",
+          "review_required"
+        ],
+        "primary_contested_reason_text": null,
+        "reason_codes": [
+          "unreviewed",
+          "event_missing",
+          "chronology_undated",
+          "missing_date",
+          "statement_only_fact"
+        ],
+        "reason_labels": [
+          "Unreviewed",
+          "No assembled event",
+          "Chronology is undated",
+          "Missing date",
+          "Statement-only fact"
+        ],
+        "review_statuses": [],
+        "signal_classes": [
+          "sequence_signal",
+          "uncertainty_preserved"
+        ],
+        "source_ids": [
+          "src:816003715d9b4ab0"
+        ],
+        "source_projection_modes": [],
+        "source_signal_classes": [
+          "client_account",
+          "user_authored"
+        ],
+        "source_types": [
+          "personal_note"
+        ],
+        "statement_ids": [
+          "statement:9d022f16a280c923"
+        ],
+        "statement_roles": [
+          "transcript_statement"
+        ]
+      }
+    ],
+    "run": {
+      "contract_version": "fact.intake.bundle.v1",
+      "created_at": "2026-03-19 14:35:54",
+      "mary_projection_version": "mary.fact_workflow.v1",
+      "notes": "Wave 5 real transcript professional handoff fixture",
+      "run_id": "factrun:7c3275b6c4d303154ddf3b0ec11f20fde5a740466421c23a2ac9a547d15ba37d",
+      "source_label": "wave5:real_transcript_professional_handoff_v1",
+      "workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:7c3275b6c4d303154ddf3b0ec11f20fde5a740466421c23a2ac9a547d15ba37d",
+        "source_label": "wave5:real_transcript_professional_handoff_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_professional_handoff_v1"
+      }
+    },
+    "sources": [
+      {
+        "content_sha256": "3a5f2e0e4b6249ffe30ba6f9c4e5db3be60766477499321a1414a025a651adf2",
+        "provenance": {
+          "semantic_run_id": "real_transcript_professional_handoff_v1",
+          "source_document_id": "clinic_letter",
+          "source_signal_classes": [
+            "documentary_record",
+            "third_party_record"
+          ]
+        },
+        "source_id": "src:aae9767bfc03c41a",
+        "source_label": "clinic_letter",
+        "source_order": 1,
+        "source_ref": "clinic_letter",
+        "source_type": "documentary_record"
+      },
+      {
+        "content_sha256": "f77ae9542771c9e9d16d9a516299065c25f91bfa6c24d6dfdb05cf26ab7b1c60",
+        "provenance": {
+          "semantic_run_id": "real_transcript_professional_handoff_v1",
+          "source_document_id": "user_journal",
+          "source_signal_classes": [
+            "user_authored",
+            "client_account"
+          ]
+        },
+        "source_id": "src:816003715d9b4ab0",
+        "source_label": "user_journal",
+        "source_order": 2,
+        "source_ref": "user_journal",
+        "source_type": "personal_note"
+      },
+      {
+        "content_sha256": "14f83bf04204b0ba295ea096c2095f3a4e5edff544d5357face785a88047fe4c",
+        "provenance": {
+          "lexical_projection_mode": "transcript_handoff",
+          "semantic_run_id": "real_transcript_professional_handoff_v1",
+          "source_document_id": "therapist_session",
+          "source_signal_classes": [
+            "professional_note",
+            "professional_interpretation",
+            "later_annotation"
+          ]
+        },
+        "source_id": "src:5e78e41d87374808",
+        "source_label": "therapist_session",
+        "source_order": 3,
+        "source_ref": "therapist_session",
+        "source_type": "professional_note"
+      }
+    ],
+    "statements": [
+      {
+        "chronology_hint": null,
+        "excerpt_id": "excerpt:12d1b8e5eff08812",
+        "provenance": {
+          "semantic_run_id": "real_transcript_professional_handoff_v1",
+          "source_event_id": "rph-1"
+        },
+        "speaker_label": null,
+        "statement_id": "statement:9d022f16a280c923",
+        "statement_order": 1,
+        "statement_role": "transcript_statement",
+        "statement_status": "captured",
+        "statement_text": "I wrote that the panic episode happened before the GP visit, but I was still unsure of the exact day."
+      },
+      {
+        "chronology_hint": null,
+        "excerpt_id": "excerpt:50ff1ae28a4d190e",
+        "provenance": {
+          "semantic_run_id": "real_transcript_professional_handoff_v1",
+          "source_event_id": "rph-2"
+        },
+        "speaker_label": null,
+        "statement_id": "statement:0b109faaec28961a",
+        "statement_order": 1,
+        "statement_role": "transcript_statement",
+        "statement_status": "captured",
+        "statement_text": "The clinic letter confirms a GP visit on 2025-03-18 and records medication advice."
+      },
+      {
+        "chronology_hint": null,
+        "excerpt_id": "excerpt:c019b17459af4953",
+        "provenance": {
+          "semantic_run_id": "real_transcript_professional_handoff_v1",
+          "source_event_id": "rph-3"
+        },
+        "speaker_label": null,
+        "statement_id": "statement:6a76d26b680c03e9",
+        "statement_order": 1,
+        "statement_role": "transcript_statement",
+        "statement_status": "captured",
+        "statement_text": "Therapist note keeps the user wording separate and marks the earlier panic timing as unresolved."
+      }
+    ],
+    "summary": {
+      "abstained_fact_count": 0,
+      "approximate_event_count": 0,
+      "chronology_impacted_review_queue_count": 0,
+      "contested_chronology_item_count": 0,
+      "contested_fact_count": 0,
+      "contested_item_count": 0,
+      "contradictory_chronology_review_queue_count": 0,
+      "dated_event_count": 0,
+      "dated_fact_count": 0,
+      "event_count": 0,
+      "excerpt_count": 3,
+      "fact_count": 3,
+      "legal_procedural_review_queue_count": 0,
+      "missing_actor_review_queue_count": 0,
+      "missing_date_review_queue_count": 1,
+      "needs_followup_count": 0,
+      "no_event_fact_count": 3,
+      "observation_count": 4,
+      "policy_review_required_count": 2,
+      "review_queue_count": 2,
+      "reviewed_fact_count": 1,
+      "source_count": 3,
+      "statement_count": 3,
+      "statement_only_review_queue_count": 2,
+      "undated_event_count": 0,
+      "undated_fact_count": 3
+    },
+    "version": "fact.review.workbench.v1",
+    "zelph": {
+      "active_packs": [
+        "transcript_handoff"
+      ],
+      "engine": {
+        "status": "ok",
+        "stderr": "Importing file /tmp/tmpar9urbll/query.zph...\nError in line \"include \"/tmp/tmpar9urbll/facts.zlp\"\": fact(): facts with same subject and object are only supported for facts with a single object: include /tmp/tmpar9urbll/rules.zlp include\n",
+        "stdout": "",
+        "triples": []
+      },
+      "facts_serialized_count": 92,
+      "inferred_by_fact_id": {
+        "fact:2499c1b666ccd133": {
+          "signal_classes": [
+            "handoff_context_signal",
+            "sequence_signal"
+          ],
+          "source_signal_classes": []
+        },
+        "fact:e0667b55061037f4": {
+          "signal_classes": [
+            "sequence_signal",
+            "uncertainty_preserved"
+          ],
+          "source_signal_classes": []
+        }
+      },
+      "inferred_fact_count": 2,
+      "rule_status": "engine_ok",
+      "triples": [
+        {
+          "object": "handoff_context_signal",
+          "predicate": "signal_class",
+          "subject": "fact_fact_2499c1b666ccd133"
+        },
+        {
+          "object": "sequence_signal",
+          "predicate": "signal_class",
+          "subject": "fact_fact_2499c1b666ccd133"
+        },
+        {
+          "object": "sequence_signal",
+          "predicate": "signal_class",
+          "subject": "fact_fact_e0667b55061037f4"
+        },
+        {
+          "object": "uncertainty_preserved",
+          "predicate": "signal_class",
+          "subject": "fact_fact_e0667b55061037f4"
+        }
+      ],
+      "version": "fact_intake.zelph_bridge.v1"
+    },
+    "zelph_ruleset_version": "fact.review.workbench.zelph.v2"
+  }
+}

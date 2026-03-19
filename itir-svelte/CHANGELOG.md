@@ -29,6 +29,13 @@ This changelog records user-visible behavior changes in the Svelte SB dashboard 
   `run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d`),
   so `SL-US-12`, `SL-US-13`, and `SL-US-14` now validate against a real
   persisted AU bundle rather than transcript-only or synthetic coverage.
+- Graphs/fact review: extended the same real-path `demo-bundle` proof to the
+  transcript-side trauma/handoff lanes, with real captured bundles for
+  `wave3:real_transcript_fragmented_support_v1`,
+  `wave5:real_transcript_professional_handoff_v1`, and
+  `wave5:real_transcript_false_coherence_v1`, so `ITIR-US-13` through
+  `ITIR-US-16` now validate against persisted real runs rather than synthetic
+  trauma/handoff fixtures.
 - Graphs/timeline ribbon: add `/graphs/timeline-ribbon` as a dedicated
   workbench over the SB dashboard timeline payload and upgrade the dashboard
   ribbon strip to a contract-aware conserved-allocation surface. The first

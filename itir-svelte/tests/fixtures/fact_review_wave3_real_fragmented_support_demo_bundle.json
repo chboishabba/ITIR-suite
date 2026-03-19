@@ -1,0 +1,2436 @@
+{
+  "acceptance": {
+    "fixture_kind": "real",
+    "run": {
+      "run_id": "factrun:d3bdabfac4bda3198d76037f9d56cb1929009701a0e6079854e1bb3ae8f0f9b7",
+      "source_label": "wave3:real_transcript_fragmented_support_v1",
+      "workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:d3bdabfac4bda3198d76037f9d56cb1929009701a0e6079854e1bb3ae8f0f9b7",
+        "source_label": "wave3:real_transcript_fragmented_support_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_fragmented_support_v1"
+      }
+    },
+    "stories": [
+      {
+        "blocking_explanation": null,
+        "check_count": 5,
+        "checks": [
+          {
+            "check_id": "sparse_chronology",
+            "explanation": "Sparse chronology handling is too weak for contradictory or partial material.",
+            "passed": true
+          },
+          {
+            "check_id": "contested_summary",
+            "explanation": "Contested items are not summarized separately from the main review flow.",
+            "passed": true
+          },
+          {
+            "check_id": "read_only_posture",
+            "explanation": "Review surface does not clearly maintain read-only, non-reasoning posture.",
+            "passed": true
+          },
+          {
+            "check_id": "abstention_visibility",
+            "explanation": "Abstained or not-ready material is not visible enough in the review surface.",
+            "passed": true
+          },
+          {
+            "check_id": "source_class_distinction",
+            "explanation": "User-authored, support-note, and third-party source classes are not distinguishable enough.",
+            "passed": true
+          }
+        ],
+        "failed_check_ids": [],
+        "gap_tags": [],
+        "label": "Trauma-survivor safe reconstruction",
+        "passed_check_count": 5,
+        "status": "pass",
+        "story_id": "ITIR-US-13"
+      },
+      {
+        "blocking_explanation": null,
+        "check_count": 5,
+        "checks": [
+          {
+            "check_id": "provenance_drilldown",
+            "explanation": "Missing drill-down from fact/event rows to source statements and excerpts.",
+            "passed": true
+          },
+          {
+            "check_id": "roleful_queue_reasons",
+            "explanation": "Review queue reasons are still too generic for operator triage.",
+            "passed": true
+          },
+          {
+            "check_id": "read_only_posture",
+            "explanation": "Review surface does not clearly maintain read-only, non-reasoning posture.",
+            "passed": true
+          },
+          {
+            "check_id": "source_class_distinction",
+            "explanation": "User-authored, support-note, and third-party source classes are not distinguishable enough.",
+            "passed": true
+          },
+          {
+            "check_id": "support_handoff_posture",
+            "explanation": "Support-worker handoff posture is not visible enough in the shared review surface.",
+            "passed": true
+          }
+        ],
+        "failed_check_ids": [],
+        "gap_tags": [],
+        "label": "Support worker / advocate timeline assist",
+        "passed_check_count": 5,
+        "status": "pass",
+        "story_id": "ITIR-US-14"
+      }
+    ],
+    "summary": {
+      "fail_count": 0,
+      "partial_count": 0,
+      "pass_count": 2,
+      "story_count": 2
+    },
+    "version": "fact.review.acceptance.v1",
+    "wave": "wave3_trauma_advocacy"
+  },
+  "dbPath": "/home/c/Documents/code/ITIR-suite/.cache_local/itir.sqlite",
+  "ok": true,
+  "selector": {
+    "fixture_kind": "real",
+    "run_id": "factrun:d3bdabfac4bda3198d76037f9d56cb1929009701a0e6079854e1bb3ae8f0f9b7",
+    "source_label": "wave3:real_transcript_fragmented_support_v1",
+    "wave": "wave3_trauma_advocacy",
+    "workflow_kind": "transcript_semantic",
+    "workflow_run_id": "real_transcript_fragmented_support_v1"
+  },
+  "sources": [
+    {
+      "latest_created_at": "2026-03-19 14:35:55",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:55",
+        "fact_run_id": "factrun:fedbf065ba750fa9f719294a646c3c28be20b6f1247fd942d55d36ca52c2b2fd",
+        "source_label": "wave5:synthetic_false_coherence_pressure_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_false_coherence_pressure_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave5:synthetic_false_coherence_pressure_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:71459217037410765e0a10bd53af409925ad12c319653d9574a613d1602ef326",
+        "source_label": "wave5:synthetic_personal_professional_handoff_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_personal_professional_handoff_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave5:synthetic_personal_professional_handoff_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:ae4e1ef3a933fe2e0ebb393b49a54724132b56adda5d326a68939fb51d1600a1",
+        "source_label": "wave5:synthetic_multi_professional_reopen_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_multi_professional_reopen_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave5:synthetic_multi_professional_reopen_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:7c3275b6c4d303154ddf3b0ec11f20fde5a740466421c23a2ac9a547d15ba37d",
+        "source_label": "wave5:real_transcript_professional_handoff_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_professional_handoff_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave5:real_transcript_professional_handoff_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:83198f9318e190df46ea33a50bffb32f6ccb07a10786348a9212568731c3f4cb",
+        "source_label": "wave5:real_transcript_false_coherence_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_false_coherence_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave5:real_transcript_false_coherence_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:2a5f3cdfdabd948a9131a4fbfd2012c0b6e3091a6ffce3f806f646eb3f56566d",
+        "source_label": "wave3:synthetic_trauma_fragment_cluster_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_trauma_fragment_cluster_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave3:synthetic_trauma_fragment_cluster_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:f7334e00285ccfeb3ea882ac782fb6d4852dfcc620b691c80d604efd62c881ad",
+        "source_label": "wave3:synthetic_support_worker_handoff_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_support_worker_handoff_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave3:synthetic_support_worker_handoff_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:d3bdabfac4bda3198d76037f9d56cb1929009701a0e6079854e1bb3ae8f0f9b7",
+        "source_label": "wave3:real_transcript_fragmented_support_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_fragmented_support_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave3:real_transcript_fragmented_support_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:31",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:31",
+        "fact_run_id": "factrun:15dd326a477fd2237d75b817b671fc0f29f756757bec52c54d306498771e530b",
+        "source_label": "wave1:synthetic_sparse_dates_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_sparse_dates_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave1:synthetic_sparse_dates_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:31",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:31",
+        "fact_run_id": "factrun:2853fd77df087011195190b7c6de66f0e148a60301a4326a08acc9d97550132f",
+        "source_label": "wave1:synthetic_conflict_cluster_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_conflict_cluster_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave1:synthetic_conflict_cluster_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:31",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:31",
+        "fact_run_id": "factrun:e82b0742b88f1839f1b359d53f0ffa60dd1764bb5e33a98b43e2ad392892554b",
+        "source_label": "wave1:real_transcript_intake_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "transcript_acceptance_real_intake_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave1:real_transcript_intake_v1"
+    }
+  ],
+  "workbench": {
+    "chronology": {
+      "events": [],
+      "facts": [
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "2024-04-09",
+          "chronology_sort_key": "2024-04-09",
+          "fact_id": "fact:db02c57327413841",
+          "order": 1
+        },
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "early April 2024",
+          "chronology_sort_key": "early April 2024",
+          "fact_id": "fact:dd5929dc0b405768",
+          "order": 2
+        },
+        {
+          "candidate_status": "abstained",
+          "chronology_label": "Support-worker context note",
+          "chronology_sort_key": null,
+          "fact_id": "fact:c4706bc1e1e5f402",
+          "order": 3
+        }
+      ]
+    },
+    "chronology_groups": {
+      "approximate_events": [],
+      "contested_chronology_items": [
+        {
+          "chronology_impacted": true,
+          "chronology_sort_key": "early April 2024",
+          "contestation_count": 1,
+          "contestation_statuses": [
+            "disputed"
+          ],
+          "event_ids": [],
+          "fact_id": "fact:dd5929dc0b405768",
+          "label": "User incident fragment",
+          "reason_texts": [
+            "Service record anchors one later event but does not settle the earlier incident date."
+          ],
+          "review_statuses": []
+        }
+      ],
+      "dated_events": [],
+      "facts_with_no_event": [
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "2024-04-09",
+          "fact_id": "fact:db02c57327413841",
+          "label": "Clinic presentation record",
+          "source_ids": [
+            "src:bd1129ef71da0410"
+          ],
+          "statement_ids": [
+            "statement:74901e6a4f8505e6"
+          ]
+        },
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "early April 2024",
+          "fact_id": "fact:dd5929dc0b405768",
+          "label": "User incident fragment",
+          "source_ids": [
+            "src:4c2ba1d3c77f3b77"
+          ],
+          "statement_ids": [
+            "statement:262ed1f991a3fdb7"
+          ]
+        },
+        {
+          "candidate_status": "abstained",
+          "chronology_label": null,
+          "fact_id": "fact:c4706bc1e1e5f402",
+          "label": "Support-worker context note",
+          "source_ids": [
+            "src:d4dd7bc6244643f6"
+          ],
+          "statement_ids": [
+            "statement:a4f312a7d621680f"
+          ]
+        }
+      ],
+      "undated_events": []
+    },
+    "chronology_summary": {
+      "approximate_event_count": 0,
+      "contested_chronology_item_count": 1,
+      "dated_event_count": 0,
+      "dated_fact_count": 2,
+      "event_count": 0,
+      "fact_count": 3,
+      "no_event_fact_count": 3,
+      "undated_event_count": 0,
+      "undated_fact_count": 1
+    },
+    "contested_summary": {
+      "chronology_impacted_count": 1,
+      "chronology_impacted_items": [
+        {
+          "chronology_impacted": true,
+          "chronology_sort_key": "early April 2024",
+          "contestation_count": 1,
+          "contestation_statuses": [
+            "disputed"
+          ],
+          "event_ids": [],
+          "fact_id": "fact:dd5929dc0b405768",
+          "label": "User incident fragment",
+          "reason_texts": [
+            "Service record anchors one later event but does not settle the earlier incident date."
+          ],
+          "review_statuses": []
+        }
+      ],
+      "count": 1,
+      "items": [
+        {
+          "chronology_impacted": true,
+          "chronology_sort_key": "early April 2024",
+          "contestation_count": 1,
+          "contestation_statuses": [
+            "disputed"
+          ],
+          "event_ids": [],
+          "fact_id": "fact:dd5929dc0b405768",
+          "label": "User incident fragment",
+          "reason_texts": [
+            "Service record anchors one later event but does not settle the earlier incident date."
+          ],
+          "review_statuses": []
+        }
+      ],
+      "needs_followup_count": 0,
+      "needs_followup_items": [],
+      "reviewed_count": 0,
+      "reviewed_items": []
+    },
+    "events": [],
+    "excerpts": [
+      {
+        "anchor_label": "ts-1",
+        "char_end": 93,
+        "char_start": 0,
+        "excerpt_id": "excerpt:f3ed15164112fc00",
+        "excerpt_order": 1,
+        "excerpt_text": "I think the first incident was in early April, but I am not ready to pin the exact date down.",
+        "provenance": {
+          "unit_id": "ts-1"
+        },
+        "source_id": "src:4c2ba1d3c77f3b77"
+      },
+      {
+        "anchor_label": "ts-3",
+        "char_end": 64,
+        "char_start": 0,
+        "excerpt_id": "excerpt:5254c0327955025f",
+        "excerpt_order": 1,
+        "excerpt_text": "Service intake record notes a clinic presentation on 2024-04-09.",
+        "provenance": {
+          "unit_id": "ts-3"
+        },
+        "source_id": "src:bd1129ef71da0410"
+      },
+      {
+        "anchor_label": "ts-2",
+        "char_end": 96,
+        "char_start": 0,
+        "excerpt_id": "excerpt:981d694692e684b9",
+        "excerpt_order": 1,
+        "excerpt_text": "Support worker note: user wants the hospital contact kept separate from later service follow-up.",
+        "provenance": {
+          "unit_id": "ts-2"
+        },
+        "source_id": "src:d4dd7bc6244643f6"
+      }
+    ],
+    "facts": [
+      {
+        "candidate_status": "candidate",
+        "canonical_label": "Clinic presentation record",
+        "chronology_label": "2024-04-09",
+        "chronology_sort_key": "2024-04-09",
+        "contestations": [],
+        "event_ids": [],
+        "excerpt_ids": [
+          "excerpt:5254c0327955025f"
+        ],
+        "fact_id": "fact:db02c57327413841",
+        "fact_text": "Service intake record notes a clinic presentation on 2024-04-09.",
+        "fact_type": "statement_capture",
+        "inferred_signal_classes": [],
+        "inferred_source_signal_classes": [],
+        "inspector_classification": {
+          "display_labels": [
+            "unclassified"
+          ],
+          "dominant_label": "unclassified",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_predicates": [],
+        "lexical_projection_mode": null,
+        "observations": [
+          {
+            "created_at": "2026-03-19 14:35:54",
+            "excerpt_id": "excerpt:5254c0327955025f",
+            "object_ref": null,
+            "object_text": "2024-04-09",
+            "object_type": "date",
+            "observation_id": "obs:c601e395bc67cc77",
+            "observation_order": 1,
+            "observation_status": "captured",
+            "predicate_family": "temporal",
+            "predicate_key": "event_date",
+            "provenance": {
+              "fixture_key": "real_transcript_fragmented_support_record",
+              "signal_classes": [
+                "procedural_context"
+              ],
+              "source": "acceptance_fixture"
+            },
+            "source_id": "src:bd1129ef71da0410",
+            "statement_id": "statement:74901e6a4f8505e6",
+            "subject_text": null
+          }
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_statement_id": "statement:74901e6a4f8505e6",
+        "provenance": {
+          "sender": "build_fact_intake_payload_from_text_units"
+        },
+        "reviews": [],
+        "signal_classes": [
+          "procedural_context"
+        ],
+        "source_ids": [
+          "src:bd1129ef71da0410"
+        ],
+        "source_signal_classes": [
+          "procedural_record",
+          "third_party_record"
+        ],
+        "source_types": [
+          "service_record"
+        ],
+        "statement_ids": [
+          "statement:74901e6a4f8505e6"
+        ],
+        "statement_roles": [
+          "captured_statement"
+        ],
+        "statement_texts": [
+          "Service intake record notes a clinic presentation on 2024-04-09."
+        ]
+      },
+      {
+        "candidate_status": "candidate",
+        "canonical_label": "User incident fragment",
+        "chronology_label": "early April 2024",
+        "chronology_sort_key": "early April 2024",
+        "contestations": [
+          {
+            "author": "mary-parity-acceptance",
+            "contestation_id": "contest:03254a62148f79ae",
+            "contestation_status": "disputed",
+            "created_at": "2026-03-19 14:35:54",
+            "provenance": {
+              "contestation_scope": "chronology",
+              "fixture_key": "real_transcript_fragmented_support_contest",
+              "source": "acceptance_fixture"
+            },
+            "reason_text": "Service record anchors one later event but does not settle the earlier incident date.",
+            "statement_id": "statement:74901e6a4f8505e6"
+          }
+        ],
+        "event_ids": [],
+        "excerpt_ids": [
+          "excerpt:f3ed15164112fc00"
+        ],
+        "fact_id": "fact:dd5929dc0b405768",
+        "fact_text": "I think the first incident was in early April, but I am not ready to pin the exact date down.",
+        "fact_type": "statement_capture",
+        "inferred_signal_classes": [],
+        "inferred_source_signal_classes": [],
+        "inspector_classification": {
+          "display_labels": [
+            "party assertion"
+          ],
+          "dominant_label": "party_assertion",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": true,
+            "procedural_outcome": false
+          }
+        },
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_predicates": [],
+        "lexical_projection_mode": null,
+        "observations": [
+          {
+            "created_at": "2026-03-19 14:35:54",
+            "excerpt_id": "excerpt:f3ed15164112fc00",
+            "object_ref": null,
+            "object_text": "User",
+            "object_type": "person",
+            "observation_id": "obs:99a3fa7a37b01c32",
+            "observation_order": 1,
+            "observation_status": "captured",
+            "predicate_family": "actor_identification",
+            "predicate_key": "actor",
+            "provenance": {
+              "fixture_key": "real_transcript_fragmented_support_actor",
+              "signal_classes": [
+                "party_assertion"
+              ],
+              "source": "acceptance_fixture"
+            },
+            "source_id": "src:4c2ba1d3c77f3b77",
+            "statement_id": "statement:262ed1f991a3fdb7",
+            "subject_text": null
+          },
+          {
+            "created_at": "2026-03-19 14:35:54",
+            "excerpt_id": "excerpt:f3ed15164112fc00",
+            "object_ref": null,
+            "object_text": "early April 2024",
+            "object_type": "date_hint",
+            "observation_id": "obs:2a66bed7af52424e",
+            "observation_order": 2,
+            "observation_status": "captured",
+            "predicate_family": "temporal",
+            "predicate_key": "event_date",
+            "provenance": {
+              "fixture_key": "real_transcript_fragmented_support_date",
+              "signal_classes": [
+                "party_assertion"
+              ],
+              "source": "acceptance_fixture",
+              "time_precision": "approximate"
+            },
+            "source_id": "src:4c2ba1d3c77f3b77",
+            "statement_id": "statement:262ed1f991a3fdb7",
+            "subject_text": null
+          }
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_statement_id": "statement:262ed1f991a3fdb7",
+        "provenance": {
+          "sender": "build_fact_intake_payload_from_text_units"
+        },
+        "reviews": [],
+        "signal_classes": [
+          "party_assertion"
+        ],
+        "source_ids": [
+          "src:4c2ba1d3c77f3b77"
+        ],
+        "source_signal_classes": [
+          "party_material",
+          "user_authored"
+        ],
+        "source_types": [
+          "survivor_note"
+        ],
+        "statement_ids": [
+          "statement:262ed1f991a3fdb7"
+        ],
+        "statement_roles": [
+          "captured_statement"
+        ],
+        "statement_texts": [
+          "I think the first incident was in early April, but I am not ready to pin the exact date down."
+        ]
+      },
+      {
+        "candidate_status": "abstained",
+        "canonical_label": "Support-worker context note",
+        "chronology_label": null,
+        "chronology_sort_key": null,
+        "contestations": [],
+        "event_ids": [],
+        "excerpt_ids": [
+          "excerpt:981d694692e684b9"
+        ],
+        "fact_id": "fact:c4706bc1e1e5f402",
+        "fact_text": "Support worker note: user wants the hospital contact kept separate from later service follow-up.",
+        "fact_type": "statement_capture",
+        "inferred_signal_classes": [
+          "handoff_context_signal",
+          "sequence_signal"
+        ],
+        "inferred_source_signal_classes": [],
+        "inspector_classification": {
+          "display_labels": [
+            "later annotation"
+          ],
+          "dominant_label": "later_annotation",
+          "status_keys": {
+            "later_annotation": true,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "latest_review_note": "Keep the support note as context, not as a replacement for the user fragment.",
+        "latest_review_status": "needs_followup",
+        "legal_procedural_predicates": [],
+        "lexical_projection_mode": null,
+        "observations": [
+          {
+            "created_at": "2026-03-19 14:35:54",
+            "excerpt_id": "excerpt:981d694692e684b9",
+            "object_ref": null,
+            "object_text": "not ready to specify",
+            "object_type": "temporal_phrase",
+            "observation_id": "obs:716c428fd4a59381",
+            "observation_order": 1,
+            "observation_status": "abstained",
+            "predicate_family": "temporal",
+            "predicate_key": "event_time",
+            "provenance": {
+              "fixture_key": "real_transcript_fragmented_support_abstain",
+              "signal_classes": [
+                "later_annotation"
+              ],
+              "source": "acceptance_fixture",
+              "time_precision": "approximate"
+            },
+            "source_id": "src:d4dd7bc6244643f6",
+            "statement_id": "statement:a4f312a7d621680f",
+            "subject_text": null
+          }
+        ],
+        "policy_outcomes": [
+          "bounded_context_required"
+        ],
+        "primary_statement_id": "statement:a4f312a7d621680f",
+        "provenance": {
+          "sender": "build_fact_intake_payload_from_text_units"
+        },
+        "reviews": [
+          {
+            "created_at": "2026-03-19 14:35:54",
+            "note": "Keep the support note as context, not as a replacement for the user fragment.",
+            "provenance": {
+              "fixture_key": "real_transcript_fragmented_support_review",
+              "source": "acceptance_fixture"
+            },
+            "review_id": "review:883350b00426f7f4",
+            "review_status": "needs_followup",
+            "reviewer": "mary-parity-acceptance"
+          }
+        ],
+        "signal_classes": [
+          "handoff_context_signal",
+          "later_annotation",
+          "sequence_signal"
+        ],
+        "source_ids": [
+          "src:d4dd7bc6244643f6"
+        ],
+        "source_signal_classes": [
+          "later_annotation",
+          "support_worker_note"
+        ],
+        "source_types": [
+          "support_worker_note"
+        ],
+        "statement_ids": [
+          "statement:a4f312a7d621680f"
+        ],
+        "statement_roles": [
+          "captured_statement"
+        ],
+        "statement_texts": [
+          "Support worker note: user wants the hospital contact kept separate from later service follow-up."
+        ]
+      }
+    ],
+    "inspector_classification": {
+      "facts": {
+        "fact:c4706bc1e1e5f402": {
+          "display_labels": [
+            "later annotation"
+          ],
+          "dominant_label": "later_annotation",
+          "status_keys": {
+            "later_annotation": true,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "fact:db02c57327413841": {
+          "display_labels": [
+            "unclassified"
+          ],
+          "dominant_label": "unclassified",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "fact:dd5929dc0b405768": {
+          "display_labels": [
+            "party assertion"
+          ],
+          "dominant_label": "party_assertion",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": true,
+            "procedural_outcome": false
+          }
+        }
+      },
+      "selected_fact_id": "fact:dd5929dc0b405768",
+      "status_order": [
+        "party_assertion",
+        "procedural_outcome",
+        "later_annotation"
+      ]
+    },
+    "inspector_defaults": {
+      "default_view": "intake_triage",
+      "selected_fact_id": "fact:dd5929dc0b405768"
+    },
+    "issue_filters": {
+      "available_filters": [
+        "all",
+        "missing_actor",
+        "contradictory_chronology",
+        "procedural_significance"
+      ],
+      "default_filter": "all",
+      "filters": [
+        {
+          "count": 0,
+          "fact_ids": [],
+          "filter_key": "missing_date",
+          "label": "Missing date"
+        },
+        {
+          "count": 1,
+          "fact_ids": [
+            "fact:db02c57327413841"
+          ],
+          "filter_key": "missing_actor",
+          "label": "Missing actor"
+        },
+        {
+          "count": 1,
+          "fact_ids": [
+            "fact:dd5929dc0b405768"
+          ],
+          "filter_key": "contradictory_chronology",
+          "label": "Contradictory chronology"
+        },
+        {
+          "count": 2,
+          "fact_ids": [
+            "fact:dd5929dc0b405768",
+            "fact:db02c57327413841"
+          ],
+          "filter_key": "procedural_significance",
+          "label": "Procedural significance"
+        }
+      ],
+      "summary": {
+        "contradictory_chronology_review_queue_count": 1,
+        "missing_actor_review_queue_count": 1,
+        "missing_date_review_queue_count": 0,
+        "procedural_significance_review_queue_count": 2
+      }
+    },
+    "observations": [
+      {
+        "created_at": "2026-03-19 14:35:54",
+        "excerpt_id": "excerpt:f3ed15164112fc00",
+        "object_ref": null,
+        "object_text": "User",
+        "object_type": "person",
+        "observation_id": "obs:99a3fa7a37b01c32",
+        "observation_order": 1,
+        "observation_status": "captured",
+        "predicate_family": "actor_identification",
+        "predicate_key": "actor",
+        "provenance": {
+          "fixture_key": "real_transcript_fragmented_support_actor",
+          "signal_classes": [
+            "party_assertion"
+          ],
+          "source": "acceptance_fixture"
+        },
+        "source_id": "src:4c2ba1d3c77f3b77",
+        "statement_id": "statement:262ed1f991a3fdb7",
+        "subject_text": null
+      },
+      {
+        "created_at": "2026-03-19 14:35:54",
+        "excerpt_id": "excerpt:f3ed15164112fc00",
+        "object_ref": null,
+        "object_text": "early April 2024",
+        "object_type": "date_hint",
+        "observation_id": "obs:2a66bed7af52424e",
+        "observation_order": 2,
+        "observation_status": "captured",
+        "predicate_family": "temporal",
+        "predicate_key": "event_date",
+        "provenance": {
+          "fixture_key": "real_transcript_fragmented_support_date",
+          "signal_classes": [
+            "party_assertion"
+          ],
+          "source": "acceptance_fixture",
+          "time_precision": "approximate"
+        },
+        "source_id": "src:4c2ba1d3c77f3b77",
+        "statement_id": "statement:262ed1f991a3fdb7",
+        "subject_text": null
+      },
+      {
+        "created_at": "2026-03-19 14:35:54",
+        "excerpt_id": "excerpt:5254c0327955025f",
+        "object_ref": null,
+        "object_text": "2024-04-09",
+        "object_type": "date",
+        "observation_id": "obs:c601e395bc67cc77",
+        "observation_order": 1,
+        "observation_status": "captured",
+        "predicate_family": "temporal",
+        "predicate_key": "event_date",
+        "provenance": {
+          "fixture_key": "real_transcript_fragmented_support_record",
+          "signal_classes": [
+            "procedural_context"
+          ],
+          "source": "acceptance_fixture"
+        },
+        "source_id": "src:bd1129ef71da0410",
+        "statement_id": "statement:74901e6a4f8505e6",
+        "subject_text": null
+      },
+      {
+        "created_at": "2026-03-19 14:35:54",
+        "excerpt_id": "excerpt:981d694692e684b9",
+        "object_ref": null,
+        "object_text": "not ready to specify",
+        "object_type": "temporal_phrase",
+        "observation_id": "obs:716c428fd4a59381",
+        "observation_order": 1,
+        "observation_status": "abstained",
+        "predicate_family": "temporal",
+        "predicate_key": "event_time",
+        "provenance": {
+          "fixture_key": "real_transcript_fragmented_support_abstain",
+          "signal_classes": [
+            "later_annotation"
+          ],
+          "source": "acceptance_fixture",
+          "time_precision": "approximate"
+        },
+        "source_id": "src:d4dd7bc6244643f6",
+        "statement_id": "statement:a4f312a7d621680f",
+        "subject_text": null
+      }
+    ],
+    "operator_views": {
+      "chronology_prep": {
+        "groups": {
+          "approximate_events": [],
+          "contested_chronology_items": [
+            {
+              "chronology_impacted": true,
+              "chronology_sort_key": "early April 2024",
+              "contestation_count": 1,
+              "contestation_statuses": [
+                "disputed"
+              ],
+              "event_ids": [],
+              "fact_id": "fact:dd5929dc0b405768",
+              "label": "User incident fragment",
+              "reason_texts": [
+                "Service record anchors one later event but does not settle the earlier incident date."
+              ],
+              "review_statuses": []
+            }
+          ],
+          "dated_events": [],
+          "facts_with_no_event": [
+            {
+              "candidate_status": "candidate",
+              "chronology_label": "2024-04-09",
+              "fact_id": "fact:db02c57327413841",
+              "label": "Clinic presentation record",
+              "source_ids": [
+                "src:bd1129ef71da0410"
+              ],
+              "statement_ids": [
+                "statement:74901e6a4f8505e6"
+              ]
+            },
+            {
+              "candidate_status": "candidate",
+              "chronology_label": "early April 2024",
+              "fact_id": "fact:dd5929dc0b405768",
+              "label": "User incident fragment",
+              "source_ids": [
+                "src:4c2ba1d3c77f3b77"
+              ],
+              "statement_ids": [
+                "statement:262ed1f991a3fdb7"
+              ]
+            },
+            {
+              "candidate_status": "abstained",
+              "chronology_label": null,
+              "fact_id": "fact:c4706bc1e1e5f402",
+              "label": "Support-worker context note",
+              "source_ids": [
+                "src:d4dd7bc6244643f6"
+              ],
+              "statement_ids": [
+                "statement:a4f312a7d621680f"
+              ]
+            }
+          ],
+          "undated_events": []
+        },
+        "summary": {
+          "approximate_event_count": 0,
+          "contested_chronology_item_count": 1,
+          "dated_event_count": 0,
+          "dated_fact_count": 2,
+          "event_count": 0,
+          "fact_count": 3,
+          "no_event_fact_count": 3,
+          "undated_event_count": 0,
+          "undated_fact_count": 1
+        },
+        "title": "Chronology prep"
+      },
+      "claim_alignment": {
+        "items": [],
+        "summary": {
+          "structural_boundary_count": 0,
+          "wikidata_claim_count": 0
+        },
+        "title": "Claim alignment"
+      },
+      "contested_items": {
+        "items": [
+          {
+            "chronology_impacted": true,
+            "chronology_sort_key": "early April 2024",
+            "contestation_count": 1,
+            "contestation_statuses": [
+              "disputed"
+            ],
+            "event_ids": [],
+            "fact_id": "fact:dd5929dc0b405768",
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "User incident fragment",
+            "reason_texts": [
+              "Service record anchors one later event but does not settle the earlier incident date."
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "party_assertion"
+            ],
+            "source_signal_classes": [
+              "party_material",
+              "user_authored"
+            ]
+          }
+        ],
+        "summary": {
+          "chronology_impacted_count": 1,
+          "count": 1,
+          "needs_followup_count": 0
+        },
+        "title": "Contested items"
+      },
+      "false_coherence_review": {
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": true,
+            "chronology_label": "early April 2024",
+            "contestation_count": 1,
+            "event_ids": [],
+            "fact_id": "fact:dd5929dc0b405768",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "User incident fragment",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": "Service record anchors one later event but does not settle the earlier incident date.",
+            "reason_codes": [
+              "unreviewed",
+              "contested",
+              "event_missing",
+              "statement_only_fact",
+              "procedural_significance",
+              "contradictory_chronology"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "Contested",
+              "No assembled event",
+              "Statement-only fact",
+              "Procedural significance",
+              "Contradictory chronology"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "party_assertion"
+            ],
+            "source_ids": [
+              "src:4c2ba1d3c77f3b77"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "party_material",
+              "user_authored"
+            ],
+            "source_types": [
+              "survivor_note"
+            ],
+            "statement_ids": [
+              "statement:262ed1f991a3fdb7"
+            ],
+            "statement_roles": [
+              "captured_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": true,
+            "chronology_label": "2024-04-09",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:db02c57327413841",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "Clinic presentation record",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "missing_actor",
+              "statement_only_fact",
+              "procedural_significance"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Missing actor",
+              "Statement-only fact",
+              "Procedural significance"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "procedural_context"
+            ],
+            "source_ids": [
+              "src:bd1129ef71da0410"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "procedural_record",
+              "third_party_record"
+            ],
+            "source_types": [
+              "service_record"
+            ],
+            "statement_ids": [
+              "statement:74901e6a4f8505e6"
+            ],
+            "statement_roles": [
+              "captured_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "abstained_count": 1,
+          "contested_count": 1,
+          "no_event_fact_count": 3
+        },
+        "title": "False-coherence review"
+      },
+      "intake_triage": {
+        "groups": {
+          "chronology_conflict": [
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "no_event",
+              "chronology_impacted": true,
+              "chronology_label": "early April 2024",
+              "contestation_count": 1,
+              "event_ids": [],
+              "fact_id": "fact:dd5929dc0b405768",
+              "has_legal_procedural_observations": true,
+              "label": "User incident fragment",
+              "latest_review_note": null,
+              "latest_review_status": null,
+              "legal_procedural_observation_count": 0,
+              "legal_procedural_predicates": [],
+              "needs_review": true,
+              "observation_families": [
+                "actor_identification",
+                "temporal"
+              ],
+              "policy_outcomes": [
+                "review_required"
+              ],
+              "primary_contested_reason_text": "Service record anchors one later event but does not settle the earlier incident date.",
+              "reason_codes": [
+                "unreviewed",
+                "contested",
+                "event_missing",
+                "statement_only_fact",
+                "procedural_significance",
+                "contradictory_chronology"
+              ],
+              "reason_labels": [
+                "Unreviewed",
+                "Contested",
+                "No assembled event",
+                "Statement-only fact",
+                "Procedural significance",
+                "Contradictory chronology"
+              ],
+              "review_statuses": [],
+              "signal_classes": [
+                "party_assertion"
+              ],
+              "source_ids": [
+                "src:4c2ba1d3c77f3b77"
+              ],
+              "source_projection_modes": [],
+              "source_signal_classes": [
+                "party_material",
+                "user_authored"
+              ],
+              "source_types": [
+                "survivor_note"
+              ],
+              "statement_ids": [
+                "statement:262ed1f991a3fdb7"
+              ],
+              "statement_roles": [
+                "captured_statement"
+              ]
+            }
+          ],
+          "contradictory_chronology": [
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "no_event",
+              "chronology_impacted": true,
+              "chronology_label": "early April 2024",
+              "contestation_count": 1,
+              "event_ids": [],
+              "fact_id": "fact:dd5929dc0b405768",
+              "has_legal_procedural_observations": true,
+              "label": "User incident fragment",
+              "latest_review_note": null,
+              "latest_review_status": null,
+              "legal_procedural_observation_count": 0,
+              "legal_procedural_predicates": [],
+              "needs_review": true,
+              "observation_families": [
+                "actor_identification",
+                "temporal"
+              ],
+              "policy_outcomes": [
+                "review_required"
+              ],
+              "primary_contested_reason_text": "Service record anchors one later event but does not settle the earlier incident date.",
+              "reason_codes": [
+                "unreviewed",
+                "contested",
+                "event_missing",
+                "statement_only_fact",
+                "procedural_significance",
+                "contradictory_chronology"
+              ],
+              "reason_labels": [
+                "Unreviewed",
+                "Contested",
+                "No assembled event",
+                "Statement-only fact",
+                "Procedural significance",
+                "Contradictory chronology"
+              ],
+              "review_statuses": [],
+              "signal_classes": [
+                "party_assertion"
+              ],
+              "source_ids": [
+                "src:4c2ba1d3c77f3b77"
+              ],
+              "source_projection_modes": [],
+              "source_signal_classes": [
+                "party_material",
+                "user_authored"
+              ],
+              "source_types": [
+                "survivor_note"
+              ],
+              "statement_ids": [
+                "statement:262ed1f991a3fdb7"
+              ],
+              "statement_roles": [
+                "captured_statement"
+              ]
+            }
+          ],
+          "missing_actor": [
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "no_event",
+              "chronology_impacted": true,
+              "chronology_label": "2024-04-09",
+              "contestation_count": 0,
+              "event_ids": [],
+              "fact_id": "fact:db02c57327413841",
+              "has_legal_procedural_observations": true,
+              "label": "Clinic presentation record",
+              "latest_review_note": null,
+              "latest_review_status": null,
+              "legal_procedural_observation_count": 0,
+              "legal_procedural_predicates": [],
+              "needs_review": true,
+              "observation_families": [
+                "temporal"
+              ],
+              "policy_outcomes": [
+                "review_required"
+              ],
+              "primary_contested_reason_text": null,
+              "reason_codes": [
+                "unreviewed",
+                "event_missing",
+                "missing_actor",
+                "statement_only_fact",
+                "procedural_significance"
+              ],
+              "reason_labels": [
+                "Unreviewed",
+                "No assembled event",
+                "Missing actor",
+                "Statement-only fact",
+                "Procedural significance"
+              ],
+              "review_statuses": [],
+              "signal_classes": [
+                "procedural_context"
+              ],
+              "source_ids": [
+                "src:bd1129ef71da0410"
+              ],
+              "source_projection_modes": [],
+              "source_signal_classes": [
+                "procedural_record",
+                "third_party_record"
+              ],
+              "source_types": [
+                "service_record"
+              ],
+              "statement_ids": [
+                "statement:74901e6a4f8505e6"
+              ],
+              "statement_roles": [
+                "captured_statement"
+              ]
+            }
+          ],
+          "missing_date": [],
+          "procedural_significance": [
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "no_event",
+              "chronology_impacted": true,
+              "chronology_label": "early April 2024",
+              "contestation_count": 1,
+              "event_ids": [],
+              "fact_id": "fact:dd5929dc0b405768",
+              "has_legal_procedural_observations": true,
+              "label": "User incident fragment",
+              "latest_review_note": null,
+              "latest_review_status": null,
+              "legal_procedural_observation_count": 0,
+              "legal_procedural_predicates": [],
+              "needs_review": true,
+              "observation_families": [
+                "actor_identification",
+                "temporal"
+              ],
+              "policy_outcomes": [
+                "review_required"
+              ],
+              "primary_contested_reason_text": "Service record anchors one later event but does not settle the earlier incident date.",
+              "reason_codes": [
+                "unreviewed",
+                "contested",
+                "event_missing",
+                "statement_only_fact",
+                "procedural_significance",
+                "contradictory_chronology"
+              ],
+              "reason_labels": [
+                "Unreviewed",
+                "Contested",
+                "No assembled event",
+                "Statement-only fact",
+                "Procedural significance",
+                "Contradictory chronology"
+              ],
+              "review_statuses": [],
+              "signal_classes": [
+                "party_assertion"
+              ],
+              "source_ids": [
+                "src:4c2ba1d3c77f3b77"
+              ],
+              "source_projection_modes": [],
+              "source_signal_classes": [
+                "party_material",
+                "user_authored"
+              ],
+              "source_types": [
+                "survivor_note"
+              ],
+              "statement_ids": [
+                "statement:262ed1f991a3fdb7"
+              ],
+              "statement_roles": [
+                "captured_statement"
+              ]
+            },
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "no_event",
+              "chronology_impacted": true,
+              "chronology_label": "2024-04-09",
+              "contestation_count": 0,
+              "event_ids": [],
+              "fact_id": "fact:db02c57327413841",
+              "has_legal_procedural_observations": true,
+              "label": "Clinic presentation record",
+              "latest_review_note": null,
+              "latest_review_status": null,
+              "legal_procedural_observation_count": 0,
+              "legal_procedural_predicates": [],
+              "needs_review": true,
+              "observation_families": [
+                "temporal"
+              ],
+              "policy_outcomes": [
+                "review_required"
+              ],
+              "primary_contested_reason_text": null,
+              "reason_codes": [
+                "unreviewed",
+                "event_missing",
+                "missing_actor",
+                "statement_only_fact",
+                "procedural_significance"
+              ],
+              "reason_labels": [
+                "Unreviewed",
+                "No assembled event",
+                "Missing actor",
+                "Statement-only fact",
+                "Procedural significance"
+              ],
+              "review_statuses": [],
+              "signal_classes": [
+                "procedural_context"
+              ],
+              "source_ids": [
+                "src:bd1129ef71da0410"
+              ],
+              "source_projection_modes": [],
+              "source_signal_classes": [
+                "procedural_record",
+                "third_party_record"
+              ],
+              "source_types": [
+                "service_record"
+              ],
+              "statement_ids": [
+                "statement:74901e6a4f8505e6"
+              ],
+              "statement_roles": [
+                "captured_statement"
+              ]
+            }
+          ]
+        },
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": true,
+            "chronology_label": "early April 2024",
+            "contestation_count": 1,
+            "event_ids": [],
+            "fact_id": "fact:dd5929dc0b405768",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "User incident fragment",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": "Service record anchors one later event but does not settle the earlier incident date.",
+            "reason_codes": [
+              "unreviewed",
+              "contested",
+              "event_missing",
+              "statement_only_fact",
+              "procedural_significance",
+              "contradictory_chronology"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "Contested",
+              "No assembled event",
+              "Statement-only fact",
+              "Procedural significance",
+              "Contradictory chronology"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "party_assertion"
+            ],
+            "source_ids": [
+              "src:4c2ba1d3c77f3b77"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "party_material",
+              "user_authored"
+            ],
+            "source_types": [
+              "survivor_note"
+            ],
+            "statement_ids": [
+              "statement:262ed1f991a3fdb7"
+            ],
+            "statement_roles": [
+              "captured_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": true,
+            "chronology_label": "2024-04-09",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:db02c57327413841",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "Clinic presentation record",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "missing_actor",
+              "statement_only_fact",
+              "procedural_significance"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Missing actor",
+              "Statement-only fact",
+              "Procedural significance"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "procedural_context"
+            ],
+            "source_ids": [
+              "src:bd1129ef71da0410"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "procedural_record",
+              "third_party_record"
+            ],
+            "source_types": [
+              "service_record"
+            ],
+            "statement_ids": [
+              "statement:74901e6a4f8505e6"
+            ],
+            "statement_roles": [
+              "captured_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "missing_actor_review_queue_count": 1,
+          "missing_date_review_queue_count": 0,
+          "needs_followup_count": 0,
+          "review_queue_count": 2,
+          "statement_only_review_queue_count": 2
+        },
+        "title": "Intake triage"
+      },
+      "procedural_posture": {
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": true,
+            "chronology_label": "early April 2024",
+            "contestation_count": 1,
+            "event_ids": [],
+            "fact_id": "fact:dd5929dc0b405768",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "User incident fragment",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": "Service record anchors one later event but does not settle the earlier incident date.",
+            "reason_codes": [
+              "unreviewed",
+              "contested",
+              "event_missing",
+              "statement_only_fact",
+              "procedural_significance",
+              "contradictory_chronology"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "Contested",
+              "No assembled event",
+              "Statement-only fact",
+              "Procedural significance",
+              "Contradictory chronology"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "party_assertion"
+            ],
+            "source_ids": [
+              "src:4c2ba1d3c77f3b77"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "party_material",
+              "user_authored"
+            ],
+            "source_types": [
+              "survivor_note"
+            ],
+            "statement_ids": [
+              "statement:262ed1f991a3fdb7"
+            ],
+            "statement_roles": [
+              "captured_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": true,
+            "chronology_label": "2024-04-09",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:db02c57327413841",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "Clinic presentation record",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "missing_actor",
+              "statement_only_fact",
+              "procedural_significance"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Missing actor",
+              "Statement-only fact",
+              "Procedural significance"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "procedural_context"
+            ],
+            "source_ids": [
+              "src:bd1129ef71da0410"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "procedural_record",
+              "third_party_record"
+            ],
+            "source_types": [
+              "service_record"
+            ],
+            "statement_ids": [
+              "statement:74901e6a4f8505e6"
+            ],
+            "statement_roles": [
+              "captured_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "contested_item_count": 1,
+          "legal_procedural_review_queue_count": 2
+        },
+        "title": "Procedural posture"
+      },
+      "professional_handoff": {
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": true,
+            "chronology_label": "early April 2024",
+            "contestation_count": 1,
+            "event_ids": [],
+            "fact_id": "fact:dd5929dc0b405768",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "User incident fragment",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": "Service record anchors one later event but does not settle the earlier incident date.",
+            "reason_codes": [
+              "unreviewed",
+              "contested",
+              "event_missing",
+              "statement_only_fact",
+              "procedural_significance",
+              "contradictory_chronology"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "Contested",
+              "No assembled event",
+              "Statement-only fact",
+              "Procedural significance",
+              "Contradictory chronology"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "party_assertion"
+            ],
+            "source_ids": [
+              "src:4c2ba1d3c77f3b77"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "party_material",
+              "user_authored"
+            ],
+            "source_types": [
+              "survivor_note"
+            ],
+            "statement_ids": [
+              "statement:262ed1f991a3fdb7"
+            ],
+            "statement_roles": [
+              "captured_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": true,
+            "chronology_label": "2024-04-09",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:db02c57327413841",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "Clinic presentation record",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "missing_actor",
+              "statement_only_fact",
+              "procedural_significance"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Missing actor",
+              "Statement-only fact",
+              "Procedural significance"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "procedural_context"
+            ],
+            "source_ids": [
+              "src:bd1129ef71da0410"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "procedural_record",
+              "third_party_record"
+            ],
+            "source_types": [
+              "service_record"
+            ],
+            "statement_ids": [
+              "statement:74901e6a4f8505e6"
+            ],
+            "statement_roles": [
+              "captured_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "documentary_count": 1,
+          "professional_note_count": 0,
+          "user_authored_count": 1
+        },
+        "title": "Professional handoff"
+      },
+      "public_claim_review": {
+        "items": [],
+        "summary": {
+          "procedural_record_count": 1,
+          "public_claim_count": 0
+        },
+        "title": "Public claim review"
+      },
+      "trauma_handoff": {
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": true,
+            "chronology_label": "early April 2024",
+            "contestation_count": 1,
+            "event_ids": [],
+            "fact_id": "fact:dd5929dc0b405768",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "User incident fragment",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": "Service record anchors one later event but does not settle the earlier incident date.",
+            "reason_codes": [
+              "unreviewed",
+              "contested",
+              "event_missing",
+              "statement_only_fact",
+              "procedural_significance",
+              "contradictory_chronology"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "Contested",
+              "No assembled event",
+              "Statement-only fact",
+              "Procedural significance",
+              "Contradictory chronology"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "party_assertion"
+            ],
+            "source_ids": [
+              "src:4c2ba1d3c77f3b77"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "party_material",
+              "user_authored"
+            ],
+            "source_types": [
+              "survivor_note"
+            ],
+            "statement_ids": [
+              "statement:262ed1f991a3fdb7"
+            ],
+            "statement_roles": [
+              "captured_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": true,
+            "chronology_label": "2024-04-09",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:db02c57327413841",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "Clinic presentation record",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "missing_actor",
+              "statement_only_fact",
+              "procedural_significance"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Missing actor",
+              "Statement-only fact",
+              "Procedural significance"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "procedural_context"
+            ],
+            "source_ids": [
+              "src:bd1129ef71da0410"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "procedural_record",
+              "third_party_record"
+            ],
+            "source_types": [
+              "service_record"
+            ],
+            "statement_ids": [
+              "statement:74901e6a4f8505e6"
+            ],
+            "statement_roles": [
+              "captured_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "abstained_count": 1,
+          "support_handoff_count": 2
+        },
+        "title": "Trauma handoff"
+      },
+      "wiki_fidelity": {
+        "items": [],
+        "summary": {
+          "wiki_fidelity_count": 0
+        },
+        "title": "Wiki fidelity"
+      }
+    },
+    "reopen_navigation": {
+      "current": {
+        "run_id": "factrun:d3bdabfac4bda3198d76037f9d56cb1929009701a0e6079854e1bb3ae8f0f9b7",
+        "source_label": "wave3:real_transcript_fragmented_support_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_fragmented_support_v1"
+      },
+      "query": {
+        "source_label": "wave3:real_transcript_fragmented_support_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_fragmented_support_v1"
+      },
+      "recent_sources": [
+        {
+          "fact_run_id": "factrun:fedbf065ba750fa9f719294a646c3c28be20b6f1247fd942d55d36ca52c2b2fd",
+          "run_count": null,
+          "source_label": "wave5:synthetic_false_coherence_pressure_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_false_coherence_pressure_v1"
+        },
+        {
+          "fact_run_id": "factrun:71459217037410765e0a10bd53af409925ad12c319653d9574a613d1602ef326",
+          "run_count": null,
+          "source_label": "wave5:synthetic_personal_professional_handoff_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_personal_professional_handoff_v1"
+        },
+        {
+          "fact_run_id": "factrun:ae4e1ef3a933fe2e0ebb393b49a54724132b56adda5d326a68939fb51d1600a1",
+          "run_count": null,
+          "source_label": "wave5:synthetic_multi_professional_reopen_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_multi_professional_reopen_v1"
+        },
+        {
+          "fact_run_id": "factrun:7c3275b6c4d303154ddf3b0ec11f20fde5a740466421c23a2ac9a547d15ba37d",
+          "run_count": null,
+          "source_label": "wave5:real_transcript_professional_handoff_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "real_transcript_professional_handoff_v1"
+        },
+        {
+          "fact_run_id": "factrun:83198f9318e190df46ea33a50bffb32f6ccb07a10786348a9212568731c3f4cb",
+          "run_count": null,
+          "source_label": "wave5:real_transcript_false_coherence_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "real_transcript_false_coherence_v1"
+        },
+        {
+          "fact_run_id": "factrun:2a5f3cdfdabd948a9131a4fbfd2012c0b6e3091a6ffce3f806f646eb3f56566d",
+          "run_count": null,
+          "source_label": "wave3:synthetic_trauma_fragment_cluster_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_trauma_fragment_cluster_v1"
+        },
+        {
+          "fact_run_id": "factrun:f7334e00285ccfeb3ea882ac782fb6d4852dfcc620b691c80d604efd62c881ad",
+          "run_count": null,
+          "source_label": "wave3:synthetic_support_worker_handoff_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_support_worker_handoff_v1"
+        },
+        {
+          "fact_run_id": "factrun:d3bdabfac4bda3198d76037f9d56cb1929009701a0e6079854e1bb3ae8f0f9b7",
+          "run_count": null,
+          "source_label": "wave3:real_transcript_fragmented_support_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "real_transcript_fragmented_support_v1"
+        },
+        {
+          "fact_run_id": "factrun:15dd326a477fd2237d75b817b671fc0f29f756757bec52c54d306498771e530b",
+          "run_count": null,
+          "source_label": "wave1:synthetic_sparse_dates_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_sparse_dates_v1"
+        },
+        {
+          "fact_run_id": "factrun:2853fd77df087011195190b7c6de66f0e148a60301a4326a08acc9d97550132f",
+          "run_count": null,
+          "source_label": "wave1:synthetic_conflict_cluster_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_conflict_cluster_v1"
+        },
+        {
+          "fact_run_id": "factrun:e82b0742b88f1839f1b359d53f0ffa60dd1764bb5e33a98b43e2ad392892554b",
+          "run_count": null,
+          "source_label": "wave1:real_transcript_intake_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "transcript_acceptance_real_intake_v1"
+        }
+      ]
+    },
+    "review_queue": [
+      {
+        "candidate_status": "candidate",
+        "chronology_bucket": "no_event",
+        "chronology_impacted": true,
+        "chronology_label": "early April 2024",
+        "contestation_count": 1,
+        "event_ids": [],
+        "fact_id": "fact:dd5929dc0b405768",
+        "has_legal_procedural_observations": true,
+        "inferred_signal_classes": [],
+        "inferred_source_signal_classes": [],
+        "label": "User incident fragment",
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_observation_count": 0,
+        "legal_procedural_predicates": [],
+        "needs_review": true,
+        "observation_families": [
+          "actor_identification",
+          "temporal"
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_contested_reason_text": "Service record anchors one later event but does not settle the earlier incident date.",
+        "reason_codes": [
+          "unreviewed",
+          "contested",
+          "event_missing",
+          "statement_only_fact",
+          "procedural_significance",
+          "contradictory_chronology"
+        ],
+        "reason_labels": [
+          "Unreviewed",
+          "Contested",
+          "No assembled event",
+          "Statement-only fact",
+          "Procedural significance",
+          "Contradictory chronology"
+        ],
+        "review_statuses": [],
+        "signal_classes": [
+          "party_assertion"
+        ],
+        "source_ids": [
+          "src:4c2ba1d3c77f3b77"
+        ],
+        "source_projection_modes": [],
+        "source_signal_classes": [
+          "party_material",
+          "user_authored"
+        ],
+        "source_types": [
+          "survivor_note"
+        ],
+        "statement_ids": [
+          "statement:262ed1f991a3fdb7"
+        ],
+        "statement_roles": [
+          "captured_statement"
+        ]
+      },
+      {
+        "candidate_status": "candidate",
+        "chronology_bucket": "no_event",
+        "chronology_impacted": true,
+        "chronology_label": "2024-04-09",
+        "contestation_count": 0,
+        "event_ids": [],
+        "fact_id": "fact:db02c57327413841",
+        "has_legal_procedural_observations": true,
+        "inferred_signal_classes": [],
+        "inferred_source_signal_classes": [],
+        "label": "Clinic presentation record",
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_observation_count": 0,
+        "legal_procedural_predicates": [],
+        "needs_review": true,
+        "observation_families": [
+          "temporal"
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_contested_reason_text": null,
+        "reason_codes": [
+          "unreviewed",
+          "event_missing",
+          "missing_actor",
+          "statement_only_fact",
+          "procedural_significance"
+        ],
+        "reason_labels": [
+          "Unreviewed",
+          "No assembled event",
+          "Missing actor",
+          "Statement-only fact",
+          "Procedural significance"
+        ],
+        "review_statuses": [],
+        "signal_classes": [
+          "procedural_context"
+        ],
+        "source_ids": [
+          "src:bd1129ef71da0410"
+        ],
+        "source_projection_modes": [],
+        "source_signal_classes": [
+          "procedural_record",
+          "third_party_record"
+        ],
+        "source_types": [
+          "service_record"
+        ],
+        "statement_ids": [
+          "statement:74901e6a4f8505e6"
+        ],
+        "statement_roles": [
+          "captured_statement"
+        ]
+      }
+    ],
+    "run": {
+      "contract_version": "fact.intake.bundle.v1",
+      "created_at": "2026-03-19 14:35:54",
+      "mary_projection_version": "mary.fact_workflow.v1",
+      "notes": "Wave 3 trauma/advocacy fragmented support fixture",
+      "run_id": "factrun:d3bdabfac4bda3198d76037f9d56cb1929009701a0e6079854e1bb3ae8f0f9b7",
+      "source_label": "wave3:real_transcript_fragmented_support_v1",
+      "workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:d3bdabfac4bda3198d76037f9d56cb1929009701a0e6079854e1bb3ae8f0f9b7",
+        "source_label": "wave3:real_transcript_fragmented_support_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_fragmented_support_v1"
+      }
+    },
+    "sources": [
+      {
+        "content_sha256": "945b7e2dd6f36c5b0b6651507963005cfc693ff35ac5dfa2c72cb502b7048f6a",
+        "provenance": {
+          "source_id": "survivor_note",
+          "source_signal_classes": [
+            "user_authored",
+            "party_material"
+          ],
+          "source_type": "survivor_note"
+        },
+        "source_id": "src:4c2ba1d3c77f3b77",
+        "source_label": "survivor_note",
+        "source_order": 1,
+        "source_ref": "ts-1",
+        "source_type": "survivor_note"
+      },
+      {
+        "content_sha256": "dc5a3132baa0e00fb14b5fef4dce69b83c9295073784ee8af0827f87fbb9208f",
+        "provenance": {
+          "source_id": "support_worker_note",
+          "source_signal_classes": [
+            "support_worker_note",
+            "later_annotation"
+          ],
+          "source_type": "support_worker_note"
+        },
+        "source_id": "src:d4dd7bc6244643f6",
+        "source_label": "support_worker_note",
+        "source_order": 2,
+        "source_ref": "ts-2",
+        "source_type": "support_worker_note"
+      },
+      {
+        "content_sha256": "4814eb465e7a997a646bde26f2dccec7657568ecde701468d94ae6b4ebc3c82a",
+        "provenance": {
+          "source_id": "service_record",
+          "source_signal_classes": [
+            "third_party_record",
+            "procedural_record"
+          ],
+          "source_type": "service_record"
+        },
+        "source_id": "src:bd1129ef71da0410",
+        "source_label": "service_record",
+        "source_order": 3,
+        "source_ref": "ts-3",
+        "source_type": "service_record"
+      }
+    ],
+    "statements": [
+      {
+        "chronology_hint": null,
+        "excerpt_id": "excerpt:5254c0327955025f",
+        "provenance": {
+          "sender": "TextUnit",
+          "unit_id": "ts-3"
+        },
+        "speaker_label": null,
+        "statement_id": "statement:74901e6a4f8505e6",
+        "statement_order": 1,
+        "statement_role": "captured_statement",
+        "statement_status": "captured",
+        "statement_text": "Service intake record notes a clinic presentation on 2024-04-09."
+      },
+      {
+        "chronology_hint": null,
+        "excerpt_id": "excerpt:981d694692e684b9",
+        "provenance": {
+          "sender": "TextUnit",
+          "unit_id": "ts-2"
+        },
+        "speaker_label": null,
+        "statement_id": "statement:a4f312a7d621680f",
+        "statement_order": 1,
+        "statement_role": "captured_statement",
+        "statement_status": "captured",
+        "statement_text": "Support worker note: user wants the hospital contact kept separate from later service follow-up."
+      },
+      {
+        "chronology_hint": null,
+        "excerpt_id": "excerpt:f3ed15164112fc00",
+        "provenance": {
+          "sender": "TextUnit",
+          "unit_id": "ts-1"
+        },
+        "speaker_label": null,
+        "statement_id": "statement:262ed1f991a3fdb7",
+        "statement_order": 1,
+        "statement_role": "captured_statement",
+        "statement_status": "captured",
+        "statement_text": "I think the first incident was in early April, but I am not ready to pin the exact date down."
+      }
+    ],
+    "summary": {
+      "abstained_fact_count": 1,
+      "approximate_event_count": 0,
+      "chronology_impacted_review_queue_count": 2,
+      "contested_chronology_item_count": 1,
+      "contested_fact_count": 1,
+      "contested_item_count": 1,
+      "contradictory_chronology_review_queue_count": 1,
+      "dated_event_count": 0,
+      "dated_fact_count": 2,
+      "event_count": 0,
+      "excerpt_count": 3,
+      "fact_count": 3,
+      "legal_procedural_review_queue_count": 2,
+      "missing_actor_review_queue_count": 1,
+      "missing_date_review_queue_count": 0,
+      "needs_followup_count": 0,
+      "no_event_fact_count": 3,
+      "observation_count": 4,
+      "policy_review_required_count": 2,
+      "review_queue_count": 2,
+      "reviewed_fact_count": 1,
+      "source_count": 3,
+      "statement_count": 3,
+      "statement_only_review_queue_count": 2,
+      "undated_event_count": 0,
+      "undated_fact_count": 1
+    },
+    "version": "fact.review.workbench.v1",
+    "zelph": {
+      "active_packs": [
+        "transcript_handoff"
+      ],
+      "engine": {
+        "status": "ok",
+        "stderr": "Importing file /tmp/tmpy0y0gy3t/query.zph...\nError in line \"include \"/tmp/tmpy0y0gy3t/facts.zlp\"\": fact(): facts with same subject and object are only supported for facts with a single object: include /tmp/tmpy0y0gy3t/rules.zlp include\n",
+        "stdout": "",
+        "triples": []
+      },
+      "facts_serialized_count": 50,
+      "inferred_by_fact_id": {
+        "fact:c4706bc1e1e5f402": {
+          "signal_classes": [
+            "handoff_context_signal",
+            "sequence_signal"
+          ],
+          "source_signal_classes": []
+        }
+      },
+      "inferred_fact_count": 1,
+      "rule_status": "engine_ok",
+      "triples": [
+        {
+          "object": "handoff_context_signal",
+          "predicate": "signal_class",
+          "subject": "fact_fact_c4706bc1e1e5f402"
+        },
+        {
+          "object": "sequence_signal",
+          "predicate": "signal_class",
+          "subject": "fact_fact_c4706bc1e1e5f402"
+        }
+      ],
+      "version": "fact_intake.zelph_bridge.v1"
+    },
+    "zelph_ruleset_version": "fact.review.workbench.zelph.v2"
+  }
+}

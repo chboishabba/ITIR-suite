@@ -72,7 +72,56 @@ Current widening status:
 
 - transcript real-path parity is locked for `SL-US-09` to `SL-US-11`
 - AU real-path parity is locked for `SL-US-12` to `SL-US-14`
-- next widening target is trauma/handoff real-path proof
+- trauma/support real-path parity is locked for `ITIR-US-13` and `ITIR-US-14`
+  via:
+  - `wave3:real_transcript_fragmented_support_v1`
+  - `transcript_semantic`
+  - `real_transcript_fragmented_support_v1`
+- professional handoff / false-coherence real-path parity is locked for
+  `ITIR-US-15` and `ITIR-US-16` via:
+  - `wave5:real_transcript_professional_handoff_v1`
+  - `real_transcript_professional_handoff_v1`
+  - `wave5:real_transcript_false_coherence_v1`
+  - `real_transcript_false_coherence_v1`
+
+Trauma/support capture command:
+
+```bash
+cd /home/c/Documents/code/ITIR-suite
+python3 SensibLaw/scripts/query_fact_review.py \
+  --db-path .cache_local/itir.sqlite \
+  demo-bundle \
+  --workflow-kind transcript_semantic \
+  --workflow-run-id real_transcript_fragmented_support_v1 \
+  --wave wave3_trauma_advocacy \
+  --fixture-kind real
+```
+
+Wave-5 professional handoff capture command:
+
+```bash
+cd /home/c/Documents/code/ITIR-suite
+python3 SensibLaw/scripts/query_fact_review.py \
+  --db-path .cache_local/itir.sqlite \
+  demo-bundle \
+  --workflow-kind transcript_semantic \
+  --workflow-run-id real_transcript_professional_handoff_v1 \
+  --wave wave5_handoff_false_coherence \
+  --fixture-kind real
+```
+
+Wave-5 false-coherence capture command:
+
+```bash
+cd /home/c/Documents/code/ITIR-suite
+python3 SensibLaw/scripts/query_fact_review.py \
+  --db-path .cache_local/itir.sqlite \
+  demo-bundle \
+  --workflow-kind transcript_semantic \
+  --workflow-run-id real_transcript_false_coherence_v1 \
+  --wave wave5_handoff_false_coherence \
+  --fixture-kind real
+```
 
 ## Contract stance
 

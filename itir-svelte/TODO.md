@@ -95,11 +95,25 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
   - `workflow_run_id`: `run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d`
   - route regressions now prove `SL-US-12`, `SL-US-13`, and `SL-US-14`
     against a real persisted AU bundle instead of transcript-only coverage
+- DONE (2026-03-20): widen the same `demo-bundle` real-path proof to the
+  transcript-side trauma/handoff lanes:
+  - wave 3 trauma/support baseline:
+    `wave3:real_transcript_fragmented_support_v1` /
+    `real_transcript_fragmented_support_v1`
+  - wave 5 professional handoff baseline:
+    `wave5:real_transcript_professional_handoff_v1` /
+    `real_transcript_professional_handoff_v1`
+  - wave 5 false-coherence baseline:
+    `wave5:real_transcript_false_coherence_v1` /
+    `real_transcript_false_coherence_v1`
+  - route regressions now prove `ITIR-US-13` to `ITIR-US-16` against real
+    persisted bundles instead of relying on synthetic-only trauma/handoff
+    coverage
 - Near-term priority:
-  - document the exact command sequence from `demo-bundle` to
-    `/graphs/fact-review` wherever Mary operator demo instructions live
-  - only after transcript + AU real-path parity are locked, widen to
-    trauma/handoff real-path proof
+  - tighten the route presentation around the new ITIR operator stories without
+    broadening backend semantics
+  - keep future real-path widening on the `demo-bundle` seam instead of adding
+    route-local fixtures
 - Keep low-judgment agents focused on route-consumer coverage first:
   - do not invent new fact-review backend semantics in Svelte
   - prefer seam tests over speculative UI refactors

@@ -1,0 +1,3243 @@
+{
+  "acceptance": {
+    "fixture_kind": "real",
+    "run": {
+      "run_id": "factrun:83198f9318e190df46ea33a50bffb32f6ccb07a10786348a9212568731c3f4cb",
+      "source_label": "wave5:real_transcript_false_coherence_v1",
+      "workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:83198f9318e190df46ea33a50bffb32f6ccb07a10786348a9212568731c3f4cb",
+        "source_label": "wave5:real_transcript_false_coherence_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_false_coherence_v1"
+      }
+    },
+    "stories": [
+      {
+        "blocking_explanation": null,
+        "check_count": 5,
+        "checks": [
+          {
+            "check_id": "workflow_link",
+            "explanation": "Stored run cannot be reopened cleanly from workflow metadata.",
+            "passed": true
+          },
+          {
+            "check_id": "provenance_drilldown",
+            "explanation": "Missing drill-down from fact/event rows to source statements and excerpts.",
+            "passed": true
+          },
+          {
+            "check_id": "professional_handoff_posture",
+            "explanation": "Personal, documentary, and later professional layers are not distinguishable enough across handoff.",
+            "passed": true
+          },
+          {
+            "check_id": "source_class_distinction",
+            "explanation": "User-authored, support-note, and third-party source classes are not distinguishable enough.",
+            "passed": true
+          },
+          {
+            "check_id": "abstention_visibility",
+            "explanation": "Abstained or not-ready material is not visible enough in the review surface.",
+            "passed": true
+          }
+        ],
+        "failed_check_ids": [],
+        "gap_tags": [],
+        "label": "Personal-to-professional provenance handoff",
+        "passed_check_count": 5,
+        "status": "pass",
+        "story_id": "ITIR-US-15"
+      },
+      {
+        "blocking_explanation": null,
+        "check_count": 5,
+        "checks": [
+          {
+            "check_id": "false_coherence_resistance",
+            "explanation": "High-conflict sparse material is still too easy to collapse into one narrative.",
+            "passed": true
+          },
+          {
+            "check_id": "provenance_drilldown",
+            "explanation": "Missing drill-down from fact/event rows to source statements and excerpts.",
+            "passed": true
+          },
+          {
+            "check_id": "read_only_posture",
+            "explanation": "Review surface does not clearly maintain read-only, non-reasoning posture.",
+            "passed": true
+          },
+          {
+            "check_id": "abstention_visibility",
+            "explanation": "Abstained or not-ready material is not visible enough in the review surface.",
+            "passed": true
+          },
+          {
+            "check_id": "contested_summary",
+            "explanation": "Contested items are not summarized separately from the main review flow.",
+            "passed": true
+          }
+        ],
+        "failed_check_ids": [],
+        "gap_tags": [],
+        "label": "Combating AI psychosis / false-coherence escalation",
+        "passed_check_count": 5,
+        "status": "pass",
+        "story_id": "ITIR-US-16"
+      }
+    ],
+    "summary": {
+      "fail_count": 0,
+      "partial_count": 0,
+      "pass_count": 2,
+      "story_count": 2
+    },
+    "version": "fact.review.acceptance.v1",
+    "wave": "wave5_handoff_false_coherence"
+  },
+  "dbPath": "/home/c/Documents/code/ITIR-suite/.cache_local/itir.sqlite",
+  "ok": true,
+  "selector": {
+    "fixture_kind": "real",
+    "run_id": "factrun:83198f9318e190df46ea33a50bffb32f6ccb07a10786348a9212568731c3f4cb",
+    "source_label": "wave5:real_transcript_false_coherence_v1",
+    "wave": "wave5_handoff_false_coherence",
+    "workflow_kind": "transcript_semantic",
+    "workflow_run_id": "real_transcript_false_coherence_v1"
+  },
+  "sources": [
+    {
+      "latest_created_at": "2026-03-19 14:35:55",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:55",
+        "fact_run_id": "factrun:fedbf065ba750fa9f719294a646c3c28be20b6f1247fd942d55d36ca52c2b2fd",
+        "source_label": "wave5:synthetic_false_coherence_pressure_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_false_coherence_pressure_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave5:synthetic_false_coherence_pressure_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:71459217037410765e0a10bd53af409925ad12c319653d9574a613d1602ef326",
+        "source_label": "wave5:synthetic_personal_professional_handoff_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_personal_professional_handoff_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave5:synthetic_personal_professional_handoff_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:ae4e1ef3a933fe2e0ebb393b49a54724132b56adda5d326a68939fb51d1600a1",
+        "source_label": "wave5:synthetic_multi_professional_reopen_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_multi_professional_reopen_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave5:synthetic_multi_professional_reopen_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:7c3275b6c4d303154ddf3b0ec11f20fde5a740466421c23a2ac9a547d15ba37d",
+        "source_label": "wave5:real_transcript_professional_handoff_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_professional_handoff_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave5:real_transcript_professional_handoff_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:83198f9318e190df46ea33a50bffb32f6ccb07a10786348a9212568731c3f4cb",
+        "source_label": "wave5:real_transcript_false_coherence_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_false_coherence_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave5:real_transcript_false_coherence_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:2a5f3cdfdabd948a9131a4fbfd2012c0b6e3091a6ffce3f806f646eb3f56566d",
+        "source_label": "wave3:synthetic_trauma_fragment_cluster_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_trauma_fragment_cluster_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave3:synthetic_trauma_fragment_cluster_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:f7334e00285ccfeb3ea882ac782fb6d4852dfcc620b691c80d604efd62c881ad",
+        "source_label": "wave3:synthetic_support_worker_handoff_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_support_worker_handoff_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave3:synthetic_support_worker_handoff_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:54",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:d3bdabfac4bda3198d76037f9d56cb1929009701a0e6079854e1bb3ae8f0f9b7",
+        "source_label": "wave3:real_transcript_fragmented_support_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_fragmented_support_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave3:real_transcript_fragmented_support_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:31",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:31",
+        "fact_run_id": "factrun:15dd326a477fd2237d75b817b671fc0f29f756757bec52c54d306498771e530b",
+        "source_label": "wave1:synthetic_sparse_dates_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_sparse_dates_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave1:synthetic_sparse_dates_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:31",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:31",
+        "fact_run_id": "factrun:2853fd77df087011195190b7c6de66f0e148a60301a4326a08acc9d97550132f",
+        "source_label": "wave1:synthetic_conflict_cluster_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_conflict_cluster_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave1:synthetic_conflict_cluster_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:35:31",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:31",
+        "fact_run_id": "factrun:e82b0742b88f1839f1b359d53f0ffa60dd1764bb5e33a98b43e2ad392892554b",
+        "source_label": "wave1:real_transcript_intake_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "transcript_acceptance_real_intake_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave1:real_transcript_intake_v1"
+    }
+  ],
+  "workbench": {
+    "chronology": {
+      "events": [],
+      "facts": [
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "rfc-1",
+          "chronology_sort_key": null,
+          "fact_id": "fact:23fbeeeccea59b14",
+          "order": 1
+        },
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "rfc-2",
+          "chronology_sort_key": null,
+          "fact_id": "fact:249083ba014012c3",
+          "order": 2
+        },
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "rfc-3",
+          "chronology_sort_key": null,
+          "fact_id": "fact:b4fa09470be846ce",
+          "order": 3
+        },
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "rfc-4",
+          "chronology_sort_key": null,
+          "fact_id": "fact:b93c3531a5971026",
+          "order": 4
+        }
+      ]
+    },
+    "chronology_groups": {
+      "approximate_events": [],
+      "contested_chronology_items": [],
+      "dated_events": [],
+      "facts_with_no_event": [
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "rfc-1",
+          "fact_id": "fact:23fbeeeccea59b14",
+          "label": "Fragment A",
+          "source_ids": [
+            "src:2326590fa39271f8"
+          ],
+          "statement_ids": [
+            "statement:7bdc4453eac7066b"
+          ]
+        },
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "rfc-2",
+          "fact_id": "fact:249083ba014012c3",
+          "label": "Fragment B",
+          "source_ids": [
+            "src:078ee598b38ee63a"
+          ],
+          "statement_ids": [
+            "statement:77cccfe523543c45"
+          ]
+        },
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "rfc-3",
+          "fact_id": "fact:b4fa09470be846ce",
+          "label": "Support note",
+          "source_ids": [
+            "src:1447d69e19454a0c"
+          ],
+          "statement_ids": [
+            "statement:d10b4781a30ce11f"
+          ]
+        },
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "rfc-4",
+          "fact_id": "fact:b93c3531a5971026",
+          "label": "Phone capture",
+          "source_ids": [
+            "src:bb83ace8929d1fc0"
+          ],
+          "statement_ids": [
+            "statement:92851e98fee0e474"
+          ]
+        }
+      ],
+      "undated_events": []
+    },
+    "chronology_summary": {
+      "approximate_event_count": 0,
+      "contested_chronology_item_count": 0,
+      "dated_event_count": 0,
+      "dated_fact_count": 0,
+      "event_count": 0,
+      "fact_count": 4,
+      "no_event_fact_count": 4,
+      "undated_event_count": 0,
+      "undated_fact_count": 4
+    },
+    "contested_summary": {
+      "chronology_impacted_count": 0,
+      "chronology_impacted_items": [],
+      "count": 1,
+      "items": [
+        {
+          "chronology_impacted": false,
+          "chronology_sort_key": null,
+          "contestation_count": 1,
+          "contestation_statuses": [
+            "disputed"
+          ],
+          "event_ids": [],
+          "fact_id": "fact:23fbeeeccea59b14",
+          "label": "Fragment A",
+          "reason_texts": [
+            "Contradictory user fragments should remain open rather than collapsing into one ordered narrative."
+          ],
+          "review_statuses": []
+        }
+      ],
+      "needs_followup_count": 0,
+      "needs_followup_items": [],
+      "reviewed_count": 0,
+      "reviewed_items": []
+    },
+    "events": [],
+    "excerpts": [
+      {
+        "anchor_label": "rfc-2",
+        "char_end": 55,
+        "char_start": 0,
+        "excerpt_id": "excerpt:de632c65c4d4b31a",
+        "excerpt_order": 2,
+        "excerpt_text": "A later note says the neighbour may have arrived first.",
+        "provenance": {
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_event_id": "rfc-2"
+        },
+        "source_id": "src:078ee598b38ee63a"
+      },
+      {
+        "anchor_label": "rfc-3",
+        "char_end": 110,
+        "char_start": 0,
+        "excerpt_id": "excerpt:8431cb920705c9df",
+        "excerpt_order": 3,
+        "excerpt_text": "Support worker note says not enough evidence exists to settle the order and both possibilities should be kept.",
+        "provenance": {
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_event_id": "rfc-3"
+        },
+        "source_id": "src:1447d69e19454a0c"
+      },
+      {
+        "anchor_label": "rfc-1",
+        "char_end": 78,
+        "char_start": 0,
+        "excerpt_id": "excerpt:5d14d9e43c2db366",
+        "excerpt_order": 1,
+        "excerpt_text": "I think the call came before the neighbour came over, but I cannot be certain.",
+        "provenance": {
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_event_id": "rfc-1"
+        },
+        "source_id": "src:2326590fa39271f8"
+      },
+      {
+        "anchor_label": "rfc-4",
+        "char_end": 72,
+        "char_start": 0,
+        "excerpt_id": "excerpt:db3794389a64ea01",
+        "excerpt_order": 4,
+        "excerpt_text": "Phone capture shows the call log but does not place the neighbour visit.",
+        "provenance": {
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_event_id": "rfc-4"
+        },
+        "source_id": "src:bb83ace8929d1fc0"
+      }
+    ],
+    "facts": [
+      {
+        "candidate_status": "candidate",
+        "canonical_label": "Fragment A",
+        "chronology_label": "rfc-1",
+        "chronology_sort_key": null,
+        "contestations": [
+          {
+            "author": "mary-parity-acceptance",
+            "contestation_id": "contest:afdea74e1c85c4d6",
+            "contestation_status": "disputed",
+            "created_at": "2026-03-19 14:35:54",
+            "provenance": {
+              "contestation_scope": "chronology",
+              "fixture_key": "real_transcript_false_coherence_contest",
+              "source": "acceptance_fixture"
+            },
+            "reason_text": "Contradictory user fragments should remain open rather than collapsing into one ordered narrative.",
+            "statement_id": "statement:77cccfe523543c45"
+          }
+        ],
+        "event_ids": [],
+        "excerpt_ids": [
+          "excerpt:5d14d9e43c2db366"
+        ],
+        "fact_id": "fact:23fbeeeccea59b14",
+        "fact_text": "I think the call came before the neighbour came over, but I cannot be certain.",
+        "fact_type": "transcript_statement_capture",
+        "inferred_signal_classes": [
+          "sequence_signal"
+        ],
+        "inferred_source_signal_classes": [],
+        "inspector_classification": {
+          "display_labels": [
+            "unclassified"
+          ],
+          "dominant_label": "unclassified",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_predicates": [],
+        "lexical_projection_mode": null,
+        "observations": [
+          {
+            "created_at": "2026-03-19 14:35:54",
+            "excerpt_id": "excerpt:5d14d9e43c2db366",
+            "object_ref": "actor:transcript:user_fragment_a:user",
+            "object_text": "User",
+            "object_type": "actor",
+            "observation_id": "obs:b5778dde7357865b",
+            "observation_order": 1,
+            "observation_status": "captured",
+            "predicate_family": "actor_identification",
+            "predicate_key": "actor",
+            "provenance": {
+              "role_kind": "speaker",
+              "semantic_run_id": "real_transcript_false_coherence_v1",
+              "source_event_id": "rfc-1"
+            },
+            "source_id": "src:2326590fa39271f8",
+            "statement_id": "statement:7bdc4453eac7066b",
+            "subject_text": null
+          },
+          {
+            "created_at": "2026-03-19 14:35:54",
+            "excerpt_id": "excerpt:5d14d9e43c2db366",
+            "object_ref": null,
+            "object_text": "call before neighbour visit",
+            "object_type": "relative_time",
+            "observation_id": "obs:2e7e2371a87cae37",
+            "observation_order": 2,
+            "observation_status": "captured",
+            "predicate_family": "temporal",
+            "predicate_key": "temporal_relation",
+            "provenance": {
+              "fixture_key": "real_transcript_false_coherence_rel_a",
+              "signal_classes": [
+                "fragmentary_account",
+                "contradiction_cluster"
+              ],
+              "source": "acceptance_fixture"
+            },
+            "source_id": "src:2326590fa39271f8",
+            "statement_id": "statement:7bdc4453eac7066b",
+            "subject_text": null
+          }
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_statement_id": "statement:7bdc4453eac7066b",
+        "provenance": {
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_event_id": "rfc-1"
+        },
+        "reviews": [],
+        "signal_classes": [
+          "contradiction_cluster",
+          "fragmentary_account",
+          "sequence_signal"
+        ],
+        "source_ids": [
+          "src:2326590fa39271f8"
+        ],
+        "source_signal_classes": [
+          "client_account",
+          "user_authored"
+        ],
+        "source_types": [
+          "personal_note"
+        ],
+        "statement_ids": [
+          "statement:7bdc4453eac7066b"
+        ],
+        "statement_roles": [
+          "transcript_statement"
+        ],
+        "statement_texts": [
+          "I think the call came before the neighbour came over, but I cannot be certain."
+        ]
+      },
+      {
+        "candidate_status": "candidate",
+        "canonical_label": "Fragment B",
+        "chronology_label": "rfc-2",
+        "chronology_sort_key": null,
+        "contestations": [],
+        "event_ids": [],
+        "excerpt_ids": [
+          "excerpt:de632c65c4d4b31a"
+        ],
+        "fact_id": "fact:249083ba014012c3",
+        "fact_text": "A later note says the neighbour may have arrived first.",
+        "fact_type": "transcript_statement_capture",
+        "inferred_signal_classes": [
+          "handoff_context_signal",
+          "sequence_signal"
+        ],
+        "inferred_source_signal_classes": [],
+        "inspector_classification": {
+          "display_labels": [
+            "unclassified"
+          ],
+          "dominant_label": "unclassified",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_predicates": [],
+        "lexical_projection_mode": null,
+        "observations": [
+          {
+            "created_at": "2026-03-19 14:35:54",
+            "excerpt_id": "excerpt:de632c65c4d4b31a",
+            "object_ref": "actor:transcript:user_fragment_b:user",
+            "object_text": "User",
+            "object_type": "actor",
+            "observation_id": "obs:1d69bbc74cbf2285",
+            "observation_order": 1,
+            "observation_status": "captured",
+            "predicate_family": "actor_identification",
+            "predicate_key": "actor",
+            "provenance": {
+              "role_kind": "speaker",
+              "semantic_run_id": "real_transcript_false_coherence_v1",
+              "source_event_id": "rfc-2"
+            },
+            "source_id": "src:078ee598b38ee63a",
+            "statement_id": "statement:77cccfe523543c45",
+            "subject_text": null
+          },
+          {
+            "created_at": "2026-03-19 14:35:54",
+            "excerpt_id": "excerpt:de632c65c4d4b31a",
+            "object_ref": null,
+            "object_text": "neighbour visit before call",
+            "object_type": "relative_time",
+            "observation_id": "obs:8f96173ef5d02075",
+            "observation_order": 2,
+            "observation_status": "captured",
+            "predicate_family": "temporal",
+            "predicate_key": "temporal_relation",
+            "provenance": {
+              "fixture_key": "real_transcript_false_coherence_rel_b",
+              "signal_classes": [
+                "fragmentary_account",
+                "contradiction_cluster"
+              ],
+              "source": "acceptance_fixture"
+            },
+            "source_id": "src:078ee598b38ee63a",
+            "statement_id": "statement:77cccfe523543c45",
+            "subject_text": null
+          }
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_statement_id": "statement:77cccfe523543c45",
+        "provenance": {
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_event_id": "rfc-2"
+        },
+        "reviews": [],
+        "signal_classes": [
+          "contradiction_cluster",
+          "fragmentary_account",
+          "handoff_context_signal",
+          "sequence_signal"
+        ],
+        "source_ids": [
+          "src:078ee598b38ee63a"
+        ],
+        "source_signal_classes": [
+          "client_account",
+          "user_authored"
+        ],
+        "source_types": [
+          "personal_note"
+        ],
+        "statement_ids": [
+          "statement:77cccfe523543c45"
+        ],
+        "statement_roles": [
+          "transcript_statement"
+        ],
+        "statement_texts": [
+          "A later note says the neighbour may have arrived first."
+        ]
+      },
+      {
+        "candidate_status": "candidate",
+        "canonical_label": "Support note",
+        "chronology_label": "rfc-3",
+        "chronology_sort_key": null,
+        "contestations": [],
+        "event_ids": [],
+        "excerpt_ids": [
+          "excerpt:8431cb920705c9df"
+        ],
+        "fact_id": "fact:b4fa09470be846ce",
+        "fact_text": "Support worker note says not enough evidence exists to settle the order and both possibilities should be kept.",
+        "fact_type": "transcript_statement_capture",
+        "inferred_signal_classes": [
+          "handoff_context_signal"
+        ],
+        "inferred_source_signal_classes": [],
+        "inspector_classification": {
+          "display_labels": [
+            "later annotation"
+          ],
+          "dominant_label": "later_annotation",
+          "status_keys": {
+            "later_annotation": true,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_predicates": [],
+        "lexical_projection_mode": "transcript_handoff",
+        "observations": [
+          {
+            "created_at": "2026-03-19 14:35:54",
+            "excerpt_id": "excerpt:8431cb920705c9df",
+            "object_ref": null,
+            "object_text": "not enough evidence to settle order",
+            "object_type": "note",
+            "observation_id": "obs:50fa8cda84435514",
+            "observation_order": 1,
+            "observation_status": "abstained",
+            "predicate_family": "temporal",
+            "predicate_key": "sequence_marker",
+            "provenance": {
+              "fixture_key": "real_transcript_false_coherence_gap",
+              "signal_classes": [
+                "not_enough_evidence",
+                "uncertainty_preserved"
+              ],
+              "source": "acceptance_fixture"
+            },
+            "source_id": "src:1447d69e19454a0c",
+            "statement_id": "statement:d10b4781a30ce11f",
+            "subject_text": null
+          }
+        ],
+        "policy_outcomes": [
+          "bounded_context_required",
+          "preserve_source_boundary",
+          "review_required"
+        ],
+        "primary_statement_id": "statement:d10b4781a30ce11f",
+        "provenance": {
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_event_id": "rfc-3"
+        },
+        "reviews": [],
+        "signal_classes": [
+          "handoff_context_signal",
+          "not_enough_evidence",
+          "uncertainty_preserved"
+        ],
+        "source_ids": [
+          "src:1447d69e19454a0c"
+        ],
+        "source_signal_classes": [
+          "later_annotation",
+          "professional_note"
+        ],
+        "source_types": [
+          "professional_note"
+        ],
+        "statement_ids": [
+          "statement:d10b4781a30ce11f"
+        ],
+        "statement_roles": [
+          "transcript_statement"
+        ],
+        "statement_texts": [
+          "Support worker note says not enough evidence exists to settle the order and both possibilities should be kept."
+        ]
+      },
+      {
+        "candidate_status": "candidate",
+        "canonical_label": "Phone capture",
+        "chronology_label": "rfc-4",
+        "chronology_sort_key": null,
+        "contestations": [],
+        "event_ids": [],
+        "excerpt_ids": [
+          "excerpt:db3794389a64ea01"
+        ],
+        "fact_id": "fact:b93c3531a5971026",
+        "fact_text": "Phone capture shows the call log but does not place the neighbour visit.",
+        "fact_type": "transcript_statement_capture",
+        "inferred_signal_classes": [],
+        "inferred_source_signal_classes": [],
+        "inspector_classification": {
+          "display_labels": [
+            "unclassified"
+          ],
+          "dominant_label": "unclassified",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_predicates": [],
+        "lexical_projection_mode": null,
+        "observations": [],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_statement_id": "statement:92851e98fee0e474",
+        "provenance": {
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_event_id": "rfc-4"
+        },
+        "reviews": [],
+        "signal_classes": [],
+        "source_ids": [
+          "src:bb83ace8929d1fc0"
+        ],
+        "source_signal_classes": [
+          "documentary_record",
+          "third_party_record"
+        ],
+        "source_types": [
+          "documentary_record"
+        ],
+        "statement_ids": [
+          "statement:92851e98fee0e474"
+        ],
+        "statement_roles": [
+          "transcript_statement"
+        ],
+        "statement_texts": [
+          "Phone capture shows the call log but does not place the neighbour visit."
+        ]
+      }
+    ],
+    "inspector_classification": {
+      "facts": {
+        "fact:23fbeeeccea59b14": {
+          "display_labels": [
+            "unclassified"
+          ],
+          "dominant_label": "unclassified",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "fact:249083ba014012c3": {
+          "display_labels": [
+            "unclassified"
+          ],
+          "dominant_label": "unclassified",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "fact:b4fa09470be846ce": {
+          "display_labels": [
+            "later annotation"
+          ],
+          "dominant_label": "later_annotation",
+          "status_keys": {
+            "later_annotation": true,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        },
+        "fact:b93c3531a5971026": {
+          "display_labels": [
+            "unclassified"
+          ],
+          "dominant_label": "unclassified",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": false,
+            "procedural_outcome": false
+          }
+        }
+      },
+      "selected_fact_id": "fact:23fbeeeccea59b14",
+      "status_order": [
+        "party_assertion",
+        "procedural_outcome",
+        "later_annotation"
+      ]
+    },
+    "inspector_defaults": {
+      "default_view": "intake_triage",
+      "selected_fact_id": "fact:23fbeeeccea59b14"
+    },
+    "issue_filters": {
+      "available_filters": [
+        "all",
+        "missing_date",
+        "missing_actor"
+      ],
+      "default_filter": "all",
+      "filters": [
+        {
+          "count": 4,
+          "fact_ids": [
+            "fact:23fbeeeccea59b14",
+            "fact:249083ba014012c3",
+            "fact:b93c3531a5971026",
+            "fact:b4fa09470be846ce"
+          ],
+          "filter_key": "missing_date",
+          "label": "Missing date"
+        },
+        {
+          "count": 2,
+          "fact_ids": [
+            "fact:b93c3531a5971026",
+            "fact:b4fa09470be846ce"
+          ],
+          "filter_key": "missing_actor",
+          "label": "Missing actor"
+        },
+        {
+          "count": 0,
+          "fact_ids": [],
+          "filter_key": "contradictory_chronology",
+          "label": "Contradictory chronology"
+        },
+        {
+          "count": 0,
+          "fact_ids": [],
+          "filter_key": "procedural_significance",
+          "label": "Procedural significance"
+        }
+      ],
+      "summary": {
+        "contradictory_chronology_review_queue_count": 0,
+        "missing_actor_review_queue_count": 2,
+        "missing_date_review_queue_count": 4,
+        "procedural_significance_review_queue_count": 0
+      }
+    },
+    "observations": [
+      {
+        "created_at": "2026-03-19 14:35:54",
+        "excerpt_id": "excerpt:de632c65c4d4b31a",
+        "object_ref": "actor:transcript:user_fragment_b:user",
+        "object_text": "User",
+        "object_type": "actor",
+        "observation_id": "obs:1d69bbc74cbf2285",
+        "observation_order": 1,
+        "observation_status": "captured",
+        "predicate_family": "actor_identification",
+        "predicate_key": "actor",
+        "provenance": {
+          "role_kind": "speaker",
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_event_id": "rfc-2"
+        },
+        "source_id": "src:078ee598b38ee63a",
+        "statement_id": "statement:77cccfe523543c45",
+        "subject_text": null
+      },
+      {
+        "created_at": "2026-03-19 14:35:54",
+        "excerpt_id": "excerpt:de632c65c4d4b31a",
+        "object_ref": null,
+        "object_text": "neighbour visit before call",
+        "object_type": "relative_time",
+        "observation_id": "obs:8f96173ef5d02075",
+        "observation_order": 2,
+        "observation_status": "captured",
+        "predicate_family": "temporal",
+        "predicate_key": "temporal_relation",
+        "provenance": {
+          "fixture_key": "real_transcript_false_coherence_rel_b",
+          "signal_classes": [
+            "fragmentary_account",
+            "contradiction_cluster"
+          ],
+          "source": "acceptance_fixture"
+        },
+        "source_id": "src:078ee598b38ee63a",
+        "statement_id": "statement:77cccfe523543c45",
+        "subject_text": null
+      },
+      {
+        "created_at": "2026-03-19 14:35:54",
+        "excerpt_id": "excerpt:5d14d9e43c2db366",
+        "object_ref": "actor:transcript:user_fragment_a:user",
+        "object_text": "User",
+        "object_type": "actor",
+        "observation_id": "obs:b5778dde7357865b",
+        "observation_order": 1,
+        "observation_status": "captured",
+        "predicate_family": "actor_identification",
+        "predicate_key": "actor",
+        "provenance": {
+          "role_kind": "speaker",
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_event_id": "rfc-1"
+        },
+        "source_id": "src:2326590fa39271f8",
+        "statement_id": "statement:7bdc4453eac7066b",
+        "subject_text": null
+      },
+      {
+        "created_at": "2026-03-19 14:35:54",
+        "excerpt_id": "excerpt:5d14d9e43c2db366",
+        "object_ref": null,
+        "object_text": "call before neighbour visit",
+        "object_type": "relative_time",
+        "observation_id": "obs:2e7e2371a87cae37",
+        "observation_order": 2,
+        "observation_status": "captured",
+        "predicate_family": "temporal",
+        "predicate_key": "temporal_relation",
+        "provenance": {
+          "fixture_key": "real_transcript_false_coherence_rel_a",
+          "signal_classes": [
+            "fragmentary_account",
+            "contradiction_cluster"
+          ],
+          "source": "acceptance_fixture"
+        },
+        "source_id": "src:2326590fa39271f8",
+        "statement_id": "statement:7bdc4453eac7066b",
+        "subject_text": null
+      },
+      {
+        "created_at": "2026-03-19 14:35:54",
+        "excerpt_id": "excerpt:8431cb920705c9df",
+        "object_ref": null,
+        "object_text": "not enough evidence to settle order",
+        "object_type": "note",
+        "observation_id": "obs:50fa8cda84435514",
+        "observation_order": 1,
+        "observation_status": "abstained",
+        "predicate_family": "temporal",
+        "predicate_key": "sequence_marker",
+        "provenance": {
+          "fixture_key": "real_transcript_false_coherence_gap",
+          "signal_classes": [
+            "not_enough_evidence",
+            "uncertainty_preserved"
+          ],
+          "source": "acceptance_fixture"
+        },
+        "source_id": "src:1447d69e19454a0c",
+        "statement_id": "statement:d10b4781a30ce11f",
+        "subject_text": null
+      }
+    ],
+    "operator_views": {
+      "chronology_prep": {
+        "groups": {
+          "approximate_events": [],
+          "contested_chronology_items": [],
+          "dated_events": [],
+          "facts_with_no_event": [
+            {
+              "candidate_status": "candidate",
+              "chronology_label": "rfc-1",
+              "fact_id": "fact:23fbeeeccea59b14",
+              "label": "Fragment A",
+              "source_ids": [
+                "src:2326590fa39271f8"
+              ],
+              "statement_ids": [
+                "statement:7bdc4453eac7066b"
+              ]
+            },
+            {
+              "candidate_status": "candidate",
+              "chronology_label": "rfc-2",
+              "fact_id": "fact:249083ba014012c3",
+              "label": "Fragment B",
+              "source_ids": [
+                "src:078ee598b38ee63a"
+              ],
+              "statement_ids": [
+                "statement:77cccfe523543c45"
+              ]
+            },
+            {
+              "candidate_status": "candidate",
+              "chronology_label": "rfc-3",
+              "fact_id": "fact:b4fa09470be846ce",
+              "label": "Support note",
+              "source_ids": [
+                "src:1447d69e19454a0c"
+              ],
+              "statement_ids": [
+                "statement:d10b4781a30ce11f"
+              ]
+            },
+            {
+              "candidate_status": "candidate",
+              "chronology_label": "rfc-4",
+              "fact_id": "fact:b93c3531a5971026",
+              "label": "Phone capture",
+              "source_ids": [
+                "src:bb83ace8929d1fc0"
+              ],
+              "statement_ids": [
+                "statement:92851e98fee0e474"
+              ]
+            }
+          ],
+          "undated_events": []
+        },
+        "summary": {
+          "approximate_event_count": 0,
+          "contested_chronology_item_count": 0,
+          "dated_event_count": 0,
+          "dated_fact_count": 0,
+          "event_count": 0,
+          "fact_count": 4,
+          "no_event_fact_count": 4,
+          "undated_event_count": 0,
+          "undated_fact_count": 4
+        },
+        "title": "Chronology prep"
+      },
+      "claim_alignment": {
+        "items": [],
+        "summary": {
+          "structural_boundary_count": 0,
+          "wikidata_claim_count": 0
+        },
+        "title": "Claim alignment"
+      },
+      "contested_items": {
+        "items": [
+          {
+            "chronology_impacted": false,
+            "chronology_sort_key": null,
+            "contestation_count": 1,
+            "contestation_statuses": [
+              "disputed"
+            ],
+            "event_ids": [],
+            "fact_id": "fact:23fbeeeccea59b14",
+            "inferred_signal_classes": [
+              "sequence_signal"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Fragment A",
+            "reason_texts": [
+              "Contradictory user fragments should remain open rather than collapsing into one ordered narrative."
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "contradiction_cluster",
+              "fragmentary_account",
+              "sequence_signal"
+            ],
+            "source_signal_classes": [
+              "client_account",
+              "user_authored"
+            ]
+          }
+        ],
+        "summary": {
+          "chronology_impacted_count": 0,
+          "count": 1,
+          "needs_followup_count": 0
+        },
+        "title": "Contested items"
+      },
+      "false_coherence_review": {
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-1",
+            "contestation_count": 1,
+            "event_ids": [],
+            "fact_id": "fact:23fbeeeccea59b14",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "sequence_signal"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Fragment A",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": "Contradictory user fragments should remain open rather than collapsing into one ordered narrative.",
+            "reason_codes": [
+              "unreviewed",
+              "contested",
+              "event_missing",
+              "chronology_undated",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "Contested",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "contradiction_cluster",
+              "fragmentary_account",
+              "sequence_signal"
+            ],
+            "source_ids": [
+              "src:2326590fa39271f8"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "client_account",
+              "user_authored"
+            ],
+            "source_types": [
+              "personal_note"
+            ],
+            "statement_ids": [
+              "statement:7bdc4453eac7066b"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-2",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:249083ba014012c3",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "handoff_context_signal",
+              "sequence_signal"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Fragment B",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "contradiction_cluster",
+              "fragmentary_account",
+              "handoff_context_signal",
+              "sequence_signal"
+            ],
+            "source_ids": [
+              "src:078ee598b38ee63a"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "client_account",
+              "user_authored"
+            ],
+            "source_types": [
+              "personal_note"
+            ],
+            "statement_ids": [
+              "statement:77cccfe523543c45"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-4",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:b93c3531a5971026",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "Phone capture",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_actor",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing actor",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [],
+            "source_ids": [
+              "src:bb83ace8929d1fc0"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "documentary_record",
+              "third_party_record"
+            ],
+            "source_types": [
+              "documentary_record"
+            ],
+            "statement_ids": [
+              "statement:92851e98fee0e474"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-3",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:b4fa09470be846ce",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "handoff_context_signal"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Support note",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "bounded_context_required",
+              "preserve_source_boundary",
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_actor",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing actor",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "handoff_context_signal",
+              "not_enough_evidence",
+              "uncertainty_preserved"
+            ],
+            "source_ids": [
+              "src:1447d69e19454a0c"
+            ],
+            "source_projection_modes": [
+              "transcript_handoff"
+            ],
+            "source_signal_classes": [
+              "later_annotation",
+              "professional_note"
+            ],
+            "source_types": [
+              "professional_note"
+            ],
+            "statement_ids": [
+              "statement:d10b4781a30ce11f"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "abstained_count": 0,
+          "contested_count": 1,
+          "no_event_fact_count": 4
+        },
+        "title": "False-coherence review"
+      },
+      "intake_triage": {
+        "groups": {
+          "chronology_conflict": [],
+          "contradictory_chronology": [],
+          "missing_actor": [
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "no_event",
+              "chronology_impacted": false,
+              "chronology_label": "rfc-4",
+              "contestation_count": 0,
+              "event_ids": [],
+              "fact_id": "fact:b93c3531a5971026",
+              "has_legal_procedural_observations": false,
+              "label": "Phone capture",
+              "latest_review_note": null,
+              "latest_review_status": null,
+              "legal_procedural_observation_count": 0,
+              "legal_procedural_predicates": [],
+              "needs_review": true,
+              "observation_families": [],
+              "policy_outcomes": [
+                "review_required"
+              ],
+              "primary_contested_reason_text": null,
+              "reason_codes": [
+                "unreviewed",
+                "event_missing",
+                "chronology_undated",
+                "missing_actor",
+                "missing_date",
+                "statement_only_fact"
+              ],
+              "reason_labels": [
+                "Unreviewed",
+                "No assembled event",
+                "Chronology is undated",
+                "Missing actor",
+                "Missing date",
+                "Statement-only fact"
+              ],
+              "review_statuses": [],
+              "signal_classes": [],
+              "source_ids": [
+                "src:bb83ace8929d1fc0"
+              ],
+              "source_projection_modes": [],
+              "source_signal_classes": [
+                "documentary_record",
+                "third_party_record"
+              ],
+              "source_types": [
+                "documentary_record"
+              ],
+              "statement_ids": [
+                "statement:92851e98fee0e474"
+              ],
+              "statement_roles": [
+                "transcript_statement"
+              ]
+            },
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "no_event",
+              "chronology_impacted": false,
+              "chronology_label": "rfc-3",
+              "contestation_count": 0,
+              "event_ids": [],
+              "fact_id": "fact:b4fa09470be846ce",
+              "has_legal_procedural_observations": false,
+              "label": "Support note",
+              "latest_review_note": null,
+              "latest_review_status": null,
+              "legal_procedural_observation_count": 0,
+              "legal_procedural_predicates": [],
+              "needs_review": true,
+              "observation_families": [
+                "temporal"
+              ],
+              "policy_outcomes": [
+                "bounded_context_required",
+                "preserve_source_boundary",
+                "review_required"
+              ],
+              "primary_contested_reason_text": null,
+              "reason_codes": [
+                "unreviewed",
+                "event_missing",
+                "chronology_undated",
+                "missing_actor",
+                "missing_date",
+                "statement_only_fact"
+              ],
+              "reason_labels": [
+                "Unreviewed",
+                "No assembled event",
+                "Chronology is undated",
+                "Missing actor",
+                "Missing date",
+                "Statement-only fact"
+              ],
+              "review_statuses": [],
+              "signal_classes": [
+                "handoff_context_signal",
+                "not_enough_evidence",
+                "uncertainty_preserved"
+              ],
+              "source_ids": [
+                "src:1447d69e19454a0c"
+              ],
+              "source_projection_modes": [
+                "transcript_handoff"
+              ],
+              "source_signal_classes": [
+                "later_annotation",
+                "professional_note"
+              ],
+              "source_types": [
+                "professional_note"
+              ],
+              "statement_ids": [
+                "statement:d10b4781a30ce11f"
+              ],
+              "statement_roles": [
+                "transcript_statement"
+              ]
+            }
+          ],
+          "missing_date": [
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "no_event",
+              "chronology_impacted": false,
+              "chronology_label": "rfc-1",
+              "contestation_count": 1,
+              "event_ids": [],
+              "fact_id": "fact:23fbeeeccea59b14",
+              "has_legal_procedural_observations": false,
+              "label": "Fragment A",
+              "latest_review_note": null,
+              "latest_review_status": null,
+              "legal_procedural_observation_count": 0,
+              "legal_procedural_predicates": [],
+              "needs_review": true,
+              "observation_families": [
+                "actor_identification",
+                "temporal"
+              ],
+              "policy_outcomes": [
+                "review_required"
+              ],
+              "primary_contested_reason_text": "Contradictory user fragments should remain open rather than collapsing into one ordered narrative.",
+              "reason_codes": [
+                "unreviewed",
+                "contested",
+                "event_missing",
+                "chronology_undated",
+                "missing_date",
+                "statement_only_fact"
+              ],
+              "reason_labels": [
+                "Unreviewed",
+                "Contested",
+                "No assembled event",
+                "Chronology is undated",
+                "Missing date",
+                "Statement-only fact"
+              ],
+              "review_statuses": [],
+              "signal_classes": [
+                "contradiction_cluster",
+                "fragmentary_account",
+                "sequence_signal"
+              ],
+              "source_ids": [
+                "src:2326590fa39271f8"
+              ],
+              "source_projection_modes": [],
+              "source_signal_classes": [
+                "client_account",
+                "user_authored"
+              ],
+              "source_types": [
+                "personal_note"
+              ],
+              "statement_ids": [
+                "statement:7bdc4453eac7066b"
+              ],
+              "statement_roles": [
+                "transcript_statement"
+              ]
+            },
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "no_event",
+              "chronology_impacted": false,
+              "chronology_label": "rfc-2",
+              "contestation_count": 0,
+              "event_ids": [],
+              "fact_id": "fact:249083ba014012c3",
+              "has_legal_procedural_observations": false,
+              "label": "Fragment B",
+              "latest_review_note": null,
+              "latest_review_status": null,
+              "legal_procedural_observation_count": 0,
+              "legal_procedural_predicates": [],
+              "needs_review": true,
+              "observation_families": [
+                "actor_identification",
+                "temporal"
+              ],
+              "policy_outcomes": [
+                "review_required"
+              ],
+              "primary_contested_reason_text": null,
+              "reason_codes": [
+                "unreviewed",
+                "event_missing",
+                "chronology_undated",
+                "missing_date",
+                "statement_only_fact"
+              ],
+              "reason_labels": [
+                "Unreviewed",
+                "No assembled event",
+                "Chronology is undated",
+                "Missing date",
+                "Statement-only fact"
+              ],
+              "review_statuses": [],
+              "signal_classes": [
+                "contradiction_cluster",
+                "fragmentary_account",
+                "handoff_context_signal",
+                "sequence_signal"
+              ],
+              "source_ids": [
+                "src:078ee598b38ee63a"
+              ],
+              "source_projection_modes": [],
+              "source_signal_classes": [
+                "client_account",
+                "user_authored"
+              ],
+              "source_types": [
+                "personal_note"
+              ],
+              "statement_ids": [
+                "statement:77cccfe523543c45"
+              ],
+              "statement_roles": [
+                "transcript_statement"
+              ]
+            },
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "no_event",
+              "chronology_impacted": false,
+              "chronology_label": "rfc-4",
+              "contestation_count": 0,
+              "event_ids": [],
+              "fact_id": "fact:b93c3531a5971026",
+              "has_legal_procedural_observations": false,
+              "label": "Phone capture",
+              "latest_review_note": null,
+              "latest_review_status": null,
+              "legal_procedural_observation_count": 0,
+              "legal_procedural_predicates": [],
+              "needs_review": true,
+              "observation_families": [],
+              "policy_outcomes": [
+                "review_required"
+              ],
+              "primary_contested_reason_text": null,
+              "reason_codes": [
+                "unreviewed",
+                "event_missing",
+                "chronology_undated",
+                "missing_actor",
+                "missing_date",
+                "statement_only_fact"
+              ],
+              "reason_labels": [
+                "Unreviewed",
+                "No assembled event",
+                "Chronology is undated",
+                "Missing actor",
+                "Missing date",
+                "Statement-only fact"
+              ],
+              "review_statuses": [],
+              "signal_classes": [],
+              "source_ids": [
+                "src:bb83ace8929d1fc0"
+              ],
+              "source_projection_modes": [],
+              "source_signal_classes": [
+                "documentary_record",
+                "third_party_record"
+              ],
+              "source_types": [
+                "documentary_record"
+              ],
+              "statement_ids": [
+                "statement:92851e98fee0e474"
+              ],
+              "statement_roles": [
+                "transcript_statement"
+              ]
+            },
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "no_event",
+              "chronology_impacted": false,
+              "chronology_label": "rfc-3",
+              "contestation_count": 0,
+              "event_ids": [],
+              "fact_id": "fact:b4fa09470be846ce",
+              "has_legal_procedural_observations": false,
+              "label": "Support note",
+              "latest_review_note": null,
+              "latest_review_status": null,
+              "legal_procedural_observation_count": 0,
+              "legal_procedural_predicates": [],
+              "needs_review": true,
+              "observation_families": [
+                "temporal"
+              ],
+              "policy_outcomes": [
+                "bounded_context_required",
+                "preserve_source_boundary",
+                "review_required"
+              ],
+              "primary_contested_reason_text": null,
+              "reason_codes": [
+                "unreviewed",
+                "event_missing",
+                "chronology_undated",
+                "missing_actor",
+                "missing_date",
+                "statement_only_fact"
+              ],
+              "reason_labels": [
+                "Unreviewed",
+                "No assembled event",
+                "Chronology is undated",
+                "Missing actor",
+                "Missing date",
+                "Statement-only fact"
+              ],
+              "review_statuses": [],
+              "signal_classes": [
+                "handoff_context_signal",
+                "not_enough_evidence",
+                "uncertainty_preserved"
+              ],
+              "source_ids": [
+                "src:1447d69e19454a0c"
+              ],
+              "source_projection_modes": [
+                "transcript_handoff"
+              ],
+              "source_signal_classes": [
+                "later_annotation",
+                "professional_note"
+              ],
+              "source_types": [
+                "professional_note"
+              ],
+              "statement_ids": [
+                "statement:d10b4781a30ce11f"
+              ],
+              "statement_roles": [
+                "transcript_statement"
+              ]
+            }
+          ],
+          "procedural_significance": []
+        },
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-1",
+            "contestation_count": 1,
+            "event_ids": [],
+            "fact_id": "fact:23fbeeeccea59b14",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "sequence_signal"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Fragment A",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": "Contradictory user fragments should remain open rather than collapsing into one ordered narrative.",
+            "reason_codes": [
+              "unreviewed",
+              "contested",
+              "event_missing",
+              "chronology_undated",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "Contested",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "contradiction_cluster",
+              "fragmentary_account",
+              "sequence_signal"
+            ],
+            "source_ids": [
+              "src:2326590fa39271f8"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "client_account",
+              "user_authored"
+            ],
+            "source_types": [
+              "personal_note"
+            ],
+            "statement_ids": [
+              "statement:7bdc4453eac7066b"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-2",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:249083ba014012c3",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "handoff_context_signal",
+              "sequence_signal"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Fragment B",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "contradiction_cluster",
+              "fragmentary_account",
+              "handoff_context_signal",
+              "sequence_signal"
+            ],
+            "source_ids": [
+              "src:078ee598b38ee63a"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "client_account",
+              "user_authored"
+            ],
+            "source_types": [
+              "personal_note"
+            ],
+            "statement_ids": [
+              "statement:77cccfe523543c45"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-4",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:b93c3531a5971026",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "Phone capture",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_actor",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing actor",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [],
+            "source_ids": [
+              "src:bb83ace8929d1fc0"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "documentary_record",
+              "third_party_record"
+            ],
+            "source_types": [
+              "documentary_record"
+            ],
+            "statement_ids": [
+              "statement:92851e98fee0e474"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-3",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:b4fa09470be846ce",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "handoff_context_signal"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Support note",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "bounded_context_required",
+              "preserve_source_boundary",
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_actor",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing actor",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "handoff_context_signal",
+              "not_enough_evidence",
+              "uncertainty_preserved"
+            ],
+            "source_ids": [
+              "src:1447d69e19454a0c"
+            ],
+            "source_projection_modes": [
+              "transcript_handoff"
+            ],
+            "source_signal_classes": [
+              "later_annotation",
+              "professional_note"
+            ],
+            "source_types": [
+              "professional_note"
+            ],
+            "statement_ids": [
+              "statement:d10b4781a30ce11f"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "missing_actor_review_queue_count": 2,
+          "missing_date_review_queue_count": 4,
+          "needs_followup_count": 0,
+          "review_queue_count": 4,
+          "statement_only_review_queue_count": 4
+        },
+        "title": "Intake triage"
+      },
+      "procedural_posture": {
+        "items": [],
+        "summary": {
+          "contested_item_count": 1,
+          "legal_procedural_review_queue_count": 0
+        },
+        "title": "Procedural posture"
+      },
+      "professional_handoff": {
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-1",
+            "contestation_count": 1,
+            "event_ids": [],
+            "fact_id": "fact:23fbeeeccea59b14",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "sequence_signal"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Fragment A",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": "Contradictory user fragments should remain open rather than collapsing into one ordered narrative.",
+            "reason_codes": [
+              "unreviewed",
+              "contested",
+              "event_missing",
+              "chronology_undated",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "Contested",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "contradiction_cluster",
+              "fragmentary_account",
+              "sequence_signal"
+            ],
+            "source_ids": [
+              "src:2326590fa39271f8"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "client_account",
+              "user_authored"
+            ],
+            "source_types": [
+              "personal_note"
+            ],
+            "statement_ids": [
+              "statement:7bdc4453eac7066b"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-2",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:249083ba014012c3",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "handoff_context_signal",
+              "sequence_signal"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Fragment B",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "contradiction_cluster",
+              "fragmentary_account",
+              "handoff_context_signal",
+              "sequence_signal"
+            ],
+            "source_ids": [
+              "src:078ee598b38ee63a"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "client_account",
+              "user_authored"
+            ],
+            "source_types": [
+              "personal_note"
+            ],
+            "statement_ids": [
+              "statement:77cccfe523543c45"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-4",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:b93c3531a5971026",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "Phone capture",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_actor",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing actor",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [],
+            "source_ids": [
+              "src:bb83ace8929d1fc0"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "documentary_record",
+              "third_party_record"
+            ],
+            "source_types": [
+              "documentary_record"
+            ],
+            "statement_ids": [
+              "statement:92851e98fee0e474"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-3",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:b4fa09470be846ce",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "handoff_context_signal"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Support note",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "bounded_context_required",
+              "preserve_source_boundary",
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_actor",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing actor",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "handoff_context_signal",
+              "not_enough_evidence",
+              "uncertainty_preserved"
+            ],
+            "source_ids": [
+              "src:1447d69e19454a0c"
+            ],
+            "source_projection_modes": [
+              "transcript_handoff"
+            ],
+            "source_signal_classes": [
+              "later_annotation",
+              "professional_note"
+            ],
+            "source_types": [
+              "professional_note"
+            ],
+            "statement_ids": [
+              "statement:d10b4781a30ce11f"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "documentary_count": 1,
+          "professional_note_count": 1,
+          "user_authored_count": 2
+        },
+        "title": "Professional handoff"
+      },
+      "public_claim_review": {
+        "items": [],
+        "summary": {
+          "procedural_record_count": 0,
+          "public_claim_count": 0
+        },
+        "title": "Public claim review"
+      },
+      "trauma_handoff": {
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-1",
+            "contestation_count": 1,
+            "event_ids": [],
+            "fact_id": "fact:23fbeeeccea59b14",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "sequence_signal"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Fragment A",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": "Contradictory user fragments should remain open rather than collapsing into one ordered narrative.",
+            "reason_codes": [
+              "unreviewed",
+              "contested",
+              "event_missing",
+              "chronology_undated",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "Contested",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "contradiction_cluster",
+              "fragmentary_account",
+              "sequence_signal"
+            ],
+            "source_ids": [
+              "src:2326590fa39271f8"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "client_account",
+              "user_authored"
+            ],
+            "source_types": [
+              "personal_note"
+            ],
+            "statement_ids": [
+              "statement:7bdc4453eac7066b"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-2",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:249083ba014012c3",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "handoff_context_signal",
+              "sequence_signal"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Fragment B",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "actor_identification",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "contradiction_cluster",
+              "fragmentary_account",
+              "handoff_context_signal",
+              "sequence_signal"
+            ],
+            "source_ids": [
+              "src:078ee598b38ee63a"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "client_account",
+              "user_authored"
+            ],
+            "source_types": [
+              "personal_note"
+            ],
+            "statement_ids": [
+              "statement:77cccfe523543c45"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-4",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:b93c3531a5971026",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [],
+            "inferred_source_signal_classes": [],
+            "label": "Phone capture",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_actor",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing actor",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [],
+            "source_ids": [
+              "src:bb83ace8929d1fc0"
+            ],
+            "source_projection_modes": [],
+            "source_signal_classes": [
+              "documentary_record",
+              "third_party_record"
+            ],
+            "source_types": [
+              "documentary_record"
+            ],
+            "statement_ids": [
+              "statement:92851e98fee0e474"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": false,
+            "chronology_label": "rfc-3",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:b4fa09470be846ce",
+            "has_legal_procedural_observations": false,
+            "inferred_signal_classes": [
+              "handoff_context_signal"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Support note",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "bounded_context_required",
+              "preserve_source_boundary",
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "chronology_undated",
+              "missing_actor",
+              "missing_date",
+              "statement_only_fact"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Chronology is undated",
+              "Missing actor",
+              "Missing date",
+              "Statement-only fact"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "handoff_context_signal",
+              "not_enough_evidence",
+              "uncertainty_preserved"
+            ],
+            "source_ids": [
+              "src:1447d69e19454a0c"
+            ],
+            "source_projection_modes": [
+              "transcript_handoff"
+            ],
+            "source_signal_classes": [
+              "later_annotation",
+              "professional_note"
+            ],
+            "source_types": [
+              "professional_note"
+            ],
+            "statement_ids": [
+              "statement:d10b4781a30ce11f"
+            ],
+            "statement_roles": [
+              "transcript_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "abstained_count": 0,
+          "support_handoff_count": 3
+        },
+        "title": "Trauma handoff"
+      },
+      "wiki_fidelity": {
+        "items": [],
+        "summary": {
+          "wiki_fidelity_count": 0
+        },
+        "title": "Wiki fidelity"
+      }
+    },
+    "reopen_navigation": {
+      "current": {
+        "run_id": "factrun:83198f9318e190df46ea33a50bffb32f6ccb07a10786348a9212568731c3f4cb",
+        "source_label": "wave5:real_transcript_false_coherence_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_false_coherence_v1"
+      },
+      "query": {
+        "source_label": "wave5:real_transcript_false_coherence_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_false_coherence_v1"
+      },
+      "recent_sources": [
+        {
+          "fact_run_id": "factrun:fedbf065ba750fa9f719294a646c3c28be20b6f1247fd942d55d36ca52c2b2fd",
+          "run_count": null,
+          "source_label": "wave5:synthetic_false_coherence_pressure_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_false_coherence_pressure_v1"
+        },
+        {
+          "fact_run_id": "factrun:71459217037410765e0a10bd53af409925ad12c319653d9574a613d1602ef326",
+          "run_count": null,
+          "source_label": "wave5:synthetic_personal_professional_handoff_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_personal_professional_handoff_v1"
+        },
+        {
+          "fact_run_id": "factrun:ae4e1ef3a933fe2e0ebb393b49a54724132b56adda5d326a68939fb51d1600a1",
+          "run_count": null,
+          "source_label": "wave5:synthetic_multi_professional_reopen_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_multi_professional_reopen_v1"
+        },
+        {
+          "fact_run_id": "factrun:7c3275b6c4d303154ddf3b0ec11f20fde5a740466421c23a2ac9a547d15ba37d",
+          "run_count": null,
+          "source_label": "wave5:real_transcript_professional_handoff_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "real_transcript_professional_handoff_v1"
+        },
+        {
+          "fact_run_id": "factrun:83198f9318e190df46ea33a50bffb32f6ccb07a10786348a9212568731c3f4cb",
+          "run_count": null,
+          "source_label": "wave5:real_transcript_false_coherence_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "real_transcript_false_coherence_v1"
+        },
+        {
+          "fact_run_id": "factrun:2a5f3cdfdabd948a9131a4fbfd2012c0b6e3091a6ffce3f806f646eb3f56566d",
+          "run_count": null,
+          "source_label": "wave3:synthetic_trauma_fragment_cluster_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_trauma_fragment_cluster_v1"
+        },
+        {
+          "fact_run_id": "factrun:f7334e00285ccfeb3ea882ac782fb6d4852dfcc620b691c80d604efd62c881ad",
+          "run_count": null,
+          "source_label": "wave3:synthetic_support_worker_handoff_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_support_worker_handoff_v1"
+        },
+        {
+          "fact_run_id": "factrun:d3bdabfac4bda3198d76037f9d56cb1929009701a0e6079854e1bb3ae8f0f9b7",
+          "run_count": null,
+          "source_label": "wave3:real_transcript_fragmented_support_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "real_transcript_fragmented_support_v1"
+        },
+        {
+          "fact_run_id": "factrun:15dd326a477fd2237d75b817b671fc0f29f756757bec52c54d306498771e530b",
+          "run_count": null,
+          "source_label": "wave1:synthetic_sparse_dates_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_sparse_dates_v1"
+        },
+        {
+          "fact_run_id": "factrun:2853fd77df087011195190b7c6de66f0e148a60301a4326a08acc9d97550132f",
+          "run_count": null,
+          "source_label": "wave1:synthetic_conflict_cluster_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_conflict_cluster_v1"
+        },
+        {
+          "fact_run_id": "factrun:e82b0742b88f1839f1b359d53f0ffa60dd1764bb5e33a98b43e2ad392892554b",
+          "run_count": null,
+          "source_label": "wave1:real_transcript_intake_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "transcript_acceptance_real_intake_v1"
+        }
+      ]
+    },
+    "review_queue": [
+      {
+        "candidate_status": "candidate",
+        "chronology_bucket": "no_event",
+        "chronology_impacted": false,
+        "chronology_label": "rfc-1",
+        "contestation_count": 1,
+        "event_ids": [],
+        "fact_id": "fact:23fbeeeccea59b14",
+        "has_legal_procedural_observations": false,
+        "inferred_signal_classes": [
+          "sequence_signal"
+        ],
+        "inferred_source_signal_classes": [],
+        "label": "Fragment A",
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_observation_count": 0,
+        "legal_procedural_predicates": [],
+        "needs_review": true,
+        "observation_families": [
+          "actor_identification",
+          "temporal"
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_contested_reason_text": "Contradictory user fragments should remain open rather than collapsing into one ordered narrative.",
+        "reason_codes": [
+          "unreviewed",
+          "contested",
+          "event_missing",
+          "chronology_undated",
+          "missing_date",
+          "statement_only_fact"
+        ],
+        "reason_labels": [
+          "Unreviewed",
+          "Contested",
+          "No assembled event",
+          "Chronology is undated",
+          "Missing date",
+          "Statement-only fact"
+        ],
+        "review_statuses": [],
+        "signal_classes": [
+          "contradiction_cluster",
+          "fragmentary_account",
+          "sequence_signal"
+        ],
+        "source_ids": [
+          "src:2326590fa39271f8"
+        ],
+        "source_projection_modes": [],
+        "source_signal_classes": [
+          "client_account",
+          "user_authored"
+        ],
+        "source_types": [
+          "personal_note"
+        ],
+        "statement_ids": [
+          "statement:7bdc4453eac7066b"
+        ],
+        "statement_roles": [
+          "transcript_statement"
+        ]
+      },
+      {
+        "candidate_status": "candidate",
+        "chronology_bucket": "no_event",
+        "chronology_impacted": false,
+        "chronology_label": "rfc-2",
+        "contestation_count": 0,
+        "event_ids": [],
+        "fact_id": "fact:249083ba014012c3",
+        "has_legal_procedural_observations": false,
+        "inferred_signal_classes": [
+          "handoff_context_signal",
+          "sequence_signal"
+        ],
+        "inferred_source_signal_classes": [],
+        "label": "Fragment B",
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_observation_count": 0,
+        "legal_procedural_predicates": [],
+        "needs_review": true,
+        "observation_families": [
+          "actor_identification",
+          "temporal"
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_contested_reason_text": null,
+        "reason_codes": [
+          "unreviewed",
+          "event_missing",
+          "chronology_undated",
+          "missing_date",
+          "statement_only_fact"
+        ],
+        "reason_labels": [
+          "Unreviewed",
+          "No assembled event",
+          "Chronology is undated",
+          "Missing date",
+          "Statement-only fact"
+        ],
+        "review_statuses": [],
+        "signal_classes": [
+          "contradiction_cluster",
+          "fragmentary_account",
+          "handoff_context_signal",
+          "sequence_signal"
+        ],
+        "source_ids": [
+          "src:078ee598b38ee63a"
+        ],
+        "source_projection_modes": [],
+        "source_signal_classes": [
+          "client_account",
+          "user_authored"
+        ],
+        "source_types": [
+          "personal_note"
+        ],
+        "statement_ids": [
+          "statement:77cccfe523543c45"
+        ],
+        "statement_roles": [
+          "transcript_statement"
+        ]
+      },
+      {
+        "candidate_status": "candidate",
+        "chronology_bucket": "no_event",
+        "chronology_impacted": false,
+        "chronology_label": "rfc-4",
+        "contestation_count": 0,
+        "event_ids": [],
+        "fact_id": "fact:b93c3531a5971026",
+        "has_legal_procedural_observations": false,
+        "inferred_signal_classes": [],
+        "inferred_source_signal_classes": [],
+        "label": "Phone capture",
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_observation_count": 0,
+        "legal_procedural_predicates": [],
+        "needs_review": true,
+        "observation_families": [],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_contested_reason_text": null,
+        "reason_codes": [
+          "unreviewed",
+          "event_missing",
+          "chronology_undated",
+          "missing_actor",
+          "missing_date",
+          "statement_only_fact"
+        ],
+        "reason_labels": [
+          "Unreviewed",
+          "No assembled event",
+          "Chronology is undated",
+          "Missing actor",
+          "Missing date",
+          "Statement-only fact"
+        ],
+        "review_statuses": [],
+        "signal_classes": [],
+        "source_ids": [
+          "src:bb83ace8929d1fc0"
+        ],
+        "source_projection_modes": [],
+        "source_signal_classes": [
+          "documentary_record",
+          "third_party_record"
+        ],
+        "source_types": [
+          "documentary_record"
+        ],
+        "statement_ids": [
+          "statement:92851e98fee0e474"
+        ],
+        "statement_roles": [
+          "transcript_statement"
+        ]
+      },
+      {
+        "candidate_status": "candidate",
+        "chronology_bucket": "no_event",
+        "chronology_impacted": false,
+        "chronology_label": "rfc-3",
+        "contestation_count": 0,
+        "event_ids": [],
+        "fact_id": "fact:b4fa09470be846ce",
+        "has_legal_procedural_observations": false,
+        "inferred_signal_classes": [
+          "handoff_context_signal"
+        ],
+        "inferred_source_signal_classes": [],
+        "label": "Support note",
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_observation_count": 0,
+        "legal_procedural_predicates": [],
+        "needs_review": true,
+        "observation_families": [
+          "temporal"
+        ],
+        "policy_outcomes": [
+          "bounded_context_required",
+          "preserve_source_boundary",
+          "review_required"
+        ],
+        "primary_contested_reason_text": null,
+        "reason_codes": [
+          "unreviewed",
+          "event_missing",
+          "chronology_undated",
+          "missing_actor",
+          "missing_date",
+          "statement_only_fact"
+        ],
+        "reason_labels": [
+          "Unreviewed",
+          "No assembled event",
+          "Chronology is undated",
+          "Missing actor",
+          "Missing date",
+          "Statement-only fact"
+        ],
+        "review_statuses": [],
+        "signal_classes": [
+          "handoff_context_signal",
+          "not_enough_evidence",
+          "uncertainty_preserved"
+        ],
+        "source_ids": [
+          "src:1447d69e19454a0c"
+        ],
+        "source_projection_modes": [
+          "transcript_handoff"
+        ],
+        "source_signal_classes": [
+          "later_annotation",
+          "professional_note"
+        ],
+        "source_types": [
+          "professional_note"
+        ],
+        "statement_ids": [
+          "statement:d10b4781a30ce11f"
+        ],
+        "statement_roles": [
+          "transcript_statement"
+        ]
+      }
+    ],
+    "run": {
+      "contract_version": "fact.intake.bundle.v1",
+      "created_at": "2026-03-19 14:35:54",
+      "mary_projection_version": "mary.fact_workflow.v1",
+      "notes": "Wave 5 real transcript false-coherence fixture",
+      "run_id": "factrun:83198f9318e190df46ea33a50bffb32f6ccb07a10786348a9212568731c3f4cb",
+      "source_label": "wave5:real_transcript_false_coherence_v1",
+      "workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:35:54",
+        "fact_run_id": "factrun:83198f9318e190df46ea33a50bffb32f6ccb07a10786348a9212568731c3f4cb",
+        "source_label": "wave5:real_transcript_false_coherence_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_false_coherence_v1"
+      }
+    },
+    "sources": [
+      {
+        "content_sha256": "23cda1f12b4ba7982cd42acbbc104b7b5d88334db6e87f8f1f73bd1d8f2f4c38",
+        "provenance": {
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_document_id": "phone_capture",
+          "source_signal_classes": [
+            "documentary_record",
+            "third_party_record"
+          ]
+        },
+        "source_id": "src:bb83ace8929d1fc0",
+        "source_label": "phone_capture",
+        "source_order": 1,
+        "source_ref": "phone_capture",
+        "source_type": "documentary_record"
+      },
+      {
+        "content_sha256": "8e2d19a85218c40ed0eddd3576c55feb5b65dbe05c0be30c9a35b31864de668b",
+        "provenance": {
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_document_id": "user_fragment_a",
+          "source_signal_classes": [
+            "user_authored",
+            "client_account"
+          ]
+        },
+        "source_id": "src:2326590fa39271f8",
+        "source_label": "user_fragment_a",
+        "source_order": 2,
+        "source_ref": "user_fragment_a",
+        "source_type": "personal_note"
+      },
+      {
+        "content_sha256": "be7306e527a1b4c70b7f1eace69302146f7a3e0fcc64e6a1536402fabb94e468",
+        "provenance": {
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_document_id": "user_fragment_b",
+          "source_signal_classes": [
+            "user_authored",
+            "client_account"
+          ]
+        },
+        "source_id": "src:078ee598b38ee63a",
+        "source_label": "user_fragment_b",
+        "source_order": 3,
+        "source_ref": "user_fragment_b",
+        "source_type": "personal_note"
+      },
+      {
+        "content_sha256": "e589b07650c3d35f60b13c3868b9b4ffa3a4bba5ebc653cd5223dcbe3ec09e12",
+        "provenance": {
+          "lexical_projection_mode": "transcript_handoff",
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_document_id": "support_checkin",
+          "source_signal_classes": [
+            "professional_note",
+            "later_annotation"
+          ]
+        },
+        "source_id": "src:1447d69e19454a0c",
+        "source_label": "support_checkin",
+        "source_order": 4,
+        "source_ref": "support_checkin",
+        "source_type": "professional_note"
+      }
+    ],
+    "statements": [
+      {
+        "chronology_hint": null,
+        "excerpt_id": "excerpt:5d14d9e43c2db366",
+        "provenance": {
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_event_id": "rfc-1"
+        },
+        "speaker_label": null,
+        "statement_id": "statement:7bdc4453eac7066b",
+        "statement_order": 1,
+        "statement_role": "transcript_statement",
+        "statement_status": "captured",
+        "statement_text": "I think the call came before the neighbour came over, but I cannot be certain."
+      },
+      {
+        "chronology_hint": null,
+        "excerpt_id": "excerpt:8431cb920705c9df",
+        "provenance": {
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_event_id": "rfc-3"
+        },
+        "speaker_label": null,
+        "statement_id": "statement:d10b4781a30ce11f",
+        "statement_order": 1,
+        "statement_role": "transcript_statement",
+        "statement_status": "captured",
+        "statement_text": "Support worker note says not enough evidence exists to settle the order and both possibilities should be kept."
+      },
+      {
+        "chronology_hint": null,
+        "excerpt_id": "excerpt:db3794389a64ea01",
+        "provenance": {
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_event_id": "rfc-4"
+        },
+        "speaker_label": null,
+        "statement_id": "statement:92851e98fee0e474",
+        "statement_order": 1,
+        "statement_role": "transcript_statement",
+        "statement_status": "captured",
+        "statement_text": "Phone capture shows the call log but does not place the neighbour visit."
+      },
+      {
+        "chronology_hint": null,
+        "excerpt_id": "excerpt:de632c65c4d4b31a",
+        "provenance": {
+          "semantic_run_id": "real_transcript_false_coherence_v1",
+          "source_event_id": "rfc-2"
+        },
+        "speaker_label": null,
+        "statement_id": "statement:77cccfe523543c45",
+        "statement_order": 1,
+        "statement_role": "transcript_statement",
+        "statement_status": "captured",
+        "statement_text": "A later note says the neighbour may have arrived first."
+      }
+    ],
+    "summary": {
+      "abstained_fact_count": 0,
+      "approximate_event_count": 0,
+      "chronology_impacted_review_queue_count": 0,
+      "contested_chronology_item_count": 0,
+      "contested_fact_count": 1,
+      "contested_item_count": 1,
+      "contradictory_chronology_review_queue_count": 0,
+      "dated_event_count": 0,
+      "dated_fact_count": 0,
+      "event_count": 0,
+      "excerpt_count": 4,
+      "fact_count": 4,
+      "legal_procedural_review_queue_count": 0,
+      "missing_actor_review_queue_count": 2,
+      "missing_date_review_queue_count": 4,
+      "needs_followup_count": 0,
+      "no_event_fact_count": 4,
+      "observation_count": 5,
+      "policy_review_required_count": 4,
+      "review_queue_count": 4,
+      "reviewed_fact_count": 0,
+      "source_count": 4,
+      "statement_count": 4,
+      "statement_only_review_queue_count": 4,
+      "undated_event_count": 0,
+      "undated_fact_count": 4
+    },
+    "version": "fact.review.workbench.v1",
+    "zelph": {
+      "active_packs": [
+        "transcript_handoff"
+      ],
+      "engine": {
+        "status": "ok",
+        "stderr": "Importing file /tmp/tmp4lgnudt6/query.zph...\nError in line \"include \"/tmp/tmp4lgnudt6/facts.zlp\"\": fact(): facts with same subject and object are only supported for facts with a single object: include /tmp/tmp4lgnudt6/rules.zlp include\n",
+        "stdout": "",
+        "triples": []
+      },
+      "facts_serialized_count": 115,
+      "inferred_by_fact_id": {
+        "fact:23fbeeeccea59b14": {
+          "signal_classes": [
+            "sequence_signal"
+          ],
+          "source_signal_classes": []
+        },
+        "fact:249083ba014012c3": {
+          "signal_classes": [
+            "handoff_context_signal",
+            "sequence_signal"
+          ],
+          "source_signal_classes": []
+        },
+        "fact:b4fa09470be846ce": {
+          "signal_classes": [
+            "handoff_context_signal"
+          ],
+          "source_signal_classes": []
+        }
+      },
+      "inferred_fact_count": 3,
+      "rule_status": "engine_ok",
+      "triples": [
+        {
+          "object": "sequence_signal",
+          "predicate": "signal_class",
+          "subject": "fact_fact_23fbeeeccea59b14"
+        },
+        {
+          "object": "handoff_context_signal",
+          "predicate": "signal_class",
+          "subject": "fact_fact_249083ba014012c3"
+        },
+        {
+          "object": "sequence_signal",
+          "predicate": "signal_class",
+          "subject": "fact_fact_249083ba014012c3"
+        },
+        {
+          "object": "handoff_context_signal",
+          "predicate": "signal_class",
+          "subject": "fact_fact_b4fa09470be846ce"
+        }
+      ],
+      "version": "fact_intake.zelph_bridge.v1"
+    },
+    "zelph_ruleset_version": "fact.review.workbench.zelph.v2"
+  }
+}
