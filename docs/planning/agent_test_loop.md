@@ -3,33 +3,77 @@
 This is the default low-judgment test procedure for background agents working in
 `ITIR-suite` or one of its subprojects.
 
-Use it when the task is implementation-heavy and the agent should keep churning
+Use it when the task is coverage-heavy and the agent should keep churning
 without needing architectural judgment each cycle.
 
-## Goal
+## Primary Objective
 
 Give every agent the same loop:
 
 1. run the smallest relevant test slice
-2. fix obvious failures
-3. rerun the same slice until green
+2. add or extend the nearest missing coverage
+3. rerun the same slice until the new coverage is green or blocked
 4. widen to the next gate
-5. stop with a short report if blocked twice on the same issue
+5. stop with a short findings report if blocked twice on the same issue
 
 This procedure is intentionally conservative. It prefers bounded, repeatable
 checks over cleverness.
+
+Background agents are not general fixers. Their default role is:
+
+- expand test, smoke, fixture, and benchmark coverage
+- exercise more surfaces and seams
+- report findings with reproductions
+- avoid substantive implementation work unless it is trivial and tightly local
 
 ## Required Behavior
 
 - Do not start with a full-repo test run unless the change is repo-wide.
 - Start with the narrowest file-level or feature-level test slice that touches
   the edited code.
+- Prefer adding a new narrow test or smoke check if the touched surface lacks
+  direct coverage.
 - Only widen scope after the current slice is green.
 - Do not silently skip failing tests.
 - Do not change tests just to make them pass unless the test is clearly wrong.
 - If a command takes more than about 60 seconds, print or record progress.
 - If a failure appears unrelated to the task, record it as an external blocker
   and move on only if the local slice is still meaningful.
+- Do not default to implementation repair. Prefer reporting findings unless the
+  required fix is mechanical, obvious, and local to the changed surface.
+
+## Coverage Expansion Rule
+
+When in doubt, expand coverage instead of expanding implementation.
+
+Default expectations:
+
+- If a touched surface has no direct test, add one.
+- If a bug is found, add a reproducing regression or smoke test before
+  considering a fix.
+- If a new CLI path, fixture format, corpus, schema branch, or mode is added,
+  add at least one smoke or regression test for it.
+- If a producer/consumer seam changed, add or update a seam test on at least
+  one side of the contract.
+- If no sensible test can be added, report that gap explicitly.
+
+Low-judgment agents should optimize for:
+
+- missing test discovery
+- fixture and corpus expansion
+- smoke-test addition
+- contract regression coverage
+- benchmark surface coverage
+- failure reproduction quality
+
+Low-judgment agents should not optimize for:
+
+- broad refactors
+- architectural cleanups
+- speculative fixes
+- ontology redesign
+- large code motion
+- “while I’m here” implementation changes
 
 ## Standard Loop
 
@@ -53,7 +97,9 @@ Examples:
 
 If it fails:
 
-- fix code or fixture issues
+- add or tighten the nearest reproducing coverage if it is still missing
+- record the failure clearly
+- only make a trivial local repair if required to unblock the new coverage
 - rerun the same exact slice
 - repeat until green or blocked
 
@@ -69,7 +115,9 @@ Examples:
 
 If it fails:
 
-- fix regressions introduced by the change
+- record the regression
+- only fix if the repair is obvious, local, and needed to validate the new
+  coverage
 - rerun the same project gate
 
 ### Phase 3: Cross-Surface Gate
@@ -102,6 +150,13 @@ Stop and report instead of thrashing when:
 - the command needs missing credentials, services, or network access
 - runtime or memory explodes unexpectedly
 - the correct expected behavior is ambiguous
+
+For these agents, "report" is a successful outcome if:
+
+- coverage increased
+- a missing seam was identified
+- a failure was reproduced cleanly
+- the next smarter pass has a clear starting point
 
 ## Command Matrix
 
