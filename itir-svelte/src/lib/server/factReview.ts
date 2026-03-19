@@ -71,6 +71,7 @@ export interface FactReviewFact {
   excerpt_ids?: string[];
   signal_classes?: string[];
   source_signal_classes?: string[];
+  policy_outcomes?: string[];
   latest_review_note?: string | null;
   inspector_classification?: FactReviewInspectorClassification;
   observations?: Array<{
@@ -118,6 +119,7 @@ export interface FactReviewViewItem {
   primary_contested_reason_text?: string | null;
   signal_classes?: string[];
   source_signal_classes?: string[];
+  policy_outcomes?: string[];
 }
 
 export interface FactReviewOperatorView {

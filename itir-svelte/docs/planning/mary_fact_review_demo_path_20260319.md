@@ -128,3 +128,4 @@ python3 SensibLaw/scripts/query_fact_review.py \
 - `SensibLaw` owns the persisted `workbench` / `acceptance` / `sources` bundle shape.
 - `itir-svelte` consumes that contract read-only.
 - Captured demo fixtures should come from the `demo-bundle` CLI seam, not hand-invented UI-only payloads.
+- Operator presentation can add clearer provenance, abstention, and story-family cues, but it must not invent semantics beyond the persisted bundle.

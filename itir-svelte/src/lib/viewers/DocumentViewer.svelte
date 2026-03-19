@@ -1,25 +1,14 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import MarkdownLite from '$lib/ui/MarkdownLite.svelte';
-  type DocumentHighlightKind = 'active' | 'relation_peer' | 'echo';
-  type DocumentHighlightSource = 'mention' | 'receipt' | 'label_fallback' | 'event_span';
-  type DocumentLineSelectEvent = {
-    lineNumber: number;
-    text: string;
-    charStart: number;
-    charEnd: number;
-  };
-  type DocumentHighlight = {
-    key: string;
-    charStart: number;
-    charEnd: number;
-    color: string;
-    opacity?: number;
-    kind?: DocumentHighlightKind;
-    label?: string;
-    source?: DocumentHighlightSource;
-    sourceArtifactId?: string;
-  };
+  import type {
+    DocumentHighlight,
+    DocumentHighlightKind,
+    DocumentHighlightSource,
+    DocumentLineSelectEvent,
+    DocumentViewerProps
+  } from './document-viewer.types';
+  export type { DocumentViewerProps };
 
   export let title = 'Document';
   export let text = '';
@@ -28,13 +17,17 @@
   export let showLineNumbers = true;
   export let maxHeightPx = 520;
   export let placeholder = 'Search text...';
+  export let ariaLabel: string | null = null;
+  export let searchAriaLabel = 'Search document text';
   export let highlights: DocumentHighlight[] = [];
   export let selectedHighlightKey: string | null = null;
+
 
   const dispatch = createEventDispatcher<{ lineSelect: DocumentLineSelectEvent }>();
 
   let query = '';
   let selectedLine = -1;
+  const searchInputId = `document-viewer-search-${Math.random().toString(36).slice(2, 8)}`;
 
   function splitLines(value: string): string[] {
     return String(value ?? '').split(/\r?\n/);
@@ -191,6 +184,7 @@
     selectedLine >= 0 && lines[selectedLine]
       ? `Selected document line ${selectedLine + 1}: ${lines[selectedLine] ?? ''}`
       : 'No document line selected.';
+  $: resolvedSearchAriaLabel = (searchAriaLabel || ariaLabel || 'Search document text').trim();
 
   function selectLine(idx: number): void {
     if (idx < 0 || idx >= lines.length) return;
@@ -216,12 +210,13 @@
 
   {#if showSearch}
     <div class="border-b border-ink-900/10 px-4 py-2">
-      <label class="sr-only">Search document text</label>
+      <label class="sr-only" for={searchInputId} aria-label="Search document text">{resolvedSearchAriaLabel}</label>
       <input
+        id={searchInputId}
         class="w-full rounded-lg bg-paper-100 px-3 py-2 text-sm ring-1 ring-ink-900/10"
         bind:value={query}
         placeholder={placeholder}
-        aria-label="Search document text"
+        aria-label={resolvedSearchAriaLabel}
       />
     </div>
   {/if}

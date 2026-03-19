@@ -91,6 +91,24 @@
   function clickFact(factId: string): void {
     selectedFactId = factId;
   }
+
+  function storyFamily(storyId: string): 'mary' | 'itir' | 'other' {
+    if (storyId.startsWith('SL-US-')) return 'mary';
+    if (storyId.startsWith('ITIR-US-')) return 'itir';
+    return 'other';
+  }
+
+  function storyFamilyLabel(storyId: string): string {
+    const family = storyFamily(storyId);
+    return family === 'mary' ? 'Mary operator' : family === 'itir' ? 'ITIR operator' : 'Operator story';
+  }
+
+  function storyFamilyTone(storyId: string): string {
+    const family = storyFamily(storyId);
+    if (family === 'mary') return 'border-amber-200 bg-amber-50 text-amber-900';
+    if (family === 'itir') return 'border-sky-200 bg-sky-50 text-sky-900';
+    return 'border-zinc-200 bg-zinc-50 text-zinc-700';
+  }
 </script>
 
 <svelte:head>
@@ -124,6 +142,7 @@
         <div class="mt-2 font-mono text-xs text-zinc-700">{data.workbench.run.run_id}</div>
         <div class="mt-2 text-sm text-zinc-900">Review queue: {data.workbench.summary.review_queue_count}</div>
         <div class="text-sm text-zinc-900">Contested: {data.workbench.summary.contested_item_count}</div>
+        <div class="text-sm text-zinc-900">Abstained / bounded context: {data.workbench.summary.abstained_fact_count ?? 0}</div>
       </div>
       <div class="rounded border border-zinc-200 bg-white p-4">
         <div class="text-xs uppercase tracking-[0.24em] text-zinc-500">Chronology</div>
@@ -140,7 +159,7 @@
       <div class="rounded border border-zinc-200 bg-white p-4">
         <div class="text-xs uppercase tracking-[0.24em] text-zinc-500">Reopen</div>
         <div class="mt-2 font-mono text-xs text-zinc-700">{reopenNavigation?.current?.workflow_run_id ?? data.workbench.run.workflow_link?.workflow_run_id}</div>
-        <div class="mt-2 text-sm text-zinc-900">Read-only, provenance-first, no reasoning overlay</div>
+        <div class="mt-2 text-sm text-zinc-900">Read-only operator review over persisted evidence. Provenance-first, no reasoning overlay.</div>
         <div class="mt-2 text-xs text-zinc-600">
           {reopenNavigation?.current?.source_label ?? data.sourceLabel ?? 'latest linked source'}
         </div>
@@ -255,6 +274,11 @@
                       Source provenance: {(row.source_signal_classes ?? []).join(' · ')}
                     </div>
                   {/if}
+                  {#if row.policy_outcomes?.length}
+                    <div class="mt-1 text-xs text-zinc-600">
+                      Operator constraints: {(row.policy_outcomes ?? []).join(' · ')}
+                    </div>
+                  {/if}
                 </button>
               {/each}
             {:else}
@@ -296,9 +320,19 @@
                 Source provenance: {(selectedFact.source_signal_classes ?? []).join(' · ')}
               </div>
             {/if}
+            {#if selectedFact.policy_outcomes?.length}
+              <div class="mt-1 text-sm text-zinc-700">
+                Operator constraints: {(selectedFact.policy_outcomes ?? []).join(' · ')}
+              </div>
+            {/if}
             {#if selectedFact.latest_review_note}
               <div class="mt-2 rounded border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800">
                 Latest review note: {selectedFact.latest_review_note}
+              </div>
+            {/if}
+            {#if selectedFact.policy_outcomes?.includes('bounded_context_required')}
+              <div class="mt-2 rounded border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-900">
+                This item remains bounded-context material. Keep source boundaries explicit and do not collapse it into a stronger narrative.
               </div>
             {/if}
             <div class="mt-4 text-xs uppercase tracking-[0.18em] text-zinc-500">Observations</div>
@@ -339,6 +373,9 @@
 
     <section class="rounded border border-zinc-200 bg-white p-4">
       <div class="text-xs uppercase tracking-[0.24em] text-zinc-500">Story acceptance</div>
+      <div class="mt-2 text-sm text-zinc-600">
+        These story cards are operator-facing acceptance cues only. They summarize what this persisted run already proves; they do not add new adjudication.
+      </div>
       {#if (data.acceptance?.stories ?? []).length > 0}
         <div class="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {#each data.acceptance?.stories ?? [] as story}
@@ -348,6 +385,9 @@
                 <div class={`rounded px-2 py-1 text-xs ${story.status === 'pass' ? 'bg-emerald-100 text-emerald-900' : story.status === 'partial' ? 'bg-amber-100 text-amber-900' : 'bg-rose-100 text-rose-900'}`}>
                   {story.status}
                 </div>
+              </div>
+              <div class={`mt-2 inline-flex rounded border px-2 py-1 text-[11px] uppercase tracking-[0.16em] ${storyFamilyTone(story.story_id)}`}>
+                {storyFamilyLabel(story.story_id)}
               </div>
               <div class="mt-1 text-sm text-zinc-700">{story.label}</div>
               <div class="mt-2 text-xs text-zinc-600">{story.passed_check_count}/{story.check_count} checks passed</div>

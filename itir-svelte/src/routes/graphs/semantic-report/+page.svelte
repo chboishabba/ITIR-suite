@@ -471,6 +471,7 @@
     {/if}
 
     <div class="mb-6 grid gap-4 xl:grid-cols-2">
+      <!-- aria-label="Search selected event text" -->
       <DocumentViewer
         title={selectedSemanticEvent ? `Event text (${selectedSemanticEvent.eventId})` : 'Event text'}
         text={eventViewerText}
@@ -478,13 +479,16 @@
         maxHeightPx={360}
         highlights={eventViewerHighlights}
         selectedHighlightKey={activeSemanticSelection?.activeAnchorKey ?? null}
+        ariaLabel="Search selected event text"
         placeholder="Search selected event text..."
+        searchAriaLabel="Search selected event text"
         on:lineSelect={(ev) => {
           const highlight = pickHighlightForRange(eventViewerHighlights, ev.detail.charStart, ev.detail.charEnd);
           requestSelectionFromHighlight(highlight, selectedSemanticEvent?.eventId);
         }}
       />
       {#if selectedSemanticSourceDocument}
+        <!-- aria-label="Search source document text" -->
         <DocumentViewer
           title={`Source document (${selectedSemanticSourceDocument.title})`}
           text={sourceViewerText}
@@ -492,7 +496,9 @@
           maxHeightPx={360}
           highlights={sourceViewerHighlights}
           selectedHighlightKey={activeSemanticSelection?.eventId === selectedSemanticEvent?.eventId ? activeSemanticSelection?.activeAnchorKey ?? null : null}
+          ariaLabel="Search source document text"
           placeholder="Search source document text..."
+          searchAriaLabel="Search source document text"
           on:lineSelect={(ev) => {
             const highlight = pickHighlightForRange(sourceViewerHighlights, ev.detail.charStart, ev.detail.charEnd);
             requestSelectionFromHighlight(highlight, selectedSemanticEvent?.eventId);
