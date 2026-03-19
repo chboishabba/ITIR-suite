@@ -1372,6 +1372,7 @@
         <select
           class="rounded-md border border-ink-950/15 bg-white px-2 py-1 text-sm"
           value={data.source ?? 'gwb'}
+          aria-label="Dataset source"
           on:change={(e) => {
             const v = (e.currentTarget as HTMLSelectElement).value;
             window.location.href = `/graphs/wiki-timeline-aoo-all?source=${encodeURIComponent(v)}`;
@@ -1387,7 +1388,7 @@
       </label>
       <label class="flex items-center gap-2">
         <span class="text-ink-800/70">Time</span>
-        <select bind:value={timeGranularity} class="rounded-md border border-ink-950/15 bg-white px-2 py-1 text-sm">
+        <select bind:value={timeGranularity} class="rounded-md border border-ink-950/15 bg-white px-2 py-1 text-sm" aria-label="Time granularity">
           <option value="year">Year</option>
           <option value="month">Month</option>
           <option value="day">Day</option>
@@ -1402,56 +1403,57 @@
           step="5"
           bind:value={limitEvents}
           class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs"
+          aria-label="Max events"
         />
       </label>
       <label class="flex items-center gap-2">
         <span class="text-ink-800/70">Max subjects</span>
-        <input type="number" min="10" max="400" step="10" bind:value={maxSubjects} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" />
+        <input type="number" min="10" max="400" step="10" bind:value={maxSubjects} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" aria-label="Max subjects" />
       </label>
       <label class="flex items-center gap-2">
         <span class="text-ink-800/70">Max objects</span>
-        <input type="number" min="10" max="600" step="10" bind:value={maxObjects} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" />
+        <input type="number" min="10" max="600" step="10" bind:value={maxObjects} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" aria-label="Max objects" />
       </label>
       <label class="flex items-center gap-2">
         <span class="text-ink-800/70">Max numeric</span>
-        <input type="number" min="10" max="600" step="10" bind:value={maxNumbers} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" />
+        <input type="number" min="10" max="600" step="10" bind:value={maxNumbers} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" aria-label="Max numeric values" />
       </label>
       <label class="flex items-center gap-2">
-        <input type="checkbox" bind:checked={includeSources} />
+        <input type="checkbox" bind:checked={includeSources} aria-label="Show source lane" />
         <span class="text-ink-800/70">Source lane</span>
       </label>
       {#if includeSources}
         <label class="flex items-center gap-2">
           <span class="text-ink-800/70">Max sources</span>
-          <input type="number" min="10" max="400" step="10" bind:value={maxSources} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" />
+          <input type="number" min="10" max="400" step="10" bind:value={maxSources} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" aria-label="Max sources" />
         </label>
       {/if}
       <label class="flex items-center gap-2">
-        <input type="checkbox" bind:checked={includeLenses} />
+        <input type="checkbox" bind:checked={includeLenses} aria-label="Show lens lane" />
         <span class="text-ink-800/70">Lens lane</span>
       </label>
       {#if includeLenses}
         <label class="flex items-center gap-2">
           <span class="text-ink-800/70">Max lenses</span>
-          <input type="number" min="10" max="500" step="10" bind:value={maxLenses} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" />
+          <input type="number" min="10" max="500" step="10" bind:value={maxLenses} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" aria-label="Max lenses" />
         </label>
       {/if}
       <label class="flex items-center gap-2">
-        <input type="checkbox" bind:checked={includeEvidence} />
+        <input type="checkbox" bind:checked={includeEvidence} aria-label="Show evidence lane" />
         <span class="text-ink-800/70">Evidence lane</span>
       </label>
       {#if includeEvidence}
         <label class="flex items-center gap-2">
           <span class="text-ink-800/70">Max evidence</span>
-          <input type="number" min="10" max="400" step="10" bind:value={maxEvidence} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" />
+          <input type="number" min="10" max="400" step="10" bind:value={maxEvidence} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" aria-label="Max evidence" />
         </label>
       {/if}
       <label class="flex items-center gap-2">
-        <input type="checkbox" bind:checked={includeRequesters} />
+        <input type="checkbox" bind:checked={includeRequesters} aria-label="Show requesters" />
         <span class="text-ink-800/70">Requesters</span>
       </label>
       <label class="flex items-center gap-2">
-        <input type="checkbox" bind:checked={includePurpose} />
+        <input type="checkbox" bind:checked={includePurpose} aria-label="Show purpose" />
         <span class="text-ink-800/70">Purpose</span>
       </label>
       <label class="flex items-center gap-2">

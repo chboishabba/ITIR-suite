@@ -858,6 +858,7 @@
         <select
           class="rounded-md border border-ink-950/15 bg-white px-2 py-1 text-xs"
           value={data.source ?? 'gwb'}
+          aria-label="Dataset source"
           on:change={(e) => {
             const v = (e.currentTarget as HTMLSelectElement).value;
             window.location.href = hrefFor(v, viewTypeFromLayout(layoutMode));

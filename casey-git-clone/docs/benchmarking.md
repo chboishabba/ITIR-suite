@@ -69,3 +69,27 @@ The harness records both timing and storage-accounting metrics, including:
 - `traceability_cost` is where Casey may win on integrated auditability.
 - Raw byte size alone is not the only criterion; the benchmark should be read
   as bytes-per-capability and time-per-capability.
+- Current working interpretation of the measured results:
+  - Casey `library` is close to the "competing with git if git were in Python"
+    regime, because Casey library medians are already beating subprocess-driven
+    git timings in several lanes.
+  - Casey `cli` is not in that regime yet; it still pays substantial Python
+    process startup and command-path overhead even after `--no-observer`,
+    lazy-import, and command-scoped runtime batching improvements.
+  - So benchmark claims should currently distinguish:
+    - Casey library vs subprocess git: competitive to favorable in Casey-native
+      lanes
+    - Casey CLI vs git CLI: still materially behind overall
+
+## Current State
+- After the `--no-observer` split, lazy-export/import cleanup, and
+  command-scoped runtime SQLite batching, Casey CLI improved materially but is
+  still not broadly ahead of git CLI.
+- The latest stored comparison in this working session moved the overall result
+  mix from `git_ahead=15 / mixed=7 / casey_ahead=2` to
+  `git_ahead=12 / mixed=9 / casey_ahead=3`.
+- The clearest improvement was Casey CLI on larger divergence-heavy workloads,
+  but the remaining bottlenecks are now mostly:
+  - Python process startup
+  - remaining CLI command-path overhead
+  - observer/receipt cost in `traceability_cost`

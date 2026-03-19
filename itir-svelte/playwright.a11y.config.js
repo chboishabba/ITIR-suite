@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
-  testMatch: ['hca_case_a11y.spec.js'],
+  testMatch: ['*a11y.spec.js'],
   timeout: 30_000,
   fullyParallel: false,
   workers: 1,

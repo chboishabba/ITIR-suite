@@ -7,8 +7,9 @@ Casey state needed to exercise publish/sync/collapse/build semantics locally.
 from __future__ import annotations
 
 import sqlite3
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterable, Mapping
+from typing import Iterable, Iterator, Mapping
 
 from .models import Blob, BuildView, FileVersion, PathState, TreeState, WorkspacePolicy, WorkspaceView, utc_now_iso
 
@@ -20,6 +21,20 @@ def _connect(db_path: Path) -> sqlite3.Connection:
     conn.execute("PRAGMA foreign_keys=ON;")
     conn.execute("PRAGMA journal_mode=DELETE;")
     return conn
+
+
+@contextmanager
+def runtime_transaction(*, db_path: Path) -> Iterator[sqlite3.Connection]:
+    conn = _connect(db_path)
+    try:
+        ensure_schema(conn)
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
 
 
 def ensure_schema(conn: sqlite3.Connection) -> None:
@@ -106,6 +121,24 @@ def initialize_runtime(
     prefer_author: str | None = None,
     tie_break: str = "stable_hash",
 ) -> WorkspaceView:
+    with runtime_transaction(db_path=db_path) as conn:
+        return initialize_runtime_conn(
+            conn=conn,
+            ws_id=ws_id,
+            user=user,
+            prefer_author=prefer_author,
+            tie_break=tie_break,
+        )
+
+
+def initialize_runtime_conn(
+    *,
+    conn: sqlite3.Connection,
+    ws_id: str,
+    user: str,
+    prefer_author: str | None = None,
+    tie_break: str = "stable_hash",
+) -> WorkspaceView:
     empty_tree = TreeState.from_paths({})
     policy = WorkspacePolicy(prefer_author=prefer_author or user, tie_break=tie_break)
     policy.validate()
@@ -116,19 +149,14 @@ def initialize_runtime(
         selection={},
         policy=policy,
     )
-
-    with _connect(db_path) as conn:
-        ensure_schema(conn)
-        existing = conn.execute(
-            "SELECT value FROM casey_runtime_meta WHERE key = 'current_tree_id'"
-        ).fetchone()
-        if existing is not None:
-            raise ValueError(f"Runtime already initialized at {db_path}")
-        _upsert_tree(conn, empty_tree, created_at=utc_now_iso())
-        _set_meta(conn, "current_tree_id", empty_tree.tree_id)
-        _upsert_workspace(conn, workspace)
-        conn.commit()
-
+    existing = conn.execute(
+        "SELECT value FROM casey_runtime_meta WHERE key = 'current_tree_id'"
+    ).fetchone()
+    if existing is not None:
+        raise ValueError("Runtime already initialized")
+    _upsert_tree(conn, empty_tree, created_at=utc_now_iso())
+    _set_meta(conn, "current_tree_id", empty_tree.tree_id)
+    _upsert_workspace(conn, workspace)
     return workspace
 
 
@@ -141,29 +169,46 @@ def create_workspace(
     tie_break: str = "stable_hash",
     head_tree_id: str | None = None,
 ) -> WorkspaceView:
-    with _connect(db_path) as conn:
-        ensure_schema(conn)
-        if head_tree_id is None:
-            head_tree_id = _require_value(conn, "current_tree_id")
-        tree = _load_tree(conn, head_tree_id)
-        policy = WorkspacePolicy(prefer_author=prefer_author or user, tie_break=tie_break)
-        policy.validate()
-        selection = {
-            path: state.candidates[0]
-            for path, state in tree.paths.items()
-            if len(state.candidates) == 1
-        }
-        workspace = WorkspaceView(
+    with runtime_transaction(db_path=db_path) as conn:
+        return create_workspace_conn(
+            conn=conn,
             ws_id=ws_id,
             user=user,
-            head=head_tree_id,
-            selection=selection,
-            policy=policy,
+            prefer_author=prefer_author,
+            tie_break=tie_break,
+            head_tree_id=head_tree_id,
         )
-        workspace.validate_against(tree.paths)
-        _upsert_workspace(conn, workspace)
-        conn.commit()
-        return workspace
+
+
+def create_workspace_conn(
+    *,
+    conn: sqlite3.Connection,
+    ws_id: str,
+    user: str,
+    prefer_author: str | None = None,
+    tie_break: str = "stable_hash",
+    head_tree_id: str | None = None,
+) -> WorkspaceView:
+    if head_tree_id is None:
+        head_tree_id = _require_value(conn, "current_tree_id")
+    tree = _load_tree(conn, head_tree_id)
+    policy = WorkspacePolicy(prefer_author=prefer_author or user, tie_break=tie_break)
+    policy.validate()
+    selection = {
+        path: state.candidates[0]
+        for path, state in tree.paths.items()
+        if len(state.candidates) == 1
+    }
+    workspace = WorkspaceView(
+        ws_id=ws_id,
+        user=user,
+        head=head_tree_id,
+        selection=selection,
+        policy=policy,
+    )
+    workspace.validate_against(tree.paths)
+    _upsert_workspace(conn, workspace)
+    return workspace
 
 
 def store_publish_result(
@@ -174,147 +219,187 @@ def store_publish_result(
     tree_state: TreeState,
     created_at: str | None = None,
 ) -> None:
-    with _connect(db_path) as conn:
-        ensure_schema(conn)
-        for blob in blobs.values():
-            conn.execute(
-                """
-                INSERT OR REPLACE INTO casey_runtime_blobs(blob_id, size, bytes)
-                VALUES (?,?,?)
-                """,
-                (blob.blob_id, blob.size, sqlite3.Binary(blob.bytes)),
-            )
-        for fv in file_versions.values():
-            conn.execute(
-                """
-                INSERT OR REPLACE INTO casey_runtime_file_versions(
-                  fv_id, blob_id, author, created_at, base_fv_id, summary
-                ) VALUES (?,?,?,?,?,?)
-                """,
-                (
-                    fv.fv_id,
-                    fv.blob_id,
-                    fv.author,
-                    fv.created_at,
-                    fv.base_fv_id,
-                    fv.summary,
-                ),
-            )
-        _upsert_tree(conn, tree_state, created_at=created_at or utc_now_iso())
-        conn.commit()
+    with runtime_transaction(db_path=db_path) as conn:
+        store_publish_result_conn(
+            conn=conn,
+            blobs=blobs,
+            file_versions=file_versions,
+            tree_state=tree_state,
+            created_at=created_at,
+        )
+
+
+def store_publish_result_conn(
+    *,
+    conn: sqlite3.Connection,
+    blobs: Mapping[str, Blob],
+    file_versions: Mapping[str, FileVersion],
+    tree_state: TreeState,
+    created_at: str | None = None,
+) -> None:
+    for blob in blobs.values():
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO casey_runtime_blobs(blob_id, size, bytes)
+            VALUES (?,?,?)
+            """,
+            (blob.blob_id, blob.size, sqlite3.Binary(blob.bytes)),
+        )
+    for fv in file_versions.values():
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO casey_runtime_file_versions(
+              fv_id, blob_id, author, created_at, base_fv_id, summary
+            ) VALUES (?,?,?,?,?,?)
+            """,
+            (
+                fv.fv_id,
+                fv.blob_id,
+                fv.author,
+                fv.created_at,
+                fv.base_fv_id,
+                fv.summary,
+            ),
+        )
+    _upsert_tree(conn, tree_state, created_at=created_at or utc_now_iso())
 
 
 def save_workspace(*, db_path: Path, workspace: WorkspaceView) -> None:
-    with _connect(db_path) as conn:
-        ensure_schema(conn)
-        _upsert_workspace(conn, workspace)
-        conn.commit()
+    with runtime_transaction(db_path=db_path) as conn:
+        save_workspace_conn(conn=conn, workspace=workspace)
+
+
+def save_workspace_conn(*, conn: sqlite3.Connection, workspace: WorkspaceView) -> None:
+    _upsert_workspace(conn, workspace)
 
 
 def save_build(*, db_path: Path, build: BuildView) -> None:
-    with _connect(db_path) as conn:
-        ensure_schema(conn)
+    with runtime_transaction(db_path=db_path) as conn:
+        save_build_conn(conn=conn, build=build)
+
+
+def save_build_conn(*, conn: sqlite3.Connection, build: BuildView) -> None:
+    conn.execute(
+        """
+        INSERT OR REPLACE INTO casey_runtime_builds(build_id, tree_id, created_at)
+        VALUES (?,?,?)
+        """,
+        (build.build_id, build.tree_id, build.created_at),
+    )
+    conn.execute(
+        "DELETE FROM casey_runtime_build_selections WHERE build_id = ?",
+        (build.build_id,),
+    )
+    for path, fv_id in sorted(build.selection.items()):
         conn.execute(
             """
-            INSERT OR REPLACE INTO casey_runtime_builds(build_id, tree_id, created_at)
+            INSERT INTO casey_runtime_build_selections(build_id, path, fv_id)
             VALUES (?,?,?)
             """,
-            (build.build_id, build.tree_id, build.created_at),
+            (build.build_id, path, fv_id),
         )
-        conn.execute(
-            "DELETE FROM casey_runtime_build_selections WHERE build_id = ?",
-            (build.build_id,),
-        )
-        for path, fv_id in sorted(build.selection.items()):
-            conn.execute(
-                """
-                INSERT INTO casey_runtime_build_selections(build_id, path, fv_id)
-                VALUES (?,?,?)
-                """,
-                (build.build_id, path, fv_id),
-            )
-        conn.commit()
 
 
 def set_current_tree_id(*, db_path: Path, tree_id: str) -> None:
-    with _connect(db_path) as conn:
-        ensure_schema(conn)
-        _load_tree(conn, tree_id)
-        _set_meta(conn, "current_tree_id", tree_id)
-        conn.commit()
+    with runtime_transaction(db_path=db_path) as conn:
+        set_current_tree_id_conn(conn=conn, tree_id=tree_id)
+
+
+def set_current_tree_id_conn(*, conn: sqlite3.Connection, tree_id: str) -> None:
+    _load_tree(conn, tree_id)
+    _set_meta(conn, "current_tree_id", tree_id)
 
 
 def load_current_tree_id(*, db_path: Path) -> str:
-    with _connect(db_path) as conn:
-        ensure_schema(conn)
-        return _require_value(conn, "current_tree_id")
+    with runtime_transaction(db_path=db_path) as conn:
+        return load_current_tree_id_conn(conn=conn)
+
+
+def load_current_tree_id_conn(*, conn: sqlite3.Connection) -> str:
+    return _require_value(conn, "current_tree_id")
 
 
 def load_tree(*, db_path: Path, tree_id: str) -> TreeState:
-    with _connect(db_path) as conn:
-        ensure_schema(conn)
-        return _load_tree(conn, tree_id)
+    with runtime_transaction(db_path=db_path) as conn:
+        return load_tree_conn(conn=conn, tree_id=tree_id)
+
+
+def load_tree_conn(*, conn: sqlite3.Connection, tree_id: str) -> TreeState:
+    return _load_tree(conn, tree_id)
 
 
 def load_current_tree(*, db_path: Path) -> TreeState:
-    return load_tree(db_path=db_path, tree_id=load_current_tree_id(db_path=db_path))
+    with runtime_transaction(db_path=db_path) as conn:
+        return load_current_tree_conn(conn=conn)
+
+
+def load_current_tree_conn(*, conn: sqlite3.Connection) -> TreeState:
+    return load_tree_conn(conn=conn, tree_id=load_current_tree_id_conn(conn=conn))
 
 
 def load_workspace(*, db_path: Path, ws_id: str) -> WorkspaceView:
-    with _connect(db_path) as conn:
-        ensure_schema(conn)
-        row = conn.execute(
+    with runtime_transaction(db_path=db_path) as conn:
+        return load_workspace_conn(conn=conn, ws_id=ws_id)
+
+
+def load_workspace_conn(*, conn: sqlite3.Connection, ws_id: str) -> WorkspaceView:
+    row = conn.execute(
+        """
+        SELECT ws_id, user, head_tree_id, prefer_author, tie_break
+        FROM casey_runtime_workspaces
+        WHERE ws_id = ?
+        """,
+        (ws_id,),
+    ).fetchone()
+    if row is None:
+        raise ValueError(f"Workspace missing: {ws_id}")
+    selections = {
+        str(r["path"]): str(r["fv_id"])
+        for r in conn.execute(
             """
-            SELECT ws_id, user, head_tree_id, prefer_author, tie_break
-            FROM casey_runtime_workspaces
+            SELECT path, fv_id
+            FROM casey_runtime_workspace_selections
             WHERE ws_id = ?
+            ORDER BY path
             """,
             (ws_id,),
-        ).fetchone()
-        if row is None:
-            raise ValueError(f"Workspace missing: {ws_id}")
-        selections = {
-            str(r["path"]): str(r["fv_id"])
-            for r in conn.execute(
-                """
-                SELECT path, fv_id
-                FROM casey_runtime_workspace_selections
-                WHERE ws_id = ?
-                ORDER BY path
-                """,
-                (ws_id,),
-            ).fetchall()
-        }
-        workspace = WorkspaceView(
-            ws_id=str(row["ws_id"]),
-            user=str(row["user"]),
-            head=str(row["head_tree_id"]),
-            selection=selections,
-            policy=WorkspacePolicy(
-                prefer_author=row["prefer_author"],
-                tie_break=str(row["tie_break"]),
-            ),
-        )
-        tree = _load_tree(conn, workspace.head)
-        workspace.validate_against(tree.paths)
-        return workspace
+        ).fetchall()
+    }
+    workspace = WorkspaceView(
+        ws_id=str(row["ws_id"]),
+        user=str(row["user"]),
+        head=str(row["head_tree_id"]),
+        selection=selections,
+        policy=WorkspacePolicy(
+            prefer_author=row["prefer_author"],
+            tie_break=str(row["tie_break"]),
+        ),
+    )
+    tree = _load_tree(conn, workspace.head)
+    workspace.validate_against(tree.paths)
+    return workspace
 
 
 def load_file_versions(*, db_path: Path, fv_ids: Iterable[str]) -> dict[str, FileVersion]:
+    with runtime_transaction(db_path=db_path) as conn:
+        return load_file_versions_conn(conn=conn, fv_ids=fv_ids)
+
+
+def load_file_versions_conn(
+    *, conn: sqlite3.Connection, fv_ids: Iterable[str]
+) -> dict[str, FileVersion]:
     ids = sorted({fv_id for fv_id in fv_ids})
     if not ids:
         return {}
     placeholders = ",".join("?" for _ in ids)
-    with _connect(db_path) as conn:
-        ensure_schema(conn)
-        rows = conn.execute(
-            f"""
-            SELECT fv_id, blob_id, author, created_at, base_fv_id, summary
-            FROM casey_runtime_file_versions
-            WHERE fv_id IN ({placeholders})
-            """,
-            tuple(ids),
-        ).fetchall()
+    rows = conn.execute(
+        f"""
+        SELECT fv_id, blob_id, author, created_at, base_fv_id, summary
+        FROM casey_runtime_file_versions
+        WHERE fv_id IN ({placeholders})
+        """,
+        tuple(ids),
+    ).fetchall()
     return {
         str(row["fv_id"]): FileVersion(
             fv_id=str(row["fv_id"]),
@@ -329,26 +414,29 @@ def load_file_versions(*, db_path: Path, fv_ids: Iterable[str]) -> dict[str, Fil
 
 
 def load_build(*, db_path: Path, build_id: str) -> BuildView:
-    with _connect(db_path) as conn:
-        ensure_schema(conn)
-        row = conn.execute(
-            "SELECT build_id, tree_id, created_at FROM casey_runtime_builds WHERE build_id = ?",
+    with runtime_transaction(db_path=db_path) as conn:
+        return load_build_conn(conn=conn, build_id=build_id)
+
+
+def load_build_conn(*, conn: sqlite3.Connection, build_id: str) -> BuildView:
+    row = conn.execute(
+        "SELECT build_id, tree_id, created_at FROM casey_runtime_builds WHERE build_id = ?",
+        (build_id,),
+    ).fetchone()
+    if row is None:
+        raise ValueError(f"Build missing: {build_id}")
+    selection = {
+        str(r["path"]): str(r["fv_id"])
+        for r in conn.execute(
+            """
+            SELECT path, fv_id
+            FROM casey_runtime_build_selections
+            WHERE build_id = ?
+            ORDER BY path
+            """,
             (build_id,),
-        ).fetchone()
-        if row is None:
-            raise ValueError(f"Build missing: {build_id}")
-        selection = {
-            str(r["path"]): str(r["fv_id"])
-            for r in conn.execute(
-                """
-                SELECT path, fv_id
-                FROM casey_runtime_build_selections
-                WHERE build_id = ?
-                ORDER BY path
-                """,
-                (build_id,),
-            ).fetchall()
-        }
+        ).fetchall()
+    }
     return BuildView(
         build_id=str(row["build_id"]),
         tree_id=str(row["tree_id"]),

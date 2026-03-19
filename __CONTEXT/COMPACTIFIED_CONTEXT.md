@@ -136,6 +136,14 @@
     - corpus-relative post-entropy metrics rather than local compression alone
     - provenance-bundle interpretation:
       binaries, source, debug symbols, traces, models, prior events
+- Casey benchmark interpretation refinement:
+  - Casey library is the closest current proxy to
+    "Casey competing with git if git were in Python"
+  - Casey CLI is still materially behind git CLI due to Python process startup
+    and remaining command-path overhead, even after `--no-observer`, lazy
+    imports, and command-scoped runtime batching
+  - downstream documentation/TODO should keep that split explicit rather than
+    claiming blanket Casey parity with git
 
 ## 2026-03-06
 - Aligned priority execution sequencing for lexeme layer, tokenizer migration,

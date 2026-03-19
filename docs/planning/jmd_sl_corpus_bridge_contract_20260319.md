@@ -435,6 +435,12 @@ StatiBaker should not store:
 - hidden collapse decisions
 
 ## Minimal Wire Formats
+Canonical fixture pack:
+
+- `docs/planning/jmd_fixture_v1_20260320.md`
+- `docs/planning/jmd_fixtures/jmd_sl_ingest_v1.example.json`
+- `docs/planning/jmd_fixtures/sl_jmd_overlay_v1.example.json`
+
 ### JMD -> SL ingest payload
 
 ```json
@@ -442,63 +448,108 @@ StatiBaker should not store:
   "bridge_version": "jmd.sl.ingest.v1",
   "objects": [
     {
-      "object_id": "cid:abc",
-      "object_type": "paste",
-      "content_type": "text/plain",
-      "text": "raw content here",
-      "link_refs": ["cid:def"],
+      "object_id": "jmd:erdfa:shard:note-0001",
+      "object_type": "shard",
+      "content_type": "text/plain; charset=utf-8",
+      "text": "Alice paid Bob on 2026-03-19. Receipt hash: abc123.",
+      "content_ref": {
+        "paste_ref": {
+          "provider": "kant-zk-pastebin",
+          "paste_id": "note-0001",
+          "raw_url": "https://example.invalid/pastebin/raw/note-0001"
+        },
+        "cid_ref": {
+          "provider": "ipfs",
+          "cid": "bafkreigh2akiscaildcjexample000000000000000000000000000000"
+        }
+      },
+      "erdfa": {
+        "shard_id": "note-0001",
+        "cid": "bafkreigh2akiscaildcjexample000000000000000000000000000000",
+        "component_kind": "text",
+        "parent_refs": [],
+        "link_refs": ["jmd:erdfa:shard:receipt-0001"]
+      },
       "provenance": {
         "source": "pastebin",
-        "captured_at": "2026-03-19T10:00:00Z"
+        "captured_at": "2026-03-20T00:00:00Z"
+      },
+      "reserved_commitments": {
+        "corpus_root": null,
+        "pipeline_id": null,
+        "params_hash": null,
+        "metric_commitment": null,
+        "score_commitment": null
       }
     }
   ]
 }
 ```
+
+V1 payload decisions:
+
+- first canonical example is one ERDFA-backed text shard
+- both `paste_ref` and `cid_ref` are present in the canonical fixture
+- pastebin/IPFS are the ingest surfaces; ERDFA is the structural shard model
+- `zos-server`/Rabbit/libp2p remain future infrastructure, not normative payload
+  fields
 
 ### SL -> JMD overlay payload
 
 ```json
 {
   "bridge_version": "sl.jmd.overlay.v1",
-  "source_object_id": "cid:abc",
+  "source_object_id": "jmd:erdfa:shard:note-0001",
   "anchors": [
     {
-      "anchor_id": "sl:anchor:1",
+      "anchor_id": "sl:anchor:note-0001:payment-sentence",
+      "source_object_id": "jmd:erdfa:shard:note-0001",
       "byte_start": 0,
-      "byte_end": 42,
+      "byte_end": 33,
       "token_start": 0,
-      "token_end": 9
+      "token_end": 6,
+      "anchored_text": "Alice paid Bob on 2026-03-19."
+    }
+  ],
+  "groups": [
+    {
+      "group_id": "sl:group:payment-event",
+      "kind": "claim-fragment",
+      "anchor_refs": ["sl:anchor:note-0001:payment-sentence"]
     }
   ],
   "overlays": [
     {
-      "overlay_id": "sl:overlay:eq:7",
-      "overlay_kind": "equivalence_cluster",
+      "overlay_id": "sl:overlay:claim:payment-event",
+      "overlay_kind": "organization_hint",
+      "source_object_ids": ["jmd:erdfa:shard:note-0001"],
+      "anchor_refs": ["sl:anchor:note-0001:payment-sentence"],
       "detail": {
-        "cluster_id": "sl:cluster:7",
+        "group_id": "sl:group:payment-event",
+        "reason": "payment sentence extracted as a reusable event fragment",
         "confidence": "advisory"
-      }
-    },
-    {
-      "overlay_id": "sl:overlay:div:4",
-      "overlay_kind": "divergence_summary",
-      "detail": {
-        "reason": "lexical conflict across near-duplicate objects"
       }
     }
   ],
   "optimization_hints": [
     {
-      "hint_id": "sl:hint:1",
+      "hint_id": "sl:hint:shared-fragment:payment-event",
       "hint_kind": "shared_fragment_candidate",
+      "source_object_ids": ["jmd:erdfa:shard:note-0001"],
       "detail": {
-        "group_id": "sl:group:19"
+        "group_id": "sl:group:payment-event"
       }
     }
   ]
 }
 ```
+
+Reversibility for v1 means:
+
+- the JMD object carries exact source text inline
+- `byte_start`/`byte_end` are the normative source trace
+- token offsets are secondary metadata only
+- the anchored slice must be recoverable exactly from source bytes alone
 
 ## Acceptance Checks
 A good v1 bridge should satisfy:
@@ -519,6 +570,9 @@ A good v1 bridge should satisfy:
 6. advisory clarity:
    optimisation hints are marked advisory and separable from canonical
    structure
+7. dual-ref clarity:
+   the canonical JMD example includes both paste retrieval and CID integrity
+   refs without ambiguity about object identity
 
 ## Implementation Phases
 ### Phase 1

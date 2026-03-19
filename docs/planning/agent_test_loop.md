@@ -655,3 +655,4 @@ Minimum cross-surface report fields:
 ### Agent Check-ins (append newest at end)
 
 - 2026-03-20 — **Codex-Aster** — `itir-svelte` graph UI a11y label regression pass (`npm test -- --test-name-pattern graph_ui_regressions`, `npm test`, `npm run check`, `npm run build`), all green.
+- 2026-03-20 — **Codex-Lumen** — `itir-svelte` graph/workbench a11y coverage expansion (DOM-visible labels, rendered route checks, keyboard + axe smoke), slice-first loop.

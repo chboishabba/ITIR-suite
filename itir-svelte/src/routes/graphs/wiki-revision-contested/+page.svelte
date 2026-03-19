@@ -148,6 +148,7 @@
         <select
           class="w-full rounded-md border border-ink-950/15 bg-white px-2 py-1.5 text-sm"
           value={payload.selected_pack_id ?? ''}
+          aria-label="Contested graph pack"
           on:change={(e) => {
             const next = (e.currentTarget as HTMLSelectElement).value;
             window.location.href = `/graphs/wiki-revision-contested?pack=${encodeURIComponent(next)}`;
@@ -163,6 +164,7 @@
         <select
           class="w-full rounded-md border border-ink-950/15 bg-white px-2 py-1.5 text-sm"
           value={payload.selected_run_id ?? ''}
+          aria-label="Contested graph run"
           on:change={(e) => {
             const next = (e.currentTarget as HTMLSelectElement).value;
             window.location.href = `/graphs/wiki-revision-contested?pack=${encodeURIComponent(payload.selected_pack_id ?? '')}&run=${encodeURIComponent(next)}`;
@@ -178,6 +180,7 @@
         <select
           class="w-full rounded-md border border-ink-950/15 bg-white px-2 py-1.5 text-sm"
           value={payload.selected_article_id ?? ''}
+          aria-label="Contested article"
           on:change={(e) => {
             const next = (e.currentTarget as HTMLSelectElement).value;
             window.location.href = `/graphs/wiki-revision-contested?pack=${encodeURIComponent(payload.selected_pack_id ?? '')}&run=${encodeURIComponent(payload.selected_run_id ?? '')}&article=${encodeURIComponent(next)}`;

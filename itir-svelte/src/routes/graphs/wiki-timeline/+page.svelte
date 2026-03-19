@@ -182,6 +182,7 @@
           step="10"
           bind:value={topN}
           class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs"
+          aria-label="Top N timeline events"
         />
       </label>
       <a

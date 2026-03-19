@@ -16,12 +16,20 @@ from .runtime_sqlite import (
     initialize_runtime,
     load_build,
     load_current_tree,
+    load_current_tree_conn,
     load_file_versions,
+    load_file_versions_conn,
     load_workspace,
+    load_workspace_conn,
+    runtime_transaction,
     save_build,
+    save_build_conn,
     save_workspace,
+    save_workspace_conn,
     set_current_tree_id,
+    set_current_tree_id_conn,
     store_publish_result,
+    store_publish_result_conn,
 )
 
 
@@ -237,36 +245,37 @@ def cmd_workspace_create(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def cmd_publish(args: argparse.Namespace) -> dict[str, Any]:
-    tree = load_current_tree(db_path=args.db)
-    workspace = load_workspace(db_path=args.db, ws_id=args.workspace)
-    author = args.author or workspace.user
-    result = publish_edits(
-        tree_state=tree,
-        workspace=workspace,
-        edits={args.path: args.content},
-        author=author,
-    )
-    store_publish_result(
-        db_path=args.db,
-        blobs=result.blobs,
-        file_versions=result.file_versions,
-        tree_state=result.tree_state,
-    )
-    set_current_tree_id(db_path=args.db, tree_id=result.tree_state.tree_id)
-    file_versions = load_file_versions(
-        db_path=args.db,
-        fv_ids=_candidate_ids_for_tree(result.tree_state),
-    )
-    updated = sync_workspace(
-        workspace=workspace,
-        tree_state=result.tree_state,
-        file_versions=file_versions,
-    )
-    new_fv_id = next(iter(result.file_versions))
-    updated.selection[args.path] = new_fv_id
-    updated.head = result.tree_state.tree_id
-    updated.validate_against(result.tree_state.paths)
-    save_workspace(db_path=args.db, workspace=updated)
+    with runtime_transaction(db_path=args.db) as conn:
+        tree = load_current_tree_conn(conn=conn)
+        workspace = load_workspace_conn(conn=conn, ws_id=args.workspace)
+        author = args.author or workspace.user
+        result = publish_edits(
+            tree_state=tree,
+            workspace=workspace,
+            edits={args.path: args.content},
+            author=author,
+        )
+        store_publish_result_conn(
+            conn=conn,
+            blobs=result.blobs,
+            file_versions=result.file_versions,
+            tree_state=result.tree_state,
+        )
+        set_current_tree_id_conn(conn=conn, tree_id=result.tree_state.tree_id)
+        file_versions = load_file_versions_conn(
+            conn=conn,
+            fv_ids=_candidate_ids_for_tree(result.tree_state),
+        )
+        updated = sync_workspace(
+            workspace=workspace,
+            tree_state=result.tree_state,
+            file_versions=file_versions,
+        )
+        new_fv_id = next(iter(result.file_versions))
+        updated.selection[args.path] = new_fv_id
+        updated.head = result.tree_state.tree_id
+        updated.validate_against(result.tree_state.paths)
+        save_workspace_conn(conn=conn, workspace=updated)
     payload = {
         "kind": "publish",
         "workspace": _workspace_payload(updated),
@@ -300,18 +309,19 @@ def cmd_publish(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def cmd_sync(args: argparse.Namespace) -> dict[str, Any]:
-    tree = load_current_tree(db_path=args.db)
-    workspace = load_workspace(db_path=args.db, ws_id=args.workspace)
-    file_versions = load_file_versions(
-        db_path=args.db,
-        fv_ids=_candidate_ids_for_tree(tree),
-    )
-    updated = sync_workspace(
-        workspace=workspace,
-        tree_state=tree,
-        file_versions=file_versions,
-    )
-    save_workspace(db_path=args.db, workspace=updated)
+    with runtime_transaction(db_path=args.db) as conn:
+        tree = load_current_tree_conn(conn=conn)
+        workspace = load_workspace_conn(conn=conn, ws_id=args.workspace)
+        file_versions = load_file_versions_conn(
+            conn=conn,
+            fv_ids=_candidate_ids_for_tree(tree),
+        )
+        updated = sync_workspace(
+            workspace=workspace,
+            tree_state=tree,
+            file_versions=file_versions,
+        )
+        save_workspace_conn(conn=conn, workspace=updated)
     payload = {
         "kind": "sync",
         "workspace": _workspace_payload(updated),
@@ -357,38 +367,39 @@ def cmd_show_workspace(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def cmd_collapse(args: argparse.Namespace) -> dict[str, Any]:
-    tree = load_current_tree(db_path=args.db)
-    workspace = load_workspace(db_path=args.db, ws_id=args.workspace)
-    file_versions = load_file_versions(
-        db_path=args.db,
-        fv_ids=_candidate_ids_for_tree(tree),
-    )
-    result = collapse_conflict(
-        tree_state=tree,
-        path=args.path,
-        author=args.author or workspace.user,
-        file_versions=file_versions,
-        chosen_fv_id=args.choose,
-        merged_content=args.merged_content,
-    )
-    store_publish_result(
-        db_path=args.db,
-        blobs=result.blobs,
-        file_versions=result.file_versions,
-        tree_state=result.tree_state,
-    )
-    set_current_tree_id(db_path=args.db, tree_id=result.tree_state.tree_id)
-    resolved_fv_id = result.tree_state.paths[args.path].candidates[0]
-    updated = WorkspaceView(
-        ws_id=workspace.ws_id,
-        user=workspace.user,
-        head=result.tree_state.tree_id,
-        selection=dict(workspace.selection),
-        policy=workspace.policy,
-    )
-    updated.selection[args.path] = resolved_fv_id
-    updated.validate_against(result.tree_state.paths)
-    save_workspace(db_path=args.db, workspace=updated)
+    with runtime_transaction(db_path=args.db) as conn:
+        tree = load_current_tree_conn(conn=conn)
+        workspace = load_workspace_conn(conn=conn, ws_id=args.workspace)
+        file_versions = load_file_versions_conn(
+            conn=conn,
+            fv_ids=_candidate_ids_for_tree(tree),
+        )
+        result = collapse_conflict(
+            tree_state=tree,
+            path=args.path,
+            author=args.author or workspace.user,
+            file_versions=file_versions,
+            chosen_fv_id=args.choose,
+            merged_content=args.merged_content,
+        )
+        store_publish_result_conn(
+            conn=conn,
+            blobs=result.blobs,
+            file_versions=result.file_versions,
+            tree_state=result.tree_state,
+        )
+        set_current_tree_id_conn(conn=conn, tree_id=result.tree_state.tree_id)
+        resolved_fv_id = result.tree_state.paths[args.path].candidates[0]
+        updated = WorkspaceView(
+            ws_id=workspace.ws_id,
+            user=workspace.user,
+            head=result.tree_state.tree_id,
+            selection=dict(workspace.selection),
+            policy=workspace.policy,
+        )
+        updated.selection[args.path] = resolved_fv_id
+        updated.validate_against(result.tree_state.paths)
+        save_workspace_conn(conn=conn, workspace=updated)
     payload = {
         "kind": "collapse",
         "workspace": _workspace_payload(updated),
@@ -421,23 +432,23 @@ def cmd_collapse(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def cmd_build(args: argparse.Namespace) -> dict[str, Any]:
-    tree = load_current_tree(db_path=args.db)
-    workspace = load_workspace(db_path=args.db, ws_id=args.workspace)
-    file_versions = load_file_versions(
-        db_path=args.db,
-        fv_ids=_candidate_ids_for_tree(tree),
-    )
-    build = build_snapshot(
-        workspace=workspace,
-        tree_state=tree,
-        file_versions=file_versions,
-    )
-    save_build(db_path=args.db, build=build)
-    stored = load_build(db_path=args.db, build_id=build.build_id)
+    with runtime_transaction(db_path=args.db) as conn:
+        tree = load_current_tree_conn(conn=conn)
+        workspace = load_workspace_conn(conn=conn, ws_id=args.workspace)
+        file_versions = load_file_versions_conn(
+            conn=conn,
+            fv_ids=_candidate_ids_for_tree(tree),
+        )
+        build = build_snapshot(
+            workspace=workspace,
+            tree_state=tree,
+            file_versions=file_versions,
+        )
+        save_build_conn(conn=conn, build=build)
     payload = {
         "kind": "build",
         "workspace": _workspace_payload(workspace),
-        "build": _build_payload(stored),
+        "build": _build_payload(build),
     }
     operation = None
     if not args.no_observer:
@@ -456,7 +467,7 @@ def cmd_build(args: argparse.Namespace) -> dict[str, Any]:
         command="build",
         workspace=workspace,
         operation=operation,
-        build=stored,
+        build=build,
     )
 
 

@@ -51,6 +51,9 @@
 - Added `--no-observer` to Casey `publish`, `sync`, `collapse`, and `build` so
   the benchmark and local operators can separate core CLI/runtime cost from
   observer receipt and bundle overhead.
+- Refactored Casey runtime access so mutating CLI commands now batch their
+  runtime reads/writes through a single command-scoped SQLite connection and
+  transaction, reducing repeated open/ensure/load/save cycles.
 
 ## 2026-03-09
 - Clarified the intended `casey-git-clone -> StatiBaker` seam as observer-only

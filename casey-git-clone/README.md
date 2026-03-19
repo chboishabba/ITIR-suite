@@ -25,6 +25,11 @@ persist as candidates until explicitly collapsed.
 - For raw operational measurement or lightweight local use, `publish`, `sync`,
   `collapse`, and `build` also accept `--no-observer` to skip receipt/bundle
   emission on that command.
+- Current benchmark state:
+  - Casey `library` is already competitive with subprocess-driven git in
+    several Casey-native lanes.
+  - Casey `cli` has improved materially through `--no-observer`, lazy imports,
+    and command-scoped runtime batching, but it still trails git CLI overall.
 - Intended v1 walkthrough:
   - initialize runtime
   - create a second workspace

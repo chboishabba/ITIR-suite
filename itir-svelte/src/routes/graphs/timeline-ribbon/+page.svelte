@@ -30,11 +30,11 @@
       <form method="GET" class="flex flex-wrap items-end gap-3">
         <label class="space-y-1 text-sm text-ink-950/70">
           <span>Start</span>
-          <input class="rounded-xl border border-ink-950/15 px-3 py-2" type="date" name="start" value={data.selected.start} list="timeline-ribbon-dates" />
+          <input class="rounded-xl border border-ink-950/15 px-3 py-2" type="date" name="start" value={data.selected.start} list="timeline-ribbon-dates" aria-label="Timeline start date" />
         </label>
         <label class="space-y-1 text-sm text-ink-950/70">
           <span>End</span>
-          <input class="rounded-xl border border-ink-950/15 px-3 py-2" type="date" name="end" value={data.selected.end} list="timeline-ribbon-dates" />
+          <input class="rounded-xl border border-ink-950/15 px-3 py-2" type="date" name="end" value={data.selected.end} list="timeline-ribbon-dates" aria-label="Timeline end date" />
         </label>
         <button class="rounded-full bg-ink-950 px-4 py-2 text-sm font-medium text-white" type="submit">Load ribbon</button>
       </form>

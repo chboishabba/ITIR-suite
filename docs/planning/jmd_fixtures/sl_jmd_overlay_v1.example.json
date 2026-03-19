@@ -1,0 +1,53 @@
+{
+  "bridge_version": "sl.jmd.overlay.v1",
+  "source_object_id": "jmd:erdfa:shard:note-0001",
+  "anchors": [
+    {
+      "anchor_id": "sl:anchor:note-0001:payment-sentence",
+      "source_object_id": "jmd:erdfa:shard:note-0001",
+      "byte_start": 0,
+      "byte_end": 33,
+      "token_start": 0,
+      "token_end": 6,
+      "anchored_text": "Alice paid Bob on 2026-03-19."
+    }
+  ],
+  "groups": [
+    {
+      "group_id": "sl:group:payment-event",
+      "kind": "claim-fragment",
+      "anchor_refs": [
+        "sl:anchor:note-0001:payment-sentence"
+      ]
+    }
+  ],
+  "overlays": [
+    {
+      "overlay_id": "sl:overlay:claim:payment-event",
+      "overlay_kind": "organization_hint",
+      "source_object_ids": [
+        "jmd:erdfa:shard:note-0001"
+      ],
+      "anchor_refs": [
+        "sl:anchor:note-0001:payment-sentence"
+      ],
+      "detail": {
+        "group_id": "sl:group:payment-event",
+        "reason": "payment sentence extracted as a reusable event fragment",
+        "confidence": "advisory"
+      }
+    }
+  ],
+  "optimization_hints": [
+    {
+      "hint_id": "sl:hint:shared-fragment:payment-event",
+      "hint_kind": "shared_fragment_candidate",
+      "source_object_ids": [
+        "jmd:erdfa:shard:note-0001"
+      ],
+      "detail": {
+        "group_id": "sl:group:payment-event"
+      }
+    }
+  ]
+}

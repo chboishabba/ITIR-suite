@@ -160,6 +160,18 @@
   - remaining followthrough:
     - feed real SL/LCE-derived signals into the optional feature bag
     - add stronger cross-component conformance checks over the advisory payload
+- 2026-03-20 Casey benchmark interpretation refinement:
+  - source: current working turn
+  - main decision:
+    - Casey library is the closest current proxy to
+      "Casey competing with git if git were in Python"
+    - Casey CLI is not there yet; it is still materially limited by Python
+      process startup and remaining command-path overhead even after
+      `--no-observer`, lazy imports, and command-scoped runtime batching
+  - followthrough:
+    - keep benchmark claims split between Casey library vs subprocess git and
+      Casey CLI vs git CLI
+    - add a clearer interpretation lane / reporting cut in the benchmark docs
 - 2026-03-19 JMD/ERDFA intended-surface awareness:
   - resolved via `robust-context-fetch`
   - title: `Dependency-aware task scheduling`
@@ -219,6 +231,35 @@
         than vague "necessary cycles" rhetoric
       - a replayable provenance bundle should keep binaries, source, debug
         symbols, traces, models, and prior events linked together
+- 2026-03-20 JMD docs triage / roadmap pass:
+  - source: current working turn
+  - main decision:
+    - split "JMD integration" into three lanes:
+      future shard/task surface, near-term object-to-corpus bridge, and
+      reserved proof/provenance design constraints
+    - keep the JMD/ERDFA scheduler surface explicitly deferred
+    - treat the JMD object graph -> SL corpus graph bridge as the only
+      near-term JMD implementation candidate
+    - require fixture-backed ingest + anchor/overlay examples before any bridge
+      code starts
+  - documentation artifact added:
+    - `docs/planning/jmd_triage_roadmap_20260320.md`
+- 2026-03-20 JMD fixture v1 closeout:
+  - source: current working turn
+  - main decision:
+    - first canonical bridge example is one ERDFA-backed text shard
+    - dual refs are mandatory in the canonical example:
+      pastebin raw retrieval + IPFS CID integrity
+    - `byte_start` / `byte_end` are the normative reversible anchor trace;
+      token offsets are secondary metadata only
+    - `zos-server` stays outside the normative v1 payload and remains a future
+      infrastructure concern
+    - provenance bundle and proof/metric commitment fields remain reserved but
+      optional in v1
+  - documentation artifacts added:
+    - `docs/planning/jmd_fixture_v1_20260320.md`
+    - `docs/planning/jmd_fixtures/jmd_sl_ingest_v1.example.json`
+    - `docs/planning/jmd_fixtures/sl_jmd_overlay_v1.example.json`
 
 - 2026-03-14 whitepaper context refresh:
   - resolved archived thread via `robust-context-fetch`

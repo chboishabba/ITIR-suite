@@ -209,6 +209,21 @@
    - operator/workbench polish
    - or a genuinely new family.
 
+## Milestone W: JMD Boundary Triage (planned)
+1. Use `docs/planning/jmd_triage_roadmap_20260320.md` as the canonical triage
+   note for all JMD-related planning references.
+2. Keep the JMD/ERDFA shard/task lane documented as future external-surface
+   awareness only until a pinned schema and concrete adapter target exist.
+3. Treat the JMD object graph -> SL corpus graph bridge as the only near-term
+   JMD implementation candidate.
+4. Close the read-only bridge contract around:
+   - fixture-backed ingest payloads
+   - reversible anchor/group identities
+   - advisory overlay payloads
+   - reserved provenance-bundle and metric-commitment fields
+5. Defer Casey-governed promotion paths and StatiBaker receipt details until the
+   read-only bridge invariants are explicit.
+
 ## Milestone V: Fact-Intake Semantic Normalization (completed)
 1. Added additive semantic sidecar storage over `fact_intake`:
    - vocab tables

@@ -141,6 +141,19 @@ test('fact review CLI error classifier distinguishes missing runs and parse fail
   assert.equal(parseFailure.kind, 'parse_error');
 });
 
+test('fact review CLI error classifier also treats absent persisted runs as missing_run', () => {
+  const missingRun = classifyFactReviewErrorMessage('RuntimeError: No fact review run found for selector');
+
+  assert.equal(missingRun.kind, 'missing_run');
+  assert.ok(missingRun.title.includes('No persisted fact-review run'));
+});
+
+test('fact review CLI parser rejects payloads that omit the requested acceptance field', () => {
+  const raw = JSON.stringify({ ok: true, workbench: { run: { run_id: 'x' } } });
+
+  assert.throws(() => parseFactReviewCliPayload(raw, 'acceptance'), /missing expected field/i);
+});
+
 test('SL-US-09 intake triage uses canonical issue filters and grouped queue rows from the real bundle', () => {
   const bundle = readJson('tests/fixtures/fact_review_wave1_real_demo_bundle.json');
   const filters = resolveFactReviewAvailableIssueFilters(bundle.workbench, 'intake_triage');
@@ -413,6 +426,28 @@ test('fact review helpers build reopen links from both workflow row shapes', () 
   );
 });
 
+test('fact review helpers prefer latest workflow links when building reopen hrefs from sources fixture', () => {
+  const sourcesFixture = readJson('tests/fixtures/fact_review_cli_sources_response.json');
+  const href = buildFactReviewHrefForSource(sourcesFixture.sources[0], {
+    workflowKind: 'fact_review',
+    view: 'intake_triage',
+    wave: 'wave1_legal',
+  });
+
+  assert.equal(
+    href,
+    '/graphs/fact-review?workflow=transcript_semantic&workflowRunId=real_transcript_intake_v1&sourceLabel=wave1%3Areal_transcript_intake_v1&wave=wave1_legal&view=intake_triage'
+  );
+});
+
+test('fact review helpers return an empty reopen list when no recent or listed sources exist', () => {
+  const workbench = { reopen_navigation: { recent_sources: [] } };
+
+  const rows = resolveFactReviewSourceRows(workbench, undefined);
+
+  assert.deepEqual(rows, []);
+});
+
 test('fact review helpers build a repeatable current persisted-run href from workbench metadata', () => {
   const intake = readJson('tests/fixtures/fact_review_wave1_intake.json');
   const currentHref = buildFactReviewCurrentHref(intake.workbench, {
@@ -424,6 +459,37 @@ test('fact review helpers build a repeatable current persisted-run href from wor
   assert.equal(
     currentHref,
     '/graphs/fact-review?workflow=transcript_semantic&workflowRunId=real_transcript_intake_v1&sourceLabel=wave1%3Areal_transcript_intake_v1&wave=wave1_legal&view=intake_triage'
+  );
+});
+
+test('fact review helpers build a safe href even when the selector is malformed or missing', () => {
+  const malformedWorkbench = {
+    reopen_navigation: { query: {}, recent_sources: [] },
+    run: {},
+  };
+  const href = buildFactReviewCurrentHref(malformedWorkbench, {
+    workflowKind: 'transcript_semantic',
+    wave: 'wave1_legal',
+    view: 'intake_triage',
+  });
+
+  assert.equal(href, '/graphs/fact-review?workflow=transcript_semantic&wave=wave1_legal&view=intake_triage');
+});
+
+test('fact review helpers keep non-intake filters pinned to all-items while honoring intake filters', () => {
+  const trauma = readJson('tests/fixtures/fact_review_wave3_real_fragmented_support_demo_bundle.json');
+  const traumaFilters = resolveFactReviewAvailableIssueFilters(trauma.workbench, 'trauma_handoff');
+  const traumaItems = resolveFactReviewFilteredItems(trauma.workbench, 'trauma_handoff', 'missing_actor');
+  const intake = readJson('tests/fixtures/fact_review_wave1_intake.json');
+  const intakeAll = resolveFactReviewFilteredItems(intake.workbench, 'intake_triage', 'all');
+
+  assert.deepEqual(traumaFilters, ['all']);
+  assert.equal(traumaItems.length, 2);
+  assert.ok(traumaItems.some((row) => row.fact_id === 'fact:db02c57327413841'));
+  assert.ok(traumaItems.some((row) => row.fact_id === 'fact:dd5929dc0b405768'));
+  assert.deepEqual(
+    intakeAll.map((row) => row.fact_id),
+    ['fact:injury-date', 'fact:later-note']
   );
 });
 
@@ -451,6 +517,23 @@ test('fact review helpers resolve selected fact and prefer inline inspector clas
   assert.equal(selectedFallback?.fact_id, 'fact:injury-date');
   assert.deepEqual(explicitClassification.display_labels, ['party assertion', 'later annotation']);
   assert.deepEqual(fallbackClassification.display_labels, ['unclassified']);
+});
+
+test('fact review helpers fall back to first fact and still resolve inspector statuses when selection is stale', () => {
+  const bundle = readJson('tests/fixtures/fact_review_wave5_real_false_coherence_demo_bundle.json');
+  const selected = resolveSelectedFact(bundle.workbench, 'fact:not-present');
+  const classification = resolveInspectorClassification(bundle.workbench, selected);
+  const statuses = resolveInspectorStatusRows(classification);
+
+  assert.equal(selected?.fact_id, 'fact:23fbeeeccea59b14');
+  assert.deepEqual(
+    statuses.map((row) => [row.key, row.active]),
+    [
+      ['party_assertion', false],
+      ['procedural_outcome', false],
+      ['later_annotation', false],
+    ]
+  );
 });
 
 test('fact review helpers expose distinct inspector status rows for Mary classifications', () => {

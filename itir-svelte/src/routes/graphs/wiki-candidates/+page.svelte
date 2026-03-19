@@ -214,21 +214,21 @@
       Source: <span class="font-mono text-xs">{data.relPath}</span>
     </div>
     <div class="mt-3 flex flex-wrap items-center gap-3 text-sm">
-      <label class="flex items-center gap-2">
-        <span class="text-ink-800/70">Mode</span>
-        <select bind:value={mode} class="rounded-md border border-ink-950/15 bg-white px-2 py-1 text-sm">
-          <option value="aggregate">Aggregate by kind</option>
-          <option value="expanded">Expanded (top N)</option>
-        </select>
-      </label>
-
-      {#if mode === 'expanded'}
         <label class="flex items-center gap-2">
-          <span class="text-ink-800/70">Top N</span>
-          <input type="number" min="20" max="200" step="10" bind:value={topN} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" />
+          <span class="text-ink-800/70">Mode</span>
+          <select bind:value={mode} class="rounded-md border border-ink-950/15 bg-white px-2 py-1 text-sm">
+            <option value="aggregate">Aggregate by kind</option>
+            <option value="expanded">Expanded (top N)</option>
+          </select>
         </label>
-      {/if}
-    </div>
+
+        {#if mode === 'expanded'}
+          <label class="flex items-center gap-2">
+            <span class="text-ink-800/70">Top N</span>
+            <input type="number" min="20" max="200" step="10" bind:value={topN} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" aria-label="Top N results" />
+          </label>
+        {/if}
+      </div>
   </Panel>
 
   {#if data.error}

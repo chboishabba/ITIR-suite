@@ -95,6 +95,8 @@
         transcriptText={data.transcriptMarkdown}
         audioSrc={data.audioSrc}
         maxHeightPx={560}
+        searchAriaLabel="Search transcript cues"
+        manualScrubAriaLabel="Manual transcript scrub (seconds)"
         on:cueSelect={onCueSelect}
       />
       <DocumentViewer
@@ -113,12 +115,14 @@
         title="Transcript Artifacts"
         entries={data.transcriptFiles}
         selectedId={data.selectedTranscriptId}
+        searchAriaLabel="Filter transcript files"
         on:select={(ev) => navigateWithParam('transcript', ev.detail.id)}
       />
       <FolderListViewer
         title="Ingested Documents"
         entries={data.documentFiles}
         selectedId={data.selectedDocumentId}
+        searchAriaLabel="Filter ingested documents"
         on:select={(ev) => navigateWithParam('doc', ev.detail.id)}
       />
     </div>

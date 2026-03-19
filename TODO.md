@@ -44,6 +44,11 @@
 - [P2] Important but deferrable
 - [P3] Nice-to-have / polish
 
+- [P1] itir-svelte a11y coverage expansion:
+  - extend rendered-DOM label/state assertions across remaining graph/workbench routes
+  - add keyboard navigation/focus/activation tests for transcript/document/folder viewers and graph controls
+  - add one axe-based browser smoke for `/viewers/hca-case` and primary graph routes
+  - keep Pelican/Zola reference-only; direct new UI work/testing to itir-svelte
 - [P1] Shared SL reducer adoption across products:
   - use `sensiblaw.interfaces.shared_reducer` as the supported cross-product
     lexer/reducer API
@@ -540,12 +545,26 @@
     - JSON output plus Markdown summary
   - extend the Casey-vs-git benchmark with repeatability baselines and stored
     result snapshots so regressions are easier to compare over time
+  - add an explicit interpretation lane for "Casey library vs subprocess git"
+    so the repo can distinguish "competing with git if git were in Python"
+    from the still-slower Casey CLI path
+  - next Casey perf loop should focus on:
+    - Python process startup on the CLI lane
+    - remaining non-observer CLI command-path overhead after runtime batching
+    - observer/receipt cost isolation inside `traceability_cost`
 - Keep the JMD/ERDFA shard-graph integration surface documented as future
   awareness only per `docs/planning/jmd_itir_intended_surface_20260319.md`:
   - do not treat it as an active Casey/fuzzymodo/SB contract yet
   - wait for a pinned shard schema / concrete adapter target before code work
 - Define the JMD object graph -> SL corpus graph bridge incrementally from
   `docs/planning/jmd_sl_corpus_bridge_contract_20260319.md`:
+  - use `docs/planning/jmd_triage_roadmap_20260320.md` as the canonical triage
+    note so "JMD integration" stays split into:
+    future shard/task surface vs near-term object-to-corpus bridge
+  - DONE: pin the first fixture pack in:
+    `docs/planning/jmd_fixture_v1_20260320.md`,
+    `docs/planning/jmd_fixtures/jmd_sl_ingest_v1.example.json`, and
+    `docs/planning/jmd_fixtures/sl_jmd_overlay_v1.example.json`
   - start with read-only JMD -> SL ingest payloads and reversible anchor
     generation only
   - keep SL outputs limited to advisory overlays and optimisation hints until a
@@ -574,6 +593,11 @@
     `mdl_gain` alone is not enough; maintain separate notions of compression
     gain, novelty/divergence from corpus, coverage/completeness, and replay
     validity
+  - before any bridge code starts, require:
+    one fixture-backed JMD ingest example, one fixture-backed SL anchor/overlay
+    example, and explicit acceptance criteria for reversibility/provenance
+  - next implementation followthrough:
+    add fixture/schema validation or conformance tests over the pinned example
 - Implement cross-project channel adapters and validators per
   `docs/planning/project_interfaces.md` for:
   `SensibLaw/`, `SL-reasoner/`, `tircorder-JOBBIE/`, `StatiBaker/`,

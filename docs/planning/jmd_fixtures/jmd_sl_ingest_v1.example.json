@@ -1,0 +1,46 @@
+{
+  "bridge_version": "jmd.sl.ingest.v1",
+  "objects": [
+    {
+      "object_id": "jmd:erdfa:shard:note-0001",
+      "object_type": "shard",
+      "content_type": "text/plain; charset=utf-8",
+      "text": "Alice paid Bob on 2026-03-19. Receipt hash: abc123.",
+      "content_ref": {
+        "paste_ref": {
+          "provider": "kant-zk-pastebin",
+          "paste_id": "note-0001",
+          "raw_url": "https://example.invalid/pastebin/raw/note-0001"
+        },
+        "cid_ref": {
+          "provider": "ipfs",
+          "cid": "bafkreigh2akiscaildcjexample000000000000000000000000000000"
+        }
+      },
+      "erdfa": {
+        "shard_id": "note-0001",
+        "cid": "bafkreigh2akiscaildcjexample000000000000000000000000000000",
+        "component_kind": "text",
+        "tags": [
+          "note",
+          "financial-event"
+        ],
+        "parent_refs": [],
+        "link_refs": [
+          "jmd:erdfa:shard:receipt-0001"
+        ]
+      },
+      "provenance": {
+        "source": "pastebin",
+        "captured_at": "2026-03-20T00:00:00Z"
+      },
+      "reserved_commitments": {
+        "corpus_root": null,
+        "pipeline_id": null,
+        "params_hash": null,
+        "metric_commitment": null,
+        "score_commitment": null
+      }
+    }
+  ]
+}
