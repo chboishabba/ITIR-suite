@@ -7,6 +7,12 @@
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
 - SL-reasoner: no TODOs found.
 - tircorder-JOBBIE: accessibility TODOs (extend ARIA roles/labels, add `aria-live`, automate audits, expand manual testing).
+- Web transition:
+  - treat `itir-svelte/` as the sole intended web interface
+  - keep `tircorder-JOBBIE/Pelican/` and `tircorder-JOBBIE/Zola/` as
+    reference-only during migration
+  - do not add new product-facing web work to Pelican/Zola; port needed
+    behavior into `itir-svelte/` and delete legacy surfaces later
 - WhisperX-WebUI: README TODO list appears complete; translation PRs requested.
 - reverse-engineered-chatgpt: README TODOs remaining (better error handling, improve documentation); TODO.md items all completed.
 - chat-export-structurer: no TODOs found.
@@ -518,6 +524,16 @@
     entrypoints so the seam does not remain CLI-only
   - add broader cross-component interface-conformance checks so Casey/fuzzymodo/SB
     payload fields stay locked across future changes
+  - DONE: Casey-vs-git benchmark surface now exists as
+    `casey-git-clone/scripts/benchmark_casey_vs_git.py` with:
+    - fixed `small/medium/large` tiers
+    - `baseline_linear`, `divergence_native`, `build_freeze`, and
+      `traceability_cost` lanes
+    - both `cli` and `library` surfaces
+    - detailed filesize/storage-accounting metrics, not just timing
+    - JSON output plus Markdown summary
+  - extend the Casey-vs-git benchmark with repeatability baselines and stored
+    result snapshots so regressions are easier to compare over time
 - Keep the JMD/ERDFA shard-graph integration surface documented as future
   awareness only per `docs/planning/jmd_itir_intended_surface_20260319.md`:
   - do not treat it as an active Casey/fuzzymodo/SB contract yet

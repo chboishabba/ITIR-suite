@@ -50,7 +50,9 @@
           ],
           "surface_kind": "docs_contract",
           "default_action": "update_docs_and_report",
-          "local_gates": [],
+          "local_gates": [
+            "cd /home/c/Documents/code/ITIR-suite && python -m json.tool docs/planning/agent_surface_map.json"
+          ],
           "wider_gates": [],
           "contract_refs": [
             "docs/planning/project_interfaces.md",

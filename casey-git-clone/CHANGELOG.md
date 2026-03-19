@@ -29,6 +29,17 @@
 - Added end-to-end tests covering Casey bundle emission, Casey ledger
   persistence, and optional SB overlay ingestion from the Casey CLI/runtime
   lane.
+- Added a Casey-vs-git benchmark harness at
+  `scripts/benchmark_casey_vs_git.py` with fixed `small`/`medium`/`large`
+  tiers, `baseline_linear` / `divergence_native` / `build_freeze` /
+  `traceability_cost` lanes, and both `cli` and `library` Casey surfaces.
+- Added storage-accounting metrics to the benchmark output, including runtime
+  DB deltas, ledger DB deltas, observer bundle sizes, git `.git` size deltas,
+  trace bundle sizes, sqlite page metrics, and persisted-bytes/logical-bytes
+  ratios.
+- Added a benchmark smoke test at
+  `tests/test_benchmark_casey_vs_git_smoke.py` and documented the benchmark
+  surface in `docs/benchmarking.md`.
 
 ## 2026-03-09
 - Clarified the intended `casey-git-clone -> StatiBaker` seam as observer-only

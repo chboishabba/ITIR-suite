@@ -535,6 +535,8 @@ Contract signals:
 
 - if work changes import or output posture, preserve the “read-only /
   non-authoritative” boundary in the report
+- initial interpretation experiments should try **Lila** first (keep outputs explicitly
+  labeled interpretive/hypothetical; never feed back into core)
 
 ### `tircorder-JOBBIE`
 
@@ -623,5 +625,8 @@ Minimum cross-surface report fields:
 - **Antigravity-Sigma**: `itir-svelte` server-adapter contract hardening, `WhisperX-WebUI` transcription-to-ingest seam quality, and root-level orchestration regression coverage.
 - **Codex-Atlas**: `openrecall` and `chat-export-structurer` seam coverage, cross-project fixture/smoke expansion, and reproducible gate-reporting for low-judgment test loop lanes.
 - **Codex-Relay**: `chat-export-structurer` parser/ingest seam coverage expansion and reproducible smoke/fixture validation for cross-project export contracts.
-- **Codex-Borealis**: `SL-reasoner` read-only boundary enforcement, output schema/disclaimer invariants, and small local regression test expansion.
+- **Codex-Borealis**: `SL-reasoner` read-only boundary enforcement, output schema/disclaimer invariants, Lila-first experiment posture, and small local regression test expansion.
 - **Codex-Kestrel**: `SL-reasoner` and `tircorder-JOBBIE` regression/smoke expansion, plus explicit `TiRC -> SensibLaw` envelope seam coverage.
+- **Codex-Relay-Recall**: `openrecall` embedding dependency hardening, fallback path
+  implementation, and lane docs/TODO alignment around optional sentence-transformer
+- **Antigravity-Titan**: `SensibLaw` Read-Model hardening, Wikidata/Zelph integration coverage, and `StatiBaker` observed-ingest seam verification.

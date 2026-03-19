@@ -1,5 +1,21 @@
 # Compactified Context
 
+- 2026-03-19 web-surface transition clarification:
+  - source: current working turn
+  - main decision:
+    - `itir-svelte/` is the sole intended web interface for ITIR-suite going
+      forward
+    - `tircorder-JOBBIE/Pelican/` and `tircorder-JOBBIE/Zola/` remain in-tree
+      only as legacy/reference material during transition
+    - do not treat Pelican or Zola as active runtime web targets for new work
+    - new UI behavior, parity, and route ownership should land in
+      `itir-svelte/`
+  - followthrough:
+    - update TiRC docs so Pelican/Zola are described as reference-only
+    - keep only bounded regression/reference coverage on legacy helpers needed
+      to understand or port behavior into Svelte
+    - eventually delete legacy web generators once needed behavior is absorbed
+      into `itir-svelte/`
 - 2026-03-19 archived thread resolution pass:
   - resolved nine online UUIDs using `robust-context-fetch`
   - canonical source path: `~/chat_archive.sqlite`

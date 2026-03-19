@@ -47,9 +47,11 @@ python -m casey_git_clone publish --db /tmp/casey.sqlite --workspace alice --pat
 
 ## Layout
 - `src/casey_git_clone/`: core model and operation primitives.
+- `scripts/`: operator-facing utilities, including the Casey-vs-git benchmark.
 - `tests/`: model and operation tests.
 - `docs/interfaces.md`: intended intersections, interaction flow, and exchange
   channels.
+- `docs/benchmarking.md`: benchmark lanes, metrics, and interpretation rules.
 
 ## Intended Intersections
 - Model and workflow are defined in `docs/planning/casey-git-clone/`.

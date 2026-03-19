@@ -140,6 +140,17 @@ This is now also the immediate standard for NotebookLM metadata:
 - source-local text reuse first
 - no waterfall/timeline parity claims until capture fidelity improves
 
+### Embedding policy
+
+- OpenRecall semantic-search behavior should not block capture on external
+  embedding dependency availability.
+- The default path is dependency-aware:
+  - transformer-backed `sentence-transformers` when available
+  - local deterministic fallback when it is unavailable or disabled via
+    deployment policy
+- Treat retrieval quality differences as an explicit deployment choice rather than
+  a hard import-time requirement.
+
 ## Deferred
 - live capture stabilization inside vendored OpenRecall
 - direct GUI/workbench route for OpenRecall-specific browsing

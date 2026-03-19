@@ -5,6 +5,14 @@ Track SB dashboard module parity work and Svelte-specific componentization tasks
 
 Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_ROOT`.
 
+## Direction
+
+- `itir-svelte/` is the sole intended web interface for ITIR-suite.
+- Treat legacy `Pelican/` and `Zola/` web generators in other projects as
+  reference-only migration material, not active runtime targets.
+- When legacy behavior is still useful, port or restate the contract here
+  rather than extending those older web stacks.
+
 ## Near-Term (Parity)
 
 - DONE (2026-02-11): lock parity baseline docs for migration decisions:

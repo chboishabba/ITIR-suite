@@ -3,6 +3,10 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Docs/transition: clarify that `itir-svelte/` is the sole intended web
+  interface going forward. Legacy `Pelican/` and `Zola/` surfaces remain
+  reference-only during migration and should not receive new product-facing UI
+  work.
 - Graphs/fact review: tighten `/graphs/fact-review` around the explicit
   persisted Mary-parity workbench contract by typing the route/server adapter
   for reopen navigation, canonical issue filters, and inspector
