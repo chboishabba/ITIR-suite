@@ -201,8 +201,10 @@ test('TranscriptViewer exposes a polite live region for the active cue', () => {
   assert.ok(s.includes('role="status"'));
   assert.ok(s.includes('activeCueAnnouncement'));
   assert.ok(s.includes('No active transcript cue.'));
-  assert.ok(s.includes('aria-label="Search transcript cues"'));
-  assert.ok(s.includes('aria-label="Manual transcript scrub (seconds)"'));
+  assert.ok(s.includes('aria-label={searchAriaLabel}'));
+  assert.ok(s.includes('aria-label={manualScrubAriaLabel}'));
+  assert.ok(s.includes('for={transcriptSearchId}'));
+  assert.ok(s.includes('for={manualScrubId}'));
   assert.ok(s.includes('aria-pressed={globalIdx === activeCueIndex}'));
   assert.ok(s.includes('aria-label={`Select cue'));
 });
@@ -218,7 +220,8 @@ test('DocumentViewer exposes labeled search and line-selection announcement stat
 
 test('FolderListViewer exposes labeled filter and selected entry state', () => {
   const s = read('src/lib/viewers/FolderListViewer.svelte');
-  assert.ok(s.includes('aria-label="Filter files and folders"'));
+  assert.ok(s.includes('aria-label={searchAriaLabel}'));
+  assert.ok(s.includes('for={searchInputId}'));
   assert.ok(s.includes('aria-label={`${entry.kind} ${entry.name}`'));
   assert.ok(s.includes("aria-current={selectedId === entry.id ? 'true' : undefined}"));
 });
@@ -235,6 +238,100 @@ test('HCA viewbench keeps transcript/document viewer components wired together',
   assert.ok(transcript.includes('role="region" aria-label={title}'));
   assert.ok(document.includes('role="region" aria-label={title}'));
   assert.ok(folder.includes('role="region" aria-label={title}'));
+});
+
+test('Threads route exposes a labeled search control', () => {
+  const page = read('src/routes/threads/+page.svelte');
+  assert.ok(page.includes('aria-label="Search threads"'));
+  assert.ok(page.includes('id="threads-search"'));
+});
+
+test('Thread viewer route exposes a labeled filter control', () => {
+  const page = read('src/routes/thread/[threadId]/+page.svelte');
+  assert.ok(page.includes('aria-label="Filter thread messages"'));
+  assert.ok(page.includes('id="thread-filter"'));
+});
+
+test('Mission lens form inputs expose accessible names', () => {
+  const page = read('src/routes/graphs/mission-lens/+page.svelte');
+  assert.ok(page.includes('aria-label="Mission lens run id"'));
+  assert.ok(page.includes('aria-label="Mission title"'));
+  assert.ok(page.includes('aria-label="Deadline"'));
+  assert.ok(page.includes('aria-label="Start window"'));
+  assert.ok(page.includes('aria-label="Note for review link"'));
+  assert.ok(page.includes('aria-label="Note for reassign activity"'));
+  assert.ok(page.includes('aria-label="Note for unlink activity"'));
+  assert.ok(page.includes('aria-label="Note for unresolved activity"'));
+});
+
+test('Semantic report search inputs are labeled', () => {
+  const page = read('src/routes/graphs/semantic-report/+page.svelte');
+  assert.ok(page.includes('aria-label="Search selected event text"'));
+  assert.ok(page.includes('aria-label="Search source document text"'));
+});
+
+test('Wiki candidates inputs are labeled', () => {
+  const page = read('src/routes/graphs/wiki-candidates/+page.svelte');
+  assert.ok(page.includes('aria-label="Top N results"'));
+});
+
+test('Wiki timeline controls are labeled', () => {
+  const page = read('src/routes/graphs/wiki-timeline/+page.svelte');
+  assert.ok(page.includes('aria-label="Top N timeline events"'));
+});
+
+test('Wiki timeline AAO controls are labeled', () => {
+  const page = read('src/routes/graphs/wiki-timeline-aoo/+page.svelte');
+  assert.ok(page.includes('aria-label="Dataset source"'));
+});
+
+test('Wiki fact timeline controls are labeled', () => {
+  const page = read('src/routes/graphs/wiki-fact-timeline/+page.svelte');
+  assert.ok(page.includes('aria-label="Max facts"'));
+});
+
+test('Wiki timeline AAO-all controls are labeled', () => {
+  const page = read('src/routes/graphs/wiki-timeline-aoo-all/+page.svelte');
+  assert.ok(page.includes('aria-label="Dataset source"'));
+  assert.ok(page.includes('aria-label="Time granularity"'));
+  assert.ok(page.includes('aria-label="Max events"'));
+  assert.ok(page.includes('aria-label="Max subjects"'));
+  assert.ok(page.includes('aria-label="Max objects"'));
+  assert.ok(page.includes('aria-label="Max numeric values"'));
+  assert.ok(page.includes('aria-label="Show source lane"'));
+  assert.ok(page.includes('aria-label="Show lens lane"'));
+  assert.ok(page.includes('aria-label="Show evidence lane"'));
+  assert.ok(page.includes('aria-label="Show requesters"'));
+  assert.ok(page.includes('aria-label="Show purpose"'));
+});
+
+test('Wiki revision contested selects are labeled', () => {
+  const page = read('src/routes/graphs/wiki-revision-contested/+page.svelte');
+  assert.ok(page.includes('aria-label="Contested graph pack"'));
+  assert.ok(page.includes('aria-label="Contested graph run"'));
+  assert.ok(page.includes('aria-label="Contested article"'));
+});
+
+test('Timeline ribbon date inputs are labeled', () => {
+  const page = read('src/routes/graphs/timeline-ribbon/+page.svelte');
+  assert.ok(page.includes('aria-label="Timeline start date"'));
+  assert.ok(page.includes('aria-label="Timeline end date"'));
+});
+
+test('Narrative comparison inspector tabs expose tab semantics', () => {
+  const page = read('src/routes/graphs/narrative-compare/+page.svelte');
+  assert.ok(page.includes('role="tablist"'));
+  assert.ok(page.includes('role="tab"'));
+  assert.ok(page.includes('aria-selected={activeTab === tab}'));
+});
+
+test('Arguments workbench tabs and highlight controls expose stateful a11y attributes', () => {
+  const page = read('src/routes/arguments/thread/[threadId]/+page.svelte');
+  assert.ok(page.includes("aria-pressed={highlightMode === 'literal'}"));
+  assert.ok(page.includes("aria-pressed={highlightMode === 'family'}"));
+  assert.ok(page.includes('role="tablist"'));
+  assert.ok(page.includes('role="tab"'));
+  assert.ok(page.includes('aria-selected={activeTab === tab}'));
 });
 
 test('chat tool renderer handles request_user_input as structured questions', () => {

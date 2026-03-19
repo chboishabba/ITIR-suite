@@ -197,25 +197,27 @@ export let data: { workbench: ThreadArgumentsWorkbench; stateReason?: string };
       <span class="text-xs uppercase tracking-[0.24em] text-ink-800/70">state</span>
       <span class="rounded bg-paper-100 px-2 py-1 font-mono text-[11px]">{reviewState}</span>
     </div>
-    <div slot="actions" class="flex flex-wrap items-center gap-2">
-      <button
-        type="button"
-        class={`rounded-lg px-3 py-2 text-xs uppercase tracking-widest ring-1 ${highlightMode === 'literal' ? 'bg-ink-900 text-paper-50 ring-ink-900' : 'bg-paper-100 ring-ink-900/10'}`}
-        on:click={() => {
-          highlightMode = 'literal';
-          claimSelectionBridge.setScope('local');
-        }}
-      >
+      <div slot="actions" class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          class={`rounded-lg px-3 py-2 text-xs uppercase tracking-widest ring-1 ${highlightMode === 'literal' ? 'bg-ink-900 text-paper-50 ring-ink-900' : 'bg-paper-100 ring-ink-900/10'}`}
+          aria-pressed={highlightMode === 'literal'}
+          on:click={() => {
+            highlightMode = 'literal';
+            claimSelectionBridge.setScope('local');
+          }}
+        >
         Literal
       </button>
-      <button
-        type="button"
-        class={`rounded-lg px-3 py-2 text-xs uppercase tracking-widest ring-1 ${highlightMode === 'family' ? 'bg-ink-900 text-paper-50 ring-ink-900' : 'bg-paper-100 ring-ink-900/10'}`}
-        on:click={() => {
-          highlightMode = 'family';
-          claimSelectionBridge.setScope('expanded');
-        }}
-      >
+        <button
+          type="button"
+          class={`rounded-lg px-3 py-2 text-xs uppercase tracking-widest ring-1 ${highlightMode === 'family' ? 'bg-ink-900 text-paper-50 ring-ink-900' : 'bg-paper-100 ring-ink-900/10'}`}
+          aria-pressed={highlightMode === 'family'}
+          on:click={() => {
+            highlightMode = 'family';
+            claimSelectionBridge.setScope('expanded');
+          }}
+        >
         Family
       </button>
       <a
@@ -346,10 +348,12 @@ export let data: { workbench: ThreadArgumentsWorkbench; stateReason?: string };
                   {selectedClaimIds.length > 1 ? `${selectedClaimIds.length} claims selected` : currentClaim?.normalizedText ?? 'Select a claim'}
                 </div>
               </div>
-              <div class="flex flex-wrap gap-2">
+              <div class="flex flex-wrap gap-2" role="tablist" aria-label="Claim inspector tabs">
                 {#each ['Claim', 'Counterpoints', 'Graph'] as tab}
                   <button
                     type="button"
+                    role="tab"
+                    aria-selected={activeTab === tab}
                     class={`rounded-lg px-3 py-2 text-xs uppercase tracking-widest ring-1 ${activeTab === tab ? 'bg-ink-900 text-paper-50 ring-ink-900' : 'bg-paper-100 ring-ink-900/10'}`}
                     on:click={() => (activeTab = tab as InspectorTab)}
                   >

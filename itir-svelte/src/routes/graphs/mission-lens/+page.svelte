@@ -111,7 +111,7 @@
         </label>
         <label class="space-y-1 text-sm text-ink-950/70">
           <span>Run ID</span>
-          <input class="w-72 rounded-xl border border-ink-950/15 px-3 py-2" type="text" name="runId" value={report?.run_id ?? data.runId ?? ''} placeholder="Latest run by default" />
+          <input class="w-72 rounded-xl border border-ink-950/15 px-3 py-2" type="text" name="runId" value={report?.run_id ?? data.runId ?? ''} placeholder="Latest run by default" aria-label="Mission lens run id" />
         </label>
         <button class="rounded-full bg-ink-950 px-4 py-2 text-sm font-medium text-white" type="submit">Load lens</button>
       </form>
@@ -235,7 +235,7 @@
             <input type="hidden" name="date" value={data.date} />
             <label class="space-y-1 text-sm text-ink-950/70">
               <span>Title</span>
-              <input class="w-full rounded-xl border border-ink-950/15 px-3 py-2" type="text" name="title" placeholder="Finish mission lens contract" />
+              <input class="w-full rounded-xl border border-ink-950/15 px-3 py-2" type="text" name="title" placeholder="Finish mission lens contract" aria-label="Mission title" />
             </label>
             <div class="grid gap-3 md:grid-cols-2">
               <label class="space-y-1 text-sm text-ink-950/70">
@@ -275,12 +275,12 @@
             </div>
             <label class="space-y-1 text-sm text-ink-950/70">
               <span>Raw deadline phrase</span>
-              <input class="w-full rounded-xl border border-ink-950/15 px-3 py-2" type="text" name="rawDeadline" placeholder="close of business Friday / 2026-03-12 / sometime next week" />
+              <input class="w-full rounded-xl border border-ink-950/15 px-3 py-2" type="text" name="rawDeadline" placeholder="close of business Friday / 2026-03-12 / sometime next week" aria-label="Deadline" />
             </label>
             <div class="grid gap-3 md:grid-cols-3">
               <label class="space-y-1 text-sm text-ink-950/70">
                 <span>Due start</span>
-                <input class="w-full rounded-xl border border-ink-950/15 px-3 py-2" type="text" name="dueStart" placeholder="2026-03-12 or 2026-03-12T17:00:00Z" />
+                <input class="w-full rounded-xl border border-ink-950/15 px-3 py-2" type="text" name="dueStart" placeholder="2026-03-12 or 2026-03-12T17:00:00Z" aria-label="Start window" />
               </label>
               <label class="space-y-1 text-sm text-ink-950/70">
                 <span>Certainty</span>
@@ -423,7 +423,7 @@
                   <input type="hidden" name="planNodeId" value={selectedPlanNode?.planNodeId ?? ''} />
                   <input type="hidden" name="activityRefId" value={selectedActivity.activityRefId} />
                   <input type="hidden" name="authoring" value="mission_lens_manual_link" />
-                  <input class="w-full rounded-xl border border-emerald-300/70 px-3 py-2 text-sm" type="text" name="note" placeholder="Reviewed link from mission lens" />
+                  <input class="w-full rounded-xl border border-emerald-300/70 px-3 py-2 text-sm" type="text" name="note" placeholder="Reviewed link from mission lens" aria-label="Note for review link" />
                   <button class="rounded-full bg-emerald-700 px-4 py-2 text-sm font-medium text-white" type="submit" disabled={!selectedPlanNode}>
                     Link to selected node
                   </button>
@@ -433,7 +433,7 @@
                   <input type="hidden" name="date" value={data.date} />
                   <input type="hidden" name="planNodeId" value={selectedPlanNode?.planNodeId ?? ''} />
                   <input type="hidden" name="activityRefId" value={selectedActivity.activityRefId} />
-                  <input class="w-full rounded-xl border border-sky-300/70 px-3 py-2 text-sm" type="text" name="note" placeholder="Reassign this activity to the selected node" />
+                  <input class="w-full rounded-xl border border-sky-300/70 px-3 py-2 text-sm" type="text" name="note" placeholder="Reassign this activity to the selected node" aria-label="Note for reassign activity" />
                   <button class="rounded-full bg-sky-700 px-4 py-2 text-sm font-medium text-white" type="submit" disabled={!selectedPlanNode}>
                     Reassign to selected node
                   </button>
@@ -443,7 +443,7 @@
                     <input type="hidden" name="runId" value={report.run_id ?? ''} />
                     <input type="hidden" name="date" value={data.date} />
                     <input type="hidden" name="activityRefId" value={selectedActivity.activityRefId} />
-                    <input class="w-full rounded-xl border border-zinc-300/70 px-3 py-2 text-sm" type="text" name="note" placeholder="Explicitly unlink this activity" />
+                    <input class="w-full rounded-xl border border-zinc-300/70 px-3 py-2 text-sm" type="text" name="note" placeholder="Explicitly unlink this activity" aria-label="Note for unlink activity" />
                     <button class="rounded-full bg-zinc-700 px-4 py-2 text-sm font-medium text-white" type="submit">
                       Unlink
                     </button>
@@ -452,7 +452,7 @@
                     <input type="hidden" name="runId" value={report.run_id ?? ''} />
                     <input type="hidden" name="date" value={data.date} />
                     <input type="hidden" name="activityRefId" value={selectedActivity.activityRefId} />
-                    <input class="w-full rounded-xl border border-amber-300/70 px-3 py-2 text-sm" type="text" name="note" placeholder="Reviewed but left unresolved" />
+                    <input class="w-full rounded-xl border border-amber-300/70 px-3 py-2 text-sm" type="text" name="note" placeholder="Reviewed but left unresolved" aria-label="Note for unresolved activity" />
                     <button class="rounded-full bg-amber-700 px-4 py-2 text-sm font-medium text-white" type="submit">
                       Abstain / leave unresolved
                     </button>

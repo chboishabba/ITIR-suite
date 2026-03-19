@@ -342,20 +342,22 @@
 
       <div class="flex flex-col gap-4">
         <Panel>
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Inspector</div>
-              <div class="mt-1 text-sm text-ink-800/70">{selectedItem?.title ?? 'Select a row'}</div>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              {#each ['Claim', 'Graph'] as tab}
-                <button
-                  type="button"
-                  class={`rounded-lg px-3 py-2 text-xs uppercase tracking-widest ring-1 ${activeTab === tab ? 'bg-ink-900 text-paper-50 ring-ink-900' : 'bg-paper-100 ring-ink-900/10'}`}
-                  on:click={() => (activeTab = tab as InspectorTab)}
-                >
-                  {tab}
-                </button>
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Inspector</div>
+                <div class="mt-1 text-sm text-ink-800/70">{selectedItem?.title ?? 'Select a row'}</div>
+              </div>
+              <div class="flex flex-wrap gap-2" role="tablist" aria-label="Narrative comparison inspector tabs">
+                {#each ['Claim', 'Graph'] as tab}
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === tab}
+                    class={`rounded-lg px-3 py-2 text-xs uppercase tracking-widest ring-1 ${activeTab === tab ? 'bg-ink-900 text-paper-50 ring-ink-900' : 'bg-paper-100 ring-ink-900/10'}`}
+                    on:click={() => (activeTab = tab as InspectorTab)}
+                  >
+                    {tab}
+                  </button>
               {/each}
             </div>
           </div>

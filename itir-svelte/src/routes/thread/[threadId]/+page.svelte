@@ -236,13 +236,16 @@
   onDestroy(() => io?.disconnect());
 </script>
 
-<DashboardShell title="Thread Viewer">
+  <DashboardShell title="Thread Viewer">
   <Section title={title} subtitle={`thread_id=${data.threadId}${data.range.start && data.range.end ? ` | range=${data.range.start}..${data.range.end}` : ''}`}>
     <div slot="actions" class="flex flex-wrap items-center gap-2">
+      <label class="sr-only" for="thread-filter">Filter thread messages</label>
       <input
+        id="thread-filter"
         class="rounded-lg bg-paper-100 ring-1 ring-ink-900/10 px-3 py-2 text-sm"
         placeholder="Filter..."
         bind:value={q}
+        aria-label="Filter thread messages"
       />
       <label class="flex items-center gap-2 text-xs uppercase tracking-widest text-ink-800/60">
         <input type="checkbox" bind:checked={collapsedLong} />

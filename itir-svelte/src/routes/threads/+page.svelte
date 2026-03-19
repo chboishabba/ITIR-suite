@@ -45,14 +45,17 @@
   }
 </script>
 
-<DashboardShell title="Threads">
+  <DashboardShell title="Threads">
   <Section title="Threads" subtitle="Browse/search the local chat archive. Query matches title, canonical thread id, source ids.">
     <div slot="actions" class="flex flex-wrap items-center gap-2">
+      <label class="sr-only" for="threads-search">Search threads</label>
       <input
+        id="threads-search"
         class="rounded-lg bg-paper-100 ring-1 ring-ink-900/10 px-3 py-2 text-sm min-w-[18rem]"
         placeholder="Search title / id / source..."
         bind:value={q}
         on:keydown={(e) => e.key === 'Enter' && submitSearch()}
+        aria-label="Search threads"
       />
       <button
         type="button"
@@ -121,4 +124,3 @@
     </div>
   {/if}
 </DashboardShell>
-

@@ -114,6 +114,9 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
     broadening backend semantics
   - keep future real-path widening on the `demo-bundle` seam instead of adding
     route-local fixtures
+  - next meaningful operator surface after fact review:
+    `/graphs/narrative-compare`, starting with ingress-backed URL/media sources
+    instead of fixture-only loading
 - Keep low-judgment agents focused on route-consumer coverage first:
   - do not invent new fact-review backend semantics in Svelte
   - prefer seam tests over speculative UI refactors
