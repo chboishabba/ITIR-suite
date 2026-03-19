@@ -258,11 +258,15 @@ test('fact review workbench route loads persisted workbench and acceptance paylo
   assert.ok(loader.includes("'workbench'"));
   assert.ok(loader.includes("'acceptance'"));
   assert.ok(loader.includes("'sources'"));
+  assert.ok(page.includes('Recent / source-centric reopen'));
+  assert.ok(page.includes('reopenNavigation?.recent_sources'));
+  assert.ok(page.includes('data.workbench?.issue_filters?.available_filters'));
+  assert.ok(page.includes('Inspector classification'));
+  assert.ok(page.includes("filterKey.replaceAll('_', ' ')"));
   assert.ok(page.includes('Fact Review Workbench'));
   assert.ok(page.includes('Read-only Mary-parity inspection'));
   assert.ok(page.includes('Operator views'));
   assert.ok(page.includes('Story acceptance'));
-  assert.ok(page.includes('Recent sources'));
   assert.ok(page.includes('Approximate chronology'));
   assert.ok(page.includes('Observation signals:'));
   assert.ok(page.includes('Source provenance:'));

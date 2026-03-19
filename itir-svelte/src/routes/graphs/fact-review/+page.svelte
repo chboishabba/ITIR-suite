@@ -29,14 +29,20 @@
 
   $: selectedView = data.workbench?.operator_views?.[data.view] ?? null;
   $: issueGroups = selectedView?.groups ?? {};
-  $: availableIssueFilters = ['all', ...Object.keys(issueGroups).filter((key) => (issueGroups[key] ?? []).length > 0)];
+  $: canonicalIssueFilters = data.workbench?.issue_filters?.available_filters ?? ['all'];
+  $: availableIssueFilters = data.view === 'intake_triage' ? canonicalIssueFilters : ['all'];
   $: filteredItems =
     data.view === 'intake_triage' && selectedIssueFilter !== 'all'
       ? issueGroups?.[selectedIssueFilter] ?? []
       : selectedView?.items ?? [];
+  $: reopenNavigation = data.workbench?.reopen_navigation ?? null;
   $: selectedFact =
     (data.workbench?.facts ?? []).find((row: any) => row.fact_id === selectedFactId) ??
     (data.workbench?.facts ?? [])[0] ??
+    null;
+  $: selectedClassification =
+    (selectedFact?.inspector_classification as any) ??
+    data.workbench?.inspector_classification?.facts?.[selectedFact?.fact_id ?? ''] ??
     null;
   $: selectedStatements = (data.workbench?.statements ?? []).filter((row: any) =>
     selectedFact?.statement_ids?.includes(row.statement_id)
@@ -60,8 +66,10 @@
 
   function hrefForSource(source: any): string {
     const params = new URLSearchParams();
-    params.set('workflow', source?.latest_workflow_link?.workflow_kind ?? data.workflowKind);
-    if (source?.latest_workflow_link?.workflow_run_id) params.set('workflowRunId', source.latest_workflow_link.workflow_run_id);
+    const workflowKind = source?.latest_workflow_link?.workflow_kind ?? source?.workflow_kind ?? data.workflowKind;
+    const workflowRunId = source?.latest_workflow_link?.workflow_run_id ?? source?.workflow_run_id ?? null;
+    params.set('workflow', workflowKind);
+    if (workflowRunId) params.set('workflowRunId', workflowRunId);
     if (source?.source_label) params.set('sourceLabel', source.source_label);
     if (data.wave) params.set('wave', data.wave);
     params.set('view', data.view);
@@ -116,16 +124,19 @@
       </div>
       <div class="rounded border border-zinc-200 bg-white p-4">
         <div class="text-xs uppercase tracking-[0.24em] text-zinc-500">Reopen</div>
-        <div class="mt-2 font-mono text-xs text-zinc-700">{data.workbench.run.workflow_link?.workflow_run_id}</div>
+        <div class="mt-2 font-mono text-xs text-zinc-700">{reopenNavigation?.current?.workflow_run_id ?? data.workbench.run.workflow_link?.workflow_run_id}</div>
         <div class="mt-2 text-sm text-zinc-900">Read-only, provenance-first, no reasoning overlay</div>
+        <div class="mt-2 text-xs text-zinc-600">
+          {reopenNavigation?.current?.source_label ?? data.sourceLabel ?? 'latest linked source'}
+        </div>
       </div>
     </div>
 
     <section class="mb-6 rounded border border-zinc-200 bg-white p-4">
       <div class="mb-4">
-        <div class="text-xs uppercase tracking-[0.24em] text-zinc-500">Recent sources</div>
+        <div class="text-xs uppercase tracking-[0.24em] text-zinc-500">Recent / source-centric reopen</div>
         <div class="mt-3 flex flex-wrap gap-2">
-          {#each data.sources ?? [] as source}
+          {#each reopenNavigation?.recent_sources ?? data.sources ?? [] as source}
             <a class={`rounded border px-3 py-1 text-sm ${data.sourceLabel === source.source_label ? 'border-amber-300 bg-amber-50 text-amber-950' : 'border-zinc-200 bg-zinc-50 text-zinc-700'}`} href={hrefForSource(source)}>
               {source.source_label}
             </a>
@@ -153,7 +164,7 @@
                   class={`rounded px-3 py-1 text-xs ${selectedIssueFilter === filterKey ? 'bg-amber-100 text-amber-950' : 'bg-zinc-100 text-zinc-700'}`}
                   on:click={() => (selectedIssueFilter = filterKey)}
                 >
-                  {filterKey}
+                  {filterKey === 'all' ? 'all' : filterKey.replaceAll('_', ' ')}
                 </button>
               {/each}
             </div>
@@ -221,6 +232,14 @@
             <div class="mt-2 text-lg font-semibold text-zinc-950">{selectedFact.canonical_label ?? selectedFact.fact_text}</div>
             <div class="mt-2 text-sm text-zinc-700">Status: {selectedFact.candidate_status}</div>
             <div class="mt-2 text-sm text-zinc-700">Event links: {selectedFact.event_ids?.length ?? 0}</div>
+            {#if selectedClassification}
+              <div class="mt-4 text-xs uppercase tracking-[0.18em] text-zinc-500">Inspector classification</div>
+              <div class="mt-2 flex flex-wrap gap-2">
+                {#each selectedClassification.display_labels ?? [] as label}
+                  <div class="rounded border border-zinc-200 bg-white px-3 py-1 text-xs text-zinc-800">{label}</div>
+                {/each}
+              </div>
+            {/if}
             {#if selectedFact.signal_classes?.length}
               <div class="mt-2 text-sm text-zinc-700">
                 Observation signals: {(selectedFact.signal_classes ?? []).join(' · ')}
