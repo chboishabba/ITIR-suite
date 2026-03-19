@@ -1,15 +1,19 @@
 <script lang="ts">
-  export let data: {
-    workflowKind: string;
-    workflowRunId?: string | null;
-    sourceLabel?: string | null;
-    view: string;
-    wave: string;
-    workbench: any;
-    acceptance: any;
-    sources: any[];
-    error: string | null;
-  };
+  import type { PageData } from './$types';
+  import type {
+    FactReviewEvent,
+    FactReviewExcerpt,
+    FactReviewFact,
+    FactReviewInspectorClassification,
+    FactReviewRecentSource,
+    FactReviewSource,
+    FactReviewStatement,
+    FactReviewViewItem
+  } from '$lib/server/factReview';
+
+  type FactReviewSourceRow = FactReviewSource | FactReviewRecentSource;
+
+  export let data: PageData;
 
   const views = [
     { key: 'intake_triage', label: 'Intake triage' },
@@ -31,28 +35,31 @@
   $: issueGroups = selectedView?.groups ?? {};
   $: canonicalIssueFilters = data.workbench?.issue_filters?.available_filters ?? ['all'];
   $: availableIssueFilters = data.view === 'intake_triage' ? canonicalIssueFilters : ['all'];
-  $: filteredItems =
+  $: filteredItems = (
     data.view === 'intake_triage' && selectedIssueFilter !== 'all'
       ? issueGroups?.[selectedIssueFilter] ?? []
-      : selectedView?.items ?? [];
+      : selectedView?.items ?? []
+  ) as FactReviewViewItem[];
   $: reopenNavigation = data.workbench?.reopen_navigation ?? null;
-  $: selectedFact =
-    (data.workbench?.facts ?? []).find((row: any) => row.fact_id === selectedFactId) ??
+  $: selectedFact = (
+    (data.workbench?.facts ?? []).find((row) => row.fact_id === selectedFactId) ??
     (data.workbench?.facts ?? [])[0] ??
-    null;
-  $: selectedClassification =
-    (selectedFact?.inspector_classification as any) ??
+    null
+  ) as FactReviewFact | null;
+  $: selectedClassification = (
+    (selectedFact?.inspector_classification as FactReviewInspectorClassification | undefined) ??
     data.workbench?.inspector_classification?.facts?.[selectedFact?.fact_id ?? ''] ??
-    null;
-  $: selectedStatements = (data.workbench?.statements ?? []).filter((row: any) =>
+    null
+  ) as FactReviewInspectorClassification | null;
+  $: selectedStatements = (data.workbench?.statements ?? []).filter((row) =>
     selectedFact?.statement_ids?.includes(row.statement_id)
-  );
-  $: selectedExcerpts = (data.workbench?.excerpts ?? []).filter((row: any) =>
+  ) as FactReviewStatement[];
+  $: selectedExcerpts = (data.workbench?.excerpts ?? []).filter((row) =>
     selectedFact?.excerpt_ids?.includes(row.excerpt_id)
-  );
-  $: selectedEvents = (data.workbench?.events ?? []).filter((row: any) =>
+  ) as FactReviewExcerpt[];
+  $: selectedEvents = (data.workbench?.events ?? []).filter((row) =>
     selectedFact?.event_ids?.includes(row.event_id)
-  );
+  ) as FactReviewEvent[];
 
   function hrefForView(key: string): string {
     const params = new URLSearchParams();
@@ -64,7 +71,7 @@
     return `/graphs/fact-review?${params.toString()}`;
   }
 
-  function hrefForSource(source: any): string {
+  function hrefForSource(source: FactReviewSourceRow): string {
     const params = new URLSearchParams();
     const workflowKind = source?.latest_workflow_link?.workflow_kind ?? source?.workflow_kind ?? data.workflowKind;
     const workflowRunId = source?.latest_workflow_link?.workflow_run_id ?? source?.workflow_run_id ?? null;

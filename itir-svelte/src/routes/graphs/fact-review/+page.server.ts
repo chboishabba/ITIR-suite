@@ -1,6 +1,7 @@
+import type { PageServerLoad } from './$types';
 import { loadFactReviewAcceptance, loadFactReviewWorkbench, listFactReviewSources } from '$lib/server/factReview';
 
-export async function load({ url }: { url: URL }) {
+export const load: PageServerLoad = async ({ url }) => {
   const workflowKind = (url.searchParams.get('workflow') || 'transcript_semantic').trim();
   const workflowRunId = (url.searchParams.get('workflowRunId') || '').trim() || null;
   const sourceLabel = (url.searchParams.get('sourceLabel') || '').trim() || null;
@@ -50,4 +51,4 @@ export async function load({ url }: { url: URL }) {
       error: error instanceof Error ? error.message : String(error)
     };
   }
-}
+};
