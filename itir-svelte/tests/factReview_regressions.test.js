@@ -90,6 +90,21 @@ test('fact review CLI parser accepts the real Mary wave1 demo bundle payloads', 
   assert.equal(bundle.selector.workflow_run_id, 'transcript_acceptance_real_intake_v1');
 });
 
+test('fact review CLI parser accepts the real Mary AU wave1 demo bundle payloads', () => {
+  const bundlePayload = read('tests/fixtures/fact_review_wave1_real_au_demo_bundle.json');
+  const bundle = JSON.parse(bundlePayload);
+  const workbench = parseFactReviewCliPayload(bundlePayload, 'workbench');
+  const acceptance = parseFactReviewCliPayload(bundlePayload, 'acceptance');
+  const sources = parseFactReviewCliPayload(bundlePayload, 'sources');
+
+  assert.equal(workbench.run.run_id, 'factrun:1de59c55e079ea96c0b1a4ad7f0df5635d37d963ce6b07d43a407bb442d0f6c5');
+  assert.equal(acceptance.wave, 'wave1_legal');
+  assert.equal(sources[1].source_label, 'wave1:real_au_procedural_v1');
+  assert.equal(bundle.selector.workflow_kind, 'au_semantic');
+  assert.equal(bundle.selector.fixture_kind, 'real');
+  assert.equal(bundle.selector.workflow_run_id, 'run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d');
+});
+
 test('fact review real demo bundle preserves the persisted Mary selector and contract shape', () => {
   const bundle = readJson('tests/fixtures/fact_review_wave1_real_demo_bundle.json');
 
@@ -193,6 +208,81 @@ test('SL-US-12 through SL-US-14 keep procedural posture visible from the real tr
       ['later_annotation', false],
     ]
   );
+});
+
+test('real AU demo bundle preserves the persisted Mary selector and contract shape', () => {
+  const bundle = readJson('tests/fixtures/fact_review_wave1_real_au_demo_bundle.json');
+
+  assert.equal(bundle.selector.workflow_kind, bundle.workbench.reopen_navigation.query.workflow_kind);
+  assert.equal(bundle.selector.workflow_run_id, bundle.workbench.reopen_navigation.query.workflow_run_id);
+  assert.equal(bundle.selector.source_label, bundle.workbench.reopen_navigation.query.source_label);
+  assert.ok(Array.isArray(bundle.workbench.issue_filters.available_filters));
+  assert.ok(Array.isArray(bundle.workbench.operator_views.procedural_posture.items));
+  assert.ok(Array.isArray(bundle.sources));
+});
+
+test('SL-US-12 AU real-path bundle keeps procedural posture and assertion-outcome distinction explicit', () => {
+  const bundle = readJson('tests/fixtures/fact_review_wave1_real_au_demo_bundle.json');
+  const proceduralItems = bundle.workbench.operator_views.procedural_posture.items;
+  const appealFact = resolveSelectedFact(bundle.workbench, 'fact:44e3b170c347a29b');
+  const ordersFact = resolveSelectedFact(bundle.workbench, 'fact:9d43035cc83c0c08');
+  const appealStatuses = resolveInspectorStatusRows(resolveInspectorClassification(bundle.workbench, appealFact));
+  const ordersStatuses = resolveInspectorStatusRows(resolveInspectorClassification(bundle.workbench, ordersFact));
+
+  assert.equal(proceduralItems.length, 3);
+  assert.ok(proceduralItems.some((row) => row.fact_id === 'fact:44e3b170c347a29b'));
+  assert.ok(proceduralItems.some((row) => row.fact_id === 'fact:9d43035cc83c0c08'));
+  assert.deepEqual(
+    appealStatuses.map((row) => [row.key, row.active]),
+    [
+      ['party_assertion', true],
+      ['procedural_outcome', true],
+      ['later_annotation', false],
+    ]
+  );
+  assert.deepEqual(
+    ordersStatuses.map((row) => [row.key, row.active]),
+    [
+      ['party_assertion', false],
+      ['procedural_outcome', true],
+      ['later_annotation', false],
+    ]
+  );
+});
+
+test('SL-US-13 AU real-path bundle keeps chronology and contested-item reading flow explicit', () => {
+  const bundle = readJson('tests/fixtures/fact_review_wave1_real_au_demo_bundle.json');
+  const chronology = resolveChronologyBuckets(bundle.workbench);
+  const noEventFacts = bundle.workbench.chronology_groups.facts_with_no_event;
+  const contestedItems = bundle.workbench.operator_views.contested_items.items;
+
+  assert.equal(chronology.dated.length, 0);
+  assert.equal(chronology.approximate.length, 2);
+  assert.equal(chronology.undated.length, 0);
+  assert.equal(chronology.contested.length, 1);
+  assert.equal(chronology.contested[0].fact_id, 'fact:44e3b170c347a29b');
+  assert.equal(noEventFacts.length, 1);
+  assert.equal(noEventFacts[0].fact_id, 'fact:9d43035cc83c0c08');
+  assert.equal(contestedItems.length, 1);
+  assert.equal(contestedItems[0].fact_id, 'fact:44e3b170c347a29b');
+});
+
+test('SL-US-14 AU real-path bundle keeps reopen and read-only procedural reconstruction anchored to the persisted selector', () => {
+  const bundle = readJson('tests/fixtures/fact_review_wave1_real_au_demo_bundle.json');
+  const sourceRows = resolveFactReviewSourceRows(bundle.workbench, bundle.sources);
+  const currentHref = buildFactReviewCurrentHref(bundle.workbench, {
+    workflowKind: bundle.selector.workflow_kind,
+    wave: bundle.selector.wave,
+    view: 'procedural_posture',
+  });
+
+  assert.equal(sourceRows.length, 2);
+  assert.equal(sourceRows[1].source_label, 'wave1:real_au_procedural_v1');
+  assert.equal(
+    currentHref,
+    '/graphs/fact-review?workflow=au_semantic&workflowRunId=run%3A5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d&sourceLabel=wave1%3Areal_au_procedural_v1&wave=wave1_legal&view=procedural_posture'
+  );
+  assert.ok(bundle.acceptance.stories.some((story) => story.story_id === 'SL-US-14'));
 });
 
 test('fact review helpers prefer recent reopen rows and fall back to listed sources', () => {

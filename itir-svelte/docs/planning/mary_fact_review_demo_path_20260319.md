@@ -49,10 +49,30 @@ Primary Mary baseline:
 - `transcript_semantic`
 - `transcript_acceptance_real_intake_v1`
 
-Next widening target:
+AU/legal widening baseline:
 
 - `wave1:real_au_procedural_v1`
 - `au_semantic`
+- `run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d`
+
+AU capture command:
+
+```bash
+cd /home/c/Documents/code/ITIR-suite
+python3 SensibLaw/scripts/query_fact_review.py \
+  --db-path .cache_local/itir.sqlite \
+  demo-bundle \
+  --workflow-kind au_semantic \
+  --workflow-run-id run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d \
+  --wave wave1_legal \
+  --fixture-kind real
+```
+
+Current widening status:
+
+- transcript real-path parity is locked for `SL-US-09` to `SL-US-11`
+- AU real-path parity is locked for `SL-US-12` to `SL-US-14`
+- next widening target is trauma/handoff real-path proof
 
 ## Contract stance
 

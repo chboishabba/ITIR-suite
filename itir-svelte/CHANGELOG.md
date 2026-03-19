@@ -23,6 +23,12 @@ This changelog records user-visible behavior changes in the Svelte SB dashboard 
   `transcript_acceptance_real_intake_v1`), and the route regressions now map
   directly to the Mary wave-1 operator stories instead of only checking
   fixture/bundle shape.
+- Graphs/fact review: widened the same real-path Mary proof to the AU/legal
+  baseline exported through `demo-bundle`
+  (`wave1:real_au_procedural_v1` /
+  `run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d`),
+  so `SL-US-12`, `SL-US-13`, and `SL-US-14` now validate against a real
+  persisted AU bundle rather than transcript-only or synthetic coverage.
 - Graphs/timeline ribbon: add `/graphs/timeline-ribbon` as a dedicated
   workbench over the SB dashboard timeline payload and upgrade the dashboard
   ribbon strip to a contract-aware conserved-allocation surface. The first

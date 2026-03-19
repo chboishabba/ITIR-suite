@@ -88,11 +88,16 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
   - `SL-US-10` current-run reopen + recent/source-centric reopen path
   - `SL-US-11` assertion vs later-annotation visibility
   - `SL-US-12` to `SL-US-14` procedural-posture visibility from the persisted bundle
+- DONE (2026-03-20): widen the same real-path proof to AU/legal through
+  `SensibLaw/scripts/query_fact_review.py demo-bundle`:
+  - `source_label`: `wave1:real_au_procedural_v1`
+  - `workflow_kind`: `au_semantic`
+  - `workflow_run_id`: `run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d`
+  - route regressions now prove `SL-US-12`, `SL-US-13`, and `SL-US-14`
+    against a real persisted AU bundle instead of transcript-only coverage
 - Near-term priority:
   - document the exact command sequence from `demo-bundle` to
     `/graphs/fact-review` wherever Mary operator demo instructions live
-  - widen the same real-path proof to AU/legal using
-    `wave1:real_au_procedural_v1`
   - only after transcript + AU real-path parity are locked, widen to
     trauma/handoff real-path proof
 - Keep low-judgment agents focused on route-consumer coverage first:
