@@ -1,0 +1,222 @@
+{
+  "ok": true,
+  "dbPath": "/home/c/Documents/code/ITIR-suite/.cache_local/itir.sqlite",
+  "selector": {
+    "run_id": "factrun:wave1-intake",
+    "workflow_kind": "transcript_semantic",
+    "workflow_run_id": "real_transcript_intake_v1",
+    "source_label": "wave1:real_transcript_intake_v1",
+    "wave": "wave1_legal",
+    "fixture_kind": "real"
+  },
+  "workbench": {
+    "run": {
+      "run_id": "factrun:wave1-intake",
+      "source_label": "wave1:real_transcript_intake_v1",
+      "workflow_link": {
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_intake_v1"
+      },
+      "contract_version": "fact.review.workbench.v1"
+    },
+    "summary": {
+      "review_queue_count": 2,
+      "contested_item_count": 1
+    },
+    "sources": [],
+    "facts": [
+      {
+        "fact_id": "fact:injury-date",
+        "canonical_label": "Initial injury date",
+        "candidate_status": "candidate",
+        "signal_classes": [],
+        "source_signal_classes": ["user_authored"],
+        "inspector_classification": {
+          "status_keys": {
+            "party_assertion": false,
+            "procedural_outcome": false,
+            "later_annotation": false
+          },
+          "dominant_label": "unclassified",
+          "display_labels": ["unclassified"]
+        }
+      },
+      {
+        "fact_id": "fact:later-note",
+        "canonical_label": "Later note dispute",
+        "candidate_status": "candidate",
+        "signal_classes": ["party_assertion"],
+        "source_signal_classes": ["later_annotation"],
+        "inspector_classification": {
+          "status_keys": {
+            "party_assertion": true,
+            "procedural_outcome": false,
+            "later_annotation": true
+          },
+          "dominant_label": "party_assertion",
+          "display_labels": ["party assertion", "later annotation"]
+        }
+      }
+    ],
+    "events": [],
+    "statements": [],
+    "excerpts": [],
+    "review_queue": [],
+    "chronology_summary": {
+      "dated_event_count": 0,
+      "undated_event_count": 0,
+      "no_event_fact_count": 1
+    },
+    "chronology_groups": {
+      "dated_events": [],
+      "approximate_events": [],
+      "undated_events": [],
+      "contested_chronology_items": []
+    },
+    "contested_summary": {},
+    "operator_views": {
+      "intake_triage": {
+        "title": "Intake triage",
+        "groups": {
+          "missing_actor": [
+            {
+              "fact_id": "fact:later-note",
+              "label": "Later note dispute"
+            }
+          ],
+          "contradictory_chronology": [
+            {
+              "fact_id": "fact:injury-date",
+              "label": "Initial injury date"
+            }
+          ],
+          "procedural_significance": []
+        },
+        "items": [
+          {
+            "fact_id": "fact:injury-date",
+            "label": "Initial injury date"
+          },
+          {
+            "fact_id": "fact:later-note",
+            "label": "Later note dispute"
+          }
+        ]
+      }
+    },
+    "reopen_navigation": {
+      "current": {
+        "run_id": "factrun:wave1-intake",
+        "source_label": "wave1:real_transcript_intake_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_intake_v1"
+      },
+      "query": {
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_intake_v1",
+        "source_label": "wave1:real_transcript_intake_v1"
+      },
+      "recent_sources": [
+        {
+          "source_label": "wave1:real_transcript_intake_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "real_transcript_intake_v1",
+          "fact_run_id": "factrun:wave1-intake"
+        }
+      ]
+    },
+    "issue_filters": {
+      "default_filter": "all",
+      "available_filters": ["all", "missing_actor", "contradictory_chronology"],
+      "filters": [
+        {
+          "filter_key": "missing_actor",
+          "label": "Missing actor",
+          "count": 1,
+          "fact_ids": ["fact:later-note"]
+        },
+        {
+          "filter_key": "contradictory_chronology",
+          "label": "Contradictory chronology",
+          "count": 1,
+          "fact_ids": ["fact:injury-date"]
+        }
+      ],
+      "summary": {}
+    },
+    "inspector_classification": {
+      "status_order": ["party_assertion", "procedural_outcome", "later_annotation"],
+      "selected_fact_id": "fact:injury-date",
+      "facts": {
+        "fact:later-note": {
+          "status_keys": {
+            "party_assertion": false,
+            "procedural_outcome": true,
+            "later_annotation": false
+          },
+          "dominant_label": "procedural_outcome",
+          "display_labels": ["procedural outcome"]
+        }
+      }
+    },
+    "inspector_defaults": {
+      "selected_fact_id": "fact:injury-date",
+      "default_view": "intake_triage"
+    }
+  },
+  "acceptance": {
+    "version": "fact.acceptance.v1",
+    "wave": "wave1_legal",
+    "fixture_kind": "real",
+    "run": {
+      "run_id": "factrun:wave1-intake",
+      "source_label": "wave1:real_transcript_intake_v1",
+      "workflow_link": {
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_intake_v1"
+      }
+    },
+    "summary": {
+      "story_count": 1,
+      "pass_count": 1,
+      "partial_count": 0,
+      "fail_count": 0
+    },
+    "stories": [
+      {
+        "story_id": "SL-W1-01",
+        "label": "Wave-1 legal operator baseline",
+        "status": "pass",
+        "check_count": 2,
+        "passed_check_count": 2,
+        "failed_check_ids": [],
+        "gap_tags": [],
+        "blocking_explanation": null,
+        "checks": [
+          {
+            "check_id": "reopen_navigation",
+            "passed": true
+          },
+          {
+            "check_id": "inspector_distinction",
+            "passed": true
+          }
+        ]
+      }
+    ]
+  },
+  "sources": [
+    {
+      "source_id": "source:intake",
+      "source_order": 1,
+      "source_type": "context_file",
+      "source_label": "wave1:real_transcript_intake_v1",
+      "provenance": {},
+      "latest_workflow_link": {
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_intake_v1",
+        "fact_run_id": "factrun:wave1-intake"
+      }
+    }
+  ]
+}

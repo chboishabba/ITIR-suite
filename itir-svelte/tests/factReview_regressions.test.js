@@ -76,17 +76,28 @@ test('fact review page consumes typed Mary-parity helpers and page data', () => 
 });
 
 test('fact review CLI parser accepts captured workbench, acceptance, and source payloads', () => {
-  const workbenchPayload = read('tests/fixtures/fact_review_cli_workbench_response.json');
-  const acceptancePayload = read('tests/fixtures/fact_review_cli_acceptance_response.json');
-  const sourcesPayload = read('tests/fixtures/fact_review_cli_sources_response.json');
-
-  const workbench = parseFactReviewCliPayload(workbenchPayload, 'workbench');
-  const acceptance = parseFactReviewCliPayload(acceptancePayload, 'acceptance');
-  const sources = parseFactReviewCliPayload(sourcesPayload, 'sources');
+  const bundlePayload = read('tests/fixtures/fact_review_wave1_real_demo_bundle.json');
+  const bundle = JSON.parse(bundlePayload);
+  const workbench = parseFactReviewCliPayload(bundlePayload, 'workbench');
+  const acceptance = parseFactReviewCliPayload(bundlePayload, 'acceptance');
+  const sources = parseFactReviewCliPayload(bundlePayload, 'sources');
 
   assert.equal(workbench.run.run_id, 'factrun:wave1-intake');
   assert.equal(acceptance.wave, 'wave1_legal');
   assert.equal(sources[0].source_label, 'wave1:real_transcript_intake_v1');
+  assert.equal(bundle.selector.workflow_kind, 'transcript_semantic');
+  assert.equal(bundle.selector.fixture_kind, 'real');
+});
+
+test('fact review real demo bundle preserves the persisted Mary selector and contract shape', () => {
+  const bundle = readJson('tests/fixtures/fact_review_wave1_real_demo_bundle.json');
+
+  assert.equal(bundle.selector.workflow_kind, bundle.workbench.reopen_navigation.query.workflow_kind);
+  assert.equal(bundle.selector.workflow_run_id, bundle.workbench.reopen_navigation.query.workflow_run_id);
+  assert.equal(bundle.selector.source_label, bundle.workbench.reopen_navigation.query.source_label);
+  assert.ok(Array.isArray(bundle.workbench.issue_filters.available_filters));
+  assert.ok(Array.isArray(bundle.workbench.operator_views.intake_triage.items));
+  assert.ok(Array.isArray(bundle.sources));
 });
 
 test('fact review CLI error classifier distinguishes missing runs and parse failures', () => {
