@@ -16,6 +16,8 @@
   export let showAudio = true;
   export let showSearch = true;
   export let maxHeightPx = 520;
+  export let searchAriaLabel = 'Search transcript text';
+  export let manualScrubAriaLabel = 'Manual transcript scrub (seconds)';
 
   const dispatch = createEventDispatcher<{ cueSelect: TranscriptCueSelectEvent }>();
 
@@ -25,6 +27,8 @@
   let lastActiveKey = '';
   let audioEl: HTMLAudioElement | null = null;
   let cueListEl: HTMLDivElement | null = null;
+  const manualScrubId = `transcript-manual-scrub-${Math.random().toString(36).slice(2, 8)}`;
+  const transcriptSearchId = `transcript-search-${Math.random().toString(36).slice(2, 8)}`;
 
   const cueEls = new Map<string, HTMLElement>();
 
@@ -122,15 +126,16 @@
           <div class="text-xs text-ink-800/70">
             No audio source attached. Use manual time scrub to inspect cue sync behavior.
           </div>
-          <label class="sr-only">Manual transcript scrub (seconds)</label>
+          <label class="sr-only" for={manualScrubId}>{manualScrubAriaLabel}</label>
           <input
             type="range"
+            id={manualScrubId}
             class="w-full"
             min="0"
             max={Math.max(1, Math.ceil(durationSec))}
             step="0.1"
             bind:value={manualTimeSec}
-            aria-label="Manual transcript scrub (seconds)"
+            aria-label={manualScrubAriaLabel}
           />
         </div>
       {/if}
@@ -139,12 +144,13 @@
 
   {#if showSearch}
     <div class="border-b border-ink-900/10 px-4 py-2">
-      <label class="sr-only">Search transcript text</label>
+      <label class="sr-only" for={transcriptSearchId}>{searchAriaLabel}</label>
       <input
+        id={transcriptSearchId}
         class="w-full rounded-lg bg-paper-100 px-3 py-2 text-sm ring-1 ring-ink-900/10"
         bind:value={query}
         placeholder="Search transcript..."
-        aria-label="Search transcript cues"
+        aria-label={searchAriaLabel}
       />
     </div>
   {/if}

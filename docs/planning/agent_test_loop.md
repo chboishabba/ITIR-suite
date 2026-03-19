@@ -648,3 +648,10 @@ Minimum cross-surface report fields:
 - **Codex-Relay-Recall**: `openrecall` embedding dependency hardening, fallback path
   implementation, and lane docs/TODO alignment around optional sentence-transformer
 - **Antigravity-Titan**: `SensibLaw` Read-Model hardening, Wikidata/Zelph integration coverage, and `StatiBaker` observed-ingest seam verification.
+- **Codex-Aster**: `itir-svelte` graph UI regression hardening, targeted node smoke slices for changed graph pages, and quick gate reports.
+
+---
+
+### Agent Check-ins (append newest at end)
+
+- 2026-03-20 — **Codex-Aster** — `itir-svelte` graph UI a11y label regression pass (`npm test -- --test-name-pattern graph_ui_regressions`, `npm test`, `npm run check`, `npm run build`), all green.

@@ -14,10 +14,12 @@
   export let selectedId: string | null = null;
   export let showSearch = true;
   export let maxHeightPx = 420;
+  export let searchAriaLabel = 'Filter transcript and document files';
 
   const dispatch = createEventDispatcher<{ select: FolderEntry }>();
 
   let query = '';
+  const searchInputId = `folder-filter-${Math.random().toString(36).slice(2, 8)}`;
 
   function fmtSize(n: number | null | undefined): string {
     if (!Number.isFinite(Number(n))) return '';
@@ -42,12 +44,13 @@
 
 {#if showSearch}
     <div class="border-b border-ink-900/10 px-4 py-2">
-      <label class="sr-only">Filter transcript and document files</label>
+      <label class="sr-only" for={searchInputId}>{searchAriaLabel}</label>
       <input
+        id={searchInputId}
         class="w-full rounded-lg bg-paper-100 px-3 py-2 text-sm ring-1 ring-ink-900/10"
         bind:value={query}
         placeholder="Filter files/folders..."
-        aria-label="Filter files and folders"
+        aria-label={searchAriaLabel}
       />
     </div>
   {/if}
