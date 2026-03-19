@@ -52,6 +52,10 @@ channels for each core project directory in this workspace.
   awareness-only note for a future JMD/ERDFA shard-graph surface that could
   later map into Casey runtime state, fuzzymodo ranking, and StatiBaker
   receipts, without changing current Casey/fuzzymodo/SB contracts.
+- `SensibLaw/docs/planning/mary_parity_acceptance_workbench_20260315.md`:
+  Mary-parity persisted fact-review contract and the current operator/workbench
+  pressure surface, including `wave1_legal`, source-centric reopen posture, and
+  the read-only `itir-svelte` fact-review consumer route.
 - `SensibLaw/docs/wiki_revision_pack_runner_contract_v0_2.md`:
   bounded history-aware Wikipedia revision monitor contract, including
   candidate-pair scoring, section-delta targeting, and observer-only

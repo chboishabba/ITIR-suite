@@ -227,6 +227,25 @@ Local slice:
 npm test -- --test-name-pattern <pattern>
 ```
 
+Mary-parity fact-review local slices:
+
+```bash
+node --test tests/factReview_regressions.test.js
+node --test tests/graph_ui_regressions.test.js
+```
+
+When the touched surface is `/graphs/fact-review`, prefer adding or extending
+coverage for:
+
+- source-centric reopen behavior
+- canonical issue-filter usage from backend payload fields
+- inspector classification rendering/fallback order
+- chronology bucket rendering over persisted `wave1_legal`-style payloads
+
+Do not spend a low-judgment loop inventing new fact-review backend behavior in
+`itir-svelte`; treat the route as a consumer of the persisted `SensibLaw`
+contract and expand consumer-side coverage first.
+
 Project gate:
 
 ```bash
@@ -603,3 +622,6 @@ Minimum cross-surface report fields:
 - **Antigravity-Delta**: SensibLaw fact-review acceptance wave expansion, Zelph-driven semantic materialization, and cross-surface contract verification for ingest pipelines.
 - **Antigravity-Sigma**: `itir-svelte` server-adapter contract hardening, `WhisperX-WebUI` transcription-to-ingest seam quality, and root-level orchestration regression coverage.
 - **Codex-Atlas**: `openrecall` and `chat-export-structurer` seam coverage, cross-project fixture/smoke expansion, and reproducible gate-reporting for low-judgment test loop lanes.
+- **Codex-Relay**: `chat-export-structurer` parser/ingest seam coverage expansion and reproducible smoke/fixture validation for cross-project export contracts.
+- **Codex-Borealis**: `SL-reasoner` read-only boundary enforcement, output schema/disclaimer invariants, and small local regression test expansion.
+- **Codex-Kestrel**: `SL-reasoner` and `tircorder-JOBBIE` regression/smoke expansion, plus explicit `TiRC -> SensibLaw` envelope seam coverage.

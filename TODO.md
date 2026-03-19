@@ -155,8 +155,21 @@
     - DONE: tighten workbench/operator surfaces with grouped issue filters,
       source-centric reopen navigation, and dated/approximate/undated
       chronology separation
+    - DONE: tighten the `itir-svelte` fact-review route/server contract with
+      explicit Mary-consumed typing for reopen navigation, issue filters, and
+      inspector classification
     - tighten role-specific pass/partial/fail gaps exposed by the new Wave 1
       batch report before moving to claim/theory layers
+    - next immediate Mary-parity operator step:
+      - validate `/graphs/fact-review` behavior against persisted
+        `wave1_legal` runs instead of only route-string regressions
+      - add focused UI validation for:
+        - source-centric reopen chip behavior
+        - canonical issue-filter switching
+        - inspector classification rendering
+        - chronology bucket rendering
+      - treat `wave1_legal` as the hard UI/operator gate before broadening
+        more semantic families or substrate surfaces
     - explicitly add fixture families for:
       - contested Wikipedia/Wikidata/public-figure moderation
       - lawyer/public-knowledge legality assessment (including GWB and Trump

@@ -269,6 +269,20 @@
   - tightened the fact-review workbench with grouped issue filters,
     source-centric reopen links, approximate chronology visibility, and a
     clearer assertion/outcome/annotation distinction
+- 2026-03-19 Mary-parity next-step lock:
+  - next SL-facing priority is operator-surface validation over the existing
+    persisted fact-review contract, not more substrate expansion
+  - the current Mary-parity pressure is:
+    - `itir-svelte` `/graphs/fact-review` behavior against persisted
+      `wave1_legal` runs
+    - source-centric reopen behavior
+    - canonical issue-filter switching
+    - inspector classification rendering for `party_assertion`,
+      `procedural_outcome`, and `later_annotation`
+  - the fact-review route/server adapter has already been tightened to consume
+    explicit workbench fields instead of ad hoc client derivation, so the next
+    follow-through should prefer behavior-level UI validation and operator
+    polish before another semantic-family expansion
 - Completed slices:
   - workbench graph/review contract implementation in `itir-svelte`
   - P0 tokenizer/lexeme migration verification refresh with passing regression lane
