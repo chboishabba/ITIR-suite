@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +17,17 @@ from .runtime_sqlite import (
 
 def _candidate_ids_for_tree(tree) -> set[str]:
     return {fv_id for state in tree.paths.values() for fv_id in state.candidates}
+
+
+def _candidate_features(file_version) -> dict[str, Any]:
+    features: dict[str, Any] = {
+        "_version": "casey.features.v1",
+        "derived.has_lineage": file_version.base_fv_id is not None,
+        "derived.summary_present": file_version.summary is not None,
+    }
+    if file_version.summary:
+        features["derived.summary_hash"] = sha256(file_version.summary.encode("utf-8")).hexdigest()
+    return features
 
 
 def export_casey_facts(
@@ -59,6 +71,7 @@ def export_casey_facts(
                         "created_at": file_versions[fv_id].created_at,
                         "base_fv_id": file_versions[fv_id].base_fv_id,
                         "summary": file_versions[fv_id].summary,
+                        "features": _candidate_features(file_versions[fv_id]),
                     }
                     for fv_id in candidates
                 ],

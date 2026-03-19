@@ -520,6 +520,12 @@
   - `casey_workspace_v1` overlays can be ingested directly into SB dashboard DBs
   - tests cover Casey-ledger lookup and SB overlay ingestion
 - Next Casey lane:
+  - feed real SL/LCE-derived signals into the optional Casey candidate feature
+    bag so Casey -> fuzzymodo divergence reports rely less on Casey-local
+    metadata and more on shared compression/representation facts
+  - add tighter advisory acceptance tests for explanation-first gap payloads:
+    primary-axis selection, structured gap items, and suggested-action
+    stability for identical exports
   - expose the same receipt/observer controls through any future non-CLI Casey
     entrypoints so the seam does not remain CLI-only
   - add broader cross-component interface-conformance checks so Casey/fuzzymodo/SB
@@ -538,6 +544,24 @@
   awareness only per `docs/planning/jmd_itir_intended_surface_20260319.md`:
   - do not treat it as an active Casey/fuzzymodo/SB contract yet
   - wait for a pinned shard schema / concrete adapter target before code work
+- Define the JMD object graph -> SL corpus graph bridge incrementally from
+  `docs/planning/jmd_sl_corpus_bridge_contract_20260319.md`:
+  - start with read-only JMD -> SL ingest payloads and reversible anchor
+    generation only
+  - keep SL outputs limited to advisory overlays and optimisation hints until a
+    governed promotion path exists
+  - preserve three-level identity mapping explicitly:
+    JMD object id, SL anchor/group ids, and any higher-level cluster ids
+  - route competing reorganisation proposals through Casey rather than letting
+    SL or JMD auto-collapse them
+  - keep StatiBaker limited to refs/digests/receipts for this bridge, not raw
+    mutable corpus state
+  - model Rabbit/topic routing and pastebin/IPFS persistence explicitly as JMD
+    infrastructure assumptions in the first bridge ingest/overlay prototypes,
+    rather than treating ERDFA as an embedding-style side lane
+  - keep any Rust-facing bridge work at the "programmable transform layer"
+    boundary first; do not let Rust/plugin exploration silently become a
+    canonical bridge contract before the object/anchor/overlay model is proven
 - Implement cross-project channel adapters and validators per
   `docs/planning/project_interfaces.md` for:
   `SensibLaw/`, `SL-reasoner/`, `tircorder-JOBBIE/`, `StatiBaker/`,

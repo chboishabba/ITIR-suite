@@ -187,6 +187,10 @@
     return out;
   })();
   $: resultCount = filtered.length;
+  $: selectedLineAnnouncement =
+    selectedLine >= 0 && lines[selectedLine]
+      ? `Selected document line ${selectedLine + 1}: ${lines[selectedLine] ?? ''}`
+      : 'No document line selected.';
 
   function selectLine(idx: number): void {
     if (idx < 0 || idx >= lines.length) return;
@@ -212,13 +216,19 @@
 
   {#if showSearch}
     <div class="border-b border-ink-900/10 px-4 py-2">
+      <label class="sr-only">Search document text</label>
       <input
         class="w-full rounded-lg bg-paper-100 px-3 py-2 text-sm ring-1 ring-ink-900/10"
         bind:value={query}
         placeholder={placeholder}
+        aria-label="Search document text"
       />
     </div>
   {/if}
+
+  <div class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+    {selectedLineAnnouncement}
+  </div>
 
   <div class="overflow-auto px-2 py-2" style={`max-height:${Math.max(180, Math.floor(maxHeightPx))}px`}>
     {#if mode === 'markdown'}
@@ -232,6 +242,8 @@
         {#each filtered as row (row.idx)}
           <button
             type="button"
+            aria-label={`Select line ${row.idx + 1}`}
+            aria-pressed={selectedLine === row.idx}
             class={`grid w-full grid-cols-[auto_1fr] items-start gap-3 rounded-md px-2 py-1 text-left hover:bg-ink-950/[0.03] ${
               selectedLine === row.idx ? 'bg-amber-50 ring-1 ring-amber-300/50' : ''
             }`}

@@ -72,3 +72,5 @@ def test_export_casey_facts_preserves_candidate_multiplicity() -> None:
     assert len(path_entry["candidates"]) == 2
     assert path_entry["selected_fv_id"] in {c["fv_id"] for c in path_entry["candidates"]}
     assert {candidate["author"] for candidate in path_entry["candidates"]} == {"alice", "bob"}
+    assert all(candidate["features"]["_version"] == "casey.features.v1" for candidate in path_entry["candidates"])
+    assert all("derived.has_lineage" in candidate["features"] for candidate in path_entry["candidates"])

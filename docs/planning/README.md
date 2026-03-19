@@ -42,6 +42,7 @@ Cross-project SB seam note:
 
 Future external graph/task surface awareness:
 - `docs/planning/jmd_itir_intended_surface_20260319.md`
+- `docs/planning/jmd_sl_corpus_bridge_contract_20260319.md`
 
 ## Project Interface Contracts
 

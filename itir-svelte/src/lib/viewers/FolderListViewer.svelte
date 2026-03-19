@@ -40,12 +40,14 @@
     <div class="font-mono text-[10px] text-ink-800/70">entries={entries.length}</div>
   </div>
 
-  {#if showSearch}
+{#if showSearch}
     <div class="border-b border-ink-900/10 px-4 py-2">
+      <label class="sr-only">Filter transcript and document files</label>
       <input
         class="w-full rounded-lg bg-paper-100 px-3 py-2 text-sm ring-1 ring-ink-900/10"
         bind:value={query}
         placeholder="Filter files/folders..."
+        aria-label="Filter files and folders"
       />
     </div>
   {/if}
@@ -58,6 +60,8 @@
         {#each filtered as entry (entry.id)}
           <button
             type="button"
+            aria-label={`${entry.kind} ${entry.name}`}
+            aria-current={selectedId === entry.id ? 'true' : undefined}
             class={`grid w-full grid-cols-[auto_1fr_auto] items-center gap-2 rounded-md px-3 py-2 text-left ring-1 ring-ink-900/10 hover:bg-ink-950/[0.03] ${
               selectedId === entry.id ? 'bg-sky-50 ring-sky-300/50' : 'bg-white'
             }`}

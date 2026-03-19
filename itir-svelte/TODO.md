@@ -59,6 +59,18 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
   - adopt `sensiblaw.interfaces.shared_reducer` in producer/read-model paths
     where canonical lexeme/structure refs are needed, instead of re-deriving
     local tokenizer behavior in the UI layer.
+- Transcript-browser parity pass (2026-03-19):
+  - DONE: confirm `TranscriptViewer`/`/viewers/hca-case` already cover the
+    main retained Pelican transcript-browser behaviors worth porting
+    (cue parsing, seek, active cue highlighting, scroll, document-side
+    inspection)
+  - DONE: restore live accessibility cue-status parity via an `aria-live`
+    status region in `TranscriptViewer`
+  - next:
+    - decide whether the legacy matched-audio/transcript timeline shell is
+      still product-relevant enough to merit a dedicated `itir-svelte` route
+    - if yes, implement it as a Svelte workbench/consumer route rather than
+      extending Pelican/Zola
 
 ## Mary-Parity Fact Review
 

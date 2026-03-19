@@ -16,6 +16,22 @@
       to understand or port behavior into Svelte
     - eventually delete legacy web generators once needed behavior is absorbed
       into `itir-svelte/`
+- 2026-03-19 transcript-browser parity pass:
+  - source: current working turn
+  - scope:
+    - compare retained `tircorder-JOBBIE/Pelican/` transcript-browser behavior
+      against current `itir-svelte/` viewer surfaces
+  - parity finding:
+    - `itir-svelte` already covers the core reusable viewer substrate:
+      transcript cue parsing, seekable audio, cue highlighting, cue scrolling,
+      search/filtering, and document-side inspection via
+      `/viewers/hca-case`
+    - the clearest remaining parity gap in the current viewer primitive was the
+      lack of a live accessibility status echo for the active cue
+  - implementation decision:
+    - close the `aria-live` cue-status gap in `TranscriptViewer.svelte`
+    - document other legacy-only behaviors as deferred migration items instead
+      of extending Pelican/Zola
 - 2026-03-19 archived thread resolution pass:
   - resolved nine online UUIDs using `robust-context-fetch`
   - canonical source path: `~/chat_archive.sqlite`
@@ -123,9 +139,27 @@
   - documentation artifacts added:
     - `docs/planning/casey_fuzzymodo_interface_contract_20260319.md`
     - `docs/planning/casey_statiBaker_receipt_schema_20260319.md`
-  - immediate implementation priority:
+  - immediate implementation priority at the time:
     - implement Casey -> fuzzymodo as the next boundary
     - then implement the sharpened Casey -> StatiBaker receipt seam
+- 2026-03-19 Casey -> fuzzymodo advisory refinement:
+  - source: current working turn
+  - main decision:
+    - keep the Casey/fuzzymodo seam path-local and advisory-only
+    - extend `casey.facts.v1` with optional namespaced candidate feature bags
+      carrying Casey-known metadata today and future SL/LCE signals later
+    - upgrade `fuzzymodo.casey.advisory.v1` from candidate-count-only gaps to
+      explanation-first divergence summaries with:
+      - `primary_axis`
+      - structured `gap_items`
+      - `suggested_actions`
+  - implementation status:
+    - Casey export adapter now emits optional feature bags
+    - fuzzymodo Casey adapter now consumes those features when present
+    - targeted Casey/fuzzymodo CLI/export tests pass for the refined seam
+  - remaining followthrough:
+    - feed real SL/LCE-derived signals into the optional feature bag
+    - add stronger cross-component conformance checks over the advisory payload
 - 2026-03-19 JMD/ERDFA intended-surface awareness:
   - resolved via `robust-context-fetch`
   - title: `Dependency-aware task scheduling`
@@ -139,6 +173,42 @@
     - do not promote it to an active Casey/fuzzymodo/SB contract yet
   - documentation artifact added:
     - `docs/planning/jmd_itir_intended_surface_20260319.md`
+- 2026-03-19 JMD object graph -> SL corpus graph bridge framing:
+  - source: current working turn
+  - main decision:
+    - the first serious bridge is not Casey <-> JMD execution
+    - the bridge boundary is JMD canonical objects -> SL read-only corpus
+      organisation -> advisory overlays / optimisation hints back to JMD
+    - JMD remains authoritative for canonical stored objects, publication, and
+      execution/orchestration
+    - SL remains authoritative for tokenisation under a named profile, span
+      anchors, lexical groups, and organisation overlays
+    - Casey is the governed proposal surface for competing reorganisations or
+      optimisation proposals
+    - StatiBaker stores refs/digests/receipts only
+  - documentation artifact added:
+    - `docs/planning/jmd_sl_corpus_bridge_contract_20260319.md`
+  - immediate followthrough:
+    - start with read-only JMD -> SL ingest payloads and reversible anchor
+      generation
+    - defer direct executor/adapter work until object/anchor/overlay invariants
+      are clearer
+- 2026-03-19 archived thread resolution:
+  - resolved via `robust-context-fetch`
+  - title: `Full Stack Architecture`
+  - online UUID: `69bb70ca-19ac-83a0-a087-8d2416e8be07`
+  - canonical thread ID: `fe1aead0a943806609b767cf3c27e2eeef2e54f1`
+  - source used: `db` after direct UUID pull into `~/chat_archive.sqlite`
+  - main topics / decisions pulled from the thread:
+    - Rabbit is the process/queue I/O fabric rather than just a loose
+      orchestration helper
+    - pastebin/IPFS acts like the persistent shared memory/state layer
+    - ERDFA is better treated as canonical structural/shard substrate than as
+      an embedding layer
+    - Rust appears as a programmable transformation/execution layer via custom
+      driver/plugin tooling
+    - this sharpens the bridge posture: shared identity substrate first,
+      separate planning/governance/execution control planes second
 
 - 2026-03-14 whitepaper context refresh:
   - resolved archived thread via `robust-context-fetch`

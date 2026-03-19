@@ -13,11 +13,19 @@
 - Implemented the first Casey -> fuzzymodo boundary slice:
   `export_casey_facts(...)` now emits `casey.facts.v1`, and the CLI exposes it
   via `casey export --json`.
+- Refined the Casey export payload so candidate rows now carry optional
+  namespaced feature bags derived from Casey-known metadata, keeping the seam
+  ready for future SL/LCE-derived signals without revising the base export
+  version.
 - Added export-focused tests covering deterministic Casey fact export and the
   Alice/Bob divergence case.
 - Added Casey advisory rendering via `casey advise --json`, which evaluates the
   exported Casey facts through the fuzzymodo Casey adapter without transferring
   collapse authority.
+- Upgraded the Casey advisory path so the returned
+  `fuzzymodo.casey.advisory.v1` gap payload is explanation-first: path-local
+  divergence summaries now include a primary axis, structured gap items, and
+  suggested next actions instead of only candidate-count severity.
 - Added first-class Casey receipt builders for the observer-only
   Casey -> StatiBaker seam, including workspace summary refs, operation
   receipts, build receipts, and overlay emission helpers backed by the Casey

@@ -7,6 +7,10 @@ This changelog records user-visible behavior changes in the Svelte SB dashboard 
   interface going forward. Legacy `Pelican/` and `Zola/` surfaces remain
   reference-only during migration and should not receive new product-facing UI
   work.
+- Viewers/transcript parity: document the retained Pelican transcript-browser
+  migration target and add a polite live cue-status region to
+  `TranscriptViewer`, restoring the legacy class of accessibility signal
+  without reviving Pelican/Zola as active UI surfaces.
 - Graphs/fact review: tighten `/graphs/fact-review` around the explicit
   persisted Mary-parity workbench contract by typing the route/server adapter
   for reopen navigation, canonical issue filters, and inspector

@@ -32,6 +32,10 @@
   $: durationSec = derivedCues.length ? Math.max(...derivedCues.map((c) => c.endSec)) : 0;
   $: effectiveTimeSec = audioSrc ? currentTimeSec : manualTimeSec;
   $: activeCueIndex = findActiveCueIndex(derivedCues, effectiveTimeSec);
+  $: activeCue = activeCueIndex >= 0 && activeCueIndex < derivedCues.length ? derivedCues[activeCueIndex] : null;
+  $: activeCueAnnouncement = activeCue
+    ? `[${activeCue.startLabel} -> ${activeCue.endLabel}] ${activeCue.text}`
+    : 'No active transcript cue.';
   $: filteredCues = (() => {
     const q = query.trim().toLowerCase();
     if (!q) return derivedCues;
@@ -118,6 +122,7 @@
           <div class="text-xs text-ink-800/70">
             No audio source attached. Use manual time scrub to inspect cue sync behavior.
           </div>
+          <label class="sr-only">Manual transcript scrub (seconds)</label>
           <input
             type="range"
             class="w-full"
@@ -125,6 +130,7 @@
             max={Math.max(1, Math.ceil(durationSec))}
             step="0.1"
             bind:value={manualTimeSec}
+            aria-label="Manual transcript scrub (seconds)"
           />
         </div>
       {/if}
@@ -133,13 +139,19 @@
 
   {#if showSearch}
     <div class="border-b border-ink-900/10 px-4 py-2">
+      <label class="sr-only">Search transcript text</label>
       <input
         class="w-full rounded-lg bg-paper-100 px-3 py-2 text-sm ring-1 ring-ink-900/10"
         bind:value={query}
         placeholder="Search transcript..."
+        aria-label="Search transcript cues"
       />
     </div>
   {/if}
+
+  <div class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+    {activeCueAnnouncement}
+  </div>
 
   <div class="overflow-auto px-2 py-2" bind:this={cueListEl} style={`max-height:${Math.max(200, Math.floor(maxHeightPx))}px`}>
     {#if !filteredCues.length}
@@ -150,6 +162,8 @@
           {@const globalIdx = derivedCues.findIndex((c) => c.id === cue.id)}
           <button
             type="button"
+            aria-label={`Select cue ${cue.startLabel} to ${cue.endLabel}`}
+            aria-pressed={globalIdx === activeCueIndex}
             class={`w-full rounded-md px-3 py-2 text-left ring-1 ring-ink-900/10 hover:bg-ink-950/[0.03] ${
               globalIdx === activeCueIndex ? 'bg-amber-50 ring-amber-300/60' : 'bg-white'
             }`}

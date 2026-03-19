@@ -82,6 +82,16 @@
 - Priority order sharpened:
   1. implement Casey -> fuzzymodo export/advisory contract
   2. implement Casey -> StatiBaker receipt/reference seam
+- Casey -> fuzzymodo local testbed slice is now implemented and refined:
+  - `casey-git-clone` exports `casey.facts.v1` from the local runtime/CLI lane
+  - optional namespaced candidate feature bags now travel with Casey exports
+  - `fuzzymodo` consumes that export via a Casey-specific advisory adapter
+  - gap payloads are now explanation-first divergence summaries with
+    `primary_axis`, structured `gap_items`, and `suggested_actions`
+  - targeted Casey/fuzzymodo export/CLI tests pass for the refined seam
+- Next immediate followthrough after the local slice:
+  - feed real SL/LCE-derived signals into the optional Casey feature bag
+  - add broader cross-component export/advisory conformance checks
 - Added JMD/ERDFA future-surface awareness note from resolved thread
   `Dependency-aware task scheduling`
   (`69bb8ef6-e9d0-839c-a917-ae92116a02cd` ->
@@ -90,6 +100,33 @@
   - do not treat it as an active Casey/fuzzymodo/SB contract yet
   - planning note:
     `docs/planning/jmd_itir_intended_surface_20260319.md`
+- Added a broader JMD object graph -> SL corpus graph bridge contract:
+  - source: current working turn
+  - artifact:
+    `docs/planning/jmd_sl_corpus_bridge_contract_20260319.md`
+  - main decision:
+    - JMD canonical objects are the source-of-truth substrate
+    - SL provides reversible corpus organisation, anchors, overlays, and
+      optimisation hints over those objects
+    - Casey mediates competing SL-derived proposals when governed acceptance is
+      needed
+    - StatiBaker stores refs/digests/receipts, not mutable bridge state
+  - immediate bridge staging:
+    - Phase 1: read-only ingest + anchor generation
+    - Phase 2: equivalence clusters + divergence overlays
+    - Phase 3: optimisation hints
+- Resolved archived thread `Full Stack Architecture`
+  (`69bb70ca-19ac-83a0-a087-8d2416e8be07` ->
+  `fe1aead0a943806609b767cf3c27e2eeef2e54f1`) after direct UUID pull into the
+  canonical DB:
+  - source used: `db`
+  - Rabbit is the process/queue I/O fabric
+  - pastebin/IPFS acts like persistent shared memory/state
+  - ERDFA is better treated as structural/shard substrate than as an embedding
+    layer
+  - Rust plugin/driver tooling behaves like a programmable transformation layer
+  - this reinforces the current bridge framing: identity substrate first,
+    control-plane split second
 
 ## 2026-03-06
 - Aligned priority execution sequencing for lexeme layer, tokenizer migration,

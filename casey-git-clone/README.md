@@ -83,9 +83,11 @@ python -m casey_git_clone publish --db /tmp/casey.sqlite --workspace alice --pat
 - Output channel: tree/workspace state snapshots for UI or CLI tooling.
 - Output channel: build-view manifest for deterministic replay/debug.
 - Output channel: `casey.facts.v1` read-only export for Casey -> fuzzymodo
-  advisory evaluation.
+  advisory evaluation, including optional namespaced candidate feature bags.
 - Output channel: `fuzzymodo.casey.advisory.v1` rendered back through Casey
-  CLI without granting collapse authority to fuzzymodo.
+  CLI without granting collapse authority to fuzzymodo; current path-level gaps
+  are explanation-first divergence summaries rather than candidate-count-only
+  severity stubs.
 - Output channel: Casey observer bundles plus optional direct SB ingest for
   `casey_workspace_v1` overlays, backed by Casey-owned ledgers and bounded
   workspace/operation/build refs only.

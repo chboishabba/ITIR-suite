@@ -89,7 +89,12 @@ candidate-state payload.
           "author": "alice",
           "created_at": "2026-03-19T10:00:00+00:00",
           "base_fv_id": "fv-base",
-          "summary": null
+          "summary": null,
+          "features": {
+            "_version": "casey.features.v1",
+            "derived.has_lineage": true,
+            "derived.summary_present": false
+          }
         },
         {
           "fv_id": "fv-b",
@@ -97,7 +102,12 @@ candidate-state payload.
           "author": "bob",
           "created_at": "2026-03-19T10:01:00+00:00",
           "base_fv_id": "fv-base",
-          "summary": null
+          "summary": null,
+          "features": {
+            "_version": "casey.features.v1",
+            "derived.has_lineage": true,
+            "derived.summary_present": false
+          }
         }
       ]
     }
@@ -116,6 +126,8 @@ candidate-state payload.
 - expose selected candidate separately from candidate membership
 - support optional build context when reasoning is scoped to an existing frozen
   build
+- allow optional namespaced candidate feature bags so future SL/LCE-derived
+  signals can travel through the seam without revising the base export version
 
 ### Forbidden semantics
 - raw blob bytes in the core reasoning export
@@ -148,7 +160,24 @@ candidate-state payload.
       "gap": {
         "gap_kind": "candidate_divergence",
         "severity": "medium",
-        "explanation": "two viable candidates remain unresolved"
+        "explanation": "candidates diverge primarily through provenance differences",
+        "primary_axis": "author",
+        "gap_items": [
+          {
+            "kind": "unresolved_multiplicity",
+            "detail": "2 viable candidates remain live for this path",
+            "candidate_count": 2
+          },
+          {
+            "kind": "author_divergence",
+            "detail": "candidate provenance spans multiple authors",
+            "authors": ["alice", "bob"]
+          }
+        ],
+        "suggested_actions": [
+          "keep candidates live until the divergence is resolved",
+          "inspect author-origin differences before collapse"
+        ]
       }
     }
   ],
@@ -161,6 +190,8 @@ candidate-state payload.
 - explicit path scoping
 - explicit gap payload, even if gap is `none`
 - deterministic output for same selector + same Casey export
+- prefer explanation-first divergence summaries over candidate-count-only gap
+  reporting
 
 ### Forbidden semantics
 - mutation commands
@@ -172,17 +203,20 @@ candidate-state payload.
   - deterministic model/operation primitives
   - Casey-owned local runtime store
   - local CLI testbed over init/workspace/publish/sync/collapse/build
-- `casey-git-clone` does not yet implement the Casey -> fuzzymodo export
-  adapter defined here.
+  - read-only `casey.facts.v1` export over runtime/tree/workspace/build state
+  - optional candidate feature-bag emission from Casey-known metadata
 - `fuzzymodo` currently implements:
   - selector evaluation primitives
   - hashing/canonicalization
   - speculation/retirement helpers
-- `fuzzymodo` does not yet implement the Casey-specific advisory adapter or the
-  richer per-path ranking/gap return payload defined here.
+  - Casey-specific advisory adapter consuming `casey.facts.v1`
+  - deterministic path-local rankings with explanation-first gap payloads
+- remaining gap:
+  - real SL/LCE-derived feature ingress is still optional/stubbed rather than a
+    mature upstream producer surface
 
 ## Decision
-The contract is confirmed at the documentation level.
+The contract is confirmed and implemented as a local Casey/fuzzymodo seam.
 
 What is confirmed:
 - the seam is read-only from Casey to fuzzymodo
@@ -191,6 +225,7 @@ What is confirmed:
 - Casey retains collapse/build authority
 
 What remains to implement:
-- Casey export adapter over runtime/tree/workspace/build state
-- fuzzymodo Casey-evaluation adapter consuming that export
-- end-to-end tests for export -> advisory result over the minimal Casey testbed
+- richer SL/LCE-derived feature producers feeding the optional Casey feature bag
+- broader cross-component conformance checks over export/advisory payload shape
+- any future non-CLI Casey entrypoints should expose the same export/advisory
+  controls without changing the authority split

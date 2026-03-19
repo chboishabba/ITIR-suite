@@ -30,6 +30,8 @@ Use these as the current docs baseline for SB legacy -> Svelte transition:
   `docs/planning/itir_svelte_tool_use_parser_display_contract_20260211.md`
 - Chat archive pull/ingest benchmark + runbook (canonical DB workflow):
   `docs/planning/chat_archive_pull_ingest_results_20260213.md`
+- Legacy transcript-browser parity pass:
+  `docs/planning/itir_svelte_transcript_browser_parity_20260319.md`
 
 ## Dev
 
@@ -173,6 +175,12 @@ Why the term matters:
 - it separates exploratory/debug UI from parity/dashboard UI
 - it gives us one stable label for routes that are intentionally more “lab
   bench” than “finished report”
+
+Transcript-browser migration note:
+- treat `/viewers/hca-case` plus the shared viewer primitives as the current
+  migration target for retained transcript-browser behavior from legacy
+  `Pelican/`
+- do not add new product-facing transcript UI work to Pelican/Zola
 
 ## Semantic Report Debug Surface
 

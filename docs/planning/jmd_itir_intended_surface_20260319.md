@@ -10,6 +10,18 @@ and the current ITIR stack without promoting it to an active repo contract.
 - online UUID: `69bb8ef6-e9d0-839c-a917-ae92116a02cd`
 - canonical thread ID: `2a13394ff8c932629d42aed76bb07f049eede036`
 - source used: `db` after pulling the online UUID into `~/chat_archive.sqlite`
+- related archived thread:
+  - title: `Full Stack Architecture`
+  - online UUID: `69bb70ca-19ac-83a0-a087-8d2416e8be07`
+  - canonical thread ID: `fe1aead0a943806609b767cf3c27e2eeef2e54f1`
+  - source used: `db` after direct UUID pull into `~/chat_archive.sqlite`
+  - main relevance:
+    - Rabbit is described as the process/queue I/O fabric
+    - pastebin/IPFS behaves like persistent shared memory/state
+    - ERDFA is better treated as canonical structural/shard substrate than as
+      an embedding layer
+    - Rust appears as a programmable transform/execution layer via custom rust
+      driver/plugin tooling
 
 ## Intended surface only
 This note is awareness/documentation only.

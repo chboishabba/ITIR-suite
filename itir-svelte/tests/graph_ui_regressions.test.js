@@ -195,6 +195,42 @@ test('arguments workbench anchors only matched spans and does not fan out by fam
   assert.ok(!loader.includes('end: Math.min(haystack.length, Math.max(32'));
 });
 
+test('TranscriptViewer exposes a polite live region for the active cue', () => {
+  const s = read('src/lib/viewers/TranscriptViewer.svelte');
+  assert.ok(s.includes('aria-live="polite"'));
+  assert.ok(s.includes('role="status"'));
+  assert.ok(s.includes('activeCueAnnouncement'));
+  assert.ok(s.includes('No active transcript cue.'));
+  assert.ok(s.includes('aria-label="Search transcript cues"'));
+  assert.ok(s.includes('aria-label="Manual transcript scrub (seconds)"'));
+  assert.ok(s.includes('aria-pressed={globalIdx === activeCueIndex}'));
+  assert.ok(s.includes('aria-label={`Select cue'));
+});
+
+test('DocumentViewer exposes labeled search and line-selection announcement state', () => {
+  const s = read('src/lib/viewers/DocumentViewer.svelte');
+  assert.ok(s.includes('aria-label="Search document text"'));
+  assert.ok(s.includes('selectedLineAnnouncement'));
+  assert.ok(s.includes('role="status"'));
+  assert.ok(s.includes('aria-label={`Select line'));
+  assert.ok(s.includes('aria-pressed={selectedLine === row.idx}'));
+});
+
+test('FolderListViewer exposes labeled filter and selected entry state', () => {
+  const s = read('src/lib/viewers/FolderListViewer.svelte');
+  assert.ok(s.includes('aria-label="Filter files and folders"'));
+  assert.ok(s.includes('aria-label={`${entry.kind} ${entry.name}`'));
+  assert.ok(s.includes("aria-current={selectedId === entry.id ? 'true' : undefined}"));
+});
+
+test('HCA viewbench keeps transcript/document viewer components wired together', () => {
+  const page = read('src/routes/viewers/hca-case/+page.svelte');
+  assert.ok(page.includes('TranscriptViewer'));
+  assert.ok(page.includes('DocumentViewer'));
+  assert.ok(page.includes('FolderListViewer'));
+  assert.ok(page.includes('selectionState'));
+});
+
 test('chat tool renderer handles request_user_input as structured questions', () => {
   const parse = read('src/lib/chat/parseToolCall.ts');
   const block = read('src/lib/chat/ToolCallBlock.svelte');
