@@ -3,6 +3,11 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Graphs/fact review: tighten `/graphs/fact-review` around the explicit
+  persisted Mary-parity workbench contract by typing the route/server adapter
+  for reopen navigation, canonical issue filters, and inspector
+  classification, and add focused regressions for source-centric reopen,
+  canonical filter selection, and inspector fallback behavior.
 - Graphs/timeline ribbon: add `/graphs/timeline-ribbon` as a dedicated
   workbench over the SB dashboard timeline payload and upgrade the dashboard
   ribbon strip to a contract-aware conserved-allocation surface. The first

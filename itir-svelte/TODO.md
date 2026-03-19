@@ -52,6 +52,22 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
     where canonical lexeme/structure refs are needed, instead of re-deriving
     local tokenizer behavior in the UI layer.
 
+## Mary-Parity Fact Review
+
+- Keep `/graphs/fact-review` as a read-only consumer of the persisted
+  `SensibLaw` fact-review workbench/acceptance contract.
+- Near-term priority:
+  - validate the route against persisted `wave1_legal` runs rather than only
+    string-level route regressions
+  - expand focused route coverage for:
+    - source-centric reopen chip behavior
+    - canonical issue-filter switching from backend-provided fields
+    - inspector classification rendering / fallback order
+    - chronology bucket rendering
+- Keep low-judgment agents focused on route-consumer coverage first:
+  - do not invent new fact-review backend semantics in Svelte
+  - prefer seam tests over speculative UI refactors
+
 ## Chat Threads
 
 - DONE (2026-02-11): add a source selector (multi-toggle) in Chat Threads so
