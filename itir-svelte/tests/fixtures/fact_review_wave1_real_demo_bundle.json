@@ -2,153 +2,345 @@
   "ok": true,
   "dbPath": "/home/c/Documents/code/ITIR-suite/.cache_local/itir.sqlite",
   "selector": {
-    "run_id": "factrun:wave1-intake",
+    "run_id": "factrun:e82b0742b88f1839f1b359d53f0ffa60dd1764bb5e33a98b43e2ad392892554b",
     "workflow_kind": "transcript_semantic",
-    "workflow_run_id": "real_transcript_intake_v1",
+    "workflow_run_id": "transcript_acceptance_real_intake_v1",
     "source_label": "wave1:real_transcript_intake_v1",
     "wave": "wave1_legal",
     "fixture_kind": "real"
   },
   "workbench": {
     "run": {
-      "run_id": "factrun:wave1-intake",
+      "run_id": "factrun:e82b0742b88f1839f1b359d53f0ffa60dd1764bb5e33a98b43e2ad392892554b",
       "source_label": "wave1:real_transcript_intake_v1",
       "workflow_link": {
         "workflow_kind": "transcript_semantic",
-        "workflow_run_id": "real_transcript_intake_v1"
+        "workflow_run_id": "transcript_acceptance_real_intake_v1",
+        "fact_run_id": "factrun:e82b0742b88f1839f1b359d53f0ffa60dd1764bb5e33a98b43e2ad392892554b"
       },
-      "contract_version": "fact.review.workbench.v1"
+      "contract_version": "fact.intake.bundle.v1"
     },
     "summary": {
-      "review_queue_count": 2,
-      "contested_item_count": 1
+      "review_queue_count": 3,
+      "contested_item_count": 1,
+      "missing_actor_review_queue_count": 1,
+      "missing_date_review_queue_count": 2,
+      "policy_review_required_count": 3,
+      "chronology_impacted_review_queue_count": 1
     },
-    "sources": [],
     "facts": [
       {
-        "fact_id": "fact:injury-date",
-        "canonical_label": "Initial injury date",
+        "fact_id": "fact:548917ce2a38675e",
+        "canonical_label": "Police visit timing",
         "candidate_status": "candidate",
-        "signal_classes": [],
-        "source_signal_classes": ["user_authored"],
-        "inspector_classification": {
-          "status_keys": {
-            "party_assertion": false,
-            "procedural_outcome": false,
-            "later_annotation": false
-          },
-          "dominant_label": "unclassified",
-          "display_labels": ["unclassified"]
-        }
-      },
-      {
-        "fact_id": "fact:later-note",
-        "canonical_label": "Later note dispute",
-        "candidate_status": "candidate",
-        "signal_classes": ["party_assertion"],
-        "source_signal_classes": ["later_annotation"],
+        "signal_classes": ["party_assertion", "sequence_signal"],
+        "source_signal_classes": ["party_material"],
+        "statement_roles": ["transcript_statement"],
+        "source_types": ["interview_note"],
         "inspector_classification": {
           "status_keys": {
             "party_assertion": true,
             "procedural_outcome": false,
-            "later_annotation": true
+            "later_annotation": false
           },
           "dominant_label": "party_assertion",
-          "display_labels": ["party assertion", "later annotation"]
+          "display_labels": ["party assertion"]
+        }
+      },
+      {
+        "fact_id": "fact:66bb2f25f2473baf",
+        "canonical_label": "Hospital summary note",
+        "candidate_status": "no_fact",
+        "signal_classes": ["handoff_context_signal", "sequence_signal"],
+        "source_signal_classes": ["later_annotation"],
+        "statement_roles": ["transcript_statement"],
+        "source_types": ["annotation_note"],
+        "inspector_classification": {
+          "status_keys": {
+            "party_assertion": false,
+            "procedural_outcome": false,
+            "later_annotation": true
+          },
+          "dominant_label": "later_annotation",
+          "display_labels": ["later annotation"]
+        }
+      },
+      {
+        "fact_id": "fact:847888989678a140",
+        "canonical_label": "Brother arrival timing",
+        "candidate_status": "candidate",
+        "signal_classes": [],
+        "source_signal_classes": ["procedural_record"],
+        "statement_roles": ["transcript_statement"],
+        "source_types": ["transcript_file"],
+        "inspector_classification": {
+          "status_keys": {
+            "party_assertion": false,
+            "procedural_outcome": true,
+            "later_annotation": false
+          },
+          "dominant_label": "procedural_outcome",
+          "display_labels": ["procedural outcome"]
         }
       }
     ],
     "events": [],
     "statements": [],
     "excerpts": [],
-    "review_queue": [],
+    "review_queue": [
+      {
+        "fact_id": "fact:548917ce2a38675e",
+        "label": "Police visit timing",
+        "candidate_status": "candidate",
+        "latest_review_status": "needs_followup",
+        "reason_labels": [
+          "Contested",
+          "Review requires follow-up",
+          "No assembled event",
+          "Statement-only fact",
+          "Procedural significance",
+          "Contradictory chronology"
+        ],
+        "source_signal_classes": ["party_material"],
+        "signal_classes": ["party_assertion", "sequence_signal"],
+        "contestation_count": 1
+      },
+      {
+        "fact_id": "fact:847888989678a140",
+        "label": "Brother arrival timing",
+        "candidate_status": "candidate",
+        "latest_review_status": null,
+        "reason_labels": [
+          "Unreviewed",
+          "No assembled event",
+          "Chronology is undated",
+          "Missing date",
+          "Statement-only fact",
+          "Procedural significance"
+        ],
+        "source_signal_classes": ["procedural_record"],
+        "signal_classes": [],
+        "contestation_count": 0
+      },
+      {
+        "fact_id": "fact:66bb2f25f2473baf",
+        "label": "Hospital summary note",
+        "candidate_status": "no_fact",
+        "latest_review_status": null,
+        "reason_labels": [
+          "Unreviewed",
+          "No assembled event",
+          "Chronology is undated",
+          "Missing actor",
+          "Missing date",
+          "Statement-only fact"
+        ],
+        "source_signal_classes": ["later_annotation"],
+        "signal_classes": ["handoff_context_signal", "sequence_signal"],
+        "contestation_count": 0
+      }
+    ],
     "chronology_summary": {
       "dated_event_count": 0,
       "undated_event_count": 0,
-      "no_event_fact_count": 1
+      "no_event_fact_count": 3,
+      "dated_fact_count": 1,
+      "undated_fact_count": 2,
+      "contested_chronology_item_count": 1
     },
     "chronology_groups": {
       "dated_events": [],
       "approximate_events": [],
       "undated_events": [],
-      "contested_chronology_items": []
+      "facts_with_no_event": [
+        {
+          "fact_id": "fact:548917ce2a38675e",
+          "label": "Police visit timing",
+          "candidate_status": "candidate"
+        },
+        {
+          "fact_id": "fact:66bb2f25f2473baf",
+          "label": "Hospital summary note",
+          "candidate_status": "no_fact"
+        },
+        {
+          "fact_id": "fact:847888989678a140",
+          "label": "Brother arrival timing",
+          "candidate_status": "candidate"
+        }
+      ],
+      "contested_chronology_items": [
+        {
+          "fact_id": "fact:548917ce2a38675e",
+          "label": "Police visit timing",
+          "contestation_count": 1
+        }
+      ]
     },
-    "contested_summary": {},
+    "contested_summary": {
+      "count": 1
+    },
     "operator_views": {
       "intake_triage": {
         "title": "Intake triage",
         "groups": {
           "missing_actor": [
             {
-              "fact_id": "fact:later-note",
-              "label": "Later note dispute"
+              "fact_id": "fact:66bb2f25f2473baf",
+              "label": "Hospital summary note"
             }
           ],
           "contradictory_chronology": [
             {
-              "fact_id": "fact:injury-date",
-              "label": "Initial injury date"
+              "fact_id": "fact:548917ce2a38675e",
+              "label": "Police visit timing"
             }
           ],
-          "procedural_significance": []
+          "procedural_significance": [
+            {
+              "fact_id": "fact:548917ce2a38675e",
+              "label": "Police visit timing"
+            },
+            {
+              "fact_id": "fact:847888989678a140",
+              "label": "Brother arrival timing"
+            }
+          ]
         },
         "items": [
           {
-            "fact_id": "fact:injury-date",
-            "label": "Initial injury date"
+            "fact_id": "fact:548917ce2a38675e",
+            "label": "Police visit timing"
           },
           {
-            "fact_id": "fact:later-note",
-            "label": "Later note dispute"
+            "fact_id": "fact:847888989678a140",
+            "label": "Brother arrival timing"
+          },
+          {
+            "fact_id": "fact:66bb2f25f2473baf",
+            "label": "Hospital summary note"
+          }
+        ]
+      },
+      "chronology_prep": {
+        "title": "Chronology prep",
+        "groups": {
+          "dated_events": [],
+          "approximate_events": [],
+          "undated_events": [],
+          "contested_chronology_items": [
+            {
+              "fact_id": "fact:548917ce2a38675e",
+              "label": "Police visit timing"
+            }
+          ]
+        }
+      },
+      "procedural_posture": {
+        "title": "Procedural posture",
+        "items": [
+          {
+            "fact_id": "fact:548917ce2a38675e",
+            "label": "Police visit timing"
+          },
+          {
+            "fact_id": "fact:847888989678a140",
+            "label": "Brother arrival timing"
+          }
+        ]
+      },
+      "contested_items": {
+        "title": "Contested items",
+        "items": [
+          {
+            "fact_id": "fact:548917ce2a38675e",
+            "label": "Police visit timing",
+            "contestation_count": 1
           }
         ]
       }
     },
     "reopen_navigation": {
       "current": {
-        "run_id": "factrun:wave1-intake",
+        "run_id": "factrun:e82b0742b88f1839f1b359d53f0ffa60dd1764bb5e33a98b43e2ad392892554b",
         "source_label": "wave1:real_transcript_intake_v1",
         "workflow_kind": "transcript_semantic",
-        "workflow_run_id": "real_transcript_intake_v1"
+        "workflow_run_id": "transcript_acceptance_real_intake_v1"
       },
       "query": {
         "workflow_kind": "transcript_semantic",
-        "workflow_run_id": "real_transcript_intake_v1",
+        "workflow_run_id": "transcript_acceptance_real_intake_v1",
         "source_label": "wave1:real_transcript_intake_v1"
       },
       "recent_sources": [
         {
+          "source_label": "wave1:synthetic_sparse_dates_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_sparse_dates_v1",
+          "fact_run_id": "factrun:15dd326a477fd2237d75b817b671fc0f29f756757bec52c54d306498771e530b"
+        },
+        {
+          "source_label": "wave1:synthetic_conflict_cluster_v1",
+          "workflow_kind": "transcript_semantic",
+          "workflow_run_id": "synthetic_conflict_cluster_v1",
+          "fact_run_id": "factrun:2853fd77df087011195190b7c6de66f0e148a60301a4326a08acc9d97550132f"
+        },
+        {
           "source_label": "wave1:real_transcript_intake_v1",
           "workflow_kind": "transcript_semantic",
-          "workflow_run_id": "real_transcript_intake_v1",
-          "fact_run_id": "factrun:wave1-intake"
+          "workflow_run_id": "transcript_acceptance_real_intake_v1",
+          "fact_run_id": "factrun:e82b0742b88f1839f1b359d53f0ffa60dd1764bb5e33a98b43e2ad392892554b"
         }
       ]
     },
     "issue_filters": {
       "default_filter": "all",
-      "available_filters": ["all", "missing_actor", "contradictory_chronology"],
+      "available_filters": ["all", "missing_actor", "missing_date", "contradictory_chronology", "procedural_significance"],
       "filters": [
         {
           "filter_key": "missing_actor",
           "label": "Missing actor",
           "count": 1,
-          "fact_ids": ["fact:later-note"]
+          "fact_ids": ["fact:66bb2f25f2473baf"]
+        },
+        {
+          "filter_key": "missing_date",
+          "label": "Missing date",
+          "count": 2,
+          "fact_ids": ["fact:66bb2f25f2473baf", "fact:847888989678a140"]
         },
         {
           "filter_key": "contradictory_chronology",
           "label": "Contradictory chronology",
           "count": 1,
-          "fact_ids": ["fact:injury-date"]
+          "fact_ids": ["fact:548917ce2a38675e"]
         }
       ],
       "summary": {}
     },
     "inspector_classification": {
       "status_order": ["party_assertion", "procedural_outcome", "later_annotation"],
-      "selected_fact_id": "fact:injury-date",
+      "selected_fact_id": "fact:548917ce2a38675e",
       "facts": {
-        "fact:later-note": {
+        "fact:548917ce2a38675e": {
+          "status_keys": {
+            "party_assertion": true,
+            "procedural_outcome": false,
+            "later_annotation": false
+          },
+          "dominant_label": "party_assertion",
+          "display_labels": ["party assertion"]
+        },
+        "fact:66bb2f25f2473baf": {
+          "status_keys": {
+            "party_assertion": false,
+            "procedural_outcome": false,
+            "later_annotation": true
+          },
+          "dominant_label": "later_annotation",
+          "display_labels": ["later annotation"]
+        },
+        "fact:847888989678a140": {
           "status_keys": {
             "party_assertion": false,
             "procedural_outcome": true,
@@ -160,63 +352,64 @@
       }
     },
     "inspector_defaults": {
-      "selected_fact_id": "fact:injury-date",
+      "selected_fact_id": "fact:548917ce2a38675e",
       "default_view": "intake_triage"
     }
   },
   "acceptance": {
-    "version": "fact.acceptance.v1",
+    "version": "fact.review.acceptance.v1",
     "wave": "wave1_legal",
     "fixture_kind": "real",
     "run": {
-      "run_id": "factrun:wave1-intake",
+      "run_id": "factrun:e82b0742b88f1839f1b359d53f0ffa60dd1764bb5e33a98b43e2ad392892554b",
       "source_label": "wave1:real_transcript_intake_v1",
       "workflow_link": {
         "workflow_kind": "transcript_semantic",
-        "workflow_run_id": "real_transcript_intake_v1"
+        "workflow_run_id": "transcript_acceptance_real_intake_v1"
       }
     },
     "summary": {
-      "story_count": 1,
-      "pass_count": 1,
+      "story_count": 6,
+      "pass_count": 6,
       "partial_count": 0,
       "fail_count": 0
     },
     "stories": [
-      {
-        "story_id": "SL-W1-01",
-        "label": "Wave-1 legal operator baseline",
-        "status": "pass",
-        "check_count": 2,
-        "passed_check_count": 2,
-        "failed_check_ids": [],
-        "gap_tags": [],
-        "blocking_explanation": null,
-        "checks": [
-          {
-            "check_id": "reopen_navigation",
-            "passed": true
-          },
-          {
-            "check_id": "inspector_distinction",
-            "passed": true
-          }
-        ]
-      }
+      {"story_id": "SL-US-09", "label": "Community legal centre intake triage", "status": "pass", "check_count": 6, "passed_check_count": 6, "failed_check_ids": [], "gap_tags": [], "blocking_explanation": null, "checks": []},
+      {"story_id": "SL-US-10", "label": "NGO litigation campaign case assembly", "status": "pass", "check_count": 4, "passed_check_count": 4, "failed_check_ids": [], "gap_tags": [], "blocking_explanation": null, "checks": []},
+      {"story_id": "SL-US-11", "label": "Paralegal evidence pack preparation", "status": "pass", "check_count": 4, "passed_check_count": 4, "failed_check_ids": [], "gap_tags": [], "blocking_explanation": null, "checks": []},
+      {"story_id": "SL-US-12", "label": "Solicitor case theory preparation", "status": "pass", "check_count": 4, "passed_check_count": 4, "failed_check_ids": [], "gap_tags": [], "blocking_explanation": null, "checks": []},
+      {"story_id": "SL-US-13", "label": "Barrister chronology and contradiction prep", "status": "pass", "check_count": 4, "passed_check_count": 4, "failed_check_ids": [], "gap_tags": [], "blocking_explanation": null, "checks": []},
+      {"story_id": "SL-US-14", "label": "Judge / associate procedural reconstruction", "status": "pass", "check_count": 4, "passed_check_count": 4, "failed_check_ids": [], "gap_tags": [], "blocking_explanation": null, "checks": []}
     ]
   },
   "sources": [
     {
-      "source_id": "source:intake",
-      "source_order": 1,
-      "source_type": "context_file",
-      "source_label": "wave1:real_transcript_intake_v1",
-      "provenance": {},
+      "source_label": "wave1:synthetic_sparse_dates_v1",
       "latest_workflow_link": {
         "workflow_kind": "transcript_semantic",
-        "workflow_run_id": "real_transcript_intake_v1",
-        "fact_run_id": "factrun:wave1-intake"
-      }
+        "workflow_run_id": "synthetic_sparse_dates_v1",
+        "fact_run_id": "factrun:15dd326a477fd2237d75b817b671fc0f29f756757bec52c54d306498771e530b"
+      },
+      "linked_run_count": 1
+    },
+    {
+      "source_label": "wave1:synthetic_conflict_cluster_v1",
+      "latest_workflow_link": {
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_conflict_cluster_v1",
+        "fact_run_id": "factrun:2853fd77df087011195190b7c6de66f0e148a60301a4326a08acc9d97550132f"
+      },
+      "linked_run_count": 1
+    },
+    {
+      "source_label": "wave1:real_transcript_intake_v1",
+      "latest_workflow_link": {
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "transcript_acceptance_real_intake_v1",
+        "fact_run_id": "factrun:e82b0742b88f1839f1b359d53f0ffa60dd1764bb5e33a98b43e2ad392892554b"
+      },
+      "linked_run_count": 1
     }
   ]
 }

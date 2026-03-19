@@ -82,11 +82,12 @@ test('fact review CLI parser accepts captured workbench, acceptance, and source 
   const acceptance = parseFactReviewCliPayload(bundlePayload, 'acceptance');
   const sources = parseFactReviewCliPayload(bundlePayload, 'sources');
 
-  assert.equal(workbench.run.run_id, 'factrun:wave1-intake');
+  assert.equal(workbench.run.run_id, 'factrun:e82b0742b88f1839f1b359d53f0ffa60dd1764bb5e33a98b43e2ad392892554b');
   assert.equal(acceptance.wave, 'wave1_legal');
-  assert.equal(sources[0].source_label, 'wave1:real_transcript_intake_v1');
+  assert.equal(sources[2].source_label, 'wave1:real_transcript_intake_v1');
   assert.equal(bundle.selector.workflow_kind, 'transcript_semantic');
   assert.equal(bundle.selector.fixture_kind, 'real');
+  assert.equal(bundle.selector.workflow_run_id, 'transcript_acceptance_real_intake_v1');
 });
 
 test('fact review real demo bundle preserves the persisted Mary selector and contract shape', () => {
@@ -98,6 +99,23 @@ test('fact review real demo bundle preserves the persisted Mary selector and con
   assert.ok(Array.isArray(bundle.workbench.issue_filters.available_filters));
   assert.ok(Array.isArray(bundle.workbench.operator_views.intake_triage.items));
   assert.ok(Array.isArray(bundle.sources));
+});
+
+test('fact review helpers preserve the real demo bundle reopen path and current-run href', () => {
+  const bundle = readJson('tests/fixtures/fact_review_wave1_real_demo_bundle.json');
+  const sourceRows = resolveFactReviewSourceRows(bundle.workbench, bundle.sources);
+  const currentHref = buildFactReviewCurrentHref(bundle.workbench, {
+    workflowKind: bundle.selector.workflow_kind,
+    wave: bundle.selector.wave,
+    view: 'intake_triage',
+  });
+
+  assert.equal(sourceRows.length, 3);
+  assert.equal(sourceRows[2].source_label, 'wave1:real_transcript_intake_v1');
+  assert.equal(
+    currentHref,
+    '/graphs/fact-review?workflow=transcript_semantic&workflowRunId=transcript_acceptance_real_intake_v1&sourceLabel=wave1%3Areal_transcript_intake_v1&wave=wave1_legal&view=intake_triage'
+  );
 });
 
 test('fact review CLI error classifier distinguishes missing runs and parse failures', () => {
