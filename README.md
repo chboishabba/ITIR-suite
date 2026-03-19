@@ -60,6 +60,9 @@ Orchestrator contract:
 Interface contract index for cross-project handoffs:
 - `docs/planning/project_interfaces.md`
 
+Background-agent test loop:
+- `docs/planning/agent_test_loop.md`
+
 ## Quickstart
 ```bash
 git clone https://github.com/chboishabba/ITIR-suite.git
