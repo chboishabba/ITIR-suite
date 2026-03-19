@@ -234,6 +234,19 @@ node --test tests/factReview_regressions.test.js
 node --test tests/graph_ui_regressions.test.js
 ```
 
+Preferred Mary real-path repro:
+
+```bash
+cd /home/c/Documents/code/ITIR-suite
+python3 SensibLaw/scripts/query_fact_review.py \
+  --db-path .cache_local/itir.sqlite \
+  demo-bundle \
+  --workflow-kind transcript_semantic \
+  --workflow-run-id transcript_acceptance_real_intake_v1 \
+  --wave wave1_legal \
+  --fixture-kind real
+```
+
 When the touched surface is `/graphs/fact-review`, prefer adding or extending
 coverage for:
 
@@ -241,6 +254,11 @@ coverage for:
 - canonical issue-filter usage from backend payload fields
 - inspector classification rendering/fallback order
 - chronology bucket rendering over persisted `wave1_legal`-style payloads
+- real transcript Mary baseline story coverage for:
+  - `SL-US-09`
+  - `SL-US-10`
+  - `SL-US-11`
+  - `SL-US-12` to `SL-US-14`
 
 Do not spend a low-judgment loop inventing new fact-review backend behavior in
 `itir-svelte`; treat the route as a consumer of the persisted `SensibLaw`
