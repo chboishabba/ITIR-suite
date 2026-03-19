@@ -482,26 +482,33 @@
   - SB-owned overlay extension tables for `fuzzymodo_selector_v1`
   - separate decision-ledger persistence with SB reference-only joins
   - end-to-end adapter tests proving no selector/norm authority transfer
-- Implement Casey exchange channels defined in
-  `casey-git-clone/docs/interfaces.md`: publish ingress, sync command, collapse
-  command, build snapshot egress, and fuzzymodo facts export adapter.
-- Implement the Casey -> fuzzymodo contract from
-  `docs/planning/casey_fuzzymodo_interface_contract_20260319.md`:
-  - export Casey tree/workspace/build state as `casey.facts.v1`
-  - keep candidate multiplicity explicit in the exported path payloads
-  - add fuzzymodo advisory result handling for
-    `fuzzymodo.casey.advisory.v1`
-  - end-to-end tests over the minimal alice/bob Casey testbed
-- Implement the DB-backed `casey-git-clone -> StatiBaker` seam from
-  `docs/planning/casey_git_clone_statiBaker_interface_20260309.md`:
-  - SB-owned overlay extension tables for `casey_workspace_v1`
-  - separate Casey operation/build ledgers with SB reference-only joins
-  - end-to-end adapter tests proving SB cannot own mutable candidate graphs
-- Implement the sharpened Casey receipt families from
-  `docs/planning/casey_statiBaker_receipt_schema_20260319.md`:
-  - workspace refs
-  - operation receipts with before/after tree ids
-  - build refs with immutable selection digests/selection refs
+- DONE: Casey exchange channels defined in
+  `casey-git-clone/docs/interfaces.md` now exist in the local testbed:
+  publish ingress, sync command, collapse command, build snapshot egress,
+  `casey.facts.v1` export, and `fuzzymodo.casey.advisory.v1` handling.
+- DONE: Casey -> fuzzymodo contract from
+  `docs/planning/casey_fuzzymodo_interface_contract_20260319.md` is now
+  implemented in the local testbed with end-to-end tests over the minimal
+  alice/bob flow.
+- DONE: Casey -> StatiBaker observer seam from
+  `docs/planning/casey_git_clone_statiBaker_interface_20260309.md` and
+  `docs/planning/casey_statiBaker_receipt_schema_20260319.md` is now
+  end-to-end in the Casey CLI/runtime lane:
+  - Casey `publish` / `sync` / `collapse` / `build` emit receipts
+    automatically
+  - Casey operation/build ledgers persist locally by default
+  - Casey observer bundles are emitted for replay/debug
+  - `casey_workspace_v1` overlays can be ingested directly into SB dashboard DBs
+  - tests cover Casey-ledger lookup and SB overlay ingestion
+- Next Casey lane:
+  - expose the same receipt/observer controls through any future non-CLI Casey
+    entrypoints so the seam does not remain CLI-only
+  - add broader cross-component interface-conformance checks so Casey/fuzzymodo/SB
+    payload fields stay locked across future changes
+- Keep the JMD/ERDFA shard-graph integration surface documented as future
+  awareness only per `docs/planning/jmd_itir_intended_surface_20260319.md`:
+  - do not treat it as an active Casey/fuzzymodo/SB contract yet
+  - wait for a pinned shard schema / concrete adapter target before code work
 - Implement cross-project channel adapters and validators per
   `docs/planning/project_interfaces.md` for:
   `SensibLaw/`, `SL-reasoner/`, `tircorder-JOBBIE/`, `StatiBaker/`,

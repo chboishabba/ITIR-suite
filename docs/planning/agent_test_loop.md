@@ -600,3 +600,6 @@ Minimum cross-surface report fields:
 
 - **Antigravity**: SensibLaw Zelph/Wiki integration, benchmark parity, and test loop enforcement.
 - **Antigravity-Flux**: StatiBaker observer-only governance memory, alignment judgment, and reliability probes.
+- **Antigravity-Delta**: SensibLaw fact-review acceptance wave expansion, Zelph-driven semantic materialization, and cross-surface contract verification for ingest pipelines.
+- **Antigravity-Sigma**: `itir-svelte` server-adapter contract hardening, `WhisperX-WebUI` transcription-to-ingest seam quality, and root-level orchestration regression coverage.
+- **Codex-Atlas**: `openrecall` and `chat-export-structurer` seam coverage, cross-project fixture/smoke expansion, and reproducible gate-reporting for low-judgment test loop lanes.

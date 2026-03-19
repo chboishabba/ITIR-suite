@@ -48,6 +48,10 @@ channels for each core project directory in this workspace.
 - `docs/planning/casey_statiBaker_receipt_schema_20260319.md`:
   exact Casey workspace/operation/build receipt semantics for the
   `casey_workspace_v1` observer seam.
+- `docs/planning/jmd_itir_intended_surface_20260319.md`:
+  awareness-only note for a future JMD/ERDFA shard-graph surface that could
+  later map into Casey runtime state, fuzzymodo ranking, and StatiBaker
+  receipts, without changing current Casey/fuzzymodo/SB contracts.
 - `SensibLaw/docs/wiki_revision_pack_runner_contract_v0_2.md`:
   bounded history-aware Wikipedia revision monitor contract, including
   candidate-pair scoring, section-delta targeting, and observer-only

@@ -82,6 +82,14 @@
 - Priority order sharpened:
   1. implement Casey -> fuzzymodo export/advisory contract
   2. implement Casey -> StatiBaker receipt/reference seam
+- Added JMD/ERDFA future-surface awareness note from resolved thread
+  `Dependency-aware task scheduling`
+  (`69bb8ef6-e9d0-839c-a917-ae92116a02cd` ->
+  `2a13394ff8c932629d42aed76bb07f049eede036`):
+  - treat shard-graph scheduling as a future external surface only
+  - do not treat it as an active Casey/fuzzymodo/SB contract yet
+  - planning note:
+    `docs/planning/jmd_itir_intended_surface_20260319.md`
 
 ## 2026-03-06
 - Aligned priority execution sequencing for lexeme layer, tokenizer migration,

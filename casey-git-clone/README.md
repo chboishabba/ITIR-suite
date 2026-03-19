@@ -18,6 +18,10 @@ persist as candidates until explicitly collapsed.
 - Runtime state is separate from the observer ledgers: the runtime persists
   mutable tree/workspace/build state for local exercises, while ledger tables
   remain reference-only surfaces for downstream observers.
+- Operational commands now emit Casey observer receipts automatically, write a
+  small Casey observer bundle for replay/debug, and may ingest the resulting
+  `casey_workspace_v1` overlay into a StatiBaker dashboard DB when `--sb-db` is
+  supplied.
 - Intended v1 walkthrough:
   - initialize runtime
   - create a second workspace
@@ -38,6 +42,7 @@ python -m casey_git_clone publish --db /tmp/casey.sqlite --workspace bob --path 
 python -m casey_git_clone show tree --db /tmp/casey.sqlite
 python -m casey_git_clone export --db /tmp/casey.sqlite --workspace alice --json
 python -m casey_git_clone advise --db /tmp/casey.sqlite --workspace alice --json
+python -m casey_git_clone publish --db /tmp/casey.sqlite --workspace alice --path src/main.c --content "next" --sb-db /tmp/sb.sqlite --json
 ```
 
 ## Layout
@@ -79,8 +84,9 @@ python -m casey_git_clone advise --db /tmp/casey.sqlite --workspace alice --json
   advisory evaluation.
 - Output channel: `fuzzymodo.casey.advisory.v1` rendered back through Casey
   CLI without granting collapse authority to fuzzymodo.
-- Output channel: observer-only DB refs for SB overlays/ledgers via Casey
-  receipt builders.
+- Output channel: Casey observer bundles plus optional direct SB ingest for
+  `casey_workspace_v1` overlays, backed by Casey-owned ledgers and bounded
+  workspace/operation/build refs only.
 
 ## Planning Docs
 See `docs/planning/casey-git-clone/`.

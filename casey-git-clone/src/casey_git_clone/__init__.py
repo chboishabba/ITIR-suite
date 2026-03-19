@@ -16,7 +16,7 @@ from .models import (
     WorkspaceView,
 )
 from .operations import build_snapshot, collapse_conflict, publish_edits, sync_workspace
-from .receipts import emit_runtime_receipts
+from .receipts import emit_runtime_observer_artifacts, emit_runtime_receipts
 from .runtime_sqlite import create_workspace, initialize_runtime, load_current_tree, load_workspace
 
 __all__ = [
@@ -37,6 +37,7 @@ __all__ = [
     "CaseyOverlayRefs",
     "casey_to_sb_overlay_record",
     "emit_casey_observer_artifacts",
+    "emit_runtime_observer_artifacts",
     "emit_runtime_receipts",
     "export_casey_facts",
     "cli_main",

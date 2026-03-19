@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -105,6 +107,33 @@ def build_ref_from_record(record: BuildLedgerRecord) -> dict[str, Any]:
     }
 
 
+def _now_stamp() -> str:
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def _default_bundle_root() -> Path:
+    return Path(__file__).resolve().parents[3] / "artifacts" / "casey" / "runs"
+
+
+def overlay_identity(
+    *,
+    operation: OperationLedgerRecord | None,
+    build_record: BuildLedgerRecord | None,
+) -> tuple[str, str]:
+    activity_payload = {
+        "operation_id": operation.operation_id if operation is not None else None,
+        "build_id": build_record.build_id if build_record is not None else None,
+        "kind": operation.operation_kind if operation is not None else "build",
+    }
+    activity_event_id = f"casey_evt:{stable_hash(activity_payload)}"
+    annotation_payload = {
+        "activity_event_id": activity_event_id,
+        "observer_kind": "casey_workspace_v1",
+    }
+    annotation_id = f"obs:casey:{stable_hash(annotation_payload)}"
+    return activity_event_id, annotation_id
+
+
 def emit_runtime_receipts(
     *,
     ledger_db_path: Path,
@@ -140,3 +169,115 @@ def emit_runtime_receipts(
         operation_refs=[operation_ref_from_record(operation)] if operation is not None else [],
         build_refs=build_refs,
     )
+
+
+def write_receipt_bundle(
+    *,
+    overlay: Mapping[str, Any],
+    operation: OperationLedgerRecord | None,
+    build_record: BuildLedgerRecord | None,
+    out_root: Path | None = None,
+) -> Path:
+    root = out_root or _default_bundle_root()
+    bundle_suffix = (
+        operation.operation_id
+        if operation is not None
+        else (build_record.build_id if build_record is not None else stable_hash(dict(overlay)))
+    )
+    out_dir = root / f"{_now_stamp()}-{bundle_suffix[:12]}"
+    out_dir.mkdir(parents=True, exist_ok=False)
+    (out_dir / "overlay.json").write_text(
+        json.dumps(dict(overlay), sort_keys=True, separators=(",", ":"), ensure_ascii=True) + "\n",
+        encoding="utf-8",
+    )
+    if operation is not None:
+        (out_dir / "operation.json").write_text(
+            json.dumps(operation_ref_from_record(operation), sort_keys=True, separators=(",", ":"), ensure_ascii=True) + "\n",
+            encoding="utf-8",
+        )
+    if build_record is not None:
+        (out_dir / "build.json").write_text(
+            json.dumps(build_ref_from_record(build_record), sort_keys=True, separators=(",", ":"), ensure_ascii=True) + "\n",
+            encoding="utf-8",
+        )
+    meta = {
+        "observer_kind": "casey_workspace_v1",
+        "activity_event_id": overlay.get("activity_event_id"),
+        "annotation_id": overlay.get("annotation_id"),
+        "operation_id": operation.operation_id if operation is not None else None,
+        "build_id": build_record.build_id if build_record is not None else None,
+    }
+    (out_dir / "meta.json").write_text(
+        json.dumps(meta, sort_keys=True, separators=(",", ":"), ensure_ascii=True) + "\n",
+        encoding="utf-8",
+    )
+    return out_dir
+
+
+def _persist_sb_overlay(*, sb_db_path: Path, overlay: Mapping[str, Any]) -> None:
+    try:
+        from sb.itir_ingest import persist_overlays
+    except ModuleNotFoundError:
+        import sys
+
+        sb_root = Path(__file__).resolve().parents[3] / "StatiBaker"
+        if str(sb_root) not in sys.path:
+            sys.path.insert(0, str(sb_root))
+        from sb.itir_ingest import persist_overlays
+
+    persist_overlays(db_path=sb_db_path, records=[dict(overlay)])
+
+
+def emit_runtime_observer_artifacts(
+    *,
+    ledger_db_path: Path,
+    workspace: WorkspaceView | None,
+    operation: OperationLedgerRecord | None,
+    build: BuildView | None,
+    provenance: Mapping[str, Any],
+    bundle_out_root: Path | None = None,
+    sb_db_path: Path | None = None,
+) -> dict[str, Any]:
+    build_ledger_record = None
+    if build is not None:
+        build_ledger_record = build_record(
+            build=build,
+            source_operation_id=operation.operation_id if operation is not None else None,
+        )
+    activity_event_id, annotation_id = overlay_identity(
+        operation=operation,
+        build_record=build_ledger_record,
+    )
+    created_at = build.created_at if build is not None else (operation.created_at if operation is not None else utc_now_iso())
+    state_date = created_at.split("T", 1)[0]
+    overlay = emit_runtime_receipts(
+        ledger_db_path=ledger_db_path,
+        workspace=workspace,
+        operation=operation,
+        build=build,
+        activity_event_id=activity_event_id,
+        annotation_id=annotation_id,
+        state_date=state_date,
+        provenance=provenance,
+    )
+    bundle_dir = write_receipt_bundle(
+        overlay=overlay,
+        operation=operation,
+        build_record=build_ledger_record,
+        out_root=bundle_out_root,
+    )
+    sb_ingested = False
+    if sb_db_path is not None:
+        _persist_sb_overlay(sb_db_path=sb_db_path, overlay=overlay)
+        sb_ingested = True
+    return {
+        "overlay": overlay,
+        "activity_event_id": activity_event_id,
+        "annotation_id": annotation_id,
+        "operation_id": operation.operation_id if operation is not None else None,
+        "build_id": build_ledger_record.build_id if build_ledger_record is not None else None,
+        "bundle_dir": str(bundle_dir),
+        "ledger_db_path": str(ledger_db_path),
+        "sb_db_path": str(sb_db_path) if sb_db_path is not None else None,
+        "sb_ingested": sb_ingested,
+    }

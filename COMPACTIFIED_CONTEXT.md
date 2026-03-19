@@ -110,6 +110,19 @@
   - immediate implementation priority:
     - implement Casey -> fuzzymodo as the next boundary
     - then implement the sharpened Casey -> StatiBaker receipt seam
+- 2026-03-19 JMD/ERDFA intended-surface awareness:
+  - resolved via `robust-context-fetch`
+  - title: `Dependency-aware task scheduling`
+  - online UUID: `69bb8ef6-e9d0-839c-a917-ae92116a02cd`
+  - canonical thread ID: `2a13394ff8c932629d42aed76bb07f049eede036`
+  - source used: `db` after pulling the online UUID into `~/chat_archive.sqlite`
+  - main topic / decision:
+    - treat JMD/ERDFA shard-graph scheduling as a future external surface only
+    - draft mapping is JMD shard graph -> Casey runtime state -> fuzzymodo
+      scoring -> StatiBaker receipts
+    - do not promote it to an active Casey/fuzzymodo/SB contract yet
+  - documentation artifact added:
+    - `docs/planning/jmd_itir_intended_surface_20260319.md`
 
 - 2026-03-14 whitepaper context refresh:
   - resolved archived thread via `robust-context-fetch`

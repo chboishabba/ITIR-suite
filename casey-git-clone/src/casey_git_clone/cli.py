@@ -11,6 +11,7 @@ from typing import Any, Iterable
 from .export import export_casey_facts
 from .models import BuildView, WorkspaceView
 from .operations import build_snapshot, collapse_conflict, publish_edits, sync_workspace
+from .receipts import emit_runtime_observer_artifacts, operation_record
 from .runtime_sqlite import (
     create_workspace,
     initialize_runtime,
@@ -27,6 +28,53 @@ from .runtime_sqlite import (
 
 def _candidate_ids_for_tree(tree) -> set[str]:
     return {fv_id for state in tree.paths.values() for fv_id in state.candidates}
+
+
+def _default_ledger_db_path(runtime_db_path: Path) -> Path:
+    return runtime_db_path.with_name("casey_ledgers.sqlite")
+
+
+def _default_observer_out_root(runtime_db_path: Path) -> Path:
+    return runtime_db_path.parent / "artifacts" / "casey" / "runs"
+
+
+def _observer_provenance(*, command: str, runtime_db_path: Path) -> dict[str, Any]:
+    return {
+        "source": "casey-git-clone",
+        "command": command,
+        "runtime_db": str(runtime_db_path),
+    }
+
+
+def _attach_observer(
+    *,
+    args: argparse.Namespace,
+    payload: dict[str, Any],
+    command: str,
+    workspace: WorkspaceView | None,
+    operation,
+    build: BuildView | None = None,
+) -> dict[str, Any]:
+    observer = emit_runtime_observer_artifacts(
+        ledger_db_path=args.ledger_db or _default_ledger_db_path(args.db),
+        workspace=workspace,
+        operation=operation,
+        build=build,
+        provenance=_observer_provenance(command=command, runtime_db_path=args.db),
+        bundle_out_root=args.observer_out_root or _default_observer_out_root(args.db),
+        sb_db_path=args.sb_db,
+    )
+    payload["observer"] = observer
+    return payload
+
+
+def _print_observer_summary(observer: dict[str, Any]) -> None:
+    print(f"Observer bundle: {observer['bundle_dir']}")
+    print(f"Operation receipt: {observer['operation_id']}")
+    if observer.get("build_id"):
+        print(f"Build receipt: {observer['build_id']}")
+    if observer["sb_ingested"]:
+        print(f"StatiBaker ingest: {observer['sb_db_path']}")
 
 
 def _render(payload: dict[str, Any], as_json: bool) -> None:
@@ -57,6 +105,7 @@ def _render(payload: dict[str, Any], as_json: bool) -> None:
         print(f"Current tree: {payload['tree_id']}")
         print(f"Candidates for {payload['path']}: {', '.join(payload['candidates'])}")
         print(f"Workspace selection: {payload['workspace_selection']}")
+        _print_observer_summary(payload["observer"])
         return
     if kind == "sync":
         print(
@@ -64,6 +113,7 @@ def _render(payload: dict[str, Any], as_json: bool) -> None:
             f"to tree {payload['workspace']['head']}"
         )
         _print_selection(payload["workspace"]["selection"])
+        _print_observer_summary(payload["observer"])
         return
     if kind == "show_tree":
         print(f"Current tree: {payload['tree_id']}")
@@ -87,6 +137,7 @@ def _render(payload: dict[str, Any], as_json: bool) -> None:
         )
         print(f"Current tree: {payload['tree_id']}")
         print(f"Candidates for {payload['path']}: {', '.join(payload['candidates'])}")
+        _print_observer_summary(payload["observer"])
         return
     if kind == "build":
         print(
@@ -94,6 +145,7 @@ def _render(payload: dict[str, Any], as_json: bool) -> None:
             f"tree {payload['build']['tree_id']}"
         )
         _print_selection(payload["build"]["selection"])
+        _print_observer_summary(payload["observer"])
         return
     if kind == "export":
         print(
@@ -212,7 +264,7 @@ def cmd_publish(args: argparse.Namespace) -> dict[str, Any]:
     updated.head = result.tree_state.tree_id
     updated.validate_against(result.tree_state.paths)
     save_workspace(db_path=args.db, workspace=updated)
-    return {
+    payload = {
         "kind": "publish",
         "workspace": _workspace_payload(updated),
         "path": args.path,
@@ -221,6 +273,22 @@ def cmd_publish(args: argparse.Namespace) -> dict[str, Any]:
         "candidates": list(result.tree_state.paths[args.path].candidates),
         "workspace_selection": updated.selection[args.path],
     }
+    return _attach_observer(
+        args=args,
+        payload=payload,
+        command="publish",
+        workspace=updated,
+        operation=operation_record(
+            operation_kind="publish",
+            workspace=updated,
+            path=args.path,
+            tree_id_before=tree.tree_id,
+            tree_id_after=result.tree_state.tree_id,
+            chosen_fv_id=workspace.selection.get(args.path),
+            resolved_fv_id=new_fv_id,
+            actor=author,
+        ),
+    )
 
 
 def cmd_sync(args: argparse.Namespace) -> dict[str, Any]:
@@ -236,10 +304,23 @@ def cmd_sync(args: argparse.Namespace) -> dict[str, Any]:
         file_versions=file_versions,
     )
     save_workspace(db_path=args.db, workspace=updated)
-    return {
+    payload = {
         "kind": "sync",
         "workspace": _workspace_payload(updated),
     }
+    return _attach_observer(
+        args=args,
+        payload=payload,
+        command="sync",
+        workspace=updated,
+        operation=operation_record(
+            operation_kind="sync",
+            workspace=updated,
+            tree_id_before=workspace.head,
+            tree_id_after=updated.head,
+            actor=workspace.user,
+        ),
+    )
 
 
 def cmd_show_tree(args: argparse.Namespace) -> dict[str, Any]:
@@ -295,7 +376,7 @@ def cmd_collapse(args: argparse.Namespace) -> dict[str, Any]:
     updated.selection[args.path] = resolved_fv_id
     updated.validate_against(result.tree_state.paths)
     save_workspace(db_path=args.db, workspace=updated)
-    return {
+    payload = {
         "kind": "collapse",
         "workspace": _workspace_payload(updated),
         "path": args.path,
@@ -303,6 +384,22 @@ def cmd_collapse(args: argparse.Namespace) -> dict[str, Any]:
         "tree_id": result.tree_state.tree_id,
         "candidates": list(result.tree_state.paths[args.path].candidates),
     }
+    return _attach_observer(
+        args=args,
+        payload=payload,
+        command="collapse",
+        workspace=updated,
+        operation=operation_record(
+            operation_kind="collapse",
+            workspace=updated,
+            path=args.path,
+            tree_id_before=tree.tree_id,
+            tree_id_after=result.tree_state.tree_id,
+            chosen_fv_id=args.choose,
+            resolved_fv_id=resolved_fv_id,
+            actor=args.author or workspace.user,
+        ),
+    )
 
 
 def cmd_build(args: argparse.Namespace) -> dict[str, Any]:
@@ -319,11 +416,25 @@ def cmd_build(args: argparse.Namespace) -> dict[str, Any]:
     )
     save_build(db_path=args.db, build=build)
     stored = load_build(db_path=args.db, build_id=build.build_id)
-    return {
+    payload = {
         "kind": "build",
         "workspace": _workspace_payload(workspace),
         "build": _build_payload(stored),
     }
+    return _attach_observer(
+        args=args,
+        payload=payload,
+        command="build",
+        workspace=workspace,
+        operation=operation_record(
+            operation_kind="build",
+            workspace=workspace,
+            tree_id_before=workspace.head,
+            tree_id_after=build.tree_id,
+            actor=workspace.user,
+        ),
+        build=stored,
+    )
 
 
 def cmd_export(args: argparse.Namespace) -> dict[str, Any]:
@@ -391,11 +502,17 @@ def build_parser() -> argparse.ArgumentParser:
     publish.add_argument("--path", required=True)
     publish.add_argument("--content", required=True)
     publish.add_argument("--author")
+    publish.add_argument("--ledger-db", type=Path)
+    publish.add_argument("--sb-db", type=Path)
+    publish.add_argument("--observer-out-root", type=Path)
     publish.set_defaults(func=cmd_publish)
 
     sync = subparsers.add_parser("sync")
     sync.add_argument("--db", type=Path, required=True)
     sync.add_argument("--workspace", required=True)
+    sync.add_argument("--ledger-db", type=Path)
+    sync.add_argument("--sb-db", type=Path)
+    sync.add_argument("--observer-out-root", type=Path)
     sync.set_defaults(func=cmd_sync)
 
     show = subparsers.add_parser("show")
@@ -415,11 +532,17 @@ def build_parser() -> argparse.ArgumentParser:
     collapse.add_argument("--choose")
     collapse.add_argument("--merged-content")
     collapse.add_argument("--author")
+    collapse.add_argument("--ledger-db", type=Path)
+    collapse.add_argument("--sb-db", type=Path)
+    collapse.add_argument("--observer-out-root", type=Path)
     collapse.set_defaults(func=cmd_collapse)
 
     build = subparsers.add_parser("build")
     build.add_argument("--db", type=Path, required=True)
     build.add_argument("--workspace", required=True)
+    build.add_argument("--ledger-db", type=Path)
+    build.add_argument("--sb-db", type=Path)
+    build.add_argument("--observer-out-root", type=Path)
     build.set_defaults(func=cmd_build)
 
     export = subparsers.add_parser("export")

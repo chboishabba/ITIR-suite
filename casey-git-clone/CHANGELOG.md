@@ -22,6 +22,13 @@
   Casey -> StatiBaker seam, including workspace summary refs, operation
   receipts, build receipts, and overlay emission helpers backed by the Casey
   ledgers.
+- Wired Casey `publish`, `sync`, `collapse`, and `build` commands to emit
+  deterministic operation/build receipts automatically, write Casey observer
+  bundles, and optionally ingest `casey_workspace_v1` overlays into
+  StatiBaker dashboard DBs.
+- Added end-to-end tests covering Casey bundle emission, Casey ledger
+  persistence, and optional SB overlay ingestion from the Casey CLI/runtime
+  lane.
 
 ## 2026-03-09
 - Clarified the intended `casey-git-clone -> StatiBaker` seam as observer-only

@@ -40,6 +40,9 @@ Cross-project SB seam note:
 - `docs/planning/casey_git_clone_statiBaker_interface_20260309.md`
 - `docs/planning/casey_statiBaker_receipt_schema_20260319.md`
 
+Future external graph/task surface awareness:
+- `docs/planning/jmd_itir_intended_surface_20260319.md`
+
 ## Project Interface Contracts
 
 Suite-wide interface contract index:

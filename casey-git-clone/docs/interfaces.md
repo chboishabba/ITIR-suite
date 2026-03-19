@@ -73,8 +73,10 @@
   - suite-level seam note:
     `docs/planning/casey_git_clone_statiBaker_interface_20260309.md`
 - Allowed role:
-  - emit append-only operation/build receipts and refs into SB-owned observer
-    tables
+  - emit append-only operation/build receipts and refs into Casey-owned ledgers
+  - emit Casey observer bundles for replay/debug
+  - optionally ingest the resulting `casey_workspace_v1` overlay into
+    SB-owned observer tables
   - summarize workspace context through bounded workspace refs rather than full
     mutable selection state
 - Forbidden role:
