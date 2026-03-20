@@ -102,6 +102,19 @@
   - roadmap/gap-analysis updates
   - TODO/plan/compactified-context sync
 
+## 2026-03-20
+- Added `docs/planning/zelph_external_handoff_20260320.md` as a Stefan-facing
+  technical brief that explains:
+  - SensibLaw's upstream role at the text-to-structure boundary
+  - the current tiny deterministic SL -> Zelph bridge posture
+  - repo-backed demo evidence in `SensibLaw/sl_zelph_demo/`
+  - the fact-semantic benchmark as supporting context rather than a blanket
+    external-sharing artifact
+- Updated `docs/planning/README.md`, `TODO.md`, and `COMPACTIFIED_CONTEXT.md`
+  so the external-collaboration note is indexed and the sharing/sanitization
+  followthrough is explicit.
+- No code changes were needed for this turn; the work was docs/context only.
+
 ## 2026-03-18
 - Resolved and analyzed the full transcripts for the five online ChatGPT UUIDs
   pulled into `~/chat_archive.sqlite` on 2026-03-18:

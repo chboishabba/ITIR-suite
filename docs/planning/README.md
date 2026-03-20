@@ -56,6 +56,11 @@ Background-agent routing and validation:
 - `docs/planning/agent_test_loop.md`
 - `docs/planning/agent_surface_map.json`
 
+## External Collaboration Notes
+
+Shareable technical framing for external collaborators:
+- `docs/planning/zelph_external_handoff_20260320.md`
+
 ## Narrative Validation / Comparison (2026-03-09)
 
 Public-media narrative-validation and competing-narratives followthrough note:

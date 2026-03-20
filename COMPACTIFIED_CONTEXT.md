@@ -260,6 +260,20 @@
     - `docs/planning/jmd_fixture_v1_20260320.md`
     - `docs/planning/jmd_fixtures/jmd_sl_ingest_v1.example.json`
     - `docs/planning/jmd_fixtures/sl_jmd_overlay_v1.example.json`
+- 2026-03-20 Zelph external handoff note:
+  - source: current working turn plus the 2026-03-18 to 2026-03-20 Stefan
+    exchange supplied in chat
+  - main decision:
+    - write one upstream-facing repo note explaining the SL -> Zelph bridge in
+      external-collaboration language
+    - keep the positioning explicit:
+      SensibLaw upstream ingest/review/provenance, Zelph downstream reasoning
+    - point external readers to repo-backed demo evidence rather than broad
+      architecture claims
+    - treat benchmark/result JSONs as review-required before external sharing
+      because they may contain personal or case-linked material
+  - documentation artifact added:
+    - `docs/planning/zelph_external_handoff_20260320.md`
 
 - 2026-03-14 whitepaper context refresh:
   - resolved archived thread via `robust-context-fetch`

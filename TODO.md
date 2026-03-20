@@ -94,8 +94,6 @@
       -> state-compiler / prototype application over uploaded files
     - `69ba8956-35b8-839b-9707-f8c91c2b02dd` /
       `Ambiguity of "Community"`
-      -> treat legal placeholders like `community` as unresolved
-         normative-reference surfaces, not assumed KB entities
     - `69ba8c55-163c-839d-86b9-6c366a8dc29a` /
       `Formal Model to Engine`
       -> keep ingest/lexer/compression state/lattice/gap roles explicit
@@ -105,6 +103,13 @@
       `Casey Git Clone Differences`
       -> emphasize candidate lattice, explicit collapse, workspace selection,
          and immutable build projections in Casey-facing docs/adapters
+  - Zelph external collaboration followthrough:
+    - use `docs/planning/zelph_external_handoff_20260320.md` as the canonical
+      Stefan-facing repo note
+    - review `SensibLaw/tests/fixtures/fact_semantic_bench/results/` for
+      personal or case-linked material before sharing any benchmark outputs
+    - prepare a deliberately shareable Zelph pack:
+      demo scripts, rules, tests, and only sanitized benchmark/result snippets
   - treat Mary Technology as the benchmark for:
     - fact management
     - chronology / timeline handling
