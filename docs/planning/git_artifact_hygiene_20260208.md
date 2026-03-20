@@ -37,6 +37,15 @@ Changes made:
 - `StatiBaker/scripts/build_dashboard.py`: default `--runs-root` is `$SB_RUNS_ROOT` or `<sb-root>/runs_local`
 - `StatiBaker/docs/web_module_map.md`, `StatiBaker/README.md`: updated docs to refer to `<runs-root>/...`
 
+Current priority gap:
+- `SensibLaw/data/corpus/ingest.sqlite` is already ignored inside the
+  `SensibLaw/` submodule, so it is not the immediate GitHub-risk surface.
+- The sharper risk is tracked SQLite or local-output artifacts that still exist
+  inside submodules.
+- In the current tree, `StatiBaker/runs/dashboard.sqlite` is the clearest
+  example of a tracked SQLite artifact that should stop being treated as a
+  normal checked-in sample.
+
 ## Recommended practice
 1. Treat `runs_local/` as the default "private workspace" artifact root.
 2. Keep tracked sample outputs (if any) separate and never write personal runs into them.
@@ -50,6 +59,17 @@ If any sensitive artifacts are already tracked in git history (e.g. chat sqlite 
 
 This note is deliberately separate from implementation so it can be handled with appropriate care.
 
+Concrete direction:
+- do not rely on a tracked SQLite DB so other people can test the app
+- prefer private/local runs against each contributor's own content
+- if a reproducible sample is still needed, make it an explicit fixture or
+  generated artifact rather than a checked-in live dashboard DB
+
+Sharing rule:
+- benchmark outputs, chat-derived corpora, transcript-derived corpora, and local
+  analysis artifacts must be reviewed and sanitized before being shared outside
+  the repo or with third parties
+
 ## Gitleaks note (false positives vs real leaks)
 We observed `gitleaks detect` flagging a false positive in `data/pdfs/sample.json`
 (`tokenizer_id: lexeme_normalizer_v1` matched the generic API key rule due to
@@ -58,4 +78,3 @@ the `token*` substring).
 Mitigation:
 - Add the exact fingerprints to `.gitleaksignore` so future scans are clean
   without weakening the generic ruleset.
-

@@ -51,8 +51,17 @@ Repo evidence:
 Current demonstrated behavior:
 - Wikipedia revision comments are tokenized into ordered lexical node sequences
 - recursive Zelph rules match those lexical graphs
-- the demo identifies reversion edits and infers a `wiki sentinel` role from a
-  revision-history pattern
+- the demo identifies narrow downstream behavior over revision-history patterns:
+  reversion detection, volatility-style edit signals, and reversion patterns
+  that may require operator review
+
+Clarification:
+- this is a deliberately small demo of downstream reasoning over structured
+  lexical facts
+- it should not be read as establishing a stable formal ontology role for wiki
+  editors
+- the externally relevant claim is the behavior-level one: Zelph can consume a
+  compact exported fact slice and infer bounded review-relevant signals from it
 
 ### 3. Fact-semantic benchmark calibration
 Repo evidence:
@@ -127,6 +136,14 @@ Needs review/sanitization before external sharing:
   concrete Zelph-side use case worth shaping now?
 - Which tiny benchmark slice would best demonstrate downstream reasoning value
   without forcing premature architectural coupling?
+
+## Intended Next Tests
+- keep the outward-facing handoff note aligned with tests that already exist for:
+  volatility signals, reversion detection, and reversion-without-context risk
+- add one small bridge-level regression that verifies the handoff claims remain
+  true for the current demo outputs
+- prefer behavior assertions over role-label assertions in any future
+  Stefan-facing Zelph pack
 
 ## One-sentence Summary
 SensibLaw is trying to make text-derived facts stable, reviewable, and
