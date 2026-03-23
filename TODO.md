@@ -126,6 +126,15 @@
       personal or case-linked material before sharing any benchmark outputs
     - prepare a deliberately shareable Zelph pack:
       demo scripts, rules, tests, and only sanitized benchmark/result snippets
+    - keep the handoff note explicit about current repo-facing Zelph dev contact
+      surfaces:
+      `sl_zelph_demo/*_run.sh`, `compile_db.py`, `lex_to_zelph.py`,
+      `scripts/zelph_runner.py`, `src/zelph_bridge.py`,
+      `tests/test_sl_zelph_demo_tools.py`
+    - decide whether the first external pack should stay strictly demo-level or
+      declare one small formal export contract
+    - decide whether uncertainty/probability handling stays purely upstream for
+      the first collaboration slice
     - archived context input resolved on 2026-03-20:
       - `69bca95c-4f7c-839e-8b3a-3c5e273f185a` / `ZK in Legal Context`
       -> family-court `Magellan` / `Lighthouse` / `Evatt` pathways are a real
@@ -138,7 +147,19 @@
     - provenance and contestation of statements
     - litigation-workflow operator surfaces
   - position current ontology/bridge/branch-set work as support infrastructure
-    for that parity target rather than as a standalone ontology milestone
+  - Wikipedia ingest generalization harness:
+    - keep the random-page article-ingest report regime-aware and honest
+    - rerun the stored manifest on a larger slice before trusting the new
+      regime basis
+    - add dominant-regime counts and follow-yield summaries so page shapes can
+      be falsified by distribution, not just by a few hand-picked fixtures
+    - keep follow-yield as a 50/50 blend of followed-link relevance and
+      follow-target quality, where follow-target quality is driven by richness,
+      non-list structure, regime similarity, and information gain
+    - extend the graph probe with hop-1/hop-2 decay and best-path probing based
+      on hop qualities plus regime coherence before trying heavier graph
+      analytics
+    - keep page-family labels as derived debug output only
   - define the minimum parity deliverable as:
     - source/excerpt/statement capture
     - a small explicit observation layer with a stable low-cardinality
@@ -323,8 +344,17 @@
   - DONE: add a third scorer-only calibration layer for abstention quality,
     sentence-link relevance, claim/attribution grounding, and heuristic
     page-family stratification
+  - DONE: add a small regime vector to the canonical article state and make
+    the ingest report emit regime-aware honesty/calibration scores alongside
+    the legacy compatibility outputs
   - DONE: rerun the stored random-page manifest against the honesty +
     calibration surfaces and record the main pressure points
+  - rerun the stored random-page manifest again after the regime layer so the
+    summary averages and family buckets can be compared against the new
+    regime-aware outputs
+  - DONE: run the one-hop generalization smoke on a larger live random-page
+    slice and confirm the report now surfaces dominant-regime counts and
+    follow-yield summaries in addition to the page-level scores
   - use the rerun findings to tighten family-aware summary interpretation:
     - abstention calibration is already informative on `Agrega` and
       `Euchlaena deductaria`
@@ -709,6 +739,15 @@
   - add a local Casey/SL-side proof-carrying normalization prototype first;
     do not open a JMD PR until the local graph -> transform plan -> proof
     object loop is stable
+  - DONE: local prototype now exists over runtime-bundle projections with
+    focused tests and latest-post prototype inspection
+  - keep current status explicit in docs:
+    proof shape is implemented locally,
+    host browse/raw stability is still uncertain,
+    replay/cache policy is not yet pinned
+  - add a local replay policy for unstable host surfaces:
+    cached latest-index entries and cached resolved bundles for prototype
+    inspection fallback
   - if a JMD-side PR is eventually needed, keep it tiny and optional:
     `sl:normal_form_cid`, `sl:mdl_proof_cid`,
     `sl:canonicalization_version`

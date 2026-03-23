@@ -1,5 +1,33 @@
 # Compactified Context
 
+- 2026-03-23 JMD status/uncertainty refresh plus Zelph contact-surface clarification:
+  - source: current working turn
+  - main decision:
+    - the near-term JMD lane remains the read-only object graph -> SL corpus
+      bridge, now with a local Casey/SL-side proof prototype and a latest-post
+      prototype inspection path
+    - current bridge progress is real but still bounded:
+      runtime object/graph/receipt contracts exist, latest-post ingest exists,
+      local MDL-style normalization/proof prototype exists, and latest-post
+      prototype summaries can run when browse/raw surfaces cooperate
+    - the main operational uncertainty is host instability rather than bridge
+      shape:
+      `/browse` and `/raw/{id}` are still not stable enough to treat as strong
+      declared host guarantees
+    - the next resilience step should be local replay surfaces:
+      cached latest-index entries and cached resolved bundles, so inspection can
+      continue when live browse is unavailable
+    - the Zelph-facing repo note should distinguish:
+      safe dev contact surfaces inside the repo,
+      current demonstrated behavior,
+      and unresolved questions about uncertainty/probability handling and pack
+      hygiene
+  - followthrough:
+    - update JMD planning docs with explicit progress, uncertainties, and
+      implementation status
+    - update the Zelph external handoff note with concrete repo contact
+      surfaces and open collaboration questions
+    - update `TODO.md` so cache/replay and Zelph handoff hygiene remain visible
 - 2026-03-22 Casey x JMD MDL bridge clarification:
   - source: current working turn
   - main decision:
@@ -116,6 +144,26 @@
     - rerun the stored random-page manifest and use the family split to decide
       whether weak object binding is a real extractor defect or a page-shape
       calibration problem
+- 2026-03-23 Wikipedia ingest regime basis:
+  - source: current working turn
+  - main decision:
+    - add a low-dimensional regime vector to the canonical wiki article state
+      so the ingest report can distinguish narrative, descriptive, and formal
+      pages without adding more page-family categories
+    - keep page-family labels as derived/debug output, but make regime-aware
+      scoring the primary comparison surface for the article-ingest report
+  - followthrough:
+    - store the regime vector on canonical article state
+    - emit regime-aware honesty/calibration score paths alongside the legacy
+      compatibility outputs
+    - rerun the stored random-page manifest and compare the regime averages
+      against the existing family stratification
+    - add dominant-regime counts and follow-yield summaries so the next stage
+      can test regime generalization and graph usefulness on a larger random
+      slice
+    - extend follow-yield with the explicit richness / non-list / regime /
+      information-gain blend, plus hop decay and best-path probing
+    - keep page-family labels as derived debug output only
 - 2026-03-23 unresolved ChatGPT context fetch:
   - source: current working turn
   - referenced online UUID:

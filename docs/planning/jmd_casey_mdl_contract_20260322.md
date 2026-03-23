@@ -21,6 +21,27 @@ then that is enough to start interoperability work locally.
 An upstream JMD-side change is only justified later when first-class,
 proof-carrying interop is desired inside JMD-native step or shard objects.
 
+## Current implementation status (2026-03-23)
+Implemented locally in ITIR-suite:
+
+- a read-only `itir_jmd_bridge` runtime lane that resolves runtime objects,
+  runtime graphs, and runtime receipts from paste/raw plus ERDFA-facing inputs
+- a local prototype that can:
+  - project a real runtime bundle into graph-like input
+  - discover candidate motifs
+  - emit one transform plan
+  - emit one MDL proof object
+- a latest-post inspection path that summarizes prototype output over newest
+  browse-page posts when host surfaces are available
+
+Known uncertainties:
+
+- the proof object shape is now real and tested, but still heuristic
+- host browse/raw stability remains too weak to treat live latest-post checks as
+  a dependable always-on validation surface
+- replay policy for cached latest-index entries and cached resolved bundles is
+  not yet pinned
+
 ## Narrow future PR surface
 If a JMD-side PR is made, keep it intentionally tiny and optional.
 
@@ -135,6 +156,16 @@ The first prototype should remain local to ITIR/SL and do only this:
 - emit an MDL proof object keyed by content hashes/CIDs.
 
 That is enough to prove the bridge shape without opening an upstream PR.
+
+## Current prototype limits
+- candidate discovery is still lexical/motif-oriented rather than a richer
+  graph rewrite search
+- the runtime-bundle projection is improving, but still a projection layer
+  rather than a canonical ERDFA semantics reader
+- proof mode remains `hash-stub`; there is no JMD-native verification surface
+  yet
+- latest-post evaluation still depends on host reachability unless local replay
+  caches are added
 
 ## Non-goals
 

@@ -29,6 +29,57 @@ The intended relationship to Zelph is:
 
 This is a bridge/demo posture, not a dependency posture.
 
+## Current Status Snapshot (2026-03-23)
+What is already real in the repo:
+- small Zelph-facing demos exist and are still the cleanest shareable proof
+  points
+- benchmark/calibration artifacts exist for multiple corpora, but not all of
+  them are appropriate to hand externally without review
+- the current intended claim remains behavior-level:
+  bounded downstream reasoning over exported fact structure, not raw-text
+  ingestion inside Zelph
+
+What is still uncertain:
+- whether probability/uncertainty handling should remain entirely upstream for
+  the first collaboration slice
+- whether the cleanest first export is:
+  graph facts, predicate-as-node exports, or a Janet-facing bridge
+- which benchmark/result fragments are safe enough to externalize without
+  leaking personal or case-linked material
+
+## Zelph Dev Contact Surfaces
+These are the repo surfaces a Zelph developer can be pointed at first.
+
+Primary shareable entrypoints:
+- `SensibLaw/sl_zelph_demo/run.sh`
+- `SensibLaw/sl_zelph_demo/db_run.sh`
+- `SensibLaw/sl_zelph_demo/wikidata_run.sh`
+- `SensibLaw/tests/test_sl_zelph_demo_tools.py`
+- this note
+
+Primary code surfaces:
+- `SensibLaw/sl_zelph_demo/compile_db.py`
+- `SensibLaw/sl_zelph_demo/lex_to_zelph.py`
+- `SensibLaw/scripts/zelph_runner.py`
+- `SensibLaw/src/zelph_bridge.py`
+
+Primary rule/demo packs:
+- `SensibLaw/sl_zelph_demo/db_rules.zlp`
+- `SensibLaw/sl_zelph_demo/wiki_lex_rules.zlp`
+- `SensibLaw/sl_zelph_demo/ontology_rules.zlp`
+- `SensibLaw/src/fact_intake/zelph_invariants.zlp`
+- `SensibLaw/src/fact_intake/zelph_workbench_rules.zlp`
+
+Primary caution surfaces:
+- benchmark result JSONs under
+  `SensibLaw/tests/fixtures/fact_semantic_bench/results/`
+- any chat-derived or transcript-derived corpora
+- any local analysis or export artifacts not explicitly reviewed for sharing
+
+Clarification:
+- this note names repo-facing technical contact surfaces only
+- it does not record private personal contact details
+
 ## What Has Already Been Demonstrated
 ### 1. Database atom ingest into Zelph
 Repo evidence:
@@ -127,6 +178,14 @@ Needs review/sanitization before external sharing:
   `SensibLaw/tests/fixtures/fact_semantic_bench/results/`
 - any chat-derived or transcript-derived corpora
 - any local analysis artifacts that may contain personal or case-linked content
+
+## Open Collaboration Questions
+- Do we want the first external Zelph pack to stay strictly demo-level, or do
+  we want one slightly more formal bridge contract around export shape?
+- Should uncertainty remain encoded only in upstream SensibLaw facts at first,
+  with Zelph consuming deterministic slices only?
+- Which one small benchmark slice is both technically representative and safe
+  enough to use as the first Stefan-facing or Zelph-dev-facing pack?
 
 ## Suggested Questions / Next Discussion Points
 - What is the cleanest stable export shape from SensibLaw into Zelph:

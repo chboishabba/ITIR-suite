@@ -10,10 +10,35 @@ adapter, or authority boundary.
 ## Current Inputs
 - `docs/planning/jmd_itir_intended_surface_20260319.md`
 - `docs/planning/jmd_sl_corpus_bridge_contract_20260319.md`
+- `docs/planning/jmd_casey_mdl_contract_20260322.md`
 - `COMPACTIFIED_CONTEXT.md`
 - `TODO.md`
 - `plan.md`
 - `status.json`
+
+## Current Status Snapshot (2026-03-23)
+Implemented locally:
+- `itir_jmd_bridge` now ships read-only runtime object/graph/receipt contracts
+  plus provider handling for paste/raw, ERDFA descriptors or tar archives, and
+  optional IPFS verification.
+- latest-post ingest exists and uses conservative adaptive fetch settings rather
+  than fixed parallel scraping behavior.
+- a local Casey/SL-side MDL-style prototype exists for:
+  runtime bundle projection, motif discovery, one-step normalization, and proof
+  object emission.
+- a latest-post prototype inspection path exists for summarizing candidate
+  counts, transform counts, and proof gain over resolved runtime bundles.
+
+Still uncertain or unstable:
+- host capability discovery still observes `/raw/{id}` and `/ipfs/{cid}` as
+  runtime-useful surfaces, but not as reliable declared API contract.
+- live `/browse` and `/raw/example-probe` availability is still variable enough
+  that latest-post inspection cannot yet be treated as a strong CI-grade
+  online check.
+- the prototype proof lane is shape-valid but still intentionally heuristic; it
+  is not yet a serious graph canonicalizer.
+- there is no local cache/replay layer yet for:
+  latest index snapshots or resolved runtime bundles.
 
 ## Triage Summary
 The current JMD material actually splits into two different tracks plus one
@@ -109,7 +134,7 @@ Exit criteria:
    upstream JMD PR is attempted
 
 ### Phase JMD-1.5: Local proof-carrying normalization prototype
-Status: allowed locally after JMD-1 docs are aligned
+Status: local prototype now exists; still pre-contract-hardening
 
 Scope:
 - keep the prototype entirely on the ITIR/SL side
@@ -130,6 +155,16 @@ Exit criteria:
 - one local prototype module
 - one focused test slice
 - one planning note for the future minimal upstream field extension
+
+Current checkpoint:
+- met:
+  - local prototype module exists
+  - focused test slice exists
+  - planning note exists
+- not yet met:
+  - replayable latest-post inspection corpus
+  - documented fallback policy when browse/raw surfaces are unavailable
+  - serious graph-level canonicalization beyond motif-style proof shape
 
 ### Phase JMD-2: Governed proposal path
 Status: deferred until JMD-1 invariants are proven
@@ -159,6 +194,8 @@ Only start when all of the following are true:
   into near-term implementation planning.
 - Keep provenance-bundle and metric-commitment fields in docs/TODOs so the
   bridge boundary does not need a second redesign later.
+- add replay-oriented resilience before treating live latest-post inspection as
+  a dependable ongoing signal
 
 ## Implementation Gate
 Do not start bridge code until the repo has:
@@ -166,6 +203,15 @@ Do not start bridge code until the repo has:
 - a fixture-backed SL anchor/overlay example
 - explicit acceptance criteria for reversibility and provenance retention
 - named ownership for Casey review and StatiBaker receipt surfaces
+
+That gate is now partially satisfied:
+- met:
+  - fixture-backed JMD ingest example
+  - fixture-backed SL overlay example
+  - local Casey/SL-side prototype proof lane
+- still open:
+  - explicit replay policy for unstable host surfaces
+  - named local retention policy for latest-index and resolved-bundle caches
 
 ## Result
 The roadmap answer is:
