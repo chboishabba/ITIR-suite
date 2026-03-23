@@ -35,6 +35,9 @@ What is already real in the repo:
   points
 - benchmark/calibration artifacts exist for multiple corpora, but not all of
   them are appropriate to hand externally without review
+- deterministic Zelph-facing export slices (DB/rule-atom, ontology bridge,
+  sanitized fact-semantic bench examples) now exist and can be stitched together
+  into a contrasted pack that tells the ingest->provenance->Zelph story
 - the current intended claim remains behavior-level:
   bounded downstream reasoning over exported fact structure, not raw-text
   ingestion inside Zelph
@@ -102,9 +105,9 @@ Repo evidence:
 Current demonstrated behavior:
 - Wikipedia revision comments are tokenized into ordered lexical node sequences
 - recursive Zelph rules match those lexical graphs
-- the demo identifies narrow downstream behavior over revision-history patterns:
-  reversion detection, volatility-style edit signals, and reversion patterns
-  that may require operator review
+- the demo identifies narrow downstream behavior over revision-history
+- patterns (reversion detection, volatility-style edit signals) that feed a
+- bounded review signal
 
 Clarification:
 - this is a deliberately small demo of downstream reasoning over structured
@@ -113,6 +116,8 @@ Clarification:
   editors
 - the externally relevant claim is the behavior-level one: Zelph can consume a
   compact exported fact slice and infer bounded review-relevant signals from it
+  (the old wiki/revert lane is now a minor review signal example, not the
+  headline story)
 
 ### 3. Fact-semantic benchmark calibration
 Repo evidence:
@@ -144,6 +149,13 @@ The near-term claim is:
    testable, and clearly downstream of the ingest/review layer.
 
 That is why the current bridge is intentionally tiny and deterministic.
+
+## Stefan-facing Zelph pack
+- demo scripts/tests (e.g., `SensibLaw/sl_zelph_demo/run.sh`, `SensibLaw/tests/test_sl_zelph_demo_tools.py`) plus several sanitized graph-export examples now back the handoff story
+- lead slice: deterministic DB/rule-atom export (`SensibLaw/sl_zelph_demo/compile_db.py`, `db_rules.zlp`, `db_run.sh`, `tests/test_sl_zelph_demo_tools.py`) proves Zelph-dev technical credibility and downstream reasoning value
+- ingester-derived structured graph example: sanitized fact-semantic bench outputs under `SensibLaw/tests/fixtures/fact_semantic_bench/results/` (legal, chat, transcript slices) show how the reviewed, provenance-backed graph can be handed to Zelph without surfing the old wiki/revert story
+- ontology/predicate-as-node example: `SensibLaw/sl_zelph_demo/ontology_demo.zph`, `ontology_rules.zlp`, `SensibLaw/sl_zelph_demo/lex_to_zelph.py` demonstrate richer predicate bridging in a sanitized surface
+- optional review signal example: keep the wiki/review run drawn from `SensibLaw/sl_zelph_demo/wiki_demo_full.zph`, `wiki_lex_rules.zlp`, `wiki_inferred.txt`, framed as a historical/diagnostic case rather than the main positioning
 
 ## What We Think Is Interesting About Zelph
 Based on Stefan's description and our own demo work, the most interesting
@@ -180,21 +192,13 @@ Needs review/sanitization before external sharing:
 - any local analysis artifacts that may contain personal or case-linked content
 
 ## Open Collaboration Questions
-- Do we want the first external Zelph pack to stay strictly demo-level, or do
-  we want one slightly more formal bridge contract around export shape?
-- Should uncertainty remain encoded only in upstream SensibLaw facts at first,
-  with Zelph consuming deterministic slices only?
-- Which one small benchmark slice is both technically representative and safe
-  enough to use as the first Stefan-facing or Zelph-dev-facing pack?
+- Which sanitized benchmark slice from `SensibLaw/tests/fixtures/fact_semantic_bench/results/` (legal, chat, transcript) should we prime as the ingester-derived structured graph example in the Zelph pack?
+- Are there additional log/metadata artifacts from the DB/rule-atom export path (`SensibLaw/sl_zelph_demo/compile_db.py`, `db_rules.zlp`, `db_run.sh`) that Zelph devs will need to believe the deterministic handoff story?
+- Should we keep the wiki lane as the optional bounded review signal example described above, or do we need a second review-focused slice before handing the pack externally?
 
 ## Suggested Questions / Next Discussion Points
-- What is the cleanest stable export shape from SensibLaw into Zelph:
-  direct graph facts, richer predicate-as-node exports, or a small Janet-facing
-  ingest bridge?
-- Should probabilities/uncertainty stay purely upstream at first, or is there a
-  concrete Zelph-side use case worth shaping now?
-- Which tiny benchmark slice would best demonstrate downstream reasoning value
-  without forcing premature architectural coupling?
+- Which sanitized ontology/predicate-as-node exports under `SensibLaw/sl_zelph_demo/ontology_*` should be documented to showcase richer predicate bridging?
+- Do we want to annotate the sanitized fact-semantic bench outputs that power the ingester-derived slice so recipients understand how to regenerate them?
 
 ## Intended Next Tests
 - keep the outward-facing handoff note aligned with tests that already exist for:

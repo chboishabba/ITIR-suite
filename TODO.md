@@ -125,7 +125,11 @@
     - review `SensibLaw/tests/fixtures/fact_semantic_bench/results/` for
       personal or case-linked material before sharing any benchmark outputs
     - prepare a deliberately shareable Zelph pack:
-      demo scripts, rules, tests, and only sanitized benchmark/result snippets
+      - lead with the deterministic DB/rule-atom export path (`SensibLaw/sl_zelph_demo/compile_db.py`, `db_rules.zlp`, `db_run.sh`, `tests/test_sl_zelph_demo_tools.py`) so Zelph devs see the authoritative handoff
+      - add a sanitized fact-semantic bench result (e.g., one of the legal/chat/transcript slices under `SensibLaw/tests/fixtures/fact_semantic_bench/results/`) to show the reviewed ingester-derived graph exported to Zelph
+      - document an ontology/predicate-as-node example (`SensibLaw/sl_zelph_demo/ontology_demo.zph`, `ontology_rules.zlp`, `lex_to_zelph.py`) to demonstrate richer schema exports
+      - optionally keep the wiki/review run as a bounded, historical review signal example rather than a headline case
+      - include only sanitized benchmark/result snippets and scripts/tests that verify the export story
     - keep the handoff note explicit about current repo-facing Zelph dev contact
       surfaces:
       `sl_zelph_demo/*_run.sh`, `compile_db.py`, `lex_to_zelph.py`,

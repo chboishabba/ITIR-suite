@@ -37,6 +37,10 @@ print("dominant_regime_counts", summary["dominant_regime_counts"])
 print("average_follow_yield_metrics", summary["average_follow_yield_metrics"])
 print("average_two_hop_metrics", summary["average_two_hop_metrics"])
 print("average_best_path_metrics", summary["average_best_path_metrics"])
+missing = [page["title"] for page in report.get("pages", []) if "snapshot_missing_wikitext" in page.get("issues", [])]
+print("snapshot_missing_wikitext_count", len(missing))
+if missing:
+    print("snapshot_missing_wikitext_titles", missing[:10])
 PY
 
 echo "[4/4] Worst follow targets"
