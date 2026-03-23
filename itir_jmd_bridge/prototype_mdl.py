@@ -76,11 +76,74 @@ def ingest_graph(raw: dict[str, Any]) -> Graph:
     return Graph(doc_id=raw["doc_id"], nodes=nodes, edges=edges)
 
 
+def _append_unique(parts: list[str], value: str | None) -> None:
+    candidate = (value or "").strip()
+    if candidate and candidate not in parts:
+        parts.append(candidate)
+
+
+def _runtime_object_context_lines(runtime_object: dict[str, Any]) -> list[str]:
+    erdfa = runtime_object.get("erdfa") or {}
+    archive = erdfa.get("archive") or {}
+    archive_manifest = archive.get("manifest") or {}
+    dasl = erdfa.get("dasl") or {}
+
+    parts: list[str] = []
+    _append_unique(parts, runtime_object.get("title"))
+    _append_unique(parts, runtime_object.get("content_type"))
+
+    component_kind = erdfa.get("component_kind")
+    component_type = erdfa.get("component_type")
+    if component_kind or component_type:
+        _append_unique(parts, "component " + " ".join(str(item) for item in (component_kind, component_type) if item))
+
+    tags = [str(tag).strip() for tag in erdfa.get("tags") or [] if str(tag).strip()]
+    if tags:
+        _append_unique(parts, "tags " + " ".join(tags))
+
+    if erdfa.get("reply_to"):
+        _append_unique(parts, f"reply_to {erdfa['reply_to']}")
+    if dasl.get("type_code") is not None:
+        _append_unique(parts, f"dasl_type {dasl['type_code']}")
+    if erdfa.get("local_cid"):
+        _append_unique(parts, f"local_cid {erdfa['local_cid']}")
+    if erdfa.get("cid"):
+        _append_unique(parts, f"cid {erdfa['cid']}")
+    if archive_manifest.get("name"):
+        _append_unique(parts, f"archive_manifest {archive_manifest['name']}")
+    elif archive.get("primary_shard_id"):
+        _append_unique(parts, f"archive_primary {archive['primary_shard_id']}")
+
+    provenance = runtime_object.get("provenance") or {}
+    if provenance.get("source_url"):
+        _append_unique(parts, f"source_url {provenance['source_url']}")
+    return parts
+
+
+def _graph_edge_context(runtime_graph: dict[str, Any]) -> dict[str, list[str]]:
+    context: dict[str, list[str]] = {}
+
+    def remember(node_id: str, text: str) -> None:
+        bucket = context.setdefault(node_id, [])
+        if text not in bucket:
+            bucket.append(text)
+
+    for edge in runtime_graph.get("edges", []):
+        from_node_id = edge["from_node_id"]
+        to_node_id = edge["to_node_id"]
+        kind = edge["kind"]
+        remember(from_node_id, f"outgoing {kind} {to_node_id}")
+        remember(to_node_id, f"incoming {kind} {from_node_id}")
+    return context
+
+
 def project_runtime_bundle_to_graph_input(bundle: dict[str, Any]) -> dict[str, Any]:
     runtime_object = bundle["runtime_object"]["object"]
     runtime_graph = bundle["runtime_graph"]
     source_object_id = runtime_graph["source_object_id"]
     source_text = (runtime_object.get("text") or "").strip()
+    source_context = _runtime_object_context_lines(runtime_object)
+    edge_context = _graph_edge_context(runtime_graph)
 
     nodes: list[dict[str, Any]] = []
     for node in runtime_graph["nodes"]:
@@ -93,14 +156,19 @@ def project_runtime_bundle_to_graph_input(bundle: dict[str, Any]) -> dict[str, A
         text_parts: list[str] = []
         if node_id == source_object_id and source_text:
             text_parts.append(source_text)
+        if node_id == source_object_id:
+            for item in source_context:
+                _append_unique(text_parts, item)
         if label and label not in {node_id, source_text}:
-            text_parts.append(label)
+            _append_unique(text_parts, label)
         if kind:
-            text_parts.append(kind)
+            _append_unique(text_parts, kind)
         if ref and ref not in {node_id, label}:
-            text_parts.append(ref)
+            _append_unique(text_parts, ref)
         if cid:
-            text_parts.append(cid)
+            _append_unique(text_parts, cid)
+        for item in edge_context.get(node_id, []):
+            _append_unique(text_parts, item)
 
         node_text = " ".join(part for part in text_parts if part).strip() or node_id
         nodes.append(

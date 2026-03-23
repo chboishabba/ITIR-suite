@@ -315,10 +315,62 @@
     timeline extractor as the ingest ontology
   - DONE: keep the timeline name but allow ordered undated events with explicit
     anchor-status markers instead of date-only inclusion
+  - DONE: split the article-ingest report into dual-track coverage vs honesty
+    scoring so extraction blowups/noisy bindings stop looking like near-perfect
+    ingest
+  - DONE: add scorer-only honesty diagnostics for observation explosion, text
+    hygiene, actor-action binding, object binding, and timeline honesty ratios
+  - DONE: add a third scorer-only calibration layer for abstention quality,
+    sentence-link relevance, claim/attribution grounding, and heuristic
+    page-family stratification
+  - DONE: rerun the stored random-page manifest against the honesty +
+    calibration surfaces and record the main pressure points
+  - use the rerun findings to tighten family-aware summary interpretation:
+    - abstention calibration is already informative on `Agrega` and
+      `Euchlaena deductaria`
+    - link relevance currently saturates on the stored manifest and still needs
+      a stronger centrality/follow-yield formulation before it becomes a useful
+      discriminator
   - keep reducer/tokenizer reporting as companion diagnostics and rerun legal-
     specific comparisons separately instead of making them the whole lane
   - pressure-test the article-ingest report across more arbitrary non-legal
     pages before tightening score thresholds
+  - pressure-test the new page-family heuristics on a broader stored random
+    slice before treating family-level averages as stable
+  - revisit weak-object penalties after the abstention/link calibration pass so
+    taxonomy/catalog pages do not look uniformly broken when the real problem is
+    page-shape mismatch
+  - recover the graph-quality follow-up thread
+    `69c0bd1d-389c-8399-a23e-10efab70a1a9` after the `re_gpt` auth-bootstrap
+    fix and fold any `PositiveBorelMeasure` / graph-centrality guidance into
+    the Wikipedia ingest metrics docs
+  - debug the live ChatGPT refresh path around online UUID
+    `69c0b4d1-d714-839b-b21c-ce162292db4f`:
+    - do not assume token staleness from the current failure mode
+    - inspect whether `re_gpt` / `pull_to_structurer.py` is issuing a malformed
+      POST or otherwise broken auth/request sequence when trying to refresh an
+      already-ingested thread
+    - once fixed, re-verify that thread and fold any sharper repo-facing
+      wording back into the Wikipedia ingest docs/context
+  - fix `re_gpt` auth bootstrap for live UUID pulls:
+    - when `/api/auth/session` returns only `WARNING_BANNER`, treat it as a
+      frontend-cookie hydration failure first, not an automatic token-expiry
+      diagnosis
+    - hydrate frontend cookies from `https://chatgpt.com/` and retry the auth
+      session call in both sync and async clients
+    - DONE: preserve non-empty session cookies when frontend responses hand
+      back blank `__Secure-next-auth.session-token` values
+    - DONE: add fallback parsing of `client-bootstrap` access tokens plus an
+      async sync-bootstrap escape hatch
+    - still unresolved: the current session-token-only frontend path renders
+      `client-bootstrap` as logged out on `/` and `/c/<uuid>`, so recoverability
+      of thread `69c0bd1d-389c-8399-a23e-10efab70a1a9` likely needs either a
+      browser-authenticated fetch path or a different auth source than the
+      current `re_gpt` token flow
+  - support chunked local session-token files:
+    - read `~/.chatgpt_session_new` when present
+    - concatenate raw non-empty lines as token chunks before auth bootstrap
+    - keep the existing `config.ini` / `~/.chatgpt_session` precedence intact
   - deepen the shared-reducer non-legal comparison slice so it becomes more
     useful on ordinary encyclopedia prose rather than only as a companion
     diagnostic

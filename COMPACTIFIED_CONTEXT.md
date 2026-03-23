@@ -82,6 +82,117 @@
     - refactor article-ingest scoring onto that helper
     - refactor revision diffs to compare canonical state before projection
       summaries
+- 2026-03-23 Wikipedia ingest honesty pass:
+  - source: current working turn
+  - main decision:
+    - keep the existing article-ingest coverage score for comparability, but do
+      not let it stand alone as the quality signal
+    - add a second honesty-oriented score family that penalizes observation
+      explosion, malformed/noisy extracted text, and weak actor/object binding
+    - keep timeline honesty separate from article-ingest honesty; mostly
+      undated pages are not automatically ingest failures
+    - treat density metrics as first-class review evidence rather than just
+      hidden implementation detail
+  - followthrough:
+    - bump the report schema and emit `honesty_scores`,
+      `timeline_honesty`, and `density_metrics`
+    - use the stored random-page manifest as the first calibration pass for the
+      new honesty surface
+    - defer page-family stratification and link-relevance scoring until after
+      the scorer-only honesty pass is stable
+- 2026-03-23 Wikipedia ingest calibration pass:
+  - source: current working turn
+  - main decision:
+    - keep the earlier coverage and honesty tracks intact, but add a separate
+      scorer-only calibration layer for abstention quality, sentence-link
+      relevance, and claim/attribution grounding
+    - stratify report summaries by heuristic page family so biography/place/
+      project/species pages stop hiding each other's failure modes
+    - keep this pass report-only; do not mutate the canonical extractor again
+      yet
+  - followthrough:
+    - bump the report schema again and emit calibration scores plus page-family
+      profile data
+    - rerun the stored random-page manifest and use the family split to decide
+      whether weak object binding is a real extractor defect or a page-shape
+      calibration problem
+- 2026-03-23 unresolved ChatGPT context fetch:
+  - source: current working turn
+  - referenced online UUID:
+    `69c0b4d1-d714-839b-b21c-ce162292db4f`
+  - source used: prior local context plus failed later refresh attempt
+  - fetch status:
+    - `chat_context_resolver.py` returned only DB FTS candidates and explicitly
+      did not use the web
+    - direct `pull_to_structurer.py` fetch failed because `re_gpt` could not
+      obtain an auth token from the stored ChatGPT session
+    - `python -m re_gpt.cli --view ...` fell back to requesting a fresh
+      `__Secure-next-auth.session-token`, but that fallback should not be read
+      as proof the token was stale
+  - current best reading:
+    - the later refresh path failed, but that does not prove the original pull
+      never succeeded
+    - the likely fault is in the live fetch request/auth flow, not a safe
+      assumption of token staleness
+- 2026-03-23 ChatGPT auth-bootstrap debug:
+  - source: current working turn
+  - referenced online UUID:
+    `69c0bd1d-389c-8399-a23e-10efab70a1a9`
+  - DB lookup status:
+    - `chat_context_resolver.py` returned only `db_fts_candidates`; no exact
+      local resolution and web was not used
+  - live pull status:
+    - direct `pull_to_structurer.py --engine async` reproduced a concrete auth
+      bootstrap failure before any conversation fetch began
+    - `/api/auth/session` returned JSON with only `WARNING_BANNER` and no
+      `accessToken`
+  - main decision:
+    - treat this as a `re_gpt` auth-bootstrap defect until disproven
+    - likely cause: calling `/api/auth/session` with only the
+      `__Secure-next-auth.session-token` cookie instead of a hydrated frontend
+      cookie jar
+  - intended followthrough:
+    - patch `re_gpt` so sync/async auth bootstrap can hydrate frontend cookies
+      from `https://chatgpt.com/` and retry `api/auth/session` on the
+      warning-banner-only response
+    - recover the thread after the fix and fold any graph-quality /
+      `PositiveBorelMeasure` guidance into the durable docs
+  - implementation/result:
+    - patched `re_gpt` sync/async auth bootstrap to preserve non-empty session
+      cookies, hydrate frontend cookies, and fall back to parsing
+      `client-bootstrap` access tokens where available
+    - added focused regression coverage in
+      `reverse-engineered-chatgpt/tests/test_list_all_conversations.py`
+    - live recovery is still blocked in this environment because both `/` and
+      `/c/<uuid>` frontend pages currently render `client-bootstrap` with
+      `authStatus: logged_out`, so there is still no recoverable access token
+      or thread payload from the current session-token-only path
+- 2026-03-23 chunked session-token file:
+  - source: current working turn
+  - local artifact:
+    `~/.chatgpt_session_new`
+  - observed shape:
+    - two non-empty raw lines, corresponding to token chunks rather than a
+      single `token=` record
+  - decision:
+    - `re_gpt` should treat a chunked session-token file as a supported input
+      path and concatenate the chunks before auth bootstrap
+  - followthrough:
+    - extend `get_session_token()` to read chunked token files before the
+      fallback prompt path
+      as proof that the token was actually stale
+  - consequence:
+    - do not treat the later refresh failure as evidence that the original pull
+      never worked
+    - the safer reading is: prior thread context may already have been ingested
+      or reflected locally, but this pass could not re-verify it live because
+      the refresh path failed
+    - current leading suspicion is a bug in the live fetch/request flow
+      itself, potentially a malformed POST or related auth-request regression,
+      and that should be debugged explicitly rather than blamed on token age
+    - repo-facing changes in this pass should still be justified by local repo
+      state, tests, and stored-manifest evidence unless the thread is
+      re-verified explicitly
 - 2026-03-21 agent test-loop audit:
   - source: current working turn
   - scope:
