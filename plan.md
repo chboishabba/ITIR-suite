@@ -173,13 +173,23 @@
    - pass/partial/fail backlog triage against `SL-US-09` to `SL-US-14`
 12. Use the next implementation loop to close the highest-friction Wave 1 gaps
     surfaced by that batch report before moving to Wave 2 ITIR parity.
-13. Add a broad general-text Mary-parity readiness harness over revision-locked
-    Wikipedia random-page samples:
-   - keep lexer/reducer coverage as stage-1 diagnostics only
-   - score timeline-candidate plus AAO extraction as the real stage-2
-     chronology surface
+13. Add a broad random-page article-ingest harness over revision-locked
+    Wikipedia samples:
+   - treat article-wide actor/action/object extraction as the parent quality
+     surface
+   - keep lexer/reducer coverage as companion diagnostics only
+   - keep timeline-candidate plus AAO readiness as a derived chronology
+     surface, not the whole lane
+   - start bounded link expansion at one hop only with replayable manifests
    - treat the next follow-on as bridging those general-text outputs into the
      canonical observation/event sender rather than inventing a second store
+14. Realign the Wikipedia lane around one canonical wiki-state compiler:
+   - make article ingest, timeline, and revision three projections over the
+     same deterministic state
+   - keep `timeline` as the named chronology surface while allowing ordered
+     undated events with explicit anchor status
+   - make revision moderation state-first so disputed facts/aspects/claims are
+     visible directly to reviewers
 
 ## Milestone T: Mary-Parity Acceptance Expansion (completed)
 1. Greened explicit acceptance gates for:

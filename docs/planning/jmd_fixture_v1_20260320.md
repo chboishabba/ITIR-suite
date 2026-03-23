@@ -12,13 +12,17 @@ The first canonical bridge example is:
 
 - one ERDFA-backed text shard
 - with dual ingest references:
-  - pastebin-style raw retrieval surface
+  - `kant-zk-pastebin` raw retrieval surface
   - IPFS CID integrity surface
+- with `erdfa-publish-rs` treated as the concrete ERDFA shard producer closest
+  to the fixture's structural model
 - plus one SL overlay payload using byte-addressable anchors
 
 ## Why This Shape
 - pastebin/IPFS already matches the current JMD-side storage reading in the
   planning docs
+- `kant-zk-pastebin` and `erdfa-publish-rs` make that split more concrete:
+  raw retrieval plus CID on one side, ERDFA shard structure on the other
 - ERDFA remains the structural shard/object model rather than an embedding lane
 - one text shard is enough to lock identity, provenance, and reversibility
   before bundle or thread-level complexity is added
@@ -42,6 +46,7 @@ allowed to become a fuzzy or guess-based pointer back into JMD content.
   - `cid_ref`
 - `object_type` is `shard`
 - ERDFA metadata is explicit:
+  - producer
   - shard id
   - CID
   - component kind

@@ -1,0 +1,30 @@
+{
+  "contract_version": "jmd.runtime.graph.v1",
+  "edges": [
+    {
+      "edge_id": "jmd:erdfa:shard:note-0001->jmd:erdfa:shard:receipt-0001:link",
+      "from_node_id": "jmd:erdfa:shard:note-0001",
+      "kind": "link",
+      "to_node_id": "jmd:erdfa:shard:receipt-0001"
+    }
+  ],
+  "generated_at": "2026-03-22T00:00:00Z",
+  "graph_id": "jmd-graph:1234567890abcdef",
+  "nodes": [
+    {
+      "cid": "bafkreigh2akiscaildcjexample000000000000000000000000000000",
+      "kind": "shard",
+      "label": "note-0001",
+      "node_id": "jmd:erdfa:shard:note-0001",
+      "ref": "jmd:erdfa:shard:note-0001"
+    },
+    {
+      "cid": null,
+      "kind": "linked",
+      "label": "jmd:erdfa:shard:receipt-0001",
+      "node_id": "jmd:erdfa:shard:receipt-0001",
+      "ref": "jmd:erdfa:shard:receipt-0001"
+    }
+  ],
+  "source_object_id": "jmd:erdfa:shard:note-0001"
+}

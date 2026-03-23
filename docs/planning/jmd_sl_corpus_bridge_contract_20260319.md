@@ -36,6 +36,9 @@ The contract must preserve:
   - pastebin/IPFS behaves like the persistent shared memory/state layer
   - ERDFA is better treated as canonical structural/shard substrate than as an
     embedding layer
+  - in the adjacent local workspace, `kant-zk-pastebin` is the concrete
+    paste/raw retrieval surface and `erdfa-publish-rs` is the concrete
+    ERDFA-side shard publisher closest to this planning model
   - Rust is treated as a programmable transformation/execution layer via custom
     rust-driver/plugin tooling
   - this strengthens the split between shared identity substrate and separate
@@ -88,15 +91,39 @@ Current architectural reading sharpened by the archived thread:
 - the bridge should therefore target canonical object exposure and advisory
   overlay return, not assume SL owns the runtime execution fabric
 
+### DASHI role in the bridge
+The bridge needs one more layer made explicit so the repo does not drift into
+"ERDFA already is the bridge" language.
+
+- `ERDFA` / `DASL` is the representation, addressing, and execution substrate:
+  it names, stores, transports, and links candidate artefacts or traces.
+- `DASHI` is the selection/compression/invariance layer:
+  it defines quotienting, admissible predictor families, and MDL-style collapse
+  over the candidate space exposed by ERDFA/DASL.
+- `SL` is the canonical reversible overlay surface:
+  it exposes anchors, groups, clusters, divergence overlays, and future proof
+  surfaces over the DASHI-collapsed reading of the JMD evidence.
+
+That gives the bridge composition as:
+
+`ERDFA/DASL substrate -> DASHI quotient / MDL collapse -> SL reversible corpus overlays`
+
+This matters because the bridge is not only "read a shard and expose text". It
+is also the place where the suite should eventually prove that a selected
+representation is the minimal canonical explanation over declared evidence.
+
 ### S — State
 Two coupled but distinct states:
 
 - `JMD state`: canonical object graph
 - `SL state`: corpus graph over lexical spans, groups, equivalence clusters,
   and overlays
+- `DASHI selection state`: the admissible hypothesis family and its current
+  minimal representative over the declared evidence bundle
 
 ### L — Lattice
 - JMD graph: object/link structure
+- DASHI graph: quotient/equivalence classes over candidate representations
 - SL graph: span/group/cluster/divergence structure
 - bridge mappings preserve one-to-many and many-to-one correspondences
   explicitly
@@ -108,6 +135,7 @@ SL may propose:
 - divergence flags
 - canonical cluster candidates
 - shard-boundary optimisation hints
+- DASHI-backed canonicalisation hints over provenance bundles
 - verification and provenance overlays
 
 SL may not directly publish, collapse, or rewrite JMD objects.
@@ -135,6 +163,14 @@ surface into:
 - divergence/novelty relative to the current corpus model
 - completeness/coverage so compression alone does not reward noise
 - replayability as a hard admissibility condition
+
+For the DASHI layer specifically, this means:
+
+- `mdl_gain` alone is insufficient
+- the bridge must separate local compression, corpus-relative novelty,
+  completeness/coverage, and proof admissibility
+- the minimal representative should be described as a named quotient/collapse
+  result over declared evidence, not as an opaque score
 
 ## Core Contract Principle
 The bridge is not object replacement.
@@ -179,6 +215,17 @@ Required rules:
 - `object_id` is stable in JMD space
 - `content` is the exact payload or a dereferenceable ref
 - provenance is preserved, even if sparse
+
+If the object is a provenance bundle rather than a single text shard, the
+bridge should treat:
+
+- `binaries` as decoder/predictor family members,
+- `source` and debug symbols as the declared hypothesis space,
+- `traces` as observed signal,
+- `models` as selected representatives,
+- `events` as the causal filtration over that signal.
+
+That is the intended DASHI reading of the JMD evidence bundle.
 
 ### 2. SL-side ingest unit
 SL transforms that into a corpus object:
@@ -491,6 +538,9 @@ V1 payload decisions:
 - first canonical example is one ERDFA-backed text shard
 - both `paste_ref` and `cid_ref` are present in the canonical fixture
 - pastebin/IPFS are the ingest surfaces; ERDFA is the structural shard model
+- current concrete repo mapping:
+  - `kant-zk-pastebin` for `paste_ref`
+  - `erdfa-publish-rs` for ERDFA shard production/serialization
 - `zos-server`/Rabbit/libp2p remain future infrastructure, not normative payload
   fields
 

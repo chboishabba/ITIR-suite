@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["contract_version", "receipt_id", "recorded_at", "status", "provider_kind", "provider_name", "object_refs", "graph_refs", "actions", "downstream_handoffs"],
+  "properties": {
+    "contract_version": { "const": "jmd.runtime.receipt.v1" },
+    "receipt_id": { "type": "string" },
+    "recorded_at": { "type": "string" },
+    "status": { "type": "string" },
+    "provider_kind": { "type": "string" },
+    "provider_name": { "type": "string" },
+    "object_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["object_id", "locator", "content_sha256"],
+        "properties": {
+          "object_id": { "type": "string" },
+          "locator": { "type": "string" },
+          "content_sha256": { "type": "string" }
+        }
+      }
+    },
+    "graph_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["graph_id", "source_object_id"],
+        "properties": {
+          "graph_id": { "type": "string" },
+          "source_object_id": { "type": "string" }
+        }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "locator", "status"],
+        "properties": {
+          "kind": { "type": "string" },
+          "locator": { "type": "string" },
+          "fetched_at": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      }
+    },
+    "downstream_handoffs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target", "kind", "status"],
+        "properties": {
+          "target": { "type": "string" },
+          "kind": { "type": "string" },
+          "status": { "type": "string" }
+        }
+      }
+    }
+  }
+}

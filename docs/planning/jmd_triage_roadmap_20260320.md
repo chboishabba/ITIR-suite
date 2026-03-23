@@ -32,6 +32,13 @@ explicitly deferred lane:
    implementation milestone yet. Treat them as reserved fields and invariants
    for the bridge contract.
 
+The bridge lane also needs one explicit internal split:
+
+- `ERDFA` / `DASL`: representation, addressing, and execution substrate
+- `DASHI`: quotient / invariance / MDL selection layer over that substrate
+- `SL bridge`: reversible anchors, organisation overlays, and future proof
+  surfaces over the DASHI-collapsed reading
+
 ## Consistency Check Against Existing Repo Direction
 ### Already aligned
 - `status.json` still points to Casey boundary seams rather than a JMD adapter
@@ -71,11 +78,14 @@ Scope:
 - define advisory overlay payloads that point back to JMD refs
 - reserve provenance-bundle and metric-commitment fields without requiring a
   final proof stack
+- make the DASHI role explicit so provenance bundles are interpreted as
+  candidate families plus minimal representatives, not just file attachments
 
 Explicitly in scope:
 - object identity rules
 - anchor/group/cluster identity rules
 - provenance bundle member refs
+- quotient / invariance terminology for DASHI-backed collapse
 - corpus-root / pipeline / metric / score commitment fields
 - replay and reversibility constraints
 
@@ -89,11 +99,37 @@ Exit criteria:
 - one ingest payload shape
 - one overlay payload shape
 - reversible anchor invariants
+- explicit naming for substrate vs selection vs overlay responsibilities
 - conformance tests or fixture specs for payload stability
 - fixture pack now pinned by:
   - `docs/planning/jmd_fixture_v1_20260320.md`
   - `docs/planning/jmd_fixtures/jmd_sl_ingest_v1.example.json`
   - `docs/planning/jmd_fixtures/sl_jmd_overlay_v1.example.json`
+ - a local Casey/SL-side normalization + proof prototype exists before any
+   upstream JMD PR is attempted
+
+### Phase JMD-1.5: Local proof-carrying normalization prototype
+Status: allowed locally after JMD-1 docs are aligned
+
+Scope:
+- keep the prototype entirely on the ITIR/SL side
+- ingest graph-like JMD-facing objects
+- emit:
+  - normalized graph
+  - dictionary or motif table
+  - transform plan
+  - MDL proof object
+- prove the shape of phase-2 proof-carrying interop without changing JMD
+
+Explicitly out of scope:
+- mandatory upstream JMD changes
+- JMD-native proof verification
+- Rabbit/event semantics redesign
+
+Exit criteria:
+- one local prototype module
+- one focused test slice
+- one planning note for the future minimal upstream field extension
 
 ### Phase JMD-2: Governed proposal path
 Status: deferred until JMD-1 invariants are proven

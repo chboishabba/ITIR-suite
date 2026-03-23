@@ -18,6 +18,7 @@
         }
       },
       "erdfa": {
+        "provider": "erdfa-publish-rs",
         "shard_id": "note-0001",
         "cid": "bafkreigh2akiscaildcjexample000000000000000000000000000000",
         "component_kind": "text",

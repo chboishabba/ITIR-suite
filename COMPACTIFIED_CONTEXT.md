@@ -1,5 +1,119 @@
 # Compactified Context
 
+- 2026-03-22 Casey x JMD MDL bridge clarification:
+  - source: current working turn
+  - main decision:
+    - no JMD-side PR is required for phase-1 interoperability if SL/ITIR can
+      already ingest raw JMD-facing surfaces and emit normalized semantic
+      outputs on its own side
+    - a JMD-side PR only becomes justified for phase-2 proof-carrying interop:
+      embedding SL-normal-form and MDL-proof references into JMD-native shard
+      or step objects
+    - the intended minimal JMD-side optional extension fields are:
+      `sl:normal_form_cid`, `sl:mdl_proof_cid`,
+      `sl:canonicalization_version`
+    - the clean local bridge point is:
+      parse raw surface -> emit semantic atoms -> map into structured graph ->
+      run DASHI/MDL-style collapse -> emit canonical graph plus proof object
+    - the first prototype should stay entirely on the ITIR/SL side and prove
+      the shape of:
+      input graph, candidate transforms, transform plan, normalized graph, and
+      MDL proof object
+  - followthrough:
+    - add a planning note for the Casey/JMD MDL contract and proof object
+    - add a small local prototype rather than opening a speculative upstream PR
+    - keep any future upstream PR intentionally tiny and optional
+- 2026-03-22 DASHI x JMD/SL bridge role clarification:
+  - source: current working turn
+  - main decision:
+    - for the JMD canonical object graph -> SL corpus graph bridge, `ERDFA` /
+      `DASL` remains the representation, addressing, and execution substrate
+    - `DASHI` is the missing selection/compression/invariance layer over that
+      substrate, not a competing shard format or transport
+    - the practical SL bridge composition is:
+      ERDFA/DASL object or trace graph -> DASHI-style quotient / MDL collapse
+      -> SL reversible anchors and advisory overlays
+    - provenance bundles should therefore be read as structured hypothesis
+      spaces: binaries/source/debug symbols/traces/models/events are inputs to
+      canonicalisation, not just opaque attachments
+    - the bridge proof target is not merely "can SL read the shard", but "can
+      SL attest that the chosen representation is a minimal canonical
+      explanation over declared evidence"
+  - immediate followthrough:
+    - update the JMD bridge contract and triage roadmap so the DASHI layer is
+      explicit
+    - update `TODO.md` so future bridge work keeps MDL collapse, symmetry
+      quotienting, and proof fields aligned with the read-only bridge lane
+    - keep runtime code conservative until the doc/TODO framing is stable
+- 2026-03-22 Wikipedia random-page ingest realignment:
+  - source: current working turn
+  - main decision:
+    - treat random Wikipedia pages as an article-ingest coverage lane first,
+      not as a revision/reversion lane and not only as date-anchored timeline
+      readiness
+    - primary goal is to identify the people/entities named in arbitrary
+      article text and what they did, with bounded when/where/why/context when
+      deterministic local extraction supports it
+    - timeline quality remains important, but as a derived surface over the
+      broader article-ingest pass
+    - start bounded link expansion at one hop only
+    - keep live acquisition separate from offline scoring
+    - shared reducer output remains useful companion diagnostics, but the main
+      success condition is broader article ingest over arbitrary non-legal
+      pages rather than abstention
+  - followthrough:
+    - add a parent random-page article-ingest contract in `SensibLaw/docs/`
+    - retarget `Antigravity-Aether` away from reversion/sentinel wording and
+      toward article-ingest coverage plus timeline-enabling unit tests
+    - add a new article-ingest report path and one-hop sample-manifest support
+- 2026-03-22 Wikipedia canonical-state split:
+  - source: current working turn
+  - main decision:
+    - use one deterministic canonical wiki-state compiler as the shared middle
+      for Wikipedia ingest
+    - reuse the existing fact-intake observation/event vocabulary instead of
+      inventing a Wikipedia-only ontology
+    - keep `timeline` as the user-facing name even when ordered events are
+      undated, but require explicit anchor status (`explicit`, `weak`, `none`)
+    - make revision review a state-first diff over canonical wiki state, with
+      graph/timeline/editorial summaries derived secondarily
+  - followthrough:
+    - add a canonical wiki-state helper under `SensibLaw/src/wiki_timeline/`
+    - refactor article-ingest scoring onto that helper
+    - refactor revision diffs to compare canonical state before projection
+      summaries
+- 2026-03-21 agent test-loop audit:
+  - source: current working turn
+  - scope:
+    - reconcile `docs/planning/agent_test_loop.md` check-ins against actual
+      working-tree artifacts and rerun the smallest matching slices
+  - verified completed loops on rerun:
+    - `Codex-Aster`: `itir-svelte` graph UI gate rerun passed
+      (`npm test -- --test-name-pattern graph_ui_regressions`,
+      `npm run check`, `npm run build`)
+    - `Antigravity-Zelph`: `SensibLaw/tests/test_sl_zelph_demo_tools.py`
+      passed (13)
+    - `Antigravity-Warp`: `SensibLaw/tests/test_query_fact_review_script.py`
+      passed (8) and `StatiBaker/tests/test_observed_signals_contract.py`
+      passed (17)
+    - `Antigravity-Apex`: `SensibLaw/tests/test_migration_integrity.py`
+      passed (2) and `StatiBaker/tests/test_apex_schema_validation.py`
+      passed (2)
+    - `Antigravity-Sentinel`: ASR/WhisperX importer slice passed (6) and
+      `SensibLaw/tests/test_fact_intake_read_model.py` passed (15)
+    - `Antigravity-Orion`: `SensibLaw` Zelph tool slice passed (13) and
+      `itir-svelte/tests/zelph_integration.test.js` passed (1)
+    - `Antigravity-Titan`: benchmark matrix reran successfully at `--max-tier 100`
+      across four corpora, but the earlier exact pass-count wording was not
+      supported by retained artifacts
+  - followthrough:
+    - keep only completed loops in `agent_test_loop.md`
+    - move initialization-only lanes to TODO follow-up until they have exact
+      commands and terminal outcomes
+    - fix trivial rerun blockers when local and mechanical; during this pass that
+      included restoring the missing `path` import in
+      `itir-svelte/src/lib/server/factReview.ts` and correcting a faulty source-type
+      setup in `SensibLaw/tests/test_zelph_wiki_extended_coverage.py`
 - 2026-03-19 web-surface transition clarification:
   - source: current working turn
   - main decision:
@@ -274,6 +388,23 @@
       because they may contain personal or case-linked material
   - documentation artifact added:
     - `docs/planning/zelph_external_handoff_20260320.md`
+- 2026-03-20 ZK legal context refresh:
+  - resolved archived thread via `robust-context-fetch`
+  - title: `ZK in Legal Context`
+  - online UUID: `69bca95c-4f7c-839e-8b3a-3c5e273f185a`
+  - canonical thread ID: `f9eec63632218ec0924bc7e5ba1cf041cafc5542`
+  - source used: `db` (after direct UUID pull into `~/chat_archive.sqlite`)
+  - main topics / decisions pulled from the thread:
+    - the family-court `Magellan` / `Lighthouse` / `Evatt` pathways are a real
+      institutional entry point for privacy-preserving legal tech, not just a
+      generic use case
+    - the compelling fit is bounded verification under information asymmetry:
+      sensitive evidence, child-safety / DV risk signals, and claims that may
+      need to be verified without broad disclosure
+    - treat this as problem-framing / future product-positioning context, not a
+      current implementation milestone
+    - keep present repo work focused on fact-layer / provenance / operator
+      review seams before any stronger ZK or court-workflow claims
 
 - 2026-03-14 whitepaper context refresh:
   - resolved archived thread via `robust-context-fetch`

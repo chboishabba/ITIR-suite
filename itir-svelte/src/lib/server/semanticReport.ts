@@ -1,7 +1,6 @@
-import path from 'node:path';
-import { existsSync } from 'node:fs';
-import { spawn } from 'node:child_process';
+import { resolveRepoRoot, resolveItirDbPath, readStdout } from './utils';
 import type { TextDebugPayload, TextDebugSourceDocument } from '$lib/semantic/textDebug';
+import path from 'node:path';
 
 type SemanticCorpusConfig = {
   key: string;
@@ -227,38 +226,26 @@ const SEMANTIC_CORPORA: Record<string, SemanticCorpusConfig> = {
   }
 };
 
-function resolveRepoRoot(): string {
-  const candidates = [path.resolve('.'), path.resolve('..')];
-  for (const c of candidates) {
-    if (existsSync(path.join(c, 'SensibLaw'))) return c;
-  }
-  return path.resolve('..');
-}
-
-function resolveItirDbPath(repoRoot: string): string {
-  const raw = process.env.ITIR_DB_PATH?.trim() || '.cache_local/itir.sqlite';
-  return path.resolve(repoRoot, raw);
-}
-
-async function readStdout(cmd: string, args: string[], cwd: string): Promise<string> {
-  return await new Promise<string>((resolve, reject) => {
-    const child = spawn(cmd, args, { cwd });
-    let stdout = '';
-    let stderr = '';
-    child.stdout.on('data', (d) => (stdout += d.toString()));
-    child.stderr.on('data', (d) => (stderr += d.toString()));
-    child.on('close', (code) => {
-      if (code !== 0) {
-        reject(new Error(`${cmd} ${args.join(' ')} failed with ${code}\n${stderr || stdout}`));
-      } else {
-        resolve(stdout);
-      }
-    });
-  });
+function validateReport(report: any): report is SemanticReportPayload {
+  if (!report || typeof report !== 'object') return false;
+  if (typeof report.run_id !== 'string') return false;
+  if (!report.summary || typeof report.summary !== 'object') return false;
+  return true;
 }
 
 function parseReport(raw: string): SemanticReportPayload {
-  return JSON.parse(raw) as SemanticReportPayload;
+  let report: any;
+  try {
+    report = JSON.parse(raw);
+  } catch (e) {
+    throw new Error(`Failed to parse semantic report JSON: ${e}\nRaw output: ${raw.slice(0, 500)}`);
+  }
+
+  if (!validateReport(report)) {
+    throw new Error(`Invalid semantic report payload: missing required 'run_id' or 'summary' fields.`);
+  }
+
+  return report;
 }
 
 function buildTokenArcDebug(report: SemanticReportPayload): TextDebugPayload {

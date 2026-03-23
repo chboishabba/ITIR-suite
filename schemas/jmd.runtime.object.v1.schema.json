@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["contract_version", "resolved_at", "provider", "object"],
+  "properties": {
+    "contract_version": { "const": "jmd.runtime.object.v1" },
+    "resolved_at": { "type": "string" },
+    "provider": {
+      "type": "object",
+      "required": ["kind", "name", "base_url"],
+      "properties": {
+        "kind": { "type": "string" },
+        "name": { "type": "string" },
+        "base_url": { "type": "string" }
+      }
+    },
+    "object": {
+      "type": "object",
+      "required": ["object_id", "object_type", "content_type", "text", "content_ref", "erdfa", "provenance"],
+      "properties": {
+        "object_id": { "type": "string" },
+        "object_type": { "type": "string" },
+        "content_type": { "type": "string" },
+        "title": { "type": "string" },
+        "text": { "type": "string" },
+        "raw_text": { "type": "string" },
+        "token_count": { "type": "integer", "minimum": 0 },
+        "content_ref": {
+          "type": "object",
+          "required": ["paste_ref"],
+          "properties": {
+            "paste_ref": {
+              "type": "object",
+              "required": ["provider", "paste_id", "raw_url"],
+              "properties": {
+                "provider": { "type": "string" },
+                "paste_id": { "type": "string" },
+                "raw_url": { "type": "string" },
+                "paste_url": { "type": "string" },
+                "base_url": { "type": "string" }
+              }
+            },
+            "cid_ref": {
+              "type": "object",
+              "required": ["provider", "cid"],
+              "properties": {
+                "provider": { "type": "string" },
+                "cid": { "type": "string" }
+              }
+            }
+          }
+        },
+        "erdfa": {
+          "type": "object",
+          "required": ["provider", "shard_id", "component_kind", "parent_refs", "link_refs", "tags"],
+          "properties": {
+            "provider": { "type": "string" },
+            "shard_id": { "type": "string" },
+            "cid": { "type": ["string", "null"] },
+            "component_kind": { "type": "string" },
+            "component_type": { "type": ["string", "null"] },
+            "local_cid": { "type": ["string", "null"] },
+            "witness": { "type": ["string", "null"] },
+            "reply_to": { "type": ["string", "null"] },
+            "dasl": {
+              "type": ["object", "null"],
+              "properties": {
+                "raw": { "type": "string" },
+                "prefix": { "type": "string" },
+                "type_code": { "type": "integer", "minimum": 0 },
+                "raw_data": { "type": "string" },
+                "nested_cid": {
+                  "type": "object",
+                  "properties": {
+                    "shard_index": { "type": "integer", "minimum": 0 },
+                    "hecke_index": { "type": "integer", "minimum": 0 },
+                    "bott_index": { "type": "integer", "minimum": 0 },
+                    "hash_fragment": { "type": "integer", "minimum": 0 }
+                  }
+                }
+              }
+            },
+            "parent_refs": { "type": "array", "items": { "type": "string" } },
+            "link_refs": { "type": "array", "items": { "type": "string" } },
+            "tags": { "type": "array", "items": { "type": "string" } },
+            "archive": {
+              "type": ["object", "null"],
+              "properties": {
+                "provider": { "type": "string" },
+                "archive_path": { "type": "string" },
+                "archive_sha256": { "type": "string" },
+                "member_count": { "type": "integer", "minimum": 0 },
+                "manifest_present": { "type": "boolean" },
+                "shard_members": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "provenance": {
+          "type": "object",
+          "required": ["source", "captured_at", "source_url", "retrieval_mode", "raw_text_sha256", "body_text_sha256"],
+          "properties": {
+            "source": { "type": "string" },
+            "captured_at": { "type": "string" },
+            "source_url": { "type": "string" },
+            "retrieval_mode": { "type": "string" },
+            "raw_text_sha256": { "type": "string" },
+            "body_text_sha256": { "type": "string" },
+            "ipfs_verification": {
+              "type": ["object", "null"],
+              "properties": {
+                "provider": { "type": "string" },
+                "url": { "type": "string" },
+                "fetched_at": { "type": "string" },
+                "status_code": { "type": "integer", "minimum": 0 },
+                "content_sha256": { "type": "string" },
+                "matches_body_text": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

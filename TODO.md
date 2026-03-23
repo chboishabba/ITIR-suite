@@ -1,7 +1,7 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-03-18
+- 2026-03-21
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
@@ -49,6 +49,18 @@
   - add keyboard navigation/focus/activation tests for transcript/document/folder viewers and graph controls
   - add one axe-based browser smoke for `/viewers/hca-case` and primary graph routes
   - keep Pelican/Zola reference-only; direct new UI work/testing to itir-svelte
+- [P1] Agent test-loop ledger followthrough:
+  - keep `docs/planning/agent_test_loop.md` check-ins restricted to completed loops with exact commands and terminal outcomes
+  - finish or explicitly retire the lanes currently recorded as starts only:
+    - `Codex-Lumen`
+    - `Antigravity-Loom`
+    - `Antigravity-Pulse`
+    - `Antigravity-Nova`
+    - `Antigravity-Archive`
+    - `Antigravity-Flux-Wiki`
+  - if `Antigravity-Titan` is kept as a completed lane, rerun and record the exact
+    `SensibLaw` / `StatiBaker` slice commands that justify the pass counts rather
+    than only the benchmark matrix command
 - [P1] Shared SL reducer adoption across products:
   - use `sensiblaw.interfaces.shared_reducer` as the supported cross-product
     lexer/reducer API
@@ -106,10 +118,20 @@
   - Zelph external collaboration followthrough:
     - use `docs/planning/zelph_external_handoff_20260320.md` as the canonical
       Stefan-facing repo note
+    - DONE: keep the outward-facing handoff wording behavior-level rather than
+      role-label-driven (reversion detection / volatility /
+      reversion-without-context risk, not a formal `wiki sentinel` ontology
+      claim)
     - review `SensibLaw/tests/fixtures/fact_semantic_bench/results/` for
       personal or case-linked material before sharing any benchmark outputs
     - prepare a deliberately shareable Zelph pack:
       demo scripts, rules, tests, and only sanitized benchmark/result snippets
+    - archived context input resolved on 2026-03-20:
+      - `69bca95c-4f7c-839e-8b3a-3c5e273f185a` / `ZK in Legal Context`
+      -> family-court `Magellan` / `Lighthouse` / `Evatt` pathways are a real
+         institutional entry point for privacy-preserving verification, but this
+         remains future product-positioning context rather than a near-term
+         implementation milestone
   - treat Mary Technology as the benchmark for:
     - fact management
     - chronology / timeline handling
@@ -276,6 +298,30 @@
     - extraction profile `SensibLaw/policies/wiki_timeline_aoo_profile_v1.json`
     - run with project venv for spaCy parser lane (see `docs/planning/wiki_timeline_extraction_gwb_20260211.md`)
     - admissibility gate: `docs/planning/oac_object_admissibility_contract_v1_20260211.md`
+- [P1] Wikipedia random article-ingest coverage followthrough:
+  - DONE: define the parent contract for revision-locked random-page article ingest
+    over arbitrary Wikipedia prose rather than treating the lane as
+    revision-volatility or date-anchor-only work
+  - DONE: keep timeline readiness as a derived chronology surface over broader
+    article ingestion, not as the only quality score
+  - DONE: add unit-test-backed article-wide sentence ingestion scoring so simple
+    cases like `Jane patted the cat` retain who-did-what structure cleanly
+  - DONE: add bounded one-hop follow support to the random-page manifest path with
+    explicit caps and replayable child snapshot linkage
+  - DONE: retarget `Antigravity-Aether` toward article-ingest coverage and timeline-
+    enabling test expansion rather than reversion/sentinel work
+  - DONE: realign the lane around one canonical wiki-state compiler with
+    article-ingest, timeline, and revision projections instead of treating the
+    timeline extractor as the ingest ontology
+  - DONE: keep the timeline name but allow ordered undated events with explicit
+    anchor-status markers instead of date-only inclusion
+  - keep reducer/tokenizer reporting as companion diagnostics and rerun legal-
+    specific comparisons separately instead of making them the whole lane
+  - pressure-test the article-ingest report across more arbitrary non-legal
+    pages before tightening score thresholds
+  - deepen the shared-reducer non-legal comparison slice so it becomes more
+    useful on ordinary encyclopedia prose rather than only as a companion
+    diagnostic
 - [P2] Wikipedia revision harness followthrough:
   - DONE: define the first monitor pack and dedicated runner/state-store contract
   - DONE: define a second curated high-contestation monitor pack to complement
@@ -295,6 +341,9 @@
     `itir-svelte` page over the contested pack
   - DONE: expand the contested pack into `wiki_revision_contested_v2` with
     deeper bounded history defaults and graphing enabled
+  - DONE: make the revision harness state-first over canonical wiki-state
+    bundles, with timeline/graph/editorial summaries treated as derived review
+    surfaces
   - run repeated live passes over both curated packs so the lane accumulates
     real `changed` reports rather than mostly baseline/unchanged runs
   - compare volatility classes across packs (ontology-stress vs contested-live)
@@ -583,6 +632,11 @@
   - model Rabbit/topic routing and pastebin/IPFS persistence explicitly as JMD
     infrastructure assumptions in the first bridge ingest/overlay prototypes,
     rather than treating ERDFA as an embedding-style side lane
+  - treat the currently adjacent concrete repos as the named reference
+    implementation surfaces for that planning split:
+    `kant-zk-pastebin` for paste/raw retrieval and `erdfa-publish-rs` for
+    ERDFA shard production, without promoting either repo to a full runtime
+    integration contract yet
   - keep any Rust-facing bridge work at the "programmable transform layer"
     boundary first; do not let Rust/plugin exploration silently become a
     canonical bridge contract before the object/anchor/overlay model is proven
@@ -590,6 +644,24 @@
     carry:
     binaries, source, debug symbols, traces, models, and prior events as
     linked bundle members rather than a single opaque blob
+  - make the DASHI reading of that provenance bundle explicit:
+    binaries = decoder/predictor family, source/debug symbols = hypothesis
+    space, traces = observed signal, models = selected representative,
+    events = causal filtration
+  - keep the bridge role split explicit in docs and code:
+    ERDFA/DASL = representation/addressing substrate,
+    DASHI = quotient/invariance/MDL selection layer,
+    SL = reversible anchor/overlay surface
+  - when bridge scoring/proof fields are added, require quotient/collapse
+    terminology rather than treating `mdl_gain` as a standalone truth scalar
+  - add a local Casey/SL-side proof-carrying normalization prototype first;
+    do not open a JMD PR until the local graph -> transform plan -> proof
+    object loop is stable
+  - if a JMD-side PR is eventually needed, keep it tiny and optional:
+    `sl:normal_form_cid`, `sl:mdl_proof_cid`,
+    `sl:canonicalization_version`
+  - add a first local proof object / transform-plan planning note in:
+    `docs/planning/jmd_casey_mdl_contract_20260322.md`
   - reserve explicit bridge fields for:
     `corpus_root`, `pipeline_id`, `params_hash`, `metric_commitment`, and
     `score_commitment` so post-entropy style proofs can later attest to corpus,
@@ -731,6 +803,13 @@
   `docs/planning/ui_invariant_test_runner.md`).
 - Choose a JSON Schema validator and wire fixture validation into CI (see
   `docs/planning/context_envelope_validate_stub.py`).
+- [P2] Repo artifact hygiene followthrough:
+  - DONE: clarify top-level/submodule SQLite risk in
+    `docs/planning/git_artifact_hygiene_20260208.md`
+  - DONE: stop treating `StatiBaker/runs/dashboard.sqlite` as a normal tracked
+    sample artifact; private runs should use `runs_local/` / `SB_RUNS_ROOT`
+  - next: audit remaining docs/scripts that still imply a checked-in dashboard
+    DB is the normal way to reproduce or test SB locally
 
 ## Blockers / constraints
 - No explicit blockers listed in submodule TODO files.

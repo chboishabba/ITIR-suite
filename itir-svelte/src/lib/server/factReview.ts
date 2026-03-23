@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { spawn } from 'node:child_process';
+import { resolveRepoRoot, resolveItirDbPath, readStdout } from './utils';
 import { parseFactReviewCliPayload } from '$lib/server/factReviewCli.js';
 
 export type FactReviewSelector = {
@@ -204,34 +204,8 @@ export interface FactReviewAcceptanceReport {
   stories: FactReviewStoryResult[];
 }
 
-function resolveRepoRoot(): string {
-  return path.resolve('..');
-}
-
-function resolveItirDbPath(repoRoot: string): string {
-  const raw = process.env.ITIR_DB_PATH?.trim() || '.cache_local/itir.sqlite';
-  return path.resolve(repoRoot, raw);
-}
-
 function queryScriptPath(repoRoot: string): string {
   return path.join(repoRoot, 'SensibLaw', 'scripts', 'query_fact_review.py');
-}
-
-async function readStdout(cmd: string, args: string[], cwd: string): Promise<string> {
-  return await new Promise<string>((resolve, reject) => {
-    const child = spawn(cmd, args, { cwd });
-    let stdout = '';
-    let stderr = '';
-    child.stdout.on('data', (d) => (stdout += d.toString()));
-    child.stderr.on('data', (d) => (stderr += d.toString()));
-    child.on('close', (code) => {
-      if (code !== 0) {
-        reject(new Error(`${cmd} ${args.join(' ')} failed with ${code}\n${stderr || stdout}`));
-      } else {
-        resolve(stdout);
-      }
-    });
-  });
 }
 
 function selectorArgs(selector: FactReviewSelector): string[] {

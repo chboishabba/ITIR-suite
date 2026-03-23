@@ -1,0 +1,47 @@
+{
+  "actions": [
+    {
+      "fetched_at": "2026-03-22T00:00:00Z",
+      "kind": "fetch_raw",
+      "locator": "https://pastebin.xware.online/raw/note-0001",
+      "status": "ok"
+    },
+    {
+      "kind": "inspect_erdfa_archive",
+      "locator": "/tmp/jmd/note-0001.tar",
+      "status": "ok"
+    },
+    {
+      "fetched_at": "2026-03-22T00:00:01Z",
+      "kind": "verify_ipfs_proxy",
+      "locator": "https://pastebin.xware.online/ipfs/QmX9Rxscf735hd2TtXH9si3zX96w2rtNtvtcX3X2GztL26",
+      "status": "ok"
+    }
+  ],
+  "contract_version": "jmd.runtime.receipt.v1",
+  "downstream_handoffs": [
+    {
+      "kind": "object_to_corpus_bridge",
+      "status": "planned",
+      "target": "SensibLaw"
+    }
+  ],
+  "graph_refs": [
+    {
+      "graph_id": "jmd-graph:1234567890abcdef",
+      "source_object_id": "jmd:erdfa:shard:note-0001"
+    }
+  ],
+  "object_refs": [
+    {
+      "content_sha256": "a6f4f6d2d4ac9b08f718f5e14bf14d9174d67f27d0dbefd9a0d7538dc8f4888d",
+      "locator": "https://pastebin.xware.online/raw/note-0001",
+      "object_id": "jmd:erdfa:shard:note-0001"
+    }
+  ],
+  "provider_kind": "pastebin",
+  "provider_name": "kant-zk-pastebin",
+  "receipt_id": "jmd-receipt:1234567890abcdef",
+  "recorded_at": "2026-03-22T00:00:00Z",
+  "status": "ok"
+}

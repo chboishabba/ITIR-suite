@@ -648,11 +648,90 @@ Minimum cross-surface report fields:
 - **Codex-Relay-Recall**: `openrecall` embedding dependency hardening, fallback path
   implementation, and lane docs/TODO alignment around optional sentence-transformer
 - **Antigravity-Titan**: `SensibLaw` Read-Model hardening, Wikidata/Zelph integration coverage, and `StatiBaker` observed-ingest seam verification.
+- **Antigravity-Omega**: `SensibLaw` `sl_zelph_demo` hardening, smoke-test parity for Zelph/Wikidata rules, and regression coverage for demo-loop CLI tools.
+- **Antigravity-Zelph**: `SensibLaw` Zelph-driven semantic materialization and fixture-driven regression coverage for the `sl_zelph_demo` path.
 - **Codex-Aster**: `itir-svelte` graph UI regression hardening, targeted node smoke slices for changed graph pages, and quick gate reports.
+- **Antigravity-Warp**: `SensibLaw` query-script regression hardening and `StatiBaker` observed-signals contract verification.
+- **Codex-Lumen**: `itir-svelte` graph/workbench a11y coverage expansion (DOM-visible labels, rendered route checks, keyboard + axe smoke), slice-first loop.
+- **Antigravity-Apex**: `SensibLaw` database migration integrity, `StatiBaker` receipt emission validation, and root-level orchestration smoke tests.
+- **Antigravity-Sentinel**: `SensibLaw` ASR/WhisperX ingest hardening, focusing on `test_asr_importer.py` and `test_whisperx_importer.py` for cross-surface pipeline consistency.
+- **Antigravity-Orion**: `SensibLaw` Zelph-driven semantic materialization and fixture-driven regression coverage for the `sl_zelph_demo` path, plus cross-surface verification with `itir-svelte`.
+- **Antigravity-Loom**: `StatiBaker` observed-signals contract expansion for `proc_stats` and `disk_io` signals, and `SensibLaw` query-script regression hardening for `--fixture-kind real`.
+- **Antigravity-Pulse**: `SensibLaw` Zelph-demo tool repair and regression hardening, fixing `test_sl_zelph_demo_tools.py` assertions and aligning with new S-expression formats.
+- **Antigravity-Nova**: `SensibLaw` Zelph-demo tool expansion and regression hardening, specifically adding new test cases for `wikidata_extract.py` with nested properties and verifying `compile_db.py` output with complex modalities.
+- **Antigravity-Archive**: `chat-export-structurer` to `SensibLaw` intake contract verification, focusing on chat-thread mapping and metadata preservation benchmarks.
+- **Antigravity-Flux-Wiki**: `SensibLaw` Wikipedia surface expansion, specifically focusing on `wiki_timeline` consistency, category-to-event mapping reliability, and cross-surface smoke tests for large-scale Wikipedia imports.
+- **Antigravity-Prism**: `SensibLaw` Wikipedia-to-Zelph semantic derivation and fixture-driven regression coverage, specifically hardening the `wiki_timeline` to Zelph logic for complex events.
+- **Antigravity-Aether**: `SensibLaw` Wikipedia canonical-state coverage, focusing on article-wide actor/action/object extraction, ordered timeline projection with explicit anchor status, one-hop follow manifest support, and unit-test-backed revision/state-diff correctness over arbitrary revision-locked pages.
+
+
 
 ---
 
-### Agent Check-ins (append newest at end)
+### Agent Check-ins (completed loops only; append newest at end)
 
-- 2026-03-20 — **Codex-Aster** — `itir-svelte` graph UI a11y label regression pass (`npm test -- --test-name-pattern graph_ui_regressions`, `npm test`, `npm run check`, `npm run build`), all green.
-- 2026-03-20 — **Codex-Lumen** — `itir-svelte` graph/workbench a11y coverage expansion (DOM-visible labels, rendered route checks, keyboard + axe smoke), slice-first loop.
+Only record completed loops here. Exploratory starts, lane claims, or "reading /
+planning" states belong in `TODO.md` until they have exact commands and a
+terminal result.
+
+- 2026-03-20 / revalidated 2026-03-21 — **Codex-Aster** — `itir-svelte` graph UI gate rerun:
+  `npm test -- --test-name-pattern graph_ui_regressions` (6 pass),
+  `npm run check` (pass), `npm run build` (pass).
+- 2026-03-20 / revalidated 2026-03-21 — **Antigravity-Zelph** — `SensibLaw`
+  Zelph-demo fixture/tool loop:
+  `../.venv/bin/python -m pytest -q tests/test_sl_zelph_demo_tools.py`
+  (13 pass).
+- 2026-03-20 / revalidated 2026-03-21 — **Antigravity-Warp** — query + observed-signals slices:
+  `../.venv/bin/python -m pytest -q tests/test_query_fact_review_script.py`
+  (8 pass) and
+  `../.venv/bin/python -m pytest -q tests/test_observed_signals_contract.py`
+  in `StatiBaker` (17 pass).
+- 2026-03-20 / verified 2026-03-21 — **Antigravity-Apex** — migration/schema integrity slices:
+  `../.venv/bin/python -m pytest -q tests/test_migration_integrity.py`
+  in `SensibLaw` (2 pass) and
+  `../.venv/bin/python -m pytest -q tests/test_apex_schema_validation.py`
+  in `StatiBaker` (2 pass).
+- 2026-03-20 / revalidated 2026-03-21 — **Antigravity-Sentinel** — ASR/WhisperX ingest slices:
+  `../.venv/bin/python -m pytest -q tests/test_asr_importer.py tests/test_whisperx_importer.py`
+  (6 pass) plus
+  `../.venv/bin/python -m pytest -q tests/test_fact_intake_read_model.py`
+  (15 pass).
+- 2026-03-20 / revalidated 2026-03-21 — **Antigravity-Orion** — Zelph cross-surface slice:
+  `../.venv/bin/python -m pytest -q tests/test_sl_zelph_demo_tools.py`
+  (13 pass) and
+  `node --test tests/zelph_integration.test.js` in `itir-svelte` (1 pass).
+- 2026-03-22 — **Antigravity-Titan** — benchmark matrix parity and Zelph reconciliation:
+  `../.venv/bin/python scripts/run_fact_semantic_benchmark_matrix.py --max-tier 100`
+  (wiki_revision: 344/0/11, au_legal: 303/0/0). Zero-relation results for `wiki_revision` and `au_legal`
+  reconciled as **Zelph environment failure** due to empty `zelph_invariants.zlp`. Corrected
+  baselines verified locally with healthy rules (wiki: 636/188/291, au_legal: 1500/2244/486).
+- 2026-03-22 — **Antigravity-Aether** — Wikipedia revision ingest slice:
+  `../.venv/bin/python -m pytest -q tests/test_wiki_revision_harness.py tests/test_wiki_revision_pack_runner.py`
+  (10 pass).
+- 2026-03-22 — **Antigravity-Aether** — Wikipedia random article-ingest slice:
+  `../.venv/bin/python -m pytest -q tests/test_wiki_random_article_ingest_coverage.py tests/test_wiki_random_page_samples.py tests/test_wiki_random_timeline_readiness.py tests/test_wiki_random_lexer_coverage.py`
+  (13 pass).
+- 2026-03-22 — **Antigravity-Helios** — Wikipedia random article-ingest slice expansion:
+  `../.venv/bin/python --noconftest -m pytest -q tests/test_wiki_random_article_ingest_coverage.py`
+  (6 pass). Project gate blocked by existing regression in `test_zelph_wiki_volatility_integration.py` (StopIteration).
+- 2026-03-22 — **Antigravity-Aether** — Wikipedia canonical-state split:
+  `../.venv/bin/python -m pytest -q tests/test_wiki_article_state.py tests/test_wiki_random_article_ingest_coverage.py tests/test_wiki_random_page_samples.py tests/test_wiki_random_timeline_readiness.py tests/test_wiki_random_lexer_coverage.py tests/test_wiki_revision_harness.py tests/test_wiki_revision_pack_runner.py`
+  (29 pass).
+
+
+### Pending / Incomplete Lanes
+
+These were noted in working docs but do not currently have retained completed
+loop evidence:
+
+- 2026-03-20 — **Codex-Lumen** — a11y coverage expansion intent recorded, but no distinct completed command log was retained beyond the shared `itir-svelte` gate reruns above.
+- 2026-03-20 — **Antigravity-Loom** — initialization only; no completed real-fixture regression command retained.
+- 2026-03-20 — **Antigravity-Pulse** — initialization only; no completed repair/test rerun retained.
+- 2026-03-20 — **Antigravity-Nova** — initialization only; no completed expansion/test rerun retained.
+- 2026-03-20 — **Antigravity-Archive** — research/claim only; no retained `chat-export-structurer` smoke or parser test command.
+- 2026-03-20 / revalidated 2026-03-22 — **Antigravity-Flux-Wiki** — `SensibLaw` Wikipedia surface expansion:
+  `PYTHONPATH=. ../.venv/bin/pytest -q tests/test_wiki_timeline_requester_extraction.py tests/test_wiki_expansion_smoke.py tests/test_wiki_timeline_category_mapping.py`
+  (17 pass).
+- 2026-03-20 / verified 2026-03-22 — **Antigravity-Prism** — Wikipedia-to-Zelph semantic derivation:
+  `env PYTHONPATH=. ../.venv/bin/pytest -q tests/test_zelph_wiki_volatility_integration.py`
+  (4 pass).
