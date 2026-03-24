@@ -57,9 +57,10 @@ channels for each core project directory in this workspace.
   organisation and for returning advisory anchors, overlays, and optimisation
   hints without transferring canonical object authority out of JMD.
 - `docs/planning/textgraphs_sl_bridge_contract_20260324.md`:
-  narrow bridge note for how `TextGraphs`-style text-surface overlays may
-  inform `SensibLaw` below promotion, and how SL anchor/provenance discipline
-  may constrain those overlays without treating them as canonical fact state.
+  bridge/interface doctrine for how `TextGraphs`-style derived observations may
+  inform `SensibLaw` below promotion, how SL canonical vs spaCy lanes differ,
+  and why downstream systems like `Zelph` must consume promoted state rather
+  than raw graph observables.
 - `SensibLaw/docs/planning/mary_parity_acceptance_workbench_20260315.md`:
   Mary-parity persisted fact-review contract and the current operator/workbench
   pressure surface, including `wave1_legal`, source-centric reopen posture, and

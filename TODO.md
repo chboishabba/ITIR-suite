@@ -93,6 +93,13 @@
     - label non-canonical overlays explicitly in cross-project adapters
   - DONE: add compact `TextGraphs` x `SensibLaw` bridge note:
     `docs/planning/textgraphs_sl_bridge_contract_20260324.md`
+  - clarify the bridge doctrine explicitly:
+    `TextGraphs` proposes, `SensibLaw` promotes, `Zelph` reasons
+  - keep the two SL lanes distinct in future docs and adapters:
+    - canonical reducer lane = authority substrate
+    - spaCy lane = auxiliary interpretation
+  - if a future text-graph layer is added on the SL side, mark it explicitly
+    as `derived_only` and keep it outside the canonical reducer contract
 - [P2] SensibLaw x Glasslane / Mirror packaging slice:
   - use chat thread `Aptos cryptocurrency overview`
     (`691ac8a3-4a30-8320-bd5f-f66efc3145e7`,
@@ -147,10 +154,16 @@
     - canonical pack spec/manifest now live in:
       `docs/planning/zelph_real_world_pack_v1_20260324.md`,
       `docs/planning/zelph_real_world_pack_v1.manifest.json`
+    - outward-facing promotion pack now lives in:
+      `docs/planning/zelph_real_world_pack_v1_5_20260324.md`,
+      `docs/planning/zelph_real_world_pack_v1_5.manifest.json`
     - next public-entity handoff spec now live in:
       `docs/planning/gwb_zelph_handoff_v1_20260324.md`
     - GWB completeness note now live in:
       `docs/planning/gwb_completeness_scorecard_20260324.md`
+    - AU checked handoff + completeness notes now live in:
+      `docs/planning/au_zelph_handoff_v1_20260324.md`,
+      `docs/planning/au_completeness_scorecard_20260324.md`
     - DONE: keep the outward-facing handoff wording behavior-level rather than
       role-label-driven (reversion detection / volatility /
       reversion-without-context risk, not a formal `wiki sentinel` ontology
@@ -175,6 +188,8 @@
       - DONE: first checked GWB handoff artifact now exists as both prose and
         machine-readable outputs under
         `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/`
+      - DONE: AU now has parity checked outputs under
+        `SensibLaw/tests/fixtures/zelph/au_public_handoff_v1/`
     - keep the handoff note explicit about current repo-facing Zelph dev contact
       surfaces:
       `sl_zelph_demo/*_run.sh`, `compile_db.py`, `lex_to_zelph.py`,
@@ -203,8 +218,37 @@
       - keep the first bounded Zelph rules small:
         `executive_public_law_action` and
         `needs_review_due_to_ambiguity`
-      - decide whether to promote the checked GWB artifact into the canonical
-        Zelph pack as v1.5 or wait for v2
+      - do not mistake the checked handoff for full GWB completeness:
+        broaden future completeness passes to cover the wider in-repo source
+        inventory under `SensibLaw/demo/ingest/gwb/`, including public bios,
+        corpus timeline material, and book sources
+      - build a machine-readable broader GWB corpus scorecard artifact so
+        source-family breadth is measured from repo artifacts rather than only
+        discussed in prose
+      - DONE: first broader GWB corpus scorecard now exists under
+        `SensibLaw/tests/fixtures/zelph/gwb_corpus_scorecard_v1/`
+    - AU handoff followthrough:
+      - do not mistake the checked AU workbench slice
+        (`SensibLaw/tests/fixtures/zelph/au_public_handoff_v1/`) for full AU
+        corpus completeness
+      - Mary-parity workbench checkpoints prove operator review/handoff quality,
+        not exhaustive extraction over a long transcript or larger corpus
+      - broaden future AU completeness passes using fuller transcript/corpus
+        surfaces such as transcript-semantic runs, transcript fact-review
+        bundles, and reviewed WhisperX-derived imports where available
+      - build a machine-readable broader AU corpus scorecard artifact so the
+        current 3-fact checkpoint is explicitly contextualized inside the wider
+        persisted real-bundle lane
+      - DONE: first broader AU corpus scorecard now exists under
+        `SensibLaw/tests/fixtures/zelph/au_corpus_scorecard_v1/`
+      - DONE: promote the checked GWB artifact into outward-facing Zelph pack
+        `v1.5`
+      - broaden GWB completeness from the checked slice scorecard to wider
+        real-run metrics
+    - AU parity followthrough:
+      - DONE: bring AU up to the same checked handoff shape as GWB
+      - broaden AU completeness from the checked workbench checkpoint to wider
+        AU semantic/report coverage
     - archived context input resolved on 2026-03-20:
       - `69bca95c-4f7c-839e-8b3a-3c5e273f185a` / `ZK in Legal Context`
       -> family-court `Magellan` / `Lighthouse` / `Evatt` pathways are a real
@@ -256,18 +300,67 @@
       - `list_like_follow` remained the largest weak-follow bucket and
         `low_information_gain_follow` remained the second
     - next implementation slice:
-      - keep the current 4-part follow-target-quality blend unchanged
-      - keep the current weak-follow thresholds unchanged
-      - expand `non_list_score` / `list_like_follow` with continuation
+      - DONE: keep the current 4-part follow-target-quality blend unchanged
+      - DONE: keep the current weak-follow thresholds unchanged
+      - DONE: expand `non_list_score` / `list_like_follow` with continuation
         specificity, not a new score component
-      - use bounded title heuristics plus mostly lexical parent-child
+      - DONE: use bounded title heuristics plus mostly lexical parent-child
         specificity checks
-      - explicitly target:
+      - DONE: explicitly target:
         - admin/place adjacency pages
         - year/edition/championship umbrella pages
         - broad generic concept pages with little specificity lift
+    - next validation step:
       - rerun the existing 3x8 campaign after this slice before touching
         `low_information_gain_follow`
+      - compare `list_like_follow`, `low_information_gain_follow`,
+        `follow_target_quality_score`, and `best_path_vs_avg_gap`
+    - add fixed-manifest rescoring / before-after comparison tooling so future
+      scorer changes are measured on the same manifests, not only on fresh
+      random slices
+    - next scoring slice after that comparison:
+      - DONE: keep the current score shape unchanged
+      - DONE: tighten the existing information-gain component for
+        related-but-generic continuations
+      - DONE: explicitly target:
+        - older year/edition umbrella continuations
+        - broad championship/conference parent pages
+        - broad parent concepts with little novelty lift
+      - next validation step:
+        - rescore the same manifests with the new scorer
+        - compare before/after reports with the fixed-manifest comparison tool
+        - then rerun the normal 3x8 live campaign
+    - fixed-manifest slice-2 result:
+      - same-manifest comparison did NOT show a clean scoring improvement
+      - `list_like_follow` stayed unchanged on the stored manifests
+      - `low_information_gain_follow` rose only slightly
+      - `follow_target_quality_score` fell (`0.525836 -> 0.507564`)
+      - `best_path_vs_avg_gap` improved slightly (`0.047057 -> 0.050072`)
+      - `hop_quality_decay` stayed effectively flat (`-0.021348 -> -0.019689`)
+    - next refinement after that result:
+      - DONE: keep the fixed-manifest compare path
+      - DONE: keep the information-gain reason instrumentation
+      - soften/narrow score penalties so title-shape cues alone do not drive
+        the information-gain score down
+      - require co-occurrence between broad/year/umbrella generalization cues
+        and low-novelty / same-neighborhood-no-lift evidence before the main
+        information-gain penalties apply
+    - narrowed `v0_9` result on the same manifests:
+      - weak-follow bucket counts stayed unchanged
+      - average `follow_target_quality_score` stayed nearly flat rather than
+        being materially pulled down
+      - hop decay and best-path gap stayed effectively stable
+      - information-gain reasons remained visible even when they did not
+        trigger a score penalty
+    - next scoring slice after `v0_9`:
+      - add a content-based continuation-lift signal inside the existing
+        information-gain component
+      - use follow-page relation-bearing structure and novel-term lift to
+        distinguish genuinely informative continuations from mere title-shape
+        matches
+      - do not add another top-level follow-quality component
+      - validate on the same fixed manifests first, then rerun the live 3x8
+        campaign
     - keep page-family labels as derived debug output only
   - define the minimum parity deliverable as:
     - source/excerpt/statement capture

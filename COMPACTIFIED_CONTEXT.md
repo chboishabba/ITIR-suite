@@ -8,10 +8,10 @@
     - destination for the lane is complete GWB/topic understanding; the checked
       handoff is only one scored checkpoint toward that destination
     - the artifact is deliberately bounded and contains:
-      5 promoted relations,
-      6 seed/review lanes,
-      1 ambiguous event,
-      3 unresolved discourse surfaces
+      19 promoted relations,
+      11 seed/review lanes,
+      9 ambiguous events,
+      7 unresolved discourse surfaces
     - the checked handoff exists as both prose and machine-readable outputs in
       `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/`
     - the checked artifact now also carries a machine-readable completeness
@@ -23,6 +23,65 @@
   - followthrough:
     - keep the current canonical Zelph pack v1 unchanged for now
     - decide next whether GWB should become pack v1.5 or wait for v2
+
+- 2026-03-24 Zelph pack v1.5 and AU parity:
+  - source: current working turn
+  - main decision:
+    - the outward-facing Zelph pack should now be treated as `v1.5`
+    - `v1.5` adds the checked GWB handoff artifact and an AU checked handoff
+      companion artifact
+    - AU is now brought up to parity with GWB at the handoff-shape level:
+      prose summary, JSON slice, ZLP facts/rules, engine output, scorecard
+    - the next substantive work is no longer "does AU/GWB have a checked
+      handoff?" but broader completeness expansion on both lanes
+    - important correction:
+      the checked AU artifact is a Mary-parity/operator-review checkpoint built
+      from the current real workbench bundle, not a full corpus-completeness
+      artifact; similarly, the checked GWB artifact is narrower than the wider
+      GWB source inventory already present in-repo
+  - followthrough:
+    - use `docs/planning/zelph_real_world_pack_v1_5_20260324.md` and
+      `docs/planning/zelph_real_world_pack_v1_5.manifest.json` as the
+      outward-facing pack reference
+    - expand GWB scorecard from checked slice to wider real-run metrics across
+      source families, including public-bios and book/corpus material under
+      `SensibLaw/demo/ingest/gwb/`
+    - expand AU scorecard from checked workbench checkpoint to wider
+      transcript/corpus metrics rather than reading the current 3-fact slice as
+      topic-level completeness
+
+- 2026-03-24 first corpus-level AU/GWB scorecards:
+  - source: current working turn
+  - main decision:
+    - near-term priority is now corpus-level accounting, not only handoff-shape
+      parity
+    - AU now has a machine-readable corpus scorecard built over the persisted
+      real workbench bundles:
+      4 included bundles,
+      13 facts,
+      40 observations,
+      2 events,
+      11 review queue items,
+      with the HCA transcript files kept visible as known raw-source backlog
+    - GWB now has a machine-readable corpus scorecard built over broader
+      source-family inventory:
+      checked handoff,
+      public bios pack,
+      corpus timeline,
+      and local book/demo files
+    - this does not prove full destination-level completeness for either lane,
+      but it does replace prose-only claims with repo-built corpus checkpoints
+  - followthrough:
+    - use
+      `SensibLaw/tests/fixtures/zelph/au_corpus_scorecard_v1/`
+      and
+      `SensibLaw/tests/fixtures/zelph/gwb_corpus_scorecard_v1/`
+      as the machine-readable completeness companions to the AU/GWB handoff
+      artifacts
+    - next AU step is fuller source-derived runs, especially reviewed
+      transcript/WhisperX imports and other non-bundle raw surfaces
+    - next GWB step is relation-coverage expansion over the broader public-bios
+      and corpus/book source families, not only inventory counting
 
 - 2026-03-24 Dashifine/TextGraphs bridge lesson applied to ITIR graph/text lanes:
   - source: current working turn plus local Dashifine bridge artifacts in
@@ -68,6 +127,9 @@
       - promotion is the sole path to truth-bearing canonical records
       - `TextGraphs`-style layers are admissible only below canonicality as
         analytical/diagnostic/candidate overlays
+      - `TextGraphs` proposes, `SensibLaw` promotes, `Zelph` reasons
+      - inside SL, do not collapse the spaCy auxiliary lane into the canonical
+        reducer lane; that is evidence vs interpretation
       - the real risk is candidate layers starting to behave like truth
     - canonical architecture note:
       `docs/architecture/admissibility_lattice.md`
@@ -306,6 +368,53 @@
       two hops
     - `list_like_follow` remained the largest weak-follow bucket, with
       `low_information_gain_follow` second
+  - slice-1 continuation-specificity implementation:
+    - kept the existing 4-part follow-target-quality blend and weak-follow
+      thresholds unchanged
+    - expanded `non_list_score` / `list_like_follow` with bounded title
+      heuristics, lexical parent-child specificity checks, and same-
+      neighborhood/no-lift detection
+    - added explicit specificity reasons to follow details and summary output
+    - next step is the comparable 3x8 rerun before touching
+      `low_information_gain_follow`
+  - post-slice-1 live rerun reading:
+    - the new specificity reasons are firing on the intended page shapes
+    - the rerun is still not a clean before/after because the random sample
+      changed
+    - next work should add fixed-manifest rescoring / report comparison, then
+      tighten the existing information-gain component for related-but-generic
+      continuations
+  - fixed-manifest + slice-2 implementation:
+    - added a fixed-manifest report comparison path so before/after scorer
+      changes can be compared on the same manifests
+    - kept the current follow-target-quality score shape unchanged
+    - tightened the existing information-gain component for related-but-generic
+      continuations using bounded penalties over umbrella/year/generalization
+      and low-novelty signals
+    - fixed-manifest comparison then showed:
+      - `list_like_follow` unchanged on the same manifests
+      - `low_information_gain_follow` only slightly higher
+      - average `follow_target_quality_score` lower (`0.525836 -> 0.507564`)
+      - `best_path_vs_avg_gap` slightly higher (`0.047057 -> 0.050072`)
+      - `hop_quality_decay` effectively flat (`-0.021348 -> -0.019689`)
+    - conclusion:
+      - keep the fixed-manifest comparison path
+      - keep the information-gain reason instrumentation
+      - narrow the score penalties so title-shape cues alone do not act as a
+        scoring downgrade
+      - require co-occurring low-novelty / no-lift evidence before the main
+        year/umbrella/generalization information-gain penalties apply
+    - narrower `v0_9` rescoring then showed:
+      - weak-follow bucket counts unchanged on the same manifests
+      - average follow-target quality nearly flat rather than materially lower
+      - hop decay and best-path gap effectively stable
+      - information-gain reasons still surfaced even when they no longer
+        triggered score penalties
+    - next scorer step:
+      - stop tightening title cues
+      - add a content-based continuation-lift signal inside the existing
+        information-gain component so relation-bearing structural lift can help
+        distinguish useful continuations from generic title matches
 - 2026-03-23 unresolved ChatGPT context fetch:
   - source: current working turn
   - referenced online UUID:

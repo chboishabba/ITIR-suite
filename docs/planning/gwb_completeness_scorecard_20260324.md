@@ -45,6 +45,43 @@ So the right framing is:
 - destination: complete GWB/topic understanding
 - current checked artifact: a scored public-facing checkpoint
 
+## Checked slice vs broader GWB completeness
+The repo should now distinguish these explicitly.
+
+### 1. Checked GWB handoff slice
+This is the current outward-facing public-entity artifact:
+- reviewed
+- bounded
+- legible to a Zelph developer
+- built from the current linkage + semantic + handoff surfaces
+
+Use it to prove:
+- public-topic ingest/review/handoff is real
+- promotion, abstention, and downstream Zelph reasoning are all real
+
+Do not use it to prove:
+- full GWB source-family coverage
+- full event inventory over the broader GWB corpus
+- completeness over non-wiki source families
+
+### 2. Broader GWB corpus completeness target
+The actual destination is wider than the current checked slice.
+
+Existing repo source families already point to that broader target:
+- wiki/timeline artifacts under `SensibLaw/.cache_local/wiki_timeline_gwb*.json`
+- public-bios timeline material under
+  `SensibLaw/demo/ingest/gwb/public_bios_v1/`
+- broader corpus timeline build support in
+  `SensibLaw/scripts/gwb_corpus_timeline_build.py`
+- book/corpus source material under `SensibLaw/demo/ingest/gwb/`, including:
+  - `Decision Points`
+  - `41`
+  - `Family of Secrets`
+  - `Jeb and the Bush Crime Family`
+
+So a stronger completeness claim must account for source-family breadth, not
+just the current wiki/seed-oriented checked slice.
+
 ## Scorecard dimensions
 The repo should use a small scorecard rather than one vague completeness claim.
 
@@ -91,10 +128,10 @@ Signals:
 ## Current checked checkpoint
 The current checked public handoff artifact reports:
 
-- 5 selected promoted relations
-- 6 selected seed/review lanes
-- 1 ambiguous event
-- 3 unresolved discourse surfaces
+- 19 selected promoted relations
+- 11 selected seed/review lanes
+- 9 ambiguous events
+- 7 unresolved discourse surfaces
 - Zelph engine status `ok`
 
 Interpreting those numbers:
@@ -114,6 +151,19 @@ when we can show all of the following against a reviewed scope:
 3. broad-cue dependence is declining, not merely hidden
 4. downstream queries operate over more than one handpicked slice
 5. the narrative summary can explain both what is known and what remains open
+6. source-family coverage is explicit:
+   wiki/timeline, public bios, books, and any other chosen public corpus lanes
+
+## Recommended broader GWB scorecard additions
+To move from a handoff checkpoint to a corpus-completeness claim, add:
+
+- source family inventory
+- per-family source counts
+- per-family promoted relation counts
+- per-family candidate-only lane counts
+- per-family unresolved/abstained lane counts
+- cross-family merge and dedup notes
+- checked-slice-to-full-run ratio
 
 ## Current implementation hook
 The checked GWB handoff artifact should carry a machine-readable scorecard so
@@ -134,7 +184,32 @@ Expected scorecard shape:
 - `unresolved_surface_count`
 - `zelph_engine_status`
 
+Near-term corpus-level companion artifact:
+- `SensibLaw/tests/fixtures/zelph/gwb_corpus_scorecard_v1/`
+- generated outputs:
+  - `gwb_corpus_scorecard_v1.json`
+  - `gwb_corpus_scorecard_v1.summary.md`
+
+Current generated checkpoint:
+- 4 source families counted
+- 19 promoted relations still visible from the checked handoff
+- 9 public-bios manifest documents
+- 320 corpus timeline events
+- 260 corpus AAO events
+- 4 local demo/book files
+
+Command:
+- `cd /home/c/Documents/code/ITIR-suite && python SensibLaw/scripts/build_gwb_corpus_scorecard.py`
+
+Purpose of the corpus-level companion:
+- inventory wider in-repo GWB source families beyond the checked handoff slice
+- keep public-bios, corpus-timeline, and local book/demo surfaces visible in
+  one machine-readable checkpoint
+- separate source-family breadth from promoted-relation completeness so the
+  repo stops speaking about "GWB completeness" as if it were one number
+
 ## Immediate next use
 - keep using the current checked artifact for public handoff
 - use the scorecard to decide whether GWB should become pack `v1.5`
-- expand later from checked slice metrics to wider real-run metrics
+- expand later from checked slice metrics to wider real-run metrics that
+  include non-wiki source families already present in the repo

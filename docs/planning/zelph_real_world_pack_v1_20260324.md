@@ -4,6 +4,11 @@
 Define the first canonical Zelph-facing pack built from real run-derived
 ITIR/SensibLaw artifacts rather than synthetic benchmark seeds.
 
+Status note:
+- this `v1` note remains the historical first-pack decision
+- outward-facing pack promotion now continues in
+  `docs/planning/zelph_real_world_pack_v1_5_20260324.md`
+
 This pack is intended to prove three things at once:
 
 1. SensibLaw/ITIR can operate on real material.

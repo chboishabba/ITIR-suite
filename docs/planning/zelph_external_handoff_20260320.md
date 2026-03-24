@@ -32,10 +32,18 @@ This is a bridge/demo posture, not a dependency posture.
 Canonical companion artifacts for the current pack are now:
 - `docs/planning/zelph_real_world_pack_v1_20260324.md`
 - `docs/planning/zelph_real_world_pack_v1.manifest.json`
+- `docs/planning/zelph_real_world_pack_v1_5_20260324.md`
+- `docs/planning/zelph_real_world_pack_v1_5.manifest.json`
 
 Canonical companion artifact for the next public-entity handoff is now:
 - `docs/planning/gwb_zelph_handoff_v1_20260324.md`
 - `docs/planning/gwb_completeness_scorecard_20260324.md`
+- `docs/planning/au_zelph_handoff_v1_20260324.md`
+- `docs/planning/au_completeness_scorecard_20260324.md`
+
+Corpus-level companion artifacts now also exist at:
+- `SensibLaw/tests/fixtures/zelph/gwb_corpus_scorecard_v1/`
+- `SensibLaw/tests/fixtures/zelph/au_corpus_scorecard_v1/`
 
 ## Current Status Snapshot (2026-03-23)
 What is already real in the repo:
@@ -206,15 +214,29 @@ Current V1 decision:
   rather than the first canonical pack
 
 Current next-step handoff decision:
-- the next recommended Zelph handoff after the canonical v1 pack is the GWB
-  public-entity lane
+- the outward-facing pack should now be treated as `v1.5`, not just `v1`
 - reason:
-  it is public, lower-risk to externalize than transcript/chat material, and it
-  already has deterministic reviewed linkage and semantic report surfaces
-- concrete handoff spec:
-  `docs/planning/gwb_zelph_handoff_v1_20260324.md`
-- checked artifact now exists at:
+  GWB is now checked and AU has been brought up to the same handoff shape
+- concrete pack spec:
+  `docs/planning/zelph_real_world_pack_v1_5_20260324.md`
+- checked artifacts now exist at:
   `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/`
+  and
+  `SensibLaw/tests/fixtures/zelph/au_public_handoff_v1/`
+
+Important clarification:
+- the current AU and GWB checked artifacts are handoff checkpoints, not corpus
+  completeness reports
+- they prove that reviewed, downstream-safe Zelph exports are real
+- they do not yet prove that AU or GWB extraction is exhaustive over the full
+  available source families
+- the new AU/GWB corpus scorecards are the first machine-readable bridge from
+  those bounded handoff checkpoints toward broader source-family accounting
+- for AU, the current checked slice is built from a real fact-review workbench
+  bundle and should be read through the Mary-parity/operator-review lens
+- for GWB, the broader completeness target must include source families beyond
+  the current wiki/seed-oriented handoff slice, including the existing
+  `demo/ingest/gwb/` book and public-bios surfaces
 
 ## Human-readable summary of the current real JSON artifacts
 ### 1. Wave 1 real AU procedural bundle
@@ -331,14 +353,14 @@ Why it matters for Zelph:
 
 Current checked artifact summary:
 - bounded slice counts:
-  5 promoted relations, 6 seed/review lanes, 1 ambiguous event, 3 unresolved
+  19 promoted relations, 11 seed/review lanes, 9 ambiguous events, 7 unresolved
   discourse surfaces
 - completeness scorecard currently reports:
-  5 matched promoted relations,
-  5 matched seed lanes,
-  1 candidate-only seed lane,
-  4 broad-cue seed lanes,
-  2 direct-support seed lanes
+  19 matched promoted relations,
+  11 matched seed lanes,
+  0 candidate-only seed lanes,
+  5 broad-cue seed lanes,
+  6 direct-support seed lanes
 - checked prose summary exists in:
   `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.summary.md`
 - checked machine-readable slice exists in:
@@ -349,11 +371,41 @@ Current checked artifact summary:
   `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.facts.zlp`
   plus
   `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.rules.zlp`
+- broader corpus source-family checkpoint now exists in:
+  `SensibLaw/tests/fixtures/zelph/gwb_corpus_scorecard_v1/`
 
 Important framing clarification:
 - destination is complete GWB/topic understanding
 - the checked GWB handoff is the first scored public-facing checkpoint toward
   that destination, not the whole completeness claim
+
+## AU corpus-level checkpoint in plain language
+What it uses:
+- the persisted real AU procedural workbench bundle
+- the persisted real transcript-adjacent workbench bundles that currently form
+  the wider AU-facing Mary-parity lane
+- visible raw HCA transcript files as known backlog, not as silently-covered
+  material
+
+What currently comes out:
+- 4 included real bundles
+- 13 statements
+- 40 observations
+- 13 facts
+- 2 events
+- 11 review queue items
+- 3 contested items
+
+Why it matters:
+- it is the first machine-readable answer to "what do we currently cover at
+  corpus level?" rather than "what does the bounded AU handoff show?"
+- it makes the current gap explicit:
+  repo-visible raw transcript material still exists outside the current
+  persisted real-bundle checkpoint
+
+Current corpus companion artifacts:
+- `SensibLaw/tests/fixtures/zelph/au_corpus_scorecard_v1/au_corpus_scorecard_v1.json`
+- `SensibLaw/tests/fixtures/zelph/au_corpus_scorecard_v1/au_corpus_scorecard_v1.summary.md`
 
 ## What We Think Is Interesting About Zelph
 Based on Stefan's description and our own demo work, the most interesting

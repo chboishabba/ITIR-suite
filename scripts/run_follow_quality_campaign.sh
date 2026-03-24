@@ -11,6 +11,7 @@ MAX_CATEGORIES="${MAX_CATEGORIES:-30}"
 TIMEOUT_S="${TIMEOUT_S:-60}"
 WIKI_RPS="${WIKI_RPS:-0.25}"
 OUT_ROOT="${OUT_ROOT:-/tmp/wiki_follow_quality_campaign}"
+SOURCE_ROOT="${SOURCE_ROOT:-}"
 EMIT_PAGE_ROWS="${EMIT_PAGE_ROWS:-1}"
 NO_SPACY="${NO_SPACY:-1}"
 
@@ -24,18 +25,28 @@ while [ "$run_index" -le "$RUNS" ]; do
   samples="$run_dir/samples"
   mkdir -p "$run_dir"
 
-  echo "[run $run_index/$RUNS] Generating multi-hop manifest"
-  "$PY" SensibLaw/scripts/wiki_random_page_samples.py \
-    --count "$COUNT" \
-    --namespace 0 \
-    --out-dir "$samples" \
-    --out-manifest "$manifest" \
-    --follow-hops "$FOLLOW_HOPS" \
-    --max-follow-links-per-page "$MAX_FOLLOW_LINKS_PER_PAGE" \
-    --max-links "$MAX_LINKS" \
-    --max-categories "$MAX_CATEGORIES" \
-    --timeout-s "$TIMEOUT_S" \
-    --wiki-rps "$WIKI_RPS"
+  if [ -n "$SOURCE_ROOT" ]; then
+    source_manifest="$(printf "%s/run_%02d/manifest.json" "$SOURCE_ROOT" "$run_index")"
+    if [ ! -f "$source_manifest" ]; then
+      echo "missing source manifest: $source_manifest" >&2
+      exit 1
+    fi
+    cp "$source_manifest" "$manifest"
+    echo "[run $run_index/$RUNS] Reusing manifest $source_manifest"
+  else
+    echo "[run $run_index/$RUNS] Generating multi-hop manifest"
+    "$PY" SensibLaw/scripts/wiki_random_page_samples.py \
+      --count "$COUNT" \
+      --namespace 0 \
+      --out-dir "$samples" \
+      --out-manifest "$manifest" \
+      --follow-hops "$FOLLOW_HOPS" \
+      --max-follow-links-per-page "$MAX_FOLLOW_LINKS_PER_PAGE" \
+      --max-links "$MAX_LINKS" \
+      --max-categories "$MAX_CATEGORIES" \
+      --timeout-s "$TIMEOUT_S" \
+      --wiki-rps "$WIKI_RPS"
+  fi
 
   echo "[run $run_index/$RUNS] Scoring manifest"
   score_args=(

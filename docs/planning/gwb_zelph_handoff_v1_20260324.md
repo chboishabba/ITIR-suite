@@ -135,10 +135,10 @@ Checked outputs:
 - `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.scorecard.json`
 
 Current checked result:
-- 5 selected promoted relations
-- 6 selected seed/review lanes
-- 1 ambiguous event in the bounded slice
-- 3 unresolved discourse surfaces
+- 19 selected promoted relations
+- 11 selected seed/review lanes
+- 9 ambiguous events in the bounded slice
+- 7 unresolved discourse surfaces
 - Zelph engine run status: `ok`
 - machine-readable scorecard written alongside the artifact
 
@@ -148,13 +148,13 @@ Current checked scorecard:
 - current stage:
   `checked_public_handoff_checkpoint`
 - matched seed lanes:
-  `5`
+  `11`
 - candidate-only seed lanes:
-  `1`
+  `0`
 - broad-cue seed lanes:
-  `4`
+  `5`
 - direct-support seed lanes:
-  `2`
+  `6`
 
 Human-legible summary already written:
 - the narrative summary explicitly says, in prose, that the checked slice
