@@ -78,10 +78,40 @@
       `SensibLaw/tests/fixtures/zelph/gwb_corpus_scorecard_v1/`
       as the machine-readable completeness companions to the AU/GWB handoff
       artifacts
+    - collapse rule for the next work:
+      1. GWB broader public-source extraction first
+      2. AU reviewed transcript/WhisperX expansion second
+      3. safe real chat-history lane third
     - next AU step is fuller source-derived runs, especially reviewed
       transcript/WhisperX imports and other non-bundle raw surfaces
     - next GWB step is relation-coverage expansion over the broader public-bios
       and corpus/book source families, not only inventory counting
+
+- 2026-03-24 first broader GWB extraction checkpoint:
+  - source: current working turn
+  - main decision:
+    - the repo now has a first broader GWB extraction checkpoint over three
+      source families:
+      checked handoff,
+      public bios rich timeline,
+      and corpus/book timeline
+    - result:
+      15 distinct promoted relations after canonical dedupe,
+      0 new promoted relations beyond the checked handoff,
+      and only 1 seed lane matched across multiple source families
+    - public-bios no longer runs as title-only input; it now builds a richer
+      cue-filtered timeline from raw HTML pages and contributes 1 matched seed
+      lane, but still 0 promoted relations
+    - the broader public-bios and corpus/book inputs therefore widened source
+      breadth and some lane support, but did not yet widen promoted relation
+      coverage
+    - a follow-on seed-backed candidate pass now moves both broader-source
+      families into candidate-level semantic anchoring:
+      public bios = 3 relation candidates,
+      corpus/books = 3 relation candidates,
+      still 0 promoted relations in both lanes
+    - the next GWB bottleneck is now candidate quality / promotion readiness
+      over broader sources, not source inventory alone
 
 - 2026-03-24 Dashifine/TextGraphs bridge lesson applied to ITIR graph/text lanes:
   - source: current working turn plus local Dashifine bridge artifacts in

@@ -125,11 +125,14 @@ Canonical architecture note:
   - one reversible serialization from that state
   - one derived graph or overlay surface that can be traced back to the source
     state without ambiguity
+  - one baseline graph/overlay that is provenance-labelled and replayable
 - only after that should the bridge add richer graph constructions
   (similarity/non-local edges, cluster overlays, recurrence links)
 - those richer graph surfaces should be judged by whether they track useful
   semantic or provenance-relevant changes, not merely by making the graph more
   connected or visually interesting
+  - scoring/selection should therefore prefer semantic/window agreement with
+    the canonical state over raw graph density/SCC lift
 
 Maintainer reading for this contract:
 

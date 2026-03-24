@@ -59,6 +59,19 @@ Why it matters:
   broader AU corpus completeness from fuller source-derived runs, or a safe
   chat-history lane
 
+Current next implementation target:
+- broader GWB public-source extraction checkpoint over:
+  - checked handoff lane
+  - public bios timeline lane
+  - corpus/book timeline lane
+
+Current result:
+- DONE: first broader GWB extraction checkpoint now exists at
+  `SensibLaw/tests/fixtures/zelph/gwb_broader_corpus_checkpoint_v1/`
+- outcome:
+  broader source families were included, but they did not yet widen promoted
+  relation coverage beyond the checked handoff
+
 Current corpus-level companion artifacts:
 - `SensibLaw/tests/fixtures/zelph/gwb_corpus_scorecard_v1/`
 - `SensibLaw/tests/fixtures/zelph/au_corpus_scorecard_v1/`

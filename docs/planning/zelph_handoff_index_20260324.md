@@ -81,6 +81,22 @@ What they are for:
 - Corpus-level accounting now exists for both GWB and AU, but neither lane
   should yet be described as destination-complete.
 
+## Current Priority Order
+For the next corpus-expansion phase, use this order unless a stronger safety
+constraint appears:
+
+1. GWB broader public-source extraction and relation coverage
+2. AU broader transcript/WhisperX-backed corpus coverage
+3. Safe real chat-history lane
+
+Reason:
+- GWB is the cleanest public-facing source family and gives the fastest
+  external credibility gain.
+- AU is more important for Mary-parity/operator credibility, but needs more
+  careful reviewed-source expansion.
+- chat-history remains valuable, but it is still the highest hygiene/safety
+  burden of the three.
+
 ## Use This Index When Sharing
 If someone needs only one link first:
 - send `docs/planning/zelph_external_handoff_20260320.md`

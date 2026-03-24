@@ -54,6 +54,24 @@ Reading discipline:
 - use the AU/GWB handoff notes for bounded artifact details
 - use the AU/GWB completeness notes for corpus-level status
 
+Current next-phase priority order:
+1. broader GWB public-source extraction
+2. broader AU transcript/WhisperX-backed corpus coverage
+3. safe real chat-history lane
+
+Latest GWB corpus-expansion result:
+- the broader GWB checkpoint now uses a richer public-bios timeline built from
+  raw HTML pages rather than title-only rows
+- that lifted the public-bios lane from `0` to `1` matched seed lane, but it
+  still adds `0` new promoted relations beyond the checked handoff
+- a broader-source seed-backed candidate pass now lifts both broader source
+  families into candidate-level semantic anchoring:
+  each of the public-bios and corpus/book lanes now yields 3 relation
+  candidates while still yielding 0 promoted relations
+- practical reading: the next GWB bottleneck is no longer public-source
+  availability; it is now candidate quality and broader-source promotion
+  readiness
+
 ## Current Status Snapshot (2026-03-24)
 What is already real in the repo:
 - small Zelph-facing demos exist and are still the cleanest shareable proof
@@ -246,6 +264,14 @@ Important clarification:
 - for GWB, the broader completeness target must include source families beyond
   the current wiki/seed-oriented handoff slice, including the existing
   `demo/ingest/gwb/` book and public-bios surfaces
+
+Current broader-GWB checkpoint result:
+- the first broader machine-readable checkpoint now exists at
+  `SensibLaw/tests/fixtures/zelph/gwb_broader_corpus_checkpoint_v1/`
+- it widened source-family coverage, but did not add new promoted relations
+  beyond the checked handoff
+- that means the next GWB problem is promotion/admissibility over broader
+  public sources, not merely source inventory
 
 ## Human-readable summary of the current real JSON artifacts
 ### 1. Wave 1 real AU procedural bundle

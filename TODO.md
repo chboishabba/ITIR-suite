@@ -76,6 +76,15 @@
     - reversible serialization second
     - conservative baseline graph/overlay third
     - informative non-local graph/overlay scoring last
+  - bridge guardrail checklist (keep visible for reviewers):
+    - [ ] single canonical source record identified
+    - [ ] reversible serializer exercised in tests/fixtures
+    - [ ] baseline graph/overlay emits provenance and is replayable
+    - [ ] non-local graph variant justified by semantic/window signal, not
+          just density/connectivity lift
+    - [ ] scoring rule prefers semantic/provenance agreement over raw graph
+          lift
+    - [ ] overlay outputs labelled `derived_only` in adapters/config
   - do not treat higher graph density/connectivity by itself as bridge success;
     require semantic/provenance usefulness criteria too
   - keep the product boundary explicit in docs and adapters:
@@ -99,7 +108,8 @@
     - canonical reducer lane = authority substrate
     - spaCy lane = auxiliary interpretation
   - if a future text-graph layer is added on the SL side, mark it explicitly
-    as `derived_only` and keep it outside the canonical reducer contract
+    as `derived_only` and keep it outside the canonical reducer contract; add a
+    per-adapter toggle/field so overlays cannot be consumed without opt-in
 - [P2] SensibLaw x Glasslane / Mirror packaging slice:
   - use chat thread `Aptos cryptocurrency overview`
     (`691ac8a3-4a30-8320-bd5f-f66efc3145e7`,
@@ -190,6 +200,24 @@
         `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/`
       - DONE: AU now has parity checked outputs under
         `SensibLaw/tests/fixtures/zelph/au_public_handoff_v1/`
+      - DONE: first broader GWB checkpoint now exists under
+        `SensibLaw/tests/fixtures/zelph/gwb_broader_corpus_checkpoint_v1/`
+      - DONE: public-bios broader-source input is no longer title-only;
+        `SensibLaw/scripts/build_gwb_public_bios_rich_timeline.py` now builds
+        `SensibLaw/demo/ingest/gwb/public_bios_v1/wiki_timeline_gwb_public_bios_v1_rich.json`
+        from raw HTML cue-bearing snippets
+      - DONE: broader-source diagnostics now live under
+        `SensibLaw/tests/fixtures/zelph/gwb_broader_promotion_diagnostics_v1/`
+        with builder
+        `SensibLaw/scripts/build_gwb_broader_promotion_diagnostics.py`
+      - current broader GWB bottleneck:
+        public-bios and corpus/book lanes now contribute matched seed support,
+        and still add `0` new promoted relations beyond the checked handoff;
+        after the broader-source seed-backed candidate pass they now also
+        contribute candidate-level semantic relations, but not promoted ones
+      - next GWB step:
+        improve candidate quality, mention/object resolution, and promotion
+        readiness before adding more source files or loosening promotion policy
     - keep the handoff note explicit about current repo-facing Zelph dev contact
       surfaces:
       `sl_zelph_demo/*_run.sh`, `compile_db.py`, `lex_to_zelph.py`,
@@ -227,6 +255,15 @@
         discussed in prose
       - DONE: first broader GWB corpus scorecard now exists under
         `SensibLaw/tests/fixtures/zelph/gwb_corpus_scorecard_v1/`
+      - next concrete GWB move:
+        build a broader extraction checkpoint over the checked handoff timeline,
+        public-bios timeline, and corpus/book timeline so relation coverage is
+        measured across real source families rather than only inventoried
+      - DONE: first broader GWB extraction checkpoint now exists under
+        `SensibLaw/tests/fixtures/zelph/gwb_broader_corpus_checkpoint_v1/`
+      - next concrete GWB bottleneck:
+        improve broader-source promotion/admissibility because the first wider
+        checkpoint added source families but did not add new promoted relations
     - AU handoff followthrough:
       - do not mistake the checked AU workbench slice
         (`SensibLaw/tests/fixtures/zelph/au_public_handoff_v1/`) for full AU
@@ -249,6 +286,10 @@
       - DONE: bring AU up to the same checked handoff shape as GWB
       - broaden AU completeness from the checked workbench checkpoint to wider
         AU semantic/report coverage
+    - current corpus-expansion priority order:
+      - 1. broader GWB public-source extraction and relation coverage
+      - 2. broader AU transcript / reviewed WhisperX-backed corpus coverage
+      - 3. safe real chat-history lane
     - archived context input resolved on 2026-03-20:
       - `69bca95c-4f7c-839e-8b3a-3c5e273f185a` / `ZK in Legal Context`
       -> family-court `Magellan` / `Lighthouse` / `Evatt` pathways are a real

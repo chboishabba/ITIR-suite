@@ -173,6 +173,92 @@ To move from a handoff checkpoint to a corpus-completeness claim, add:
 - cross-family merge and dedup notes
 - checked-slice-to-full-run ratio
 
+## First broader GWB checkpoint target
+The next concrete GWB move should not be "more prose about completeness." It
+should be one broader machine-readable checkpoint built over the source
+families already present in-repo.
+
+Proposed source families for the first broader checkpoint:
+- checked handoff lane:
+  `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/`
+- public bios rich timeline lane:
+  `SensibLaw/demo/ingest/gwb/public_bios_v1/wiki_timeline_gwb_public_bios_v1_rich.json`
+- corpus/book timeline lane:
+  `SensibLaw/demo/ingest/gwb/corpus_v1/wiki_timeline_gwb_corpus_v1.json`
+
+Proposed broader-checkpoint artifact:
+- `SensibLaw/tests/fixtures/zelph/gwb_broader_corpus_checkpoint_v1/`
+
+Intended outputs:
+- `gwb_broader_corpus_checkpoint_v1.json`
+- `gwb_broader_corpus_checkpoint_v1.summary.md`
+
+Acceptance target for this first broader checkpoint:
+- run deterministic linkage + semantic extraction over the public-bios and
+  corpus/book timeline inputs, not only the checked handoff timeline
+- merge relations by canonical `(subject, predicate, object)` identity so the
+  broader checkpoint measures widened coverage rather than raw duplication
+- count seed-lane support across source families
+- expose which source families actually contributed promoted relations
+- remain honest about ambiguous/broad-cue lanes instead of collapsing them
+
+Current result from the first broader checkpoint:
+- artifact now exists under
+  `SensibLaw/tests/fixtures/zelph/gwb_broader_corpus_checkpoint_v1/`
+- 3 source families counted in the merged extraction checkpoint
+- 15 distinct promoted relations after canonical dedupe
+- 0 new promoted relations beyond the checked handoff
+- only 1 seed lane matched in multiple source families
+- public-bios rich timeline now contributes 1 matched seed lane but still
+  0 promoted relations in the current pass
+- corpus/book timeline contributed 0 promoted relations and 1 matched seed lane
+
+Public-bios implementation update:
+- the broader checkpoint no longer uses the old title-only
+  `wiki_timeline_gwb_public_bios_v1.json` input
+- it now builds and consumes
+  `SensibLaw/demo/ingest/gwb/public_bios_v1/wiki_timeline_gwb_public_bios_v1_rich.json`
+  from the raw HTML pages under `public_bios_v1/raw/`
+- the rich builder emits cue-filtered snippet windows over body paragraphs,
+  captions, and meta descriptions, which is enough to recover broader-source
+  support for the Iraq authorization lane
+
+Practical reading:
+- the bottleneck is no longer source-family inventory
+- the public-bios lane now reaches real broader-source matching, but still not
+  promotable relation output
+- diagnostics now sharpen that bottleneck:
+  the broader-source runs are producing linkage support, but almost no
+  text-rich semantically anchorable events yet
+- so the immediate next repair is event shaping / semantic anchoring over the
+  public-bios and corpus/book lanes, not blind source expansion and not
+  promotion-policy loosening by default
+
+## Broader-source diagnostics artifact
+The repo now also carries a machine-readable diagnostic companion for that
+failure mode:
+
+- `SensibLaw/tests/fixtures/zelph/gwb_broader_promotion_diagnostics_v1/`
+
+Current diagnostic result:
+- 2 broader source families inspected:
+  public bios rich timeline and corpus/book timeline
+- both families now provide matched seed support
+- both families now provide relation candidates
+- neither family provides any promoted relations
+- current diagnostic counts:
+  - public bios rich timeline: 3 relation candidates, 0 promoted relations
+  - corpus/book timeline: 3 relation candidates, 0 promoted relations
+- text-debug is now available on both broader-source families rather than
+  remaining fully unavailable
+
+Practical implication:
+- broader-source GWB is no longer stuck entirely before semantics
+- it now reaches candidate-level semantic anchoring on broader public-bios and
+  corpus/book material, while still remaining conservative at promotion
+- the next concrete work should improve candidate quality and mention/object
+  resolution so some of those broader-source candidates can become promotable
+
 ## Current implementation hook
 The checked GWB handoff artifact should carry a machine-readable scorecard so
 the repo can stop relying on prose-only quality judgments.
