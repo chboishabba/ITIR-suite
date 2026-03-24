@@ -1,5 +1,45 @@
 # Compactified Context
 
+- 2026-03-24 Dashifine/TextGraphs bridge lesson applied to ITIR graph/text lanes:
+  - source: current working turn plus local Dashifine bridge artifacts in
+    `../dashifine/`
+  - main decision:
+    - the useful bridge pattern is not "turn text into a graph because graphs
+      are interesting"; it is:
+      `canonical state -> conservative serialization -> graph observables ->
+      compare against source invariants`
+    - the Dashifine result matters because it separates three stages cleanly:
+      - faithful export of one canonical object into graph form,
+      - invariant-preserving transport of semantic/window summaries,
+      - non-local graph constructions that become informative rather than just
+        path-shaped
+    - for ITIR/JMD/SL-facing work, the practical analogue is:
+      - canonical object or article state remains the source of truth
+      - lexer/token/corpus graph layers are derived observational surfaces
+      - bridge quality should be judged first by reversibility and provenance,
+        then by whether graph metrics actually reveal something useful about
+        the underlying state
+    - the Dashifine sweep result (`ternary_l1_le_2` currently wins by global
+      graph-lift score) is a warning as well as a positive result:
+      structural richness alone is not enough; the eventual selector should be
+      semantic/window-aware, not just density/SCC-boosting
+  - useful outcome for ITIR:
+    - keep canonical state, lexer output, and graph projection as separate
+      layers with explicit ownership
+    - treat graph/overlay views as measurement instruments over canonical
+      state, not as replacement authority
+    - when evaluating future text/graph/lexer bridges, require:
+      - one canonical shared state record
+      - one reversible serializer
+      - one conservative baseline graph
+      - one informative non-local graph family
+      - one scoring rule that prefers semantic alignment over raw graph lift
+  - followthrough:
+    - update JMD/SL bridge planning docs with the conservative-bridge and
+      informative-graph distinction
+    - update `TODO.md` so future lexer/graph work is judged by reversibility
+      plus semantic usefulness, not graph richness alone
+
 - 2026-03-24 real-first demo policy and Zelph pack ranking:
   - source: current working turn
   - main decision:
@@ -23,6 +63,9 @@
   - followthrough:
     - update the Zelph handoff note to reflect real-first positioning and the
       current ranked pack candidates
+    - add a canonical pack spec + manifest for v1
+    - add a concrete GWB public-entity handoff spec as the next recommended
+      Zelph-facing artifact after the canonical v1 pack
     - update `TODO.md` so the missing real chat-history demo lane is explicit
 - 2026-03-23 JMD status/uncertainty refresh plus Zelph contact-surface clarification:
   - source: current working turn
@@ -188,6 +231,39 @@
     - extend follow-yield with the explicit richness / non-list / regime /
       information-gain blend, plus hop decay and best-path probing
     - keep page-family labels as derived debug output only
+- 2026-03-24 Wikipedia follow-quality first live campaign:
+  - source: current working turn
+  - artifacts:
+    - manifest: `/tmp/wiki_random_manifest_large.json`
+    - report: `/tmp/wiki_random_article_ingest_report_large.json`
+  - main findings:
+    - root-link relevance remained near-saturated (`0.982143`)
+    - followed-link relevance dropped to `0.5625`
+    - follow-target quality averaged `0.446047`
+    - hop-2 quality did not collapse relative to hop-1 on the first 8-page
+      slice (`0.471626` vs `0.446047`)
+    - best-path stayed above average candidate path quality by `0.055025`
+  - failure clustering:
+    - worst follow targets were dominated by pages with `non_list_score = 0.0`
+    - the immediate empirical bottleneck is list/year/generic aggregation
+      follows, not shallow path-decay collapse
+  - followthrough:
+    - add repeat-run campaign tooling with archived outputs
+    - add explicit weak-follow failure buckets
+    - tighten non-list discrimination using title/warning-level cues before
+      adjusting richer path metrics
+  - implementation follow-up:
+    - `scripts/run_follow_quality_campaign.sh` now supports archived multi-run
+      output directories and aggregate post-run analysis
+    - `SensibLaw/scripts/analyze_follow_quality_reports.py` aggregates report
+      directories and clusters weak follows by bucket
+    - `non_list_score` now looks at title-level and warning-level aggregation
+      cues, not just raw-text markers
+    - follow-up bug fix:
+      - raw wikitext `[[Category:...]]` residue was causing false
+        `list_like_follow` hits on ordinary pages like `Alaska`
+      - `non_list_score` now strips category/defaultsort markup before
+        evaluating text markers
 - 2026-03-23 unresolved ChatGPT context fetch:
   - source: current working turn
   - referenced online UUID:
@@ -258,6 +334,16 @@
     - the remaining live fetch failure is no longer explained by the `pipx`
       environment mismatch; if it persists, it is a real `re_gpt` auth/frontdoor
       issue rather than the resolver using the wrong Python environment
+- 2026-03-24 Cloudflare/browser-path posture:
+  - source: current working turn
+  - main decision:
+    - do not position the Playwright/Firefox challenge solver as the current
+      fix path for live chat recovery
+    - current priority remains getting direct web pulls and auth bootstrap
+      working again without relying on the browser-challenge branch
+  - implication:
+    - Cloudflare-triggered browser fallback should be documented as an
+      experimental escape hatch only, not as the primary operating procedure
       or thread payload from the current session-token-only path
 - 2026-03-23 chunked session-token file:
   - source: current working turn

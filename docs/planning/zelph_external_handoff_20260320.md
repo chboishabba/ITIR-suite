@@ -29,6 +29,13 @@ The intended relationship to Zelph is:
 
 This is a bridge/demo posture, not a dependency posture.
 
+Canonical companion artifacts for the current pack are now:
+- `docs/planning/zelph_real_world_pack_v1_20260324.md`
+- `docs/planning/zelph_real_world_pack_v1.manifest.json`
+
+Canonical companion artifact for the next public-entity handoff is now:
+- `docs/planning/gwb_zelph_handoff_v1_20260324.md`
+
 ## Current Status Snapshot (2026-03-23)
 What is already real in the repo:
 - small Zelph-facing demos exist and are still the cleanest shareable proof
@@ -187,6 +194,25 @@ Current gap:
 - if chat-history is meant to be a main real-world proof lane, it needs its own
   prepared run-derived export surface
 
+Current V1 decision:
+- the first canonical Zelph pack is a safer 2-slice real pack plus the
+  deterministic DB/rule-atom bridge proof
+- canonical V1 contents are:
+  - deterministic DB/rule-atom bridge
+  - `itir-svelte/tests/fixtures/fact_review_wave1_real_au_demo_bundle.json`
+  - `SensibLaw/tests/fixtures/wikidata/real_qualifier_imported_slice_20260307.json`
+- the transcript-derived real bundles stay ranked internal/next-pack candidates
+  rather than the first canonical pack
+
+Current next-step handoff decision:
+- the next recommended Zelph handoff after the canonical v1 pack is the GWB
+  public-entity lane
+- reason:
+  it is public, lower-risk to externalize than transcript/chat material, and it
+  already has deterministic reviewed linkage and semantic report surfaces
+- concrete handoff spec:
+  `docs/planning/gwb_zelph_handoff_v1_20260324.md`
+
 ## Human-readable summary of the current real JSON artifacts
 ### 1. Wave 1 real AU procedural bundle
 Path:
@@ -270,6 +296,36 @@ Why it matters:
   qualifier preservation, but it is not yet as strong an operator/workbench
   story as the transcript/AU bundles above
 
+## GWB public-entity handoff in plain language
+What it uses:
+- a reviewed GWB U.S.-law seed set
+- a deterministic linkage run over the GWB wiki timeline
+- a deterministic semantic promotion/report layer over the same corpus
+
+What it already proves:
+- the repo can recover clean public-law relations like nomination, Senate
+  confirmation, signing, veto, and court-review relations from public material
+- the repo does not silently force broad discourse labels into canonical actors
+  when the evidence is weak
+
+What currently comes out cleanly:
+- Bush nominated John Roberts
+- John Roberts was confirmed by the Senate
+- Bush signed the Military Commissions Act of 2006
+- Bush vetoed the Stem Cell Research Enhancement Act
+- district-court review stayed explicit in the Military Commissions Act lane
+
+What intentionally stays unresolved:
+- `the administration`
+- `the President`
+- `the court`
+
+Why it matters for Zelph:
+- it is the cleanest current public-entity example of
+  `real ingest -> reviewed structure -> bounded downstream reasoning`
+- it is safer than transcript/chat lanes and easier to explain than legal-intake
+  workflows
+
 ## What We Think Is Interesting About Zelph
 Based on Stefan's description and our own demo work, the most interesting
 collaboration surfaces are:
@@ -314,13 +370,20 @@ Needs review/sanitization before external sharing:
 - What is the first repo-stable real chat-history run artifact we want to
   prepare so chat-derived material can join the pack without leaning on
   synthetic seeds?
+- Should the first checked GWB handoff be shared as a reviewed JSON report
+  slice, a compiled Zelph fact bundle, or both?
 
 ## Suggested Questions / Next Discussion Points
+- Which one or two bounded Zelph rules should become the first GWB public-law
+  reasoning demo:
+  clean executive-public-law actions, ambiguity/review detection, or both?
 - Which ontology/predicate-as-node exports under
   `SensibLaw/sl_zelph_demo/ontology_*` should be documented to showcase richer
   predicate bridging?
 - Which real chat-history or development/math/public-event chat slices are safe
   enough to turn into the missing repo-stable chat-derived demo lane?
+- once the first real chat-history lane exists, should the second canonical pack
+  replace the structured-import slice or simply expand from 2 real slices to 3?
 
 ## Intended Next Tests
 - keep the outward-facing handoff note aligned first with the persisted `real`

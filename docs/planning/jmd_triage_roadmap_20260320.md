@@ -64,6 +64,22 @@ The bridge lane also needs one explicit internal split:
 - `SL bridge`: reversible anchors, organisation overlays, and future proof
   surfaces over the DASHI-collapsed reading
 
+One additional lesson now sharpened by the local Dashifine/TextGraphs bridge
+work:
+
+- do not score bridge progress by graph richness alone
+- first prove the bridge is conservative:
+  canonical state -> reversible serialization -> graph projection without
+  losing identity/order/provenance
+- only then evaluate informative graph variants:
+  non-local edges, similarity graphs, or corpus overlays that make graph
+  observables move with the underlying semantic state
+- this means the JMD lane should explicitly distinguish:
+  - canonical object/corpus state
+  - reversible token/anchor serialization
+  - derived graph/overlay observables
+  rather than collapsing them into one "graph integration" bucket
+
 ## Consistency Check Against Existing Repo Direction
 ### Already aligned
 - `status.json` still points to Casey boundary seams rather than a JMD adapter
@@ -111,6 +127,12 @@ Explicitly in scope:
 - anchor/group/cluster identity rules
 - provenance bundle member refs
 - quotient / invariance terminology for DASHI-backed collapse
+- conservative bridge criteria:
+  reversibility, source-ref preservation, stable ordering/identity where
+  applicable
+- informative graph criteria:
+  graph/overlay scoring should prefer semantic alignment over raw density or
+  connectivity lift
 - corpus-root / pipeline / metric / score commitment fields
 - replay and reversibility constraints
 

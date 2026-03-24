@@ -53,6 +53,17 @@ The definitive instructions for each live in the submodule’s own README; this 
 - Component repos remain the implementation/data planes.
 - Cross-component behavior is declared via interface contracts, not implicit
   coupling.
+- For text/graph/lexer bridges, keep three layers distinct:
+  - canonical state or source object remains the authority surface
+  - token/lexer/corpus reductions are reversible derived layers
+  - graph views are observational/measurement surfaces, not replacement
+    authority
+- A useful bridge is therefore not judged by "did we make a graph" alone, but
+  by:
+  - reversibility back to canonical source refs/state,
+  - preservation of declared invariants/provenance,
+  - and whether the graph surface reveals something semantically useful beyond
+    the trivial sequence/container baseline.
 
 Orchestrator contract:
 - `docs/planning/itir_orchestrator.md`

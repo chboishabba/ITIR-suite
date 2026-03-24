@@ -112,6 +112,32 @@ This matters because the bridge is not only "read a shard and expose text". It
 is also the place where the suite should eventually prove that a selected
 representation is the minimal canonical explanation over declared evidence.
 
+### Conservative bridge lesson from the Dashifine/TextGraphs prototype
+The local Dashifine/TextGraphs bridge sharpened one practical rule that also
+applies here:
+
+- a bridge should first be conservative before it tries to be rich
+- conservative means:
+  - one canonical shared state
+  - one reversible serialization from that state
+  - one derived graph or overlay surface that can be traced back to the source
+    state without ambiguity
+- only after that should the bridge add richer graph constructions
+  (similarity/non-local edges, cluster overlays, recurrence links)
+- those richer graph surfaces should be judged by whether they track useful
+  semantic or provenance-relevant changes, not merely by making the graph more
+  connected or visually interesting
+
+Maintainer reading for this contract:
+
+- `JMD` object state remains the authority surface
+- `SL` token/span/group layers remain reversible derived structure
+- graph/overlay views are measurement and organisation layers over that
+  reversible state, not replacement authority
+- future bridge scoring should therefore separate:
+  - conservation/replay correctness
+  - semantic usefulness of derived graph/overlay observables
+
 ### S — State
 Two coupled but distinct states:
 

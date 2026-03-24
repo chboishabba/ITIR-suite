@@ -71,6 +71,13 @@
     directly for runtime integration
   - make adapter-produced tokenizer profile / canonical refs visible in
     receipts, overlays, or read models where cross-product preservation matters
+  - for future text/graph/lexer bridges, require the Dashifine-style staging:
+    - canonical shared state first
+    - reversible serialization second
+    - conservative baseline graph/overlay third
+    - informative non-local graph/overlay scoring last
+  - do not treat higher graph density/connectivity by itself as bridge success;
+    require semantic/provenance usefulness criteria too
 - [P2] SensibLaw x Glasslane / Mirror packaging slice:
   - use chat thread `Aptos cryptocurrency overview`
     (`691ac8a3-4a30-8320-bd5f-f66efc3145e7`,
@@ -122,24 +129,32 @@
       synthetic fixtures are regression/contract material only and should not
       be used as the headline Zelph/demo evidence when real run-derived
       artifacts exist
+    - canonical pack spec/manifest now live in:
+      `docs/planning/zelph_real_world_pack_v1_20260324.md`,
+      `docs/planning/zelph_real_world_pack_v1.manifest.json`
+    - next public-entity handoff spec now live in:
+      `docs/planning/gwb_zelph_handoff_v1_20260324.md`
     - DONE: keep the outward-facing handoff wording behavior-level rather than
       role-label-driven (reversion detection / volatility /
       reversion-without-context risk, not a formal `wiki sentinel` ontology
       claim)
     - prepare a deliberately shareable Zelph pack:
-      - lead with the deterministic DB/rule-atom export path (`SensibLaw/sl_zelph_demo/compile_db.py`, `db_rules.zlp`, `db_run.sh`, `tests/test_sl_zelph_demo_tools.py`) so Zelph devs see the authoritative handoff
-      - prime the first real run-derived examples from:
-        `itir-svelte/tests/fixtures/fact_review_wave1_real_au_demo_bundle.json`,
+      - DONE: lead with the deterministic DB/rule-atom export path (`SensibLaw/sl_zelph_demo/compile_db.py`, `db_rules.zlp`, `db_run.sh`, `tests/test_sl_zelph_demo_tools.py`) so Zelph devs see the authoritative handoff
+      - DONE: canonical V1 scope is the safer 2-slice pack:
+        `itir-svelte/tests/fixtures/fact_review_wave1_real_au_demo_bundle.json`
+        plus
+        `SensibLaw/tests/fixtures/wikidata/real_qualifier_imported_slice_20260307.json`
+      - keep the ranked transcript bundles as internal/next-pack candidates:
         `itir-svelte/tests/fixtures/fact_review_wave5_real_professional_handoff_demo_bundle.json`,
         `itir-svelte/tests/fixtures/fact_review_wave3_real_fragmented_support_demo_bundle.json`
-      - keep the real Wikidata qualifier slice as the secondary non-transcript
-        import example:
-        `SensibLaw/tests/fixtures/wikidata/real_qualifier_imported_slice_20260307.json`
       - document an ontology/predicate-as-node example (`SensibLaw/sl_zelph_demo/ontology_demo.zph`, `ontology_rules.zlp`, `lex_to_zelph.py`) to demonstrate richer schema exports
       - keep the wiki/review run only as bounded historical context, not as the
         headline case
       - include only reviewed/sanitized real artifacts and scripts/tests that
         verify the export story
+      - next recommended artifact after canonical V1:
+        GWB public-entity handoff using the reviewed linkage seed plus the
+        deterministic linkage and semantic report surfaces
     - keep the handoff note explicit about current repo-facing Zelph dev contact
       surfaces:
       `sl_zelph_demo/*_run.sh`, `compile_db.py`, `lex_to_zelph.py`,
@@ -151,9 +166,17 @@
       the first collaboration slice
     - explicit current gap:
       there is not yet a repo-stable real chat-history run artifact strong
-      enough for the first Zelph pack; find or prepare one from actual
+      enough for the next Zelph pack; find or prepare one from actual
       chat-history DB runs focused on development/math/general reasoning or
       public events
+    - logic-tree artifacts may assist the future chat lane, but they are not
+      the canonical first chat demo artifact
+    - GWB handoff followthrough:
+      - choose whether the first checked GWB export is a reviewed JSON report
+        slice, a compiled Zelph fact bundle, or both
+      - keep the first bounded Zelph rules small:
+        `executive_public_law_action` and
+        `needs_review_due_to_ambiguity`
     - archived context input resolved on 2026-03-20:
       - `69bca95c-4f7c-839e-8b3a-3c5e273f185a` / `ZK in Legal Context`
       -> family-court `Magellan` / `Lighthouse` / `Evatt` pathways are a real
@@ -168,22 +191,52 @@
   - position current ontology/bridge/branch-set work as support infrastructure
   - Wikipedia ingest generalization harness:
     - keep the random-page article-ingest report regime-aware and honest
-    - rerun the stored manifest on a larger slice before trusting the new
-      regime basis
-    - add dominant-regime counts and follow-yield summaries so page shapes can
-      be falsified by distribution, not just by a few hand-picked fixtures
-    - keep follow-yield as a 50/50 blend of followed-link relevance and
+    - DONE: add dominant-regime counts and follow-yield summaries so page
+      shapes can be falsified by distribution, not just by a few hand-picked
+      fixtures
+    - DONE: keep follow-yield as a 50/50 blend of followed-link relevance and
       follow-target quality, where follow-target quality is driven by richness,
       non-list structure, regime similarity, and information gain
-    - extend the graph probe with hop-1/hop-2 decay and best-path probing based
-      on hop qualities plus regime coherence before trying heavier graph
-      analytics
+    - DONE: extend the graph probe with hop-1/hop-2 decay and best-path
+      probing based on hop qualities plus regime coherence before trying
+      heavier graph analytics
+    - first live recursive campaign result:
+      - root relevance remained very high (`0.982143`) while followed-link
+        relevance dropped to `0.5625`
+      - follow-target quality averaged `0.446047`
+      - hop-2 quality did not collapse on the first 8-page slice
+        (`0.471626` vs hop-1 `0.446047`)
+      - best-path stayed above average candidate path quality by `0.055025`
+      - worst follow pages clustered around `non_list_score = 0.0`, especially
+        list/year/generic aggregation pages
+    - add repeat-run campaign tooling so operators can archive multiple random
+      runs and compare regime/follow/path distributions without hand-editing
+      temp paths
+    - add failure-clustering outputs over weak follow targets so listiness,
+      regime jump, low information gain, and thin-follow failures separate
+      cleanly in the reports
+    - tighten non-list / generic-aggregation discrimination using page title
+      and warning-level cues before touching richer graph analytics
+    - DONE: stop `non_list_score` from treating raw wikitext category residue
+      as evidence that an ordinary page is list-like
     - keep page-family labels as derived debug output only
   - define the minimum parity deliverable as:
     - source/excerpt/statement capture
     - a small explicit observation layer with a stable low-cardinality
       predicate catalog for the first factual substrate
     - chronology over captured facts/statements
+
+- [P2] JMD/SL graph usefulness criteria:
+  - add one compact contract note or fixture showing how a canonical object or
+    article state projects into:
+    - reversible token/span state
+    - conservative graph/overlay view
+    - one informative non-local graph/overlay variant
+  - define how ITIR judges graph usefulness:
+    - not just density/SCC/centrality lift
+    - but whether the graph surface helps expose semantic drift, provenance
+      conflicts, chronology tension, or repeated structure in a way the base
+      serialization does not
     - contestable fact/claim handling
     - operator review / curation surfaces
     - external-reference/linkage support for the fact layer
@@ -407,6 +460,9 @@
       diagnosis
     - hydrate frontend cookies from `https://chatgpt.com/` and retry the auth
       session call in both sync and async clients
+    - do not treat the Cloudflare/Playwright browser solver path as the current
+      target fix; use it only as an experimental fallback while direct web pull
+      bootstrap is being repaired
     - DONE: preserve non-empty session cookies when frontend responses hand
       back blank `__Secure-next-auth.session-token` values
     - DONE: add fallback parsing of `client-bootstrap` access tokens plus an

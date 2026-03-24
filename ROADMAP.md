@@ -20,6 +20,9 @@ SQLite-backed corpus with TIRC and SL-style views.
 - Deterministic ordering and lossless ingest are mandatory.
 - Vector embeddings are derived artifacts and must be regenerable without
   invalidating the corpus.
+- Shared speech/transcript infrastructure should prefer WhisperX-WebUI, or a
+  compatible successor, as the reusable external transcription surface across
+  ITIR-adjacent projects.
 
 ## Phase 1: Ingest and Baseline IR (1–2 hours)
 - Ingest `conversations.json` into SQLite.
@@ -33,6 +36,10 @@ SQLite-backed corpus with TIRC and SL-style views.
 - Add interpretive layers (claims, questions).
 - Implement TIRC recurrence detection.
 - Add contradiction flags across threads.
+- Define and stabilize the call-intelligence / livestream transcription
+  completion seam so new completion-oriented transcription projects can roll
+  into the WhisperX-WebUI surface instead of creating separate incompatible
+  contracts.
 
 ## Phase 3: Meta-Analysis (Optional)
 - Treat ChatGPT history as:
@@ -88,3 +95,8 @@ SQLite-backed corpus with TIRC and SL-style views.
 - Python ingest script for `conversations.json`.
 - TIRC recurrence query set.
 - Unified super-corpus mapping across legal / NotebookLM / ChatGPT sources.
+- Explicit ITIR roadmap item for WhisperX-WebUI-backed call intelligence and
+  livestream transcription completions as a shared service/interface layer.
+- Cross-project contract note covering how Corkysoft and other operator-facing
+  tools submit audio, poll jobs, and consume reviewed transcript completions
+  from WhisperX-WebUI.
