@@ -81,15 +81,21 @@ Latest GWB corpus-expansion result:
 - the richer public-bios lane now also contributes one genuinely new broader
   promoted executive-action family:
   `George W. Bush -> signed -> Northwestern Hawaiian Islands Marine National Monument`
+- the corpus/book timeline has now improved materially as well:
+  prioritizing legally salient late-book sentences surfaces real nomination and
+  review material from `Decision Points` and related sources, including
+  broader-source confirmation of the checked nomination family and one new
+  broader relation:
+  `George W. Bush -> ruled_by -> Supreme Court of the United States`
 - current broader checkpoint result is therefore:
-  `17` distinct promoted relations after canonical dedupe and `2` new
+  `18` distinct promoted relations after canonical dedupe and `3` new
   distinct promoted relations beyond the checked handoff
 - a follow-on corpus disambiguation pass now abstains father/family-history
   bare-`Bush` rows rather than resolving them directly to George W. Bush
 - practical reading: the next GWB bottleneck is no longer public-source
   availability; it is now widening beyond the Supreme Court confirmation and
-  NCLB signing + marine-monument proclamation families into additional
-  promotable broader-source families
+  NCLB signing + marine-monument proclamation + corpus review/nomination
+  confirmations into additional promotable broader-source families
 
 ## Current Status Snapshot (2026-03-24)
 What is already real in the repo:

@@ -216,20 +216,23 @@
       - current broader GWB bottleneck:
         public-bios and corpus/book lanes now contribute matched seed support;
         after richer public-bios event shaping plus broader-source seed-backed
-        semantic backfill, they contribute promoted confirmation of the
-        existing Supreme Court review relation family and one genuinely new
+        semantic backfill, and after corpus sentence-priority shaping over the
+        full `Decision Points` text, they contribute promoted confirmation of
+        the existing Supreme Court review relation family and one genuinely new
         broader-source public-law family plus one executive-action family:
         `George W. Bush -> signed -> No Child Left Behind Act`
         and
         `George W. Bush -> signed -> Northwestern Hawaiian Islands Marine National Monument`
+        and one new corpus-lane broader relation:
+        `George W. Bush -> ruled_by -> Supreme Court of the United States`
       - quality guard added:
         father/family-history bare-`Bush` corpus rows now abstain instead of
         silently resolving to George W. Bush
       - next GWB step:
         improve candidate quality, mention/object resolution, and promotion
         readiness for the next broader-source family after Supreme Court review
-        + NCLB + marine-monument before adding more source files or loosening
-        promotion policy
+        + NCLB + marine-monument + the new corpus review/nomination confirms,
+        before adding more source files or loosening promotion policy
     - keep the handoff note explicit about current repo-facing Zelph dev contact
       surfaces:
       `sl_zelph_demo/*_run.sh`, `compile_db.py`, `lex_to_zelph.py`,
@@ -548,6 +551,42 @@
     - operator spec: `SensibLaw/docs/wikidata_epistemic_projection_operator_spec_v0_1.md`
     - transition plan + slice decision: `SensibLaw/docs/planning/wikidata_transition_plan_20260306.md`
     - reproducible input slice (two dumps or two edit windows)
+- [P1] Wikidata hotspot benchmark lane:
+  - use `docs/planning/wikidata_hotspot_benchmark_lane_20260325.md` as the
+    planning source
+  - use `docs/planning/wikidata_hotspot_pack_contract_20260325.md` as the
+    draft schema/generator/evaluator contract
+  - use `docs/planning/wikidata_hotspot_pilot_pack_v0.manifest.json` as the
+    draft pilot-pack manifest
+  - define hotspot families as the benchmark-generation primitive:
+    - mixed-order
+    - entity-kind collapse
+    - SCC/circular subclass
+    - property/constraint pressure
+    - qualifier drift
+    - typed parthood ambiguity
+  - build a small fixture-backed pilot pack spanning at least:
+    - one mixed-order example
+    - one SCC example
+    - one qualifier-drift example
+    - one finance/product-service-category entity-kind-collapse example
+    - one software/project/artifact entity-kind-collapse example
+  - preserve provenance from pinned slice/revision pair -> hotspot family ->
+    generated cluster family
+  - do not flatten `P31` and `P279` into one benchmark relation without also
+    retaining the original structural pathology that made the hotspot useful
+  - define the win condition against IBM-style hotspot work as:
+    - better hotspot legibility
+    - better provenance
+    - cross-domain generality
+    - deterministic rerun stability
+    - explainable failure modes
+  - defer generator/evaluator code until the hotspot pack and schema are stable
+  - next docs-first checkpoint:
+    - ratify whether `page_locked_candidate` entries can remain in `v0`
+    - freeze the first emitted cluster-pack JSON shape
+    - decide whether evaluator inputs are raw transcripts, normalized yes/no
+      labels, or both
 - [P1] SL observation + case-construction followthrough:
   - note: now explicitly phase-two after Mary-parity fact-layer work, not the
     first user-facing SL milestone

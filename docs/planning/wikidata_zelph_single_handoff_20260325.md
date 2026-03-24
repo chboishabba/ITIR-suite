@@ -123,6 +123,11 @@ Keep the boundary clean:
 - continue using importer-backed slices rather than hand-edited JSON
 - grow the typed parthood/property lane carefully
 - keep the focus on review support, not bot-style ontology correction
+- treat the lane as domain-agnostic structural diagnostics, not only as a
+  finance/property semantics exercise
+- use software/project examples such as `GNU` / `GNU Project` alongside
+  finance/product examples to show the same machinery catches entity-kind
+  collapse across domains
 
 ### Next for Zelph collaboration
 - keep using the existing checked export path rather than inventing a new one
@@ -142,6 +147,9 @@ Keep the boundary clean:
   repeatedly without live-query drift changing the conversation every time.
 - It opens a practical pressure-test lane for parthood, qualifier drift, and
   mixed class/instance use.
+- It can be extended into a bounded hotspot benchmark lane where every test
+  cluster is justified by a visible structural pathology rather than by generic
+  ontology flattening alone.
 
 ### Value to the Zelph developer
 - The repo already provides checked graph-like inputs with source traceability.

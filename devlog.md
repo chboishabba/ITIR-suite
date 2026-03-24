@@ -1,6 +1,37 @@
 # Devlog
 
 ## 2026-03-25
+- Reviewed IBM's paper `2405.20163v1_rosario.pdf` on LLM knowledge consistency
+  over Wikidata-derived ontologies and extracted the repo-relevant design
+  takeaway:
+  - their cluster generation approach is useful
+  - their flattening of `P31` and `P279` into a generic `subConceptOf` relation
+    is exactly where this repo can do better by preserving structural pathology
+    provenance
+- Added a new planning note:
+  `docs/planning/wikidata_hotspot_benchmark_lane_20260325.md`
+  which defines a bounded benchmark lane built from hotspot families rather
+  than generic ontology flattening.
+- Added the next planning/spec artifacts for the same lane:
+  - `docs/planning/wikidata_hotspot_pack_contract_20260325.md`
+  - `docs/planning/wikidata_hotspot_pilot_pack_v0.manifest.json`
+  - these freeze the draft taxonomy/schema, map the first five candidate packs,
+    and sketch the generator/evaluator contracts before code exists
+- Updated:
+  - `.gitignore`
+  - `TODO.md`
+  - `COMPACTIFIED_CONTEXT.md`
+  - `plan.md`
+  - `docs/planning/README.md`
+  - `docs/planning/wikidata_zelph_single_handoff_20260325.md`
+  - `SensibLaw/docs/wikidata_working_group_status.md`
+  so the repo now states explicitly that the Wikidata diagnostics are
+  domain-agnostic and can catch entity-kind collapse across software/project as
+  well as finance/property examples.
+- No generator/evaluator code was added in this pass; the work remains
+  docs/spec/TODO alignment until the hotspot schema and pilot pack are pinned.
+
+## 2026-03-25
 - Added `docs/planning/wikidata_zelph_single_handoff_20260325.md` as the new
   canonical first-link handoff for the evening meetings with the Wikidata
   Ontology Working Group and the Zelph developer.

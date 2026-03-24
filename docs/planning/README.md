@@ -65,6 +65,14 @@ Shareable technical framing for external collaborators:
 - `docs/planning/zelph_handoff_index_20260324.md`
 - `docs/planning/zelph_external_handoff_20260320.md`
 
+## Wikidata Hotspot Benchmark Lane (2026-03-25)
+
+Planning/spec artifacts for the bounded benchmark lane that turns Wikidata
+structural diagnostics into hotspot-backed LLM consistency tests:
+- `docs/planning/wikidata_hotspot_benchmark_lane_20260325.md`
+- `docs/planning/wikidata_hotspot_pack_contract_20260325.md`
+- `docs/planning/wikidata_hotspot_pilot_pack_v0.manifest.json`
+
 ## Narrative Validation / Comparison (2026-03-09)
 
 Public-media narrative-validation and competing-narratives followthrough note:

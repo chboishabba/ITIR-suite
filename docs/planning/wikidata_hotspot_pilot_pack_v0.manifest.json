@@ -1,0 +1,136 @@
+{
+  "version": "wikidata.hotspot.pilot_pack.v0",
+  "date": "2026-03-25",
+  "selection_policy": {
+    "priority_order": [
+      "structural_legibility",
+      "provenance",
+      "cross_domain_generality",
+      "determinism"
+    ],
+    "real_first": true,
+    "allow_page_locked_candidates_without_local_slice": true,
+    "require_provenance_receipts": true
+  },
+  "entries": [
+    {
+      "pack_id": "mixed_order_live_pack_v1",
+      "status": "fixture_backed",
+      "hotspot_family": "mixed_order",
+      "primary_story": "Bounded live mixed-order cases already exist and are the cleanest benchmark seed for class/instance confusion.",
+      "source_kind": "repo_fixture_plus_report",
+      "focus_qids": ["Q9779", "Q8192", "Q21169592", "Q7187"],
+      "focus_pids": ["P31", "P279"],
+      "source_artifacts": [
+        "SensibLaw/tests/fixtures/wikidata/live_p31_p279_slice_20260307.json",
+        "SensibLaw/tests/test_wikidata_projection.py"
+      ],
+      "report_artifacts": [
+        "SensibLaw/docs/wikidata_report_contract_v0_1.md",
+        "SensibLaw/docs/wikidata_working_group_status.md"
+      ],
+      "candidate_cluster_families": ["edge_yes", "edge_inv", "hierarchy"],
+      "selection_reason": "Existing repo fixture already proves mixed-order detection over pinned QIDs.",
+      "expected_value": "Fastest path to the first benchmark pack with deterministic provenance.",
+      "commands": [
+        {
+          "kind": "test",
+          "command": "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/pytest -q tests/test_wikidata_projection.py -k live_fixture_emits_mixed_order_and_nonzero_eii"
+        }
+      ]
+    },
+    {
+      "pack_id": "p279_scc_live_pack_v1",
+      "status": "fixture_backed",
+      "hotspot_family": "p279_scc",
+      "primary_story": "Reciprocal subclass loops should generate contradiction-sensitive hierarchy clusters.",
+      "source_kind": "repo_fixture_plus_report",
+      "focus_qids": ["Q22652", "Q22698", "Q52040", "Q188"],
+      "focus_pids": ["P279"],
+      "source_artifacts": [
+        "SensibLaw/tests/fixtures/wikidata/live_p31_p279_slice_20260307.json",
+        "SensibLaw/tests/test_wikidata_projection.py"
+      ],
+      "report_artifacts": [
+        "SensibLaw/docs/wikidata_report_contract_v0_1.md",
+        "SensibLaw/docs/wikidata_working_group_status.md"
+      ],
+      "candidate_cluster_families": ["edge_yes", "edge_inv", "hierarchy", "closure_conflict"],
+      "selection_reason": "Existing repo fixture already proves SCC detection over pinned QIDs.",
+      "expected_value": "Provides an immediately legible loop/cycle hotspot family for benchmark generation.",
+      "commands": [
+        {
+          "kind": "test",
+          "command": "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/pytest -q tests/test_wikidata_projection.py -k live_fixture_emits_mixed_order_and_nonzero_eii"
+        }
+      ]
+    },
+    {
+      "pack_id": "qualifier_drift_p166_live_pack_v1",
+      "status": "report_backed",
+      "hotspot_family": "qualifier_drift",
+      "primary_story": "Pinned revision-pair qualifier drift is the clearest temporal hotspot family already materialized in-repo.",
+      "source_kind": "revision_pair",
+      "focus_qids": ["Q100104196"],
+      "focus_pids": ["P166"],
+      "focus_revisions": ["2277985537", "2277985693"],
+      "source_artifacts": [
+        "SensibLaw/tests/fixtures/wikidata/q100104196_p166_2277985537_2277985693/slice.json",
+        "SensibLaw/tests/fixtures/wikidata/q100104196_p166_2277985537_2277985693/projection.json"
+      ],
+      "report_artifacts": [
+        "SensibLaw/tests/test_wikidata_cli.py",
+        "SensibLaw/tests/test_wikidata_projection.py"
+      ],
+      "candidate_cluster_families": ["temporalized_statement", "revision_pair_agreement", "property_inheritance"],
+      "selection_reason": "Pinned live drift case already has stable slice/report evidence and a clear severity rule.",
+      "expected_value": "Extends the benchmark lane beyond static ontology edges into revision-aware instability.",
+      "commands": [
+        {
+          "kind": "test",
+          "command": "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/pytest -q tests/test_wikidata_cli.py -k repo_pinned_live_drift_case"
+        }
+      ]
+    },
+    {
+      "pack_id": "finance_entity_kind_collapse_pack_v0",
+      "status": "page_locked_candidate",
+      "hotspot_family": "entity_kind_collapse",
+      "primary_story": "Product/service/category entanglement shows that the benchmark lane is not limited to clean taxonomies.",
+      "source_kind": "page_review",
+      "focus_qids": ["Q15809678", "Q837171", "Q2424752"],
+      "focus_pids": ["P31", "P279"],
+      "source_artifacts": [
+        "docs/planning/wikidata_hotspot_benchmark_lane_20260325.md",
+        "docs/planning/wikidata_hotspot_pack_contract_20260325.md"
+      ],
+      "candidate_cluster_families": ["edge_yes", "edge_inv", "kind_disambiguation", "property_inheritance"],
+      "selection_reason": "Recent page review exposed category/service/product collapse plus deprecated-rank governance evidence.",
+      "expected_value": "Shows that benchmark-worthy hotspots can arise from entity-kind collapse, not only from simple subclass closure.",
+      "notes": [
+        "Needs local slice capture before promotion to fixture_backed."
+      ],
+      "commands": []
+    },
+    {
+      "pack_id": "software_entity_kind_collapse_pack_v0",
+      "status": "page_locked_candidate",
+      "hotspot_family": "entity_kind_collapse",
+      "primary_story": "GNU and GNU Project demonstrate artifact/project/community collapse in a highly legible domain.",
+      "source_kind": "page_review",
+      "focus_qids": ["Q44571", "Q7598"],
+      "focus_pids": ["P31", "P279", "P527"],
+      "source_artifacts": [
+        "docs/planning/wikidata_hotspot_benchmark_lane_20260325.md",
+        "docs/planning/wikidata_hotspot_pack_contract_20260325.md"
+      ],
+      "candidate_cluster_families": ["edge_yes", "edge_inv", "kind_disambiguation", "property_inheritance"],
+      "selection_reason": "Recent page review exposed software/project/artifact collapse outside the finance lane.",
+      "expected_value": "Makes the domain-agnostic claim concrete and avoids overfitting the lane to finance/property semantics.",
+      "notes": [
+        "Needs local slice capture before promotion to fixture_backed."
+      ],
+      "commands": []
+    }
+  ]
+}

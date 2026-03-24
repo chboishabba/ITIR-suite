@@ -247,3 +247,22 @@
    and added a bounded `backfill_fact_semantics.py` script for legacy runs.
 4. Cut review summary/workbench projections over to normalized semantic rows
    with fallback for non-materialized runs.
+
+## Milestone W: Wikidata Hotspot Benchmark Lane (planned)
+1. Use `docs/planning/wikidata_hotspot_benchmark_lane_20260325.md` as the
+   planning source for the benchmark-facing extension.
+2. Freeze the hotspot taxonomy and pack contract in:
+   - `docs/planning/wikidata_hotspot_pack_contract_20260325.md`
+   - `docs/planning/wikidata_hotspot_pilot_pack_v0.manifest.json`
+3. Keep the first pilot pack bounded to five hotspot entries:
+   - one mixed-order fixture-backed pack
+   - one `P279` SCC fixture-backed pack
+   - one qualifier-drift revision-pair pack
+   - one finance entity-kind-collapse candidate pack
+   - one software entity-kind-collapse candidate pack
+4. Preserve provenance from source slice/revision/page review -> hotspot family
+   -> generated cluster family.
+5. Do not implement generator/evaluator code until:
+   - the pilot-pack manifest is ratified
+   - the first cluster-pack JSON shape is explicit
+   - evaluator input/output contracts are fixed

@@ -1,5 +1,49 @@
 # Compactified Context
 
+- 2026-03-25 Wikidata hotspot benchmark framing:
+  - source: current working turn
+  - inputs reviewed:
+    - IBM paper `2405.20163v1_rosario.pdf`
+    - current Wikidata planning/status docs
+    - recent live-item examples around `financial product` / `financial services`
+      / `product` and `GNU` / `GNU Project`
+  - main decision:
+    - the repo's Wikidata lane should now be described explicitly as a
+      domain-agnostic structural diagnostic surface, not merely as a
+      finance/property semantics exercise
+    - competitor hotspot work is useful pressure, but the repo should not copy
+      the weakest part of that design: flattening `P31` and `P279` into a clean
+      `subConceptOf` graph before preserving why a region is pathological
+    - the stronger benchmark direction is a bounded hotspot lane that keeps
+      provenance from pinned slice/revision pair -> hotspot family -> generated
+      query cluster
+    - canonical hotspot families for that lane are:
+      - mixed-order
+      - entity-kind collapse
+      - SCC/circular subclass
+      - property/constraint pressure
+      - qualifier drift
+      - typed parthood ambiguity
+  - followthrough:
+    - planning note:
+      `docs/planning/wikidata_hotspot_benchmark_lane_20260325.md`
+    - contract/spec note:
+      `docs/planning/wikidata_hotspot_pack_contract_20260325.md`
+    - draft manifest:
+      `docs/planning/wikidata_hotspot_pilot_pack_v0.manifest.json`
+    - TODO tracking:
+      `TODO.md`
+    - outward-facing wording update:
+      `docs/planning/wikidata_zelph_single_handoff_20260325.md`
+    - working-group appendix wording update:
+      `SensibLaw/docs/wikidata_working_group_status.md`
+  - current pilot-pack candidates:
+    - `mixed_order_live_pack_v1`
+    - `p279_scc_live_pack_v1`
+    - `qualifier_drift_p166_live_pack_v1`
+    - `finance_entity_kind_collapse_pack_v0`
+    - `software_entity_kind_collapse_pack_v0`
+
 - 2026-03-25 single shared Wikidata/Zelph handoff:
   - source: current working turn
   - main decision:
@@ -116,28 +160,31 @@
       public bios rich timeline,
       and corpus/book timeline
     - result:
-      17 distinct promoted relations after canonical dedupe,
-      2 new promoted relations beyond the checked handoff,
-      and only 1 seed lane matched across multiple source families
+      18 distinct promoted relations after canonical dedupe,
+      3 new promoted relations beyond the checked handoff,
+      and 5 seed lanes matched across multiple source families
     - public-bios no longer runs as title-only input; it now builds a richer
       cue-filtered timeline from raw HTML pages, correctly flushes malformed
       paragraph boundaries, and preserves explicit statute-signing sentences
-    - a follow-on seed-backed semantic pass now moves both broader-source
-      families into independent promoted confirmation on one already-known
-      review-relation family:
-      public bios = 8 relation candidates / 8 promoted relations,
-      corpus/books = 3 relation candidates / 3 promoted relations,
-      while the deduped broader checkpoint now adds 2 new distinct promoted
-      relation beyond the checked handoff:
+    - a follow-on seed-backed semantic pass plus corpus sentence-priority
+      shaping now moves both broader-source families into independent promoted
+      confirmation on one already-known review-relation family and several
+      additional broader relations:
+      public bios = 9 relation candidates / 9 promoted relations,
+      corpus/books = 32 relation candidates / 32 promoted relations,
+      while the deduped broader checkpoint now adds 3 new distinct promoted
+      relations beyond the checked handoff:
       `George W. Bush -> signed -> No Child Left Behind Act`
       and
       `George W. Bush -> signed -> Northwestern Hawaiian Islands Marine National Monument`
+      and
+      `George W. Bush -> ruled_by -> Supreme Court of the United States`
     - a follow-on disambiguation pass now abstains father/family-history
       bare-`Bush` corpus rows instead of resolving them directly to
       `actor:george_w_bush`
     - the next GWB bottleneck is now extending broader-source promotion beyond
-      the Supreme Court review, NCLB signing, and marine-monument
-      proclamation families
+      the Supreme Court review, NCLB signing, marine-monument proclamation,
+      and new corpus-lane review/nomination confirmations
 
 - 2026-03-24 Dashifine/TextGraphs bridge lesson applied to ITIR graph/text lanes:
   - source: current working turn plus local Dashifine bridge artifacts in
