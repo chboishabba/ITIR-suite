@@ -259,11 +259,19 @@
       directories and clusters weak follows by bucket
     - `non_list_score` now looks at title-level and warning-level aggregation
       cues, not just raw-text markers
-    - follow-up bug fix:
-      - raw wikitext `[[Category:...]]` residue was causing false
-        `list_like_follow` hits on ordinary pages like `Alaska`
-      - `non_list_score` now strips category/defaultsort markup before
-        evaluating text markers
+  - follow-up bug fix:
+    - raw wikitext `[[Category:...]]` residue was causing false
+      `list_like_follow` hits on ordinary pages like `Alaska`
+    - `non_list_score` now strips category/defaultsort markup before
+      evaluating text markers
+  - corrected aggregate after the category-markup fix:
+    - 3 runs / 24 root pages still showed the same high-level shape
+    - root-link relevance remained high while followed-link relevance and
+      follow-target quality stayed materially lower
+    - hop decay remained near zero, so the graph still is not collapsing at
+      two hops
+    - `list_like_follow` remained the largest weak-follow bucket, with
+      `low_information_gain_follow` second
 - 2026-03-23 unresolved ChatGPT context fetch:
   - source: current working turn
   - referenced online UUID:

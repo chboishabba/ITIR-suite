@@ -219,6 +219,16 @@
       and warning-level cues before touching richer graph analytics
     - DONE: stop `non_list_score` from treating raw wikitext category residue
       as evidence that an ordinary page is list-like
+    - corrected 3-run post-fix aggregate:
+      - 24 root pages across 3 runs kept the regime split stable
+      - root-link relevance stayed very high (`0.981941`)
+      - followed-link relevance stayed much lower (`0.5`)
+      - follow-target quality averaged `0.506859`
+      - hop decay stayed near zero (`0.000996`)
+      - `list_like_follow` remained the largest weak-follow bucket and
+        `low_information_gain_follow` remained the second
+    - next discussion should focus on whether to sharpen generic/list
+      continuation specificity first or low-information-gain filtering first
     - keep page-family labels as derived debug output only
   - define the minimum parity deliverable as:
     - source/excerpt/statement capture
