@@ -213,11 +213,13 @@
       - current broader GWB bottleneck:
         public-bios and corpus/book lanes now contribute matched seed support,
         and still add `0` new promoted relations beyond the checked handoff;
-        after the broader-source seed-backed candidate pass they now also
-        contribute candidate-level semantic relations, but not promoted ones
+        after the broader-source seed-backed semantic pass they now also
+        contribute promoted confirmation of the existing Supreme Court review
+        relation family, but not wider new relation-family coverage
       - next GWB step:
         improve candidate quality, mention/object resolution, and promotion
-        readiness before adding more source files or loosening promotion policy
+        readiness for additional broader-source families before adding more
+        source files or loosening promotion policy
     - keep the handoff note explicit about current repo-facing Zelph dev contact
       surfaces:
       `sl_zelph_demo/*_run.sh`, `compile_db.py`, `lex_to_zelph.py`,

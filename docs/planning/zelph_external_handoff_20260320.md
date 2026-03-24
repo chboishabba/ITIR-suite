@@ -64,13 +64,15 @@ Latest GWB corpus-expansion result:
   raw HTML pages rather than title-only rows
 - that lifted the public-bios lane from `0` to `1` matched seed lane, but it
   still adds `0` new promoted relations beyond the checked handoff
-- a broader-source seed-backed candidate pass now lifts both broader source
-  families into candidate-level semantic anchoring:
+- a broader-source seed-backed semantic pass now lifts both broader source
+  families into independent promoted confirmation on one already-known
+  relation family:
   each of the public-bios and corpus/book lanes now yields 3 relation
-  candidates while still yielding 0 promoted relations
+  candidates and 3 promoted relations, while still yielding 0 new distinct
+  promoted relations after dedupe
 - practical reading: the next GWB bottleneck is no longer public-source
-  availability; it is now candidate quality and broader-source promotion
-  readiness
+  availability; it is now widening beyond this first repeated review-relation
+  confirmation into additional promotable broader-source families
 
 ## Current Status Snapshot (2026-03-24)
 What is already real in the repo:

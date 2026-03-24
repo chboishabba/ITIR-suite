@@ -105,13 +105,15 @@
     - the broader public-bios and corpus/book inputs therefore widened source
       breadth and some lane support, but did not yet widen promoted relation
       coverage
-    - a follow-on seed-backed candidate pass now moves both broader-source
-      families into candidate-level semantic anchoring:
-      public bios = 3 relation candidates,
-      corpus/books = 3 relation candidates,
-      still 0 promoted relations in both lanes
-    - the next GWB bottleneck is now candidate quality / promotion readiness
-      over broader sources, not source inventory alone
+    - a follow-on seed-backed semantic pass now moves both broader-source
+      families into independent promoted confirmation on one already-known
+      review-relation family:
+      public bios = 3 relation candidates / 3 promoted relations,
+      corpus/books = 3 relation candidates / 3 promoted relations,
+      while the deduped broader checkpoint still adds 0 new distinct promoted
+      relations beyond the checked handoff
+    - the next GWB bottleneck is now extending broader-source promotion beyond
+      that first repeated Supreme Court review family
 
 - 2026-03-24 Dashifine/TextGraphs bridge lesson applied to ITIR graph/text lanes:
   - source: current working turn plus local Dashifine bridge artifacts in

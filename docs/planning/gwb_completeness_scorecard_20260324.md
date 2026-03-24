@@ -245,19 +245,28 @@ Current diagnostic result:
   public bios rich timeline and corpus/book timeline
 - both families now provide matched seed support
 - both families now provide relation candidates
-- neither family provides any promoted relations
+- both families now provide promoted relations
 - current diagnostic counts:
-  - public bios rich timeline: 3 relation candidates, 0 promoted relations
-  - corpus/book timeline: 3 relation candidates, 0 promoted relations
+  - public bios rich timeline: 3 relation candidates, 3 promoted relations
+  - corpus/book timeline: 3 relation candidates, 3 promoted relations
 - text-debug is now available on both broader-source families rather than
   remaining fully unavailable
 
+Interpretation of those promotions:
+- the promoted broader-source rows are not new ontology expansion
+- they are independent confirmations of an already-known checked-handoff
+  relation family:
+  `George W. Bush -> subject_of_review_by -> Supreme Court of the United States`
+- the merged broader checkpoint still adds `0` new distinct promoted relations
+  after canonical dedupe, which is the correct honest result
+
 Practical implication:
 - broader-source GWB is no longer stuck entirely before semantics
-- it now reaches candidate-level semantic anchoring on broader public-bios and
-  corpus/book material, while still remaining conservative at promotion
+- it now reaches independent broader-source promoted confirmation on one clean
+  repeated review-relation family, while still remaining conservative about new
+  relation-family expansion
 - the next concrete work should improve candidate quality and mention/object
-  resolution so some of those broader-source candidates can become promotable
+  resolution so additional broader-source families can become promotable
 
 ## Current implementation hook
 The checked GWB handoff artifact should carry a machine-readable scorecard so
