@@ -4,6 +4,9 @@
 Make the repo explicit about the intended destination for the GWB lane:
 complete GWB/topic understanding, not merely a bounded public handoff slice.
 
+Companion index:
+- `docs/planning/zelph_handoff_index_20260324.md`
+
 This note separates:
 
 - destination:
@@ -13,6 +16,11 @@ This note separates:
 
 The point is to stop speaking vaguely about "works" or "partial" and instead
 measure where the current GWB lane stands.
+
+Role of this note:
+- broader completeness/corpus-accounting note
+- not the bounded handoff spec
+- not the pack-definition doc
 
 ## Destination
 For GWB, the intended destination is:

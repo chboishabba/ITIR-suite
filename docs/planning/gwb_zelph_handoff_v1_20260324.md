@@ -3,6 +3,9 @@
 ## Purpose
 Define the first concrete George W. Bush public-entity handoff slice for Zelph.
 
+Companion index:
+- `docs/planning/zelph_handoff_index_20260324.md`
+
 Important scope clarification:
 - destination for the GWB lane is complete GWB/topic understanding
 - this handoff artifact is one checked public-facing slice toward that
@@ -10,6 +13,11 @@ Important scope clarification:
 
 Companion completeness note:
 - `docs/planning/gwb_completeness_scorecard_20260324.md`
+
+Role of this note:
+- artifact-specific handoff spec only
+- not the pack definition
+- not the broader GWB corpus-completeness note
 
 This is not a new ingest lane. It is a bounded downstream handoff over repo
 surfaces that already exist:

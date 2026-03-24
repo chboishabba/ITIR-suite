@@ -3,12 +3,20 @@
 ## Purpose
 Define the AU-side counterpart to the GWB completeness framing.
 
+Companion index:
+- `docs/planning/zelph_handoff_index_20260324.md`
+
 Destination:
 - complete AU/topic understanding for the chosen procedural/legal scope
 
 Current checked artifact:
 - one scored checkpoint built from the current real AU procedural workbench
   bundle
+
+Role of this note:
+- broader completeness/corpus-accounting note
+- not the bounded handoff spec
+- not the pack-definition doc
 
 ## Destination
 For AU, the intended destination is:

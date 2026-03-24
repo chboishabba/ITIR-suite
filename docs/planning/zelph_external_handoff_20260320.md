@@ -6,6 +6,9 @@ developer at so they understand what SensibLaw/ITIR is doing, what has already
 been demonstrated locally, and where we think a clean collaboration boundary
 could exist.
 
+Canonical doc index for this collaboration surface:
+- `docs/planning/zelph_handoff_index_20260324.md`
+
 It is intentionally upstream-facing and should not be read as a claim that
 SensibLaw depends on Zelph or that a deep integration contract already exists.
 
@@ -45,7 +48,13 @@ Corpus-level companion artifacts now also exist at:
 - `SensibLaw/tests/fixtures/zelph/gwb_corpus_scorecard_v1/`
 - `SensibLaw/tests/fixtures/zelph/au_corpus_scorecard_v1/`
 
-## Current Status Snapshot (2026-03-23)
+Reading discipline:
+- use this note for external framing
+- use the pack note for exact pack contents
+- use the AU/GWB handoff notes for bounded artifact details
+- use the AU/GWB completeness notes for corpus-level status
+
+## Current Status Snapshot (2026-03-24)
 What is already real in the repo:
 - small Zelph-facing demos exist and are still the cleanest shareable proof
   points

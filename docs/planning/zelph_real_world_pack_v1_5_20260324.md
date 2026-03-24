@@ -4,6 +4,9 @@
 Promote GWB into the outward-facing Zelph pack and bring AU up to the same
 checked handoff shape.
 
+Companion index:
+- `docs/planning/zelph_handoff_index_20260324.md`
+
 This pack supersedes the practical recommendation of `v1` while keeping the
 earlier pack note historically useful.
 
@@ -50,11 +53,11 @@ Why it matters:
 ## Current recommendation
 - treat this `v1.5` pack as the new outward-facing Zelph pack
 - keep transcript-derived real bundles internal/next-pack candidates
-- next expansion after `v1.5`:
 - DONE: machine-readable GWB corpus scorecard over wider source families
 - DONE: machine-readable AU corpus scorecard over persisted real workbench bundles
-- then broader AU corpus completeness from fuller source-derived runs, or a
-  safe chat-history lane
+- next practical expansion:
+  broader AU corpus completeness from fuller source-derived runs, or a safe
+  chat-history lane
 
 Current corpus-level companion artifacts:
 - `SensibLaw/tests/fixtures/zelph/gwb_corpus_scorecard_v1/`

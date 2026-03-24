@@ -62,6 +62,7 @@ Background-agent routing and validation:
 ## External Collaboration Notes
 
 Shareable technical framing for external collaborators:
+- `docs/planning/zelph_handoff_index_20260324.md`
 - `docs/planning/zelph_external_handoff_20260320.md`
 
 ## Narrative Validation / Comparison (2026-03-09)

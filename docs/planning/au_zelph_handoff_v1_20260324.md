@@ -4,6 +4,9 @@
 Define the checked AU procedural handoff artifact so AU now has the same basic
 handoff shape as GWB:
 
+Companion index:
+- `docs/planning/zelph_handoff_index_20260324.md`
+
 - narrative summary
 - bounded machine-readable slice
 - Zelph facts bundle
@@ -13,6 +16,11 @@ handoff shape as GWB:
 
 Companion note:
 - `docs/planning/au_completeness_scorecard_20260324.md`
+
+Role of this note:
+- artifact-specific handoff spec only
+- not the pack definition
+- not the broader AU corpus-completeness note
 
 ## Source
 Current source bundle:
