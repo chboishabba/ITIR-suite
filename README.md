@@ -65,6 +65,20 @@ The definitive instructions for each live in the submodule’s own README; this 
   - and whether the graph surface reveals something semantically useful beyond
     the trivial sequence/container baseline.
 
+### TextGraphs vs SL/Zelph
+Boundary doctrine:
+- `TextGraphs`-style layers are admissible only as non-canonical,
+  source-anchored analytical, diagnostic, or candidate-producing overlays.
+- `SL + Zelph` is the truth-bearing semantic/provenance lane, with canonical
+  records beginning only at promotion.
+- Graph richness alone is not product value unless it preserves reversibility,
+  provenance, and helps the canonical semantic layer reveal something useful
+  and explainable.
+
+Canonical note:
+- `docs/architecture/admissibility_lattice.md`
+- `docs/planning/textgraphs_sl_bridge_contract_20260324.md`
+
 Orchestrator contract:
 - `docs/planning/itir_orchestrator.md`
 

@@ -1,5 +1,29 @@
 # Compactified Context
 
+- 2026-03-24 checked GWB Zelph handoff artifact:
+  - source: current working turn
+  - main decision:
+    - GWB is now materialized as the first checked public-entity Zelph handoff
+      artifact after the canonical v1 pack
+    - destination for the lane is complete GWB/topic understanding; the checked
+      handoff is only one scored checkpoint toward that destination
+    - the artifact is deliberately bounded and contains:
+      5 promoted relations,
+      6 seed/review lanes,
+      1 ambiguous event,
+      3 unresolved discourse surfaces
+    - the checked handoff exists as both prose and machine-readable outputs in
+      `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/`
+    - the checked artifact now also carries a machine-readable completeness
+      scorecard at
+      `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.scorecard.json`
+    - the first bounded Zelph reasoning questions are:
+      `executive_public_law_action` and
+      `needs_review_due_to_ambiguity`
+  - followthrough:
+    - keep the current canonical Zelph pack v1 unchanged for now
+    - decide next whether GWB should become pack v1.5 or wait for v2
+
 - 2026-03-24 Dashifine/TextGraphs bridge lesson applied to ITIR graph/text lanes:
   - source: current working turn plus local Dashifine bridge artifacts in
     `../dashifine/`
@@ -39,6 +63,16 @@
       informative-graph distinction
     - update `TODO.md` so future lexer/graph work is judged by reversibility
       plus semantic usefulness, not graph richness alone
+    - keep one explicit repo-facing doctrine:
+      - source anchors are canonical substrate, not promoted truth
+      - promotion is the sole path to truth-bearing canonical records
+      - `TextGraphs`-style layers are admissible only below canonicality as
+        analytical/diagnostic/candidate overlays
+      - the real risk is candidate layers starting to behave like truth
+    - canonical architecture note:
+      `docs/architecture/admissibility_lattice.md`
+    - compact bridge note:
+      `docs/planning/textgraphs_sl_bridge_contract_20260324.md`
 
 - 2026-03-24 real-first demo policy and Zelph pack ranking:
   - source: current working turn

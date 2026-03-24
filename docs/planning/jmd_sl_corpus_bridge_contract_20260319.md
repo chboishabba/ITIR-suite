@@ -116,6 +116,9 @@ representation is the minimal canonical explanation over declared evidence.
 The local Dashifine/TextGraphs bridge sharpened one practical rule that also
 applies here:
 
+Canonical architecture note:
+- `docs/architecture/admissibility_lattice.md`
+
 - a bridge should first be conservative before it tries to be rich
 - conservative means:
   - one canonical shared state
@@ -131,7 +134,8 @@ applies here:
 Maintainer reading for this contract:
 
 - `JMD` object state remains the authority surface
-- `SL` token/span/group layers remain reversible derived structure
+- `SL` token/span/group layers remain reversible derived structure over source
+  anchors, not promoted truth-bearing records by themselves
 - graph/overlay views are measurement and organisation layers over that
   reversible state, not replacement authority
 - future bridge scoring should therefore separate:

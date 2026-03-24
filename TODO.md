@@ -78,6 +78,21 @@
     - informative non-local graph/overlay scoring last
   - do not treat higher graph density/connectivity by itself as bridge success;
     require semantic/provenance usefulness criteria too
+  - keep the product boundary explicit in docs and adapters:
+    - `TextGraphs`-style layers stay non-canonical analytical/diagnostic or
+      candidate-producing overlays
+    - canonical semantic/provenance truth begins only at promotion
+    - do not let SL reducer work drift into a generic token-graph clone
+  - architecture governance followthrough from
+    `docs/architecture/admissibility_lattice.md`:
+    - type lattice levels explicitly where contracts are still near-canonical
+      or informal
+    - formalize promotion contracts as the sole path to truth-bearing records
+    - formalize supersession instead of silent promoted-record mutation
+    - enforce downstream consumer discipline around overlays vs promoted state
+    - label non-canonical overlays explicitly in cross-project adapters
+  - DONE: add compact `TextGraphs` x `SensibLaw` bridge note:
+    `docs/planning/textgraphs_sl_bridge_contract_20260324.md`
 - [P2] SensibLaw x Glasslane / Mirror packaging slice:
   - use chat thread `Aptos cryptocurrency overview`
     (`691ac8a3-4a30-8320-bd5f-f66efc3145e7`,
@@ -134,6 +149,8 @@
       `docs/planning/zelph_real_world_pack_v1.manifest.json`
     - next public-entity handoff spec now live in:
       `docs/planning/gwb_zelph_handoff_v1_20260324.md`
+    - GWB completeness note now live in:
+      `docs/planning/gwb_completeness_scorecard_20260324.md`
     - DONE: keep the outward-facing handoff wording behavior-level rather than
       role-label-driven (reversion detection / volatility /
       reversion-without-context risk, not a formal `wiki sentinel` ontology
@@ -155,6 +172,9 @@
       - next recommended artifact after canonical V1:
         GWB public-entity handoff using the reviewed linkage seed plus the
         deterministic linkage and semantic report surfaces
+      - DONE: first checked GWB handoff artifact now exists as both prose and
+        machine-readable outputs under
+        `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/`
     - keep the handoff note explicit about current repo-facing Zelph dev contact
       surfaces:
       `sl_zelph_demo/*_run.sh`, `compile_db.py`, `lex_to_zelph.py`,
@@ -172,11 +192,19 @@
     - logic-tree artifacts may assist the future chat lane, but they are not
       the canonical first chat demo artifact
     - GWB handoff followthrough:
-      - choose whether the first checked GWB export is a reviewed JSON report
-        slice, a compiled Zelph fact bundle, or both
+      - DONE: first checked GWB export is both a reviewed JSON/prose slice and
+        a compiled Zelph fact bundle
+      - treat the intended destination explicitly as complete GWB/topic
+        understanding, not merely a bounded handoff slice
+      - keep scoring the current checked artifact as a checkpoint toward that
+        destination
+      - current checked scorecard lives at:
+        `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.scorecard.json`
       - keep the first bounded Zelph rules small:
         `executive_public_law_action` and
         `needs_review_due_to_ambiguity`
+      - decide whether to promote the checked GWB artifact into the canonical
+        Zelph pack as v1.5 or wait for v2
     - archived context input resolved on 2026-03-20:
       - `69bca95c-4f7c-839e-8b3a-3c5e273f185a` / `ZK in Legal Context`
       -> family-court `Magellan` / `Lighthouse` / `Evatt` pathways are a real
@@ -227,8 +255,19 @@
       - hop decay stayed near zero (`0.000996`)
       - `list_like_follow` remained the largest weak-follow bucket and
         `low_information_gain_follow` remained the second
-    - next discussion should focus on whether to sharpen generic/list
-      continuation specificity first or low-information-gain filtering first
+    - next implementation slice:
+      - keep the current 4-part follow-target-quality blend unchanged
+      - keep the current weak-follow thresholds unchanged
+      - expand `non_list_score` / `list_like_follow` with continuation
+        specificity, not a new score component
+      - use bounded title heuristics plus mostly lexical parent-child
+        specificity checks
+      - explicitly target:
+        - admin/place adjacency pages
+        - year/edition/championship umbrella pages
+        - broad generic concept pages with little specificity lift
+      - rerun the existing 3x8 campaign after this slice before touching
+        `low_information_gain_follow`
     - keep page-family labels as derived debug output only
   - define the minimum parity deliverable as:
     - source/excerpt/statement capture
@@ -247,9 +286,19 @@
     - but whether the graph surface helps expose semantic drift, provenance
       conflicts, chronology tension, or repeated structure in a way the base
       serialization does not
+  - keep the admissibility boundary explicit:
+    - source anchors are canonical substrate
+    - candidate and graph overlays are non-authoritative
+    - only promotion creates truth-bearing canonical records
+  - include one explicit comparison table in a future planning note:
+    - text-surface graph observables
+    - versus canonical semantic/provenance graph/export outputs
     - contestable fact/claim handling
     - operator review / curation surfaces
     - external-reference/linkage support for the fact layer
+  - use `docs/planning/textgraphs_sl_bridge_contract_20260324.md` as the
+    narrow bridge boundary note for what may cross between text-surface graph
+    overlays and SL canonical lanes
   - immediate scaffold followthrough:
     - add canonical `ObservationRecord` storage/reporting between statements and
       facts

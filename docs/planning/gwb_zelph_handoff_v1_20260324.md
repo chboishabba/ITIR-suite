@@ -3,6 +3,14 @@
 ## Purpose
 Define the first concrete George W. Bush public-entity handoff slice for Zelph.
 
+Important scope clarification:
+- destination for the GWB lane is complete GWB/topic understanding
+- this handoff artifact is one checked public-facing slice toward that
+  destination, not the whole destination by itself
+
+Companion completeness note:
+- `docs/planning/gwb_completeness_scorecard_20260324.md`
+
 This is not a new ingest lane. It is a bounded downstream handoff over repo
 surfaces that already exist:
 
@@ -114,6 +122,46 @@ It should export only:
 - unresolved/abstained public discourse labels
 - the minimum provenance needed to inspect why a relation or ambiguity exists
 
+## Checked Artifact Now In Repo
+Generated artifact directory:
+- `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/`
+
+Checked outputs:
+- `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.slice.json`
+- `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.summary.md`
+- `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.facts.zlp`
+- `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.rules.zlp`
+- `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.engine.json`
+- `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.scorecard.json`
+
+Current checked result:
+- 5 selected promoted relations
+- 6 selected seed/review lanes
+- 1 ambiguous event in the bounded slice
+- 3 unresolved discourse surfaces
+- Zelph engine run status: `ok`
+- machine-readable scorecard written alongside the artifact
+
+Current checked scorecard:
+- destination:
+  `complete_gwb_topic_understanding`
+- current stage:
+  `checked_public_handoff_checkpoint`
+- matched seed lanes:
+  `5`
+- candidate-only seed lanes:
+  `1`
+- broad-cue seed lanes:
+  `4`
+- direct-support seed lanes:
+  `2`
+
+Human-legible summary already written:
+- the narrative summary explicitly says, in prose, that the checked slice
+  recovered Roberts nomination and confirmation, Stem Cell veto, Military
+  Commissions signing, and district-court review, while keeping several seed
+  lanes and discourse labels in review status instead of overresolving them
+
 ## Bounded Exported Graph Surface
 The bounded graph should expose only four node families and four edge families.
 
@@ -213,12 +261,16 @@ Minimal rule shape:
   `cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/pytest -q tests/test_gwb_us_law_linkage.py`
 - semantic test:
   `cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/pytest -q tests/test_gwb_semantic.py`
+- handoff artifact test:
+  `cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/pytest -q tests/test_gwb_zelph_handoff.py`
 
 ### CLI/report surfaces
 - linkage report:
   `cd /home/c/Documents/code/ITIR-suite && .venv/bin/python SensibLaw/scripts/gwb_us_law_linkage.py --db-path SensibLaw/.cache_local/itir.sqlite report`
 - semantic report:
   `cd /home/c/Documents/code/ITIR-suite && .venv/bin/python SensibLaw/scripts/gwb_semantic.py --db-path SensibLaw/.cache_local/itir.sqlite report`
+- checked handoff artifact rebuild:
+  `cd /home/c/Documents/code/ITIR-suite && python SensibLaw/scripts/build_gwb_zelph_handoff.py`
 
 ## Current Recommendation
 - keep the current canonical Zelph pack v1 unchanged
@@ -229,11 +281,7 @@ Minimal rule shape:
   easier to explain
 
 ## Open Followthrough
-- decide whether the first exported Zelph GWB bundle should be checked in as:
-  - a reviewed JSON report slice
-  - a compiled Zelph fact bundle
-  - or both
-- add one reviewed human-readable GWB summary alongside the machine-readable
-  export
-- decide whether the GWB handoff should enter the canonical pack as v1.5 or v2
-  once the concrete exported bundle exists
+- decide whether the checked GWB artifact should enter the canonical pack as
+  v1.5 or wait for v2
+- decide whether to add one second checked public-entity lane alongside GWB
+  before changing canonical pack scope

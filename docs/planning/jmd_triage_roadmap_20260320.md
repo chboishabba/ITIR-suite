@@ -67,6 +67,9 @@ The bridge lane also needs one explicit internal split:
 One additional lesson now sharpened by the local Dashifine/TextGraphs bridge
 work:
 
+Canonical architecture note:
+- `docs/architecture/admissibility_lattice.md`
+
 - do not score bridge progress by graph richness alone
 - first prove the bridge is conservative:
   canonical state -> reversible serialization -> graph projection without
@@ -79,6 +82,8 @@ work:
   - reversible token/anchor serialization
   - derived graph/overlay observables
   rather than collapsing them into one "graph integration" bucket
+  - and it should keep candidate or overlay state from behaving like canonical
+    truth without promotion
 
 ## Consistency Check Against Existing Repo Direction
 ### Already aligned

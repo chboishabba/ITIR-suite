@@ -35,6 +35,7 @@ Canonical companion artifacts for the current pack are now:
 
 Canonical companion artifact for the next public-entity handoff is now:
 - `docs/planning/gwb_zelph_handoff_v1_20260324.md`
+- `docs/planning/gwb_completeness_scorecard_20260324.md`
 
 ## Current Status Snapshot (2026-03-23)
 What is already real in the repo:
@@ -212,6 +213,8 @@ Current next-step handoff decision:
   already has deterministic reviewed linkage and semantic report surfaces
 - concrete handoff spec:
   `docs/planning/gwb_zelph_handoff_v1_20260324.md`
+- checked artifact now exists at:
+  `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/`
 
 ## Human-readable summary of the current real JSON artifacts
 ### 1. Wave 1 real AU procedural bundle
@@ -325,6 +328,32 @@ Why it matters for Zelph:
   `real ingest -> reviewed structure -> bounded downstream reasoning`
 - it is safer than transcript/chat lanes and easier to explain than legal-intake
   workflows
+
+Current checked artifact summary:
+- bounded slice counts:
+  5 promoted relations, 6 seed/review lanes, 1 ambiguous event, 3 unresolved
+  discourse surfaces
+- completeness scorecard currently reports:
+  5 matched promoted relations,
+  5 matched seed lanes,
+  1 candidate-only seed lane,
+  4 broad-cue seed lanes,
+  2 direct-support seed lanes
+- checked prose summary exists in:
+  `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.summary.md`
+- checked machine-readable slice exists in:
+  `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.slice.json`
+- checked machine-readable scorecard exists in:
+  `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.scorecard.json`
+- checked Zelph bundle exists in:
+  `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.facts.zlp`
+  plus
+  `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.rules.zlp`
+
+Important framing clarification:
+- destination is complete GWB/topic understanding
+- the checked GWB handoff is the first scored public-facing checkpoint toward
+  that destination, not the whole completeness claim
 
 ## What We Think Is Interesting About Zelph
 Based on Stefan's description and our own demo work, the most interesting

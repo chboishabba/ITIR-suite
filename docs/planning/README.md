@@ -47,6 +47,9 @@ Future external graph/task surface awareness:
 - `docs/planning/jmd_fixture_v1_20260320.md`
 - `docs/planning/jmd_fixtures/README.md`
 
+Text-surface graph vs canonical SL bridge boundary:
+- `docs/planning/textgraphs_sl_bridge_contract_20260324.md`
+
 ## Project Interface Contracts
 
 Suite-wide interface contract index:
