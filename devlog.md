@@ -1,5 +1,30 @@
 # Devlog
 
+## 2026-03-25
+- Added `docs/planning/wikidata_zelph_single_handoff_20260325.md` as the new
+  canonical first-link handoff for the evening meetings with the Wikidata
+  Ontology Working Group and the Zelph developer.
+- The new note is intentionally plain-language and records:
+  - exact current Wikidata results:
+    bounded structural diagnostics, pinned qualifier-drift cases, and parthood
+    packs
+  - exact current Zelph results:
+    deterministic bridge proof, checked GWB/AU handoffs, and corpus-level
+    companion scorecards
+  - explicit non-claims so the note does not oversell completeness or
+    integration depth
+  - the concrete value proposition for each audience
+- Repointed the main doc entrypoints so the repo tells one consistent story:
+  - `README.md`
+  - `docs/planning/zelph_handoff_index_20260324.md`
+  - `docs/planning/zelph_external_handoff_20260320.md`
+  - `SensibLaw/docs/wikidata_working_group_status.md`
+  - `SensibLaw/README.md`
+  - `TODO.md`
+  - `COMPACTIFIED_CONTEXT.md`
+- No code or runtime behavior changed; this pass was documentation/context
+  alignment only.
+
 ## 2026-03-15
 - Re-ran `robust-context-fetch` for whitepaper thread
   `69b41f22-a514-839f-946c-fa0e9f75cc46` after the earlier fetch process was

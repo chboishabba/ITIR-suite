@@ -6,11 +6,16 @@ developer at so they understand what SensibLaw/ITIR is doing, what has already
 been demonstrated locally, and where we think a clean collaboration boundary
 could exist.
 
+If someone needs one short meeting-ready link that works for both the Wikidata
+Ontology Working Group and the Zelph developer, start with:
+- `docs/planning/wikidata_zelph_single_handoff_20260325.md`
+
 Canonical doc index for this collaboration surface:
 - `docs/planning/zelph_handoff_index_20260324.md`
 
 It is intentionally upstream-facing and should not be read as a claim that
 SensibLaw depends on Zelph or that a deep integration contract already exists.
+Treat this note as the Zelph-specific appendix after the shared handoff note.
 
 ## Current Positioning
 SensibLaw is working primarily at the text-to-structure boundary:
@@ -62,17 +67,25 @@ Current next-phase priority order:
 Latest GWB corpus-expansion result:
 - the broader GWB checkpoint now uses a richer public-bios timeline built from
   raw HTML pages rather than title-only rows
-- that lifted the public-bios lane from `0` to `1` matched seed lane, but it
-  still adds `0` new promoted relations beyond the checked handoff
+- the richer builder now preserves explicit statute-signing sentences such as
+  the No Child Left Behind line that had previously been dropped by malformed
+  HTML paragraph boundaries
 - a broader-source seed-backed semantic pass now lifts both broader source
   families into independent promoted confirmation on one already-known
   relation family:
-  each of the public-bios and corpus/book lanes now yields 3 relation
-  candidates and 3 promoted relations, while still yielding 0 new distinct
-  promoted relations after dedupe
+  each of the public-bios and corpus/book lanes now yields promoted
+  `subject_of_review_by` confirmation on the Supreme Court family
+- the richer public-bios lane now also contributes one genuinely new broader
+  promoted public-law family:
+  `George W. Bush -> signed -> No Child Left Behind Act`
+- current broader checkpoint result is therefore:
+  `16` distinct promoted relations after canonical dedupe and `1` new
+  distinct promoted relation beyond the checked handoff
+- a follow-on corpus disambiguation pass now abstains father/family-history
+  bare-`Bush` rows rather than resolving them directly to George W. Bush
 - practical reading: the next GWB bottleneck is no longer public-source
-  availability; it is now widening beyond this first repeated review-relation
-  confirmation into additional promotable broader-source families
+  availability; it is now widening beyond the Supreme Court confirmation and
+  NCLB signing families into additional promotable broader-source families
 
 ## Current Status Snapshot (2026-03-24)
 What is already real in the repo:

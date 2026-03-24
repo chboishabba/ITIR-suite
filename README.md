@@ -85,6 +85,9 @@ Orchestrator contract:
 Interface contract index for cross-project handoffs:
 - `docs/planning/project_interfaces.md`
 
+External collaboration handoff:
+- `docs/planning/wikidata_zelph_single_handoff_20260325.md`
+
 Background-agent test loop:
 - `docs/planning/agent_test_loop.md`
 

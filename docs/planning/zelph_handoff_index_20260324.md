@@ -16,6 +16,14 @@ completeness claim, or a pack note as if it were the whole technical contract.
 
 ## Recommended Reading Order
 ### 1. Start here for external orientation
+- `docs/planning/wikidata_zelph_single_handoff_20260325.md`
+
+What it is for:
+- one short plain-language handoff that works for both the Wikidata Ontology
+  Working Group and the Zelph developer
+- exact current results, current direction, and audience-specific value
+
+### 2. Then read the Zelph-specific framing note
 - `docs/planning/zelph_external_handoff_20260320.md`
 
 What it is for:
@@ -24,7 +32,7 @@ What it is for:
 - what Zelph is expected to do downstream
 - current real status and current gaps
 
-### 2. Then read the current outward-facing pack spec
+### 3. Then read the current outward-facing pack spec
 - `docs/planning/zelph_real_world_pack_v1_5_20260324.md`
 - `docs/planning/zelph_real_world_pack_v1_5.manifest.json`
 
@@ -33,7 +41,7 @@ What it is for:
 - why those artifacts are in the pack
 - what is still excluded or deferred
 
-### 3. Then read the checked handoff artifact notes
+### 4. Then read the checked handoff artifact notes
 - GWB:
   `docs/planning/gwb_zelph_handoff_v1_20260324.md`
 - AU:
@@ -44,7 +52,7 @@ What they are for:
 - human-legible narrative summaries
 - exact fact/rule/query surfaces for the handoff artifacts
 
-### 4. Then read the corpus-level companion notes
+### 5. Then read the corpus-level companion notes
 - GWB:
   `docs/planning/gwb_completeness_scorecard_20260324.md`
 - AU:
@@ -99,7 +107,7 @@ Reason:
 
 ## Use This Index When Sharing
 If someone needs only one link first:
-- send `docs/planning/zelph_external_handoff_20260320.md`
+- send `docs/planning/wikidata_zelph_single_handoff_20260325.md`
 
 If they immediately ask "what exactly is in scope now?":
 - send `docs/planning/zelph_real_world_pack_v1_5_20260324.md`

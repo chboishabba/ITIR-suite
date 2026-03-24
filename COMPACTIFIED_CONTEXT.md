@@ -1,5 +1,25 @@
 # Compactified Context
 
+- 2026-03-25 single shared Wikidata/Zelph handoff:
+  - source: current working turn
+  - main decision:
+    - the repo now has one short canonical first-link handoff for both the
+      Wikidata Ontology Working Group and the Zelph developer at
+      `docs/planning/wikidata_zelph_single_handoff_20260325.md`
+    - the note explains, in minimal jargon, the exact current results,
+      intended direction, explicit non-claims, and the distinct value offered
+      to each audience
+    - audience-specific notes remain in place, but should now be treated as
+      appendices after the shared handoff:
+      `SensibLaw/docs/wikidata_working_group_status.md`,
+      `docs/planning/zelph_external_handoff_20260320.md`,
+      `docs/planning/zelph_real_world_pack_v1_5_20260324.md`
+  - followthrough:
+    - point root README, the Zelph handoff index, the Wikidata status note,
+      and TODO tracking at the shared handoff first
+    - keep the shared note current before external meetings so results and
+      claims do not drift apart
+
 - 2026-03-24 checked GWB Zelph handoff artifact:
   - source: current working turn
   - main decision:
@@ -96,24 +116,25 @@
       public bios rich timeline,
       and corpus/book timeline
     - result:
-      15 distinct promoted relations after canonical dedupe,
-      0 new promoted relations beyond the checked handoff,
+      16 distinct promoted relations after canonical dedupe,
+      1 new promoted relation beyond the checked handoff,
       and only 1 seed lane matched across multiple source families
     - public-bios no longer runs as title-only input; it now builds a richer
-      cue-filtered timeline from raw HTML pages and contributes 1 matched seed
-      lane, but still 0 promoted relations
-    - the broader public-bios and corpus/book inputs therefore widened source
-      breadth and some lane support, but did not yet widen promoted relation
-      coverage
+      cue-filtered timeline from raw HTML pages, correctly flushes malformed
+      paragraph boundaries, and preserves explicit statute-signing sentences
     - a follow-on seed-backed semantic pass now moves both broader-source
       families into independent promoted confirmation on one already-known
       review-relation family:
-      public bios = 3 relation candidates / 3 promoted relations,
+      public bios = 8 relation candidates / 8 promoted relations,
       corpus/books = 3 relation candidates / 3 promoted relations,
-      while the deduped broader checkpoint still adds 0 new distinct promoted
-      relations beyond the checked handoff
+      while the deduped broader checkpoint now adds 1 new distinct promoted
+      relation beyond the checked handoff:
+      `George W. Bush -> signed -> No Child Left Behind Act`
+    - a follow-on disambiguation pass now abstains father/family-history
+      bare-`Bush` corpus rows instead of resolving them directly to
+      `actor:george_w_bush`
     - the next GWB bottleneck is now extending broader-source promotion beyond
-      that first repeated Supreme Court review family
+      the Supreme Court review and NCLB signing families
 
 - 2026-03-24 Dashifine/TextGraphs bridge lesson applied to ITIR graph/text lanes:
   - source: current working turn plus local Dashifine bridge artifacts in

@@ -157,6 +157,9 @@
   - Zelph external collaboration followthrough:
     - use `docs/planning/zelph_external_handoff_20260320.md` as the canonical
       Stefan-facing repo note
+    - use `docs/planning/wikidata_zelph_single_handoff_20260325.md` as the
+      canonical first-link handoff when the audience spans both the Wikidata
+      Ontology Working Group and Zelph
     - real-first rule:
       synthetic fixtures are regression/contract material only and should not
       be used as the headline Zelph/demo evidence when real run-derived
@@ -211,15 +214,19 @@
         with builder
         `SensibLaw/scripts/build_gwb_broader_promotion_diagnostics.py`
       - current broader GWB bottleneck:
-        public-bios and corpus/book lanes now contribute matched seed support,
-        and still add `0` new promoted relations beyond the checked handoff;
-        after the broader-source seed-backed semantic pass they now also
-        contribute promoted confirmation of the existing Supreme Court review
-        relation family, but not wider new relation-family coverage
+        public-bios and corpus/book lanes now contribute matched seed support;
+        after richer public-bios event shaping plus broader-source seed-backed
+        semantic backfill, they contribute promoted confirmation of the
+        existing Supreme Court review relation family and one genuinely new
+        broader-source public-law family:
+        `George W. Bush -> signed -> No Child Left Behind Act`
+      - quality guard added:
+        father/family-history bare-`Bush` corpus rows now abstain instead of
+        silently resolving to George W. Bush
       - next GWB step:
         improve candidate quality, mention/object resolution, and promotion
-        readiness for additional broader-source families before adding more
-        source files or loosening promotion policy
+        readiness for the next broader-source family after Supreme Court review
+        + NCLB before adding more source files or loosening promotion policy
     - keep the handoff note explicit about current repo-facing Zelph dev contact
       surfaces:
       `sl_zelph_demo/*_run.sh`, `compile_db.py`, `lex_to_zelph.py`,
