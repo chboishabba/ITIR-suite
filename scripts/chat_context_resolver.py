@@ -18,6 +18,9 @@ from typing import Optional
 
 
 _TOKEN_RE = re.compile(r"[A-Za-z0-9_]{2,}")
+_ONLINE_THREAD_ID_FROM_URL_RE = re.compile(
+    r"/c/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})"
+)
 _DEFAULT_STOPWORDS = {
     "the",
     "and",
@@ -314,7 +317,9 @@ def _query_db_fts_candidates(
     return candidates
 
 
-def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
+def _query_db_match(
+    db_path: Path, selector: str, *, allow_canonical_match: bool = False
+) -> Optional[DbMatch]:
     if not db_path.exists():
         return None
 
@@ -350,23 +355,26 @@ def _query_db_match(db_path: Path, selector: str) -> Optional[DbMatch]:
         )
 
     # 2) Exact canonical thread id match.
-    row = _fetch_latest_for_thread(cur, selector, require_text=True)
-    if row:
-        count, earliest_ts, latest_ts = _query_thread_span(cur, row["canonical_thread_id"])
-        con.close()
-        return DbMatch(
-            match_type="canonical_thread_id_exact",
-            canonical_thread_id=row["canonical_thread_id"],
-            online_thread_id=None,
-            title=row["title"],
-            earliest_ts=earliest_ts,
-            latest_ts=latest_ts or row["ts"],
-            latest_role=row["role"],
-            latest_text=row["text"],
-            thread_message_count=count,
-            matched_thread_count=1,
-            db_path=str(db_path.expanduser().resolve()),
-        )
+    if allow_canonical_match:
+        row = _fetch_latest_for_thread(cur, selector, require_text=True)
+        if row:
+            count, earliest_ts, latest_ts = _query_thread_span(
+                cur, row["canonical_thread_id"]
+            )
+            con.close()
+            return DbMatch(
+                match_type="canonical_thread_id_exact",
+                canonical_thread_id=row["canonical_thread_id"],
+                online_thread_id=None,
+                title=row["title"],
+                earliest_ts=earliest_ts,
+                latest_ts=latest_ts or row["ts"],
+                latest_role=row["role"],
+                latest_text=row["text"],
+                thread_message_count=count,
+                matched_thread_count=1,
+                db_path=str(db_path.expanduser().resolve()),
+            )
 
     # 3) Exact title match (case-insensitive); choose most recent thread.
     cur.execute(
@@ -485,6 +493,18 @@ def _build_re_gpt_command(
         action_args = ["--download", selector]
     else:
         raise ValueError(f"Unsupported re_gpt action: {action}")
+
+    # Prefer the repo/venv module path so resolver behavior matches the local
+    # reverse-engineered-chatgpt environment instead of an unrelated pipx install.
+    if venv_python.exists():
+        return [
+            str(venv_python),
+            "-m",
+            "re_gpt.cli",
+            "--key",
+            token,
+            *action_args,
+        ], env
 
     re_gpt_bin = shutil.which("re-gpt")
     if re_gpt_bin:
@@ -641,6 +661,17 @@ def _looks_like_online_thread_id(selector: str) -> bool:
             selector.strip(),
         )
     )
+
+
+def _looks_like_canonical_thread_id(selector: str) -> bool:
+    return bool(re.fullmatch(r"[0-9a-f]{40}", selector.strip().lower()))
+
+
+def _extract_online_thread_id_from_url(selector: str) -> Optional[str]:
+    match = _ONLINE_THREAD_ID_FROM_URL_RE.search(selector)
+    if match:
+        return match.group(1)
+    return None
 
 
 def _resolve_live_conversation(chatgpt: object, selector: str) -> Optional[dict]:
@@ -1668,6 +1699,10 @@ def main() -> int:
             )
         )
         analysis_terms = _parse_terms(analysis_terms)
+    selector_input = (args.selector or "").strip()
+    extracted_online_id = _extract_online_thread_id_from_url(selector_input)
+    selector_for_db = extracted_online_id or selector_input
+    selector_for_web = extracted_online_id or selector_input
     thread_range: tuple[int, int] | None = None
     message_range: tuple[int, int] | None = None
     try:
@@ -1703,21 +1738,34 @@ def main() -> int:
     db_match: Optional[DbMatch] = None
     db_error: Optional[str] = None
     db_candidates: list[dict] = []
+    allow_canonical = _looks_like_canonical_thread_id(selector_for_db)
     if not db_path.exists():
         extra = f"DB path does not exist: {db_path}"
         db_error = f"{db_error}; {extra}" if db_error else extra
     else:
         try:
-            db_match = _query_db_match(db_path, args.selector)
+            db_match = _query_db_match(
+                db_path,
+                selector_for_db,
+                allow_canonical_match=allow_canonical,
+            )
         except sqlite3.Error as exc:
             extra = f"DB lookup failed: {exc}"
             db_error = f"{db_error}; {extra}" if db_error else extra
-        if db_match is None and len(args.selector.strip()) >= 3:
+        selector_for_candidates = selector_for_db or ""
+        if (
+            db_match is None
+            and len(selector_for_candidates) >= 3
+            and not _looks_like_online_thread_id(selector_for_candidates)
+            and not _looks_like_canonical_thread_id(selector_for_candidates)
+        ):
             # Prefer DB-local candidate suggestions over immediately hitting live web fallback.
             try:
                 con = _connect_sqlite_ro(db_path)
                 cur = con.cursor()
-                db_candidates = _query_db_fts_candidates(cur, args.selector, limit=10)
+                db_candidates = _query_db_fts_candidates(
+                    cur, selector_for_candidates, limit=10
+                )
                 con.close()
             except sqlite3.Error as exc:
                 extra = f"DB FTS lookup failed: {exc}"
@@ -1771,8 +1819,8 @@ def main() -> int:
         web_selector: Optional[str] = None
         if db_match.online_thread_id:
             web_selector = db_match.online_thread_id
-        elif _looks_like_online_thread_id(args.selector):
-            web_selector = args.selector.strip()
+        elif _looks_like_online_thread_id(selector_for_web):
+            web_selector = selector_for_web
         elif db_match.title and db_match.title != "(no title)":
             web_selector = db_match.title
         if web_selector is None:
@@ -1830,7 +1878,7 @@ def main() -> int:
             return 1
 
         web_result = _run_web_view(
-            args.selector,
+            selector_for_web,
             repo_root=repo_root,
             venv_python=venv_python_path,
             timeout=args.web_timeout,
@@ -1845,7 +1893,7 @@ def main() -> int:
                     len(web_recent.get("recent_turns") or []) < args.recent_turns
                 ):
                     web_recent = _fetch_web_recent_turns(
-                        selector=args.selector,
+                        selector=selector_for_web,
                         repo_root=repo_root,
                         limit=args.recent_turns,
                         max_text_chars=args.max_text_chars,
@@ -1869,7 +1917,7 @@ def main() -> int:
             persist_result: Optional[dict] = None
             if args.persist_web_miss:
                 persist_result = _persist_selector_to_structurer(
-                    args.selector,
+                    selector_for_web,
                     repo_root=repo_root,
                     db_path=db_path,
                     venv_python=venv_python_path,

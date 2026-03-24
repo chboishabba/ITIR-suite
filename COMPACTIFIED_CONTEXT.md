@@ -1,5 +1,29 @@
 # Compactified Context
 
+- 2026-03-24 real-first demo policy and Zelph pack ranking:
+  - source: current working turn
+  - main decision:
+    - synthetic fixtures should only exist when there is no access to real
+      material, and even then they should stay minimal and contract-focused
+    - benchmark seeds such as `fact_semantic_bench/*_seed.json` are regression
+      harnesses, not demo evidence for external or Zelph-facing positioning
+    - the current strongest repo-stable real-world demo candidates are the
+      persisted `real` fact-review bundles in `itir-svelte/tests/fixtures/`,
+      especially:
+      `fact_review_wave1_real_au_demo_bundle.json`,
+      `fact_review_wave5_real_professional_handoff_demo_bundle.json`,
+      `fact_review_wave3_real_fragmented_support_demo_bundle.json`,
+      with the real Wikidata qualifier slice as a secondary non-transcript
+      import example
+    - there is not yet a comparably strong repo-stable real chat-history run
+      artifact suitable for the Zelph pack; that is now an explicit gap
+    - the Zelph-facing pack should lead with real operator/workbench/run-derived
+      artifacts rather than synthetic benchmark seeds or the older wiki/revert
+      framing
+  - followthrough:
+    - update the Zelph handoff note to reflect real-first positioning and the
+      current ranked pack candidates
+    - update `TODO.md` so the missing real chat-history demo lane is explicit
 - 2026-03-23 JMD status/uncertainty refresh plus Zelph contact-surface clarification:
   - source: current working turn
   - main decision:
@@ -214,6 +238,26 @@
     - live recovery is still blocked in this environment because both `/` and
       `/c/<uuid>` frontend pages currently render `client-bootstrap` with
       `authStatus: logged_out`, so there is still no recoverable access token
+- 2026-03-24 resolver UUID/path fix:
+  - source: current working turn
+  - referenced online UUID:
+    `69c1ed37-0ea8-839b-9854-6d0401376233`
+  - source used:
+    - resolver local DB miss plus failed live fetch
+  - main decision:
+    - `chat_context_resolver.py` must extract only the `/c/<uuid>` segment from
+      ChatGPT URLs
+    - canonical-thread-id matching should only run when the selector is
+      explicitly a canonical SHA1-style id, not as a general fallback
+    - web fallback should prefer the ITIR-suite venv `re_gpt.cli` path over the
+      unrelated `pipx` `re-gpt` binary so resolver behavior matches the local
+      reverse-engineered-chatgpt environment
+  - current status:
+    - resolver code now normalizes ChatGPT URLs to the online UUID and no
+      longer produces DB FTS false positives for UUID lookups
+    - the remaining live fetch failure is no longer explained by the `pipx`
+      environment mismatch; if it persists, it is a real `re_gpt` auth/frontdoor
+      issue rather than the resolver using the wrong Python environment
       or thread payload from the current session-token-only path
 - 2026-03-23 chunked session-token file:
   - source: current working turn

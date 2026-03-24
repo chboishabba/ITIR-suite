@@ -118,18 +118,28 @@
   - Zelph external collaboration followthrough:
     - use `docs/planning/zelph_external_handoff_20260320.md` as the canonical
       Stefan-facing repo note
+    - real-first rule:
+      synthetic fixtures are regression/contract material only and should not
+      be used as the headline Zelph/demo evidence when real run-derived
+      artifacts exist
     - DONE: keep the outward-facing handoff wording behavior-level rather than
       role-label-driven (reversion detection / volatility /
       reversion-without-context risk, not a formal `wiki sentinel` ontology
       claim)
-    - review `SensibLaw/tests/fixtures/fact_semantic_bench/results/` for
-      personal or case-linked material before sharing any benchmark outputs
     - prepare a deliberately shareable Zelph pack:
       - lead with the deterministic DB/rule-atom export path (`SensibLaw/sl_zelph_demo/compile_db.py`, `db_rules.zlp`, `db_run.sh`, `tests/test_sl_zelph_demo_tools.py`) so Zelph devs see the authoritative handoff
-      - add a sanitized fact-semantic bench result (e.g., one of the legal/chat/transcript slices under `SensibLaw/tests/fixtures/fact_semantic_bench/results/`) to show the reviewed ingester-derived graph exported to Zelph
+      - prime the first real run-derived examples from:
+        `itir-svelte/tests/fixtures/fact_review_wave1_real_au_demo_bundle.json`,
+        `itir-svelte/tests/fixtures/fact_review_wave5_real_professional_handoff_demo_bundle.json`,
+        `itir-svelte/tests/fixtures/fact_review_wave3_real_fragmented_support_demo_bundle.json`
+      - keep the real Wikidata qualifier slice as the secondary non-transcript
+        import example:
+        `SensibLaw/tests/fixtures/wikidata/real_qualifier_imported_slice_20260307.json`
       - document an ontology/predicate-as-node example (`SensibLaw/sl_zelph_demo/ontology_demo.zph`, `ontology_rules.zlp`, `lex_to_zelph.py`) to demonstrate richer schema exports
-      - optionally keep the wiki/review run as a bounded, historical review signal example rather than a headline case
-      - include only sanitized benchmark/result snippets and scripts/tests that verify the export story
+      - keep the wiki/review run only as bounded historical context, not as the
+        headline case
+      - include only reviewed/sanitized real artifacts and scripts/tests that
+        verify the export story
     - keep the handoff note explicit about current repo-facing Zelph dev contact
       surfaces:
       `sl_zelph_demo/*_run.sh`, `compile_db.py`, `lex_to_zelph.py`,
@@ -139,6 +149,11 @@
       declare one small formal export contract
     - decide whether uncertainty/probability handling stays purely upstream for
       the first collaboration slice
+    - explicit current gap:
+      there is not yet a repo-stable real chat-history run artifact strong
+      enough for the first Zelph pack; find or prepare one from actual
+      chat-history DB runs focused on development/math/general reasoning or
+      public events
     - archived context input resolved on 2026-03-20:
       - `69bca95c-4f7c-839e-8b3a-3c5e273f185a` / `ZK in Legal Context`
       -> family-court `Magellan` / `Lighthouse` / `Evatt` pathways are a real

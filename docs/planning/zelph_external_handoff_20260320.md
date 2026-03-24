@@ -33,21 +33,20 @@ This is a bridge/demo posture, not a dependency posture.
 What is already real in the repo:
 - small Zelph-facing demos exist and are still the cleanest shareable proof
   points
-- benchmark/calibration artifacts exist for multiple corpora, but not all of
-  them are appropriate to hand externally without review
-- deterministic Zelph-facing export slices (DB/rule-atom, ontology bridge,
-  sanitized fact-semantic bench examples) now exist and can be stitched together
-  into a contrasted pack that tells the ingest->provenance->Zelph story
+- persisted `real` fact-review/workbench bundles now exist and are stronger
+  proof surfaces than the synthetic benchmark seeds for external positioning
 - the current intended claim remains behavior-level:
   bounded downstream reasoning over exported fact structure, not raw-text
   ingestion inside Zelph
+- there is still no comparably strong repo-stable real chat-history run artifact
+  prepared as a Zelph-facing pack component
 
 What is still uncertain:
 - whether probability/uncertainty handling should remain entirely upstream for
   the first collaboration slice
 - whether the cleanest first export is:
   graph facts, predicate-as-node exports, or a Janet-facing bridge
-- which benchmark/result fragments are safe enough to externalize without
+- which real run-derived artifacts are clean enough to externalize without
   leaking personal or case-linked material
 
 ## Zelph Dev Contact Surfaces
@@ -136,6 +135,11 @@ Current demonstrated behavior:
 - recent checked-in result fixtures show `refresh_status == "ok"` on the
   benchmark paths we are using as the current baseline
 
+Clarification:
+- these benchmark corpora are still primarily regression/calibration material
+- they are not the main real-world proof pack when real run-derived artifacts
+  already exist
+
 ## What We Are Actually Trying To Prove
 The near-term claim is not "Zelph solves our ingest problem."
 
@@ -151,11 +155,120 @@ The near-term claim is:
 That is why the current bridge is intentionally tiny and deterministic.
 
 ## Stefan-facing Zelph pack
-- demo scripts/tests (e.g., `SensibLaw/sl_zelph_demo/run.sh`, `SensibLaw/tests/test_sl_zelph_demo_tools.py`) plus several sanitized graph-export examples now back the handoff story
-- lead slice: deterministic DB/rule-atom export (`SensibLaw/sl_zelph_demo/compile_db.py`, `db_rules.zlp`, `db_run.sh`, `tests/test_sl_zelph_demo_tools.py`) proves Zelph-dev technical credibility and downstream reasoning value
-- ingester-derived structured graph example: sanitized fact-semantic bench outputs under `SensibLaw/tests/fixtures/fact_semantic_bench/results/` (legal, chat, transcript slices) show how the reviewed, provenance-backed graph can be handed to Zelph without surfing the old wiki/revert story
-- ontology/predicate-as-node example: `SensibLaw/sl_zelph_demo/ontology_demo.zph`, `ontology_rules.zlp`, `SensibLaw/sl_zelph_demo/lex_to_zelph.py` demonstrate richer predicate bridging in a sanitized surface
-- optional review signal example: keep the wiki/review run drawn from `SensibLaw/sl_zelph_demo/wiki_demo_full.zph`, `wiki_lex_rules.zlp`, `wiki_inferred.txt`, framed as a historical/diagnostic case rather than the main positioning
+- demo scripts/tests (e.g., `SensibLaw/sl_zelph_demo/run.sh`,
+  `SensibLaw/tests/test_sl_zelph_demo_tools.py`) remain the clean deterministic
+  bridge proof
+- real-world demo lead candidates should now come from persisted `real`
+  workbench bundles rather than synthetic benchmark seeds
+
+Current ranked candidates:
+1. `itir-svelte/tests/fixtures/fact_review_wave1_real_au_demo_bundle.json`
+   - strongest current legal/procedural review story
+   - best current balance of technical credibility and shareability
+2. `itir-svelte/tests/fixtures/fact_review_wave5_real_professional_handoff_demo_bundle.json`
+   - strongest current real transcript/provenance/handoff story
+   - very good downstream reasoning value
+   - needs careful sanitization/review because transcript-adjacent material is
+     higher-risk to share
+3. `itir-svelte/tests/fixtures/fact_review_wave3_real_fragmented_support_demo_bundle.json`
+   - strongest current fragmented/conflicted-support reconstruction story
+   - also needs careful sanitization/review
+4. `SensibLaw/tests/fixtures/wikidata/real_qualifier_imported_slice_20260307.json`
+   - useful non-transcript real import example
+   - better as a secondary structured-import slice than as the headline demo
+
+Do not lead with:
+- `SensibLaw/tests/fixtures/fact_semantic_bench/*_seed.json`
+- older wiki/revert examples as the headline Zelph story
+
+Current gap:
+- there is no repo-stable real chat-history run artifact yet that matches the
+  strength of the transcript/AU demo bundles
+- if chat-history is meant to be a main real-world proof lane, it needs its own
+  prepared run-derived export surface
+
+## Human-readable summary of the current real JSON artifacts
+### 1. Wave 1 real AU procedural bundle
+Path:
+- `itir-svelte/tests/fixtures/fact_review_wave1_real_au_demo_bundle.json`
+
+What it shows in plain terms:
+- one real `au_semantic` procedural run reopened through the fact-review
+  workbench
+- six operator-facing acceptance stories all pass:
+  community legal centre intake triage, NGO case assembly, paralegal evidence
+  pack preparation, solicitor case-theory prep, barrister chronology prep, and
+  judge/associate procedural reconstruction
+- the run contains:
+  3 statements, 27 observations, 3 facts, and 2 approximate events
+- the review queue is small and interpretable:
+  `Criminal appeal`, `Judicial review`, and `Orders`
+- the workbench exposes multiple operator views such as:
+  `intake_triage`, `chronology_prep`, `procedural_posture`,
+  `claim_alignment`, and `contested_items`
+
+Why it matters:
+- this is currently the clearest repo-stable proof that SensibLaw/ITIR can
+  ingest real procedural/legal material into a reviewable, provenance-backed
+  operator surface rather than just a benchmark harness
+
+### 2. Wave 5 real professional handoff bundle
+Path:
+- `itir-svelte/tests/fixtures/fact_review_wave5_real_professional_handoff_demo_bundle.json`
+
+What it shows in plain terms:
+- one real `transcript_semantic` handoff-oriented run reopened through the
+  fact-review workbench
+- two acceptance stories pass:
+  personal-to-professional provenance handoff and false-coherence resistance
+- the run contains:
+  3 sources, 3 statements, 4 observations, and 3 facts
+- it deliberately has no assembled events yet; all 3 facts remain in the
+  `no_event` bucket, which is useful because it demonstrates read-only review
+  over sparse/fragile material instead of fake completeness
+- the review queue surfaces exactly 2 items:
+  `Clinic letter` and `User journal account`
+
+Why it matters:
+- this is the strongest current transcript/provenance/handoff example for
+  downstream reasoning because it preserves difficult boundary conditions rather
+  than collapsing them into an overconfident event story
+
+### 3. Wave 3 real fragmented support bundle
+Path:
+- `itir-svelte/tests/fixtures/fact_review_wave3_real_fragmented_support_demo_bundle.json`
+
+What it shows in plain terms:
+- one real `transcript_semantic` fragmented-support run reopened through the
+  workbench
+- two acceptance stories pass:
+  trauma-survivor-safe reconstruction and support-worker/advocate timeline
+  assist
+- the run contains:
+  3 sources, 3 statements, 4 observations, and 3 facts
+- one fact is abstained, one chronology item is contested, and the review queue
+  stays bounded around:
+  `User incident fragment` and `Clinic presentation record`
+
+Why it matters:
+- this is the strongest current repo-stable example that the system can carry
+  uncertainty, abstention, and source-boundary pressure through review without
+  forcing false coherence
+
+### 4. Real Wikidata qualifier import slice
+Path:
+- `SensibLaw/tests/fixtures/wikidata/real_qualifier_imported_slice_20260307.json`
+
+What it shows in plain terms:
+- a real imported Wikidata slice for property `P166`
+- two time windows (`prev` / `current`) over real exported entity data
+- the first window carries 4 statement bundles with real qualifiers, ranks, and
+  references
+
+Why it matters:
+- this is a good secondary non-transcript example of real structured import and
+  qualifier preservation, but it is not yet as strong an operator/workbench
+  story as the transcript/AU bundles above
 
 ## What We Think Is Interesting About Zelph
 Based on Stefan's description and our own demo work, the most interesting
@@ -183,30 +296,41 @@ graph structure.
 Likely safe to share after one final review:
 - `SensibLaw/sl_zelph_demo/`
 - `SensibLaw/tests/test_sl_zelph_demo_tools.py`
+- `itir-svelte/tests/fixtures/fact_review_wave1_real_au_demo_bundle.json`
 - this note
 
 Needs review/sanitization before external sharing:
+- `itir-svelte/tests/fixtures/fact_review_wave5_real_professional_handoff_demo_bundle.json`
+- `itir-svelte/tests/fixtures/fact_review_wave3_real_fragmented_support_demo_bundle.json`
 - benchmark result JSONs under
   `SensibLaw/tests/fixtures/fact_semantic_bench/results/`
 - any chat-derived or transcript-derived corpora
 - any local analysis artifacts that may contain personal or case-linked content
 
 ## Open Collaboration Questions
-- Which sanitized benchmark slice from `SensibLaw/tests/fixtures/fact_semantic_bench/results/` (legal, chat, transcript) should we prime as the ingester-derived structured graph example in the Zelph pack?
+- Which one or two of the ranked real-world bundles above should become the
+  first canonical Zelph-facing examples?
 - Are there additional log/metadata artifacts from the DB/rule-atom export path (`SensibLaw/sl_zelph_demo/compile_db.py`, `db_rules.zlp`, `db_run.sh`) that Zelph devs will need to believe the deterministic handoff story?
-- Should we keep the wiki lane as the optional bounded review signal example described above, or do we need a second review-focused slice before handing the pack externally?
+- What is the first repo-stable real chat-history run artifact we want to
+  prepare so chat-derived material can join the pack without leaning on
+  synthetic seeds?
 
 ## Suggested Questions / Next Discussion Points
-- Which sanitized ontology/predicate-as-node exports under `SensibLaw/sl_zelph_demo/ontology_*` should be documented to showcase richer predicate bridging?
-- Do we want to annotate the sanitized fact-semantic bench outputs that power the ingester-derived slice so recipients understand how to regenerate them?
+- Which ontology/predicate-as-node exports under
+  `SensibLaw/sl_zelph_demo/ontology_*` should be documented to showcase richer
+  predicate bridging?
+- Which real chat-history or development/math/public-event chat slices are safe
+  enough to turn into the missing repo-stable chat-derived demo lane?
 
 ## Intended Next Tests
-- keep the outward-facing handoff note aligned with tests that already exist for:
-  volatility signals, reversion detection, and reversion-without-context risk
+- keep the outward-facing handoff note aligned first with the persisted `real`
+  workbench bundles and the deterministic DB/rule-atom export path
 - add one small bridge-level regression that verifies the handoff claims remain
   true for the current demo outputs
-- prefer behavior assertions over role-label assertions in any future
-  Stefan-facing Zelph pack
+- prefer real run-derived examples over synthetic benchmark seeds whenever both
+  are available
+- keep the older wiki/review lane as optional historical context only, not as
+  the main proof surface
 
 ## One-sentence Summary
 SensibLaw is trying to make text-derived facts stable, reviewable, and

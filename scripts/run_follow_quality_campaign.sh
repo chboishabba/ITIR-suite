@@ -8,7 +8,7 @@ SAMPLES="/tmp/wiki_random_samples_large"
 
 echo "[1/4] Generating multi-hop manifest"
 $PY SensibLaw/scripts/wiki_random_page_samples.py \
-  --count 12 \
+  --count 8 \
   --namespace 0 \
   --out-dir "$SAMPLES" \
   --out-manifest "$MANIFEST" \
@@ -17,7 +17,7 @@ $PY SensibLaw/scripts/wiki_random_page_samples.py \
   --max-links 30 \
   --max-categories 30 \
   --timeout-s 60 \
-  --wiki-rps 1.0
+  --wiki-rps 0.25
 
 echo "[2/4] Scoring the manifest"
 $PY SensibLaw/scripts/report_wiki_random_article_ingest_coverage.py \
