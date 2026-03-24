@@ -206,10 +206,10 @@ Current result from the first broader checkpoint:
 - artifact now exists under
   `SensibLaw/tests/fixtures/zelph/gwb_broader_corpus_checkpoint_v1/`
 - 3 source families counted in the merged extraction checkpoint
-- 16 distinct promoted relations after canonical dedupe
-- 1 new promoted relation beyond the checked handoff
+- 17 distinct promoted relations after canonical dedupe
+- 2 new promoted relations beyond the checked handoff
 - only 1 seed lane matched in multiple source families
-- public-bios rich timeline now contributes 2 matched seed lanes and 8
+- public-bios rich timeline now contributes 3 matched seed lanes and 9
   promoted relations in the current pass
 - corpus/book timeline contributes 3 promoted relations and 1 matched seed lane
 
@@ -226,13 +226,16 @@ Public-bios implementation update:
 - that richer shaping is enough to recover one genuinely new broader-source
   public-law family:
   `George W. Bush -> signed -> No Child Left Behind Act`
+- a second narrow broader-source executive-action lane is now also checked:
+  `George W. Bush -> signed -> Northwestern Hawaiian Islands Marine National Monument`
 
 Practical reading:
 - the bottleneck is no longer source-family inventory
 - the public-bios lane now reaches real broader-source promoted output on one
-  additional public-law family, not just repeated review-relation confirmation
+  additional public-law family and one explicit executive proclamation family,
+  not just repeated review-relation confirmation
 - diagnostics now sharpen that bottleneck:
-  there are now two clean broader promoted families, but most broader-source
+  there are now three clean broader promoted relation families, but most broader-source
   lanes are still linkage-heavy and semantics-light
 - so the immediate next repair is event shaping / semantic anchoring over the
   public-bios and corpus/book lanes, not blind source expansion and not
@@ -251,7 +254,7 @@ Current diagnostic result:
 - both families now provide relation candidates
 - both families now provide promoted relations
 - current diagnostic counts:
-  - public bios rich timeline: 8 relation candidates, 8 promoted relations
+  - public bios rich timeline: 9 relation candidates, 9 promoted relations
   - corpus/book timeline: 3 relation candidates, 3 promoted relations
 - text-debug is now available on both broader-source families rather than
   remaining fully unavailable
@@ -263,7 +266,10 @@ Interpretation of those promotions:
 - the richer public-bios lane now also contributes one genuinely new broader
   promoted public-law relation:
   `George W. Bush -> signed -> No Child Left Behind Act`
-- the merged broader checkpoint now adds `1` new distinct promoted relation
+- the richer public-bios lane now also contributes one genuinely new broader
+  promoted executive-action relation:
+  `George W. Bush -> signed -> Northwestern Hawaiian Islands Marine National Monument`
+- the merged broader checkpoint now adds `2` new distinct promoted relations
   after canonical dedupe, which is the correct honest result
 
 Practical implication:

@@ -116,8 +116,8 @@
       public bios rich timeline,
       and corpus/book timeline
     - result:
-      16 distinct promoted relations after canonical dedupe,
-      1 new promoted relation beyond the checked handoff,
+      17 distinct promoted relations after canonical dedupe,
+      2 new promoted relations beyond the checked handoff,
       and only 1 seed lane matched across multiple source families
     - public-bios no longer runs as title-only input; it now builds a richer
       cue-filtered timeline from raw HTML pages, correctly flushes malformed
@@ -127,14 +127,17 @@
       review-relation family:
       public bios = 8 relation candidates / 8 promoted relations,
       corpus/books = 3 relation candidates / 3 promoted relations,
-      while the deduped broader checkpoint now adds 1 new distinct promoted
+      while the deduped broader checkpoint now adds 2 new distinct promoted
       relation beyond the checked handoff:
       `George W. Bush -> signed -> No Child Left Behind Act`
+      and
+      `George W. Bush -> signed -> Northwestern Hawaiian Islands Marine National Monument`
     - a follow-on disambiguation pass now abstains father/family-history
       bare-`Bush` corpus rows instead of resolving them directly to
       `actor:george_w_bush`
     - the next GWB bottleneck is now extending broader-source promotion beyond
-      the Supreme Court review and NCLB signing families
+      the Supreme Court review, NCLB signing, and marine-monument
+      proclamation families
 
 - 2026-03-24 Dashifine/TextGraphs bridge lesson applied to ITIR graph/text lanes:
   - source: current working turn plus local Dashifine bridge artifacts in

@@ -218,15 +218,18 @@
         after richer public-bios event shaping plus broader-source seed-backed
         semantic backfill, they contribute promoted confirmation of the
         existing Supreme Court review relation family and one genuinely new
-        broader-source public-law family:
+        broader-source public-law family plus one executive-action family:
         `George W. Bush -> signed -> No Child Left Behind Act`
+        and
+        `George W. Bush -> signed -> Northwestern Hawaiian Islands Marine National Monument`
       - quality guard added:
         father/family-history bare-`Bush` corpus rows now abstain instead of
         silently resolving to George W. Bush
       - next GWB step:
         improve candidate quality, mention/object resolution, and promotion
         readiness for the next broader-source family after Supreme Court review
-        + NCLB before adding more source files or loosening promotion policy
+        + NCLB + marine-monument before adding more source files or loosening
+        promotion policy
     - keep the handoff note explicit about current repo-facing Zelph dev contact
       surfaces:
       `sl_zelph_demo/*_run.sh`, `compile_db.py`, `lex_to_zelph.py`,
