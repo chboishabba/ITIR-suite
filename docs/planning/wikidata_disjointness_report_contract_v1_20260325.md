@@ -17,6 +17,14 @@ It does not yet imply:
 - hotspot-family promotion
 - full parity with Ege/Peter's broader disjointness methodology
 
+Related but distinct candidate-discovery surfaces now exist:
+
+- `SensibLaw/scripts/run_wikidata_disjointness_candidate_scan.py`
+  - supports `--backend wdqs`
+  - supports `--backend zelph`
+- `SensibLaw/data/ontology/wikidata_disjointness_pair_seed_v1.json`
+  - current explicit seed surface for local `zelph` instance scans
+
 ## Promotion ladder policy
 The disjointness lane now uses the same readiness language as the hotspot lane,
 but only at the docs/governance layer.
@@ -60,6 +68,14 @@ Current required semantics:
   - `P11260`
   - `P279`
   - `P31`
+
+This remains separate from candidate discovery:
+
+- report input:
+  - bounded pinned slice
+- candidate scan input:
+  - live WDQS rows, or
+  - local `zelph` plus explicit disjoint-pair seeds
 
 ## Output schema
 Top-level output:
@@ -284,6 +300,19 @@ Until then:
 - keep hotspot generation separate
 - use disjointness findings as optional upstream candidate signals only
 
+## Current scan backend boundary
+The repo now has a real candidate-discovery backend split, but the local
+`zelph` lane is still intentionally narrower than the WDQS lane:
+
+- supported now:
+  - `wdqs` backend for live subclass and instance scans
+  - `zelph` backend for local instance scans from explicit pair seeds
+- not yet claimed:
+  - direct `P2738` qualifier mining from local `.bin` imports
+  - local subclass-contradiction parity over `P279+`
+
+That boundary should remain explicit until released zelph support catches up.
+
 ## Current case classifications
 - synthetic pilot contradiction pack:
   - `promotable`
@@ -293,6 +322,9 @@ Until then:
   - `anchored`
   - hold reason: `awaiting_additional_real_disjointness_packs`
 - real fixed-construction contradiction pack:
+  - `promotable`
+  - hold reason: `awaiting_manifest_promotion`
+- real working-fluid instance contradiction pack:
   - `promotable`
   - hold reason: `awaiting_manifest_promotion`
 - broader disjointness ambitions beyond current packs:

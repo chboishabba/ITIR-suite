@@ -194,9 +194,12 @@ Current generated dense-substrate reading:
   1747 facts,
   1482 observations,
   0 events,
+  a first classified hearing-act layer,
+  a first assembled procedural-move layer,
   and a 24-item secondary review-overlay projection
 - this is the current repo-proof that transcript density is real at the
   substrate layer, while reviewed procedural/event coverage still lags behind
+  but is no longer just a flat procedural-candidate list
 
 Command:
 - `cd /home/c/Documents/code/ITIR-suite && python SensibLaw/scripts/build_au_corpus_scorecard.py`
@@ -228,6 +231,8 @@ Purpose of the dense transcript substrate artifact:
   version of a narrow handoff
 - keep the existing fact-review bundle as a smaller secondary overlay/projection
   rather than the primary AU transcript representation
+- add a first hearing-understanding layer over the dense substrate:
+  classified `hearing_act` rows and bounded `procedural_move` assembly
 - show exactly what is currently missing:
-  event assembly and reviewed procedural promotion, not transcript-bearing
+  broader event assembly and reviewed procedural promotion, not transcript-bearing
   statement/fact density

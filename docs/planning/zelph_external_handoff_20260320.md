@@ -122,6 +122,10 @@ What is already real in the repo:
 - AU now also has a broader corpus diagnostics companion, but it still points
   to the same real next gap: more reviewed transcript/raw-source material needs
   to graduate into persisted bundle coverage
+- the AU dense hearing lane is now one step more structured internally:
+  the dense transcript substrate carries a first hearing-act classification
+  layer and bounded procedural-move assembly above the raw transcript-bearing
+  fact layer, while staying internal-only for now
 
 What is still uncertain:
 - whether probability/uncertainty handling should remain entirely upstream for

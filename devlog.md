@@ -1,6 +1,16 @@
 # Devlog
 
 ## 2026-03-25
+- Split the disjointness candidate scanner into explicit backends:
+  - `wdqs` for live subclass/instance discovery
+  - `zelph` for local instance-only discovery from explicit pair seeds
+- Added local seed/config support for the new `zelph` scan mode:
+  - `SensibLaw/data/ontology/wikidata_disjointness_pair_seed_v1.json`
+- Added callable/end-to-end regression coverage for the `zelph` scan path:
+  - in-process backend test and CLI smoke in
+    `SensibLaw/tests/test_wikidata_disjointness_scan.py`
+- Validated the backend split with the repo venv:
+  - `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_disjointness.py SensibLaw/tests/test_wikidata_disjointness_cli.py SensibLaw/tests/test_wikidata_disjointness_scan.py`
 - Added phase-2 disjointness governance and discovery surfaces:
   - callable live scan script:
     `SensibLaw/scripts/run_wikidata_disjointness_candidate_scan.py`

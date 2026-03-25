@@ -218,6 +218,11 @@
         `SensibLaw/scripts/build_gwb_broader_promotion_diagnostics.py`
       - DONE: AU broader diagnostics companion now lives under
         `SensibLaw/tests/fixtures/zelph/au_broader_corpus_diagnostics_v1/`
+      - DONE: shared CLI runtime/progress now reaches the deeper Wikidata and
+        Wikipedia inner loops too:
+        `src/ontology/wikidata.py::find_qualifier_drift_candidates(...)` and
+        `src/wiki_timeline/revision_pack_runner.py::run(...)`, with renderer
+        coverage in `SensibLaw/tests/test_cli_runtime.py`
         with builder
         `SensibLaw/scripts/build_au_broader_corpus_diagnostics.py`
       - current broader GWB bottleneck:
@@ -320,6 +325,9 @@
         `SensibLaw/tests/fixtures/zelph/au_real_transcript_dense_substrate_v1/`
         with a secondary review-overlay projection reusing
         `fact.review.bundle.v1`
+      - DONE: the dense AU hearing lane now also carries a first classified
+        `hearing_act` layer and bounded `procedural_move` assembly above the
+        flatter transcript-bearing fact substrate
       - treat dense transcript-bearing fact/statement counts as primary AU
         substrate output, not as a failure mode to be collapsed immediately
       - current AU blocker is narrower now:
@@ -359,8 +367,11 @@
         - DONE: add a first AU hearing-procedural reviewed projection over the
           dense substrate so party submissions, court interventions, and
           statute-heavy turns are surfaced explicitly
-        - next: improve reviewed event assembly from that projection instead of
-          treating the hearing as a flat fact bucket
+        - DONE: add a first hearing-act / procedural-move assembly layer above
+          that projection so the dense hearing lane now exposes local procedural
+          structure, not just scored turns
+        - next: improve reviewed event assembly and coverage from that hearing
+          assembly layer instead of treating the hearing as a flat fact bucket
     - current corpus-expansion priority order:
       - 1. broader AU transcript / reviewed WhisperX-backed corpus coverage on
            top of the new dense transcript substrate
@@ -726,11 +737,19 @@
   - DONE: add a callable live scan script for WDQS-backed contradiction
     discovery:
     - `SensibLaw/scripts/run_wikidata_disjointness_candidate_scan.py`
+  - DONE: split candidate discovery into explicit backends:
+    - `wdqs` for live subclass/instance scans
+    - `zelph` for local instance scans from explicit pair seeds
+  - DONE: add the first repo-owned disjoint-pair seed surface for local scans:
+    - `SensibLaw/data/ontology/wikidata_disjointness_pair_seed_v1.json`
   - DONE: tighten culprit semantics with downstream impact counts and
     explanation linkage on instance rows
   - keep the live scan script read-only and network-dependent:
     - fixture packs remain manually pinned after review
     - do not auto-materialize repo fixtures from live query output
+  - current zelph boundary is explicit:
+    - local instance contradictions only for now
+    - do not claim direct `P2738` qualifier mining from `.bin` imports yet
   - only after the current lane has:
     - one real baseline pack
     - one real contradiction pack

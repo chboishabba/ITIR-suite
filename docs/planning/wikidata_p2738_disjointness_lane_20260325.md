@@ -5,7 +5,8 @@ Design the smallest bounded implementation slice that creates real parity
 pressure against Ege Doğan / Peter Patel-Schneider's disjointness-violation
 work without derailing the existing hotspot lane.
 
-This is a design note only. No implementation is implied by this document.
+This started as a design note. The bounded lane now exists, and the remaining
+question is backend maturity.
 
 ## ZKP Frame
 
@@ -38,7 +39,13 @@ S:
   - qualifier drift
   - parthood
   - hotspot benchmark lane
-  - no dedicated disjointness extractor or culprit miner
+  - standalone disjointness report implementation now exists
+  - real baseline + contradiction packs now exist
+  - live WDQS candidate scanning exists
+  - backend split has now started:
+    - `wdqs` backend for live scans
+    - `zelph` backend for local instance-contradiction scans from explicit
+      disjoint-pair seeds
 - current comparison state:
   - low parity with Ege/Peter on their paper's specific method
   - strong complementarity because the repo already has downstream reviewed
@@ -70,10 +77,9 @@ G:
 - acceptance requires deterministic tests plus a reviewer-readable report
 
 F:
-- missing extractor for `P2738` + `P11260`
-- missing fixture pack
-- missing violation/candidate/culprit report contract
-- missing tests
+- no direct `P2738` qualifier mining from released `zelph 0.9.5` yet
+- no local `.bin` checked into the repo
+- no stable subclass-contradiction zelph backend yet
 
 Synthesis:
 - The next parity move is clear: a bounded standalone disjointness lane.
@@ -193,6 +199,31 @@ The point is to freeze:
 - report shape
 - parity semantics
 - testability
+
+## Current backend position
+The lane now has two distinct candidate-discovery backends:
+
+- `wdqs`
+  - live network scan over `P2738` + `P11260`
+  - useful for finding new real contradiction candidates
+  - still vulnerable to endpoint timeouts on broad subclass queries
+- `zelph`
+  - local script-driven scan surface
+  - currently bounded to instance contradictions first
+  - currently depends on an explicit disjoint-pair seed file rather than direct
+    qualifier mining from imported `.bin` data
+
+Current repo surface:
+
+- script:
+  - `SensibLaw/scripts/run_wikidata_disjointness_candidate_scan.py`
+- pair seed:
+  - `SensibLaw/data/ontology/wikidata_disjointness_pair_seed_v1.json`
+
+This is deliberate. Released `zelph 0.9.5` gives a real local `.load` path for
+Wikidata `.bin` files, but qualifier support and a cleaner transitive/SPARQL
+surface are still future-facing. The repo should not pretend direct `P2738`
+mining from local `.bin` is already solved when it is not.
 
 ## Relationship to the hotspot lane
 Do not make `disjointness` a hotspot family immediately.

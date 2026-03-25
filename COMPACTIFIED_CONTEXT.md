@@ -123,6 +123,14 @@
         observational and does not carry promotion metadata
       - a callable WDQS scan script now exists for the live query/curl work:
         `SensibLaw/scripts/run_wikidata_disjointness_candidate_scan.py`
+      - the scan script now has an explicit backend split:
+        - `wdqs` for live subclass/instance discovery
+        - `zelph` for local instance-only discovery from explicit pair seeds
+      - the first repo-owned pair-seed surface now exists at:
+        `SensibLaw/data/ontology/wikidata_disjointness_pair_seed_v1.json`
+      - the local `zelph` path is now regression-covered end-to-end with both
+        in-process and CLI smoke tests in
+        `SensibLaw/tests/test_wikidata_disjointness_scan.py`
       - a real live scan against WDQS now succeeded for instance contradictions
         and surfaced `working fluid` as a direct `fluid -> {gas, liquid}`
         contradiction candidate
@@ -349,12 +357,22 @@
       - `--log-level` now propagates through the transcript/AU/GWB long-running
         scripts that were just instrumented, plus the current Wikidata /
         Wikipedia runner entrypoints
+    - deeper Wikidata / Wikipedia inner-loop progress is now wired too:
+      - `src/ontology/wikidata.py::find_qualifier_drift_candidates(...)`
+        emits candidate-query, revision-metadata, and revision-compare updates
+      - `src/wiki_timeline/revision_pack_runner.py::run(...)` emits
+        per-article, history, candidate-scoring, and pair-report progress
+      - renderer behavior is now pinned in
+        `SensibLaw/tests/test_cli_runtime.py`
     - the dense AU artifact now also includes a first hearing-procedural
       reviewed projection that lifts party submissions, court interventions,
       and statute-heavy turns out of the flatter dense transcript substrate
+    - the same AU dense hearing lane now also carries a first classified
+      `hearing_act` layer and a first bounded `procedural_move` assembly layer
+      over adjacent compatible hearing acts
     - next AU bottleneck:
-      improve reviewed procedural/event assembly over this dense hearing
-      substrate without suppressing transcript density
+      improve reviewed procedural/event assembly coverage over this denser
+      hearing-understanding stack without suppressing transcript density
 
 - 2026-03-24 Dashifine/TextGraphs bridge lesson applied to ITIR graph/text lanes:
   - source: current working turn plus local Dashifine bridge artifacts in
