@@ -367,11 +367,25 @@
         - DONE: add a first AU hearing-procedural reviewed projection over the
           dense substrate so party submissions, court interventions, and
           statute-heavy turns are surfaced explicitly
-        - DONE: add a first hearing-act / procedural-move assembly layer above
+      - DONE: add a first hearing-act / procedural-move assembly layer above
           that projection so the dense hearing lane now exposes local procedural
           structure, not just scored turns
-        - next: improve reviewed event assembly and coverage from that hearing
-          assembly layer instead of treating the hearing as a flat fact bucket
+        - DONE: add a first conservative hearing-event assembly layer above the
+          procedural-move layer so the AU dense hearing lane now reaches bounded
+          hearing-event structure as well
+        - DONE: extend that hearing-event layer to cover short local
+          bench↔counsel exchanges and authority/submission clusters rather than
+          only one-move lifts
+        - DONE: expose event-assembly coverage metrics over the procedural-move
+          layer so AU progress is measurable as coverage, not only event count
+        - DONE: preserve explicit speaker continuity through hearing acts,
+          procedural moves, and assembled events so bench/counsel exchange
+          assembly is less dependent on topic overlap alone
+        - DONE: tighten the conservative event contract so local cues, speaker
+          continuity, and bounded topic continuity all contribute to coverage
+        - next: improve reviewed event assembly coverage from that
+          hearing-act/procedural-move/event stack instead of treating the
+          hearing as a flat fact bucket
     - current corpus-expansion priority order:
       - 1. broader AU transcript / reviewed WhisperX-backed corpus coverage on
            top of the new dense transcript substrate

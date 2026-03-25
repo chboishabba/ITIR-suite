@@ -370,8 +370,21 @@
     - the same AU dense hearing lane now also carries a first classified
       `hearing_act` layer and a first bounded `procedural_move` assembly layer
       over adjacent compatible hearing acts
+    - that AU dense hearing lane now also carries a first conservative
+      hearing-event assembly layer above procedural moves
+    - that event layer now covers short local bench↔counsel exchanges and
+      authority/submission clusters, not only one-move event lifts
+    - that event layer now also exposes procedural-move coverage metrics so AU
+      progress can be measured as lifted local structure, not only raw event
+      count
+    - explicit speaker labels now propagate through hearing acts, procedural
+      moves, and assembled events, improving local bench/counsel continuity
+      without loosening the conservative event contract
+    - the current conservative AU event assembly is now effectively governed by
+      three local signals together:
+      local cue strength, speaker continuity, and bounded topic continuity
     - next AU bottleneck:
-      improve reviewed procedural/event assembly coverage over this denser
+      improve reviewed event assembly coverage over this denser
       hearing-understanding stack without suppressing transcript density
 
 - 2026-03-24 Dashifine/TextGraphs bridge lesson applied to ITIR graph/text lanes:

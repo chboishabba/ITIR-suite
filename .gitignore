@@ -9,6 +9,7 @@ container.sh
 __pycache__/
 *.pdf
 2405.20163v1_rosario.pdf
+wikidata-20171227-pruned.bin
 .hypothesis/
 codex_history.sqlite
 # NOTE: sqlite artifacts are generally ignored; remove this if you need to track

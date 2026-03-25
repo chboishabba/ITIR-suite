@@ -493,8 +493,9 @@ What changed internally after this checkpoint:
   substrate artifact under
   `SensibLaw/tests/fixtures/zelph/au_real_transcript_dense_substrate_v1/`
 - that dense artifact currently reports 1747 transcript units, 1747 facts,
-  1482 observations, 0 events, and a 24-item secondary review-overlay
-  projection
+  1482 observations, 0 persisted fact-review events, plus a first hearing-act
+  layer, a first procedural-move layer, a first conservative hearing-event
+  assembly layer, and a 24-item secondary review-overlay projection
 - this is the current repo-proof that AU transcript density is real at the
   substrate layer; the narrower reviewed/procedural overlay is a secondary
   projection rather than the primary transcript representation

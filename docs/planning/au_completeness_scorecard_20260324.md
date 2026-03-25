@@ -196,6 +196,7 @@ Current generated dense-substrate reading:
   0 events,
   a first classified hearing-act layer,
   a first assembled procedural-move layer,
+  a first conservative hearing-event assembly layer,
   and a 24-item secondary review-overlay projection
 - this is the current repo-proof that transcript density is real at the
   substrate layer, while reviewed procedural/event coverage still lags behind
@@ -232,7 +233,19 @@ Purpose of the dense transcript substrate artifact:
 - keep the existing fact-review bundle as a smaller secondary overlay/projection
   rather than the primary AU transcript representation
 - add a first hearing-understanding layer over the dense substrate:
-  classified `hearing_act` rows and bounded `procedural_move` assembly
+  classified `hearing_act` rows, bounded `procedural_move` assembly,
+  and a first conservative hearing-event layer
+- that hearing-event layer now includes short local exchange/cluster assembly,
+  not only one-move lifts
+- it now also exposes coverage over the procedural-move layer, so AU progress
+  can be tracked as "how much of the move layer is being lifted into bounded
+  hearing events" rather than by event counts alone
+- speaker continuity is now preserved across hearing acts, procedural moves,
+  and assembled events, so local bench/counsel structure is less dependent on
+  topic overlap alone
+- the current conservative assembly is therefore driven by:
+  local cues + speaker continuity + bounded topic continuity,
+  rather than any one signal alone
 - show exactly what is currently missing:
-  broader event assembly and reviewed procedural promotion, not transcript-bearing
+  broader event assembly coverage and reviewed procedural promotion, not transcript-bearing
   statement/fact density
