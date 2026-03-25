@@ -29,8 +29,8 @@
       `docs/planning/wikidata_hotspot_benchmark_lane_20260325.md`
     - contract/spec note:
       `docs/planning/wikidata_hotspot_pack_contract_20260325.md`
-    - draft manifest:
-      `docs/planning/wikidata_hotspot_pilot_pack_v0.manifest.json`
+    - ratified manifest:
+      `docs/planning/wikidata_hotspot_pilot_pack_v1.manifest.json`
     - TODO tracking:
       `TODO.md`
     - outward-facing wording update:
@@ -43,6 +43,92 @@
     - `qualifier_drift_p166_live_pack_v1`
     - `finance_entity_kind_collapse_pack_v0`
     - `software_entity_kind_collapse_pack_v0`
+  - implementation followthrough now completed in the same lane:
+    - first emitted cluster-pack schema is now explicit in
+      `docs/planning/wikidata_hotspot_pack_contract_20260325.md`
+    - both earlier entity-kind candidates are now promoted to local
+      slice-backed fixtures:
+      - `SensibLaw/tests/fixtures/wikidata/finance_entity_kind_collapse_pack_v0/slice.json`
+      - `SensibLaw/tests/fixtures/wikidata/software_entity_kind_collapse_pack_v0/slice.json`
+    - first implementation surface now exists at:
+      - module: `SensibLaw/src/ontology/wikidata_hotspot.py`
+      - CLI: `sensiblaw wikidata hotspot-generate-clusters`
+    - evaluator surface now also exists at:
+      - module: `SensibLaw/src/ontology/wikidata_hotspot_eval.py`
+      - CLI: `sensiblaw wikidata hotspot-eval`
+    - canned response-bundle fixtures now pin evaluator behavior across
+      multiple hotspot families
+      - qualifier drift
+      - software entity-kind collapse
+      - finance entity-kind collapse
+    - `v2` runner direction is now explicit:
+      keep live execution outside `SensibLaw` by default; if convenience is
+      later needed, allow only a thin adapter-command wrapper over the same
+      response-bundle contract
+    - promotion governance is now explicit in the hotspot lane:
+      - `status` means provenance/backing only
+      - `promotion_status` means readiness only
+      - `hold_reason` is required for non-promoted entries
+    - current hotspot pilot-pack classifications now include:
+      - `mixed_order_live_pack_v1`: `promoted`
+      - `p279_scc_live_pack_v1`: `promoted`
+      - `qualifier_drift_p166_live_pack_v1`: `promoted`
+      - `finance_entity_kind_collapse_pack_v0`: `promotable`
+      - `software_entity_kind_collapse_pack_v0`: `promotable`
+    - focused validation passed with the repo venv:
+      - `SensibLaw/tests/test_wikidata_hotspot.py`
+      - `SensibLaw/tests/test_wikidata_hotspot_eval.py`
+      - `SensibLaw/tests/test_wikidata_hotspot_cli.py`
+      - targeted existing projection regression checks in
+        `SensibLaw/tests/test_wikidata_projection.py`
+    - current parity assessment is now explicit:
+      - Rosario parity: partial but meaningful on benchmark/scorer shape
+      - Ege/Peter parity: improved from purely adjacent because a first bounded
+        `P2738` disjointness lane now exists, but still below method parity on
+        coverage and culprit sophistication
+    - disjointness followthrough now completed in bounded `v1` form:
+      - module:
+        `SensibLaw/src/ontology/wikidata_disjointness.py`
+      - CLI:
+        `sensiblaw wikidata disjointness-report`
+      - fixture pack:
+        `SensibLaw/tests/fixtures/wikidata/disjointness_p2738_pilot_pack_v1/slice.json`
+      - tests:
+        `SensibLaw/tests/test_wikidata_disjointness.py` and
+        `SensibLaw/tests/test_wikidata_disjointness_cli.py`
+      - current report surface covers:
+        - `P2738`/`P11260` pair extraction
+        - local subclass violations
+        - local instance violations
+        - bounded culprit classes/items
+        - deterministic reviewer-facing JSON output
+      - one real Wikidata-backed baseline pack now exists beside the synthetic
+        pilot:
+        `SensibLaw/tests/fixtures/wikidata/disjointness_p2738_nucleon_real_pack_v1/slice.json`
+      - one real Wikidata-backed contradiction pack now also exists:
+        `SensibLaw/tests/fixtures/wikidata/disjointness_p2738_fixed_construction_real_pack_v1/slice.json`
+      - a cleaner real instance-violation contradiction pack now also exists:
+        `SensibLaw/tests/fixtures/wikidata/disjointness_p2738_working_fluid_real_pack_v1/slice.json`
+      - contract and lane decision are now explicit in:
+        `docs/planning/wikidata_disjointness_report_contract_v1_20260325.md`
+      - machine-readable governance now exists for disjointness and page-review
+        candidates:
+        - `docs/planning/wikidata_disjointness_case_index_v1.json`
+        - `docs/planning/wikidata_page_review_candidate_index_v1.json`
+      - current lane decision:
+        keep disjointness as a sibling diagnostic lane for now; do not feed it
+        into hotspot-family promotion until more real packs exist
+      - promotion ladder policy is now explicit for disjointness too, but only
+        at the docs/governance layer; `wikidata_disjointness_report/v1` stays
+        observational and does not carry promotion metadata
+      - a callable WDQS scan script now exists for the live query/curl work:
+        `SensibLaw/scripts/run_wikidata_disjointness_candidate_scan.py`
+      - a real live scan against WDQS now succeeded for instance contradictions
+        and surfaced `working fluid` as a direct `fluid -> {gas, liquid}`
+        contradiction candidate
+      - culprit semantics are now tighter:
+        culprit classes expose downstream impact counts, and instance rows now
+        surface `explained_by_culprit_class_qid` when applicable
 
 - 2026-03-25 single shared Wikidata/Zelph handoff:
   - source: current working turn
@@ -185,6 +271,90 @@
     - the next GWB bottleneck is now extending broader-source promotion beyond
       the Supreme Court review, NCLB signing, marine-monument proclamation,
       and new corpus-lane review/nomination confirmations
+
+- 2026-03-25 GWB memoir-rooted corpus confirmation + AU parity companion:
+  - source: current working turn
+  - main decision:
+    - the GWB semantic lane now uses the corpus builder's existing `root_actor`
+      memoir hint for a conservative first-person legal-action pass on matched
+      broader-source events
+    - this does not widen the deduped broader checkpoint beyond `18` / `3`,
+      but it does independently confirm one already-checked legal-action
+      family from the corpus/book lane:
+      `George W. Bush -> vetoed -> Stem Cell Research Enhancement Act`
+    - the broader AU lane now has a diagnostics companion under
+      `SensibLaw/tests/fixtures/zelph/au_broader_corpus_diagnostics_v1/`,
+      which makes the current 4 real bundles, 2 workflow kinds, transcript
+      lane pressure, and 4-file raw transcript backlog explicit
+    - the outward-facing pack has been advanced to `v1.6`, which now includes
+      both checked handoffs and broader corpus companions instead of only the
+      narrower `v1.5` checked-slice story
+
+- 2026-03-25 AU real transcript structural checkpoint:
+  - source: current working turn
+  - main decision:
+    - the transcript loader now treats the real HCA hearing files as transcript
+      events rather than one or two giant blobs:
+      - AustLII/HCA hearing text splits on speaker turns
+      - Whisper-style timestamp markdown groups into sentence-ish units
+    - new internal AU checkpoint artifact:
+      `SensibLaw/tests/fixtures/zelph/au_real_transcript_structural_checkpoint_v1/`
+    - current checkpoint reading:
+      - 2 real transcript files
+      - 1747 transcript units
+      - 2224 structural/legal tokens
+      - 1348 unique structural atoms
+      - 12 selected high-signal excerpts
+    - this means the raw HCA hearing lane is no longer only counted as backlog,
+      but it is still not yet promoted as reviewed fact/event coverage
+    - outward-facing pack remains frozen at `v1.6`; the transcript checkpoint
+      is internal until sharing review is complete
+
+- 2026-03-25 AU dense transcript substrate:
+  - source: current working turn
+  - main decision:
+    - the AU hearing lane should be evaluated as a dense transcript-derived
+      substrate first, not only as a narrow reviewed handoff
+    - new internal AU dense artifact:
+      `SensibLaw/tests/fixtures/zelph/au_real_transcript_dense_substrate_v1/`
+    - current dense artifact reading:
+      - 2 real transcript files
+      - 1747 transcript units
+      - 1747 facts
+      - 1482 observations
+      - 0 events
+      - 24 selected overlay facts
+      - 24 selected overlay review rows
+    - the secondary overlay reuses `fact.review.bundle.v1`, but it is treated
+      as a smaller reviewed projection over the dense substrate rather than as
+      the primary transcript representation
+    - the AU structural checkpoint and dense-substrate builders now expose an
+      opt-in `--progress` stage stream so longer local runs are visible without
+      changing default machine-readable stdout behavior
+    - the shared transcript scripts now expose the same opt-in `--progress`
+      contract:
+      `SensibLaw/scripts/transcript_semantic.py` and
+      `SensibLaw/scripts/transcript_fact_review.py`
+    - fact-intake persistence now reports nested section progress
+      (`sources`, `excerpts`, `statements`, `observations`, `facts`,
+      `event_assembly`, semantic refresh stages) with totals, elapsed seconds,
+      item rates, estimated finish times, and heuristic ETA intervals, so long
+      AU runs no longer stall at an opaque
+      `persist_started`
+    - shared CLI runtime helper now exists in
+      `SensibLaw/scripts/cli_runtime.py`:
+      - human-readable stderr progress is the default operator mode
+      - terminal `bar` mode now exists for local long-running runs
+      - optional `json` progress remains available for wrappers/adapters
+      - `--log-level` now propagates through the transcript/AU/GWB long-running
+        scripts that were just instrumented, plus the current Wikidata /
+        Wikipedia runner entrypoints
+    - the dense AU artifact now also includes a first hearing-procedural
+      reviewed projection that lifts party submissions, court interventions,
+      and statute-heavy turns out of the flatter dense transcript substrate
+    - next AU bottleneck:
+      improve reviewed procedural/event assembly over this dense hearing
+      substrate without suppressing transcript density
 
 - 2026-03-24 Dashifine/TextGraphs bridge lesson applied to ITIR graph/text lanes:
   - source: current working turn plus local Dashifine bridge artifacts in

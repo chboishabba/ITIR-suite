@@ -170,6 +170,9 @@
     - outward-facing promotion pack now lives in:
       `docs/planning/zelph_real_world_pack_v1_5_20260324.md`,
       `docs/planning/zelph_real_world_pack_v1_5.manifest.json`
+    - current broader-companion pack now lives in:
+      `docs/planning/zelph_real_world_pack_v1_6_20260325.md`,
+      `docs/planning/zelph_real_world_pack_v1_6.manifest.json`
     - next public-entity handoff spec now live in:
       `docs/planning/gwb_zelph_handoff_v1_20260324.md`
     - GWB completeness note now live in:
@@ -213,6 +216,10 @@
         `SensibLaw/tests/fixtures/zelph/gwb_broader_promotion_diagnostics_v1/`
         with builder
         `SensibLaw/scripts/build_gwb_broader_promotion_diagnostics.py`
+      - DONE: AU broader diagnostics companion now lives under
+        `SensibLaw/tests/fixtures/zelph/au_broader_corpus_diagnostics_v1/`
+        with builder
+        `SensibLaw/scripts/build_au_broader_corpus_diagnostics.py`
       - current broader GWB bottleneck:
         public-bios and corpus/book lanes now contribute matched seed support;
         after richer public-bios event shaping plus broader-source seed-backed
@@ -225,6 +232,10 @@
         `George W. Bush -> signed -> Northwestern Hawaiian Islands Marine National Monument`
         and one new corpus-lane broader relation:
         `George W. Bush -> ruled_by -> Supreme Court of the United States`
+      - corpus-book broader confirmation now also includes one already-checked
+        legal-action family:
+        `George W. Bush -> vetoed -> Stem Cell Research Enhancement Act`
+        via a memoir-rooted first-person legal-action path
       - quality guard added:
         father/family-history bare-`Bush` corpus rows now abstain instead of
         silently resolving to George W. Bush
@@ -301,9 +312,60 @@
       - DONE: bring AU up to the same checked handoff shape as GWB
       - broaden AU completeness from the checked workbench checkpoint to wider
         AU semantic/report coverage
+      - DONE: first real HCA transcript structural/legal checkpoint now exists
+        under
+        `SensibLaw/tests/fixtures/zelph/au_real_transcript_structural_checkpoint_v1/`
+      - DONE: first real HCA dense transcript substrate artifact now exists
+        under
+        `SensibLaw/tests/fixtures/zelph/au_real_transcript_dense_substrate_v1/`
+        with a secondary review-overlay projection reusing
+        `fact.review.bundle.v1`
+      - treat dense transcript-bearing fact/statement counts as primary AU
+        substrate output, not as a failure mode to be collapsed immediately
+      - current AU blocker is narrower now:
+        convert more of the real HCA hearing lane from dense transcript
+        substrate into reviewed fact/event coverage without pretending the
+        generic transcript fact-review path is already clean enough
+      - ingestion UX followthrough:
+        - DONE: add opt-in `--progress` stage reporting to
+          `build_au_transcript_structural_checkpoint.py` and
+          `build_au_transcript_dense_substrate.py`
+        - DONE: propagate the same opt-in `--progress` contract into
+          `transcript_semantic.py` and `transcript_fact_review.py`
+        - DONE: fact-intake persistence now reports nested section progress
+          with totals, elapsed seconds, and items/second instead of a blind
+          `persist_started` marker
+        - DONE: section progress now also emits estimated seconds remaining,
+          estimated finish time, and a heuristic confidence interval
+        - next: standardize the same `--progress` contract across longer
+          builders/ingesters so operators can see stage movement without
+          changing default quiet/scriptable behavior
+        - DONE: add shared CLI progress/logging helper with human-readable
+          stderr progress as the default operator surface, optional `json`
+          progress for wrappers, terminal `bar` mode for local operators, and
+          `--log-level` plumbing
+        - first rollout targets:
+          - DONE: `au_fact_review.py`
+          - DONE: `gwb_corpus_timeline_build.py`
+          - DONE: `build_gwb_public_bios_rich_timeline.py`
+          - DONE: `build_gwb_broader_corpus_checkpoint.py`
+          - DONE: `build_gwb_broader_promotion_diagnostics.py`
+          - DONE: `run_wikidata_qualifier_drift_scan.py`
+          - DONE: `wiki_revision_pack_runner.py`
+        - next: lift the same shared helper into the remaining long-running
+          import/extract/build scripts and add a richer bar renderer only if the
+          current terminal bar mode proves insufficient
+      - dense hearing overlay followthrough:
+        - DONE: add a first AU hearing-procedural reviewed projection over the
+          dense substrate so party submissions, court interventions, and
+          statute-heavy turns are surfaced explicitly
+        - next: improve reviewed event assembly from that projection instead of
+          treating the hearing as a flat fact bucket
     - current corpus-expansion priority order:
-      - 1. broader GWB public-source extraction and relation coverage
-      - 2. broader AU transcript / reviewed WhisperX-backed corpus coverage
+      - 1. broader AU transcript / reviewed WhisperX-backed corpus coverage on
+           top of the new dense transcript substrate
+      - 2. next genuinely new GWB broader-source family beyond current public
+        bios + corpus/book gains
       - 3. safe real chat-history lane
     - archived context input resolved on 2026-03-20:
       - `69bca95c-4f7c-839e-8b3a-3c5e273f185a` / `ZK in Legal Context`
@@ -555,9 +617,38 @@
   - use `docs/planning/wikidata_hotspot_benchmark_lane_20260325.md` as the
     planning source
   - use `docs/planning/wikidata_hotspot_pack_contract_20260325.md` as the
-    draft schema/generator/evaluator contract
-  - use `docs/planning/wikidata_hotspot_pilot_pack_v0.manifest.json` as the
-    draft pilot-pack manifest
+    current schema/generator/evaluator contract
+  - use `docs/planning/wikidata_hotspot_pilot_pack_v1.manifest.json` as the
+    ratified pilot-pack manifest
+  - DONE: define the first emitted cluster-pack JSON schema in the hotspot pack
+    contract
+  - DONE: promote the pilot pack to `v1` at the manifest/contract level
+  - DONE: promote the finance and software entity-kind-collapse examples into
+    local slice-backed fixtures:
+    - `SensibLaw/tests/fixtures/wikidata/finance_entity_kind_collapse_pack_v0/slice.json`
+    - `SensibLaw/tests/fixtures/wikidata/software_entity_kind_collapse_pack_v0/slice.json`
+  - DONE: implement the first minimal generation surface:
+    - module: `SensibLaw/src/ontology/wikidata_hotspot.py`
+    - CLI: `sensiblaw wikidata hotspot-generate-clusters`
+    - tests:
+      - `SensibLaw/tests/test_wikidata_hotspot.py`
+      - `SensibLaw/tests/test_wikidata_hotspot_cli.py`
+  - DONE: implement the first score-only evaluator surface:
+    - module: `SensibLaw/src/ontology/wikidata_hotspot_eval.py`
+    - CLI: `sensiblaw wikidata hotspot-eval`
+    - tests:
+      - `SensibLaw/tests/test_wikidata_hotspot_eval.py`
+  - current `v1` boundary:
+    - emitted cluster packs carry deterministic `question_id` fields
+    - evaluator input is normalized response-bundle JSON
+    - live provider execution remains out of scope
+      - `SensibLaw/tests/test_wikidata_hotspot_cli.py`
+  - DONE: add all-manifest generation coverage, not only selected-pack tests
+  - DONE: add canned evaluator response-bundle fixtures for nontrivial hotspot
+    families:
+    - `SensibLaw/tests/fixtures/wikidata/hotspot_eval_v1/qualifier_drift_p166_live_pack_v1_responses_consistent.json`
+    - `SensibLaw/tests/fixtures/wikidata/hotspot_eval_v1/software_entity_kind_collapse_pack_v0_responses_inconsistent.json`
+    - `SensibLaw/tests/fixtures/wikidata/hotspot_eval_v1/finance_entity_kind_collapse_pack_v0_responses_incomplete.json`
   - define hotspot families as the benchmark-generation primitive:
     - mixed-order
     - entity-kind collapse
@@ -573,6 +664,14 @@
     - one software/project/artifact entity-kind-collapse example
   - preserve provenance from pinned slice/revision pair -> hotspot family ->
     generated cluster family
+  - DONE: separate backing state from readiness state in the hotspot manifest:
+    - `status` remains provenance/backing
+    - `promotion_status` now carries `candidate|anchored|promotable|promoted`
+    - `hold_reason` is required for non-promoted entries
+  - DONE: classify the current pilot-manifest packs under the promotion ladder
+  - keep `v1` evaluator scope score-only:
+    - normalized labels required in the input response bundle
+    - no direct provider execution in this slice
   - do not flatten `P31` and `P279` into one benchmark relation without also
     retaining the original structural pathology that made the hotspot useful
   - define the win condition against IBM-style hotspot work as:
@@ -581,12 +680,77 @@
     - cross-domain generality
     - deterministic rerun stability
     - explainable failure modes
-  - defer generator/evaluator code until the hotspot pack and schema are stable
   - next docs-first checkpoint:
-    - ratify whether `page_locked_candidate` entries can remain in `v0`
-    - freeze the first emitted cluster-pack JSON shape
-    - decide whether evaluator inputs are raw transcripts, normalized yes/no
-      labels, or both
+    - decide whether `v2` should stop at a thin adapter-command wrapper or keep
+      live execution permanently external
+    - if adapter-command support is ever added, require the same response-bundle
+      schema as the canonical replay surface
+    - decide later whether splitting hotspot implementation into separate
+      manifest/cluster/eval modules actually improves maintainability enough to
+      justify churn
+- [P1] Wikidata `P2738` disjointness parity lane:
+  - use `docs/planning/wikidata_parity_gap_note_rosario_ege_20260325.md` as
+    the current comparison note against Rosario and Ege/Peter
+  - use `docs/planning/wikidata_p2738_disjointness_lane_20260325.md` as the
+    bounded design note for the next parity slice
+  - DONE: implement the first standalone deterministic lane:
+    - module:
+      `SensibLaw/src/ontology/wikidata_disjointness.py`
+    - CLI:
+      `sensiblaw wikidata disjointness-report`
+    - tests:
+      - `SensibLaw/tests/test_wikidata_disjointness.py`
+      - `SensibLaw/tests/test_wikidata_disjointness_cli.py`
+    - fixture pack:
+      `SensibLaw/tests/fixtures/wikidata/disjointness_p2738_pilot_pack_v1/slice.json`
+  - implemented `v1` report surface now covers:
+    - pairwise disjoint class extraction from `P2738` + `P11260`
+    - subclass violations over local `P279` closure
+    - instance violations over local `P31` + `P279` closure
+    - bounded culprit class and culprit item surfacing
+    - one reviewer-facing deterministic JSON report
+  - DONE: add one real Wikidata-backed baseline pack beside the synthetic pilot:
+    - `SensibLaw/tests/fixtures/wikidata/disjointness_p2738_nucleon_real_pack_v1/slice.json`
+  - DONE: add one real Wikidata-backed contradiction pack:
+    - `SensibLaw/tests/fixtures/wikidata/disjointness_p2738_fixed_construction_real_pack_v1/slice.json`
+  - DONE: freeze the report contract in:
+    - `docs/planning/wikidata_disjointness_report_contract_v1_20260325.md`
+  - DONE: decide lane relationship for now:
+    - disjointness remains a sibling lane, not a hotspot family
+    - only revisit hotspot integration after more real packs exist and the
+      report contract stays stable
+  - DONE: freeze disjointness promotion-ladder policy at the docs/governance
+    layer while keeping `wikidata_disjointness_report/v1` observational
+  - DONE: add machine-readable disjointness case governance:
+    - `docs/planning/wikidata_disjointness_case_index_v1.json`
+  - DONE: add a callable live scan script for WDQS-backed contradiction
+    discovery:
+    - `SensibLaw/scripts/run_wikidata_disjointness_candidate_scan.py`
+  - DONE: tighten culprit semantics with downstream impact counts and
+    explanation linkage on instance rows
+  - keep the live scan script read-only and network-dependent:
+    - fixture packs remain manually pinned after review
+    - do not auto-materialize repo fixtures from live query output
+  - only after the current lane has:
+    - one real baseline pack
+    - one real contradiction pack
+    - stable case-index governance
+    should disjointness be reconsidered as a hotspot family candidate
+ - [P1] Wikidata page-review candidate governance:
+  - DONE: add a machine-readable candidate index for page-reviewed non-core
+    cases:
+    - `docs/planning/wikidata_page_review_candidate_index_v1.json`
+  - DONE: classify the current entity-kind page-review examples under the same
+    readiness ladder and hold-reason taxonomy
+  - keep this lane separate from the existing hotspot lane until the report
+    contract is stable
+  - note the positioning clearly:
+    - Rosario parity is now meaningful but partial
+    - Ege/Peter parity is no longer blocked on total absence of `P2738`
+      disjointness work; remaining gap is broader coverage and closer method
+      parity
+    - Zelph gives the repo a complementary downstream reviewed-structure lane,
+      but does not substitute for disjointness-specific parity
 - [P1] SL observation + case-construction followthrough:
   - note: now explicitly phase-two after Mary-parity fact-layer work, not the
     first user-facing SL milestone

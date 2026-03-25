@@ -1,6 +1,136 @@
 # Devlog
 
 ## 2026-03-25
+- Added phase-2 disjointness governance and discovery surfaces:
+  - callable live scan script:
+    `SensibLaw/scripts/run_wikidata_disjointness_candidate_scan.py`
+  - machine-readable disjointness case index:
+    `docs/planning/wikidata_disjointness_case_index_v1.json`
+  - machine-readable page-review candidate index:
+    `docs/planning/wikidata_page_review_candidate_index_v1.json`
+- Added a second real Wikidata-backed disjointness pack with an actual
+  contradiction:
+  - `SensibLaw/tests/fixtures/wikidata/disjointness_p2738_fixed_construction_real_pack_v1/slice.json`
+- Added an additional real live-scan-backed instance contradiction pack:
+  - `SensibLaw/tests/fixtures/wikidata/disjointness_p2738_working_fluid_real_pack_v1/slice.json`
+- Tightened disjointness culprit semantics:
+  - culprit classes now emit downstream subclass/instance impact counts
+  - instance rows now emit `explained_by_culprit_class_qid`
+- Validated the updated disjointness/hotspot suites with the repo venv:
+  - `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_disjointness.py SensibLaw/tests/test_wikidata_disjointness_cli.py SensibLaw/tests/test_wikidata_disjointness_scan.py`
+  - `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_hotspot.py SensibLaw/tests/test_wikidata_hotspot_cli.py SensibLaw/tests/test_wikidata_hotspot_eval.py`
+- Live scan smoke now fails cleanly when network/DNS is unavailable instead of
+  crashing through a raw traceback.
+- With network enabled, the live instance scan now returns real candidates and
+  surfaced a very clean `fluid -> {gas, liquid} -> working fluid` contradiction.
+
+## 2026-03-25
+- Activated the Wikidata promotion ladder as repo policy in the hotspot lane:
+  - hotspot manifest now distinguishes:
+    - `status` for backing/provenance
+    - `promotion_status` for readiness
+    - `hold_reason` for non-promoted entries
+  - current pilot-manifest classifications are now explicit:
+    - `mixed_order_live_pack_v1`: `promoted`
+    - `p279_scc_live_pack_v1`: `promoted`
+    - `qualifier_drift_p166_live_pack_v1`: `promoted`
+    - `finance_entity_kind_collapse_pack_v0`: `promotable`
+    - `software_entity_kind_collapse_pack_v0`: `promotable`
+- Froze the disjointness-side rule:
+  - use the same readiness language in docs/governance
+  - keep `wikidata_disjointness_report/v1` observational and free of promotion
+    metadata
+- Validated the updated hotspot/disjointness contracts with the repo venv:
+  - `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_hotspot.py SensibLaw/tests/test_wikidata_hotspot_cli.py SensibLaw/tests/test_wikidata_hotspot_eval.py`
+  - `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_disjointness.py SensibLaw/tests/test_wikidata_disjointness_cli.py`
+
+## 2026-03-25
+- Implemented the first bounded standalone `P2738` disjointness lane:
+  - module: `SensibLaw/src/ontology/wikidata_disjointness.py`
+  - CLI: `sensiblaw wikidata disjointness-report`
+  - fixture pack:
+    `SensibLaw/tests/fixtures/wikidata/disjointness_p2738_pilot_pack_v1/slice.json`
+  - tests:
+    - `SensibLaw/tests/test_wikidata_disjointness.py`
+    - `SensibLaw/tests/test_wikidata_disjointness_cli.py`
+- The new deterministic report now covers:
+  - pair extraction from `P2738` with `P11260`
+  - subclass violations over local `P279` closure
+  - instance violations over local `P31`/`P279` closure
+  - bounded culprit class/item surfacing
+- Validated the new lane and revalidated the hotspot lane with the repo venv:
+  - `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_disjointness.py SensibLaw/tests/test_wikidata_disjointness_cli.py`
+  - `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_hotspot.py SensibLaw/tests/test_wikidata_hotspot_eval.py SensibLaw/tests/test_wikidata_hotspot_cli.py`
+- Added one real Wikidata-backed baseline disjointness pack beside the
+  synthetic pilot:
+  - `SensibLaw/tests/fixtures/wikidata/disjointness_p2738_nucleon_real_pack_v1/slice.json`
+- Froze the report contract and lane decision in:
+  - `docs/planning/wikidata_disjointness_report_contract_v1_20260325.md`
+  - current decision: disjointness remains a sibling lane for now, not a
+    hotspot family
+
+## 2026-03-25
+- Added two planning notes to make the current comparison with Rosario and
+  Ege/Peter explicit and to define the next parity move:
+  - `docs/planning/wikidata_parity_gap_note_rosario_ege_20260325.md`
+  - `docs/planning/wikidata_p2738_disjointness_lane_20260325.md`
+- Current repo position is now documented more clearly:
+  - Rosario parity is meaningful but partial on the benchmark/scorer side
+  - Ege/Peter parity is still low on concrete method until a dedicated `P2738`
+    disjointness lane exists
+- Defined the next bounded parity target as a standalone deterministic
+  disjointness lane:
+  pair extraction from `P2738`/`P11260`, subclass violations, instance
+  violations, culprit mining, and one reviewer-facing report contract.
+
+## 2026-03-25
+- Added `docs/planning/wikidata_hotspot_eval_adapter_boundary_v2_20260325.md`
+  to freeze the post-`v1` policy:
+  keep live execution outside `SensibLaw` by default, and if a `v2` convenience
+  layer is ever added, allow only a thin adapter-command wrapper over the
+  existing response-bundle schema.
+
+## 2026-03-25
+- Added canned evaluator response-bundle fixtures so the hotspot evaluator no
+  longer relies only on inline synthetic positive-path payloads:
+  - `SensibLaw/tests/fixtures/wikidata/hotspot_eval_v1/qualifier_drift_p166_live_pack_v1_responses_consistent.json`
+  - `SensibLaw/tests/fixtures/wikidata/hotspot_eval_v1/software_entity_kind_collapse_pack_v0_responses_inconsistent.json`
+  - `SensibLaw/tests/fixtures/wikidata/hotspot_eval_v1/finance_entity_kind_collapse_pack_v0_responses_incomplete.json`
+- Switched evaluator regression coverage to those canned bundles and kept the
+  inline payloads only for invalid-shape validation cases.
+- Revalidated the hotspot lane with the repo venv:
+  - `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_hotspot.py SensibLaw/tests/test_wikidata_hotspot_eval.py SensibLaw/tests/test_wikidata_hotspot_cli.py`
+  - `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_projection.py -k "live_fixture_emits_mixed_order_and_nonzero_eii or qualifier_drift_fixture_emits_property_set_change"`
+
+## 2026-03-25
+- Promoted the hotspot pilot pack to a ratified manifest:
+  `docs/planning/wikidata_hotspot_pilot_pack_v1.manifest.json`
+  while keeping the old `v0` manifest as historical planning context.
+- Promoted the emitted hotspot cluster-pack schema from the earlier draft to
+  `wikidata_hotspot_cluster_pack/v1` and gave each generated question a stable
+  `question_id`.
+- Added the first score-only evaluator surface:
+  - `SensibLaw/src/ontology/wikidata_hotspot_eval.py`
+  - `sensiblaw wikidata hotspot-eval`
+  - evaluator contract is normalized response-bundle in, deterministic JSON
+    report out; no live provider execution in `v1`
+- Expanded hotspot tests so the lane now covers:
+  - all-manifest pack generation
+  - evaluator classification/validation
+  - CLI smoke for `hotspot-eval`
+- Updated planning/status files so they no longer describe the hotspot lane as
+  pre-implementation:
+  - `docs/planning/wikidata_hotspot_benchmark_lane_20260325.md`
+  - `docs/planning/wikidata_hotspot_pack_contract_20260325.md`
+  - `docs/planning/README.md`
+  - `TODO.md`
+  - `plan.md`
+  - `COMPACTIFIED_CONTEXT.md`
+- Validated the new slice with the repo venv:
+  - `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_hotspot.py SensibLaw/tests/test_wikidata_hotspot_eval.py SensibLaw/tests/test_wikidata_hotspot_cli.py`
+  - `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_projection.py -k "live_fixture_emits_mixed_order_and_nonzero_eii or qualifier_drift_fixture_emits_property_set_change"`
+
+## 2026-03-25
 - Reviewed IBM's paper `2405.20163v1_rosario.pdf` on LLM knowledge consistency
   over Wikidata-derived ontologies and extracted the repo-relevant design
   takeaway:
@@ -28,8 +158,26 @@
   so the repo now states explicitly that the Wikidata diagnostics are
   domain-agnostic and can catch entity-kind collapse across software/project as
   well as finance/property examples.
-- No generator/evaluator code was added in this pass; the work remains
-  docs/spec/TODO alignment until the hotspot schema and pilot pack are pinned.
+- Tightened the hotspot lane from "good planning idea" into an explicit
+  milestone roadmap:
+  - taxonomy + pack contract first
+  - pilot-pack ratification second
+  - compare/report contract third
+  - deterministic pilot tooling fourth
+  - generator/evaluator work only after those gates are stable
+- Continued the same lane into the first minimal implementation slice:
+  - promoted the finance/product-service-category and software/project/artifact
+    entity-kind-collapse examples into local slice-backed fixtures:
+    - `SensibLaw/tests/fixtures/wikidata/finance_entity_kind_collapse_pack_v0/slice.json`
+    - `SensibLaw/tests/fixtures/wikidata/software_entity_kind_collapse_pack_v0/slice.json`
+  - added `SensibLaw/src/ontology/wikidata_hotspot.py`
+  - added `sensiblaw wikidata hotspot-generate-clusters`
+  - added focused tests:
+    - `SensibLaw/tests/test_wikidata_hotspot.py`
+    - `SensibLaw/tests/test_wikidata_hotspot_cli.py`
+  - validated the new slice with the repo venv:
+    - `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_hotspot.py SensibLaw/tests/test_wikidata_hotspot_cli.py`
+    - `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_projection.py -k "live_fixture_emits_mixed_order_and_nonzero_eii or qualifier_drift_fixture_emits_property_set_change"`
 
 ## 2026-03-25
 - Added `docs/planning/wikidata_zelph_single_handoff_20260325.md` as the new

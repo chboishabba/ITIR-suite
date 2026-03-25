@@ -276,6 +276,10 @@ Interpretation of those promotions:
   additional review/nomination material, including:
   `George W. Bush -> ruled_by -> Supreme Court of the United States`
   and corpus-lane confirmation of the checked nomination family
+- the corpus/book lane now also independently confirms the already-checked
+  stem-cell veto family:
+  `George W. Bush -> vetoed -> Stem Cell Research Enhancement Act`
+  via a memoir-rooted first-person legal-action path in `Decision Points`
 - the merged broader checkpoint now adds `3` new distinct promoted relations
   after canonical dedupe, which is the correct honest result
 

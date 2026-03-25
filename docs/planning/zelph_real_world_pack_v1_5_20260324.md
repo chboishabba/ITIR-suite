@@ -69,8 +69,15 @@ Current result:
 - DONE: first broader GWB extraction checkpoint now exists at
   `SensibLaw/tests/fixtures/zelph/gwb_broader_corpus_checkpoint_v1/`
 - outcome:
-  broader source families were included, but they did not yet widen promoted
-  relation coverage beyond the checked handoff
+  broader source families now widen promoted relation coverage beyond the
+  checked handoff:
+  `18` distinct promoted relations after canonical dedupe,
+  `3` new distinct promoted relations beyond the checked handoff,
+  and `5` seed lanes supported in multiple source families
+- newly widened broader-source relation families currently include:
+  `George W. Bush -> signed -> No Child Left Behind Act`
+  `George W. Bush -> signed -> Northwestern Hawaiian Islands Marine National Monument`
+  `George W. Bush -> ruled_by -> Supreme Court of the United States`
 
 Current corpus-level companion artifacts:
 - `SensibLaw/tests/fixtures/zelph/gwb_corpus_scorecard_v1/`

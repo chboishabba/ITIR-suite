@@ -1,0 +1,92 @@
+{
+  "version": "zelph.real_world_pack.v1_6",
+  "date": "2026-03-25",
+  "selection_policy": {
+    "priority_order": [
+      "technical_credibility",
+      "downstream_reasoning",
+      "safety"
+    ],
+    "real_first": true,
+    "synthetic_demo_evidence_allowed": false
+  },
+  "entries": [
+    {
+      "path": "SensibLaw/sl_zelph_demo/compile_db.py",
+      "artifact_role": "bridge_proof",
+      "workflow_family": "db_rule_atom_export",
+      "safety_tier": "safe_after_final_review",
+      "inclusion_status": "v1_6_pack"
+    },
+    {
+      "path": "SensibLaw/sl_zelph_demo/db_rules.zlp",
+      "artifact_role": "bridge_proof",
+      "workflow_family": "db_rule_atom_export",
+      "safety_tier": "safe_after_final_review",
+      "inclusion_status": "v1_6_pack"
+    },
+    {
+      "path": "SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.summary.md",
+      "artifact_role": "checked_public_handoff_summary",
+      "workflow_family": "gwb_public_entity",
+      "safety_tier": "safe_after_final_review",
+      "inclusion_status": "v1_6_pack"
+    },
+    {
+      "path": "SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/gwb_public_handoff_v1.slice.json",
+      "artifact_role": "checked_public_handoff_slice",
+      "workflow_family": "gwb_public_entity",
+      "safety_tier": "safe_after_final_review",
+      "inclusion_status": "v1_6_pack"
+    },
+    {
+      "path": "SensibLaw/tests/fixtures/zelph/gwb_broader_corpus_checkpoint_v1/gwb_broader_corpus_checkpoint_v1.summary.md",
+      "artifact_role": "broader_corpus_checkpoint_summary",
+      "workflow_family": "gwb_public_entity",
+      "safety_tier": "safe_after_final_review",
+      "inclusion_status": "v1_6_pack"
+    },
+    {
+      "path": "SensibLaw/tests/fixtures/zelph/gwb_broader_promotion_diagnostics_v1/gwb_broader_promotion_diagnostics_v1.summary.md",
+      "artifact_role": "broader_corpus_diagnostics_summary",
+      "workflow_family": "gwb_public_entity",
+      "safety_tier": "safe_after_final_review",
+      "inclusion_status": "v1_6_pack"
+    },
+    {
+      "path": "SensibLaw/tests/fixtures/zelph/au_public_handoff_v1/au_public_handoff_v1.summary.md",
+      "artifact_role": "checked_real_handoff_summary",
+      "workflow_family": "au_semantic",
+      "safety_tier": "safe_after_final_review",
+      "inclusion_status": "v1_6_pack"
+    },
+    {
+      "path": "SensibLaw/tests/fixtures/zelph/au_public_handoff_v1/au_public_handoff_v1.slice.json",
+      "artifact_role": "checked_real_handoff_slice",
+      "workflow_family": "au_semantic",
+      "safety_tier": "safe_after_final_review",
+      "inclusion_status": "v1_6_pack"
+    },
+    {
+      "path": "SensibLaw/tests/fixtures/zelph/au_corpus_scorecard_v1/au_corpus_scorecard_v1.summary.md",
+      "artifact_role": "broader_corpus_scorecard_summary",
+      "workflow_family": "au_semantic",
+      "safety_tier": "safe_after_final_review",
+      "inclusion_status": "v1_6_pack"
+    },
+    {
+      "path": "SensibLaw/tests/fixtures/zelph/au_broader_corpus_diagnostics_v1/au_broader_corpus_diagnostics_v1.summary.md",
+      "artifact_role": "broader_corpus_diagnostics_summary",
+      "workflow_family": "au_semantic",
+      "safety_tier": "safe_after_final_review",
+      "inclusion_status": "v1_6_pack"
+    },
+    {
+      "path": "SensibLaw/tests/fixtures/wikidata/real_qualifier_imported_slice_20260307.json",
+      "artifact_role": "real_structured_import",
+      "workflow_family": "wikidata_import",
+      "safety_tier": "safe_after_final_review",
+      "inclusion_status": "v1_6_pack"
+    }
+  ]
+}

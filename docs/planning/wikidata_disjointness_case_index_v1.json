@@ -1,0 +1,88 @@
+{
+  "version": "wikidata_disjointness_case_index_v1",
+  "date": "2026-03-25",
+  "entries": [
+    {
+      "case_id": "disjointness_p2738_pilot_pack_v1",
+      "case_kind": "synthetic_pilot",
+      "focus_qids": [
+        "QTransportFamily",
+        "QLandMode",
+        "QWaterMode",
+        "QAmphibiousVehicle",
+        "QDuckBoat",
+        "QJetSkiCar"
+      ],
+      "focus_pids": ["P2738", "P11260", "P279", "P31"],
+      "artifacts": [
+        "SensibLaw/tests/fixtures/wikidata/disjointness_p2738_pilot_pack_v1/slice.json"
+      ],
+      "promotion_status": "promotable",
+      "hold_reason": "awaiting_additional_real_disjointness_packs",
+      "selection_reason": "Deterministic pilot contradiction with explicit subclass and instance violation surfaces.",
+      "notes": [
+        "Primary synthetic parity/demo case."
+      ]
+    },
+    {
+      "case_id": "disjointness_p2738_nucleon_real_pack_v1",
+      "case_kind": "real_baseline",
+      "focus_qids": ["Q102165", "Q2294", "Q2348"],
+      "focus_pids": ["P2738", "P11260", "P279"],
+      "artifacts": [
+        "SensibLaw/tests/fixtures/wikidata/disjointness_p2738_nucleon_real_pack_v1/slice.json"
+      ],
+      "promotion_status": "anchored",
+      "hold_reason": "awaiting_real_contradiction_pack",
+      "selection_reason": "Real Wikidata-backed baseline proving pair extraction without contradiction inflation.",
+      "notes": [
+        "Zero-violation baseline."
+      ]
+    },
+    {
+      "case_id": "disjointness_p2738_fixed_construction_real_pack_v1",
+      "case_kind": "real_contradiction",
+      "focus_qids": ["Q53617489", "Q27096213", "Q618123", "Q811430", "Q2131593"],
+      "focus_pids": ["P2738", "P11260", "P279"],
+      "artifacts": [
+        "SensibLaw/tests/fixtures/wikidata/disjointness_p2738_fixed_construction_real_pack_v1/slice.json"
+      ],
+      "promotion_status": "promotable",
+      "hold_reason": "awaiting_manifest_promotion",
+      "selection_reason": "Real classification contradiction centered on independent continuant and the geographic/fixed-construction branch.",
+      "notes": [
+        "Primary real contradiction case for the current disjointness lane."
+      ]
+    },
+    {
+      "case_id": "disjointness_p2738_working_fluid_real_pack_v1",
+      "case_kind": "real_contradiction",
+      "focus_qids": ["Q102205", "Q11432", "Q11435", "Q217236"],
+      "focus_pids": ["P2738", "P11260", "P31"],
+      "artifacts": [
+        "SensibLaw/tests/fixtures/wikidata/disjointness_p2738_working_fluid_real_pack_v1/slice.json"
+      ],
+      "promotion_status": "promotable",
+      "hold_reason": "awaiting_manifest_promotion",
+      "selection_reason": "Direct real instance contradiction surfaced by the live WDQS scan: working fluid is typed as both gas and liquid.",
+      "notes": [
+        "Primary real instance-violation case for the current disjointness lane."
+      ]
+    },
+    {
+      "case_id": "broader_p2738_disjointness_lane",
+      "case_kind": "broad_candidate",
+      "focus_qids": [],
+      "focus_pids": ["P2738", "P11260"],
+      "artifacts": [
+        "docs/planning/wikidata_disjointness_report_contract_v1_20260325.md"
+      ],
+      "promotion_status": "candidate",
+      "hold_reason": "insufficient_bounded_evidence",
+      "selection_reason": "Broader disjointness ambitions remain below promotion until more real packs exist.",
+      "notes": [
+        "Governance-level placeholder, not a fixture pack."
+      ]
+    }
+  ]
+}

@@ -140,6 +140,7 @@ Required fields:
 Each hotspot pack entry must include:
 - `pack_id`
 - `status`
+- `promotion_status`
 - `hotspot_family`
 - `primary_story`
 - `source_kind`
@@ -152,6 +153,7 @@ Each hotspot pack entry must include:
 - `commands[]`
 
 Optional fields:
+- `hold_reason`
 - `report_artifacts[]`
 - `focus_revisions`
 - `notes[]`
@@ -160,11 +162,30 @@ Optional fields:
 - `pack_id`
   - stable, short, lower_snake_case
 - `status`
+  - provenance/backing state only
   - one of:
     - `fixture_backed`
     - `report_backed`
     - `page_locked_candidate`
     - `planned_only`
+- `promotion_status`
+  - readiness state only
+  - one of:
+    - `candidate`
+    - `anchored`
+    - `promotable`
+    - `promoted`
+- `hold_reason`
+  - required when `promotion_status != promoted`
+  - omitted when `promotion_status == promoted`
+  - examples:
+    - `unclear_family`
+    - `unclear_conflict_surface`
+    - `page_only_not_fixture_backed`
+    - `good_neighborhood_bad_pathology_identity`
+    - `needs_predicate_narrowing`
+    - `insufficient_bounded_evidence`
+    - `not_reviewer_legible`
 - `hotspot_family`
   - one of the taxonomy keys above
 - `primary_story`
@@ -190,18 +211,84 @@ Optional fields:
 - `commands[]`
   - deterministic inspect/test/rebuild commands when available
 
-## Draft hotspot pack manifest
+## Ratified hotspot pack manifest
 See:
-- `docs/planning/wikidata_hotspot_pilot_pack_v0.manifest.json`
+- `docs/planning/wikidata_hotspot_pilot_pack_v1.manifest.json`
 
-That manifest is planning-grade for now. It mixes:
+The pilot manifest is now ratified for `v1`. It intentionally keeps the
+existing per-pack ids stable even where some ids still end in `_v0`; the
+promotion happened at the manifest/contract level, not by forcing a pack-id
+renaming pass.
 
-- fixture-backed entries
-- report-backed entries
-- page-locked candidates that still need local slice capture
+Important:
 
-This is intentional for the first milestone because the repo already has enough
-evidence to design the lane before building every capture path.
+- `status` and `promotion_status` are different axes
+- `status` answers "what backing/provenance state is this pack in?"
+- `promotion_status` answers "how ready is this pack for benchmark/report use?"
+
+- `mixed_order_live_pack_v1`
+- `p279_scc_live_pack_v1`
+- `qualifier_drift_p166_live_pack_v1`
+- `finance_entity_kind_collapse_pack_v0`
+- `software_entity_kind_collapse_pack_v0`
+
+## First emitted cluster-pack schema
+The first generated output should be a deterministic JSON object with:
+
+- `schema_version`
+- `manifest_version`
+- `selection_policy`
+- `selected_pack_ids[]`
+- `pack_count`
+- `cluster_count`
+- `packs[]`
+
+### `packs[]`
+Each emitted pack should include:
+
+- `pack_id`
+- `status`
+- `promotion_status`
+- `hold_reason`
+- `hotspot_family`
+- `primary_story`
+- `focus_qids[]`
+- `focus_pids[]`
+- `source_artifacts[]`
+- `candidate_cluster_families[]`
+- `cluster_count`
+- `clusters[]`
+
+### `clusters[]`
+Each emitted cluster should include:
+
+- `cluster_id`
+- `cluster_family`
+- `expected_polarity`
+- `supporting_hotspot_family`
+- `subject_qid`
+- `subject_label`
+- `object_qid`
+- `object_label`
+- `relation_label`
+- `relation_variant`
+- `questions[]`
+- `evidence`
+
+### `questions[]`
+Each emitted question should include:
+
+- `question_id`
+- `text`
+
+Current emitted `cluster_family` values in the minimal generator:
+
+- `edge_yes`
+- `hierarchy`
+- `closure_conflict`
+- `temporalized_statement`
+- `kind_disambiguation`
+- `property_inheritance`
 
 ## First five candidate hotspot packs
 
@@ -251,7 +338,7 @@ evidence to design the lane before building every capture path.
   - `P31`
   - `P279`
 - current backing:
-  - page review only, pending local slice capture
+  - `SensibLaw/tests/fixtures/wikidata/finance_entity_kind_collapse_pack_v0/slice.json`
 - current signal:
   - product/service/category entanglement plus deprecated-rank governance clue
 
@@ -265,19 +352,21 @@ evidence to design the lane before building every capture path.
   - `P279`
   - `P527`
 - current backing:
-  - page review only, pending local slice capture
+  - `SensibLaw/tests/fixtures/wikidata/software_entity_kind_collapse_pack_v0/slice.json`
 - current signal:
   - artifact/project/community/class collapse in a domain that is easy to read
 
 ## Generator architecture sketch
-Do not implement this until the pilot pack is accepted.
+Implemented first slice:
+
+- `SensibLaw/src/ontology/wikidata_hotspot.py`
+- `sensiblaw wikidata hotspot-generate-clusters`
 
 ### Inputs
 - hotspot pack manifest entry
 - source artifact(s):
   - repo slice JSON
   - projected report JSON
-  - page-review metadata if fixture capture has not happened yet
 
 ### Stages
 1. `select_hotspot_pack`
@@ -294,38 +383,67 @@ Do not implement this until the pilot pack is accepted.
 ### Proposed module boundaries
 - existing reuse target:
   - `SensibLaw/src/ontology/wikidata.py`
-- likely new modules:
+- first implementation module:
+  - `SensibLaw/src/ontology/wikidata_hotspot.py`
+- likely later split if the lane grows:
   - `SensibLaw/src/ontology/wikidata_hotspot_manifest.py`
   - `SensibLaw/src/ontology/wikidata_hotspot_clusters.py`
   - `SensibLaw/src/ontology/wikidata_hotspot_eval.py`
-- likely CLI shape:
-  - `sensiblaw wikidata hotspot-build-pack`
+- current CLI shape:
   - `sensiblaw wikidata hotspot-generate-clusters`
+- likely later CLI additions:
+  - `sensiblaw wikidata hotspot-build-pack`
   - `sensiblaw wikidata hotspot-eval`
 
-## Evaluator contract sketch
+## Evaluator contract
 The evaluator should stay separate from cluster generation.
 
 ### Inputs
 - generated hotspot cluster pack
-- model response file or deterministic adapter output
-- optional prompt profile
+- normalized hotspot response bundle
+
+Required response-bundle fields:
+
+- `schema_version = "wikidata_hotspot_responses/v1"`
+- `model_run_id`
+- `model_id`
+- `prompt_profile`
+- `responses[]`
+
+Each response row must include:
+
+- `cluster_id`
+- `question_id`
+- `label`
+
+Optional response-row field:
+
+- `raw_text`
+
+`label` must be one of:
+
+- `yes`
+- `no`
+- `abstain`
 
 ### Outputs
 Required top-level fields:
 - `schema_version`
-- `pack_id`
+- `model_run_id`
 - `model_id`
 - `prompt_profile`
+- `manifest_version`
+- `selected_pack_ids[]`
 - `cluster_results[]`
 - `summary`
 
 ### `cluster_results[]`
 Required fields:
 - `cluster_id`
+- `pack_id`
 - `cluster_family`
 - `expected_polarity`
-- `answers[]`
+- `question_results[]`
 - `answer_distribution`
 - `classification`
 - `supporting_hotspot_family`
@@ -341,8 +459,27 @@ Required fields:
 - `cluster_counts`
 - `inconsistency_rate`
 - `incompleteness_rate`
+- `abstention_rate`
 - `by_hotspot_family`
 - `by_cluster_family`
+
+### Classification rule
+- `abstained`
+  - every response row for the cluster is `abstain`
+- `consistent`
+  - at least one non-`abstain` row exists and all non-`abstain` labels equal
+    `expected_polarity`
+- `incomplete`
+  - at least one non-`abstain` row exists and all non-`abstain` labels equal
+    the polarity opposite to `expected_polarity`
+- `inconsistent`
+  - the non-`abstain` labels contain both `yes` and `no`
+
+### Validation rule
+- every emitted `question_id` in the cluster pack must have exactly one matching
+  response row
+- duplicate response rows for the same `question_id` are invalid
+- response rows may not reference unknown `cluster_id` or `question_id` values
 
 ## Evaluation stance
 The evaluator should let us compare against IBM-style work on stronger terms:
@@ -351,16 +488,25 @@ The evaluator should let us compare against IBM-style work on stronger terms:
 - but whether the failures attach to visible structural pathologies
 - and whether the same pathologies transfer across domains
 
-## Immediate next milestone
-Before implementation:
-1. ratify the first draft manifest
-2. decide whether page-reviewed candidates can live in `v0` beside
-   fixture-backed entries
-3. decide the first emitted cluster JSON schema
-4. decide whether evaluator input is raw transcripts, normalized yes/no labels,
-   or both
+## Current implemented boundary
+- the evaluator is intentionally score-only for `v1`
+- response normalization happens outside the evaluator
+- live model execution is deferred to a later adapter-command extension
+- the repo now has both:
+  - `sensiblaw wikidata hotspot-generate-clusters`
+  - `sensiblaw wikidata hotspot-eval`
+
+## `v2` boundary decision
+See:
+- `docs/planning/wikidata_hotspot_eval_adapter_boundary_v2_20260325.md`
+
+Current direction:
+- keep live execution outside `SensibLaw` by default
+- if `v2` is ever added, allow only a thin adapter-command wrapper
+- keep provider logic, credentials, and normalization policy outside the
+  hotspot evaluator
 
 ## Non-goals
-- no model-running pipeline in this contract
+- no direct model-running pipeline in `v1`
 - no automatic prompt optimization
 - no ontology repair suggestions

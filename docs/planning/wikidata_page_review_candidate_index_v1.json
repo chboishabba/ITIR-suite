@@ -1,0 +1,40 @@
+{
+  "version": "wikidata_page_review_candidate_index_v1",
+  "date": "2026-03-25",
+  "entries": [
+    {
+      "candidate_id": "finance_entity_kind_collapse_page_review",
+      "focus_qids": ["Q15809678", "Q837171", "Q2424752"],
+      "focus_pids": ["P31", "P279"],
+      "candidate_family": "entity_kind_collapse",
+      "mirrors_manifest_pack_id": "finance_entity_kind_collapse_pack_v0",
+      "artifacts": [
+        "docs/planning/wikidata_hotspot_benchmark_lane_20260325.md",
+        "docs/planning/wikidata_hotspot_pilot_pack_v1.manifest.json"
+      ],
+      "promotion_status": "promotable",
+      "hold_reason": "awaiting_manifest_promotion",
+      "selection_reason": "Page review already yielded a bounded fixture-backed hotspot pack, but it is not yet promoted in the manifest ladder.",
+      "notes": [
+        "Product/service/category entanglement."
+      ]
+    },
+    {
+      "candidate_id": "software_entity_kind_collapse_page_review",
+      "focus_qids": ["Q44571", "Q7598"],
+      "focus_pids": ["P31", "P279", "P527"],
+      "candidate_family": "entity_kind_collapse",
+      "mirrors_manifest_pack_id": "software_entity_kind_collapse_pack_v0",
+      "artifacts": [
+        "docs/planning/wikidata_hotspot_benchmark_lane_20260325.md",
+        "docs/planning/wikidata_hotspot_pilot_pack_v1.manifest.json"
+      ],
+      "promotion_status": "promotable",
+      "hold_reason": "awaiting_manifest_promotion",
+      "selection_reason": "Page review already yielded a bounded fixture-backed hotspot pack, but it is not yet promoted in the manifest ladder.",
+      "notes": [
+        "Artifact/project/community collapse."
+      ]
+    }
+  ]
+}

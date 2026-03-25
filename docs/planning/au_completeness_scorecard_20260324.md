@@ -139,6 +139,12 @@ Near-term corpus-level companion artifact:
   - `au_corpus_scorecard_v1.json`
   - `au_corpus_scorecard_v1.summary.md`
 
+Broader diagnostics companion artifact:
+- `SensibLaw/tests/fixtures/zelph/au_broader_corpus_diagnostics_v1/`
+- generated outputs:
+  - `au_broader_corpus_diagnostics_v1.json`
+  - `au_broader_corpus_diagnostics_v1.summary.md`
+
 Current generated checkpoint:
 - 4 persisted real bundles counted
 - 13 facts
@@ -146,6 +152,51 @@ Current generated checkpoint:
 - 2 events
 - 11 review queue items
 - known raw transcript backlog still visible separately
+
+Current generated diagnostics reading:
+- the broader AU checkpoint now spans 2 workflow kinds:
+  `au_semantic` and `transcript_semantic`
+- 3 of the 4 persisted real bundles are transcript-semantic bundles
+- the current highest review-pressure bundle is
+  `wave5:real_transcript_false_coherence_v1`
+- 4 raw transcript files remain visible as backlog rather than being silently
+  treated as covered
+
+Internal transcript-structure checkpoint:
+- `SensibLaw/tests/fixtures/zelph/au_real_transcript_structural_checkpoint_v1/`
+- generated outputs:
+  - `au_real_transcript_structural_checkpoint_v1.json`
+  - `au_real_transcript_structural_checkpoint_v1.summary.md`
+
+Internal dense transcript substrate artifact:
+- `SensibLaw/tests/fixtures/zelph/au_real_transcript_dense_substrate_v1/`
+- generated outputs:
+  - `au_real_transcript_dense_substrate_v1.json`
+  - `au_real_transcript_dense_substrate_v1.summary.md`
+
+Current generated transcript-structure reading:
+- 2 real HCA transcript files are now promoted into a persisted structural/legal
+  checkpoint
+- current checkpoint covers:
+  1747 transcript units,
+  2224 structural/legal tokens,
+  1348 unique structural atoms,
+  and 12 selected high-signal excerpts
+- this is not yet reviewed fact/event coverage
+- it does, however, mean the raw HCA hearing lane is no longer only a counted
+  backlog item
+
+Current generated dense-substrate reading:
+- 2 real HCA transcript files now also flow into a persisted dense transcript
+  substrate artifact
+- current dense artifact reports:
+  1747 transcript units,
+  1747 facts,
+  1482 observations,
+  0 events,
+  and a 24-item secondary review-overlay projection
+- this is the current repo-proof that transcript density is real at the
+  substrate layer, while reviewed procedural/event coverage still lags behind
 
 Command:
 - `cd /home/c/Documents/code/ITIR-suite && python SensibLaw/scripts/build_au_corpus_scorecard.py`
@@ -156,3 +207,27 @@ Purpose of the corpus-level companion:
   bounded AU handoff slice is corpus-complete
 - record known raw source families that are present but not yet covered by the
   current real-bundle checkpoint
+
+Purpose of the diagnostics companion:
+- show where current AU review pressure is concentrated across real bundles
+- make transcript-semantic coverage legible in the same repo surface as the AU
+  procedural lane
+- give AU a broader-corpus companion comparable in role to the GWB broader
+  diagnostics artifact, while staying honest that the next real move is still
+  more reviewed transcript promotion rather than more packaging
+
+Purpose of the transcript-structure checkpoint:
+- promote the real HCA hearing files into a persisted AU corpus artifact without
+  pretending they are already reviewed fact coverage
+- preserve legal/procedural structural signal from the actual transcript source
+- make the next AU move narrower and clearer: convert more of that hearing lane
+  from structural signal into reviewed fact/event coverage
+
+Purpose of the dense transcript substrate artifact:
+- make transcript-density itself first-class rather than treating it as a failed
+  version of a narrow handoff
+- keep the existing fact-review bundle as a smaller secondary overlay/projection
+  rather than the primary AU transcript representation
+- show exactly what is currently missing:
+  event assembly and reviewed procedural promotion, not transcript-bearing
+  statement/fact density

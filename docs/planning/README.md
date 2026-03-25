@@ -71,7 +71,8 @@ Planning/spec artifacts for the bounded benchmark lane that turns Wikidata
 structural diagnostics into hotspot-backed LLM consistency tests:
 - `docs/planning/wikidata_hotspot_benchmark_lane_20260325.md`
 - `docs/planning/wikidata_hotspot_pack_contract_20260325.md`
-- `docs/planning/wikidata_hotspot_pilot_pack_v0.manifest.json`
+- `docs/planning/wikidata_hotspot_pilot_pack_v1.manifest.json`
+- `docs/planning/wikidata_hotspot_eval_adapter_boundary_v2_20260325.md`
 
 ## Narrative Validation / Comparison (2026-03-09)
 

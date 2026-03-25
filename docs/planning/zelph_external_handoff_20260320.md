@@ -42,6 +42,8 @@ Canonical companion artifacts for the current pack are now:
 - `docs/planning/zelph_real_world_pack_v1.manifest.json`
 - `docs/planning/zelph_real_world_pack_v1_5_20260324.md`
 - `docs/planning/zelph_real_world_pack_v1_5.manifest.json`
+- `docs/planning/zelph_real_world_pack_v1_6_20260325.md`
+- `docs/planning/zelph_real_world_pack_v1_6.manifest.json`
 
 Canonical companion artifact for the next public-entity handoff is now:
 - `docs/planning/gwb_zelph_handoff_v1_20260324.md`
@@ -51,7 +53,10 @@ Canonical companion artifact for the next public-entity handoff is now:
 
 Corpus-level companion artifacts now also exist at:
 - `SensibLaw/tests/fixtures/zelph/gwb_corpus_scorecard_v1/`
+- `SensibLaw/tests/fixtures/zelph/gwb_broader_corpus_checkpoint_v1/`
+- `SensibLaw/tests/fixtures/zelph/gwb_broader_promotion_diagnostics_v1/`
 - `SensibLaw/tests/fixtures/zelph/au_corpus_scorecard_v1/`
+- `SensibLaw/tests/fixtures/zelph/au_broader_corpus_diagnostics_v1/`
 
 Reading discipline:
 - use this note for external framing
@@ -60,8 +65,8 @@ Reading discipline:
 - use the AU/GWB completeness notes for corpus-level status
 
 Current next-phase priority order:
-1. broader GWB public-source extraction
-2. broader AU transcript/WhisperX-backed corpus coverage
+1. broader AU transcript/WhisperX-backed corpus coverage
+2. next genuinely new GWB broader-source family
 3. safe real chat-history lane
 
 Latest GWB corpus-expansion result:
@@ -87,6 +92,12 @@ Latest GWB corpus-expansion result:
   broader-source confirmation of the checked nomination family and one new
   broader relation:
   `George W. Bush -> ruled_by -> Supreme Court of the United States`
+- the corpus/book lane now also independently confirms one already-checked
+  legal-action family:
+  a memoir-rooted first-person legal-action pass now promotes
+  `George W. Bush -> vetoed -> Stem Cell Research Enhancement Act`
+  from `Decision Points`, but that does not increase the deduped checkpoint
+  count because the relation already existed in the checked handoff
 - current broader checkpoint result is therefore:
   `18` distinct promoted relations after canonical dedupe and `3` new
   distinct promoted relations beyond the checked handoff
@@ -108,6 +119,9 @@ What is already real in the repo:
   ingestion inside Zelph
 - there is still no comparably strong repo-stable real chat-history run artifact
   prepared as a Zelph-facing pack component
+- AU now also has a broader corpus diagnostics companion, but it still points
+  to the same real next gap: more reviewed transcript/raw-source material needs
+  to graduate into persisted bundle coverage
 
 What is still uncertain:
 - whether probability/uncertainty handling should remain entirely upstream for
@@ -463,6 +477,24 @@ Why it matters:
   repo-visible raw transcript material still exists outside the current
   persisted real-bundle checkpoint
 
+What changed internally after this checkpoint:
+- the real HCA hearing transcript lane now also has a persisted
+  structural/legal checkpoint under
+  `SensibLaw/tests/fixtures/zelph/au_real_transcript_structural_checkpoint_v1/`
+- that checkpoint covers 2 real transcript files, 1747 transcript units, 2224
+  structural/legal tokens, and 12 selected high-signal excerpts
+- this is useful because the raw transcript lane is no longer only backlog, but
+  it is not yet treated as reviewed fact/event coverage
+- the same two real HCA files now also flow into an internal dense transcript
+  substrate artifact under
+  `SensibLaw/tests/fixtures/zelph/au_real_transcript_dense_substrate_v1/`
+- that dense artifact currently reports 1747 transcript units, 1747 facts,
+  1482 observations, 0 events, and a 24-item secondary review-overlay
+  projection
+- this is the current repo-proof that AU transcript density is real at the
+  substrate layer; the narrower reviewed/procedural overlay is a secondary
+  projection rather than the primary transcript representation
+
 Current corpus companion artifacts:
 - `SensibLaw/tests/fixtures/zelph/au_corpus_scorecard_v1/au_corpus_scorecard_v1.json`
 - `SensibLaw/tests/fixtures/zelph/au_corpus_scorecard_v1/au_corpus_scorecard_v1.summary.md`
@@ -502,6 +534,7 @@ Needs review/sanitization before external sharing:
 - benchmark result JSONs under
   `SensibLaw/tests/fixtures/fact_semantic_bench/results/`
 - any chat-derived or transcript-derived corpora
+- `SensibLaw/tests/fixtures/zelph/au_real_transcript_structural_checkpoint_v1/`
 - any local analysis artifacts that may contain personal or case-linked content
 
 ## Open Collaboration Questions

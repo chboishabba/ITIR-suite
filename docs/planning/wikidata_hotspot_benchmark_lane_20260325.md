@@ -150,6 +150,45 @@ Each hotspot selected for the benchmark lane should preserve:
   - temporal/qualifier stability
   - kind disambiguation
 
+## Execution roadmap
+Treat this lane as an evaluation-program buildout, not as a generator-first
+implementation task.
+
+### Milestone 1. Freeze taxonomy and pack contract
+- freeze hotspot families as the only valid pilot-pack selection primitive
+- keep the draft schema/contract in:
+  - `docs/planning/wikidata_hotspot_pack_contract_20260325.md`
+- keep the ratified pilot-pack manifest in:
+  - `docs/planning/wikidata_hotspot_pilot_pack_v1.manifest.json`
+
+### Milestone 2. Ratify the first pilot pack
+- keep the first pack bounded to five entries
+- require explicit provenance from source slice/revision/page review ->
+  hotspot family -> candidate cluster family
+- DONE: the first pilot pack is now fixture/report-backed only; no
+  `page_locked_candidate` entries remain in the ratified manifest
+
+### Milestone 3. Freeze comparison/report shape
+- define the first machine-readable compare surface before evaluator code
+- require before/after reporting over:
+  - hotspot counts by family
+  - added/removed/changed packs
+  - provenance-preservation checks
+  - deterministic rerun stability
+
+### Milestone 4. Build the deterministic pilot lane
+- only after Milestones 1-3 are stable, implement the bounded pilot pack build
+  and report/compare tooling
+- treat provenance loss, family misclassification, or nondeterministic reruns
+  as blocking defects
+
+### Milestone 5. Add generator/evaluator work
+- DONE: add the first bounded generator/evaluator surface:
+  - `sensiblaw wikidata hotspot-generate-clusters`
+  - `sensiblaw wikidata hotspot-eval`
+- keep future prompting experiments subordinate to the hotspot family taxonomy
+  and the pinned pilot-pack manifest
+
 ## What "beating IBM" should mean
 Do not define success as "more swarms" or "more model calls."
 
@@ -168,8 +207,8 @@ Define it as:
    - we can say why a hotspot is dangerous:
      mixed-order, SCC, qualifier drift, entity-kind collapse, etc.
 
-## Immediate bounded next step
-Build a small fixture-backed pilot pack that includes:
+## Current bounded implementation
+The repo now has a small fixture-backed pilot pack that includes:
 
 - one mixed-order example
 - one SCC example
@@ -177,16 +216,22 @@ Build a small fixture-backed pilot pack that includes:
 - one product/service/category entity-kind-collapse example
 - one software/project/artifact entity-kind-collapse example
 
-Only after that should the repo add:
+The repo now also has:
 
-- cluster generators
-- model evaluators
-- prompting experiments
+- a deterministic cluster generator
+- a score-only evaluator
+- focused tests over both surfaces
 
 Follow-on contract/spec artifacts for this lane:
 
 - `docs/planning/wikidata_hotspot_pack_contract_20260325.md`
-- `docs/planning/wikidata_hotspot_pilot_pack_v0.manifest.json`
+- `docs/planning/wikidata_hotspot_pilot_pack_v1.manifest.json`
+
+Current `v1` boundary:
+
+- cluster-pack questions now carry deterministic `question_id` values
+- evaluator input is normalized score-file JSON, not live provider execution
+- live model invocation stays out of scope for `v1`
 
 ## Non-goals
 - no automatic Wikidata repair

@@ -33,8 +33,8 @@ What it is for:
 - current real status and current gaps
 
 ### 3. Then read the current outward-facing pack spec
-- `docs/planning/zelph_real_world_pack_v1_5_20260324.md`
-- `docs/planning/zelph_real_world_pack_v1_5.manifest.json`
+- `docs/planning/zelph_real_world_pack_v1_6_20260325.md`
+- `docs/planning/zelph_real_world_pack_v1_6.manifest.json`
 
 What it is for:
 - exact pack contents
@@ -78,14 +78,22 @@ What they are for:
 ### Corpus-level companion artifacts
 - GWB:
   `SensibLaw/tests/fixtures/zelph/gwb_corpus_scorecard_v1/`
+  `SensibLaw/tests/fixtures/zelph/gwb_broader_corpus_checkpoint_v1/`
+  `SensibLaw/tests/fixtures/zelph/gwb_broader_promotion_diagnostics_v1/`
 - AU:
   `SensibLaw/tests/fixtures/zelph/au_corpus_scorecard_v1/`
+  `SensibLaw/tests/fixtures/zelph/au_broader_corpus_diagnostics_v1/`
+  `SensibLaw/tests/fixtures/zelph/au_real_transcript_structural_checkpoint_v1/`
+  `SensibLaw/tests/fixtures/zelph/au_real_transcript_dense_substrate_v1/`
 
 ## Current Plain-Language Status
 - SensibLaw/ITIR can already export bounded reviewed structure into Zelph.
 - GWB is the cleanest public-facing downstream handoff artifact.
 - AU is a real Mary-parity/operator-review artifact, but its current checked
   handoff slice is intentionally narrow.
+- AU now also has an internal dense transcript substrate artifact over the real
+  HCA hearing; that substrate is primary for transcript-density evaluation, and
+  the reviewed bundle remains a smaller secondary overlay.
 - Corpus-level accounting now exists for both GWB and AU, but neither lane
   should yet be described as destination-complete.
 
@@ -93,15 +101,17 @@ What they are for:
 For the next corpus-expansion phase, use this order unless a stronger safety
 constraint appears:
 
-1. GWB broader public-source extraction and relation coverage
-2. AU broader transcript/WhisperX-backed corpus coverage
+1. AU broader transcript/WhisperX-backed corpus coverage
+2. GWB next genuinely new broader-source family
 3. Safe real chat-history lane
 
 Reason:
-- GWB is the cleanest public-facing source family and gives the fastest
-  external credibility gain.
-- AU is more important for Mary-parity/operator credibility, but needs more
-  careful reviewed-source expansion.
+- AU now has both a real transcript structural/legal checkpoint and a dense
+  transcript substrate artifact, so the next bottleneck is converting more of
+  that hearing lane into reviewed fact/event coverage without pretending dense
+  transcript counts must be narrow.
+- GWB is still the cleanest public-facing source family, but it has already
+  moved further on broader-source confirmation than AU.
 - chat-history remains valuable, but it is still the highest hygiene/safety
   burden of the three.
 
@@ -110,7 +120,7 @@ If someone needs only one link first:
 - send `docs/planning/wikidata_zelph_single_handoff_20260325.md`
 
 If they immediately ask "what exactly is in scope now?":
-- send `docs/planning/zelph_real_world_pack_v1_5_20260324.md`
+- send `docs/planning/zelph_real_world_pack_v1_6_20260325.md`
 
 If they ask for concrete artifacts:
 - send the relevant handoff fixture directory under

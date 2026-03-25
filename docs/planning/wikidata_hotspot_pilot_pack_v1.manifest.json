@@ -1,5 +1,5 @@
 {
-  "version": "wikidata.hotspot.pilot_pack.v0",
+  "version": "wikidata_hotspot_pilot_pack_v1",
   "date": "2026-03-25",
   "selection_policy": {
     "priority_order": [
@@ -9,13 +9,14 @@
       "determinism"
     ],
     "real_first": true,
-    "allow_page_locked_candidates_without_local_slice": true,
+    "require_fixture_or_report_backing": true,
     "require_provenance_receipts": true
   },
   "entries": [
     {
       "pack_id": "mixed_order_live_pack_v1",
       "status": "fixture_backed",
+      "promotion_status": "promoted",
       "hotspot_family": "mixed_order",
       "primary_story": "Bounded live mixed-order cases already exist and are the cleanest benchmark seed for class/instance confusion.",
       "source_kind": "repo_fixture_plus_report",
@@ -42,6 +43,7 @@
     {
       "pack_id": "p279_scc_live_pack_v1",
       "status": "fixture_backed",
+      "promotion_status": "promoted",
       "hotspot_family": "p279_scc",
       "primary_story": "Reciprocal subclass loops should generate contradiction-sensitive hierarchy clusters.",
       "source_kind": "repo_fixture_plus_report",
@@ -68,6 +70,7 @@
     {
       "pack_id": "qualifier_drift_p166_live_pack_v1",
       "status": "report_backed",
+      "promotion_status": "promoted",
       "hotspot_family": "qualifier_drift",
       "primary_story": "Pinned revision-pair qualifier drift is the clearest temporal hotspot family already materialized in-repo.",
       "source_kind": "revision_pair",
@@ -95,6 +98,8 @@
     {
       "pack_id": "finance_entity_kind_collapse_pack_v0",
       "status": "fixture_backed",
+      "promotion_status": "promotable",
+      "hold_reason": "awaiting_manifest_promotion",
       "hotspot_family": "entity_kind_collapse",
       "primary_story": "Product/service/category entanglement shows that the benchmark lane is not limited to clean taxonomies.",
       "source_kind": "repo_fixture",
@@ -116,6 +121,8 @@
     {
       "pack_id": "software_entity_kind_collapse_pack_v0",
       "status": "fixture_backed",
+      "promotion_status": "promotable",
+      "hold_reason": "awaiting_manifest_promotion",
       "hotspot_family": "entity_kind_collapse",
       "primary_story": "GNU and GNU Project demonstrate artifact/project/community collapse in a highly legible domain.",
       "source_kind": "repo_fixture",

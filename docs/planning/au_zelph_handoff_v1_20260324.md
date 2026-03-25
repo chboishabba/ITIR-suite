@@ -16,6 +16,12 @@ Companion index:
 
 Companion note:
 - `docs/planning/au_completeness_scorecard_20260324.md`
+- broader diagnostics companion:
+  `SensibLaw/tests/fixtures/zelph/au_broader_corpus_diagnostics_v1/`
+- internal transcript substrate companions:
+  `SensibLaw/tests/fixtures/zelph/au_real_transcript_structural_checkpoint_v1/`
+  and
+  `SensibLaw/tests/fixtures/zelph/au_real_transcript_dense_substrate_v1/`
 
 Role of this note:
 - artifact-specific handoff spec only
@@ -66,6 +72,9 @@ review rather than pretending it is fully settled.
   extraction claim.
 - The 3-fact result is expected for this selected workbench wave; it does not mean
   AU extraction is that small overall.
+- The real HCA hearing lane now has a separate dense transcript substrate
+  artifact; that higher-density transcript layer is not the same thing as this
+  bounded reviewed handoff slice.
 - Out-of-scope for this artifact is broader AU transcript, longer-case history, and
   other source families that need additional source-family passes.
 - This handoff is useful as a real ingest -> review -> Zelph story, and as a Mary-parity
@@ -101,6 +110,12 @@ This brings AU up to parity with GWB at the handoff shape level:
 - both now have explicit completeness framing
 - both can be discussed as scored checkpoints toward larger topic
   understanding, rather than as isolated demo files
+- AU now also has a broader corpus diagnostics companion, so the repo can show
+  both the checked handoff slice and the visible broader bundle/backlog state
+  in one external reading path
+- the real HCA hearing lane now also has internal structural and dense
+  transcript substrate artifacts, so the repo can evaluate transcript density
+  separately from the narrower reviewed Zelph handoff
 
 ## Related tracking
 - scorecard + uncertainty framing:

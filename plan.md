@@ -251,18 +251,26 @@
 ## Milestone W: Wikidata Hotspot Benchmark Lane (planned)
 1. Use `docs/planning/wikidata_hotspot_benchmark_lane_20260325.md` as the
    planning source for the benchmark-facing extension.
-2. Freeze the hotspot taxonomy and pack contract in:
+2. DONE: freeze the hotspot taxonomy and pack contract in:
    - `docs/planning/wikidata_hotspot_pack_contract_20260325.md`
-   - `docs/planning/wikidata_hotspot_pilot_pack_v0.manifest.json`
-3. Keep the first pilot pack bounded to five hotspot entries:
+   - `docs/planning/wikidata_hotspot_pilot_pack_v1.manifest.json`
+3. DONE: keep the first pilot pack bounded to five hotspot entries:
    - one mixed-order fixture-backed pack
    - one `P279` SCC fixture-backed pack
    - one qualifier-drift revision-pair pack
-   - one finance entity-kind-collapse candidate pack
-   - one software entity-kind-collapse candidate pack
-4. Preserve provenance from source slice/revision/page review -> hotspot family
+   - one finance entity-kind-collapse fixture-backed pack
+   - one software entity-kind-collapse fixture-backed pack
+4. DONE: preserve provenance from source slice/revision/page review -> hotspot family
    -> generated cluster family.
-5. Do not implement generator/evaluator code until:
-   - the pilot-pack manifest is ratified
-   - the first cluster-pack JSON shape is explicit
-   - evaluator input/output contracts are fixed
+5. DONE: implement the first minimal cluster generator path:
+   - module:
+     `SensibLaw/src/ontology/wikidata_hotspot.py`
+   - CLI:
+     `sensiblaw wikidata hotspot-generate-clusters`
+   - tests:
+     `SensibLaw/tests/test_wikidata_hotspot.py`,
+     `SensibLaw/tests/test_wikidata_hotspot_cli.py`
+6. Next:
+   - expand score-file fixtures across more hotspot families
+   - decide whether a later adapter-command runner belongs in `v2`
+   - keep comparison/reporting stable as more packs are added

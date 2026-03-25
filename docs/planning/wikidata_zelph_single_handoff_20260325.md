@@ -67,8 +67,9 @@ What the repo already has:
   - Zelph engine status `ok`
 - a first broader GWB checkpoint with:
   - 3 source families counted
-  - 15 distinct promoted relations after canonical dedupe
-  - 0 new promoted relations beyond the checked handoff
+  - 18 distinct promoted relations after canonical dedupe
+  - 3 new promoted relations beyond the checked handoff
+  - 5 seed lanes supported in multiple source families
 - a checked AU procedural handoff with:
   - 3 facts
   - 27 observations
@@ -79,14 +80,17 @@ What the repo already has:
 - corpus-level companion scorecards:
   - GWB:
     `SensibLaw/tests/fixtures/zelph/gwb_corpus_scorecard_v1/`
+    `SensibLaw/tests/fixtures/zelph/gwb_broader_corpus_checkpoint_v1/`
+    `SensibLaw/tests/fixtures/zelph/gwb_broader_promotion_diagnostics_v1/`
   - AU:
     `SensibLaw/tests/fixtures/zelph/au_corpus_scorecard_v1/`
+    `SensibLaw/tests/fixtures/zelph/au_broader_corpus_diagnostics_v1/`
 
 Primary repo surfaces:
 
 - pack/index:
   `docs/planning/zelph_handoff_index_20260324.md`
-  `docs/planning/zelph_real_world_pack_v1_5_20260324.md`
+  `docs/planning/zelph_real_world_pack_v1_6_20260325.md`
 - GWB handoff:
   `docs/planning/gwb_zelph_handoff_v1_20260324.md`
 - AU handoff:
@@ -99,7 +103,8 @@ Plain-language reading:
 - we can already hand Zelph small checked fact bundles from real repo material
 - those bundles include both "what we think is clean" and "what we are still
   keeping under review"
-- the handoff is real, but still intentionally small
+- the handoff is real, still intentionally bounded, and now extends beyond the
+  original checked wiki slice into broader public-bios and corpus-book support
 
 ## What we are not claiming
 - We are not claiming full ontology cleanup for Wikidata.
@@ -132,7 +137,12 @@ Keep the boundary clean:
 ### Next for Zelph collaboration
 - keep using the existing checked export path rather than inventing a new one
 - treat the current outward-facing pack as `v1.5`
-- widen GWB beyond repeated confirmation of already-known relation families
+- widen GWB beyond the current broader-source gains:
+  repeated Supreme Court review confirmation,
+  `George W. Bush -> signed -> No Child Left Behind Act`,
+  `George W. Bush -> signed -> Northwestern Hawaiian Islands Marine National Monument`,
+  and corpus-lane confirmation/review material including
+  `George W. Bush -> ruled_by -> Supreme Court of the United States`
 - widen AU beyond the narrow current checkpoint into broader source-backed
   coverage
 - keep chat-history as a later lane only after hygiene/shareability is strong
@@ -156,6 +166,13 @@ Keep the boundary clean:
 - The handoff bundles include abstention and review pressure, not just forced
   answers.
 - The current GWB slice is public and relatively safe to discuss externally.
+- The broader GWB lane is no longer only a repeated-confirmation story; it now
+  shows real public-bios and corpus-book widening while remaining conservative
+  about overpromotion.
+- The corpus-book lane now also independently confirms one already-checked
+  stem-cell veto family via a memoir-rooted first-person legal-action path,
+  which improves corpus credibility even though it does not change the deduped
+  distinct-relation count.
 - The AU slice shows the same handoff shape on a real procedural/legal bundle.
 - The bridge is small enough to be testable now, while still pointing toward a
   richer later collaboration surface.
@@ -166,7 +183,7 @@ If the reader wants:
 - Wikidata detail:
   `SensibLaw/docs/wikidata_working_group_status.md`
 - Zelph pack detail:
-  `docs/planning/zelph_real_world_pack_v1_5_20260324.md`
+  `docs/planning/zelph_real_world_pack_v1_6_20260325.md`
 - concrete GWB artifact:
   `docs/planning/gwb_zelph_handoff_v1_20260324.md`
 - concrete AU artifact:
@@ -177,6 +194,8 @@ The exact current result is modest but real:
 
 - bounded Wikidata diagnostics are working on real and pinned slices
 - bounded Zelph handoffs are working on checked GWB and AU artifacts
+- broader GWB corpus work now widens the checked handoff with 3 new distinct
+  promoted relations beyond the original checked slice
 - both lanes are now backed by repo fixtures, tests, and explicit "not complete
   yet" framing
 
