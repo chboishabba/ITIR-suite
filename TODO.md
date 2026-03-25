@@ -363,11 +363,14 @@
         - next: lift the same shared helper into the remaining long-running
           import/extract/build scripts and add a richer bar renderer only if the
           current terminal bar mode proves insufficient
+        - DONE: expose `--reviewed-event-limit` on
+          `build_au_transcript_dense_substrate.py` so reviewed hearing-event
+          projection size can be tuned without editing code
       - dense hearing overlay followthrough:
         - DONE: add a first AU hearing-procedural reviewed projection over the
           dense substrate so party submissions, court interventions, and
           statute-heavy turns are surfaced explicitly
-      - DONE: add a first hearing-act / procedural-move assembly layer above
+        - DONE: add a first hearing-act / procedural-move assembly layer above
           that projection so the dense hearing lane now exposes local procedural
           structure, not just scored turns
         - DONE: add a first conservative hearing-event assembly layer above the
@@ -391,9 +394,15 @@
         - DONE: derive a reviewed hearing-event projection from the assembled
           event layer so operator-facing AU review is not only a dense fact
           overlay
+        - DONE: run and record a 24-item reviewed hearing-event projection
+          quality pass on the real HCA dense substrate using
+          `--reviewed-event-limit 24`, and classify it as a high-coverage but
+          not-yet-trusted reviewed-operator queue
         - next: improve reviewed event assembly coverage from that
           hearing-act/procedural-move/event stack instead of treating the
           hearing as a flat fact bucket
+        - next: codify a minimum-quality filter before promotion (actor/date
+          continuity, truncation-free chunks, and statement-production readiness)
     - current corpus-expansion priority order:
       - 1. broader AU transcript / reviewed WhisperX-backed corpus coverage on
            top of the new dense transcript substrate

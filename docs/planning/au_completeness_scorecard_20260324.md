@@ -197,10 +197,42 @@ Current generated dense-substrate reading:
   a first classified hearing-act layer,
   a first assembled procedural-move layer,
   a first conservative hearing-event assembly layer,
-  and a 24-item secondary review-overlay projection
+  and a reviewed hearing-event projection that is limited by
+  `reviewed_event_limit` (default 12), currently 24 selected rows in the
+  `/tmp/au_real_round2_v2` run with `--reviewed-event-limit 24`
 - this is the current repo-proof that transcript density is real at the
   substrate layer, while reviewed procedural/event coverage still lags behind
   but is no longer just a flat procedural-candidate list
+
+### 24 reviewed-item projection quality pass
+
+Run command:
+- `cd /home/c/Documents/code/ITIR-suite && python SensibLaw/scripts/build_au_transcript_dense_substrate.py --output-dir /tmp/au_real_round2_v2 --progress --progress-format json --reviewed-event-limit 24`
+
+Observed outcomes:
+- reviewed-event coverage ratio: `0.104751` (183 review-queue links / 1747 candidates)
+- selected reviewed hearing events: `24`
+- reviewed hearing-event candidates: `583`
+- reviewed hearing-event exclusions: `0`
+- selected reviewed hearing-event rows in overlay: `24`
+
+Quality assessment:
+- Precision: Moderate, useful for operator triage and review pressure, but not yet
+  review-complete.
+- Source anchoring: Good; rows remain linked to transcript moves and review items.
+- Review-readiness: Low-to-moderate. Frequent reasons include
+  `unreviewed`, `event_missing`, `chronology_undated`, `missing_actor`,
+  `missing_date`, `statement_only_fact`.
+- Chunk quality: Mixed; some excerpts are clean, several are truncated or
+  boundary-fragmented.
+- False-positive risk: Non-trivial without stronger actor/date/chronology gating.
+
+Decision:
+- treat this 24-row output as a high-coverage, low-trust operator queue today;
+  not as accepted reviewed facts.
+- next direction is quality-first filtering (speaker/actor continuity, chronology,
+  truncation guardrails, and explicit event-production readiness) before further
+  coverage-raise attempts.
 
 Command:
 - `cd /home/c/Documents/code/ITIR-suite && python SensibLaw/scripts/build_au_corpus_scorecard.py`

@@ -331,8 +331,11 @@
       - 1747 facts
       - 1482 observations
       - 0 events
-      - 24 selected overlay facts
-      - 24 selected overlay review rows
+      - 24-item reviewed hearing-event projection
+      - 183 review-queue links
+      - 0.104751 reviewed-event coverage ratio
+      - quality state: high-density, low-trust queue (good provenance, weak
+        finalization) pending stricter actor/date/chronology gates
     - the secondary overlay reuses `fact.review.bundle.v1`, but it is treated
       as a smaller reviewed projection over the dense substrate rather than as
       the primary transcript representation
