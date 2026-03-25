@@ -383,8 +383,18 @@
     - the current conservative AU event assembly is now effectively governed by
       three local signals together:
       local cue strength, speaker continuity, and bounded topic continuity
+    - procedural moves now also preserve transcript order explicitly, because
+      event assembly over ranked move order was shown to scramble local
+      bench/counsel exchange structure
+    - section references and case-style authority cues now normalize into
+      topic tokens such as `section_6k`, improving legal-substance continuity
+      across adjacent moves/events
+    - the dense AU artifact now also carries a smaller reviewed
+      hearing-event projection derived from assembled local events plus linked
+      fact/review support, so operator-facing review is no longer only a dense
+      fact overlay
     - next AU bottleneck:
-      improve reviewed event assembly coverage over this denser
+      improve reviewed event assembly coverage over that denser
       hearing-understanding stack without suppressing transcript density
 
 - 2026-03-24 Dashifine/TextGraphs bridge lesson applied to ITIR graph/text lanes:

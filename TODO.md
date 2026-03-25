@@ -383,6 +383,14 @@
           assembly is less dependent on topic overlap alone
         - DONE: tighten the conservative event contract so local cues, speaker
           continuity, and bounded topic continuity all contribute to coverage
+        - DONE: preserve transcript-order semantics through procedural moves so
+          exchange/event assembly operates on hearing order rather than ranked
+          move order
+        - DONE: normalize section references and case-style authority cues into
+          topic continuity tokens so legal-substance carryover is stronger
+        - DONE: derive a reviewed hearing-event projection from the assembled
+          event layer so operator-facing AU review is not only a dense fact
+          overlay
         - next: improve reviewed event assembly coverage from that
           hearing-act/procedural-move/event stack instead of treating the
           hearing as a flat fact bucket

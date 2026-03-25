@@ -246,6 +246,18 @@ Purpose of the dense transcript substrate artifact:
 - the current conservative assembly is therefore driven by:
   local cues + speaker continuity + bounded topic continuity,
   rather than any one signal alone
+- an important implementation constraint is now explicit too:
+  exchange/event assembly must operate over transcript order, not ranked move
+  order, or local hearing structure gets scrambled
+- statute/authority continuity is also now stronger:
+  section references and case-style authority cues are normalized into topic
+  tokens so adjacent turns can stay connected on legal substance more reliably
+- the next reviewed-layer target is now explicit:
+  derive a smaller operator-facing hearing-event projection from assembled
+  local events rather than relying only on the dense fact overlay
+- that reviewed hearing-event projection now exists internally too:
+  the dense AU artifact carries a smaller event-oriented operator layer derived
+  from assembled hearing events plus linked fact/review support
 - show exactly what is currently missing:
-  broader event assembly coverage and reviewed procedural promotion, not transcript-bearing
-  statement/fact density
+  broader event assembly coverage and higher-quality reviewed hearing-event
+  coverage, not transcript-bearing statement/fact density
