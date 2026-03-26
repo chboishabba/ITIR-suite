@@ -266,3 +266,75 @@ def test_build_zelph_hf_manifest_with_node_route_sidecar(tmp_path: Path) -> None
     assert manifest["futureLayoutPlan"]["nodeRoutingIndex"]["format"] == "zelph-node-route/v1"
     assert "node-route" in manifest["selectorModel"]["supportedOperations"]
     assert "node-route" not in manifest["selectorModel"]["unsupportedOperations"]
+
+
+def test_build_zelph_hf_manifest_v3_with_shard_emit(tmp_path: Path) -> None:
+    bin_path = tmp_path / "demo.bin"
+    bin_path.write_bytes(b"x" * 4096)
+
+    index_path = tmp_path / "demo.index.json"
+    index_path.write_text(
+        json.dumps(
+            {
+                "file": str(bin_path),
+                "header": {"offset": 0, "length": 128},
+                "left": [
+                    {"chunkIndex": 0, "offset": 128, "length": 100, "which": "left"},
+                    {"chunkIndex": 1, "offset": 228, "length": 100, "which": "left"},
+                ],
+                "right": [
+                    {"chunkIndex": 0, "offset": 328, "length": 50, "which": "right"},
+                ],
+                "nameOfNode": [
+                    {"chunkIndex": 0, "offset": 378, "length": 25, "lang": "en"},
+                ],
+                "nodeOfName": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    output_path = tmp_path / "manifest_v3.json"
+    route_path = tmp_path / "demo.route.json"
+    route_path.write_text(
+        json.dumps({"routeVersion": "zelph-node-route/v1", "routing": {"left": [], "right": [], "nameOfNode": [], "nodeOfName": []}}),
+        encoding="utf-8",
+    )
+    repo_root = Path(__file__).resolve().parents[1]
+    script_path = repo_root / "tools" / "build_zelph_hf_manifest.py"
+
+    subprocess.run(
+        [
+            sys.executable,
+            str(script_path),
+            "--layout",
+            "v3",
+            "--bin",
+            str(bin_path),
+            "--index",
+            str(index_path),
+            "--output",
+            str(output_path),
+            "--hf-root",
+            "hf://datasets/example/zelph",
+            "--artifact-name",
+            "demo-artifact",
+            "--node-route",
+            str(route_path),
+            "--node-route-object-path",
+            "hf://datasets/example/zelph/demo-artifact/artifact.route.json",
+        ],
+        check=True,
+    )
+
+    manifest = json.loads(output_path.read_text(encoding="utf-8"))
+
+    assert manifest["manifestVersion"] == "zelph-hf-layout/v3"
+    assert manifest["storageMode"] == "bucketed-query-shards"
+    assert manifest["selectorModel"]["unit"] == "bucket"
+    assert "node-route" in manifest["selectorModel"]["supportedOperations"]
+    assert manifest["selectorModel"]["supportedOperations"][0] == "header-probe"
+    assert manifest["capabilities"]["selectedChunkRead"] is True
+    assert manifest["hfObjects"]["left"]["pathPrefix"] == "hf://datasets/example/zelph/demo-artifact/shards/left"
+    assert manifest["futureLayoutPlan"]["layoutVersion"] == "multi-object/v3"
+    assert manifest["cachePolicy"]["mode"] == "selective-shard-cache"

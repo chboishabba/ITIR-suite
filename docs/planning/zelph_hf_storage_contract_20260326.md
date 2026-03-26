@@ -74,8 +74,10 @@
   - patcher for direct seeks is still landing
   - file-local chunk identity
 - v2:
-  - route-sidecar generation and local routed consumption now exist, but hosted
-    object fetch still needs auth/transport validation on real HF URLs
+  - hosted remote routed consumption now works against a real HF dataset repo
+    after fixing:
+    - remote manifest prefetch
+    - raw-file URL mapping from `hf://...` to `resolve/main/...`
   - chunk completeness/semantic completeness remains read-only incomplete view until route
     and closure strategies are added
 - direct selected-chunk reads now work on the current 2017 and 2026 local artifacts
@@ -95,10 +97,22 @@
     `v2` shard-object fetches are machine-visible against real artifacts.
 - `tools/zelph_bin_route_builder.cpp`
   - emits an exact chunk-membership route sidecar from actual `.bin` chunk payloads.
+- `tools/estimate_zelph_shard_fetch_budget.py`
+  - estimates route-node and route-name remote fetch envelopes from an emitted
+    shard tree.
 - `tests/test_build_zelph_hf_manifest.py`
   - validates both v1 and v2 outputs.
 
 ## Next step
-- harden hosted HF object fetch/auth for routed v2 manifests, then decide whether
-  the prototype JSON route sidecar should be replaced by a denser binary/sqlite
-  representation.
+- current blocker is no longer basic hosted transport viability; it is shard
+  granularity and route-sidecar density.
+- measured 2026 shard envelope from
+  `tools/estimate_zelph_shard_fetch_budget.py`:
+  - route-node (`left + right`) median about `51.95 MiB`
+  - route-node p95 about `60.63 MiB`
+  - route-node max about `700.53 MiB`
+  - route-name (`nodeOfName`) median about `21.70 MiB`
+- next design move should be finer shard sizing and/or a second routing tier,
+  not re-proving hosted fetch.
+- concrete next-contract draft now lives in:
+  - `docs/planning/zelph_hf_v3_shard_contract_20260326.md`

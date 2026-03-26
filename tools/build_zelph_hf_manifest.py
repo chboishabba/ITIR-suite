@@ -5,9 +5,10 @@ This converts the local artifact pair:
   1) <graph>.bin
   2) <graph>.index.json
 
-into either:
+into:
   - `zelph-hf-layout/v1`: monolithic bin + sidecar index
-  - `zelph-hf-layout/v2`: multi-object shard layout
+  - `zelph-hf-layout/v2`: legacy multi-object shard layout
+  - `zelph-hf-layout/v3`: bucketed-query shard layout
 """
 
 from __future__ import annotations
@@ -21,7 +22,7 @@ from typing import Any
 
 
 SECTION_NAMES = ("left", "right", "nameOfNode", "nodeOfName")
-SUPPORTED_LAYOUTS = ("v1", "v2")
+SUPPORTED_LAYOUTS = ("v1", "v2", "v3")
 
 
 def parse_args() -> argparse.Namespace:
@@ -43,7 +44,7 @@ def parse_args() -> argparse.Namespace:
         "--layout",
         default="v1",
         choices=SUPPORTED_LAYOUTS,
-        help="Manifest storage layout to emit. `v1` uses monolithic .bin; `v2` uses multi-object chunks.",
+        help="Manifest storage layout to emit. `v1` uses monolithic .bin; `v2` uses legacy multi-object chunks; `v3` uses bucketed-query shards.",
     )
     parser.add_argument(
         "--emit-shards",
@@ -215,6 +216,20 @@ def build_future_layout_plan(sections: dict[str, dict[str, Any]], artifact_root:
             if lang:
                 by_lang[lang].append(chunk["futureObjectPath"])
 
+    if layout == "v3":
+        return {
+            "layoutVersion": "multi-object/v3",
+            "description": "Bucketed-query shard model.",
+            "objectPrefix": f"{artifact_root}/shards",
+            "nodeRoutingIndex": None,
+            "nameLanguagePartitions": {lang: sorted(paths) for lang, paths in sorted(by_lang.items())},
+            "bucketing": {
+                "leftBuckets": "node-id-modulo-bucket",
+                "rightBuckets": "node-id-modulo-bucket",
+                "nameBuckets": "name-hash-modulo-bucket",
+            },
+        }
+
     if layout == "v2":
         return {
             "layoutVersion": "multi-object/v2",
@@ -247,7 +262,7 @@ def build_manifest(
     artifact_root = f"{hf_root.rstrip('/')}/{artifact_name}"
     chunk_prefix = f"{artifact_root}/shards"
 
-    if layout == "v2":
+    if layout in ("v2", "v3"):
         sections = {
             name: build_section(name, list(index[name]), chunk_prefix, layout="v2")
             for name in SECTION_NAMES
@@ -264,7 +279,12 @@ def build_manifest(
     bin_size = bin_path.stat().st_size
 
     shard_prefix = f"{artifact_root}/shards"
-    storage_mode = "multi-object-shards" if layout == "v2" else "single-file-offset-sidecar"
+    if layout == "v3":
+        storage_mode = "bucketed-query-shards"
+    elif layout == "v2":
+        storage_mode = "multi-object-shards"
+    else:
+        storage_mode = "single-file-offset-sidecar"
 
     hf_objects: dict[str, Any] = {
         "manifest": {
@@ -321,7 +341,7 @@ def build_manifest(
         },
         "hfObjects": hf_objects,
         "selectorModel": {
-            "unit": "section-chunk",
+            "unit": "bucket" if layout == "v3" else "section-chunk",
             "supportedSections": list(SECTION_NAMES),
             "supportedOperations": [
                 "header-probe",
@@ -334,7 +354,7 @@ def build_manifest(
         },
         "sections": sections,
         "layoutPlan": {
-            "isCanonical": layout == "v2",
+            "isCanonical": layout in ("v2", "v3"),
             "supportsNodeRouteIndex": node_route_path is not None,
         },
         "capabilities": {
@@ -376,6 +396,9 @@ def build_manifest(
         manifest["limitations"].append(
             "This manifest is queryable via HTTP range reads against the hosted artifact.bin."
         )
+    elif layout == "v3":
+        manifest["cachePolicy"]["mode"] = "selective-shard-cache"
+        manifest["futureLayoutPlan"]["nodeBucketModel"] = "node-id-modulo-bucket"
 
     return manifest, sections
 

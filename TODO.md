@@ -900,9 +900,29 @@
         and `nameOfNode`
       - `route-name=<exact>` + `route-lang=<lang>` resolves `nodeOfName`
       - validated locally against the 2017 shard layout produced by the harness
+    - DONE: hosted HF manifest/object consumption now works end-to-end for the
+      minimal proof repo after:
+      - remote manifest prefetch
+      - correct `hf://` -> `resolve/main/...` raw-file URL mapping
+    - DONE: added fetch-budget estimator:
+      `tools/estimate_zelph_shard_fetch_budget.py`
+    - current measured 2026 envelope:
+      - route-node median about `51.95 MiB`
+      - route-node p95 about `60.63 MiB`
+      - route-node max about `700.53 MiB`
+      - route-name median about `21.70 MiB`
     - next steps:
-      - harden hosted HF object fetch/auth for routed manifests; current direct
-        shard-object URLs returned `401` without credentials
+      - simulate/query-shape a `zelph-hf-layout/v3` bucketed shard contract as
+        documented in
+        `docs/planning/zelph_hf_v3_shard_contract_20260326.md`
+      - DONE: first lower-bound `v3` simulation indicates rebucketing is worth
+        building:
+        - adjacency `256` buckets -> route-node average about `17.94 MiB`
+        - adjacency `512` buckets -> route-node average about `8.97 MiB`
+        - names `128` buckets -> route-name average about `4.40 MiB`
+      - reduce shard granularity and/or add a second routing tier so typical
+        remote routed lookups are materially below the current `~52 MiB` median
+        for route-node on the 2026 artifact
       - move `zelph-node-route/v1` from large JSON prototype toward a denser
         long-term representation (binary or sqlite-style sidecar)
       - teach the partial loader to consume the sidecar offset index directly

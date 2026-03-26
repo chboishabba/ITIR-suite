@@ -99,10 +99,10 @@
   - v2 shard materialization option in `build_zelph_hf_manifest.py`
   - manifest coverage in `tests/test_build_zelph_hf_manifest.py`
 - Next:
-  - wire route-sidecar consumption into patched Zelph loader transport layer
   - move route-sidecar output beyond large prototype JSON if this lane stays active
-  - wire v2 manifest consumption into patched Zelph loader transport layer
-  - add one real remote-object smoke for selected-chunk fetch
+  - reduce shard granularity for remote-query viability on large Wikidata artifacts
+  - decide whether route-node should always fetch both adjacency directions or
+    allow one-sided expansion first
 
 ## Shared Artifact Run (smallest local bin): 2017-pruned
 - Inputs:
@@ -125,3 +125,36 @@
   - route sidecar prototype: `/tmp/wikidata-20171227-pruned.route.json` (~735 MiB)
   - naming now includes language in shard filenames for multilingual sections:
     `chunk-000000-en.capnp-packed` and `chunk-000000-wikidata.capnp-packed` coexist safely.
+
+## Hosted Proof Closed
+- Hosted proof repo:
+  - `hf://datasets/chbwa/zelph-sharded/minimal-proof/manifest.json`
+- Remote routed loads now succeed from HF directly after two transport fixes in
+  patched Zelph:
+  - prefetch remote manifest files before parsing
+  - map `hf://` object paths to raw HF file URLs via `resolve/main/...`
+- Verified hosted commands:
+  - `route-node=1` then `.out 1`
+  - `route-name=A route-lang=wikidata` then `.lang wikidata` and `.node A`
+
+## Fetch Budget Reality
+- Added estimator:
+  - `tools/estimate_zelph_shard_fetch_budget.py`
+- 2026 shard-root estimate:
+  - route-node (`left + right`) median: `51.95 MiB`
+  - route-node p95: `60.63 MiB`
+  - route-node max: `700.53 MiB`
+  - route-name (`nodeOfName`) median: `21.70 MiB`
+  - route-name p95: `41.57 MiB`
+- Interpretation:
+  - the hosted proof was not only an Australian/home-bandwidth artifact
+  - current shard granularity is genuinely too coarse for comfortable remote
+    querying at full-Wikidata scale, even though the architecture is now proven
+
+## Planned `v3`
+- Follow-on design now captured in:
+  - `docs/planning/zelph_hf_v3_shard_contract_20260326.md`
+- Core shift:
+  - stop inheriting legacy chunk ids for hosted querying
+  - shard by deterministic query-shaped buckets instead
+  - route sidecar resolves selectors to bucket ids, not original chunk ids
