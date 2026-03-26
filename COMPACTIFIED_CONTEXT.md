@@ -256,6 +256,37 @@
         sharding would need an offset table/selector plus loader changes; see
         `docs/planning/zelph_bin_sharding_note_20260326.md` for the proposed
         sidecar offset index and partial-load sketch
+      - the first in-tree Zelph sharding surfaces now exist in the cloned repo:
+        `.stat-file <file.bin>` for header-only inspection and
+        `.index-file <file.bin> <output.json>` for sidecar byte-offset index
+        generation
+      - the first selector-based partial materialization path now also exists in
+        the cloned Zelph source:
+        - `network::Zelph::BinChunkSelection`
+        - `load_from_file(filename, selection)`
+        - `.load-partial <file.bin> [left=...] [right=...] [nameOfNode=...] [nodeOfName=...] [meta-only]`
+      - partial mode now blocks inference, pruning, cleanup, and direct edit
+        commands so the initial sharding surface remains read-only
+      - current architecture choice:
+        prefer sidecar offset index + read-only partial loader first; do not
+        change `.bin` format semantics until this path proves useful
+      - current safety boundary:
+        partial loads are suitable only for under-approximate read-only
+        inspection, not inference or destructive graph operations
+      - important current limitation:
+        the new partial loader still streams the file sequentially and only
+        materializes selected chunks; sidecar-driven direct seek / HTTP range
+        transport is the next milestone
+      - HF storage/query contract is now explicit as `zelph-hf-layout/v1`:
+        - primary hosted shape:
+          monolithic `.bin` + hosted sidecar index + hosted manifest
+        - selector unit:
+          section-local chunk index
+        - current builder:
+          `tools/build_zelph_hf_manifest.py`
+        - contract note:
+          `docs/planning/zelph_hf_storage_contract_20260326.md`
+        - validated locally against the retained 2017 pruned bin sidecar index
 
 - 2026-03-25 single shared Wikidata/Zelph handoff:
   - source: current working turn
@@ -1416,6 +1447,26 @@
     - operator/workbench/export polish
   - planning baseline for the next loop:
     - `docs/planning/mary_parity_status_audit_20260315.md`
+- 2026-03-26 user-story implementation coverage audit:
+  - user-story breadth is now materially ahead of implementation breadth
+  - repo-backed support is currently strongest in:
+    - AU affidavit review geometry
+    - Wikidata checked/dense structural review
+    - GWB checked/broader review
+    - normalized cross-lane metrics and profile mapping
+    - deterministic provenance-bearing export artifacts
+  - repo support is only partial/implicit for:
+    - provenance-only partner/integrator use
+    - offline capture beyond the narrow QG -> TiRC sink bridge
+  - current honest boundary:
+    - stories exist for private-user escalation, whistleblower workflows,
+      community/disability intake, annotation/QA, research/publication,
+      field inspection, and SDK/API integrators
+    - those are not yet product-grade implementation claims
+  - audit/spec note added at:
+    - `SensibLaw/docs/planning/user_story_implementation_coverage_20260326.md`
+  - follow-on TODOs now explicitly track the missing implementation lanes so
+    story coverage does not silently masquerade as code coverage
 - 2026-03-15 Mary-parity Wave 1 legal gate:
   - added a canonical fixture manifest at
     `SensibLaw/data/fact_review/wave1_legal_fixture_manifest_v1.json`

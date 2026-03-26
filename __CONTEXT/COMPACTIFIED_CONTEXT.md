@@ -443,3 +443,15 @@
   - `docs/planning/README.md`
   - `docs/planning/refactor-master-coordination.md` (`WS5`, `Q12`)
   - `TODO.md` (launcher + drift-check followthrough items)
+- 2026-03-26 suite MCP framing pass:
+  - added `docs/planning/itir_mcp_dioxus_contract_20260326.md`
+  - ratified initial posture:
+    - create a new root-owned suite adapter project `itir-mcp/`
+    - keep MCP as a thin transport/tool adapter over existing producer logic
+    - start with deterministic, read-only `SensibLaw` tools
+    - treat Dioxus web as backend-mediated for MCP, not direct stdio transport
+  - updated root `README.md`, `TODO.md`, `docs/planning/project_interfaces.md`,
+    and new root `CHANGELOG.md` to keep the contract visible at the control
+    plane level
+  - no chat-archive thread was used as a material design source for this pass;
+    this decision was derived from current repo surfaces and local code/docs

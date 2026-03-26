@@ -1,7 +1,7 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-03-21
+- 2026-03-26
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
@@ -117,6 +117,13 @@
     product-positioning source
   - package SensibLaw/TiRC for Mirror as the missing `human risk layer` rather
     than as a competing crypto research assistant
+  - keep the stage/market read explicit in any packaging draft:
+    - Mirror / Glasslane currently reads as tiny, founder-led, pre-PMF, and
+      Discord/chatbot-first rather than as a mature institutional product
+    - claimed professional buyers should be treated separately from the visible
+      retail/KOL-style community mix
+    - NFT/token monetization ideas in the source thread increase the value of a
+      provenance/governance-first counterposition
   - draft product-facing materials for:
     - `Crypto Consumer Harm Observatory (CCHO)`
     - `Risk & Behavioural Pattern Analytics` for exchanges/wallets
@@ -218,6 +225,24 @@
         `SensibLaw/scripts/build_gwb_broader_promotion_diagnostics.py`
       - DONE: AU broader diagnostics companion now lives under
         `SensibLaw/tests/fixtures/zelph/au_broader_corpus_diagnostics_v1/`
+- [P1] Suite MCP scaffold and SensibLaw-first adapter lane:
+  - use `docs/planning/itir_mcp_dioxus_contract_20260326.md` as the governing
+    contract
+  - create and keep `itir-mcp/` as a root-owned suite adapter project rather
+    than embedding MCP transport into producer repos by default
+  - first implementation scope:
+    - deterministic, read-only tool registry
+    - SensibLaw-backed obligation tools only
+    - local tests for registry/spec behavior
+  - next integration scope:
+    - stdio/server transport wiring
+    - one Dioxus backend/native client seam
+    - reuse existing Dioxus MCP-like playground as a debug/operator surface,
+      not the canonical suite transport layer
+  - do not:
+    - expose broad mutable actions first
+    - treat browser `dioxus/web` as a direct stdio MCP host
+    - let `itir-mcp` redefine producer semantics or canonical schemas
       - DONE: shared CLI runtime/progress now reaches the deeper Wikidata and
         Wikipedia inner loops too:
         `src/ontology/wikidata.py::find_qualifier_drift_candidates(...)` and
@@ -834,16 +859,36 @@
       header; chunks are written as sequential packed messages
     - current loader streams all chunks into memory; no offset table or partial
       load
+    - DONE: added header-only serialized inspection in the Zelph clone via
+      `.stat-file <file.bin>`
+    - DONE: added sidecar byte-offset index generation in the Zelph clone via
+      `.index-file <file.bin> <output.json>`
+    - DONE: added selector-based partial materialization in the Zelph clone via
+      `network::Zelph::BinChunkSelection`,
+      `load_from_file(filename, selection)`, and
+      `.load-partial <file.bin> ...`
+    - DONE: partial mode now blocks inference, pruning, cleanup, and direct
+      edit/save/import commands so the first sharding surface stays read-only
+    - DONE: defined the first HF hosting/query contract as
+      `zelph-hf-layout/v1` in
+      `docs/planning/zelph_hf_storage_contract_20260326.md`
+    - DONE: added a manifest builder for `.bin + sidecar index` at
+      `tools/build_zelph_hf_manifest.py`
+    - DONE: validated the manifest builder with
+      `tests/test_build_zelph_hf_manifest.py`
+    - DONE: extended manifest builder for `zelph-hf-layout/v2` with explicit
+      section-object paths and optional shard emission (`--layout v2 --emit-shards`)
     - next steps:
-      - derive chunk offsets for existing bins and emit a sidecar index (see
-        `docs/planning/zelph_bin_sharding_note_20260326.md`)
-      - sketch loader patch to accept a chunk selector (per section) to permit
-        partial loads
-      - ask upstream whether per-chunk offsets or sidecar index would be
-        acceptable and whether cross-chunk invariants block selective loads
+      - teach the partial loader to consume the sidecar offset index directly
+        rather than streaming the whole file sequentially
+      - add a local seek / remote object-fetch transport abstraction around the
+        same selector-based loader so HF hosting becomes execution-capable
+      - add v2 manifest consumption in the loader transport
+      - derive or emit offset indexes for retained bins as concrete test inputs
+        (see `docs/planning/zelph_bin_sharding_note_20260326.md`)
   - next external-method question for the Zelph developer:
-    - ask whether the Wikidata `.bin` format can support practical sharding or
-      remote/range-readable access without full local materialization
+    - once sidecar-driven seek exists, ask for review on whether the current
+      `.bin` format should embed offsets in-header or keep them as sidecars
   - only after the current lane has:
     - one real baseline pack
     - one real contradiction pack

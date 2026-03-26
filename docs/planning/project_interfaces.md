@@ -25,6 +25,7 @@ channels for each core project directory in this workspace.
 - `itir-ribbon/docs/interfaces.md`
 - `fuzzymodo/docs/interfaces.md`
 - `casey-git-clone/docs/interfaces.md`
+- `itir-mcp/docs/interfaces.md`
 
 ## Suite-Level Intent
 - Every component defines explicit ingress/egress channels.
@@ -106,3 +107,6 @@ channels for each core project directory in this workspace.
 - `docs/planning/ui_surface_manifest.json`:
   machine-readable registry backing a future launcher/portal and automated
   interface checks.
+- `docs/planning/itir_mcp_dioxus_contract_20260326.md`:
+  suite-level MCP adapter contract, first tool namespace, and Dioxus
+  backend/native integration posture.

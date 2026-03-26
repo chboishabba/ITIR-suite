@@ -1,171 +1,280 @@
 # ITIR-suite
 
-ITIR is not an operating system.
+ITIR-suite is the top-level workspace for a set of tools that help capture,
+organize, review, and hand off difficult material without losing provenance.
 
-ITIR-suite is the orchestration/control plane for a bounded product stack. It
-pins submodules, coordinates local projects, and defines cross-project handoff
-contracts.
+In plain language:
 
-Definition source context (raw archive extracts, role-attributed, no synthesis):
-- `__CONTEXT/ITIR_DEFINITION_CONTEXT.md`
-Definition ratification draft (accepted/rejected/pending clauses):
-- `__CONTEXT/ITIR_DEFINITION_RATIFICATION.md`
+- `tircorder-JOBBIE` and `WhisperX-WebUI` help capture and transcribe audio.
+- `SensibLaw` turns messy source material into structured, reviewable artifacts.
+- `StatiBaker` compiles day-level state from logs, tools, and activity traces.
+- the suite-level docs and contracts in this repo keep those projects aligned.
 
-Canonical product identity (from archived doctrine threads in
-`~/.chat_archive.sqlite`):
-- `SensibLaw`: deterministic ground-truth substrate and provenance spine.
-- `ITIR`: investigative/interpretive coordination layer over evidence, not a
-  command authority.
-- historical phrase `investigative operating system` is treated as shorthand
-  metaphor, not runtime/platform semantics.
-- `StatiBaker`: daily state distillation engine and context prosthesis, not an
-  autonomous assistant.
-- `tircorder-JOBBIE` + `WhisperX-WebUI`: capture/transcription ingest channels.
-- `SL-reasoner` and adjacent tools: optional analysis/derivation layers bound
-  by provenance and authority constraints.
+This repo is the place where those pieces are pinned together, documented
+together, and routed together. Most detailed setup and day-to-day running
+happens inside the individual project directories.
 
-Use this repo to pull and orchestrate the whole toolchain in one shot; build
-and run inside the individual submodules.
+## What This Repo Is For
 
-Context is not commentary. Context is infrastructure.
+Use the root repo when you want to:
 
-## Components (submodules + local projects)
-- `SensibLaw/` – ingestion + operations console for span-anchored legal corpora (see that repo for build/run docs).
-- `SL-reasoner/` – reasoning/IR spine that the SensibLaw UI and tooling consume.
-- `tircorder-JOBBIE/` – investigative/interpretive tooling (ITIR/TIRC experiments).
-- `StatiBaker/` – daily state distillation engine (temporal compiler over ITIR/TIRC/SL artifacts; docs-only, see that repo for design/specs).
-- `WhisperX-WebUI/` – speech-to-text pipeline + UI (WhisperX wrapper).
-- `reverse-engineered-chatgpt` – wrapper for programmatic access to chatGPT interface (note, issues with sending messages - testing stalled due to bot detection - chat account otherwise unaffected).
-- `chat-export-structurer/` – utilities for ingesting chat exports into SQLite with FTS.
-- `notebooklm-py/` – NotebookLM automation client (third-party; see that repo for setup).
-- `Chatistics/` – chat export analytics and visualization toolkit.
-- `pyThunderbird/` – Thunderbird automation client (third-party; see that repo for setup).
-- `SimulStreaming/` – research-grade streaming ASR policy/decoding (ufal).
-- `whisper_streaming/` – Whisper streaming policy reference implementation (ufal).
-- `fuzzymodo/` – selector DSL and norm-constraint scaffold for quirk-vs-vulnerability reasoning.
-- `casey-git-clone/` – standalone superposition-style VCS prototype scaffold based on Casey thread.
+- clone the whole suite in one shot
+- keep submodules pinned to known commits
+- find the main cross-project contracts and handoff docs
+- understand what the suite can already do today
+- jump to the right subproject README instead of guessing
 
-The definitive instructions for each live in the submodule’s own README; this file only tracks how to manage them together.
+This root repo is not a single deployable app. It is the shared workspace and
+control surface for multiple related tools.
 
-## ITIR as Orchestrator
-- ITIR-suite is the control plane for cross-project planning, context, and
-  execution routing.
-- Component repos remain the implementation/data planes.
-- Cross-component behavior is declared via interface contracts, not implicit
-  coupling.
-- For text/graph/lexer bridges, keep three layers distinct:
-  - canonical state or source object remains the authority surface
-  - token/lexer/corpus reductions are reversible derived layers
-  - graph views are observational/measurement surfaces, not replacement
-    authority
-- A useful bridge is therefore not judged by "did we make a graph" alone, but
-  by:
-  - reversibility back to canonical source refs/state,
-  - preservation of declared invariants/provenance,
-  - and whether the graph surface reveals something semantically useful beyond
-    the trivial sequence/container baseline.
+## What You Can Do Today
 
-### TextGraphs vs SL/Zelph
-Boundary doctrine:
-- `TextGraphs`-style layers are admissible only as non-canonical,
-  source-anchored analytical, diagnostic, or candidate-producing overlays.
-- `SL + Zelph` is the truth-bearing semantic/provenance lane, with canonical
-  records beginning only at promotion.
-- Graph richness alone is not product value unless it preserves reversibility,
-  provenance, and helps the canonical semantic layer reveal something useful
-  and explainable.
+### 1. Capture and transcribe real-world material
 
-Canonical note:
-- `docs/architecture/admissibility_lattice.md`
-- `docs/planning/textgraphs_sl_bridge_contract_20260324.md`
+The suite can capture spoken material, run transcription, and keep the outputs
+available for downstream review instead of treating them as disposable text.
 
-Orchestrator contract:
-- `docs/planning/itir_orchestrator.md`
+Typical flow:
 
-Interface contract index for cross-project handoffs:
-- `docs/planning/project_interfaces.md`
+- capture or collect audio in `tircorder-JOBBIE`
+- transcribe through `WhisperX-WebUI`
+- pass transcripts and related outputs into structured review surfaces
 
-External collaboration handoff:
-- `docs/planning/wikidata_zelph_single_handoff_20260325.md`
+Why that matters:
 
-Background-agent test loop:
-- `docs/planning/agent_test_loop.md`
+- you keep a trail back to the source material
+- downstream tools can work from stable artifacts instead of ad hoc notes
 
-## Quickstart
+### 2. Turn messy source material into reviewable structured data
+
+`SensibLaw` is the main deterministic review layer in the suite. It is built to
+take difficult source material and turn it into bounded, inspectable outputs
+rather than magical summaries.
+
+Typical outputs include:
+
+- structured slices and projections
+- review queues
+- handoff bundles
+- provenance-backed JSON artifacts
+
+Why that matters:
+
+- a later reviewer can inspect what was found
+- you can keep uncertainty visible instead of flattening it away
+
+### 3. Compile day-level state instead of relying on memory
+
+`StatiBaker` turns logs, activity, and machine-readable traces into a daily
+state view.
+
+Typical outputs include:
+
+- what changed
+- what stalled
+- what remains unresolved
+- what actions or machine states are still pending
+
+Why that matters:
+
+- it is designed to preserve traceable state, not pretend to be a chatbot
+- it helps recover continuity after interruption or context collapse
+
+### 4. Run bounded ontology diagnostics and produce human-readable review artifacts
+
+The suite also includes a bounded Wikidata diagnostics lane inside
+`SensibLaw`. This is one of the clearest current examples of the repo doing
+something concrete and externally legible.
+
+The important point is not just "we have diagnostics." It is that the outputs
+are small, pinned, reviewable, and backed by repo artifacts.
+
+## Proven Abilities
+
+These are not abstract goals. They are current repo-backed examples.
+
+### Bounded Wikidata examples
+
+- A clean baseline around `nucleon` / `proton` / `neutron`, where the
+  disjointness relation is present but there are no violations.
+- A real contradiction around `working fluid`, where `working fluid` is typed
+  as both `gas` and `liquid`.
+- A real contradiction in the `fixed construction` / `geographic entity` area,
+  where the current pinned slice shows several subclass violations.
+- A synthetic transport example used to make the reporting deterministic, with
+  amphibious/land/water subclass and instance violations.
+
+What those examples mean:
+
+- the system can preserve a real "nothing wrong here" baseline, not just find
+  false alarms everywhere
+- it can catch direct item-level conflicts
+- it can also catch longer subclass-chain structural problems
+- it can turn those findings into checked summaries and review rows instead of
+  leaving them as raw graph noise
+
+Short version:
+
+- one zero-violation baseline
+- one direct instance contradiction
+- one subclass contradiction chain
+- one synthetic deterministic regression/demo case
+
+### Human-readable review and handoff surfaces
+
+The suite already has checked handoff artifacts that summarize bounded slices in
+plain-language summaries plus machine-readable artifacts, instead of expecting a
+reviewer to inspect only raw intermediate data.
+
+That matters because:
+
+- the outputs are discussable with collaborators
+- they are stable enough to revisit
+- they make the current boundaries explicit: what is demonstrated, what is
+  still under review, and what is not being claimed yet
+
+### Cross-project workflow, not just isolated modules
+
+The projects in this workspace are not just adjacent folders. The repo already
+contains cross-project contracts covering handoff, review boundaries, and
+orchestration responsibilities.
+
+That means the suite is already useful as:
+
+- a bounded evidence-to-review workflow
+- a diagnostics-and-handoff workspace
+- a place to keep multiple tools aligned without silently merging their roles
+
+## Root Setup
+
+Clone the suite and initialize the pinned submodules:
+
 ```bash
 git clone https://github.com/chboishabba/ITIR-suite.git
 cd ITIR-suite
-./setup.sh   # runs `git submodule update --init --recursive`
+./setup.sh
 ```
 
-If you already have the repo, sync to the recorded commits with:
+If you already have the repo:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-## Working with submodules
-- To pull latest from all submodules (fast-forward to upstream):
+Optional root Python environment:
+
+```bash
+./env_init.sh
+source .venv/bin/activate
+```
+
+Use the root environment when you need a shared compatibility environment across
+the workspace. For most real work, prefer the setup instructions in each
+subproject's own README.
+
+## How To Use The Suite
+
+Start at the root only long enough to get the workspace in place. Then move to
+the subproject that matches the job you actually want to do.
+
+### If you want to work with structured review, provenance, or Wikidata diagnostics
+
+Go to [SensibLaw/README.md](SensibLaw/README.md).
+
+### If you want audio capture and transcription intake
+
+Go to [tircorder-JOBBIE/README.md](tircorder-JOBBIE/README.md)
+and [WhisperX-WebUI/README.md](WhisperX-WebUI/README.md).
+
+### If you want daily state compilation and context recovery
+
+Go to [StatiBaker/README.md](StatiBaker/README.md).
+
+### If you want the chat/context tooling
+
+Go to [reverse-engineered-chatgpt/README.md](reverse-engineered-chatgpt/README.md)
+and [chat-export-structurer/README.md](chat-export-structurer/README.md).
+
+## Where To Find Things
+
+### Suite-level orientation
+
+- project interface index:
+  [docs/planning/project_interfaces.md](docs/planning/project_interfaces.md)
+- orchestration role:
+  [docs/planning/itir_orchestrator.md](docs/planning/itir_orchestrator.md)
+- architecture boundary doctrine:
+  [docs/architecture/admissibility_lattice.md](docs/architecture/admissibility_lattice.md)
+
+### Proven example and handoff docs
+
+- shortest Wikidata/Zelph external handoff overview:
+  [docs/planning/wikidata_zelph_single_handoff_20260325.md](docs/planning/wikidata_zelph_single_handoff_20260325.md)
+- current Wikidata working status:
+  [SensibLaw/docs/wikidata_working_group_status.md](SensibLaw/docs/wikidata_working_group_status.md)
+- disjointness report contract:
+  [docs/planning/wikidata_disjointness_report_contract_v1_20260325.md](docs/planning/wikidata_disjointness_report_contract_v1_20260325.md)
+- disjointness case index:
+  [docs/planning/wikidata_disjointness_case_index_v1.json](docs/planning/wikidata_disjointness_case_index_v1.json)
+- checked structural handoff summary:
+  [SensibLaw/tests/fixtures/zelph/wikidata_structural_handoff_v1/wikidata_structural_handoff_v1.summary.md](SensibLaw/tests/fixtures/zelph/wikidata_structural_handoff_v1/wikidata_structural_handoff_v1.summary.md)
+
+### Additional operator and onboarding docs
+
+- SensibLaw onboarding playbooks:
+  [SensibLaw/docs/onboarding_playbooks.md](SensibLaw/docs/onboarding_playbooks.md)
+- suite user stories:
+  [docs/user_stories.md](docs/user_stories.md)
+
+## Handoff And Collaboration
+
+If you need a bounded, sendable explanation of what is already demonstrated and
+what is not yet being claimed, start with:
+
+- [docs/planning/wikidata_zelph_single_handoff_20260325.md](docs/planning/wikidata_zelph_single_handoff_20260325.md)
+
+If you need the concrete checked artifact surfaces behind that summary, use:
+
+- [SensibLaw/tests/fixtures/zelph/wikidata_structural_handoff_v1/wikidata_structural_handoff_v1.summary.md](SensibLaw/tests/fixtures/zelph/wikidata_structural_handoff_v1/wikidata_structural_handoff_v1.summary.md)
+- [docs/planning/wikidata_disjointness_case_index_v1.json](docs/planning/wikidata_disjointness_case_index_v1.json)
+
+This repo currently treats handoff as document- and artifact-backed. In other
+words, the collaboration surface is the checked documentation and fixture
+artifacts, not a vague promise that the system can do more than it has already
+shown.
+
+## Working With Submodules
+
+- sync pinned submodules:
+  ```bash
+  git submodule update --init --recursive
+  ```
+- fast-forward submodules to tracked upstream state:
   ```bash
   git submodule update --remote --recursive
   ```
-- To fast-forward pull clean submodules (safe; no commits):
+- sync clean submodules safely:
   ```bash
   ./sync-all-submodules.sh
   ```
-- To also commit (and optionally push) ONLY the updated submodule pointers in this meta-repo:
-  ```bash
-  ./sync-all-submodules.sh --commit-super
-  ./sync-all-submodules.sh --push-super
-  ```
-  This refuses to commit if the superproject has any non-submodule changes.
-- When changing a submodule, commit inside the submodule first, then `git add <submodule>` in this repo to record the new pointer.
 
-## Notes
-- This repo carries no standalone build; everything interesting happens inside the submodules.
-- Keep `setup.sh` up to date if new modules are added.
+If you change a submodule, commit inside that submodule first, then record the
+updated pointer in this root repo.
 
-## Dependencies (aggregated)
-The repo root `requirements.txt` is a consolidated superset of submodule Python dependencies so you can
-optionally build a single compatibility venv at the root. Submodules still ship their own venvs and
-requirements; prefer those unless you explicitly need a unified environment.
+## Helpful Root Scripts
 
-## Chat Context Sync
-To avoid copy-pasting long CLI commands, maintain the conversation list in
-`__CONTEXT/convo_ids.md` and run:
+- `./setup.sh`: initialize and update submodules
+- `./env_init.sh`: build an optional root compatibility venv
+- `./scripts/sync_chat_context.sh`: sync conversation context into
+  `__CONTEXT/last_sync/`
+- `python scripts/build_docs_site.py`: build a lightweight local index of the
+  repo's markdown docs under `docs/_site/`
 
-```bash
-./scripts/sync_chat_context.sh
-```
+## Advanced Environment Note
 
-The script writes a timestamped report into `__CONTEXT/last_sync/` with
-line-numbered excerpts so you can cite `ID:line#` in context files.
-It uses the root `ITIR-suite/.venv` Python environment and sets `PYTHONPATH`
-to the `reverse-engineered-chatgpt` package so it does not require a
-submodule-specific venv.
+This workspace includes a compatibility-container path used during development
+for AMD RX580 / older ROCm-related constraints. That is an environment-specific
+development workaround, not the main entrypoint for most readers.
 
-
-## Dev Note
-Due to technical constraints, the below command is used for running a compatibility docker. We are hoping to eventually provide ITIR as a deployable container separate to this as well.
-The compatibility docker is provided due to development being conducted on AMD RX580 (gfx803), requiring some compiled modules due to importing torch/ctranslate2 for speech-to-text in WhisperX-WebUI.
-This is already quite fast on CPU, especially with whisperx, and when VAD chunking is performed by tircorder, however does result in degradation of desktop experience for the server/host.
-Most newer consumer cards will not require this compatibility layer.
-
-
-```
-docker run -it \
-              --name ITIR \
-              --device=/dev/kfd --device=/dev/dri \
-              --security-opt seccomp=unconfined \
-              --group-add video \
-              -v /usr/include/vulkan:/usr/include/vulkan:ro \
-              -v /usr/include/spirv:/usr/include/spirv:ro \
-              -v /usr/include/vk_video:/usr/include/vk_video:ro \
-              -v /usr/include/glslang:/usr/include/glslang:ro \
-              -v /usr/bin/glslangValidator:/usr/bin/glslangValidator:ro \
-              -v "/home/c/Documents/code/ITIR-suite:/opt/ITIR-suite" \
-              --entrypoint /bin/bash \
-              dashi_ready_image
-```
-then ``` cd /opt/ITIR-suite (linked to host)```
-and ```source /Whisper-WebUI/venv/bin/activate```
+If you need that path, see the existing container/dev notes in the repo and the
+relevant subproject setup docs before using it.
