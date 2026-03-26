@@ -226,6 +226,10 @@
     - fallback detection vs direct chunk-read success
   - run it on `wikidata-20171227-pruned.bin` first; use the 2026 bin as the heavier follow-up lane
   - do not treat manifest chunk transport as promoted until the harness shows direct success without fallback on the relevant selector cases
+  - next widen the contract to:
+    - `nodeOfName=0`
+    - mixed section selectors
+  - use `docs/planning/zelph_node_route_sidecar_20260326.md` as the next design source once transport coverage is fully green
         from raw HTML cue-bearing snippets
       - DONE: broader-source diagnostics now live under
         `SensibLaw/tests/fixtures/zelph/gwb_broader_promotion_diagnostics_v1/`
@@ -886,14 +890,26 @@
       `tests/test_build_zelph_hf_manifest.py`
     - DONE: extended manifest builder for `zelph-hf-layout/v2` with explicit
       section-object paths and optional shard emission (`--layout v2 --emit-shards`)
+    - DONE: added an exact prototype route-sidecar builder at
+      `tools/zelph_bin_route_builder.cpp`
+    - DONE: manifest builder can now advertise an optional
+      `zelph-node-route/v1` sidecar via `--node-route`
+    - DONE: patched Zelph partial loader now consumes the prototype route
+      sidecar for opt-in routed partial loads:
+      - `route-node=<id,...>` resolves chunk indexes for `left`, `right`,
+        and `nameOfNode`
+      - `route-name=<exact>` + `route-lang=<lang>` resolves `nodeOfName`
+      - validated locally against the 2017 shard layout produced by the harness
     - next steps:
+      - harden hosted HF object fetch/auth for routed manifests; current direct
+        shard-object URLs returned `401` without credentials
+      - move `zelph-node-route/v1` from large JSON prototype toward a denser
+        long-term representation (binary or sqlite-style sidecar)
       - teach the partial loader to consume the sidecar offset index directly
         rather than streaming the whole file sequentially
       - add a local seek / remote object-fetch transport abstraction around the
         same selector-based loader so HF hosting becomes execution-capable
       - add v2 manifest consumption in the loader transport
-      - derive or emit offset indexes for retained bins as concrete test inputs
-        (see `docs/planning/zelph_bin_sharding_note_20260326.md`)
   - next external-method question for the Zelph developer:
     - once sidecar-driven seek exists, ask for review on whether the current
       `.bin` format should embed offsets in-header or keep them as sidecars
@@ -1165,7 +1181,7 @@
     contracts (`A5`)
   - define contradiction action-branch protocol tests with uncertainty labels
     and no forced collapse (`A6`)
-  - add deterministic lexical-noise guard fixtures:
+  - DONE: add deterministic lexical-noise guard fixtures:
     stopwords/number-heavy spans, cross-page artifacts, citation boilerplate
     flooding (`A7`)
   - DONE: add fail-closed CI stub tests for unresolved AIDs/Qx controls, with explicit
@@ -1344,8 +1360,9 @@
     stability for identical exports
   - expose the same receipt/observer controls through any future non-CLI Casey
     entrypoints so the seam does not remain CLI-only
-  - add broader cross-component interface-conformance checks so Casey/fuzzymodo/SB
-    payload fields stay locked across future changes
+  - DONE: add broader cross-component interface-conformance checks so Casey/fuzzymodo/SB
+    payload fields stay locked across future changes (`casey-git-clone/tests/test_boundary_contract_shapes.py`
+    covers core `casey.facts.v1` and `fuzzymodo.casey.advisory.v1` shape invariants)
   - DONE: Casey-vs-git benchmark surface now exists as
     `casey-git-clone/scripts/benchmark_casey_vs_git.py` with:
     - fixed `small/medium/large` tiers

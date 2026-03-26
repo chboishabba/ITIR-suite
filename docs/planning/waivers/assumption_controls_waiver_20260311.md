@@ -1,6 +1,6 @@
 # Assumption Control Waiver Receipt (2026-03-11)
 
-Scope: `A1`, `A3`, `A4`, `A5`, `A6`, `A7`, `A9`, `A10`.
+Scope: `A1`, `A3`, `A4`, `A5`, `A6`, `A9`, `A10`.
 
 Reason:
 - These controls remain open implementation tracks and are explicitly tracked in

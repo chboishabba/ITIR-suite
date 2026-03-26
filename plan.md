@@ -88,7 +88,7 @@
 
 ## Milestone N: Next Assumption Stress Slice (pending)
 1. Implement `A4` plural-law non-reduction preservation fixtures (`Q7`).
-2. Add deterministic lexical-noise guard fixtures (`A7`) for stopwords and citation-noise flooding.
+2. DONE: Add deterministic lexical-noise guard fixtures (`A7`) for stopwords and citation-noise flooding.
 
 ## Milestone O: NotebookLM metadata/review parity (completed)
 1. Update docs/TODO/context to freeze NotebookLM as metadata-first until a

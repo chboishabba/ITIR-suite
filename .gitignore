@@ -63,3 +63,13 @@ codex_history*.sqlite*
 .cache_local/itir_chat_test.sqlite*
 .cache_local/itir_messenger_test.sqlite*
 .cache_local/itir.sqlite.bak-pre-chat-*
+
+# Local-only private handoff / protected-disclosure artifacts
+.cache_local/personal_handoff/
+.cache_local/personal_handoff*/
+.cache_local/protected_disclosure/
+.cache_local/protected_disclosure*/
+.cache_local/messenger_export/
+.cache_local/messenger_export*/
+.cache_local/openrecall_handoff/
+.cache_local/openrecall_handoff*/

@@ -55,6 +55,16 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Root directory for materialized v2 shard files. Defaults to <artifact-name>_shards beside output.",
     )
+    parser.add_argument(
+        "--node-route",
+        default=None,
+        help="Optional exact route-sidecar artifact to advertise in the manifest.",
+    )
+    parser.add_argument(
+        "--node-route-object-path",
+        default=None,
+        help="Optional HF/logical object path for the route sidecar. Defaults to <artifact-root>/artifact.route.json.",
+    )
     return parser.parse_args()
 
 
@@ -224,7 +234,14 @@ def build_future_layout_plan(sections: dict[str, dict[str, Any]], artifact_root:
 
 
 def build_manifest(
-    bin_path: Path, index_path: Path, output_path: Path, hf_root: str, artifact_name: str, layout: str
+    bin_path: Path,
+    index_path: Path,
+    output_path: Path,
+    hf_root: str,
+    artifact_name: str,
+    layout: str,
+    node_route_path: Path | None = None,
+    node_route_object_path: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
     index = load_index(index_path)
     artifact_root = f"{hf_root.rstrip('/')}/{artifact_name}"
@@ -276,6 +293,15 @@ def build_manifest(
             "role": "section-shards",
             "mediaType": "application/octet-stream",
         }
+    if node_route_path is not None:
+        route_path = node_route_object_path or f"{artifact_root}/artifact.route.json"
+        hf_objects["nodeRouteIndex"] = {
+            "path": route_path,
+            "localPath": str(node_route_path),
+            "role": "node-route-sidecar",
+            "mediaType": "application/json",
+            "sizeBytes": node_route_path.stat().st_size,
+        }
 
     manifest = {
         "manifestVersion": f"zelph-hf-layout/{layout}",
@@ -302,7 +328,6 @@ def build_manifest(
                 "selected-chunk-read",
             ],
             "unsupportedOperations": [
-                "node-route",
                 "small-neighborhood-expansion",
                 "reasoning-complete-query",
             ],
@@ -310,12 +335,12 @@ def build_manifest(
         "sections": sections,
         "layoutPlan": {
             "isCanonical": layout == "v2",
-            "supportsNodeRouteIndex": False,
+            "supportsNodeRouteIndex": node_route_path is not None,
         },
         "capabilities": {
             "headerProbe": True,
             "selectedChunkRead": True,
-            "nodeRouteIndex": False,
+            "nodeRouteIndex": node_route_path is not None,
             "smallNeighborhoodExpansion": False,
             "fullReasoningSafe": False,
         },
@@ -330,10 +355,18 @@ def build_manifest(
         },
         "limitations": [
             "Chunk selectors are file-local and are not guaranteed stable across regenerated .bin files.",
-            "No node-to-chunk routing index is defined yet.",
         ],
         "futureLayoutPlan": build_future_layout_plan(sections, artifact_root, layout),
     }
+    if node_route_path is None:
+        manifest["selectorModel"]["unsupportedOperations"].insert(0, "node-route")
+        manifest["limitations"].append("No node-to-chunk routing index is defined yet.")
+    else:
+        manifest["selectorModel"]["supportedOperations"].append("node-route")
+        manifest["futureLayoutPlan"]["nodeRoutingIndex"] = {
+            "path": hf_objects["nodeRouteIndex"]["path"],
+            "format": "zelph-node-route/v1",
+        }
 
     if layout == "v1":
         manifest["limitations"].insert(
@@ -354,8 +387,18 @@ def main() -> int:
     index_path = Path(args.index).resolve()
     output_path = Path(args.output).resolve()
     artifact_name = args.artifact_name or bin_path.stem
+    node_route_path = Path(args.node_route).resolve() if args.node_route else None
 
-    manifest, sections = build_manifest(bin_path, index_path, output_path, args.hf_root, artifact_name, args.layout)
+    manifest, sections = build_manifest(
+        bin_path,
+        index_path,
+        output_path,
+        args.hf_root,
+        artifact_name,
+        args.layout,
+        node_route_path=node_route_path,
+        node_route_object_path=args.node_route_object_path,
+    )
     if args.layout == "v2" and args.emit_shards:
         shard_root = Path(
             args.shard_root

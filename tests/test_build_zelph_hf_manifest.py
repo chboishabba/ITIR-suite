@@ -207,3 +207,62 @@ def test_build_zelph_hf_manifest_v2_with_lang_suffix_avoids_object_collisions(tm
     assert len(emitted_chunks) == 5
     assert any(path.name == "chunk-000000-en.capnp-packed" for path in emitted_chunks)
     assert any(path.name == "chunk-000000-wikidata.capnp-packed" for path in emitted_chunks)
+
+
+def test_build_zelph_hf_manifest_with_node_route_sidecar(tmp_path: Path) -> None:
+    bin_path = tmp_path / "demo.bin"
+    bin_path.write_bytes(b"x" * 1024)
+
+    index_path = tmp_path / "demo.index.json"
+    index_path.write_text(
+        json.dumps(
+            {
+                "file": str(bin_path),
+                "header": {"offset": 0, "length": 64},
+                "left": [],
+                "right": [],
+                "nameOfNode": [],
+                "nodeOfName": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    route_path = tmp_path / "demo.route.json"
+    route_path.write_text(
+        json.dumps({"routeVersion": "zelph-node-route/v1", "routing": {"left": [], "right": [], "nameOfNode": [], "nodeOfName": []}}),
+        encoding="utf-8",
+    )
+
+    output_path = tmp_path / "manifest_with_route.json"
+    repo_root = Path(__file__).resolve().parents[1]
+    script_path = repo_root / "tools" / "build_zelph_hf_manifest.py"
+
+    subprocess.run(
+        [
+            sys.executable,
+            str(script_path),
+            "--layout",
+            "v2",
+            "--bin",
+            str(bin_path),
+            "--index",
+            str(index_path),
+            "--output",
+            str(output_path),
+            "--artifact-name",
+            "demo-artifact",
+            "--node-route",
+            str(route_path),
+            "--node-route-object-path",
+            "hf://datasets/example/zelph/demo-artifact/artifact.route.json",
+        ],
+        check=True,
+    )
+
+    manifest = json.loads(output_path.read_text(encoding="utf-8"))
+    assert manifest["capabilities"]["nodeRouteIndex"] is True
+    assert manifest["layoutPlan"]["supportsNodeRouteIndex"] is True
+    assert manifest["hfObjects"]["nodeRouteIndex"]["path"] == "hf://datasets/example/zelph/demo-artifact/artifact.route.json"
+    assert manifest["futureLayoutPlan"]["nodeRoutingIndex"]["format"] == "zelph-node-route/v1"
+    assert "node-route" in manifest["selectorModel"]["supportedOperations"]
+    assert "node-route" not in manifest["selectorModel"]["unsupportedOperations"]

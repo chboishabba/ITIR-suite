@@ -20,6 +20,8 @@ from typing import Iterable
 
 
 TIME_PATTERN = re.compile(r"Time needed for partial loading:\s+([0-9hms.]+)")
+SELECTOR_PATTERN = re.compile(r"(left|right|nameOfNode|nodeOfName)=([^\s]+)")
+MANIFEST_PATTERN = re.compile(r"manifest=([^\s]+)")
 
 
 @dataclass
@@ -27,6 +29,7 @@ class HarnessCase:
     name: str
     command: str
     expected_mode: str
+    artifact_kind: str = "bin"
 
 
 @dataclass
@@ -42,6 +45,7 @@ class HarnessResult:
     wall_time_seconds: float
     reported_partial_time: str | None
     output_excerpt: str
+    fetch_plan: dict[str, Any] | None
 
 
 def parse_args() -> argparse.Namespace:
@@ -97,6 +101,81 @@ def run_repl_command(zelph_bin: Path, command: str) -> tuple[int, str, float]:
 
 def run_checked(args: list[str]) -> None:
     subprocess.run(args, check=True, text=True, capture_output=True)
+
+
+def parse_selectors(command: str) -> dict[str, str]:
+    return {match.group(1): match.group(2) for match in SELECTOR_PATTERN.finditer(command)}
+
+
+def parse_manifest_path(command: str) -> Path | None:
+    match = MANIFEST_PATTERN.search(command)
+    return Path(match.group(1)) if match else None
+
+
+def chunk_refs_for_selector(
+    manifest: dict[str, Any],
+    section_name: str,
+    selector_value: str,
+) -> list[dict[str, Any]]:
+    if selector_value == "none":
+        return []
+    chunk_index = int(selector_value)
+    chunks = manifest.get("sections", {}).get(section_name, {}).get("chunks", [])
+    return [chunk for chunk in chunks if int(chunk["chunkIndex"]) == chunk_index]
+
+
+def build_fetch_plan(case: HarnessCase, artifact: Path) -> dict[str, Any] | None:
+    selectors = parse_selectors(case.command)
+    selected_sections = {name: value for name, value in selectors.items() if value != "none"}
+
+    if case.artifact_kind == "bin":
+        return {
+            "transport": "local-file",
+            "artifactPath": str(artifact),
+            "selectors": selectors,
+            "selectedSections": selected_sections,
+        }
+
+    manifest_path = parse_manifest_path(case.command)
+    if manifest_path is None:
+        return None
+
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest_version = str(manifest.get("manifestVersion", ""))
+    refs: list[dict[str, Any]] = []
+    for section_name, selector_value in selected_sections.items():
+        for chunk in chunk_refs_for_selector(manifest, section_name, selector_value):
+            if manifest_version == "zelph-hf-layout/v1":
+                refs.append(
+                    {
+                        "section": section_name,
+                        "chunkIndex": int(chunk["chunkIndex"]),
+                        "transport": "http-range",
+                        "objectPath": manifest["hfObjects"]["bin"]["path"],
+                        "range": chunk["range"],
+                    }
+                )
+            else:
+                refs.append(
+                    {
+                        "section": section_name,
+                        "chunkIndex": int(chunk["chunkIndex"]),
+                        "transport": "hf-object-fetch",
+                        "objectPath": chunk["objectPath"],
+                        "sizeBytes": int(chunk["length"]),
+                    }
+                )
+
+    return {
+        "transport": manifest.get("transport", {}).get("primary"),
+        "manifestVersion": manifest_version,
+        "manifestPath": str(manifest_path),
+        "selectors": selectors,
+        "selectedSections": selected_sections,
+        "headerProbeOnly": not refs,
+        "fetchRefs": refs,
+        "nodeRouteIndex": manifest.get("hfObjects", {}).get("nodeRouteIndex"),
+    }
 
 
 def build_manifests_for_artifact(
@@ -157,31 +236,37 @@ def build_case_matrix(
             "bin_meta_only",
             f".load-partial {artifact} left=none right=none nameOfNode=none nodeOfName=none meta-only",
             "ok",
+            artifact_kind="bin",
         ),
         HarnessCase(
             "bin_left0",
             f".load-partial {artifact} left=0 right=none nameOfNode=none nodeOfName=none",
             "ok",
+            artifact_kind="bin",
         ),
         HarnessCase(
             "manifest_v1_meta_only",
             f".load-partial {manifest_v1} left=none right=none nameOfNode=none nodeOfName=none manifest={manifest_v1}",
             "ok",
+            artifact_kind="manifest",
         ),
         HarnessCase(
             "manifest_v1_left0",
             f".load-partial {manifest_v1} left=0 right=none nameOfNode=none nodeOfName=none manifest={manifest_v1}",
             "fallback_or_ok",
+            artifact_kind="manifest",
         ),
         HarnessCase(
             "manifest_v2_meta_only",
             f".load-partial {manifest_v2} left=none right=none nameOfNode=none nodeOfName=none manifest={manifest_v2} shard-root={shard_root}",
             "ok",
+            artifact_kind="manifest",
         ),
         HarnessCase(
             "manifest_v2_left0",
             f".load-partial {manifest_v2} left=0 right=none nameOfNode=none nodeOfName=none manifest={manifest_v2} shard-root={shard_root}",
             "fallback_or_ok",
+            artifact_kind="manifest",
         ),
     ]
 
@@ -192,16 +277,55 @@ def build_case_matrix(
                     "bin_nameOfNode0",
                     f".load-partial {artifact} left=none right=none nameOfNode=0 nodeOfName=none",
                     "ok",
+                    artifact_kind="bin",
                 ),
                 HarnessCase(
                     "manifest_v1_nameOfNode0",
                     f".load-partial {manifest_v1} left=none right=none nameOfNode=0 nodeOfName=none manifest={manifest_v1}",
                     "fallback_or_ok",
+                    artifact_kind="manifest",
                 ),
                 HarnessCase(
                     "manifest_v2_nameOfNode0",
                     f".load-partial {manifest_v2} left=none right=none nameOfNode=0 nodeOfName=none manifest={manifest_v2} shard-root={shard_root}",
                     "fallback_or_ok",
+                    artifact_kind="manifest",
+                ),
+                HarnessCase(
+                    "bin_nodeOfName0",
+                    f".load-partial {artifact} left=none right=none nameOfNode=none nodeOfName=0",
+                    "ok",
+                    artifact_kind="bin",
+                ),
+                HarnessCase(
+                    "manifest_v1_nodeOfName0",
+                    f".load-partial {manifest_v1} left=none right=none nameOfNode=none nodeOfName=0 manifest={manifest_v1}",
+                    "fallback_or_ok",
+                    artifact_kind="manifest",
+                ),
+                HarnessCase(
+                    "manifest_v2_nodeOfName0",
+                    f".load-partial {manifest_v2} left=none right=none nameOfNode=none nodeOfName=0 manifest={manifest_v2} shard-root={shard_root}",
+                    "fallback_or_ok",
+                    artifact_kind="manifest",
+                ),
+                HarnessCase(
+                    "bin_left0_nameOfNode0",
+                    f".load-partial {artifact} left=0 right=none nameOfNode=0 nodeOfName=none",
+                    "ok",
+                    artifact_kind="bin",
+                ),
+                HarnessCase(
+                    "manifest_v1_left0_nameOfNode0",
+                    f".load-partial {manifest_v1} left=0 right=none nameOfNode=0 nodeOfName=none manifest={manifest_v1}",
+                    "fallback_or_ok",
+                    artifact_kind="manifest",
+                ),
+                HarnessCase(
+                    "manifest_v2_left0_nameOfNode0",
+                    f".load-partial {manifest_v2} left=0 right=none nameOfNode=0 nodeOfName=none manifest={manifest_v2} shard-root={shard_root}",
+                    "fallback_or_ok",
+                    artifact_kind="manifest",
                 ),
             ]
         )
@@ -232,6 +356,7 @@ def classify_result(artifact: Path, case: HarnessCase, exit_code: int, output: s
         wall_time_seconds=round(elapsed, 3),
         reported_partial_time=time_match.group(1) if time_match else None,
         output_excerpt=excerpt,
+        fetch_plan=build_fetch_plan(case, artifact),
     )
 
 

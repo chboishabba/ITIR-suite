@@ -1520,6 +1520,9 @@
     (`docs/planning/assumption_controls_registry.json`).
   - DONE: `A1/Q1` axis hierarchy fixture coverage (collision detection +
     deterministic 2D fallback) in SensibLaw ribbon utilities/tests.
+  - DONE: `A7/Q11` lexical-noise actor guards for stopwords/number-heavy spans/citation
+    boilerplate flooding in `SensibLaw/tests/test_obligations_detection.py` and
+    noise-actor fixtures.
 - Ribbon ownership/context alignment:
   - archive thread resolved from local DB:
     - title: `Timeline Ribbon Overview`

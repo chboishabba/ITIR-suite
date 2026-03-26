@@ -52,8 +52,11 @@
 - Both layouts expose:
   - `headerProbe`
   - `selectedChunkRead`
-- Both layouts currently do **not** expose:
+- Route-sidecar support now exists as an optional companion artifact:
   - `nodeRouteIndex`
+  - format: `zelph-node-route/v1`
+  - current manifest builder can advertise it when present
+- Both layouts currently do **not** expose:
   - `smallNeighborhoodExpansion`
   - `fullReasoningSafe`
 
@@ -71,12 +74,14 @@
   - patcher for direct seeks is still landing
   - file-local chunk identity
 - v2:
-  - still no node-route index, so QID-oriented reads still need extra routing
+  - route-sidecar generation and local routed consumption now exist, but hosted
+    object fetch still needs auth/transport validation on real HF URLs
   - chunk completeness/semantic completeness remains read-only incomplete view until route
     and closure strategies are added
-  - selected adjacency chunk reads from generated manifest-backed local shard objects
-    can still fail with Cap’n Proto deserialize limits on current local artifacts; this
-    blocks direct production use until the chunk-read contract is tightened.
+- direct selected-chunk reads now work on the current 2017 and 2026 local artifacts
+  after fixing sidecar offset accounting
+- remaining limitation is not chunk decode for these artifacts, but the absence of
+  higher-level routing and cache contracts
 
 ## Tooling
 - `tools/build_zelph_hf_manifest.py`
@@ -84,9 +89,16 @@
   - `--layout v2`: emit shard-object contract.
   - `--emit-shards`: materialize shard files under `--shard-root` for local HF-upload
     rehearsal.
+  - `--node-route`: advertise an exact route-sidecar artifact when one exists.
+- `tools/run_zelph_partial_load_harness.py`
+  - now emits per-case fetch plans in its JSON summary so `v1` range fetches and
+    `v2` shard-object fetches are machine-visible against real artifacts.
+- `tools/zelph_bin_route_builder.cpp`
+  - emits an exact chunk-membership route sidecar from actual `.bin` chunk payloads.
 - `tests/test_build_zelph_hf_manifest.py`
   - validates both v1 and v2 outputs.
 
 ## Next step
-- consume v2 manifests in Zelph partial loader transport, first via local file
-  object paths, then via HF object fetch.
+- harden hosted HF object fetch/auth for routed v2 manifests, then decide whether
+  the prototype JSON route sidecar should be replaced by a denser binary/sqlite
+  representation.

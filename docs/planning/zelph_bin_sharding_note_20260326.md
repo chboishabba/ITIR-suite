@@ -68,24 +68,41 @@
 - Current regression boundary:
   - direct `.bin` partial reads of adjacency chunks are functional (e.g.
     `left=0 right=none nameOfNode=none nodeOfName=none`).
-  - manifest-driven `.load-partial` with selected adjacency sections currently fails in parsing:
-    - messages hit Cap’n Proto limits (`segmentCount` / `totalWords`) when loading `left=0` or `right=0`
-      from v1/v2 manifests.
+  - manifest-driven `.load-partial` with selected sections is now functional on both local bins.
   - explicit section skip (`left=none`, etc.) works and confirms loader wiring.
 - Interpretation:
   - `.bin` partial path is currently production-adjacent for targeted local inspection.
-  - manifest chunk transport and/or extracted-shard decode is not yet production-safe.
+  - manifest chunk transport is now locally viable for the bounded selector cases we tested.
+
+## Root Cause Closed
+- Earlier manifest failures were caused by sidecar offset drift, not by an inherent
+  Cap'n Proto message-size limitation on the tested bins.
+- The bug source:
+  - offset/length accounting in the indexers counted bytes through
+    `kj::BufferedInputStreamWrapper`, which can read ahead beyond the current
+    message boundary.
+- Fix:
+  - use a counting buffered stream that tracks bytes actually consumed by the
+    reader, so `offset` and `length` line up with true packed-message boundaries.
+- Effect:
+  - `manifest_v1_left0`
+  - `manifest_v2_left0`
+  - `manifest_v1_nameOfNode0`
+  - `manifest_v2_nameOfNode0`
+  all now load directly on both the 2017 and 2026 artifacts without fallback.
 
 ## Concrete next local steps
 - DONE:
   - sidecar index generator exists: `tools/zelph_bin_indexer.cpp`
+  - exact prototype route-sidecar generator exists: `tools/zelph_bin_route_builder.cpp`
   - v1 + v2 manifest generation in `tools/build_zelph_hf_manifest.py`
   - v2 shard materialization option in `build_zelph_hf_manifest.py`
   - manifest coverage in `tests/test_build_zelph_hf_manifest.py`
 - Next:
+  - wire route-sidecar consumption into patched Zelph loader transport layer
+  - move route-sidecar output beyond large prototype JSON if this lane stays active
   - wire v2 manifest consumption into patched Zelph loader transport layer
   - add one real remote-object smoke for selected-chunk fetch
-  - layer a node-route sidecar once QID lookups are required at scale
 
 ## Shared Artifact Run (smallest local bin): 2017-pruned
 - Inputs:
@@ -93,8 +110,11 @@
   - derived index: `/tmp/wikidata-20171227-pruned.bin.index.json` (4.1 KB)
 - Commands:
   - `tools/zelph_bin_indexer /home/.../wikidata-20171227-pruned.bin > /tmp/wikidata-20171227-pruned.bin.index.json`
+  - `clang++ -fuse-ld=lld -std=c++17 -O2 -I aur/zelph/build-local/src/lib/io tools/zelph_bin_route_builder.cpp aur/zelph/build-local/src/lib/io/zelph.capnp.c++ -lcapnp -lkj -pthread -o tools/zelph_bin_route_builder`
+  - `tools/zelph_bin_route_builder /home/.../wikidata-20171227-pruned.bin /tmp/wikidata-20171227-pruned.route.json`
   - `python tools/build_zelph_hf_manifest.py --bin ... --index ... --output /tmp/wikidata-20171227-pruned.hf-v1.json --layout v1`
   - `python tools/build_zelph_hf_manifest.py --bin ... --index ... --output /tmp/wikidata-20171227-pruned.hf-v2.json --layout v2 --emit-shards --shard-root /tmp/wikidata-20171227-pruned-shards`
+  - `python tools/build_zelph_hf_manifest.py --bin ... --index ... --output /tmp/wikidata-20171227-pruned.hf-v2.with-route.json --layout v2 --node-route /tmp/wikidata-20171227-pruned.route.json`
 - Resulting checksums:
   - bin: `4323de237969702e77b0a05b37a4ac898b56c9da5aca7526e25ffabccf9515c7`
   - manifest v1: `acf8ec436cdff5ec8960e8524ee2a94deccc49b8c6b646ab7d099e1673cc9d55`
@@ -102,5 +122,6 @@
 - Layout summary:
   - shard sections: left 18, right 18, nameOfNode 8, nodeOfName 8
   - emitted shards: 52 files, ~1.4 GiB total
+  - route sidecar prototype: `/tmp/wikidata-20171227-pruned.route.json` (~735 MiB)
   - naming now includes language in shard filenames for multilingual sections:
     `chunk-000000-en.capnp-packed` and `chunk-000000-wikidata.capnp-packed` coexist safely.

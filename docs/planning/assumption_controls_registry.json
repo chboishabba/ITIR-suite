@@ -44,8 +44,10 @@
     {
       "aid": "A7",
       "decision_linkage": "Q11",
-      "status": "waived",
-      "waiver_receipt": "docs/planning/waivers/assumption_controls_waiver_20260311.md"
+      "status": "implemented",
+      "test_refs": [
+        "SensibLaw/tests/test_obligations_detection.py"
+      ]
     },
     {
       "aid": "A8",

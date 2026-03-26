@@ -34,6 +34,26 @@
 - With network enabled, the live instance scan now returns real candidates and
   surfaced a very clean `fluid -> {gas, liquid} -> working fluid` contradiction.
 
+## 2026-03-26
+- Started Milestone N assumption-stress follow-through by implementing `A7` lexical
+  noise guards:
+  - added deterministic actor-guard fixtures for stopword-only, number-heavy,
+    and citation-noise preambles:
+    - `SensibLaw/tests/fixtures/actors/lexical_noise_stopwords.txt`
+    - `SensibLaw/tests/fixtures/actors/lexical_noise_numbers.txt`
+    - `SensibLaw/tests/fixtures/actors/lexical_noise_citations.txt`
+  - updated `SensibLaw/src/obligations.py` to suppress false actor anchors when
+    pre-modality token spans are noise-only
+  - added fixture-backed assertions in
+    `SensibLaw/tests/test_obligations_detection.py`
+  - moved `A7` in `docs/planning/assumption_controls_registry.json` from
+    waived -> implemented with test references
+  - reduced `A7` waiver scope in
+    `docs/planning/waivers/assumption_controls_waiver_20260311.md`
+  - validated with:
+    - `SensibLaw/tests/test_obligations_detection.py`
+    - `SensibLaw/tests/test_assumption_controls_fail_closed.py`
+
 ## 2026-03-25
 - Activated the Wikidata promotion ladder as repo policy in the hotspot lane:
   - hotspot manifest now distinguishes:

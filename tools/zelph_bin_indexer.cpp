@@ -38,6 +38,32 @@ private:
     uint64_t         count{0};
 };
 
+class CountingBufferedInputStream : public kj::BufferedInputStream {
+public:
+    explicit CountingBufferedInputStream(kj::InputStream& inner) : buffered(inner) {}
+
+    kj::ArrayPtr<const kj::byte> tryGetReadBuffer() override {
+        return buffered.tryGetReadBuffer();
+    }
+
+    size_t tryRead(void* buffer, size_t minBytes, size_t maxBytes) override {
+        auto n = buffered.tryRead(buffer, minBytes, maxBytes);
+        count += n;
+        return n;
+    }
+
+    void skip(size_t bytes) override {
+        buffered.skip(bytes);
+        count += bytes;
+    }
+
+    uint64_t bytesRead() const { return count; }
+
+private:
+    kj::BufferedInputStreamWrapper buffered;
+    uint64_t                       count{0};
+};
+
 struct Range {
     uint32_t index;
     uint64_t offset;
@@ -60,8 +86,7 @@ int main(int argc, char** argv) {
     }
 
     kj::FdInputStream raw(fileno(file));
-    CountingInputStream counting(raw);
-    kj::BufferedInputStreamWrapper buffered(counting);
+    CountingBufferedInputStream counting(raw);
 
     capnp::ReaderOptions options;
     options.traversalLimitInWords = 1ull << 32;
@@ -69,7 +94,7 @@ int main(int argc, char** argv) {
 
     // Main header
     uint64_t headerOffset = counting.bytesRead();
-    capnp::PackedMessageReader mainMessage(buffered, options);
+    capnp::PackedMessageReader mainMessage(counting, options);
     auto impl = mainMessage.getRoot<zelph::network::ZelphImpl>();
     uint64_t headerLength = counting.bytesRead() - headerOffset;
 
@@ -87,7 +112,7 @@ int main(int argc, char** argv) {
     auto readAdjSection = [&](uint32_t count, std::vector<Range>& out, const char* whichTag) {
         for (uint32_t i = 0; i < count; ++i) {
             uint64_t before = counting.bytesRead();
-            capnp::PackedMessageReader chunkMessage(buffered, options);
+            capnp::PackedMessageReader chunkMessage(counting, options);
             auto chunk = chunkMessage.getRoot<zelph::network::AdjChunk>();
             Range r;
             r.which  = chunk.getWhich().cStr();
@@ -103,7 +128,7 @@ int main(int argc, char** argv) {
 
     for (uint32_t i = 0; i < nameOfNodeCount; ++i) {
         uint64_t before = counting.bytesRead();
-        capnp::PackedMessageReader chunkMessage(buffered, options);
+        capnp::PackedMessageReader chunkMessage(counting, options);
         auto chunk = chunkMessage.getRoot<zelph::network::NameChunk>();
         Range r;
         r.index  = chunk.getChunkIndex();
@@ -115,7 +140,7 @@ int main(int argc, char** argv) {
 
     for (uint32_t i = 0; i < nodeOfNameCount; ++i) {
         uint64_t before = counting.bytesRead();
-        capnp::PackedMessageReader chunkMessage(buffered, options);
+        capnp::PackedMessageReader chunkMessage(counting, options);
         auto chunk = chunkMessage.getRoot<zelph::network::NodeNameChunk>();
         Range r;
         r.index  = chunk.getChunkIndex();

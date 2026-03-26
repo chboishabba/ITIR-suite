@@ -278,3 +278,4 @@ development workaround, not the main entrypoint for most readers.
 
 If you need that path, see the existing container/dev notes in the repo and the
 relevant subproject setup docs before using it.
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/chboishabba/ITIR-suite)

@@ -49,6 +49,7 @@ P:
 - Optional extension:
   - `nameOfNode=0`
   - `nodeOfName=0`
+  - mixed section selectors such as `left=0` plus `nameOfNode=0`
 - Emit JSON so later comparison is machine-readable.
 
 G:
@@ -88,6 +89,7 @@ Next action:
     - `ok`
     - `fallback_used`
     - `had_repl_error`
+    - `fetch_plan`
     - wall-clock time
     - reported Zelph partial-load time
     - output excerpt
@@ -134,3 +136,23 @@ python tools/run_zelph_partial_load_harness.py \
   - `manifest_v2_left0`: fallback success
 - Summary JSON:
   - `/tmp/zelph-partial-load-harness/summary.json`
+
+## Current observed run
+
+- Artifacts:
+  - `/home/c/Documents/code/ITIR-suite/wikidata-20171227-pruned.bin`
+  - `/home/c/Documents/code/ITIR-suite/wikidata-20260309-all-pruned.bin`
+- Extended matrix:
+  - left adjacency probes
+  - `nameOfNode=0` probes
+  - `nodeOfName=0` probes
+  - mixed `left=0` + `nameOfNode=0` probes
+  - `v1` and `v2` manifest paths
+- Result:
+  - all tested cases are now direct successes
+  - no fallback required in the current bounded matrix
+  - summary entries now also emit the manifest-derived fetch plan:
+    - `v1`: HTTP range reads against `artifact.bin`
+    - `v2`: direct shard object paths under `shards/<section>/...`
+- Root cause fixed:
+  - sidecar offset accounting was previously distorted by buffered read-ahead in the indexers

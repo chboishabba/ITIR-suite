@@ -1,12 +1,25 @@
 {
-  "context": "ready",
-  "docs": "ready",
+  "active_milestone": "Milestone N",
   "architecture": "complete",
-  "audit": "unknown",
+  "audit": "needs_attention",
+  "context": "ready",
+  "current_agent": null,
+  "docs": "ready",
   "external_reasoning": "off",
-  "tests": "passing",
+  "last_action": "long-running-development",
+  "last_cycle_finished_at": "2026-03-26T10:03:34Z",
+  "last_cycle_started_at": "2026-03-26T10:02:45Z",
+  "last_exit_code": 0,
+  "last_task_stats": {
+    "agent_name": "implement",
+    "dry_run": false,
+    "elapsed_seconds": 337.31,
+    "exit_code": 0,
+    "output_lines": 17429,
+    "skill": "long-running-development",
+    "timed_out": false
+  },
   "milestones_remaining": 1,
-  "last_action": "Updated Casey phase memory and cross-project contracts after shipping the local sqlite runtime + CLI testbed; next priority is Casey -> fuzzymodo export/advisory, then Casey -> StatiBaker observer receipts.",
-  "active_milestone": "17-casey-git-clone",
-  "next_milestone": "casey-boundary-seams"
+  "next_milestone": "Milestone R",
+  "tests": "passing"
 }
