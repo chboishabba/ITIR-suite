@@ -218,6 +218,14 @@
       - DONE: public-bios broader-source input is no longer title-only;
         `SensibLaw/scripts/build_gwb_public_bios_rich_timeline.py` now builds
         `SensibLaw/demo/ingest/gwb/public_bios_v1/wiki_timeline_gwb_public_bios_v1_rich.json`
+- [P1] Zelph partial-load / HF manifest promotion harness:
+  - use `docs/planning/zelph_partial_load_harness_20260326.md` as the harness contract
+  - keep `tools/run_zelph_partial_load_harness.py` as the acceptance runner for:
+    - direct `.bin` selector health
+    - manifest selector health
+    - fallback detection vs direct chunk-read success
+  - run it on `wikidata-20171227-pruned.bin` first; use the 2026 bin as the heavier follow-up lane
+  - do not treat manifest chunk transport as promoted until the harness shows direct success without fallback on the relevant selector cases
         from raw HTML cue-bearing snippets
       - DONE: broader-source diagnostics now live under
         `SensibLaw/tests/fixtures/zelph/gwb_broader_promotion_diagnostics_v1/`
