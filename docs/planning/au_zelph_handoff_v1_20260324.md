@@ -72,6 +72,8 @@ review rather than pretending it is fully settled.
   extraction claim.
 - The 3-fact result is expected for this selected workbench wave; it does not mean
   AU extraction is that small overall.
+- The `au_public_handoff_v1` artifact remains a bounded reviewed checkpoint; it is
+  not the full real-HCA transcript review queue.
 - The real HCA hearing lane now has a separate dense transcript substrate
   artifact; that higher-density transcript layer is not the same thing as this
   bounded reviewed handoff slice.
@@ -80,6 +82,13 @@ review rather than pretending it is fully settled.
 - This handoff is useful as a real ingest -> review -> Zelph story, and as a Mary-parity
   operator checkpoint showing review pressure on an AU legal procedure lane.
 - Source lineage is tracked by `source_bundle_paths` and per-fact `source_bundles`.
+
+## Internal dense-substrate checkpoint status
+The real HCA dense-substrate checkpoint (`/tmp/au_real_round2_v2`) can report a
+24-row reviewed hearing-event projection for operator triage (`reviewed_event_ratio=0.104751`),
+but this is not equivalent to promoted AU understanding. It is the next-step
+proof that transcript density is real and that the current gap is now primarily in
+quality gating (actor/date continuity and snippet integrity), not just ingestion.
 
 ## Rebuild / verification options
 - single source (default):

@@ -66,6 +66,15 @@ The repo does not yet match Rosario's method directly because it does not:
 The repo is stronger on pathology preservation and provenance, but weaker on
 large automatic ontology-to-benchmark throughput.
 
+The productive discovery surface is also different in practice:
+
+- Rosario-style work assumes broad current-graph extraction and benchmarking
+  rather than dependence on small retained local bins
+- in this repo, live/current WDQS-backed Wikidata probing is the productive
+  source for contradiction-pack discovery
+- local pruned `.bin` artifacts have now behaved only as runtime/loader
+  negative controls for the current contradiction families
+
 ## Parity against Ege/Peter disjointness work
 
 ### What their paper is doing
@@ -109,6 +118,14 @@ The repo currently lacks:
 
 The repo is best described as adjacent and collaboration-compatible, not as a
 reproduction or substitute.
+
+The local-pruned-bin experiments make that boundary clearer:
+
+- both `wikidata-20171227-pruned.bin` and `wikidata-20260309-all-pruned.bin`
+  returned zero useful signal across profile, wide, bounded, exact, and
+  seedless local scans for the current target families
+- so practical progress toward Ege/Peter-style disjointness work is coming from
+  live/current Wikidata, then pinning reviewed slices into repo fixtures
 
 ## Why Zelph changes the positioning
 Ege/Peter's paper is stronger than the current repo on disjointness-specific

@@ -284,11 +284,15 @@ Current V1 decision:
   rather than the first canonical pack
 
 Current next-step handoff decision:
-- the outward-facing pack should now be treated as `v1.5`, not just `v1`
+- the outward-facing pack should now be treated as `v1.6`, not just `v1`
 - reason:
   GWB is now checked and AU has been brought up to the same handoff shape
 - concrete pack spec:
-  `docs/planning/zelph_real_world_pack_v1_5_20260324.md`
+  `docs/planning/zelph_real_world_pack_v1_6_20260325.md`
+- secondary check:
+  AU has an internal dense-substrate 24-row reviewed projection (`/tmp/au_real_round2_v2`)
+  at `reviewed_event_ratio=0.104751` that is explicitly triage-only until
+  continuity/date quality gates are raised
 - checked artifacts now exist at:
   `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/`
   and
@@ -495,7 +499,9 @@ What changed internally after this checkpoint:
 - that dense artifact currently reports 1747 transcript units, 1747 facts,
   1482 observations, 0 persisted fact-review events, plus a first hearing-act
   layer, a first procedural-move layer, a first conservative hearing-event
-  assembly layer, and a 24-item secondary review-overlay projection
+  assembly layer, and a 24-item reviewed projection (`reviewed_event_ratio=0.104751`)
+  that is currently treated as high-coverage operator-triage, not accepted
+  promoted AU understanding
 - this is the current repo-proof that AU transcript density is real at the
   substrate layer; the narrower reviewed/procedural overlay is a secondary
   projection rather than the primary transcript representation

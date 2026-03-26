@@ -29,6 +29,10 @@ Freeze note:
 - `v1.6` remains the current outward-facing pack
 - newer internal corpus-expansion artifacts may exist in-repo without being
   added to the external pack until they are reviewed for sharing
+- the first checked wiki/Wikidata handoff parity artifact may land in-repo
+  beside `v1.6` without automatically changing the frozen pack boundary
+  - this has now happened:
+    `SensibLaw/tests/fixtures/zelph/wikidata_structural_handoff_v1/`
 
 ## Canonical V1.6 contents
 ### A. Deterministic bridge proof
@@ -82,9 +86,24 @@ Why it matters:
   beside the pack, likewise outside outward-facing `v1.6` until sharing review
   is complete:
   `SensibLaw/tests/fixtures/zelph/au_real_transcript_dense_substrate_v1/`
+- latest internal dense-substrate reviewed-event projection (`/tmp/au_real_round2_v2`):
+  24 reviewed items, `reviewed_event_ratio=0.104751`, used for quality-aware
+  operator triage rather than promoted coverage claims
 
 ### D. Real structured-import slice
 - `SensibLaw/tests/fixtures/wikidata/real_qualifier_imported_slice_20260307.json`
+
+### E. Pending checked wiki/Wikidata parity artifact
+- docs/spec note:
+  `docs/planning/wikidata_structural_handoff_v1_20260325.md`
+- artifact directory:
+  `SensibLaw/tests/fixtures/zelph/wikidata_structural_handoff_v1/`
+
+Why it matters:
+- the wiki/Wikidata lane is now strong enough internally that the main missing
+  piece is handoff legibility, not raw diagnostics
+- this bounded parity task is now implemented in-repo, but it is intentionally
+  not folded into frozen outward-facing `v1.6` yet
 
 ## Current recommendation
 - treat this `v1.6` pack as the current outward-facing Zelph pack

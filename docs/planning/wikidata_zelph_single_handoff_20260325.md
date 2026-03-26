@@ -39,6 +39,10 @@ Primary repo surfaces:
 
 - status note:
   `SensibLaw/docs/wikidata_working_group_status.md`
+- checked handoff note:
+  `docs/planning/wikidata_structural_handoff_v1_20260325.md`
+- checked handoff artifact:
+  `SensibLaw/tests/fixtures/zelph/wikidata_structural_handoff_v1/`
 - review pass:
   `SensibLaw/docs/planning/wikidata_working_group_review_pass_20260307.md`
 - report contract:
@@ -53,6 +57,8 @@ Plain-language reading:
   review reports
 - we are surfacing problematic structures and drift clearly
 - we are not trying to auto-fix Wikidata from this repo
+- we now also have one checked handoff artifact with the same
+  summary/JSON/ZLP/scorecard shape already used for GWB and AU
 
 ### 2. Zelph lane
 What the repo already has:
@@ -70,6 +76,10 @@ What the repo already has:
   - 18 distinct promoted relations after canonical dedupe
   - 3 new promoted relations beyond the checked handoff
   - 5 seed lanes supported in multiple source families
+- a first AU broader-substrate checkpoint status from real HCA:
+  - dense-substrate run (`/tmp/au_real_round2_v2`) reports a 24-row reviewed
+    hearing-event projection at 0.104751 reviewed-event ratio,
+    currently triage-only quality until stronger continuity/date gating is added
 - a checked AU procedural handoff with:
   - 3 facts
   - 27 observations
@@ -133,18 +143,22 @@ Keep the boundary clean:
 - use software/project examples such as `GNU` / `GNU Project` alongside
   finance/product examples to show the same machinery catches entity-kind
   collapse across domains
+- materialize the first checked `wikidata_structural_handoff_v1` artifact from:
+  promoted hotspot exemplars, real disjointness packs, and the importer-backed
+  qualifier baseline
 
 ### Next for Zelph collaboration
 - keep using the existing checked export path rather than inventing a new one
-- treat the current outward-facing pack as `v1.5`
+- treat the current outward-facing pack as `v1.6`
 - widen GWB beyond the current broader-source gains:
   repeated Supreme Court review confirmation,
   `George W. Bush -> signed -> No Child Left Behind Act`,
   `George W. Bush -> signed -> Northwestern Hawaiian Islands Marine National Monument`,
   and corpus-lane confirmation/review material including
   `George W. Bush -> ruled_by -> Supreme Court of the United States`
-- widen AU beyond the narrow current checkpoint into broader source-backed
-  coverage
+- widen AU beyond the narrow checked checkpoint via stronger reviewed-substrate
+  promotion quality (actor continuity, chronology/date completeness, truncation
+  checks) before expanding outward-facing breadth
 - keep chat-history as a later lane only after hygiene/shareability is strong
 
 ## Why this is useful to each audience
@@ -193,6 +207,8 @@ If the reader wants:
 The exact current result is modest but real:
 
 - bounded Wikidata diagnostics are working on real and pinned slices
+- the repo now also has a concrete checked wiki/Wikidata handoff artifact
+  parallel to GWB/AU
 - bounded Zelph handoffs are working on checked GWB and AU artifacts
 - broader GWB corpus work now widens the checked handoff with 3 new distinct
   promoted relations beyond the original checked slice

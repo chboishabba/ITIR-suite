@@ -42,6 +42,8 @@ What it is for:
 - what is still excluded or deferred
 
 ### 4. Then read the checked handoff artifact notes
+- Wikidata:
+  `docs/planning/wikidata_structural_handoff_v1_20260325.md`
 - GWB:
   `docs/planning/gwb_zelph_handoff_v1_20260324.md`
 - AU:
@@ -70,6 +72,8 @@ What they are for:
 - `SensibLaw/tests/test_sl_zelph_demo_tools.py`
 
 ### Checked handoff artifacts
+- Wikidata:
+  `SensibLaw/tests/fixtures/zelph/wikidata_structural_handoff_v1/`
 - GWB:
   `SensibLaw/tests/fixtures/zelph/gwb_public_handoff_v1/`
 - AU:
@@ -85,17 +89,26 @@ What they are for:
   `SensibLaw/tests/fixtures/zelph/au_broader_corpus_diagnostics_v1/`
   `SensibLaw/tests/fixtures/zelph/au_real_transcript_structural_checkpoint_v1/`
   `SensibLaw/tests/fixtures/zelph/au_real_transcript_dense_substrate_v1/`
+  - internal dense-substrate reviewed projection (latest): 24 rows, 0.104751
+    reviewed-event coverage ratio (`/tmp/au_real_round2_v2`), operator-only
+    triage quality at this stage
 
 ## Current Plain-Language Status
 - SensibLaw/ITIR can already export bounded reviewed structure into Zelph.
+- Wikidata now also has a concrete checked structural handoff artifact with the
+  same summary/JSON/ZLP/scorecard shape used by GWB and AU.
 - GWB is the cleanest public-facing downstream handoff artifact.
 - AU is a real Mary-parity/operator-review artifact, but its current checked
   handoff slice is intentionally narrow.
 - AU now also has an internal dense transcript substrate artifact over the real
   HCA hearing; that substrate is primary for transcript-density evaluation, and
   the reviewed bundle remains a smaller secondary overlay.
+  The latest 24-row reviewed-event projection is best treated as a high-coverage,
+  low-trust operator queue until additional continuity/date/quality gates are in place.
 - Corpus-level accounting now exists for both GWB and AU, but neither lane
   should yet be described as destination-complete.
+- The wiki/Wikidata lane now has checked-handoff parity on artifact shape, but
+  it remains a bounded structural-review lane rather than a completeness claim.
 
 ## Current Priority Order
 For the next corpus-expansion phase, use this order unless a stronger safety
@@ -103,7 +116,8 @@ constraint appears:
 
 1. AU broader transcript/WhisperX-backed corpus coverage
 2. GWB next genuinely new broader-source family
-3. Safe real chat-history lane
+3. Checked wiki/Wikidata structural handoff parity
+4. Safe real chat-history lane
 
 Reason:
 - AU now has both a real transcript structural/legal checkpoint and a dense
@@ -112,8 +126,10 @@ Reason:
   transcript counts must be narrow.
 - GWB is still the cleanest public-facing source family, but it has already
   moved further on broader-source confirmation than AU.
+- wiki/Wikidata is now the right next bounded handoff-parity task because the
+  internals are stronger than the current outward-facing artifact shape.
 - chat-history remains valuable, but it is still the highest hygiene/safety
-  burden of the three.
+  burden of the remaining lanes.
 
 ## Use This Index When Sharing
 If someone needs only one link first:

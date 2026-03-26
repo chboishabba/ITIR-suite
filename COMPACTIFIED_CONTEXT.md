@@ -1,5 +1,97 @@
 # Compactified Context
 
+- 2026-03-25 Mary/AU affidavit-coverage framing:
+  - source: current working turn
+  - main decision:
+    - the next Mary/AU legal-operator lane should be modeled explicitly as
+      corpus-to-affidavit coverage accounting, not as a vague promise to
+      "extract every single fact" in one promoted pass
+    - current AU dense-substrate reality is strong enough to act as the source
+      side for that lane:
+      - `1747` transcript units
+      - `1747` dense substrate facts
+      - persisted fact-review overlays and reviewed queue surfaces
+    - the missing surface is a first-class comparison lane showing:
+      - what affidavit propositions are source-backed
+      - what is partial
+      - what appears omitted
+      - what remains contested or abstained rather than omission-worthy
+  - followthrough:
+    - added user story:
+      `docs/user_stories.md` (`SL-US-31`)
+    - added dedicated planning note:
+      `docs/planning/affidavit_coverage_review_lane_20260325.md`
+    - first bounded implementation now exists at:
+      - `SensibLaw/scripts/build_affidavit_coverage_review.py`
+      - `SensibLaw/tests/test_affidavit_coverage_review.py`
+    - first repo-stable AU-specific checked artifact now exists at:
+      - builder:
+        `SensibLaw/scripts/build_au_affidavit_coverage_review.py`
+      - test:
+        `SensibLaw/tests/test_au_affidavit_coverage_review.py`
+      - fixture directory:
+        `SensibLaw/tests/fixtures/zelph/au_affidavit_coverage_review_v1/`
+    - first repo-stable AU dense-substrate coverage artifact now also exists:
+      - builder:
+        `SensibLaw/scripts/build_au_dense_affidavit_coverage_review.py`
+      - test:
+        `SensibLaw/tests/test_au_dense_affidavit_coverage_review.py`
+      - fixture directory:
+        `SensibLaw/tests/fixtures/zelph/au_dense_affidavit_coverage_review_v1/`
+    - aligned parity docs:
+      `docs/planning/mary_parity_user_story_acceptance_matrix_20260315.md`
+      `docs/planning/mary_parity_status_audit_20260315.md`
+      `docs/planning/au_completeness_scorecard_20260324.md`
+    - tracked implementation lane in:
+      `TODO.md`
+- 2026-03-25 checked wiki/Wikidata handoff parity decision:
+  - source: current working turn
+  - inputs reviewed:
+    - `docs/planning/wikidata_zelph_single_handoff_20260325.md`
+    - `docs/planning/zelph_handoff_index_20260324.md`
+    - `docs/planning/wikidata_hotspot_benchmark_lane_20260325.md`
+    - `docs/planning/wikidata_p2738_disjointness_lane_20260325.md`
+    - `SensibLaw/docs/wikidata_working_group_status.md`
+    - current pinned hotspot, disjointness, and qualifier fixtures
+  - main decision:
+    - the wiki/Wikidata lane is now mature enough for checked-handoff parity
+      with GWB/AU
+    - this should be implemented as a bounded readability/handoff artifact, not
+      as a broad new ingest or live-scan phase
+    - the first checked artifact should be built from existing pinned surfaces:
+      - promoted hotspot exemplars:
+        `mixed_order_live_pack_v1`
+        `p279_scc_live_pack_v1`
+        `qualifier_drift_p166_live_pack_v1`
+      - one held/promotable review pack:
+        `software_entity_kind_collapse_pack_v0`
+      - real disjointness packs:
+        `disjointness_p2738_nucleon_real_pack_v1`
+        `disjointness_p2738_fixed_construction_real_pack_v1`
+        `disjointness_p2738_working_fluid_real_pack_v1`
+      - import-preservation baseline:
+        `SensibLaw/tests/fixtures/wikidata/real_qualifier_imported_slice_20260307.json`
+    - keep the output parallel to the GWB/AU checked handoff shape:
+      summary + JSON slice + ZLP facts/rules + engine output + scorecard
+    - do not automatically roll this into frozen outward-facing pack `v1.6`
+  - followthrough:
+    - planning note:
+      `docs/planning/wikidata_structural_handoff_v1_20260325.md`
+    - TODO tracking:
+      `TODO.md`
+    - shared index/single-handoff alignment:
+      `docs/planning/zelph_handoff_index_20260324.md`
+      `docs/planning/wikidata_zelph_single_handoff_20260325.md`
+      `docs/planning/zelph_real_world_pack_v1_6_20260325.md`
+    - implementation now completed at:
+      - builder:
+        `SensibLaw/scripts/build_wikidata_structural_handoff.py`
+      - test:
+        `SensibLaw/tests/test_wikidata_structural_handoff.py`
+      - checked artifact:
+        `SensibLaw/tests/fixtures/zelph/wikidata_structural_handoff_v1/`
+      - focused validation:
+        `../.venv/bin/pytest -q tests/test_wikidata_structural_handoff.py`
 - 2026-03-25 Wikidata hotspot benchmark framing:
   - source: current working turn
   - inputs reviewed:
@@ -137,6 +229,33 @@
       - culprit semantics are now tighter:
         culprit classes expose downstream impact counts, and instance rows now
         surface `explained_by_culprit_class_qid` when applicable
+      - follow-up local-bin finding:
+        `wikidata-20171227-pruned.bin` and
+        `wikidata-20260309-all-pruned.bin` both behaved as runtime-only
+        negative controls for the current disjointness families
+      - on the newer pruned bin, baseline profile, wide profile, bounded
+        profile, exact-QID presence checks, and a seedless contradiction scan
+        all returned zero useful local signal
+      - current practical discovery posture:
+        use live/current WDQS-backed Wikidata probing to find candidate
+        contradiction families, then pin reviewed slices into repo fixtures
+      - local bin retention note:
+        both pruned bins are still retained locally for now despite their size
+        (`~1.4 GiB` and `~5.6 GiB`) because deletion was deferred
+      - paper positioning note:
+        the added Shixiong Zhao / Hideaki Takeda paper
+        (`2511.04926v2(1)_shixiong.pdf`) is primarily relevant to the broader
+        `P31`/`P279` semantic-inconsistency / hotspot-risk lane rather than the
+        narrower `P2738` disjointness lane
+      - format/splicing note from Zelph source (0.9.5, cloned under `aur/zelph`):
+        the `.bin` is a Cap'n Proto `ZelphImpl` with chunked sections for
+        `left`/`right` adjacency and `name_of_node` / `node_of_name`; each chunk
+        has `chunkIndex` and is written as its own packed message after the main
+        header that stores chunk counts; current loader always streams all
+        chunks and builds full in-memory maps (no partial load or range reads);
+        sharding would need an offset table/selector plus loader changes; see
+        `docs/planning/zelph_bin_sharding_note_20260326.md` for the proposed
+        sidecar offset index and partial-load sketch
 
 - 2026-03-25 single shared Wikidata/Zelph handoff:
   - source: current working turn

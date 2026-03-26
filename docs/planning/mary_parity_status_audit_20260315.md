@@ -99,6 +99,21 @@ Still thin:
 - this is acceptable for bounded parity gating, but it means "coverage exists"
   more than "pipeline breadth is naturally broad"
 
+### 4. Corpus-to-work-product coverage is not yet a first-class lane
+Covered:
+- the repo now has dense transcript/AU substrate artifacts and persisted
+  fact-review runs that are suitable as a source side for later comparison
+
+Still thin:
+- there is not yet a repo-stable affidavit/declaration coverage review surface
+  showing what source-grounded material made it into a filing draft, what is
+  partial, and what appears omitted
+
+Implication:
+- Mary parity is now strong enough to support that next step
+- the next legal-operator push should include work-product coverage accounting,
+  not just more extraction density
+
 ## Overall assessment
 
 ### Parity estimate
@@ -132,7 +147,14 @@ Focus areas:
   - wiki moderator / claim worker
   - family-law / medical reviewers
 
-### 3. Gap audit before new semantic/reasoning work
+### 3. Corpus-to-affidavit coverage lane
+Focus areas:
+- compare an affidavit/declaration draft against a provenance-bearing source
+  substrate
+- surface covered / partial / missing-review / contested / unsupported rows
+- preserve abstention instead of treating all non-inclusions as omissions
+
+### 4. Gap audit before new semantic/reasoning work
 Use this question:
 - are the next missing pieces better solved by another acceptance family,
   by a real-fixture expansion, or by workbench/export polish?
@@ -146,7 +168,9 @@ Default:
 Best next loop:
 1. broaden `wave3_public_knowledge` with another curated real anchor
 2. add one real anchor to either family-law or medical/regulatory
-3. run a workbench/export ergonomics audit across all green waves
+3. define the first bounded affidavit/declaration coverage review lane over the
+   existing AU/Mary source substrate
+4. run a workbench/export ergonomics audit across all green waves
 
 This keeps the current acceptance-first discipline intact while pushing parity
 from "credible and broad" toward "defensible and operator-ready".

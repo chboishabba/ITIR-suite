@@ -115,6 +115,7 @@ The current checked AU artifact proves:
 It does not yet prove:
 - broad AU corpus understanding
 - completeness over a long transcript or any larger AU corpus
+- corpus-to-affidavit coverage accounting over a legal work product
 
 ## Scorecard dimensions
 - fact count
@@ -173,6 +174,43 @@ Internal dense transcript substrate artifact:
 - generated outputs:
   - `au_real_transcript_dense_substrate_v1.json`
   - `au_real_transcript_dense_substrate_v1.summary.md`
+
+Checked AU affidavit-coverage artifact:
+- `SensibLaw/tests/fixtures/zelph/au_affidavit_coverage_review_v1/`
+- generated outputs:
+  - `affidavit_coverage_review_v1.json`
+  - `affidavit_coverage_review_v1.summary.md`
+
+Checked AU dense affidavit-coverage artifact:
+- `SensibLaw/tests/fixtures/zelph/au_dense_affidavit_coverage_review_v1/`
+- generated outputs:
+  - `affidavit_coverage_review_v1.json`
+  - `affidavit_coverage_review_v1.summary.md`
+
+Current generated affidavit-coverage reading:
+- first bounded source-to-draft comparison now exists for AU
+- source side is the checked `au_public_handoff_v1` slice
+- current checked artifact lands as:
+  - `1` covered affidavit proposition
+  - `2` unsupported affidavit propositions
+  - `2` missing-review source rows
+- the contract can also emit:
+  `partial`, `contested_source`, and `abstained_source`
+- this is still a bounded filing-support checkpoint, not full corpus-to-filing
+  closure
+
+Current generated dense affidavit-coverage reading:
+- first broader AU source-to-draft comparison now also exists over the 24-row
+  dense overlay projection from the real transcript substrate artifact
+- this makes corpus-side review pressure more visible than the 3-fact checked
+  handoff slice
+- current checked dense artifact lands as:
+  - `2` partial affidavit propositions
+  - `1` unsupported affidavit proposition
+  - `22` missing-review source rows
+- current checked dense artifact remains conservative and omission-heavy by
+  design; it proves comparison/accounting over a larger AU source surface, not
+  full filing parity
 
 Current generated transcript-structure reading:
 - 2 real HCA transcript files are now promoted into a persisted structural/legal
@@ -258,6 +296,22 @@ Purpose of the transcript-structure checkpoint:
 - preserve legal/procedural structural signal from the actual transcript source
 - make the next AU move narrower and clearer: convert more of that hearing lane
   from structural signal into reviewed fact/event coverage
+
+## Next AU operator lane beyond dense substrate
+
+The next AU legal-operator lane should now be stated explicitly:
+- use the dense transcript/source substrate plus persisted fact-review runs as
+  the source side for a later affidavit/declaration coverage review surface
+- do not collapse this into the claim that the current 24-row reviewed queue is
+  already affidavit-ready
+- keep the distinction clear between:
+  - dense source-grounded coverage
+  - reviewed procedural/event coverage
+  - affidavit proposition extraction
+  - coverage/omission review
+
+This is the point where AU stops being only a transcript-density proof and
+starts becoming a filing-support proof surface.
 
 Purpose of the dense transcript substrate artifact:
 - make transcript-density itself first-class rather than treating it as a failed

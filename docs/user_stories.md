@@ -1027,3 +1027,45 @@ Acceptance criteria:
 - Professional role and institution are not silently merged.
 - Public narrative and regulatory record can be compared without hidden
   authority transfer.
+
+### SL-US-31: Corpus-to-Affidavit Coverage Review
+As a lawyer or paralegal preparing an affidavit from a client corpus, I want
+the system to preserve a high-recall, provenance-first extraction substrate and
+compare it against the affidavit draft so I can see what is represented, what
+is only partially represented, what appears to be missing, and what is still
+too ambiguous or contested to promote.
+
+Typical flow:
+- Operator ingests mixed client material such as interview notes, documents,
+  correspondence, and transcripts into one matter-local substrate.
+- A draft affidavit or declaration is then reviewed against that substrate
+  rather than replacing it.
+- The operator works through coverage rows that show supported, partial,
+  omitted, contested, and abstained source-grounded material before filing.
+
+Preferences:
+- High recall is preferable to early over-cleaning, as long as provenance and
+  status remain visible.
+- Affidavit propositions should be traceable back to exact source rows and
+  spans.
+- Omission review should be grouped into actionable buckets rather than one
+  undifferentiated backlog.
+
+Requirements:
+- Dense source-grounded extraction must remain separate from later affidavit
+  comparison status.
+- Ambiguous or contested source material must not be silently treated as
+  affidavit omissions.
+- The comparison surface must preserve document, span, statement, and run
+  lineage so later reviewers can audit why an item was marked covered, partial,
+  missing, or abstained.
+
+Acceptance criteria:
+- Each affidavit proposition can link back to one or more source-grounded rows
+  or be marked unsupported explicitly.
+- Source-grounded rows above the configured review threshold that do not appear
+  in the affidavit are surfaced as omission-review items.
+- Contested, ambiguous, or abstained source rows remain visibly distinct from
+  clear omissions.
+- The review surface stays provenance-first and does not claim the affidavit is
+  legally sufficient or complete by default.

@@ -1,6 +1,6 @@
 {
   "version": "wikidata_disjointness_case_index_v1",
-  "date": "2026-03-25",
+  "date": "2026-03-26",
   "entries": [
     {
       "case_id": "disjointness_p2738_pilot_pack_v1",
@@ -82,6 +82,40 @@
       "selection_reason": "Broader disjointness ambitions remain below promotion until more real packs exist.",
       "notes": [
         "Governance-level placeholder, not a fixture pack."
+      ]
+    },
+    {
+      "case_id": "local_pruned_bins_runtime_only_negative_control",
+      "case_kind": "runtime_only_negative_control",
+      "focus_qids": [
+        "Q102205",
+        "Q11432",
+        "Q11435",
+        "Q217236",
+        "Q102165",
+        "Q2294",
+        "Q2348",
+        "Q53617489",
+        "Q53617407",
+        "Q124711467",
+        "Q27096213"
+      ],
+      "focus_pids": ["P31", "P279", "P2738", "P11260", "P361", "P527", "P1552", "P461", "P1696"],
+      "artifacts": [
+        "wikidata-20171227-pruned.bin",
+        "wikidata-20260309-all-pruned.bin",
+        "/tmp/zelph_profile_20260309.json",
+        "/tmp/zelph_profile_wide_20260309.json",
+        "/tmp/zelph_profile_bounded_20260309.json",
+        "/tmp/zelph_profile_exact_20260309.json",
+        "/tmp/zelph_seedless_scan_20260309.json"
+      ],
+      "promotion_status": "held",
+      "hold_reason": "local_pruned_bins_show_runtime_only_negative_signal",
+      "selection_reason": "Two local pruned bins now act as negative controls only: profile, wide, bounded, exact, and seedless contradiction scans all returned zero useful local signal for the current disjointness families.",
+      "notes": [
+        "Use these bins for loader/runtime repro only, not as contradiction-source artifacts.",
+        "Live WDQS-backed Wikidata probing remains the productive source for real contradiction-pack discovery."
       ]
     }
   ]

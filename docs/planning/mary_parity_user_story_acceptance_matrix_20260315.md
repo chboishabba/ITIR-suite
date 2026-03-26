@@ -10,6 +10,7 @@ Stories covered:
 - `SL-US-09` through `SL-US-14`
 - `SL-US-15` through `SL-US-18`
 - `SL-US-19` through `SL-US-28`
+- `SL-US-29` through `SL-US-31`
 - `ITIR-US-11` through `ITIR-US-14`
 - `ITIR-US-15` through `ITIR-US-16`
 
@@ -138,6 +139,21 @@ Current substrate assumptions:
   - queue rows are linked to provenance-bearing facts
   - operator can reopen queue from a stored run
 
+### Corpus-to-affidavit coverage accounting
+- Required by:
+  - `SL-US-31`
+- Current coverage:
+  - partial; the source side is now real through transcript/AU dense-substrate
+    and fact-review artifacts, but affidavit comparison is not yet a first-class
+    persisted review lane
+- Acceptance checks:
+  - affidavit propositions can be linked to source-grounded rows or marked
+    unsupported explicitly
+  - source rows above a configured review threshold can surface as omission
+    review items when absent from the affidavit
+  - contested or abstained source rows remain distinct from clear omissions
+  - comparison rows keep provenance-bearing source and affidavit handles
+
 ### Legal/procedural observation visibility
 - Required by:
   - `SL-US-12`
@@ -229,6 +245,8 @@ Current substrate assumptions:
 - widen real legal/procedural observation coverage beyond current AU relation
   mapping
 - add support/advocacy-safe export/report shapes
+- add a first bounded affidavit-coverage review lane over the existing AU/Mary
+  dense substrate and persisted fact-review machinery
 - add contested Wikipedia/Wikidata/public-figure fixture families for
   moderation and legality-assessment pressure
 - add stronger mereology and institutional-boundary inspection over those runs

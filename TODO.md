@@ -398,6 +398,9 @@
           quality pass on the real HCA dense substrate using
           `--reviewed-event-limit 24`, and classify it as a high-coverage but
           not-yet-trusted reviewed-operator queue
+        - DONE: document that same pass in
+          `docs/planning/au_completeness_scorecard_20260324.md` under
+          the new 24 reviewed-item quality rubric section
         - next: improve reviewed event assembly coverage from that
           hearing-act/procedural-move/event stack instead of treating the
           hearing as a flat fact bucket
@@ -629,7 +632,7 @@
       - `wave4_family_law`
       - `wave4_medical_regulatory`
       - `wave5_handoff_false_coherence`
-    - next parity audit priority:
+  - next parity audit priority:
       - broaden real-fixture depth for waves that remain synthetic-heavy,
         especially:
         - `wave3_public_knowledge`
@@ -637,6 +640,40 @@
         - `wave4_medical_regulatory`
       - run an operator/workbench/export polish audit over the green waves
         before adding another major semantic family
+  - next legal-operator coverage lane:
+    - use `docs/planning/affidavit_coverage_review_lane_20260325.md` as the
+      planning source
+    - DONE: add a first bounded `affidavit_coverage_review` implementation lane
+      at:
+      - `SensibLaw/scripts/build_affidavit_coverage_review.py`
+      - `SensibLaw/tests/test_affidavit_coverage_review.py`
+    - keep extending that lane over:
+      - persisted AU/transcript dense-substrate or fact-review source rows
+      - one affidavit/declaration draft input
+    - first contract should surface:
+      - `covered`
+      - `partial`
+      - `missing_review`
+      - `contested_source`
+      - `abstained_source`
+      - `unsupported_affidavit`
+    - keep governance explicit:
+      - high-recall source extraction is not the same as promoted reviewed fact
+      - contested or abstained rows must not silently become omissions
+      - preserve provenance from affidavit proposition -> source row -> excerpt
+    - next:
+      - widen source-input support from fact-review bundles and bounded AU
+        slices toward richer AU dense-substrate/source-row reuse
+      - DONE: add one repo-stable AU dense-substrate checked fixture/artifact
+        for this lane:
+        - `SensibLaw/scripts/build_au_dense_affidavit_coverage_review.py`
+        - `SensibLaw/tests/test_au_dense_affidavit_coverage_review.py`
+        - `SensibLaw/tests/fixtures/zelph/au_dense_affidavit_coverage_review_v1/`
+      - DONE: add one repo-stable AU-specific checked fixture/artifact for this
+        lane:
+        - `SensibLaw/scripts/build_au_affidavit_coverage_review.py`
+        - `SensibLaw/tests/test_au_affidavit_coverage_review.py`
+        - `SensibLaw/tests/fixtures/zelph/au_affidavit_coverage_review_v1/`
   - after parity substrate is credible, fold back into:
     - explicit Observation / Claim contracts
     - deterministic `source/excerpt -> observation -> event/fact -> norm -> claim`
@@ -781,6 +818,32 @@
   - current zelph boundary is explicit:
     - local instance contradictions only for now
     - do not claim direct `P2738` qualifier mining from `.bin` imports yet
+  - local pruned-bin posture is now explicit:
+    - `wikidata-20171227-pruned.bin` and
+      `wikidata-20260309-all-pruned.bin` are runtime-only negative controls
+    - both bins are still retained locally for now and remain materially large
+      (`~1.4 GiB` and `~5.6 GiB`)
+    - baseline profile, wide profile, bounded profile, exact-QID checks, and a
+      seedless contradiction scan on the newer pruned bin all returned zero
+      useful local signal
+    - treat live/current WDQS-backed Wikidata probing as the primary discovery
+      surface for new contradiction packs
+  - evaluate Zelph `.bin` sharding/remote-read feasibility:
+    - bin format is Cap'n Proto `ZelphImpl` with chunked left/right adjacency
+      and name maps; counts and `chunkIndex` per section are stored in the
+      header; chunks are written as sequential packed messages
+    - current loader streams all chunks into memory; no offset table or partial
+      load
+    - next steps:
+      - derive chunk offsets for existing bins and emit a sidecar index (see
+        `docs/planning/zelph_bin_sharding_note_20260326.md`)
+      - sketch loader patch to accept a chunk selector (per section) to permit
+        partial loads
+      - ask upstream whether per-chunk offsets or sidecar index would be
+        acceptable and whether cross-chunk invariants block selective loads
+  - next external-method question for the Zelph developer:
+    - ask whether the Wikidata `.bin` format can support practical sharding or
+      remote/range-readable access without full local materialization
   - only after the current lane has:
     - one real baseline pack
     - one real contradiction pack
@@ -801,6 +864,32 @@
       parity
     - Zelph gives the repo a complementary downstream reviewed-structure lane,
       but does not substitute for disjointness-specific parity
+- [P1] Checked wiki/Wikidata handoff parity:
+  - use `docs/planning/wikidata_structural_handoff_v1_20260325.md` as the
+    planning source
+  - DONE: build the first checked artifact:
+    - `SensibLaw/scripts/build_wikidata_structural_handoff.py`
+    - `SensibLaw/tests/test_wikidata_structural_handoff.py`
+    - `SensibLaw/tests/fixtures/zelph/wikidata_structural_handoff_v1/`
+  - build one checked artifact parallel to the GWB/AU handoff shape:
+    - `SensibLaw/tests/fixtures/zelph/wikidata_structural_handoff_v1/`
+    - `wikidata_structural_handoff_v1.slice.json`
+    - `wikidata_structural_handoff_v1.summary.md`
+    - `wikidata_structural_handoff_v1.facts.zlp`
+    - `wikidata_structural_handoff_v1.rules.zlp`
+    - `wikidata_structural_handoff_v1.engine.json`
+    - `wikidata_structural_handoff_v1.scorecard.json`
+  - include as bounded inputs only:
+    - promoted hotspot exemplars
+    - one held/promotable hotspot review pack
+    - real disjointness baseline + contradiction cases
+    - importer-backed qualifier baseline slice
+  - keep this as readability/handoff followthrough, not a broad new ingest lane
+  - do not move frozen outward-facing Zelph pack `v1.6` automatically
+    because of this artifact
+  - current achieved condition:
+    - one human-legible wiki/Wikidata handoff now exists without needing the
+      reader to assemble status notes manually
 - [P1] SL observation + case-construction followthrough:
   - note: now explicitly phase-two after Mary-parity fact-layer work, not the
     first user-facing SL milestone
