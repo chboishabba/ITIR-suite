@@ -44,11 +44,86 @@
 - [P2] Important but deferrable
 - [P3] Nice-to-have / polish
 
+- [P1] Workspace coordination boundary discipline:
+  - use `docs/planning/workspace_coordination_boundary_20260327.md` as the
+    current control-plane decision
+  - keep suite-level coordination, promotion rules, and cross-repo TODOs in
+    `ITIR-suite`
+  - keep repo-local contracts and implementation notes in the owning repos
+    such as `dashi_agda` and `FRACDASH`
+  - do not create a new top-level coordination project directory unless the
+    new surface has its own runtime/build or transport boundary
+  - when a new adapter/product lane is justified, prefer a bounded
+    subproject inside `ITIR-suite` first, following the existing `itir-mcp`
+    pattern
+
+- [P1] Cross-repo user-story + feedback receipt lane:
+  - use `docs/planning/repo_user_story_state_and_feedback_20260327.md` as the
+    current cross-repo audit baseline
+  - use `docs/planning/feedback_receipt_contract_20260327.md` as the canonical
+    receipt contract for persisted user feedback evidence
+  - keep the distinction explicit between:
+    - story-derived / proxy frustrations
+    - actual user interview / usability receipts
+  - add a bounded feedback-receipt contract for:
+    - competitor/workflow frustrations
+    - frustrations with our current surfaces
+    - likes/delight/retention signals
+  - DONE: first bounded persisted receiver + query surface in `itir.sqlite`
+    for `feedback.receipt.v1`
+  - DONE: first capture helpers/import seams via
+    `SensibLaw/scripts/query_fact_review.py`:
+    - `feedback-add`
+    - `feedback-import`
+  - DONE: first collector-facing UI capture surface in
+    `itir-svelte /corpora/processed/personal`
+    over the canonical receiver:
+    - one-receipt add form
+    - JSONL paste/import form
+    - recent receipt cards
+  - DONE: first bounded source-linked drill-ins from feedback receipts back to
+    internal surfaces/workbenches where the receipt already names or safely
+    implies one
+  - DONE: provenance-first receipt drill-ins now prefer stronger canonical
+    refs where present:
+    - canonical thread id
+    - fact-review selector refs
+    - internal route refs
+  - DONE: the collector UI now captures stronger canonical refs explicitly:
+    - canonical thread id
+    - fact-review selector refs
+  - next: improve collector/operator UX beyond raw field entry / JSONL paste,
+    and extend explicit capture to more canonical object families where
+    product/value justifies it
+  - use the receipts to prioritize:
+    - product-flow smoothing in `itir-svelte`
+    - SB operator ergonomics
+    - capture/transcription setup friction
+    - cross-product handoff clarity
+
 - [P1] itir-svelte a11y coverage expansion:
   - extend rendered-DOM label/state assertions across remaining graph/workbench routes
   - add keyboard navigation/focus/activation tests for transcript/document/folder viewers and graph controls
   - add one axe-based browser smoke for `/viewers/hca-case` and primary graph routes
   - keep Pelican/Zola reference-only; direct new UI work/testing to itir-svelte
+- [P1] SensibLaw authority retrieval operator seam:
+  - DONE: document the canonical bounded workflow in
+    `SensibLaw/docs/sources_contract.md`,
+    `SensibLaw/docs/cli_examples.md`, and
+    `SensibLaw/docs/user_stories.md`
+  - DONE: add repo-owned CLI paths for:
+    - AustLII search/fetch -> local paragraph-indexed inspection
+    - JADE known-citation/url fetch -> local paragraph-indexed inspection
+    - JADE best-effort search -> fetch -> local paragraph-indexed inspection
+  - DONE: add fixture-backed tests and live-opt-in canary coverage for both
+    seams, plus adapter/url-contract coverage for JADE MNC resolution
+  - DONE: split mixed source tests/helpers so generic paragraph and authority
+    logic no longer sits behind AustLII-named modules/files
+  - DONE: implement the now-approved direct AustLII known-authority seam so
+    neutral citations can resolve deterministically to canonical AustLII case
+    URLs without going through SINO
+  - DONE: extend bounded citation-follow to use AustLII search as the last
+    resort after JADE exact MNC and deterministic AustLII case-URL derivation
 - [P1] Agent test-loop ledger followthrough:
   - keep `docs/planning/agent_test_loop.md` check-ins restricted to completed loops with exact commands and terminal outcomes
   - finish or explicitly retire the lanes currently recorded as starts only:
@@ -906,12 +981,21 @@
       - correct `hf://` -> `resolve/main/...` raw-file URL mapping
     - DONE: added fetch-budget estimator:
       `tools/estimate_zelph_shard_fetch_budget.py`
+    - DONE: `acrion/zelph#25` merged into `develop`
+    - DONE: bounded proof artifacts are now mirrored across:
+      - HF dataset shard/query proofs
+      - HF bucket storage for the shared-contract companion pack
+      - IPFS bounded proof roots
     - current measured 2026 envelope:
       - route-node median about `51.95 MiB`
       - route-node p95 about `60.63 MiB`
       - route-node max about `700.53 MiB`
       - route-name median about `21.70 MiB`
     - next steps:
+      - await upstream review / merge decision on the follow-up fix:
+        `acrion/zelph#26`
+      - treat the Zelph shard/HF/IPFS lane as handoff-complete unless new
+        upstream review feedback arrives
       - simulate/query-shape a `zelph-hf-layout/v3` bucketed shard contract as
         documented in
         `docs/planning/zelph_hf_v3_shard_contract_20260326.md`
@@ -925,6 +1009,26 @@
         for route-node on the 2026 artifact
       - move `zelph-node-route/v1` from large JSON prototype toward a denser
         long-term representation (binary or sqlite-style sidecar)
+      - compare the Zelph shard family against the Kant shard family only after
+        the shared artifact contract is frozen in
+        `docs/planning/zelph_kant_zos_shard_contract_matrix_20260327.md`
+        and
+        `docs/planning/shared_shard_artifact_contract_v1_20260327.md`
+      - DONE: first shared-contract builder slice now exists:
+        - `tools/build_shared_shard_artifact_contract.py`
+        - `tests/test_build_shared_shard_artifact_contract.py`
+        - emits JSON and CBOR projections from one Zelph manifest-derived
+          logical artifact
+      - DONE: first real dual-sink shared-contract projection now exists for
+        the 2026 v3 Zelph proof artifact:
+        - `tools/build_ipfs_shard_ref_map.py`
+        - `tests/test_build_ipfs_shard_ref_map.py`
+        - emits deterministic `ipfs://` refs for all logical shards plus the
+          routing index, then rebuilds the same logical contract with both HF
+          and IPFS object refs attached
+      - do not claim the current Zelph sharder is globally optimal yet; current
+        evidence only supports that it is the best fit so far for query-shaped
+        remote graph reads
       - teach the partial loader to consume the sidecar offset index directly
         rather than streaming the whole file sequentially
       - add a local seek / remote object-fetch transport abstraction around the
@@ -1425,6 +1529,25 @@
   - if a shared publish/pull branch is revived later, align the artifact
     contract to `kant-zk-pastebin` first, then decide whether the runtime
     target is Zelph, ZOS, or a separate transport crate
+  - use `docs/planning/zelph_kant_zos_shard_contract_matrix_20260327.md` as
+    the current architecture note for the four-axis split:
+    - sharder
+    - sink
+    - consumer runtime
+    - shared artifact contract
+  - use `docs/planning/shared_shard_artifact_contract_v1_20260327.md` as the
+    canonical contract note for:
+    - shard identity
+    - selector resolution
+    - sink abstraction
+    - cache/invalidation
+    - Zelph consumer obligations
+    - ZOS publish/pull obligations
+  - current best-fit read is hybrid, not winner-takes-all:
+    - Zelph sharder for query-shaped reads
+    - Kant sharder for publish/pull packaging
+    - HF for practical hosted querying
+    - IPFS for immutable publication
 - Define the JMD object graph -> SL corpus graph bridge incrementally from
   `docs/planning/jmd_sl_corpus_bridge_contract_20260319.md`:
   - use `docs/planning/jmd_triage_roadmap_20260320.md` as the canonical triage

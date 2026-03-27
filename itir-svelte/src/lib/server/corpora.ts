@@ -1,9 +1,12 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
+import os from 'node:os';
+import crypto from 'node:crypto';
 import { readStdout, resolveItirDbPath, resolveRepoRoot } from './utils';
 import { listThreads, type ThreadIndexRow } from './threadIndex';
 import { resolveChatArchivePath } from './chatArchive';
 import { listSemanticCorpora, loadSemanticReport } from './semanticReport';
+import { loadFactReviewAcceptance, loadFactReviewWorkbench } from './factReview';
 
 export type CorpusCard = {
   key: string;
@@ -203,8 +206,10 @@ export type PersonalProcessedRun = {
 export type PersonalAffidavitResult = {
   key: string;
   label: string;
-  artifactPath: string;
-  origin: 'fixture' | 'live';
+  artifactPath: string | null;
+  origin: 'fixture' | 'live' | 'persisted';
+  reviewRunId: string | null;
+  storageBasis: 'sqlite' | 'artifact';
   affidavitPath: string;
   sourcePath: string;
   summary: {
@@ -222,6 +227,28 @@ export type PersonalAffidavitResult = {
 export type PersonalProcessedOverview = {
   runs: PersonalProcessedRun[];
   affidavits: PersonalAffidavitResult[];
+};
+
+export type FeedbackReceiptSummary = {
+  receiptId: string;
+  feedbackClass: string;
+  roleLabel: string;
+  taskLabel: string;
+  targetProduct: string | null;
+  targetSurface: string | null;
+  workflowLabel: string | null;
+  sourceKind: string;
+  summary: string;
+  quoteText: string;
+  severity: string;
+  desiredOutcome: string | null;
+  sentiment: string | null;
+  capturedAt: string;
+  tags: string[];
+  createdAt: string;
+  provenance: Record<string, unknown>;
+  drillInHref: string | null;
+  drillInLabel: string | null;
 };
 
 type OpenRecallSummaryRaw = {
@@ -252,6 +279,69 @@ function factReviewQueryScript(repoRoot: string): string {
 export function resolveMessengerDbPath(repoRoot: string): string {
   const raw = process.env.ITIR_MESSENGER_DB_PATH?.trim() || process.env.MESSENGER_TEST_DB_PATH?.trim();
   return path.resolve(repoRoot, raw || '.cache_local/itir_messenger_test.sqlite');
+}
+
+function normalizeInternalHref(value: string | null | undefined): string | null {
+  const text = String(value ?? '').trim();
+  if (!text || !text.startsWith('/')) return null;
+  return text;
+}
+
+function deriveFeedbackDrillIn(
+  row: {
+    target_product?: string | null;
+    target_surface?: string | null;
+    workflow_label?: string | null;
+    task_label?: string | null;
+    provenance?: Record<string, unknown>;
+  }
+): { href: string | null; label: string | null } {
+  const targetSurface = normalizeInternalHref(row.target_surface);
+  if (targetSurface) {
+    return { href: targetSurface, label: 'Open target surface' };
+  }
+  const provenance = row.provenance && typeof row.provenance === 'object' ? row.provenance : {};
+  const provenanceSourceRef = String((provenance as Record<string, unknown>).source_ref ?? '').trim();
+  const directSourceHref = normalizeInternalHref(provenanceSourceRef);
+  if (directSourceHref) {
+    return { href: directSourceHref, label: 'Open source-linked surface' };
+  }
+  if (/^[0-9a-f]{40}$/i.test(provenanceSourceRef)) {
+    return { href: `/thread/${provenanceSourceRef}`, label: 'Open source thread' };
+  }
+  if (provenanceSourceRef.startsWith('thread:')) {
+    const threadId = provenanceSourceRef.slice('thread:'.length).trim();
+    if (/^[0-9a-f]{40}$/i.test(threadId)) {
+      return { href: `/thread/${threadId}`, label: 'Open source thread' };
+    }
+  }
+  const workflowKind = String((provenance as Record<string, unknown>).workflow_kind ?? '').trim();
+  const workflowRunId = String((provenance as Record<string, unknown>).workflow_run_id ?? '').trim();
+  const sourceLabel = String((provenance as Record<string, unknown>).source_label ?? '').trim();
+  if (workflowKind || workflowRunId || sourceLabel) {
+    return {
+      href: buildFactReviewHref({
+        workflow_kind: workflowKind || null,
+        workflow_run_id: workflowRunId || null,
+        source_label: sourceLabel || null
+      }),
+      label: 'Open linked fact review run'
+    };
+  }
+  const targetProduct = String(row.target_product ?? '').trim().toLowerCase();
+  const workflowLabel = String(row.workflow_label ?? '').trim().toLowerCase();
+  const taskLabel = String(row.task_label ?? '').trim().toLowerCase();
+
+  if (workflowLabel === 'personal_results_review' || targetProduct === 'itir-svelte') {
+    return { href: '/corpora/processed/personal', label: 'Open personal results' };
+  }
+  if (workflowLabel.includes('fact_review') || taskLabel.includes('review')) {
+    return { href: '/graphs/fact-review', label: 'Open fact review workbench' };
+  }
+  if (taskLabel.includes('browse_corpus')) {
+    return { href: '/corpora', label: 'Open corpus browser' };
+  }
+  return { href: null, label: null };
 }
 
 async function runJsonQuery<T>(cmd: string, args: string[], cwd: string): Promise<T> {
@@ -308,48 +398,68 @@ type FactReviewRunsPayload = {
   }>;
 };
 
-type FactReviewDemoBundle = {
-  selector?: {
-    source_label?: string;
-  };
-  acceptance?: {
+type ContestedRunsPayload = {
+  runs?: Array<{
+    review_run_id?: string;
+    artifact_version?: string;
+    fixture_kind?: string | null;
+    source_kind?: string | null;
+    source_label?: string | null;
+    source_input_path?: string | null;
+    affidavit_input_path?: string | null;
+    affidavit_proposition_count?: number;
+    covered_count?: number;
+    partial_count?: number;
+    unsupported_affidavit_count?: number;
+    missing_review_count?: number;
+    semantic_basis_counts?: Record<string, number>;
+    created_at?: string;
+  }>;
+};
+
+type ContestedSummaryPayload = {
+  review?: {
+    run?: {
+      review_run_id?: string;
+      source_kind?: string | null;
+      source_label?: string | null;
+      source_input_path?: string | null;
+      affidavit_input_path?: string | null;
+    };
     summary?: {
-      story_count?: number;
-      pass_count?: number;
+      affidavit_proposition_count?: number;
+      covered_count?: number;
       partial_count?: number;
-      fail_count?: number;
+      unsupported_affidavit_count?: number;
+      missing_review_count?: number;
+      substantive_response_count?: number;
+      affidavit_supported_ratio?: number;
+      substantive_response_ratio?: number;
     };
   };
-  workbench?: {
-    summary?: Record<string, number>;
-    operator_views?: Record<string, unknown>;
-  };
 };
 
-const PERSONAL_DEMO_BUNDLES: Record<string, string> = {
-  'wave1:real_transcript_intake_v1': 'itir-svelte/tests/fixtures/fact_review_wave1_real_demo_bundle.json',
-  'wave1:real_au_procedural_v1': 'itir-svelte/tests/fixtures/fact_review_wave1_real_au_demo_bundle.json',
-  'wave3:real_transcript_fragmented_support_v1':
-    'itir-svelte/tests/fixtures/fact_review_wave3_real_fragmented_support_demo_bundle.json',
-  'wave5:real_transcript_professional_handoff_v1':
-    'itir-svelte/tests/fixtures/fact_review_wave5_real_professional_handoff_demo_bundle.json',
-  'wave5:real_transcript_false_coherence_v1':
-    'itir-svelte/tests/fixtures/fact_review_wave5_real_false_coherence_demo_bundle.json'
+type FeedbackReceiptsPayload = {
+  receipts?: Array<{
+    receipt_id?: string;
+    feedback_class?: string;
+    role_label?: string;
+    task_label?: string;
+    target_product?: string | null;
+    target_surface?: string | null;
+    workflow_label?: string | null;
+    source_kind?: string;
+    summary?: string;
+    quote_text?: string;
+    severity?: string;
+    desired_outcome?: string | null;
+    sentiment?: string | null;
+    captured_at?: string;
+    tags?: string[];
+    provenance?: Record<string, unknown>;
+    created_at?: string;
+  }>;
 };
-
-async function loadPersonalDemoBundleMap(repoRoot: string): Promise<Map<string, FactReviewDemoBundle>> {
-  const bundles = new Map<string, FactReviewDemoBundle>();
-  for (const [sourceLabel, relativePath] of Object.entries(PERSONAL_DEMO_BUNDLES)) {
-    const absolutePath = path.join(repoRoot, relativePath);
-    try {
-      const payload = await readJsonFile<FactReviewDemoBundle>(absolutePath);
-      bundles.set(sourceLabel, payload);
-    } catch {
-      // optional fixture only
-    }
-  }
-  return bundles;
-}
 
 async function resolveLatestLiveContestedAffidavitPath(): Promise<string | null> {
   try {
@@ -380,26 +490,20 @@ export async function loadPersonalProcessedOverview(): Promise<PersonalProcessed
     [factReviewQueryScript(repoRoot), '--db-path', dbPath, 'runs', '--limit', '50'],
     repoRoot
   ).catch(() => ({ runs: [] }));
-  const demoBundles = await loadPersonalDemoBundleMap(repoRoot);
-
-  const runs = (runsPayload.runs ?? [])
-    .filter((row) => String(row.source_label ?? '').includes(':real_'))
-    .map((row) => {
+  const realRunRows = (runsPayload.runs ?? []).filter((row) => String(row.source_label ?? '').includes(':real_'));
+  const runs = await Promise.all(
+    realRunRows.map(async (row) => {
       const sourceLabel = String(row.source_label ?? '');
       const workflowKind = String(row.workflow_link?.workflow_kind ?? '');
       const workflowRunId = String(row.workflow_link?.workflow_run_id ?? '');
-      const demo = demoBundles.get(sourceLabel);
-      const acceptanceSummary = demo?.acceptance?.summary
-        ? {
-            storyCount: Number(demo.acceptance.summary.story_count ?? 0) || 0,
-            passCount: Number(demo.acceptance.summary.pass_count ?? 0) || 0,
-            partialCount: Number(demo.acceptance.summary.partial_count ?? 0) || 0,
-            failCount: Number(demo.acceptance.summary.fail_count ?? 0) || 0
-          }
-        : null;
+      const runId = String(row.run_id ?? '');
+      const [workbench, acceptance] = await Promise.all([
+        loadFactReviewWorkbench({ runId }).catch(() => null),
+        loadFactReviewAcceptance({ runId }, { fixtureKind: 'real' }).catch(() => null)
+      ]);
       return {
         sourceLabel,
-        runId: String(row.run_id ?? ''),
+        runId,
         workflowKind,
         workflowRunId,
         createdAt: String(row.created_at ?? ''),
@@ -414,10 +518,17 @@ export async function loadPersonalProcessedOverview(): Promise<PersonalProcessed
           contestationCount: Number(row.contestation_count ?? 0) || 0
         },
         summary: Object.fromEntries(
-          Object.entries(demo?.workbench?.summary ?? {}).map(([key, value]) => [key, Number(value ?? 0) || 0])
+          Object.entries(workbench?.summary ?? {}).map(([key, value]) => [key, Number(value ?? 0) || 0])
         ),
-        operatorViews: Object.keys(demo?.workbench?.operator_views ?? {}),
-        acceptanceSummary,
+        operatorViews: Object.keys(workbench?.operator_views ?? {}),
+        acceptanceSummary: acceptance?.summary
+          ? {
+              storyCount: Number(acceptance.summary.story_count ?? 0) || 0,
+              passCount: Number(acceptance.summary.pass_count ?? 0) || 0,
+              partialCount: Number(acceptance.summary.partial_count ?? 0) || 0,
+              failCount: Number(acceptance.summary.fail_count ?? 0) || 0
+            }
+          : null,
         rawSourceHref: buildRawSourceHref(sourceLabel, workflowKind),
         workbenchHref: buildFactReviewHref({
           source_label: sourceLabel,
@@ -426,7 +537,8 @@ export async function loadPersonalProcessedOverview(): Promise<PersonalProcessed
         })
       } satisfies PersonalProcessedRun;
     })
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  );
+  runs.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
   const affidavitArtifacts: Array<{ key: string; label: string; artifactPath: string; origin: 'fixture' | 'live' }> = [
     {
@@ -468,16 +580,73 @@ export async function loadPersonalProcessedOverview(): Promise<PersonalProcessed
     });
   }
 
+  const persistedContested = await runJsonQuery<ContestedRunsPayload>(
+    'python3',
+    [factReviewQueryScript(repoRoot), '--db-path', dbPath, 'contested-runs', '--limit', '20'],
+    repoRoot
+  ).catch(() => ({ runs: [] }));
+
   const affidavits: PersonalAffidavitResult[] = [];
+  const seenKeys = new Set<string>();
+  for (const row of persistedContested.runs ?? []) {
+    const reviewRunId = String(row.review_run_id ?? '').trim();
+    if (!reviewRunId) continue;
+    const detail = await runJsonQuery<ContestedSummaryPayload>(
+      'python3',
+      [factReviewQueryScript(repoRoot), '--db-path', dbPath, 'contested-summary', '--review-run-id', reviewRunId],
+      repoRoot
+    ).catch(() => null);
+    const run = detail?.review?.run ?? {};
+    const summary = detail?.review?.summary ?? {};
+    const sourceKind = String(run.source_kind ?? row.source_kind ?? '').trim();
+    const sourceLabel = String(run.source_label ?? row.source_label ?? '').trim();
+    const label =
+      sourceKind === 'google_docs_contested_narrative'
+        ? 'Dad/Johl contested narrative review'
+        : sourceKind === 'au_dense_overlay_slice'
+          ? 'AU dense affidavit coverage'
+          : sourceKind === 'au_checked_handoff_slice'
+            ? 'AU affidavit coverage'
+            : sourceLabel || sourceKind || 'Persisted affidavit review';
+    const key = sourceKind || sourceLabel || reviewRunId;
+    seenKeys.add(key);
+    affidavits.push({
+      key,
+      label,
+      artifactPath: null,
+      origin: 'persisted',
+      reviewRunId,
+      storageBasis: 'sqlite',
+      affidavitPath: String(run.affidavit_input_path ?? row.affidavit_input_path ?? ''),
+      sourcePath: String(run.source_input_path ?? row.source_input_path ?? ''),
+      summary: {
+        affidavitPropositionCount: Number(summary.affidavit_proposition_count ?? row.affidavit_proposition_count ?? 0) || 0,
+        coveredCount: Number(summary.covered_count ?? row.covered_count ?? 0) || 0,
+        partialCount: Number(summary.partial_count ?? row.partial_count ?? 0) || 0,
+        unsupportedAffidavitCount: Number(summary.unsupported_affidavit_count ?? row.unsupported_affidavit_count ?? 0) || 0,
+        missingReviewCount: Number(summary.missing_review_count ?? row.missing_review_count ?? 0) || 0,
+        substantiveResponseCount: Number(summary.substantive_response_count ?? 0) || 0,
+        affidavitSupportedRatio: Number(summary.affidavit_supported_ratio ?? 0) || 0,
+        substantiveResponseRatio: Number(summary.substantive_response_ratio ?? 0) || 0
+      }
+    });
+  }
+
   for (const artifact of affidavitArtifacts) {
     try {
       const payload = await readJsonFile<any>(artifact.artifactPath);
+      const sourceKind = String(payload?.source_input?.source_kind ?? '').trim();
+      const sourceLabel = String(payload?.source_input?.source_label ?? '').trim();
+      const dedupeKey = sourceKind || sourceLabel || artifact.key;
+      if (seenKeys.has(dedupeKey)) continue;
       const summary = payload?.summary ?? {};
       affidavits.push({
         key: artifact.key,
         label: artifact.label,
         artifactPath: artifact.artifactPath,
         origin: artifact.origin,
+        reviewRunId: null,
+        storageBasis: 'artifact',
         affidavitPath: String(payload?.affidavit_input?.path ?? ''),
         sourcePath: String(payload?.source_input?.path ?? ''),
         summary: {
@@ -496,7 +665,107 @@ export async function loadPersonalProcessedOverview(): Promise<PersonalProcessed
     }
   }
 
+  affidavits.sort((a, b) => {
+    const rank = (value: PersonalAffidavitResult['origin']) => (value === 'persisted' ? 0 : value === 'live' ? 1 : 2);
+    return rank(a.origin) - rank(b.origin) || a.label.localeCompare(b.label);
+  });
+
   return { runs, affidavits };
+}
+
+export async function loadFeedbackReceipts(limit = 20): Promise<FeedbackReceiptSummary[]> {
+  const repoRoot = resolveRepoRoot();
+  const dbPath = resolveItirDbPath(repoRoot);
+  const payload = await runJsonQuery<FeedbackReceiptsPayload>(
+    'python3',
+    [factReviewQueryScript(repoRoot), '--db-path', dbPath, 'feedback-receipts', '--limit', String(limit)],
+    repoRoot
+  ).catch(() => ({ receipts: [] }));
+  return (payload.receipts ?? []).map((row) => ({
+    ...(() => {
+      const drillIn = deriveFeedbackDrillIn(row);
+      return {
+        drillInHref: drillIn.href,
+        drillInLabel: drillIn.label
+      };
+    })(),
+    receiptId: String(row.receipt_id ?? ''),
+    feedbackClass: String(row.feedback_class ?? ''),
+    roleLabel: String(row.role_label ?? ''),
+    taskLabel: String(row.task_label ?? ''),
+    targetProduct: row.target_product ? String(row.target_product) : null,
+    targetSurface: row.target_surface ? String(row.target_surface) : null,
+    workflowLabel: row.workflow_label ? String(row.workflow_label) : null,
+    sourceKind: String(row.source_kind ?? ''),
+    summary: String(row.summary ?? ''),
+    quoteText: String(row.quote_text ?? ''),
+    severity: String(row.severity ?? ''),
+    desiredOutcome: row.desired_outcome ? String(row.desired_outcome) : null,
+    sentiment: row.sentiment ? String(row.sentiment) : null,
+    capturedAt: String(row.captured_at ?? ''),
+    tags: Array.isArray(row.tags) ? row.tags.map((value) => String(value)) : [],
+    provenance: row.provenance && typeof row.provenance === 'object' ? row.provenance : {},
+    createdAt: String(row.created_at ?? '')
+  }));
+}
+
+export async function addFeedbackReceipt(
+  fields: Record<string, string | string[] | Record<string, unknown> | null | undefined>
+): Promise<{ receiptId: string; feedbackClass: string }> {
+  const repoRoot = resolveRepoRoot();
+  const dbPath = resolveItirDbPath(repoRoot);
+  const args = [factReviewQueryScript(repoRoot), '--db-path', dbPath, 'feedback-add'];
+  const addArg = (flag: string, value: string | null | undefined) => {
+    if (value && value.trim()) args.push(flag, value.trim());
+  };
+  addArg('--feedback-class', typeof fields.feedbackClass === 'string' ? fields.feedbackClass : null);
+  addArg('--role-label', typeof fields.roleLabel === 'string' ? fields.roleLabel : null);
+  addArg('--task-label', typeof fields.taskLabel === 'string' ? fields.taskLabel : null);
+  addArg('--source-kind', typeof fields.sourceKind === 'string' ? fields.sourceKind : null);
+  addArg('--summary', typeof fields.summary === 'string' ? fields.summary : null);
+  addArg('--quote-text', typeof fields.quoteText === 'string' ? fields.quoteText : null);
+  addArg('--severity', typeof fields.severity === 'string' ? fields.severity : null);
+  addArg('--captured-at', typeof fields.capturedAt === 'string' ? fields.capturedAt : null);
+  addArg('--target-product', typeof fields.targetProduct === 'string' ? fields.targetProduct : null);
+  addArg('--target-surface', typeof fields.targetSurface === 'string' ? fields.targetSurface : null);
+  addArg('--workflow-label', typeof fields.workflowLabel === 'string' ? fields.workflowLabel : null);
+  addArg('--desired-outcome', typeof fields.desiredOutcome === 'string' ? fields.desiredOutcome : null);
+  addArg('--sentiment', typeof fields.sentiment === 'string' ? fields.sentiment : null);
+  const tags = Array.isArray(fields.tags)
+    ? fields.tags
+    : typeof fields.tags === 'string'
+      ? [fields.tags]
+      : [];
+  for (const tag of tags.map((value) => String(value).trim()).filter(Boolean)) {
+    args.push('--tag', tag);
+  }
+  addArg('--provenance-collector', typeof fields.provenanceCollector === 'string' ? fields.provenanceCollector : null);
+  addArg('--provenance-source-ref', typeof fields.provenanceSourceRef === 'string' ? fields.provenanceSourceRef : null);
+  if (fields.provenanceJson && typeof fields.provenanceJson === 'object' && !Array.isArray(fields.provenanceJson)) {
+    args.push('--provenance-json', JSON.stringify(fields.provenanceJson));
+  }
+  const raw = await runJsonQuery<{ receipt?: { receipt_id?: string; feedback_class?: string } }>('python3', args, repoRoot);
+  return {
+    receiptId: String(raw.receipt?.receipt_id ?? ''),
+    feedbackClass: String(raw.receipt?.feedback_class ?? '')
+  };
+}
+
+export async function importFeedbackReceiptsFromJsonlText(text: string): Promise<{ importedCount: number }> {
+  const repoRoot = resolveRepoRoot();
+  const dbPath = resolveItirDbPath(repoRoot);
+  const tempPath = path.join(os.tmpdir(), `itir-feedback-import-${crypto.randomUUID()}.jsonl`);
+  await fs.writeFile(tempPath, text, 'utf8');
+  try {
+    const payload = await runJsonQuery<{ imported_count?: number }>(
+      'python3',
+      [factReviewQueryScript(repoRoot), '--db-path', dbPath, 'feedback-import', '--input', tempPath],
+      repoRoot
+    );
+    return { importedCount: Number(payload.imported_count ?? 0) || 0 };
+  } finally {
+    await fs.rm(tempPath, { force: true }).catch(() => undefined);
+  }
 }
 
 export async function loadCorpusHome(): Promise<{

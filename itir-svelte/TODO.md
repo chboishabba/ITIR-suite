@@ -155,6 +155,29 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
   - `/corpora/processed/broader`
   This keeps full-ingest inspection in one place instead of scattering it
   across only thread-specific or workbench-specific routes.
+- DONE (2026-03-27): switch `/corpora/processed/personal` affidavit cards to
+  prefer the persisted contested-review receiver via
+  `SensibLaw/scripts/query_fact_review.py contested-runs|contested-summary`,
+  with artifact JSON only as fallback.
+- DONE (2026-03-27): add a first collector-facing feedback capture surface to
+  `/corpora/processed/personal` over the canonical ITIR DB:
+  - one-receipt form backed by `query_fact_review.py feedback-add`
+  - JSONL paste/import form backed by `query_fact_review.py feedback-import`
+  - recent feedback-receipt cards from `feedback-receipts`
+- DONE (2026-03-27): add first bounded feedback receipt drill-ins from
+  `/corpora/processed/personal` back into internal routes/workbenches when the
+  receipt names an internal `target_surface` or safely maps to one.
+- DONE (2026-03-27): make those receipt drill-ins provenance-first when
+  stronger refs already exist in the receipt:
+  canonical thread ids, fact-review selector refs, or direct internal route
+  refs.
+- DONE (2026-03-27): expose explicit capture fields for those stronger refs in
+  `/corpora/processed/personal`:
+  canonical thread id plus fact-review selector refs.
+- next:
+  - improve feedback collector UX beyond raw field entry / JSONL paste
+  - extend explicit capture to other canonical object families only where
+    there is a clear product path and stable target surface
 
 ## Tool Use Summary (Parser)
 

@@ -162,10 +162,25 @@ workbench.
 
 `/corpora/processed/personal` is the personal-results layer over the user's
 actual persisted corpora/results, including:
-- live `:real_` fact-review runs from the canonical ITIR DB
-- operator-view and acceptance summary hints from the checked-in real demo bundles
-- affidavit review artifacts, including the latest live contested Google Docs
+- live `:real_` fact-review runs from the canonical ITIR DB, hydrated
+  DB-first through the persisted fact-review workbench/acceptance paths
+- persisted contested affidavit-review runs from the canonical ITIR DB when
+  available
+- bounded feedback-receipt capture/review over the canonical ITIR DB:
+  - one-receipt form
+  - JSONL paste/import form
+  - recent receipt cards
+  - provenance-first drill-ins back to canonical internal objects/routes when
+    the receipt already carries a stable ref (`target_surface`, thread id,
+    fact-review selector)
+  - explicit capture fields for canonical thread ids and fact-review selector
+    refs so those drill-ins can be recorded deliberately at collection time
+- artifact fallback cards, including the latest live contested Google Docs
   review when present under `/tmp`
+
+The fact-review part of this page is runtime DB-first. The affidavit section now
+prefers the persisted contested-review receiver and only falls back to artifact
+cards when no persisted run is available.
 
 `/corpora/processed/broader` and its detail pages expose wider diagnostic
 artifacts such as `public_bios_timeline` vs `corpus_book_timeline`,

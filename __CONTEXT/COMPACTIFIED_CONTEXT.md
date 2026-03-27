@@ -1,6 +1,63 @@
 # Compactified Context (ITIR-suite)
 
 ## 2026-03-27
+- Added the workspace coordination boundary note:
+  - `docs/planning/workspace_coordination_boundary_20260327.md`
+- Current decision:
+  - continue working across the existing repositories
+  - use `ITIR-suite` as the canonical suite control plane
+  - do not create a new top-level coordination repo yet
+  - create a new project directory only when it introduces an independent
+    runtime/build or transport boundary rather than duplicate planning state
+
+## 2026-03-27
+- Added the shared artifact-contract note:
+  - `docs/planning/shared_shard_artifact_contract_v1_20260327.md`
+- Current decision:
+  - the contract is logical first and transport-neutral
+  - shard identity does not come from HF path names or IPFS CIDs alone
+  - selectors resolve to logical shard ids first, sink refs second
+  - JSON and CBOR are projection formats, not different contracts
+  - Zelph is the read/query consumer and ZOS is the publish/pull orchestrator
+- Followthrough:
+  - first builder slice now exists at
+    `tools/build_shared_shard_artifact_contract.py`
+  - deterministic IPFS ref-map builder now exists at
+    `tools/build_ipfs_shard_ref_map.py`
+  - focused regression coverage now exists at
+    `tests/test_build_shared_shard_artifact_contract.py` and
+    `tests/test_build_ipfs_shard_ref_map.py`
+  - first real artifact projection completed on the 2026 Zelph v3 proof:
+    `1536` logical shards plus the routing index now carry both HF and IPFS
+    object refs under one logical contract
+  - targeted tests passed in the repo environment
+
+## 2026-03-27
+- Added a shard-architecture matrix note for Zelph / Kant / ZOS:
+  - `docs/planning/zelph_kant_zos_shard_contract_matrix_20260327.md`
+- Current decision:
+  - the unresolved hinge is the shared artifact contract, not transport alone
+  - current evidence supports role-fit, not a proof of global optimality
+  - role-fit read:
+    - Zelph sharder for query-shaped graph reads
+    - Kant sharder for publish/pull packaging and content identity
+    - HF for practical hosted querying
+    - IPFS for immutable publication
+  - current recommendation is hybrid rather than winner-takes-all
+
+## 2026-03-27
+- Zelph upstream handoff state is now:
+  - `acrion/zelph#25` merged into `develop`
+  - one real post-merge follow-up bug found by Stefan
+  - follow-up fix rebased onto current `develop`, built locally, and exposed
+    as `acrion/zelph#26`
+- Current lane state:
+  - Zelph is no longer the active implementation bottleneck
+  - remaining work is primarily upstream review/integration on `#26`
+  - bounded proof artifacts now exist across HF dataset, HF bucket storage,
+    and IPFS
+
+## 2026-03-27
 - Resolved the current HF/shard interface survey across the Meta-Introspector
   repos.
 - Current decision:

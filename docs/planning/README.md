@@ -8,6 +8,8 @@ artifacts for the context invariant.
 ITIR-suite orchestration role and boundaries:
 - `docs/planning/itir_orchestrator.md`
 - `docs/planning/why_itir_not_sl.md` (separation of powers: ITIR vs SL)
+- `docs/planning/workspace_coordination_boundary_20260327.md`
+  (when to keep work multi-repo vs create a new top-level project dir)
 
 ## Validation (Stub)
 

@@ -1,5 +1,85 @@
 # Compactified Context
 
+- 2026-03-27 workspace coordination boundary:
+  - source: current working turn
+  - planning note:
+    `docs/planning/workspace_coordination_boundary_20260327.md`
+  - main decision:
+    - do not create a new top-level coordination project directory now
+    - continue working across the existing repos
+    - use `ITIR-suite` as the canonical control-plane repo for cross-repo
+      planning, TODOs, context, and promotion decisions
+    - keep repo-local semantics and implementation notes in the owning repo
+      (`dashi_agda`, `FRACDASH`, etc.)
+    - only create a new project directory when it has a real runtime/build or
+      transport boundary, as with `itir-mcp`, rather than merely duplicating
+      planning state
+  - next gap:
+    - keep this boundary explicit as new cross-repo runtime adapters appear so
+      control-plane notes do not drift into repo-local implementation docs
+
+- 2026-03-27 feedback receipt contract + receiver:
+  - source: current working turn
+  - planning note:
+    `docs/planning/feedback_receipt_contract_20260327.md`
+  - main decision:
+    - proxy/story-derived frustrations are no longer enough as the only
+      planning evidence
+    - feedback needs a bounded canonical receipt with explicit provenance,
+      role, task, class, severity, quote, and desired outcome
+  - implementation:
+    - first persisted receiver now exists in `SensibLaw`'s `itir.sqlite`
+      path via the fact-intake/read-model layer
+    - query surface now supports listing and inspecting feedback receipts
+    - capture ergonomics now exist through
+      `SensibLaw/scripts/query_fact_review.py`:
+      `feedback-add` for one receipt and `feedback-import` for local JSONL/JSON
+      batches
+    - first collector-facing UI now exists at
+      `itir-svelte /corpora/processed/personal`:
+      one-receipt add form, JSONL paste/import form, and recent receipt cards
+    - recent feedback receipts now expose bounded drill-ins back to relevant
+      internal surfaces/workbenches when the receipt already names an internal
+      route or safely maps to one
+    - that drill-in logic is now provenance-first when stronger refs exist:
+      canonical thread ids, fact-review selectors, or direct internal route
+      refs override weaker route-level guesses
+    - the collector UI now exposes explicit fields for:
+      - canonical thread id
+      - fact-review selector refs (`workflow_kind`, `workflow_run_id`,
+        `source_label`)
+      so those stronger drill-ins do not depend on ad hoc provenance entry
+    - direct user evidence and `story_proxy` receipts can share the same lane,
+      but they must remain explicitly distinguished
+  - next gap:
+    - the remaining gap is a better collector/operator UX than raw field entry
+      / JSONL paste, plus broader explicit capture of other canonical object
+      families when justified
+
+- 2026-03-27 cross-repo user-story + feedback audit:
+  - source: current working turn
+  - planning note:
+    `docs/planning/repo_user_story_state_and_feedback_20260327.md`
+  - main decision:
+    - the suite is currently strongest on provenance, bounded review, and
+      explicit uncertainty
+    - it is weaker on polished end-user workflow/productization across repos
+    - current “user frustration” knowledge is mostly proxy/story-derived rather
+      than based on persisted interview/usability receipts
+  - repo-level state summary:
+    - `SensibLaw` is strongest on review/provenance/doctrine and weakest on
+      polished operator UX and end-to-end guided flows
+    - `itir-svelte` is the correct UI front, but still more browse/workbench
+      than full product workflow
+    - `StatiBaker` is strong as a state compiler and weaker as a finished
+      operator product
+    - `TiRCorder` is real and useful, but still exposes setup/config friction
+    - chat/archive/openrecall lanes are strongest as corpus/evidence backends,
+      not yet seamless mainstream-facing products
+  - followthrough:
+    - added a root TODO to create a bounded feedback-receipt lane
+    - no code changes were made in this pass
+
 - 2026-03-27 Meta-introspector HF/shard interface survey:
   - source: current working turn
   - repositories inspected:
@@ -23,6 +103,78 @@
   - followthrough:
     - recorded in `TODO.md` as the current reusable HF/shard reference surface
     - no implementation changes were made in this pass
+
+- 2026-03-27 Zelph/Kant/ZOS shard matrix:
+  - source: current working turn
+  - planning note:
+    `docs/planning/zelph_kant_zos_shard_contract_matrix_20260327.md`
+  - main decision:
+    - the unresolved piece is the shared artifact contract, not raw transport
+      reachability
+    - current evidence supports role-fit, not global optimality
+    - best current fit by role:
+      - Zelph sharder: query-shaped remote graph reads
+      - Kant sharder: publish/pull artifact packaging and content identity
+      - HF: practical hosted querying
+      - IPFS: immutable content-addressed publication
+    - current recommendation is hybrid:
+      keep Zelph read/query-focused and ZOS publish/pull-focused under one
+      shared contract
+  - followthrough:
+    - tracked in `TODO.md`
+    - recorded in `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-27 Zelph upstream handoff state:
+  - source: current working turn
+  - main decision:
+    - the Zelph shard/HF/IPFS lane is now in upstream review/integration mode,
+      not active primary implementation mode
+    - `acrion/zelph#25` merged into `develop`
+    - Stefan's post-merge review found one real follow-up bug in manifest
+      load-all behavior
+    - that fix is now isolated, rebased onto current `upstream/develop`,
+      built locally, and open as `acrion/zelph#26`
+  - artifact state:
+    - HF dataset: bounded shard/query proof packs
+    - HF bucket: `hf://buckets/chbwa/zelph-shared-contract/20260309-shared-contract`
+    - IPFS: bounded proof packs mirrored, including the shared-contract pack
+  - followthrough:
+    - PR comments now contain the maintainer retrieval map and the follow-up
+      bug discussion
+    - remaining work on this lane depends on Stefan's review of `#26`
+
+- 2026-03-27 shared shard artifact contract:
+  - source: current working turn
+  - planning note:
+    `docs/planning/shared_shard_artifact_contract_v1_20260327.md`
+  - main decision:
+    - the contract must be logical first and transport-neutral
+    - shard identity may not depend on HF paths or IPFS CIDs alone
+    - selectors must resolve to logical shard ids before sink-specific fetch
+    - JSON and CBOR are projection formats for the same semantic artifact, not
+      competing contracts
+    - Zelph is the read/query consumer under this contract
+    - ZOS is the publish/pull orchestrator under this contract
+  - followthrough:
+    - implementation now exists at:
+      - `tools/build_shared_shard_artifact_contract.py`
+      - `tests/test_build_shared_shard_artifact_contract.py`
+      - `tools/build_ipfs_shard_ref_map.py`
+      - `tests/test_build_ipfs_shard_ref_map.py`
+    - current builder behavior:
+      - lifts a Zelph HF manifest into the shared logical contract
+      - emits JSON and CBOR projections of the same artifact
+      - can attach optional IPFS refs via mapping input
+      - can now derive deterministic raw `ipfs://` refs for all shard objects
+        and the routing sidecar from a local shard tree
+    - first real artifact projection completed on the 2026 Zelph v3 proof:
+      - `1536` logical shards plus the routing index
+      - same logical contract now carries both HF and IPFS object refs
+    - focused validation passed:
+      - `python -m pytest -q tests/test_build_ipfs_shard_ref_map.py tests/test_build_shared_shard_artifact_contract.py tests/test_build_zelph_hf_manifest.py`
+    - tracked in `TODO.md`
+    - recorded in `CHANGELOG.md`
 
 - 2026-03-27 Voxel Promotion and MDL framing:
   - source: `db`

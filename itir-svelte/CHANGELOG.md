@@ -3,6 +3,23 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Personal processed results feedback capture:
+  - Extended `/corpora/processed/personal` with a collector-facing feedback
+    section over the canonical ITIR DB:
+    one-receipt add form, JSONL paste/import form, and recent receipt cards.
+  - Added server-side helpers/actions in
+    `src/lib/server/corpora.ts` and
+    `src/routes/corpora/processed/personal/+page.server.ts`
+    backed by `SensibLaw/scripts/query_fact_review.py`
+    `feedback-add`, `feedback-import`, and `feedback-receipts`.
+  - Added provenance-first drill-ins from recent feedback receipts back into
+    relevant internal objects/routes when the receipt already carries a stable
+    ref (`target_surface`, canonical thread id, fact-review selector).
+  - The collector form now exposes explicit fields for canonical thread ids
+    and fact-review selector refs so those stronger drill-ins can be captured
+    deliberately instead of only inferred from ad hoc provenance.
+  - Added regression coverage in
+    `tests/corpus_browser_regressions.test.js`.
 - Docs/transition: clarify that `itir-svelte/` is the sole intended web
   interface going forward. Legacy `Pelican/` and `Zola/` surfaces remain
   reference-only during migration and should not receive new product-facing UI
@@ -507,10 +524,16 @@ This changelog records user-visible behavior changes in the Svelte SB dashboard 
   diagnostics, unresolved-surface pressure, mention-heavy events, workflow
   pressure, and raw-source backlog can be browsed directly in the app.
 - Added `/corpora/processed/personal` as the browse layer for the user's real
-  persisted corpus outputs, including live `:real_` fact-review runs,
-  operator-view/acceptance summaries from the checked-in real demo bundles, and
+  persisted corpus outputs, including live `:real_` fact-review runs and
   affidavit review artifacts such as the latest live contested Google Docs
   coverage review when available.
+- Tightened `/corpora/processed/personal` so the persisted fact-review side is
+  DB-first via the canonical workbench/acceptance path rather than hydrated
+  from checked-in demo-bundle JSON.
+- Switched `/corpora/processed/personal` affidavit review loading to prefer
+  the new persisted contested-review receiver via
+  `SensibLaw/scripts/query_fact_review.py contested-runs|contested-summary`,
+  with artifact JSON only as fallback when no persisted run is available.
 - Added a Python query seam for the Messenger test DB at
   `itir-svelte/scripts/query_messenger_test_db.py` so the Svelte app can browse
   bounded Messenger ingest rows without adding a native Node sqlite
