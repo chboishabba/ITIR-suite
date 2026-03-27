@@ -1115,8 +1115,9 @@
       not a full Zelph integration
   - use `docs/planning/sl_whitepaper_followthrough_20260314.md` as the
     planning source for the next SL-facing architecture/spec pass
-  - ratify explicit `Observation` and `Claim` contracts before adding more
-    doctrinal node types
+  - DONE: ratify explicit `Observation` and `Claim` contracts before adding more
+    doctrinal node types, now concretized with
+    `SensibLaw/schemas/sl.observation_claim.contract.v1.schema.yaml`
   - define the deterministic seam for
     `source/excerpt -> observation -> event/fact -> norm -> claim`
   - define RDF/Wikidata projection/export as an interoperability boundary, not

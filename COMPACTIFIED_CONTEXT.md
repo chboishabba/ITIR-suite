@@ -7,6 +7,9 @@
   - followthrough:
     - `Milestone R` is no longer blocked on contract ambiguity for
       `Observation`/`Claim`/evidence links.
+    - R.2 contract definition moved from ratified language to concrete
+      machine-readable schema at
+      `SensibLaw/schemas/sl.observation_claim.contract.v1.schema.yaml`.
     - this note remains implementation-contract-first until runtime surfaces
       are added.
 

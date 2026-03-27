@@ -83,6 +83,16 @@ canonical facts.
   - `jurisdiction`
   - status + provenance pointers
 - Projection may be lossy on graph shape but must not lose provenance.
+- For an explicit machine-readable boundary in this milestone, emit:
+  - `projection_records` as evidence-preserving, reified triple rows
+  - `provenance` pointers to at least `source_unit_id`, `observation status`,
+    and `jurisdiction`
+  - `evidence_refs` from canonical observation evidence plus deterministic
+    claim links
+- Boundary schema:
+  - `SensibLaw/schemas/sl.observation_claim.wikidata_projection.v1.schema.yaml`
+- Recommended converter:
+  - `src/sl_projection_boundary.py` (`build_wikidata_projection_report`)
 
 ## Transition receipts (future slice)
 - A legal reasoning transition receives:
@@ -95,6 +105,12 @@ canonical facts.
   - `deltas`
 - Both `current_state` and `next_state` references and a `transition_receipt_id`
   are mandatory.
+- Transition receipts now explicitly carry:
+  - `rule_version` for policy/compiler lineage
+  - `jurisdiction` scope used by transition application
+  - `legal_version` for law-text / rule-version tracking
+  - `effective_from` and optional `effective_to` timestamps for bounded temporal
+    applicability
 
 ## Acceptance criteria for Milestone R
 - A shared contract document exists and is linked from
@@ -103,3 +119,7 @@ canonical facts.
   invariants.
 - Evidence linkage is explicit and deterministic.
 - Projection direction and loss constraints are specified.
+- Machine-readable contract is now defined in:
+  - `SensibLaw/schemas/sl.observation_claim.contract.v1.schema.yaml`
+- `R.2 Contract definition` is now complete after adding a bounded,
+  versioned schema artifact in the active runtime schema surface.

@@ -9,6 +9,11 @@
 - Linked the ratified contract back into `sl_whitepaper_followthrough_20260314.md`.
 - Advanced `plan.md` checklist state to reflect completion of `R.1`
   (`R.1 Contract ratification` -> `R.2 Contract definition` in status tracking).
+- Completed R.2 contract definition by adding the machine-readable contract artifact:
+  - `SensibLaw/schemas/sl.observation_claim.contract.v1.schema.yaml`
+  - this file now gives explicit field/enum contracts for
+    `Observation`, `Claim`, and deterministic `evidence_link`/transition-receipt
+    payloads.
 - Split the disjointness candidate scanner into explicit backends:
   - `wdqs` for live subclass/instance discovery
   - `zelph` for local instance-only discovery from explicit pair seeds

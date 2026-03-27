@@ -117,7 +117,7 @@
    Observation/Claim contract in:
    `docs/planning/sl_observation_claim_contract_20260327.md`
    `docs/planning/sl_whitepaper_followthrough_20260314.md`.
-2. Define explicit `Observation` / `Claim` / evidence-link contracts before any
+2. DONE: Define explicit `Observation` / `Claim` / evidence-link contracts before any
    broader ontology growth.
 3. Freeze RDF/Wikidata as a projection/export boundary over the richer SL
    event/observation model.
