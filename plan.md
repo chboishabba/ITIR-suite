@@ -1,5 +1,41 @@
 # Implementation Plan
 
+## Milestone X: Latent-State and Cross-System Mapping Contract (in progress)
+1. Normalize the canonical planning state around the current doctrine:
+   - `spec.md`
+   - `architecture.md`
+   - `plan.md`
+   - `status.json`
+   - `devlog.md`
+2. Freeze the single-system latent-state contract:
+   - `L(P)` is downstream of promotion
+   - reconstruction and provenance rules are explicit
+   - latent outputs cannot act as hidden truth
+3. DONE: Freeze the cross-system extension:
+   - local promoted truth sets `P_i`
+   - checked mapping layer `Phi`
+   - explicit statuses:
+     `exact`, `partial`, `incompatible`, `undefined`
+4. Define the first bounded prototype contract:
+   - DONE: two systems only
+   - DONE: one small promoted relation family
+   - DONE: one checked mapping table
+   - DONE: one mismatch report
+   - DONE: freeze the bounded executable `Phi` transport schema at:
+     `SensibLaw/schemas/sl.cross_system_phi.contract.v1.schema.yaml`
+   - DONE: implement one real promoted-record prototype over existing emitted
+     semantic reports:
+     `SensibLaw/src/cross_system_phi.py`
+   - DONE: make mismatch review workflow and provenance-preservation rule
+     explicit in the executable contract
+   - DONE: add regression coverage over real AU/GWB promoted reports:
+     `SensibLaw/tests/test_cross_system_phi_prototype.py`
+5. Next formalization after the bounded real prototype:
+   - widen witness structure over real promoted records
+   - formalize typed `L(P)` node/edge/constraint surfaces
+   - explain any future `v2` schema relative to the current bounded `v1`
+     transport contract
+
 ## Milestone A: Shared state + page wiring (completed)
 1. Create shared review-state helper.
 2. Wire helper into thread/narrative/wiki pages.

@@ -1,21 +1,48 @@
-# Workbench Implementation Spec
+# Cross-System Latent-State Contract Spec
 
 ## Goal
-Implement the graph/review interaction contracts for recent workbench pages with explicit state reason codes, bounded graph drill-in, and synchronized selection behavior.
+Define the next bounded architecture milestone that moves the repo from
+truth-construction doctrine into an executable latent-state program without
+creating a hidden truth layer.
+
+The immediate target is a governed contract for:
+
+- single-system latent state as `L(P)` over promoted truth
+- cross-system latent state as local promoted sets `P_i` plus checked mappings
+  `Phi`
+- a first bounded prototype shape that can be implemented later without
+  drifting into universal-ontology rhetoric
 
 ## In scope
-- `/arguments/thread/[threadId]`
-- `/graphs/narrative-compare`
-- `/graphs/wiki-revision-contested`
-- Shared review-state helper and regression guards.
+- Formalize `latent_state = L(P)` as a downstream, provenance-preserving,
+  loss-bounded compression over promoted truth.
+- Formalize the cross-system extension:
+  - local promoted truth sets `P_i`
+  - mapping layer `Phi`
+  - explicit statuses:
+    `exact`, `partial`, `incompatible`, `undefined`
+- Define the minimum schema/contract expectations for:
+  - bounded latent graph state
+  - cross-system mapping rows
+  - mismatch and contradiction reporting
+- Define the first prototype boundary:
+  - two bounded systems only
+  - one small promoted motif family
+  - one checked `Phi` table
+  - one mismatch report
 
 ## Out of scope
-- Global graph expansion across corpus.
-- New extraction pipelines.
-- Styling-system redesign.
+- Universal legal ontology claims.
+- Raw-text or candidate-only latent inference presented as truth.
+- Automatic truth merge across systems.
+- Full cross-cultural legal alignment.
+- Immediate production implementation of the latent/mapping lane.
 
 ## Success criteria
-- All three pages expose explicit review state reasons.
-- Narrative compare supports row selection + bounded graph drill-in.
-- Thread workbench and contested wiki use consistent state signaling.
-- Regression tests reference the new interaction model and state wiring.
+- The canonical planning files point at the latent/mapping contract as the next
+  governed milestone.
+- The architecture explicitly places latent state downstream of promotion.
+- The cross-system note explicitly preserves local-system authority and allows
+  incompatibility/undefined mappings.
+- `status.json` drives the orchestrator toward bounded schema design rather
+  than stale workbench milestones.

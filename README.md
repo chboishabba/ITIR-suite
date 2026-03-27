@@ -205,6 +205,16 @@ and [chat-export-structurer/README.md](chat-export-structurer/README.md).
   [docs/planning/itir_orchestrator.md](docs/planning/itir_orchestrator.md)
 - architecture boundary doctrine:
   [docs/architecture/admissibility_lattice.md](docs/architecture/admissibility_lattice.md)
+- JMD x SensibLaw truth-construction boundary:
+  [docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md](docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md)
+- motif candidate / promotion / legal-tree boundary:
+  [docs/planning/motif_candidate_promotion_legal_tree_20260327.md](docs/planning/motif_candidate_promotion_legal_tree_20260327.md)
+- latent state over promoted truth:
+  [docs/planning/latent_state_over_promoted_truth_20260327.md](docs/planning/latent_state_over_promoted_truth_20260327.md)
+- global latent legal state across systems:
+  [docs/planning/global_latent_legal_state_cross_system_20260327.md](docs/planning/global_latent_legal_state_cross_system_20260327.md)
+- `Phi` mapping and latent graph schema:
+  [docs/planning/phi_mapping_and_latent_graph_schema_20260328.md](docs/planning/phi_mapping_and_latent_graph_schema_20260328.md)
 
 ### Proven example and handoff docs
 

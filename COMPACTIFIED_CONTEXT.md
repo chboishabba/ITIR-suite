@@ -1,5 +1,164 @@
 # Compactified Context
 
+- 2026-03-28 real promoted-record `Phi` prototype:
+  - source: current working turn
+  - implementation:
+    - added runtime:
+      `SensibLaw/src/cross_system_phi.py`
+    - extended the executable contract:
+      `SensibLaw/schemas/sl.cross_system_phi.contract.v1.schema.yaml`
+    - kept the minimal schema example aligned:
+      `SensibLaw/examples/cross_system_phi_minimal.json`
+    - added real promoted-report regression coverage:
+      `SensibLaw/tests/test_cross_system_phi_prototype.py`
+  - main decision:
+    - the repo now has one bounded two-system `Phi` prototype over real
+      promoted semantic relations, not only planning prose or a transport stub
+    - the provenance guarantee is now explicit in the contract:
+      every mapping/diagnostic must resolve through `provenance_index` to
+      anchored promoted records in each referenced system
+    - mismatch handling is now explicit workflow state, not an implicit note:
+      `open|reviewed|waived` via `mismatch_report.workflow`
+    - this remains a bounded `v1` slice, not the full richer `Phi vNext`
+      witness/type system
+  - validation:
+    - `/home/c/Documents/code/ITIR-suite/.venv/bin/python -m pytest -q SensibLaw/tests/test_cross_system_phi_schema.py SensibLaw/tests/test_cross_system_phi_prototype.py`
+
+- 2026-03-28 `Phi` relation + latent graph schema clarification:
+  - source: current working turn
+  - informed by the same archived thread:
+    - title: `Zero Trust Ontology`
+    - online UUID: `69c68637-ca2c-839e-826c-f5e8a034ed2e`
+    - canonical thread ID: `c2571b2b17183df38dd03704cf6e34f7bee44392`
+    - source used: `db`
+  - main decision:
+    - the currently implemented `sl.cross_system_phi.contract.v1` schema
+      remains the bounded executable transport contract with statuses
+      `exact|partial|incompatible|undefined`
+    - the richer formal `Phi` relation is now documented as the next layer:
+      mapping kinds, score, witness, constraints, transfer rules, weak
+      composition, and graph typing over `L(P)`
+    - the repo must not pretend the richer relation kinds are already shipped;
+      any future `v2` migration must explain how it relates to the current
+      bounded `v1` grammar
+    - the latent graph is now explicitly documented as typed nodes, typed
+      edges, first-class constraints, and provenance-preserving reconstruction
+      over promoted truth
+  - documentation artifact added:
+    - `docs/planning/phi_mapping_and_latent_graph_schema_20260328.md`
+
+- 2026-03-28 cross-system `Phi` mapping contract slice:
+  - source: `Milestone X` execution loop
+  - implementation:
+    - added the machine-readable schema artifact:
+      `SensibLaw/schemas/sl.cross_system_phi.contract.v1.schema.yaml`
+    - added the minimal bounded example payload:
+      `SensibLaw/examples/cross_system_phi_minimal.json`
+    - added focused schema validation coverage:
+      `SensibLaw/tests/test_cross_system_phi_schema.py`
+  - main decision:
+    - `Phi` is now frozen in executable form as a two-system prototype bundle
+      rather than only planning prose
+    - mapping status is explicitly governed by the enum:
+      `exact`, `partial`, `incompatible`, `undefined`
+    - `undefined` remains a first-class checked outcome and must not pretend
+      to have a target-system analogue
+    - mismatch/contradiction reporting stays attached to the mapping contract
+      instead of being hidden inside latent-state rhetoric
+  - validation:
+    - `/home/c/Documents/code/ITIR-suite/.venv/bin/python -m pytest -q SensibLaw/tests/test_cross_system_phi_schema.py`
+
+- 2026-03-27 global latent legal state cross-system clarification:
+  - source: current working turn
+  - informed by archived thread:
+    - title: `Zero Trust Ontology`
+    - online UUID: `69c68637-ca2c-839e-826c-f5e8a034ed2e`
+    - canonical thread ID: `c2571b2b17183df38dd03704cf6e34f7bee44392`
+    - source used: `db`
+  - main decision:
+    - the safe global reading is not one universal promoted set; it is a
+      global latent graph over multiple local promoted sets `P_i` plus a
+      mapping layer `Phi` and explicit constraints
+    - cross-system motif alignment must allow `exact`, `partial`,
+      `incompatible`, and `undefined` outcomes rather than assuming universal
+      equivalence
+    - any future transfer or alignment lane must preserve local system
+      authority and keep all global structure traceable back to some local
+      promoted basis
+    - the right first prototype, if pursued later, is two bounded systems, one
+      small mapping table, and one mismatch report rather than automatic truth
+      merging
+  - documentation artifact added:
+    - `docs/planning/global_latent_legal_state_cross_system_20260327.md`
+
+- 2026-03-27 latent state over promoted truth clarification:
+  - source: current working turn
+  - informed by archived thread:
+    - title: `Zero Trust Ontology`
+    - online UUID: `69c68637-ca2c-839e-826c-f5e8a034ed2e`
+    - canonical thread ID: `c2571b2b17183df38dd03704cf6e34f7bee44392`
+    - source used: `db`
+  - main decision:
+    - if the repo uses `latent state` language, it should mean a compressed,
+      provenance-preserving, loss-bounded derived structure over promoted
+      truth `P`, not hidden truth over raw text
+    - latent structure is downstream of promotion and may support DASHI/MDL
+      compression, motif reuse, and conflict analysis, but it does not replace
+      the truth gate or silently feed truth back upstream
+    - any future `L(P)` lane should require reconstruction, anchor
+      preservation, compression discipline, consistency preservation, and a
+      strict downstream-only authority rule
+    - the right minimal prototype, if pursued later, is:
+      promoted facts -> bounded graph -> motif reuse/conflict diagnostics
+      without truth mutation from latent structure alone
+  - documentation artifact added:
+    - `docs/planning/latent_state_over_promoted_truth_20260327.md`
+
+- 2026-03-27 motif candidate / promotion / legal-tree clarification:
+  - source: current working turn
+  - informed by archived thread:
+    - title: `Zero Trust Ontology`
+    - online UUID: `69c68637-ca2c-839e-826c-f5e8a034ed2e`
+    - canonical thread ID: `c2571b2b17183df38dd03704cf6e34f7bee44392`
+    - source used: `db`
+  - main decision:
+    - motif / meme / cohomology language remains explanatory or exploratory
+      unless it cashes out into anchors, reversible transforms, candidate
+      state, promotion basis, and proofs/receipts where required
+    - motifs are not yet repo-wide first-class canonical objects; the safe
+      reading is candidate or overlay structure below promotion
+    - cohomology currently belongs, at most, in candidate/overlay diagnostics,
+      clustering, or invariance analysis, not in the truth layer
+    - legal-tree language remains valid as deterministic structured logic over
+      source-linked material, but a legal tree is not automatically identical
+      to promoted truth in every lane
+    - future formalization should require a bounded `MotifCandidate` contract
+      and explicit node-family status for any tightened legal-tree schema
+  - documentation artifact added:
+    - `docs/planning/motif_candidate_promotion_legal_tree_20260327.md`
+
+- 2026-03-27 JMD x SensibLaw truth-construction boundary refresh:
+  - resolved via `robust-context-fetch`
+  - title: `Zero Trust Ontology`
+  - online UUID: `69c68637-ca2c-839e-826c-f5e8a034ed2e`
+  - canonical thread ID: `c2571b2b17183df38dd03704cf6e34f7bee44392`
+  - source used: `db` after direct UUID pull into `~/chat_archive.sqlite`
+  - main topics / decisions pulled from the thread:
+    - keep `SensibLaw` as the truth-construction layer between messy source
+      substrates and downstream reasoning/agent systems
+    - the useful abstraction in the thread is not "JMD integration now", but
+      that repeated motifs / meme-like reusable structure should cash out into
+      source anchors, reversible transforms, candidate state, promotion basis,
+      and explicit abstention
+    - the near-term JMD lane remains the read-only object graph -> SL corpus
+      bridge, not a generic JMD runtime/scheduler or token-layer integration
+    - abstention is part of the control surface, not just missing data
+    - graph/overlay usefulness should be judged by whether it exposes repeated
+      structure, provenance conflict, chronology tension, or promotion
+      pressure beyond the base reversible serialization
+  - documentation artifact added:
+    - `docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md`
+
 - 2026-03-27 SL Observation/Claim contract ratification:
   - source: `Milestone R` execution loop
   - planning artifact:

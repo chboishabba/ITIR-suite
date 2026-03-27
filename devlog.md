@@ -1,5 +1,81 @@
 # Devlog
 
+## 2026-03-28
+- Expanded the bounded `Phi` package from schema-only into a real promoted-record
+  prototype:
+  - added runtime:
+    `SensibLaw/src/cross_system_phi.py`
+  - extended the executable contract with:
+    - explicit `provenance_rule`
+    - explicit `mismatch_report.workflow`
+    - anchored `provenance_index`
+  - kept the bounded status grammar unchanged:
+    `exact`, `partial`, `incompatible`, `undefined`
+- The new prototype now consumes real promoted relations emitted by existing
+  semantic pipelines instead of synthetic placeholder refs:
+  - AU semantic promoted relations
+  - GWB semantic promoted relations
+  - bounded matching over shared promoted-record shape, rule family, and
+    mismatch diagnostics
+- Added focused regression coverage:
+  - `SensibLaw/tests/test_cross_system_phi_prototype.py`
+  - existing schema test retained in:
+    `SensibLaw/tests/test_cross_system_phi_schema.py`
+- Validated with the workspace venv:
+  - `/home/c/Documents/code/ITIR-suite/.venv/bin/python -m pytest -q SensibLaw/tests/test_cross_system_phi_schema.py SensibLaw/tests/test_cross_system_phi_prototype.py`
+- Added the next formalization note above the bounded executable `Phi` schema:
+  - `docs/planning/phi_mapping_and_latent_graph_schema_20260328.md`
+- Locked the key compatibility rule:
+  - current executable `v1` schema remains the bounded transport grammar with
+    `exact|partial|incompatible|undefined`
+  - richer relation kinds (`exact`, `refinement`, `abstraction`, `analogue`,
+    `conflict`, `none`) are now documented as the intended next semantic layer,
+    not falsely claimed as already shipped
+- Recorded the typed latent graph target for `L(P)`:
+  - node schema
+  - edge schema
+  - first-class constraint schema
+  - explicit typing relation and provenance requirements
+- Repointed `Milestone X` checklist/status toward the next formalization step:
+  richer `Phi` semantics and typed latent graph design over the existing
+  bounded executable contract.
+- Implemented the first machine-readable `Phi` mapping contract artifact for
+  `Milestone X`:
+  - schema:
+    `SensibLaw/schemas/sl.cross_system_phi.contract.v1.schema.yaml`
+  - minimal example payload:
+    `SensibLaw/examples/cross_system_phi_minimal.json`
+  - focused regression coverage:
+    `SensibLaw/tests/test_cross_system_phi_schema.py`
+- The new contract freezes the bounded cross-system status grammar in an
+  executable schema:
+  - allowed mapping outcomes are now explicitly validated as:
+    `exact`, `partial`, `incompatible`, `undefined`
+  - `undefined` mappings must carry `target_ref: null`
+  - the prototype contract is bounded to two systems, one motif family, one
+    checked mapping table, and one mismatch report surface
+- Validated with the workspace venv:
+  - `/home/c/Documents/code/ITIR-suite/.venv/bin/python -m pytest -q SensibLaw/tests/test_cross_system_phi_schema.py`
+- Reframed the canonical orchestrator state around the current repo doctrine
+  instead of the stale workbench milestone files.
+- Replaced the root `spec.md` with the bounded latent-state / cross-system
+  mapping spec:
+  - single-system latent state as `L(P)` over promoted truth
+  - cross-system state as local promoted sets `P_i` plus checked `Phi`
+    mappings
+  - first prototype boundary:
+    two systems, one promoted motif family, one checked mapping table, one
+    mismatch report
+- Replaced the root `architecture.md` with the matching architecture:
+  - promotion remains the only truth gate
+  - latent state stays downstream of promotion
+  - global alignment is mapping-based rather than universal-ontology-based
+- Added `Milestone X` to `plan.md` so the next durable repo milestone is the
+  latent-state / `Phi` contract package rather than the stale workbench scope.
+- Updated `status.json` so the autonomous orchestrator now points at
+  `Milestone X` and the cross-system mapping checklist instead of the old
+  `Milestone R` tracking.
+
 ## 2026-03-25
 
 ## 2026-03-27

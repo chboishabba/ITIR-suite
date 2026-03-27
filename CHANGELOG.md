@@ -1,6 +1,78 @@
 # Changelog
 
 ## Unreleased
+- Real promoted-record `Phi` prototype:
+  - Added `SensibLaw/src/cross_system_phi.py` so the bounded
+    `sl.cross_system_phi.contract.v1` package now has a real two-system
+    builder over existing promoted semantic-report rows rather than only a
+    schema stub.
+  - Extended `SensibLaw/schemas/sl.cross_system_phi.contract.v1.schema.yaml`
+    and `SensibLaw/examples/cross_system_phi_minimal.json` with:
+    explicit provenance-preservation rule, provenance index, and mismatch
+    workflow metadata.
+  - Added `SensibLaw/tests/test_cross_system_phi_prototype.py` to validate
+    the prototype against real AU and GWB promoted relations, including one
+    partial mapping path, one incompatible path, and dual-anchor provenance
+    guarantees.
+- `Phi` relation and latent graph schema formalization:
+  - Added `docs/planning/phi_mapping_and_latent_graph_schema_20260328.md` to
+    document the richer formal `Phi` relation, typed `L(P)` graph schema, and
+    guarded transfer semantics.
+  - Recorded the crucial compatibility rule:
+    the current executable `sl.cross_system_phi.contract.v1` schema remains
+    the bounded transport grammar, while the richer relation kinds are a next
+    formal layer rather than an already-shipped runtime change.
+  - Updated the root README, TODO, compact context, `plan.md`, `status.json`,
+    and `devlog.md` so the next `Milestone X` step is the richer semantic
+    formalization over the bounded `v1` schema.
+- Canonical planning-state realignment:
+  - Replaced the stale root `spec.md` and `architecture.md` workbench scope
+    with the current latent-state / cross-system mapping program.
+  - Added `Milestone X` to `plan.md` and repointed `status.json` so the
+    autonomous control plane now tracks the bounded `L(P)` / `Phi` contract
+    package rather than the prior workbench milestone.
+  - Recorded the shift in `devlog.md`; no code behavior changed in this pass.
+- Global latent legal state across systems clarification:
+  - Added `docs/planning/global_latent_legal_state_cross_system_20260327.md`
+    to extend the latent-state discipline into the multi-system case without
+    collapsing legal traditions into one hidden universal ontology.
+  - Recorded that any future global lane must operate over local promoted
+    truth sets `P_i` plus a checked mapping layer `Phi`, with explicit
+    `exact|partial|incompatible|undefined` outcomes.
+  - Updated the root README, TODO, and compact context so any future
+    cross-system transfer or alignment work starts with bounded mapping
+    contracts and mismatch reports rather than automatic truth merge.
+- Latent state over promoted truth clarification:
+  - Added `docs/planning/latent_state_over_promoted_truth_20260327.md` to pin
+    `latent state` language to a derived compression over promoted truth
+    rather than a hidden truth layer over raw text.
+  - Recorded the required constraints for any future `L(P)` lane:
+    reconstruction, anchor preservation, compression discipline, consistency
+    preservation, and downstream-only authority.
+  - Updated the root README, TODO, and compact context so any future latent
+    graph or DASHI-style compression work stays downstream of promotion and
+    cannot silently mutate truth.
+- Motif candidate / promotion / legal-tree clarification:
+  - Added `docs/planning/motif_candidate_promotion_legal_tree_20260327.md`
+    to state the disciplined repo reading of motif, cohomology, and
+    legal-tree language.
+  - Recorded that motifs remain candidate/overlay structure until a lane
+    defines explicit promotion semantics, and that cohomology is currently an
+    analysis aid rather than a truth-bearing architectural role.
+  - Updated the root README, TODO, and compact context so future legal-tree or
+    motif work must stay anchored to source-linked records, promotion gates,
+    and explicit node-family status.
+- JMD x SensibLaw truth-construction boundary:
+  - Added `docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md`
+    from the archived `Zero Trust Ontology` thread resolved via
+    `robust-context-fetch`.
+  - Recorded the sharpened boundary:
+    `SensibLaw` is the truth-construction layer between messy source
+    substrates and downstream reasoning/agent systems, not a generic JMD
+    runtime or scheduler surface.
+  - Updated the root README, TODO, and compact context so future JMD/SL graph
+    work stays tied to source anchors, reversible transforms, promotion basis,
+    and explicit abstention.
 - Cross-source follow/review control-plane parity:
   - Added `SensibLaw/docs/planning/cross_source_follow_control_plane_20260327.md`
     and the first portable `follow.control.v1` queue/control-plane contract in

@@ -1,7 +1,7 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-03-26
+- 2026-03-28
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
@@ -158,6 +158,46 @@
   - if `Antigravity-Titan` is kept as a completed lane, rerun and record the exact
     `SensibLaw` / `StatiBaker` slice commands that justify the pass counts rather
     than only the benchmark matrix command
+- [P2] Wikidata climate-change property-migration review lane:
+  - use `SensibLaw/docs/planning/wikidata_climate_change_property_migration_protocol_20260327.md`
+    as the current control-plane note
+  - treat `P5991 -> P14143` as a bounded migration-review problem, not a
+    whole-property rewrite
+  - DONE: define the first migration-pack contract for property-to-property
+    review:
+    - `SensibLaw/docs/planning/wikidata_migration_pack_contract_20260328.md`
+    - `SensibLaw/schemas/sl.wikidata_migration_pack.v1.schema.yaml`
+  - DONE: add the first executable review surface:
+    - `sensiblaw wikidata build-migration-pack`
+    - implemented in `SensibLaw/src/ontology/wikidata.py`
+  - DONE: pin one real climate migration pack in-repo for the
+    `P5991 -> P14143` lane:
+    - `SensibLaw/data/ontology/wikidata_migration_packs/p5991_p14143_climate_pilot_20260328/`
+    - materialized by:
+      `SensibLaw/scripts/materialize_wikidata_migration_pack.py`
+    - first live bucket distribution:
+      - `safe_with_reference_transfer`: 2
+      - `ambiguous_semantics`: 55
+  - next:
+    - inspect the pinned pilot pack and decide whether temporal multi-value
+      slots should graduate from `ambiguous_semantics` into a more specific
+      policy bucket such as `split_required`
+    - decide whether the new `Φ : W × Π × Κ → L(P)` and `L(P)` graph schema
+      should next land as:
+      - a Python/JSON schema surface, or
+      - Agda-style record/spec definitions
+    - extend `build-migration-pack` from the current runtime buckets:
+      `safe_equivalent`, `safe_with_reference_transfer`, `qualifier_drift`,
+      `reference_drift`, `ambiguous_semantics`, `abstain`
+      to richer policy buckets:
+      `needs_human_review`, `non_equivalent`,
+      `safe_add_target_keep_source_temporarily`, and `split_required`
+    - add checked-safe export and post-edit verification only after the pinned
+      climate pack exists
+  - keep the boundary explicit:
+    - review/report first
+    - edit payload generation only from checked-safe subsets
+    - no destructive wide rewrite in the first lane
 - [P1] Shared SL reducer adoption across products:
   - use `sensiblaw.interfaces.shared_reducer` as the supported cross-product
     lexer/reducer API
@@ -666,6 +706,20 @@
     - chronology over captured facts/statements
 
 - [P2] JMD/SL graph usefulness criteria:
+  - use `docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md`
+    as the current boundary clarification from the archived `Zero Trust
+    Ontology` thread
+  - use `docs/planning/motif_candidate_promotion_legal_tree_20260327.md` as
+    the current motif/cohomology/legal-tree discipline note
+  - use `docs/planning/latent_state_over_promoted_truth_20260327.md` as the
+    current latent-state discipline note
+  - use `docs/planning/global_latent_legal_state_cross_system_20260327.md` as
+    the current cross-system latent-state discipline note
+  - use `docs/planning/phi_mapping_and_latent_graph_schema_20260328.md` as
+    the current `Phi`-relation and latent-graph formalization note
+  - keep `SensibLaw` framed as the truth-construction layer between messy
+    source substrates and downstream reasoning/agent layers, not as a generic
+    JMD runtime or scheduler surface
   - add one compact contract note or fixture showing how a canonical object or
     article state projects into:
     - reversible token/span state
@@ -680,6 +734,33 @@
     - source anchors are canonical substrate
     - candidate and graph overlays are non-authoritative
     - only promotion creates truth-bearing canonical records
+    - abstention is a first-class control surface, not an accidental absence of
+      rows
+  - treat motif/meme/cohomology language as research framing only unless it is
+    grounded in:
+    - source anchors
+    - reversible transforms
+    - candidate records
+    - promotion basis or proof objects
+  - if a future motif lane is proposed, require a bounded `MotifCandidate`
+    contract before treating motif outputs as anything stronger than
+    diagnostic/candidate structure
+  - if a future legal-tree schema is tightened, label node families explicitly
+    as:
+    - substrate-linked only
+    - candidate-only
+    - promoted
+    - projection-only
+  - if a future latent-state lane is proposed, define it only as `L(P)`:
+    a derived compression over promoted truth, not hidden structure inferred
+    directly from raw text
+  - if a future global latent lane is proposed, keep it as:
+    union of local promoted truth sets `P_i` plus a checked mapping layer
+    `Phi`, not a universal ontology that erases local system boundaries
+  - keep the current executable `Phi` schema honest:
+    `sl.cross_system_phi.contract.v1` is a bounded transport contract with
+    `exact|partial|incompatible|undefined`, not yet the full richer
+    `exact|refinement|abstraction|analogue|conflict|none` relation
   - include one explicit comparison table in a future planning note:
     - text-surface graph observables
     - versus canonical semantic/provenance graph/export outputs
@@ -706,6 +787,33 @@
       than treating them as a new canonical truth layer
     - keep language/jurisdiction variation in normalization packs and concept
       mappings rather than branching assembler logic
+    - prove usefulness against the truth-construction boundary:
+      does the graph or overlay help expose repeated structure, provenance
+      conflict, chronology tension, or promotion pressure that the reversible
+      serialization alone does not
+    - keep any cohomology-style analysis explicitly in the candidate/overlay
+      analysis lane until a promotion-backed contract exists
+    - if a latent graph/projection prototype is built, require:
+      promoted facts -> bounded graph -> motif reuse/conflict diagnostics,
+      with decode/provenance rules and no truth mutation from latent structure
+  - if a cross-system prototype is built, require:
+      two bounded systems, one checked `Phi` table, and explicit
+      `exact|partial|incompatible|undefined` outcomes before any transfer
+      claims
+    - DONE in current loop:
+      - added bounded runtime:
+        `SensibLaw/src/cross_system_phi.py`
+      - added explicit provenance-preservation rule and provenance index to
+        `sl.cross_system_phi.contract.v1`
+      - added explicit mismatch workflow metadata to
+        `sl.cross_system_phi.contract.v1`
+      - validated the prototype over real AU/GWB promoted relations in
+        `SensibLaw/tests/test_cross_system_phi_prototype.py`
+    - next formalization target after the current `v1` schema:
+      - define richer `Phi` witness structure
+      - define `L(P)` node/edge/constraint typing
+      - document how any future `v2` schema relates to the current bounded
+        `v1` transport grammar
   - user-story-informed next slice:
     - expand Mary-parity operator pressure against
       `docs/user_stories.md`
