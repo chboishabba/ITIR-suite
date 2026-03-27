@@ -44,6 +44,30 @@
 - [P2] Important but deferrable
 - [P3] Nice-to-have / polish
 
+- [P1] Largest-file refactor / normalization roadmap:
+  - use `docs/planning/largest_file_refactor_roadmap_20260328.md` as the
+    current inventory and sequencing note for repo-owned large-file cleanup
+  - before triaging any target file, write a short file-local refactor brief
+    in the roadmap lane covering:
+    - intended reusable core
+    - lane/provider/corpus-specific remainder
+    - proposed split boundary
+    - acceptance check
+  - prioritize splits where one corpus/tool/provider name has leaked into a
+    reusable suite contract
+  - first execution slice:
+    - extract neutral wiki-timeline server/runtime modules from the current
+      `wikiTimelineAoo` family
+    - extract neutral shared manifest/shard modules from the current
+      Zelph/HF builders
+    - split `scripts/chat_context_resolver.py` into resolver, live-provider,
+      transcript-analysis, and CLI modules
+  - keep route files and CLI entrypoints thin:
+    move view-model/parsing/storage logic behind package-local modules before
+    widening features further
+  - when a name remains lane-specific, require an explicit reason that the
+    underlying contract is still genuinely lane-specific
+
 - [P1] Workspace coordination boundary discipline:
   - use `docs/planning/workspace_coordination_boundary_20260327.md` as the
     current control-plane decision
@@ -56,6 +80,23 @@
   - when a new adapter/product lane is justified, prefer a bounded
     subproject inside `ITIR-suite` first, following the existing `itir-mcp`
     pattern
+
+- [P1] Hierarchical orchestrator control-plane support:
+  - use `docs/planning/orchestrator_control_plane_20260328.md` as the current
+    control-plane note
+  - DONE: runner-local multi-orchestrator state/log namespacing now exists in
+    the shared `autonomous-orchestrator` skill via `status.<id>.json`,
+    `orchestrator.<id>.log`, and `orchestrator.<id>.child.log`
+  - DONE: child handoffs now begin from a compact ZKP frame plus runtime
+    model-allocation block in the shared control-plane skills
+  - keep the current state explicit:
+    - multi-runner coordination in one repo is supported
+    - master-orchestrator -> sub-orchestrator hierarchy is not yet first-class
+  - next:
+    - add `parent_orchestrator_id` contract
+    - add lane/claim ownership metadata
+    - add an active orchestrator registry with heartbeats
+    - add parent-facing completion/escalation reporting
 
 - [P1] Cross-repo user-story + feedback receipt lane:
   - use `docs/planning/repo_user_story_state_and_feedback_20260327.md` as the
@@ -179,21 +220,78 @@
       - `safe_with_reference_transfer`: 2
       - `ambiguous_semantics`: 55
   - next:
-    - inspect the pinned pilot pack and decide whether temporal multi-value
-      slots should graduate from `ambiguous_semantics` into a more specific
-      policy bucket such as `split_required`
+    - DONE: use
+      `SensibLaw/docs/planning/wikidata_phi_text_bridge_contract_20260328.md`
+      as the boundary note for additive `Phi` bridge work in this lane
+    - DONE: inspect the pinned pilot pack and graduate temporal multi-value
+      slots from coarse ambiguity into `split_required`
+    - tighten the operator-facing wording so it is explicit that the current
+      lane is:
+      - good for full-set classification/filtering
+      - not yet a full migration executor
+      - doing structured bundle checks rather than source-text reasoning
+    - add the first OpenRefine bridge:
+      - export `MigrationPack` JSON to flat CSV
+      - preserve bucket / drift / review columns for faceting
+      - keep execution out of scope
+    - add a one-step operator path that materializes a bounded pack and emits
+      the OpenRefine CSV in the same run
+    - keep the live materializer usable in both entry modes:
+      - explicit QID set already known
+      - bounded live discovery when no QID set is ready yet
     - decide whether the new `Φ : W × Π × Κ → L(P)` and `L(P)` graph schema
       should next land as:
       - a Python/JSON schema surface, or
       - Agda-style record/spec definitions
     - extend `build-migration-pack` from the current runtime buckets:
       `safe_equivalent`, `safe_with_reference_transfer`, `qualifier_drift`,
-      `reference_drift`, `ambiguous_semantics`, `abstain`
+      `reference_drift`, `split_required`, `abstain`
       to richer policy buckets:
       `needs_human_review`, `non_equivalent`,
-      `safe_add_target_keep_source_temporarily`, and `split_required`
-    - add checked-safe export and post-edit verification only after the pinned
-      climate pack exists
+      `safe_add_target_keep_source_temporarily`, and a narrower residual
+      `ambiguous_semantics` bucket if still needed
+    - extend the current narrow action model
+      (`migrate`, `migrate_with_refs`, `split`, `review`, `abstain`)
+      only after the richer policy buckets exist
+    - keep `split_required` generic:
+      drive it from independent-axis detection and failed 1:1 lossless
+      mapping, not from climate-only hardcoded fields
+    - if text evidence is added after that, keep it additive:
+      - bounded source set
+      - anchored observation extraction
+      - promotion before bridge use
+      - `pressure` outputs limited to:
+        `reinforce`, `split_pressure`, `contradiction`, `abstain`
+      - no raw text -> direct migration action shortcut
+    - DONE: add the first additive `Phi` bridge scaffolding:
+      - bridge schema:
+        `SensibLaw/schemas/sl.wikidata_phi_text_bridge_case.v1.schema.yaml`
+      - runtime helpers in:
+        `SensibLaw/src/ontology/wikidata.py`
+      - additive migration-pack fields:
+        `bridge_cases`, `text_evidence_refs`, `bridge_case_ref`, `pressure`,
+        `pressure_confidence`, `pressure_summary`
+      - focused coverage in:
+        `SensibLaw/tests/test_wikidata_projection.py`
+    - next concrete runtime followthrough:
+      - wire one real promoted text-observation source into the bridge instead
+        of using synthetic test-side observations only
+      - chosen first target:
+        bounded revision-locked climate text ->
+        `sl.observation_claim.contract.v1` -> bridge
+      - keep the extractor narrow:
+        explicit year/value climate lines for temporal/multi-value `P5991`
+        pressure only
+    - DONE: add checked-safe export after the pinned climate pack exists
+    - DONE: add bounded post-edit verification for the checked-safe subset
+    - keep broader execution claims blocked until verification is exercised on
+      real after-state edits, not just fixtures
+    - DONE: add the first review-only split-plan artifact for structurally
+      decomposable `split_required` slots
+    - add split-plan verification before any split execution/export claim
+    - add a docs-first shared `ProposalArtifact v1` contract above
+      `MigrationPack` / `SplitPlan`, but do not refactor the Wikidata runtime
+      to a shared base type until at least one more domain maps cleanly
   - keep the boundary explicit:
     - review/report first
     - edit payload generation only from checked-safe subsets
@@ -810,10 +908,28 @@
       - validated the prototype over real AU/GWB promoted relations in
         `SensibLaw/tests/test_cross_system_phi_prototype.py`
     - next formalization target after the current `v1` schema:
-      - define richer `Phi` witness structure
-      - define `L(P)` node/edge/constraint typing
+      - DONE: add bounded `Phi_meta` admissibility/type gate above `Phi_ij`
+      - DONE: define richer `Phi` witness structure and emitted
+        `mapping_explanation`
+      - DONE: define the first executable `L(P)` node/edge/constraint slice in
+        `SensibLaw/src/latent_promoted_graph.py` and
+        `SensibLaw/schemas/sl.latent_promoted_graph.v1.schema.yaml`
+      - DONE: connect the current `Phi` payload back to that graph slice via
+        top-level `latent_graphs` summaries and per-mapping
+        `mapping_explanation.latent_graph_refs`
       - document how any future `v2` schema relates to the current bounded
         `v1` transport grammar
+  - refreshed online-context followthrough:
+    - add one planning note for the all-sources `FactBundle` /
+      reconciliation direction over promoted observations/claims
+    - keep projection lanes such as Wikidata explicitly downstream of that
+      canonical fact seam rather than treating them as the seam itself
+    - keep sentiment/affect explicitly non-canonical and
+      speaker/utterance-anchored unless a future lane adds a fresh promotion
+      contract
+    - if a stronger discourse-comparison lane is pursued later, start with
+      affidavit/response or claim/response pairs and emit contradiction /
+      corroboration pressure before any mood-style abstraction
   - user-story-informed next slice:
     - expand Mary-parity operator pressure against
       `docs/user_stories.md`
@@ -1451,6 +1567,22 @@
     -> `VERIFIED`)
   - enforce merge policy checks for all boundary-affecting PRs
   - update sprint gate checklist daily during Sprint 10 execution window
+- [P1] Largest-file refactor roadmap followthrough:
+  - use `docs/planning/largest_code_files_refactor_roadmap_20260328.md` as the
+    current audit baseline for repo-owned oversized files
+  - Phase 1 first:
+    - `scripts/chat_context_resolver.py`
+    - `itir-svelte/src/lib/server/corpora.ts`
+    - `itir-svelte/src/routes/+page.server.ts`
+  - keep generic helpers under generic names:
+    avoid letting lane-specific names like `AOO` or one-off historical surfaces
+    become the suite-level abstraction when the underlying logic is portable
+  - when splitting route/CLI files, separate:
+    - normalization/parsing
+    - transport/subprocess/DB policy
+    - render/component composition
+  - explicitly move dataset/product-specific patches into adapter or overlay
+    modules instead of letting them stay inline inside general loaders
 - Execute UI surface linking/integration followthrough from:
   - `docs/planning/ui_surface_registry_20260208.md`
   - `docs/planning/ui_integration_strategy_20260208.md`

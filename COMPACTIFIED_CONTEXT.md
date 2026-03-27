@@ -1,5 +1,155 @@
 # Compactified Context
 
+- 2026-03-28 refreshed online thread sync:
+  - source: current working turn via `robust-context-fetch`
+  - refreshed online threads:
+    - title: `Zero Trust Ontology`
+    - online UUID: `69c68637-ca2c-839e-826c-f5e8a034ed2e`
+    - canonical thread ID: `c2571b2b17183df38dd03704cf6e34f7bee44392`
+    - source used: `db` after direct UUID pull into `~/chat_archive.sqlite`
+    - refresh result:
+      earlier JMD x `SensibLaw` truth-construction boundary notes remain
+      correct; no new runtime widening is justified by the live refresh alone
+    - title: `ZKP Analysis WikiProject CC`
+    - online UUID: `69c68d65-c674-83a0-928f-29b9090ea5d4`
+    - canonical thread ID: `072e992adca680787e6de88f1efe3aa0f69c3e92`
+    - source used: `db` after direct UUID pull into `~/chat_archive.sqlite`
+    - main decision:
+      the broader direction is an all-sources `FactBundle` /
+      reconciliation layer over promoted observations/claims, not a
+      Wikidata-shaped canonical ontology
+    - title: `Sentiment Analysis in Docs`
+    - online UUID: `69c69d9f-e1e0-839f-a00a-30667b226873`
+    - canonical thread ID: `0bb15fe345a861049994eab8ed8733f662d41f5d`
+    - source used: `db` after direct UUID pull into `~/chat_archive.sqlite`
+    - main decision:
+      sentiment/affect remains speaker/utterance-anchored candidate or overlay
+      material and must not drift into psychometric or legal-truth claims
+  - documentation artifacts added:
+    - `docs/planning/all_sources_factbundle_reconciliation_boundary_20260328.md`
+    - `docs/planning/sentiment_affect_noncanonical_boundary_20260328.md`
+
+- 2026-03-28 orchestrator control-plane status:
+  - source: current working turn
+  - documentation artifact added:
+    `docs/planning/orchestrator_control_plane_20260328.md`
+  - main decision:
+    - shared project docs plus runner-local `status/log/child-log` namespacing
+      is now the correct multi-runner control-plane model
+    - child initialization should include both:
+      - a compact ZKP `O/R/C/S/L/P/G/F` frame
+      - a compact model-allocation block with scorecard and escalation rules
+    - a master orchestrator coordinating multiple namespaced
+      `autonomous-orchestrator` runners is supported by convention
+    - first-class master/sub-orchestrator support is not yet implemented:
+      no parent registry, no lane claims, no lifecycle/reporting contract
+  - repo state note:
+    - the next control-plane step is hierarchical orchestrator support via a
+      bounded registry/ownership layer rather than more implicit convention
+
+- 2026-03-28 largest-file refactor / normalization audit:
+  - source: current working turn
+  - documentation artifact added:
+    `docs/planning/largest_file_refactor_roadmap_20260328.md`
+  - main decision:
+    - large-file cleanup in `ITIR-suite` should be driven by contract
+      decomposition and naming hygiene, not line count alone
+    - the first priority is where reusable suite logic is still trapped behind
+      one lane/tool/provider history:
+      - `wikiTimelineAoo` family
+      - Zelph/HF manifest + shard builders
+      - `scripts/chat_context_resolver.py`
+    - triage for any specific file should begin only after a bounded
+      file-local refactor brief exists in the roadmap lane
+    - route files and CLI entrypoints should become thinner composition shells
+      over extracted helpers instead of continuing to absorb parser/reducer
+      logic
+  - no behavior change:
+    - docs/TODO/context/changelog only
+
+- 2026-03-28 largest code-file refactor roadmap:
+  - source: current working turn
+  - documentation artifact added:
+    - `docs/planning/largest_code_files_refactor_roadmap_20260328.md`
+  - main decision:
+    - large-file work in `ITIR-suite` should prioritize boundary correction,
+      not arbitrary line-count reduction
+    - the first high-leverage split targets are:
+      - `scripts/chat_context_resolver.py`
+      - `itir-svelte/src/lib/server/corpora.ts`
+      - `itir-svelte/src/routes/+page.server.ts`
+    - wiki timeline helpers should move under generic `wikiTimeline`-style
+      namespaces where portable, with `AOO` retained only for truly AAO-shaped
+      surfaces
+    - historical one-off naming must not define suite-level abstractions:
+      lane-specific behavior belongs in overlays/adapters, not in the reusable
+      core
+
+- 2026-03-28 typed latent-graph runtime slice over promoted relations:
+  - source: current working turn
+  - implementation:
+    - added runtime:
+      `SensibLaw/src/latent_promoted_graph.py`
+    - added executable schema:
+      `SensibLaw/schemas/sl.latent_promoted_graph.v1.schema.yaml`
+    - extended current `Phi` runtime:
+      `SensibLaw/src/cross_system_phi.py`
+    - added focused regression coverage:
+      `SensibLaw/tests/test_latent_promoted_graph.py`
+  - main decision:
+    - the first typed `L(P)` slice is now runtime-real, but still bounded:
+      nodes/edges/constraints are derived only from already-promoted relation
+      records
+    - the graph contract stays below the truth gate by requiring anchored
+      promoted-record provenance for every node and edge
+    - current `Phi` output now points back into that typed graph slice via
+      graph summaries and per-mapping latent graph refs instead of treating
+      graph structure as separate doctrine
+  - validation:
+    - `/home/c/Documents/code/ITIR-suite/.venv/bin/python -m pytest -q SensibLaw/tests/test_au_semantic.py SensibLaw/tests/test_gwb_semantic.py SensibLaw/tests/test_latent_promoted_graph.py SensibLaw/tests/test_cross_system_phi_meta.py SensibLaw/tests/test_cross_system_phi_schema.py SensibLaw/tests/test_cross_system_phi_prototype.py`
+
+- 2026-03-28 `Phi` witness/explanation enrichment:
+  - source: current working turn
+  - implementation:
+    - enriched `Phi_meta` witness output in:
+      `SensibLaw/src/cross_system_phi_meta.py`
+    - extended emitted `Phi` mapping explanations in:
+      `SensibLaw/src/cross_system_phi.py`
+    - updated contract shape:
+      `SensibLaw/schemas/sl.cross_system_phi.contract.v1.schema.yaml`
+  - main decision:
+    - the current bounded prototype now emits structured reasons for why a
+      mapping passed or failed:
+      type witness, role witness, authority witness, constraint check, scope
+      check
+    - `mapping_explanation` is now the bounded bridge between `Phi_meta`
+      admissibility and `Phi_ij` mapping outcome
+    - this is still within the current `v1` slice; it is not yet a widened
+      `Phi v2` ontology or latent-graph migration
+  - validation:
+    - `/home/c/Documents/code/ITIR-suite/.venv/bin/python -m pytest -q SensibLaw/tests/test_au_semantic.py SensibLaw/tests/test_gwb_semantic.py SensibLaw/tests/test_cross_system_phi_meta.py SensibLaw/tests/test_cross_system_phi_schema.py SensibLaw/tests/test_cross_system_phi_prototype.py`
+
+- 2026-03-28 `Phi_meta` admissibility layer:
+  - source: current working turn
+  - implementation:
+    - added schema:
+      `SensibLaw/schemas/sl.cross_system_phi_meta.v1.schema.yaml`
+    - added runtime:
+      `SensibLaw/src/cross_system_phi_meta.py`
+    - extended current `Phi` runtime:
+      `SensibLaw/src/cross_system_phi.py`
+    - added focused tests:
+      `SensibLaw/tests/test_cross_system_phi_meta.py`
+  - main decision:
+    - `Phi_meta` is now the bounded admissibility/type/authority gate above
+      `Phi_ij`, not a new truth layer
+    - structurally-similar pairs can now be blocked before mapping if
+      authority or constraint compatibility fails
+    - admitted mappings carry explicit `meta_validation` receipts and blocked
+      candidates are surfaced in `meta_validation_report`
+  - validation:
+    - `/home/c/Documents/code/ITIR-suite/.venv/bin/python -m pytest -q SensibLaw/tests/test_au_semantic.py SensibLaw/tests/test_gwb_semantic.py SensibLaw/tests/test_cross_system_phi_meta.py SensibLaw/tests/test_cross_system_phi_schema.py SensibLaw/tests/test_cross_system_phi_prototype.py`
+
 - 2026-03-28 real promoted-record `Phi` prototype:
   - source: current working turn
   - implementation:

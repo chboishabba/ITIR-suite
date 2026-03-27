@@ -123,3 +123,12 @@ canonical facts.
   - `SensibLaw/schemas/sl.observation_claim.contract.v1.schema.yaml`
 - `R.2 Contract definition` is now complete after adding a bounded,
   versioned schema artifact in the active runtime schema surface.
+
+## Generalization target (2026-03-28 refresh)
+- The current `Observation` / `Claim` seam remains the canonical near-term
+  contract.
+- The next broadening target is an all-sources reconciliation bundle over
+  promoted observations/claims rather than a Wikidata-specific fact grammar.
+- Use
+  `docs/planning/all_sources_factbundle_reconciliation_boundary_20260328.md`
+  as the boundary note for that future generalization.

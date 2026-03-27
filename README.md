@@ -215,6 +215,10 @@ and [chat-export-structurer/README.md](chat-export-structurer/README.md).
   [docs/planning/global_latent_legal_state_cross_system_20260327.md](docs/planning/global_latent_legal_state_cross_system_20260327.md)
 - `Phi` mapping and latent graph schema:
   [docs/planning/phi_mapping_and_latent_graph_schema_20260328.md](docs/planning/phi_mapping_and_latent_graph_schema_20260328.md)
+- all-sources `FactBundle` / reconciliation boundary:
+  [docs/planning/all_sources_factbundle_reconciliation_boundary_20260328.md](docs/planning/all_sources_factbundle_reconciliation_boundary_20260328.md)
+- sentiment / affect non-canonical boundary:
+  [docs/planning/sentiment_affect_noncanonical_boundary_20260328.md](docs/planning/sentiment_affect_noncanonical_boundary_20260328.md)
 
 ### Proven example and handoff docs
 

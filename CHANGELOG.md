@@ -1,6 +1,85 @@
 # Changelog
 
 ## Unreleased
+- Refreshed online thread sync for fact-bundle and affect boundaries:
+  - Refreshed three ChatGPT threads live via `robust-context-fetch`,
+    including the missed `Zero Trust Ontology` UUID, and recorded the
+    canonical IDs plus live-refresh status in `COMPACTIFIED_CONTEXT.md`.
+  - Added
+    `docs/planning/all_sources_factbundle_reconciliation_boundary_20260328.md`
+    to pin the broader direction:
+    current `Observation` / `Claim` work should generalize toward an
+    all-sources reconciliation bundle over promoted observations/claims, not
+    a Wikidata-shaped canonical ontology.
+  - Added `docs/planning/sentiment_affect_noncanonical_boundary_20260328.md`
+    to pin the current doctrine that sentiment/affect remains
+    speaker/utterance-anchored candidate or overlay material rather than
+    legal truth.
+  - Updated `README.md`, `TODO.md`,
+    `docs/planning/sl_observation_claim_contract_20260327.md`, and
+    `docs/planning/transcript_semantic_phase_v1_20260308.md` so those
+    refreshed boundaries are durable repo state rather than chat-only memory.
+- Added `docs/planning/orchestrator_control_plane_20260328.md` to record the
+  current shared-orchestration control-plane state for `ITIR-suite`.
+- Recorded the current orchestration boundary:
+  - multi-runner coordination in one repo is now supported via namespaced
+    runner-local status/log files in the shared control-plane skills
+  - child handoffs now start from a compact ZKP frame plus runtime
+    model-allocation block
+  - master-orchestrator -> sub-orchestrator hierarchy is still only supported
+    by convention, not as first-class governed runtime support
+- Updated `TODO.md`, `COMPACTIFIED_CONTEXT.md`, and `devlog.md` so the next
+  control-plane step is explicit:
+  add first-class hierarchical orchestrator support with parent/child
+  registry, lane ownership, and completion/escalation reporting.
+- Added `docs/planning/largest_file_refactor_roadmap_20260328.md` to inventory
+  the largest repo-owned code files and pin the next high-value normalization
+  slices.
+- Recorded the current large-file governance rule:
+  prioritize extraction where reusable suite contracts are still encoded behind
+  lane-specific names such as `AAO`, Zelph/HF transport labels, or other
+  historical one-surface seams.
+- Tightened the roadmap workflow so file triage now requires a bounded
+  file-local refactor brief before any implementation queueing starts.
+- Updated `TODO.md`, `COMPACTIFIED_CONTEXT.md`, and `devlog.md` so the audit is
+  durable repo state rather than an ephemeral chat decision.
+- Typed latent-graph runtime slice over promoted relations:
+  - Added `SensibLaw/src/latent_promoted_graph.py` and
+    `SensibLaw/schemas/sl.latent_promoted_graph.v1.schema.yaml` so the repo
+    now has a bounded executable `L(P)`-style graph contract over promoted
+    relations rather than only planning prose.
+  - Added `SensibLaw/tests/test_latent_promoted_graph.py` to validate the
+    graph contract over real AU and GWB promoted semantic reports.
+  - Extended `SensibLaw/src/cross_system_phi.py`,
+    `SensibLaw/schemas/sl.cross_system_phi.contract.v1.schema.yaml`, and
+    `SensibLaw/examples/cross_system_phi_minimal.json` so the current `Phi`
+    payload now exposes latent-graph summaries and mapping-level latent graph
+    refs tied to the same promoted-record provenance basis.
+- `Phi` witness/explanation enrichment:
+  - Extended `SensibLaw/src/cross_system_phi_meta.py` so `Phi_meta`
+    validation now emits explicit witness objects for type, role, authority,
+    constraint, and scope checks.
+  - Extended `SensibLaw/src/cross_system_phi.py` and
+    `SensibLaw/schemas/sl.cross_system_phi.contract.v1.schema.yaml` so
+    admitted mappings now carry `mapping_explanation` plus structured witness
+    detail rather than only a free-text rationale.
+  - Updated `SensibLaw/examples/cross_system_phi_minimal.json` and tightened
+    regression coverage in
+    `SensibLaw/tests/test_cross_system_phi_meta.py` and
+    `SensibLaw/tests/test_cross_system_phi_prototype.py`.
+- `Phi_meta` admissibility gate:
+  - Added `SensibLaw/schemas/sl.cross_system_phi_meta.v1.schema.yaml` and
+    `SensibLaw/src/cross_system_phi_meta.py` so cross-system mapping now has a
+    bounded type/authority/constraint admissibility layer above `Phi_ij`.
+  - Extended `SensibLaw/src/cross_system_phi.py` and
+    `SensibLaw/schemas/sl.cross_system_phi.contract.v1.schema.yaml` so the
+    current real prototype emits `meta_validation` receipts for admitted
+    mappings and an explicit `meta_validation_report` for blocked pairs.
+  - Added regression coverage in
+    `SensibLaw/tests/test_cross_system_phi_meta.py` and updated
+    `SensibLaw/tests/test_cross_system_phi_prototype.py` so one
+    structurally-similar-but-inadmissible pair is blocked before `Phi_ij`
+    runs.
 - Real promoted-record `Phi` prototype:
   - Added `SensibLaw/src/cross_system_phi.py` so the bounded
     `sl.cross_system_phi.contract.v1` package now has a real two-system

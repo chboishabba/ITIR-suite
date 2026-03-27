@@ -31,8 +31,11 @@
    - DONE: add regression coverage over real AU/GWB promoted reports:
      `SensibLaw/tests/test_cross_system_phi_prototype.py`
 5. Next formalization after the bounded real prototype:
-   - widen witness structure over real promoted records
-   - formalize typed `L(P)` node/edge/constraint surfaces
+   - DONE: add `Phi_meta` admissibility/type gate above `Phi_ij`
+   - DONE: widen witness structure over real promoted records and thread it
+     into emitted mapping explanations
+   - DONE: formalize the first typed `L(P)` node/edge/constraint slice over
+     promoted relations and connect it back to emitted `Phi` mapping refs
    - explain any future `v2` schema relative to the current bounded `v1`
      transport contract
 

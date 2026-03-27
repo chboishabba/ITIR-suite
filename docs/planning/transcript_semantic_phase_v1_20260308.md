@@ -66,6 +66,9 @@ without widening the canonical semantic schema.
   promote conversational turns into canonical semantic relations yet
 - explicit affect/state cues may emit candidate-only semantics, but there is no
   promotion of mood/state relations in v1
+- sentiment/affect cues do not justify psychometric, dashboard-authority, or
+  negotiation-weighting claims in this lane; they stay speaker/utterance-anchored
+  and non-canonical
 - this lane is for semantic-shape proving and general human-text handling, not
   for legal interpretation of transcripts by default
 

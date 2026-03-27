@@ -1,6 +1,88 @@
 # Devlog
 
 ## 2026-03-28
+- Added `docs/planning/orchestrator_control_plane_20260328.md` to record the
+  current orchestration control-plane state for this repo.
+- Locked the current boundary:
+  - multi-runner orchestration in one repo is supported via runner-local
+    namespaced status/log files
+  - child handoffs should begin from a compact ZKP frame plus runtime
+    model-allocation block
+  - master-orchestrator -> sub-orchestrator hierarchy is not yet first-class
+- Updated `TODO.md`, `COMPACTIFIED_CONTEXT.md`, and `CHANGELOG.md` so that
+  boundary is durable repo state rather than chat-only context.
+- No repo-owned code changed in this pass; the relevant behavior already lives
+  in shared Codex skill files under `/home/c/.codex/skills`.
+- Audited the largest repo-owned code files to choose the next bounded
+  refactor/normalization slices:
+  - added planning note:
+    `docs/planning/largest_file_refactor_roadmap_20260328.md`
+  - recorded the next high-value decomposition targets:
+    - `scripts/chat_context_resolver.py`
+    - `itir-svelte` wiki timeline server/route family
+    - Zelph/HF/shared-shard builders
+    - `itir_jmd_bridge/runtime.py`
+    - `casey-git-clone` CLI/runtime store
+- Locked the rule that large-file cleanup should prioritize:
+  - reusable core extraction
+  - thinner route/CLI entrypoints
+  - removal of accidental corpus/tool/provider-specific naming from
+    general-use suite contracts
+- Tightened the workflow for this lane:
+  - before triaging any specific oversized file, write a bounded file-local
+    refactor brief covering reusable core, specialized remainder, split
+    boundary, and acceptance checks
+- No code behavior changed in this pass; this was a docs/TODO/context audit.
+- Implemented the first bounded typed `L(P)` runtime slice over promoted
+  relations:
+  - added `SensibLaw/src/latent_promoted_graph.py`
+  - added executable schema:
+    `SensibLaw/schemas/sl.latent_promoted_graph.v1.schema.yaml`
+  - added focused regression coverage:
+    `SensibLaw/tests/test_latent_promoted_graph.py`
+- The new latent graph builder stays below the truth gate:
+  - it operates only on already-promoted records
+  - it emits typed nodes/edges/constraints plus record-indexed provenance
+  - it derives bounded motif nodes from repeated promoted relation signatures
+- Integrated that graph slice back into the current `Phi` runtime:
+  - `SensibLaw/src/cross_system_phi.py` now builds one latent graph per
+    system from the same promoted records feeding `Phi_meta -> Phi_ij`
+  - emitted `sl.cross_system_phi.contract.v1` payloads now include:
+    - `latent_graphs` summaries
+    - `mapping_explanation.latent_graph_refs`
+- Revalidated with the workspace venv:
+  - `/home/c/Documents/code/ITIR-suite/.venv/bin/python -m pytest -q SensibLaw/tests/test_au_semantic.py SensibLaw/tests/test_gwb_semantic.py SensibLaw/tests/test_latent_promoted_graph.py SensibLaw/tests/test_cross_system_phi_meta.py SensibLaw/tests/test_cross_system_phi_schema.py SensibLaw/tests/test_cross_system_phi_prototype.py`
+- Enriched the bounded `Phi_meta` path with explicit witness payloads:
+  - `type_alignment`
+  - `role_alignments`
+  - `authority_alignment`
+  - `constraint_check`
+  - `scope_check`
+- Extended the `Phi` prototype output so mappings now emit:
+  - `meta_validation.witness`
+  - `mapping_explanation`
+  instead of relying on a bare compatibility rationale alone
+- Updated the executable `sl.cross_system_phi.contract.v1` schema and minimal
+  example to match the richer explanation surface.
+- Revalidated with the workspace venv:
+  - `/home/c/Documents/code/ITIR-suite/.venv/bin/python -m pytest -q SensibLaw/tests/test_au_semantic.py SensibLaw/tests/test_gwb_semantic.py SensibLaw/tests/test_cross_system_phi_meta.py SensibLaw/tests/test_cross_system_phi_schema.py SensibLaw/tests/test_cross_system_phi_prototype.py`
+- Added the bounded `Phi_meta` admissibility layer above `Phi_ij`:
+  - schema:
+    `SensibLaw/schemas/sl.cross_system_phi_meta.v1.schema.yaml`
+  - runtime:
+    `SensibLaw/src/cross_system_phi_meta.py`
+  - focused validation:
+    `SensibLaw/tests/test_cross_system_phi_meta.py`
+- Extended the existing `Phi` prototype to become meta-gated instead of pure
+  structural matching:
+  - `SensibLaw/src/cross_system_phi.py` now evaluates candidate pairs through
+    `Phi_meta` first
+  - blocked pairs are surfaced explicitly in
+    `meta_validation_report.blocked_pairs`
+  - admitted mappings now carry `meta_validation` receipts in the emitted
+    `sl.cross_system_phi.contract.v1` payload
+- Validated with the workspace venv:
+  - `/home/c/Documents/code/ITIR-suite/.venv/bin/python -m pytest -q SensibLaw/tests/test_au_semantic.py SensibLaw/tests/test_gwb_semantic.py SensibLaw/tests/test_cross_system_phi_meta.py SensibLaw/tests/test_cross_system_phi_schema.py SensibLaw/tests/test_cross_system_phi_prototype.py`
 - Expanded the bounded `Phi` package from schema-only into a real promoted-record
   prototype:
   - added runtime:
