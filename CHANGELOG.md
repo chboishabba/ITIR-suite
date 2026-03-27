@@ -1,6 +1,19 @@
 # Changelog
 
 ## Unreleased
+- Meta-introspector HF/shard survey:
+  - Recorded `kant-zk-pastebin` as the strongest reusable shard-aware HF
+    surface, because it already combines shard objects, `manifest.cbor`, IPFS
+    addressing, and shard emission.
+  - Recorded `monster` as a consumer-side Hugging Face inference precedent
+    only, and `huggingface_hub_uploader` / `hugging-push` as generic upload /
+    deployment wrappers rather than the shard transport contract.
+- Perf-output compression framing:
+  - Recorded the `Voxel Promotion and MDL` thread as the current design basis
+    for perf output compression.
+  - The thread decision is to treat perf as a compression-governed stream with
+    typed motif extraction, a streaming MDL compressor, and a binary output
+    format, with Fractran kept as a mechanical proof-of-concept target.
 - Suite MCP contract + scaffold lane:
   - Added `docs/planning/itir_mcp_dioxus_contract_20260326.md` to define the
     first suite-level MCP boundary, the `itir-mcp/` project direction, the

@@ -1,5 +1,45 @@
 # Compactified Context
 
+- 2026-03-27 Meta-introspector HF/shard interface survey:
+  - source: current working turn
+  - repositories inspected:
+    - `meta-introspector/huggingface_hub_uploader`
+    - `meta-introspector/hugging-face-dataset-validator-rust`
+    - `meta-introspector/hugging-push`
+    - `meta-introspector/monster`
+    - `kant-zk-pastebin`
+  - main decision:
+    - the strongest reusable shard-aware HF surface is `kant-zk-pastebin`,
+      because it already combines `Shard`/`ShardSet`, `manifest.cbor`, IPFS
+      content addressing, RDFa/CBOR envelopes, and a concrete shard emitter
+    - `monster` is useful as a consumer-side HF client precedent
+      (`HF_API_TOKEN`, `api-inference.huggingface.co`), but it is not a shard
+      transport or publish/pull contract
+    - `huggingface_hub_uploader` and `hugging-push` are generic HF upload /
+      deployment wrappers, not the shard/interface contract we need for Zelph
+    - if a shared publish/pull branch is revived, it should be aligned against
+      the `kant-zk-pastebin` shard manifest shape first, then split by runtime
+      target only after the artifact contract is fixed
+  - followthrough:
+    - recorded in `TODO.md` as the current reusable HF/shard reference surface
+    - no implementation changes were made in this pass
+
+- 2026-03-27 Voxel Promotion and MDL framing:
+  - source: `db`
+  - title: `Voxel Promotion and MDL`
+  - online UUID: `69c5de94-294c-83a1-a32b-5c1207e7e375`
+  - canonical thread ID: `eb14970bfedb1df596a888683fb509c2c269ef0c`
+  - main decision:
+    - treat perf as a compression-governed stream: extract typed motifs,
+      maintain a streaming MDL compressor, and define a binary output format
+      before scaling output volume
+    - keep Fractran as a mechanical proof-of-concept target for the small core
+      subset, not as a required runtime backend
+  - followthrough:
+    - resolved from the canonical archive and threaded into suite docs/TODO
+    - use this lane as the design basis for any future perf-output bloat
+      mitigation work
+
 - 2026-03-25 Mary/AU affidavit-coverage framing:
   - source: current working turn
   - main decision:

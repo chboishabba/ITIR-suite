@@ -41,6 +41,11 @@
       let next = -1;
       if (nextCode !== -1) next = next === -1 ? nextCode : Math.min(next, nextCode);
       if (nextBold !== -1) next = next === -1 ? nextBold : Math.min(next, nextBold);
+      if (next === i) {
+        out.push({ t: 'text', s: s[i] ?? '' });
+        i += 1;
+        continue;
+      }
       if (next === -1) next = s.length;
       out.push({ t: 'text', s: s.slice(i, next) });
       i = next;

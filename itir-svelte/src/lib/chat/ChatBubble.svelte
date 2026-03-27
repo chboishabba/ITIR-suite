@@ -15,6 +15,8 @@
   export let collapsed = false;
   export let maxCollapsedChars = 600;
 
+  const MAX_INLINE_TOOL_PARSE_CHARS = 50000;
+
   let expanded = false;
   let lastCollapsed = collapsed;
 
@@ -27,8 +29,9 @@
   }
 
   $: showText = collapsed && isLong && !expanded ? text.slice(0, maxCollapsedChars) + '\n…' : text;
-  // Parse against the full text so "Collapse long" doesn't break structured tool rendering.
-  $: toolCall = parseToolCallText(text);
+  $: oversizedToolPayload = role === 'tool' && text.length > MAX_INLINE_TOOL_PARSE_CHARS;
+  // Parse against the full text only when the payload is small enough to be safe.
+  $: toolCall = oversizedToolPayload ? null : parseToolCallText(text);
   $: isEmptyText = !text || !text.trim();
 
   function shortTs(v: string | null): string {
@@ -85,6 +88,25 @@
           parseError={toolCall.parseError}
           notebookSourceIndex={notebookSourceIndex}
         />
+      {:else if oversizedToolPayload}
+        <div class="space-y-2">
+          <div class="rounded-lg bg-amber-50 px-3 py-2 text-[11px] text-amber-950 ring-1 ring-amber-900/15">
+            Oversized tool payload not parsed inline. Showing raw text preview to keep the thread viewer stable.
+          </div>
+          <pre class="max-h-[320px] overflow-auto overscroll-contain whitespace-pre-wrap break-words font-mono text-[12px] leading-relaxed text-ink-950">{showText}</pre>
+          {#if collapsed && isLong}
+            <div class="mt-2 flex items-center justify-end">
+              <button
+                type="button"
+                class="rounded-md bg-paper-100 px-2 py-1 text-[10px] font-mono uppercase tracking-widest ring-1 ring-ink-900/10"
+                on:click={() => (expanded = !expanded)}
+                title={expanded ? 'Collapse this message' : 'Expand this message'}
+              >
+                {expanded ? 'Collapse' : 'Expand'}
+              </button>
+            </div>
+          {/if}
+        </div>
       {:else if isEmptyText}
         <div class="font-mono text-[12px] leading-relaxed text-ink-800/60 italic">
           (empty message)

@@ -491,3 +491,37 @@ This changelog records user-visible behavior changes in the Svelte SB dashboard 
 - Wiki graphs: added deterministic SSR smoke script (`npm run ssr:smoke`) to catch SSR module-load regressions without binding a port.
 - SB Dashboard: removed `svelte/store` dependency from `waterfallColors` hook by switching to a minimal store-compatible `writable` implementation (SSR/import-cycle hardening).
 - Wiki graphs: added dataset selector wiring for `gwb_public_bios_v1` (source pack timeline + AAO output).
+# 2026-03-27
+
+- Added a read-only corpus-browser route family for the main local ingest
+  stores:
+  - `/corpora`
+  - `/corpora/chat-archive`
+  - `/corpora/messenger`
+  - `/corpora/openrecall`
+- Added `/corpora/processed` as the matching browse layer for extracted
+  semantic/report outputs, including top predicates and semantic basis counts
+  per corpus with direct links to the full semantic-report workbench.
+- Added `/corpora/processed/broader` plus diagnostic detail pages so broader
+  artifacts like `public_bios_timeline` vs `corpus_book_timeline`, seed
+  diagnostics, unresolved-surface pressure, mention-heavy events, workflow
+  pressure, and raw-source backlog can be browsed directly in the app.
+- Added `/corpora/processed/personal` as the browse layer for the user's real
+  persisted corpus outputs, including live `:real_` fact-review runs,
+  operator-view/acceptance summaries from the checked-in real demo bundles, and
+  affidavit review artifacts such as the latest live contested Google Docs
+  coverage review when available.
+- Added a Python query seam for the Messenger test DB at
+  `itir-svelte/scripts/query_messenger_test_db.py` so the Svelte app can browse
+  bounded Messenger ingest rows without adding a native Node sqlite
+  dependency.
+- Linked the corpus browser from the home dashboard so the full ingested
+  sources are discoverable without knowing the route family in advance.
+- Stabilized the thread viewer for large archived conversations:
+  - oversized tool payloads no longer parse inline
+  - oversized thread message text is truncated server-side for the viewer
+  - `/thread/[threadId]` now runs client-rendered to avoid dev-server SSR heap
+    blowups on giant chat payloads
+- Fixed a `MarkdownLite` inline-parser bug where unmatched markers at the
+  current cursor could trigger an infinite parse loop and blank-page
+  `RangeError: Invalid array length` failures.

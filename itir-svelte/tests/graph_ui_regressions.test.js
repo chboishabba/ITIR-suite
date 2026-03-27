@@ -252,6 +252,14 @@ test('Thread viewer route exposes a labeled filter control', () => {
   assert.ok(page.includes('id="thread-filter"'));
 });
 
+test('Thread viewer stays client-rendered and truncates oversized payloads for stability', () => {
+  const routeFlags = read('src/routes/thread/[threadId]/+page.ts');
+  const server = read('src/routes/thread/[threadId]/+page.server.ts');
+  assert.ok(routeFlags.includes('export const ssr = false;'));
+  assert.ok(server.includes('MAX_TOOL_THREAD_TEXT_CHARS'));
+  assert.ok(server.includes('thread viewer stability'));
+});
+
 test('Mission lens form inputs expose accessible names', () => {
   const page = read('src/routes/graphs/mission-lens/+page.svelte');
   assert.ok(page.includes('aria-label="Mission lens run id"'));

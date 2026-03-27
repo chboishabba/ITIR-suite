@@ -191,6 +191,10 @@
       <a class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50" href="/threads">Browse threads</a>
       <span class="ml-2 text-xs text-ink-800/60 font-mono">~/.chat_archive.sqlite or ~/chat_archive.sqlite</span>
     </div>
+    <div class="mt-2 text-sm text-ink-950">
+      <a class="underline decoration-ink-950/20 underline-offset-4 hover:decoration-ink-950/50" href="/corpora">Corpus browser</a>
+      <span class="ml-2 text-xs text-ink-800/60 font-mono">chat archive + Messenger test DB + OpenRecall</span>
+    </div>
   </Panel>
 
   <Panel>

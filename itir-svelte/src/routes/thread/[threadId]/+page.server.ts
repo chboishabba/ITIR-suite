@@ -8,6 +8,9 @@ import {
 } from '$lib/server/notebookMeta';
 import path from 'node:path';
 
+const MAX_TOOL_THREAD_TEXT_CHARS = 40000;
+const MAX_GENERIC_THREAD_TEXT_CHARS = 120000;
+
 function isDateText(v: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(v);
 }
@@ -15,6 +18,15 @@ function isDateText(v: string): boolean {
 function looksLikeOnlineConversationId(v: string): boolean {
   // ChatGPT conversation UUID style.
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
+}
+
+function truncateThreadMessageText(role: string, text: string): string {
+  const value = typeof text === 'string' ? text : '';
+  if (!value) return value;
+  const limit = role === 'tool' ? MAX_TOOL_THREAD_TEXT_CHARS : MAX_GENERIC_THREAD_TEXT_CHARS;
+  if (value.length <= limit) return value;
+  const omitted = value.length - limit;
+  return `${value.slice(0, limit)}\n\n[truncated ${omitted.toLocaleString()} chars for thread viewer stability]`;
 }
 
 export async function load({ params, url }: { params: { threadId: string }; url: URL }) {
@@ -78,7 +90,10 @@ export async function load({ params, url }: { params: { threadId: string }; url:
     total,
     tail,
     range: { start: start && isDateText(start) ? start : null, end: end && isDateText(end) ? end : null },
-    messages,
+    messages: messages.map((message) => ({
+      ...message,
+      text: truncateThreadMessageText(String(message?.role ?? ''), String(message?.text ?? ''))
+    })),
     notebookMetaSummary,
     notebookMetaSources
   };

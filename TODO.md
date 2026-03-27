@@ -1316,6 +1316,16 @@
     - decision: canonical token stream (lexeme-derived vs dedicated tokenizer)
     - deterministic multilingual tokenizer replacing regex (Layer‑1 only)
     - migration plan: `docs/planning/tokenizer_migration_plan_20260306.md`
+- [P2] Perf-output compression lane:
+  - use the resolved `Voxel Promotion and MDL` thread
+    (`69c5de94-294c-83a1-a32b-5c1207e7e375`,
+    canonical `eb14970bfedb1df596a888683fb509c2c269ef0c`,
+    source `db`) as the design basis for a perf-specific pattern extractor
+    and streaming MDL compressor
+  - keep the binary output format and Fractran mini-compilation as the
+    follow-on proof-of-concept path
+  - do not treat output compression as solved until the encoding is
+    fixture-backed and round-trippable
 - Apply refreshed SB boundary guidance from
   `docs/planning/sb_casey_jesuscrust_followthrough_20260207.md`:
   - codify "post-mortem forensic analyzers are observers, not memory
@@ -1404,6 +1414,17 @@
   awareness only per `docs/planning/jmd_itir_intended_surface_20260319.md`:
   - do not treat it as an active Casey/fuzzymodo/SB contract yet
   - wait for a pinned shard schema / concrete adapter target before code work
+  - current reusable HF/shard reference surface is `kant-zk-pastebin`:
+    - `src/sheaf.rs` already exposes shard-aware DASL/RDFa section metadata
+    - `src/ipfs.rs` already bridges IPFS content addressing with DASL/CBOR
+    - `src/bin/freeze_chats.rs` already emits `Shard` / `ShardSet` plus
+      `manifest.cbor`
+    - `monster` only contributes a consumer-side HF client pattern
+    - `huggingface_hub_uploader` and `hugging-push` are generic wrappers, not
+      the shard transport contract
+  - if a shared publish/pull branch is revived later, align the artifact
+    contract to `kant-zk-pastebin` first, then decide whether the runtime
+    target is Zelph, ZOS, or a separate transport crate
 - Define the JMD object graph -> SL corpus graph bridge incrementally from
   `docs/planning/jmd_sl_corpus_bridge_contract_20260319.md`:
   - use `docs/planning/jmd_triage_roadmap_20260320.md` as the canonical triage

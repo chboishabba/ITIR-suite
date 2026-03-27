@@ -144,6 +144,17 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
   drive chat-source and metadata-source filtering across modules.
 - Follow-up: add a privacy mode toggle for NotebookLM thread rendering
   (local full snippets vs strict metadata-only redaction).
+- DONE (2026-03-27): add a corpus-browser route family for the main local
+  browse surfaces:
+  - `/corpora`
+  - `/corpora/chat-archive`
+  - `/corpora/messenger`
+  - `/corpora/openrecall`
+  - `/corpora/processed`
+  - `/corpora/processed/personal`
+  - `/corpora/processed/broader`
+  This keeps full-ingest inspection in one place instead of scattering it
+  across only thread-specific or workbench-specific routes.
 
 ## Tool Use Summary (Parser)
 

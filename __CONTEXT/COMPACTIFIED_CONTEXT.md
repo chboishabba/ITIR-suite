@@ -1,5 +1,37 @@
 # Compactified Context (ITIR-suite)
 
+## 2026-03-27
+- Resolved the current HF/shard interface survey across the Meta-Introspector
+  repos.
+- Current decision:
+  - `kant-zk-pastebin` is the strongest reusable shard-aware HF surface
+    because it already has `Shard`/`ShardSet`, `manifest.cbor`, IPFS
+    content-addressing, RDFa/CBOR envelopes, and a concrete shard emitter.
+  - `monster` is only a consumer-side HF precedent (`HF_API_TOKEN` plus the
+    Hugging Face inference API); it is not a shard transport layer.
+  - `huggingface_hub_uploader` and `hugging-push` are generic upload /
+    deployment wrappers, not the shard contract we need for Zelph.
+  - if a shared publish/pull branch comes back, anchor it against the
+    `kant-zk-pastebin` shard manifest shape first.
+- Followthrough:
+  - this decision was added to `TODO.md` and the root `COMPACTIFIED_CONTEXT.md`
+    so the Zelph/HF discussion stays aligned.
+
+## 2026-03-27
+- Resolved archived thread:
+  - title: `Voxel Promotion and MDL`
+  - online UUID: `69c5de94-294c-83a1-a32b-5c1207e7e375`
+  - canonical thread ID: `eb14970bfedb1df596a888683fb509c2c269ef0c`
+  - source: `db`
+  - main topics:
+    - perf-specific pattern extraction
+    - streaming MDL compression
+    - binary output encoding / format design
+    - Fractran as a mechanical proof-of-concept compilation target
+  - decision pulled into repo-facing context:
+    - perf should be treated as a compression-governed stream rather than a
+      raw accumulator of output
+
 ## 2026-03-19
 - Resolved nine online ChatGPT UUIDs using `robust-context-fetch`.
 - Canonical archive path: `~/chat_archive.sqlite`.

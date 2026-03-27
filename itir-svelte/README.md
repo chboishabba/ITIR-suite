@@ -135,6 +135,43 @@ Tool messages:
 Performance:
 - The thread viewer progressively mounts a tail-window of messages and prepends more as you scroll upward, to keep DOM size reasonable for long threads.
 
+## Corpus Browser
+
+`/corpora` is the new read-only landing surface for the main local ITIR corpora:
+
+- chat archive threads from `~/chat_archive.sqlite` or `~/.chat_archive.sqlite`
+- Messenger test DB rows from the bounded ingest store
+- OpenRecall captures from the canonical ITIR DB
+
+Route family:
+- `/corpora`
+- `/corpora/chat-archive`
+- `/corpora/messenger`
+- `/corpora/openrecall`
+- `/corpora/processed`
+- `/corpora/processed/personal`
+- `/corpora/processed/broader`
+
+This is meant to make it easy to inspect what has actually been ingested before
+dropping into more specialized workbenches.
+
+`/corpora/processed` is the matching browse layer for extracted outputs such as
+semantic relation counts, abstentions, semantic basis counts, and top
+predicates per corpus, with links through to the full semantic-report
+workbench.
+
+`/corpora/processed/personal` is the personal-results layer over the user's
+actual persisted corpora/results, including:
+- live `:real_` fact-review runs from the canonical ITIR DB
+- operator-view and acceptance summary hints from the checked-in real demo bundles
+- affidavit review artifacts, including the latest live contested Google Docs
+  review when present under `/tmp`
+
+`/corpora/processed/broader` and its detail pages expose wider diagnostic
+artifacts such as `public_bios_timeline` vs `corpus_book_timeline`,
+mention-heavy events, unresolved-surface pressure, seed diagnostics, workflow
+pressure inventories, and raw-source backlog summaries.
+
 ## Graph Rendering Notes (LayeredGraph)
 
 The interactive graph views (`/graphs/*`) use `itir-svelte/src/lib/ui/LayeredGraph.svelte`.
