@@ -101,6 +101,24 @@
     - capture/transcription setup friction
     - cross-product handoff clarity
 
+- [P1] Cross-source follow/review control-plane parity:
+  - use `SensibLaw/docs/planning/cross_source_follow_control_plane_20260327.md`
+    as the current portable queue/control-plane contract
+  - DONE: first shared `follow.control.v1` control plane now exists in
+    `SensibLaw/src/fact_intake/control_plane.py`
+  - DONE: first concrete adopters now span more than one lane:
+    - AU `authority_follow`
+    - generic fact-review `intake_triage`
+    - generic fact-review `contested_items`
+  - DONE: `itir-svelte /graphs/fact-review` now renders these
+    control-plane-backed queues generically instead of treating AU authority
+    follow as a one-off renderer
+  - next: extend the same portable queue grammar to the next real unresolved
+    source families rather than cloning AU-specific semantics:
+    - transcript/message follow-needed queues
+    - affidavit/source-review queues
+    - other bounded corpus/workbench operator queues with real unresolved work
+
 - [P1] itir-svelte a11y coverage expansion:
   - extend rendered-DOM label/state assertions across remaining graph/workbench routes
   - add keyboard navigation/focus/activation tests for transcript/document/folder viewers and graph controls
@@ -124,6 +142,10 @@
     URLs without going through SINO
   - DONE: extend bounded citation-follow to use AustLII search as the last
     resort after JADE exact MNC and deterministic AustLII case-URL derivation
+  - DONE: expose the AU authority-follow operator queue in
+    `itir-svelte /graphs/fact-review` for AU selectors by bridging the AU
+    `demo-bundle` operator view rather than widening the generic persisted
+    fact-review workbench contract
 - [P1] Agent test-loop ledger followthrough:
   - keep `docs/planning/agent_test_loop.md` check-ins restricted to completed loops with exact commands and terminal outcomes
   - finish or explicitly retire the lanes currently recorded as starts only:

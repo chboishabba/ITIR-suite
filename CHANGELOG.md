@@ -1,6 +1,22 @@
 # Changelog
 
 ## Unreleased
+- Cross-source follow/review control-plane parity:
+  - Added `SensibLaw/docs/planning/cross_source_follow_control_plane_20260327.md`
+    and the first portable `follow.control.v1` queue/control-plane contract in
+    `SensibLaw/src/fact_intake/control_plane.py`.
+  - First concrete adopters now span AU plus generic fact-review:
+    `authority_follow`, `intake_triage`, and `contested_items`.
+  - `itir-svelte /graphs/fact-review` now renders these control-plane-backed
+    queues generically from shared metadata/queue fields, reducing AU-specific
+    UI special casing and making the next source-family rollouts cheaper.
+- AU authority-follow UI bridge:
+  - `itir-svelte /graphs/fact-review` now exposes the AU
+    `authority_follow` operator view for AU selectors by bridging the AU
+    `demo-bundle` operator surface alongside the persisted workbench route.
+  - The new tab shows route-target counts plus the bounded follow-needed
+    authority queue without changing the generic persisted fact-review
+    workbench contract for other lanes.
 - Workspace coordination boundary:
   - Added `docs/planning/workspace_coordination_boundary_20260327.md` to make
     the repo-boundary decision explicit.

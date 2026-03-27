@@ -95,6 +95,21 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
   - `workflow_run_id`: `run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d`
   - route regressions now prove `SL-US-12`, `SL-US-13`, and `SL-US-14`
     against a real persisted AU bundle instead of transcript-only coverage
+- DONE (2026-03-27): `/graphs/fact-review` now exposes the AU
+  `authority_follow` operator view by reading the AU `demo-bundle`
+  operator surface for AU selectors.
+  - shows route-target counts
+  - shows the bounded follow-needed authority queue
+  - keeps the generic persisted workbench contract unchanged for non-AU lanes
+- DONE (2026-03-27): `/graphs/fact-review` now renders the first shared
+  follow/review control-plane queues generically from `control_plane` +
+  `queue` metadata.
+  - first concrete users:
+    - AU `authority_follow`
+    - generic fact-review `intake_triage`
+    - generic fact-review `contested_items`
+  - next: move additional real source-family queues onto the same portable
+    control-plane instead of adding more one-off renderers
 - DONE (2026-03-20): widen the same `demo-bundle` real-path proof to the
   transcript-side trauma/handoff lanes:
   - wave 3 trauma/support baseline:

@@ -20,5 +20,6 @@ test('fact review route surfaces operator-facing provenance and abstention cues 
   assert.ok(page.includes('Mary operator'));
   assert.ok(page.includes('ITIR operator'));
   assert.ok(page.includes('These story cards are operator-facing acceptance cues only.'));
+  assert.ok(page.includes('Control-plane summary'));
   assert.ok(server.includes('policy_outcomes?: string[];'));
 });

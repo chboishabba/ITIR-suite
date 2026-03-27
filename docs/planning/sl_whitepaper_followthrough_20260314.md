@@ -115,6 +115,8 @@ RDF-only ontology.
   implementation.
 - Clarify which fields are deterministic SL responsibilities versus optional
   `SL-reasoner` derivations.
+- Phase 1 is now contract-ratified in:
+  - `docs/planning/sl_observation_claim_contract_20260327.md`
 
 ### Phase 2: projection boundary
 - Define an RDF/Wikidata projection contract that preserves:

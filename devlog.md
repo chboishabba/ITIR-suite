@@ -1,6 +1,14 @@
 # Devlog
 
 ## 2026-03-25
+
+## 2026-03-27
+- Ratified Milestone R phase-1 contract language for SL observation/case
+  construction by adding:
+  - `docs/planning/sl_observation_claim_contract_20260327.md`
+- Linked the ratified contract back into `sl_whitepaper_followthrough_20260314.md`.
+- Advanced `plan.md` checklist state to reflect completion of `R.1`
+  (`R.1 Contract ratification` -> `R.2 Contract definition` in status tracking).
 - Split the disjointness candidate scanner into explicit backends:
   - `wdqs` for live subclass/instance discovery
   - `zelph` for local instance-only discovery from explicit pair seeds

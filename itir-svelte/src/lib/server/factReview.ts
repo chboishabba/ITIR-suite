@@ -122,11 +122,38 @@ export interface FactReviewViewItem {
   policy_outcomes?: string[];
 }
 
+export interface FactReviewControlPlane {
+  version: string;
+  source_family: string;
+  hint_kind: string;
+  receipt_kind: string;
+  substrate_kind: string;
+  conjecture_kind: string;
+  route_targets?: string[];
+  resolution_statuses?: string[];
+}
+
+export interface FactReviewControlPlaneQueueItem {
+  item_id: string;
+  title: string;
+  subtitle?: string | null;
+  description?: string | null;
+  conjecture_kind: string;
+  route_target: string;
+  resolution_status: string;
+  chips?: string[];
+  detail_rows?: Array<{ label: string; value: string }>;
+  [key: string]: unknown;
+}
+
 export interface FactReviewOperatorView {
   title: string;
-  summary?: Record<string, number>;
+  control_plane?: FactReviewControlPlane;
+  summary?: Record<string, any>;
   groups?: Record<string, FactReviewViewItem[] | FactReviewEvent[]>;
-  items?: FactReviewViewItem[];
+  items?: any[];
+  queue?: FactReviewControlPlaneQueueItem[];
+  available?: boolean;
 }
 
 export interface FactReviewWorkbench {
@@ -204,6 +231,20 @@ export interface FactReviewAcceptanceReport {
   stories: FactReviewStoryResult[];
 }
 
+export interface FactReviewDemoBundle {
+  selector: {
+    run_id?: string;
+    workflow_kind?: string;
+    workflow_run_id?: string;
+    source_label?: string;
+    wave?: string;
+    fixture_kind?: string;
+  };
+  workbench: FactReviewWorkbench;
+  acceptance: FactReviewAcceptanceReport;
+  sources: FactReviewSource[];
+}
+
 function queryScriptPath(repoRoot: string): string {
   return path.join(repoRoot, 'SensibLaw', 'scripts', 'query_fact_review.py');
 }
@@ -246,6 +287,39 @@ export async function loadFactReviewAcceptance(
     ],
     'acceptance'
   );
+}
+
+export async function loadFactReviewDemoBundle(
+  selector: FactReviewSelector,
+  opts: { wave?: string; fixtureKind?: string } = {}
+): Promise<FactReviewDemoBundle> {
+  return await runQuery<FactReviewWorkbench>(
+    [
+      ...selectorArgs(selector),
+      'demo-bundle',
+      '--wave',
+      opts.wave ?? 'all',
+      '--fixture-kind',
+      opts.fixtureKind ?? 'unknown'
+    ],
+    'workbench'
+  ).then(async (workbench) => {
+    const acceptance = await loadFactReviewAcceptance(selector, opts);
+    const sources = await listFactReviewSources(selector.workflowKind);
+    return {
+      selector: {
+        run_id: selector.runId ?? undefined,
+        workflow_kind: selector.workflowKind ?? undefined,
+        workflow_run_id: selector.workflowRunId ?? undefined,
+        source_label: selector.sourceLabel ?? undefined,
+        wave: opts.wave ?? 'all',
+        fixture_kind: opts.fixtureKind ?? 'unknown'
+      },
+      workbench,
+      acceptance,
+      sources
+    };
+  });
 }
 
 export async function listFactReviewSources(workflowKind?: string | null): Promise<FactReviewSource[]> {

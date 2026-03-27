@@ -38,6 +38,8 @@ test('factReview server adapter defines expected workbench and acceptance interf
   assert.ok(s.includes('export interface FactReviewIssueFilters'));
   assert.ok(s.includes('export interface FactReviewInspectorClassification'));
   assert.ok(s.includes('export interface FactReviewStoryResult'));
+  assert.ok(s.includes('export interface FactReviewControlPlane'));
+  assert.ok(s.includes('export interface FactReviewControlPlaneQueueItem'));
 });
 
 test('factReview server adapter implements robust runQuery with JSON and error validation', () => {
@@ -50,6 +52,7 @@ test('factReview server adapter exported loaders are correctly typed', () => {
   const s = read('src/lib/server/factReview.ts');
   assert.ok(s.includes('export async function loadFactReviewWorkbench(selector: FactReviewSelector): Promise<FactReviewWorkbench>'));
   assert.ok(s.includes('export async function loadFactReviewAcceptance('));
+  assert.ok(s.includes('export async function loadFactReviewDemoBundle('));
   assert.ok(s.includes('Promise<FactReviewAcceptanceReport>'));
   assert.ok(s.includes('export async function listFactReviewSources(workflowKind?: string | null): Promise<FactReviewSource[]>'));
 });
@@ -59,6 +62,7 @@ test('fact review route server uses SvelteKit PageServerLoad typing', () => {
   assert.ok(s.includes("import type { PageServerLoad } from './$types';"));
   assert.ok(s.includes('export const load: PageServerLoad = async ({ url }) => {'));
   assert.ok(s.includes('Promise.allSettled'));
+  assert.ok(s.includes('loadFactReviewDemoBundle'));
   assert.ok(s.includes('classifyFactReviewErrorMessage'));
 });
 
@@ -73,6 +77,10 @@ test('fact review page consumes typed Mary-parity helpers and page data', () => 
   assert.ok(s.includes('resolveInspectorClassification'));
   assert.ok(s.includes('resolveInspectorStatusRows'));
   assert.ok(s.includes('resolveChronologyBuckets'));
+  assert.ok(s.includes("key: 'authority_follow'"));
+  assert.ok(s.includes('Control-plane summary'));
+  assert.ok(s.includes("selectedView?.control_plane?.version"));
+  assert.ok(s.includes('row.detail_rows'));
 });
 
 test('fact review CLI parser accepts the real Mary wave1 demo bundle payloads', () => {

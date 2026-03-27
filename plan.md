@@ -113,7 +113,9 @@
 3. Keep mission-lens and SB accounting deferred until those guarantees exist.
 
 ## Milestone R: SL observation + case-construction architecture pass (planned)
-1. Ratify the whitepaper-derived planning note
+1. DONE: Ratify the whitepaper-derived planning note and explicit
+   Observation/Claim contract in:
+   `docs/planning/sl_observation_claim_contract_20260327.md`
    `docs/planning/sl_whitepaper_followthrough_20260314.md`.
 2. Define explicit `Observation` / `Claim` / evidence-link contracts before any
    broader ontology growth.

@@ -1,5 +1,5 @@
 import type { PageServerLoad } from './$types';
-import { loadFactReviewAcceptance, loadFactReviewWorkbench, listFactReviewSources } from '$lib/server/factReview';
+import { loadFactReviewAcceptance, loadFactReviewDemoBundle, loadFactReviewWorkbench, listFactReviewSources } from '$lib/server/factReview';
 import { classifyFactReviewErrorMessage } from '$lib/server/factReviewCli.js';
 
 export const load: PageServerLoad = async ({ url }) => {
@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ url }) => {
       workflowRunId,
       sourceLabel
     });
-    const [acceptanceResult, sourcesResult] = await Promise.allSettled([
+    const [acceptanceResult, sourcesResult, demoBundleResult] = await Promise.allSettled([
       loadFactReviewAcceptance(
         {
           workflowKind,
@@ -26,10 +26,24 @@ export const load: PageServerLoad = async ({ url }) => {
           fixtureKind: 'unknown'
         }
       ),
-      listFactReviewSources(workflowKind)
+      listFactReviewSources(workflowKind),
+      workflowKind === 'au_semantic'
+        ? loadFactReviewDemoBundle(
+            {
+              workflowKind,
+              workflowRunId,
+              sourceLabel
+            },
+            {
+              wave,
+              fixtureKind: 'unknown'
+            }
+          )
+        : Promise.resolve(null)
     ]);
     const acceptance = acceptanceResult.status === 'fulfilled' ? acceptanceResult.value : null;
     const sources = sourcesResult.status === 'fulfilled' ? sourcesResult.value : [];
+    const demoBundle = demoBundleResult.status === 'fulfilled' ? demoBundleResult.value : null;
     const resolvedWorkflowRunId =
       workflowRunId ??
       workbench.reopen_navigation?.query?.workflow_run_id ??
@@ -49,6 +63,7 @@ export const load: PageServerLoad = async ({ url }) => {
       view,
       wave,
       workbench,
+      demoBundle,
       acceptance,
       sources,
       error: null as string | null,
@@ -64,6 +79,7 @@ export const load: PageServerLoad = async ({ url }) => {
       view,
       wave,
       workbench: null,
+      demoBundle: null,
       acceptance: null,
       sources: [],
       error: info.detail,

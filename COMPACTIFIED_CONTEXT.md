@@ -1,5 +1,15 @@
 # Compactified Context
 
+- 2026-03-27 SL Observation/Claim contract ratification:
+  - source: `Milestone R` execution loop
+  - planning artifact:
+    `docs/planning/sl_observation_claim_contract_20260327.md`
+  - followthrough:
+    - `Milestone R` is no longer blocked on contract ambiguity for
+      `Observation`/`Claim`/evidence links.
+    - this note remains implementation-contract-first until runtime surfaces
+      are added.
+
 - 2026-03-27 workspace coordination boundary:
   - source: current working turn
   - planning note:
@@ -55,6 +65,50 @@
     - the remaining gap is a better collector/operator UX than raw field entry
       / JSONL paste, plus broader explicit capture of other canonical object
       families when justified
+
+- 2026-03-27 AU authority-follow UI bridge:
+  - source: current working turn
+  - main decision:
+    - keep the generic persisted fact-review workbench contract unchanged
+    - expose AU-specific authority-follow routing through the existing AU
+      `demo-bundle` operator surface instead of widening the base workbench
+      response for all workflows
+  - implementation:
+    - `itir-svelte /graphs/fact-review` now loads the AU demo-bundle surface
+      in parallel for AU selectors
+    - the route now exposes an `Authority follow` operator-view tab showing:
+      - route-target counts
+      - bounded follow-needed authority queue
+      - candidate citations / authority terms / resolution hints
+  - next gap:
+    - if this view proves useful, decide whether the authority-follow operator
+      block should later become part of the canonical persisted workbench
+      contract instead of remaining an AU demo-bundle bridge
+
+- 2026-03-27 cross-source follow/review control-plane:
+  - source: current working turn
+  - planning note:
+    `SensibLaw/docs/planning/cross_source_follow_control_plane_20260327.md`
+  - main decision:
+    - even parity should live at the control-plane layer, not by forcing every
+      source family into AU authority semantics
+    - the portable ladder is:
+      `hint -> receipt -> substrate -> follow-needed conjecture -> operator queue`
+    - the first portable queue contract is `follow.control.v1`
+  - implementation:
+    - `SensibLaw/src/fact_intake/control_plane.py` now defines the shared
+      control-plane metadata and queue-item shape
+    - first concrete adopters are:
+      - AU `operator_views.authority_follow`
+      - generic fact-review `operator_views.intake_triage`
+      - generic fact-review `operator_views.contested_items`
+    - `itir-svelte /graphs/fact-review` now renders control-plane-backed
+      queues generically from the shared fields rather than using an
+      AU-specific renderer only
+  - next gap:
+    - move the next real unresolved source families onto the same queue
+      grammar, especially transcript/message follow-needed work and affidavit
+      source-review queues
 
 - 2026-03-27 cross-repo user-story + feedback audit:
   - source: current working turn

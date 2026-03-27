@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import type {
+    FactReviewControlPlaneQueueItem,
     FactReviewEvent,
     FactReviewExcerpt,
     FactReviewFact,
@@ -30,6 +31,7 @@
     { key: 'intake_triage', label: 'Intake triage' },
     { key: 'chronology_prep', label: 'Chronology prep' },
     { key: 'procedural_posture', label: 'Procedural posture' },
+    { key: 'authority_follow', label: 'Authority follow' },
     { key: 'contested_items', label: 'Contested items' },
     { key: 'trauma_handoff', label: 'Trauma handoff' },
     { key: 'professional_handoff', label: 'Professional handoff' },
@@ -42,10 +44,34 @@
   let selectedFactId = data.workbench?.inspector_defaults?.selected_fact_id ?? null;
   let selectedIssueFilter = 'all';
 
-  $: selectedView = data.workbench?.operator_views?.[data.view] ?? null;
+  $: selectedView =
+    data.demoBundle?.workbench?.operator_views?.[data.view] ??
+    data.workbench?.operator_views?.[data.view] ??
+    null;
   $: issueGroups = selectedView?.groups ?? {};
   $: availableIssueFilters = resolveFactReviewAvailableIssueFilters(data.workbench, data.view);
-  $: filteredItems = resolveFactReviewFilteredItems(data.workbench, data.view, selectedIssueFilter) as FactReviewViewItem[];
+  $: filteredItems =
+    data.view === 'authority_follow'
+      ? []
+      : (resolveFactReviewFilteredItems(data.workbench, data.view, selectedIssueFilter) as FactReviewViewItem[]);
+  $: controlPlaneQueueRaw =
+    selectedView?.control_plane?.version && Array.isArray(selectedView?.queue)
+      ? (selectedView.queue as FactReviewControlPlaneQueueItem[])
+      : [];
+  $: authorityFollowQueue =
+    data.view === 'intake_triage' && selectedIssueFilter !== 'all'
+      ? controlPlaneQueueRaw.filter((row) =>
+          Array.isArray(row.reason_codes) ? row.reason_codes.includes(selectedIssueFilter) : false
+        )
+      : controlPlaneQueueRaw;
+  $: authorityFollowRouteCounts =
+    selectedView?.control_plane?.version && selectedView?.summary?.route_target_counts
+      ? Object.entries(selectedView.summary.route_target_counts as Record<string, number>)
+      : [];
+  $: authorityFollowResolutionCounts =
+    selectedView?.control_plane?.version && selectedView?.summary?.resolution_status_counts
+      ? Object.entries(selectedView.summary.resolution_status_counts as Record<string, number>)
+      : [];
   $: reopenNavigation = data.workbench?.reopen_navigation ?? null;
   $: reopenSourceRows = resolveFactReviewSourceRows(data.workbench, data.sources) as FactReviewSourceRow[];
   $: currentRunHref = buildFactReviewCurrentHref(data.workbench, {
@@ -248,6 +274,81 @@
                     <div class="text-xs text-zinc-600">{row.time_start ?? 'undated'}</div>
                   </div>
                 {/each}
+              </div>
+            </div>
+          {:else if selectedView?.control_plane?.version && authorityFollowQueue.length >= 0}
+            <div class="grid gap-3 md:grid-cols-[18rem,1fr]">
+              <div class="rounded border border-zinc-200 bg-zinc-50 p-3">
+                <div class="text-xs uppercase tracking-[0.18em] text-zinc-500">Control-plane summary</div>
+                <div class="mt-2 text-sm text-zinc-900">Family: {selectedView?.control_plane?.source_family ?? 'unknown'}</div>
+                <div class="text-sm text-zinc-900">Hint: {selectedView?.control_plane?.hint_kind ?? 'unknown'}</div>
+                <div class="text-sm text-zinc-900">Receipt: {selectedView?.control_plane?.receipt_kind ?? 'unknown'}</div>
+                <div class="text-sm text-zinc-900">Substrate: {selectedView?.control_plane?.substrate_kind ?? 'unknown'}</div>
+                <div class="mt-2 text-sm text-zinc-900">Available: {selectedView?.available ? 'yes' : 'no'}</div>
+                {#if selectedView?.summary?.authority_receipt_count != null}
+                  <div class="text-sm text-zinc-900">Receipts: {selectedView?.summary?.authority_receipt_count ?? 0}</div>
+                {/if}
+                {#if selectedView?.summary?.follow_needed_event_count != null}
+                  <div class="text-sm text-zinc-900">Follow-needed events: {selectedView?.summary?.follow_needed_event_count ?? 0}</div>
+                {/if}
+                <div class="text-sm text-zinc-900">Queue items: {selectedView?.summary?.queue_count ?? authorityFollowQueue.length}</div>
+                {#if selectedView?.summary?.conjecture_count != null}
+                  <div class="text-sm text-zinc-900">Conjectures: {selectedView?.summary?.conjecture_count ?? 0}</div>
+                {/if}
+                {#if authorityFollowRouteCounts.length > 0}
+                  <div class="mt-3 text-xs uppercase tracking-[0.18em] text-zinc-500">Route targets</div>
+                  {#each authorityFollowRouteCounts as [routeTarget, count]}
+                    <div class="mt-1 flex items-center justify-between rounded border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-700">
+                      <span>{routeTarget}</span>
+                      <span>{count}</span>
+                    </div>
+                  {/each}
+                {/if}
+                {#if authorityFollowResolutionCounts.length > 0}
+                  <div class="mt-3 text-xs uppercase tracking-[0.18em] text-zinc-500">Resolution statuses</div>
+                  {#each authorityFollowResolutionCounts as [resolutionStatus, count]}
+                    <div class="mt-1 flex items-center justify-between rounded border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-700">
+                      <span>{resolutionStatus}</span>
+                      <span>{count}</span>
+                    </div>
+                  {/each}
+                {/if}
+              </div>
+              <div class="rounded border border-zinc-200 bg-zinc-50 p-3">
+                <div class="text-xs uppercase tracking-[0.18em] text-zinc-500">{selectedView?.control_plane?.conjecture_kind ?? 'queue'} queue</div>
+                {#if authorityFollowQueue.length > 0}
+                  {#each authorityFollowQueue as row}
+                    <div class="mt-2 rounded border border-zinc-200 bg-white px-3 py-3 text-sm">
+                      <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div class="font-medium text-zinc-900">{row.title ?? row.event_section ?? 'Follow item'}</div>
+                        <div class="flex flex-wrap gap-2">
+                          <div class="rounded bg-amber-100 px-2 py-0.5 text-[11px] text-amber-950">{row.route_target ?? 'manual_review'}</div>
+                          <div class="rounded bg-zinc-200 px-2 py-0.5 text-[11px] text-zinc-800">{row.resolution_status ?? 'open'}</div>
+                        </div>
+                      </div>
+                      <div class="mt-1 text-xs text-zinc-600">{row.subtitle ?? row.conjecture_kind ?? ''}</div>
+                      <div class="mt-2 text-sm text-zinc-800">{row.description ?? row.event_text ?? ''}</div>
+                      {#if Array.isArray(row.chips) && row.chips.length > 0}
+                        <div class="mt-2 flex flex-wrap gap-2">
+                          {#each row.chips as chip}
+                            <span class="rounded bg-sky-50 px-2 py-0.5 text-[11px] text-sky-900">{chip}</span>
+                          {/each}
+                        </div>
+                      {/if}
+                      {#if Array.isArray(row.detail_rows) && row.detail_rows.length > 0}
+                        <div class="mt-2 space-y-1">
+                          {#each row.detail_rows as detail}
+                            <div class="text-xs text-zinc-600">{detail.label}: {detail.value}</div>
+                          {/each}
+                        </div>
+                      {/if}
+                    </div>
+                  {/each}
+                {:else}
+                  <div class="mt-2 rounded border border-dashed border-zinc-300 bg-white px-3 py-3 text-sm text-zinc-600">
+                    No control-plane queue is available for this selector.
+                  </div>
+                {/if}
               </div>
             </div>
           {:else}

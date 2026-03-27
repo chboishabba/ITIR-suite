@@ -218,6 +218,12 @@ Current examples:
 - `/viewers/hca-case`: transcript + document viewer workbench
 - `/graphs/timeline-ribbon`: conserved-allocation ribbon workbench over SB
   dashboard timeline payloads
+- `/graphs/fact-review`: persisted fact-review workbench, now including the
+  first shared follow/review control-plane queues:
+  - AU `authority_follow`
+  - generic fact-review `intake_triage`
+  - generic fact-review `contested_items`
+  rendered from shared `control_plane` / `queue` metadata
 - `/graphs/semantic-report`: semantic report workbench for graph + token-arc
   debugging
 - `/graphs/mission-lens`: fused actual-vs-should mission workbench over ITIR

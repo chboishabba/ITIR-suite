@@ -3,6 +3,25 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Graphs/fact review: shared follow/review control-plane rendering
+  - `/graphs/fact-review` now renders control-plane-backed queues generically
+    from shared `control_plane` / `queue` metadata.
+  - The first concrete users are:
+    - AU `authority_follow`
+    - generic fact-review `intake_triage`
+    - generic fact-review `contested_items`
+  - This reduces AU-specific UI branching and makes the next source-family
+    queue rollouts cheaper.
+- Graphs/fact review: AU `authority_follow` operator view is now visible in
+  `/graphs/fact-review` for AU selectors by reading the AU `demo-bundle`
+  operator surface in parallel with the persisted workbench contract.
+  - Added the `Authority follow` operator-view tab with:
+    - route-target counts
+    - bounded follow-needed authority queue
+    - candidate citations / authority terms / resolution hints
+  - Kept the generic persisted fact-review workbench contract unchanged for
+    non-AU lanes by bridging this through the AU demo-bundle surface only.
+  - Added regressions covering the route/server wiring and the new tab.
 - Personal processed results feedback capture:
   - Extended `/corpora/processed/personal` with a collector-facing feedback
     section over the canonical ITIR DB:
