@@ -1,0 +1,724 @@
+@startuml
+title ITIR / SensibLaw - System Context
+
+left to right direction
+
+actor User
+actor Advocate
+actor Lawyer
+actor Clinician
+actor Caseworker
+
+rectangle "External Institutions" as EXT {
+  component "Landlord / Agent"
+  component "Church / Institution"
+  component "Health Service"
+  component "Welfare Provider"
+  component "Tribunal / Court"
+}
+
+rectangle "ITIR / SensibLaw" as SYS
+
+User --> SYS : narrative, evidence, goals
+Advocate --> SYS : case support
+Lawyer --> SYS : legal review
+Clinician --> SYS : clinical documents
+Caseworker --> SYS : welfare records
+
+SYS --> User : guidance, actions, timeline, reports
+SYS --> Advocate : structured case outputs
+SYS --> Lawyer : evidence packet, duty matrix
+SYS --> Clinician : continuity / contradiction summary
+SYS --> Caseworker : unmet need / obligation map
+
+SYS ..> EXT : references rules, obligations,\nprovider actions, outcomes
+@enduml
+
+@startuml
+title ITIR / SensibLaw - Context (Compact)
+
+actor User
+actor Lawyer
+actor Clinician
+actor Caseworker
+
+rectangle "ITIR / SensibLaw" as SYS2 {
+}
+
+rectangle "External Systems" as EXT2 {
+  component Legal
+  component Housing
+  component Health
+  component Welfare
+}
+
+User --> SYS2
+SYS2 --> User
+SYS2 --> Legal
+SYS2 --> Housing
+SYS2 --> Health
+SYS2 --> Welfare
+@enduml
+
+@startuml
+title ITIR / SensibLaw - Container Diagram
+
+left to right direction
+
+actor User
+actor Reviewer
+
+rectangle "ITIR / SensibLaw" {
+  component "Input Interface" as IN
+  component "Processing Engine" as PE
+  component "Identity Engine" as IE
+  component "Graph Engine" as GE
+  component "Alignment Engine" as AE
+  component "Obligation Layer" as OL
+  component "Output Engine" as OE
+  component "Governance Layer" as GL
+}
+
+database "Evidence Store" as ES
+database "Graph Store" as GS
+database "Audit Store" as AS
+
+User --> IN : uploads narrative,\ndocuments, audio, goals
+IN --> PE : normalized inputs
+PE --> ES : structured evidence
+PE --> GE : facts, rules, atoms
+IN --> IE : context, trust, friction, goals
+IE --> GE : identity atoms
+GE --> GS : legal graph + identity graph
+GE --> AE : graph views
+AE --> OL : needs, conflicts,\nactions required
+OL --> OE : actor, deadline,\nfallback, status
+OE --> User : reports, next actions,\ncase views
+
+GL --> PE : policy controls
+GL --> IE : trust constraints
+GL --> GE : promotion rules
+GL --> OL : escalation policy
+GL --> AS : audit trail
+
+Reviewer --> GL : review, correction,\nexception handling
+@enduml
+
+@startuml
+title Container Model (Compact)
+
+actor User
+
+rectangle "ITIR System" {
+  component Input
+  component Processing
+  component Identity
+  component Graph
+  component Alignment
+  component ModeController
+  component ObligationLayer
+  component Output
+  component Governance
+}
+
+database Evidence
+database GraphStore
+database Audit
+
+User --> Input
+Input --> Processing
+Processing --> Evidence
+Input --> Identity
+Identity --> Graph
+Processing --> Graph
+Graph --> GraphStore
+Graph --> Alignment
+Alignment --> ModeController
+ModeController --> ObligationLayer
+ObligationLayer --> Output
+Output --> User
+Governance --> Audit
+Governance --> ModeController
+Governance --> ObligationLayer
+@enduml
+
+@startuml
+title Standard Case Flow
+
+start
+
+:Case intake;
+:Classify case type;
+:Assess risk and urgency;
+:Collect evidence and narrative;
+
+fork
+  :Extract facts, rules, atoms;
+fork again
+  :Extract identity, trust,\nfriction, goals;
+end fork
+
+:Build legal graph;
+:Build identity/trust graph;
+:Align graphs;
+:Detect gaps and conflicts;
+:Create obligations;
+:Assign actor, deadline,\nfallback;
+:Generate outputs;
+
+if (Safe and accepted?) then (yes)
+  :Monitor execution and SLA;
+else (no)
+  :Escalate to review;
+  :Correct and reissue;
+endif
+
+stop
+@enduml
+
+@startuml
+title Mode Selection
+
+start
+
+:Assess risk;
+:Assess time pressure;
+:Assess conflict;
+:Assess evidence;
+:Assess user state;
+
+if (High risk OR urgent time OR adversarial conflict?) then (yes)
+  :Strict Mode;
+else (no)
+  if (Moderate signals?) then (yes)
+    :Hybrid Mode;
+  else (no)
+    :Light Mode;
+  endif
+endif
+
+stop
+@enduml
+
+@startuml
+title Standard Flow (Compact)
+
+start
+
+:Input case;
+:Classify signals;
+:Select mode;
+:Extract facts;
+:Extract identity patterns;
+:Build graphs;
+:Align graphs;
+
+if (Strict or Hybrid?) then (yes)
+  :Create obligations;
+endif
+
+:Generate output;
+
+if (Breach?) then (yes)
+  :Escalate;
+endif
+
+stop
+@enduml
+
+@startuml
+title Tenancy Case Library
+
+package "Inputs" {
+  component "Lease / Status"
+  component "Entry Notices"
+  component "Messages"
+  component "Photos / Audio"
+  component "Maintenance Evidence"
+}
+
+package "Rules" {
+  component "Notice Rules"
+  component "Repair / Safety"
+  component "Bond / Eviction"
+  component "Tribunal Procedure"
+}
+
+package "Identity / Trust" {
+  component "Fear / Freeze"
+  component "Power Imbalance"
+  component "Delay to Respond"
+  component "Defensive Documentation"
+}
+
+package "Outputs" {
+  component "Timeline"
+  component "Compliance Check"
+  component "Safety Register"
+  component "Action Ladder"
+}
+@enduml
+
+@startuml
+title Abuse / Institutional Accountability Library
+
+package "Inputs" {
+  component "Narrative History"
+  component "Institutional Records"
+  component "Medical / Therapy Records"
+  component "Witness Material"
+  component "Chronology Notes"
+}
+
+package "Rules" {
+  component "Duty of Care"
+  component "Vicarious Liability"
+  component "Interference / Obstruction"
+  component "Compensation / Redress"
+  component "Human Rights Frameworks"
+}
+
+package "Identity / Trust" {
+  component "Dissociation"
+  component "Retraumatization Risk"
+  component "Memory Fragmentation"
+  component "Need for Continuity"
+}
+
+package "Outputs" {
+  component "Master Timeline"
+  component "Institution Graph"
+  component "Duty / Breach Matrix"
+  component "Evidence Packet"
+}
+@enduml
+
+@startuml
+title Medical / Trauma-Informed Care Library
+
+package "Inputs" {
+  component "Clinical Notes"
+  component "Assessment Records"
+  component "Medication History"
+  component "Care Plans"
+  component "Patient Narrative"
+}
+
+package "Rules" {
+  component "Consent / Capacity"
+  component "Care Continuity"
+  component "Complaint / Review"
+  component "Trauma-Informed Standards"
+}
+
+package "Identity / Trust" {
+  component "Clinician Mistrust"
+  component "Dissociation"
+  component "Gaslighting History"
+  component "Fluctuating Function"
+}
+
+package "Outputs" {
+  component "Contradiction Matrix"
+  component "Capacity Risk Note"
+  component "Provider Continuity Map"
+  component "Complaint Packet"
+}
+@enduml
+
+@startuml
+title Welfare / Support Services Library
+
+package "Inputs" {
+  component "Benefit Records"
+  component "Provider Messages"
+  component "Referral Outcomes"
+  component "Case Notes"
+  component "Need Timeline"
+}
+
+package "Rules" {
+  component "Eligibility"
+  component "Emergency Support"
+  component "Provider Obligations"
+  component "Referral / Handoff"
+}
+
+package "Identity / Trust" {
+  component "Collapse of Trust"
+  component "Survival Stress"
+  component "Confusion"
+  component "Resignation"
+}
+
+package "Outputs" {
+  component "Unmet Need Map"
+  component "Responsibility Chain"
+  component "Missed Handoff Log"
+  component "Escalation Ladder"
+}
+@enduml
+
+@startuml
+title Obligation Assignment and Escalation
+
+actor User
+participant "Input Interface" as IN
+participant "Alignment Engine" as AE
+participant "Obligation Layer" as OL
+participant "Output Engine" as OE
+participant "Governance Layer" as GL
+
+User -> IN : provide evidence and narrative
+IN -> AE : structured case
+AE -> OL : unmet need, actor candidates,\nrisk, context
+OL -> OL : assign responsibility,\ndeadline, fallback
+OL -> GL : check policy and escalation rules
+GL --> OL : approved / review required
+OL -> OE : obligation object
+OE --> User : next action, actor,\ndeadline, fallback
+
+alt missed deadline
+  OL -> GL : breach event
+  GL -> OL : escalation target
+  OL -> OE : escalated action set
+  OE --> User : escalation notice
+end
+@enduml
+
+@startuml
+title Obligation Lifecycle
+
+start
+
+:Create obligation;
+:Assign actor;
+:Set deadline;
+
+if (Action completed?) then (yes)
+  :Mark done;
+else (no)
+  if (Deadline passed?) then (yes)
+    :Mark breach;
+    :Trigger escalation;
+  endif
+endif
+
+stop
+@enduml
+
+@startuml
+title Mode Controller - Container Alignment
+
+left to right direction
+
+rectangle "ITIR / SensibLaw" {
+  component "Input Interface" as IN
+  component "Alignment Engine" as AE
+  component "Mode Controller" as MC
+  component "Obligation Layer" as OL
+  component "Output Engine" as OE
+  component "Governance Layer" as GL
+}
+
+IN --> AE : risk, time, conflict,\nevidence, user state
+AE --> MC : confirmed context
+MC --> OE : mode = light / hybrid / strict
+MC --> OL : activate obligation handling\nfor hybrid / strict
+MC --> GL : enforcement level
+GL --> MC : guardrails / policy
+OE --> User : guidance or obligations
+@enduml
+
+@startuml
+title Everyday UX Flow
+
+start
+
+:Quick capture;
+:Auto-select mode;
+
+if (Light?) then (yes)
+  :Show "What this looks like";
+  :Show "What matters";
+  :Show "What to do next";
+  if (Need more depth?) then (yes)
+    :Show evidence / timeline / graph;
+  endif
+  if (Need stricter handling?) then (yes)
+    :Switch to Hybrid or Strict;
+  endif
+else (strict or hybrid)
+  :Show obligations list;
+  :Show deadlines and fallback;
+  :Offer generate / notify / escalate;
+endif
+
+:Trust controls always visible;
+stop
+@enduml
+
+@startuml
+title ITIR / SensibLaw - Local-first Secure Deployment
+
+node "User Device" as user_device {
+  component "Desktop / Local App" as app
+  component "Mode Controller" as mode
+  component "Processing Engine" as processing
+  component "Identity Engine" as identity
+  component "Graph / Alignment Engine" as graph
+  component "Obligation Service" as obligations
+  component "Output Engine" as output
+  database "Local DB" as localdb
+  folder "Encrypted Blob Store" as blobs
+  component "Audit Logger" as audit
+}
+
+node "Optional Trusted Sync Node" as sync_node {
+  database "Encrypted Sync Store" as syncdb
+  component "Artifact Exchange Service" as exchange
+}
+
+node "Optional Reviewer Workspace" as reviewer_node {
+  component "Reviewer UI" as reviewer_ui
+  component "Governance Dashboard" as governance_ui
+  component "Operations Dashboard" as operations_ui
+}
+
+app --> mode
+app --> processing
+app --> identity
+processing --> graph
+identity --> graph
+graph --> obligations
+obligations --> output
+
+processing --> localdb
+identity --> localdb
+graph --> localdb
+obligations --> localdb
+output --> localdb
+audit --> localdb
+processing --> blobs
+
+app --> sync_node : encrypted sync only
+output --> exchange : approved artifacts only
+reviewer_ui --> exchange : pull shared artifacts
+governance_ui --> syncdb
+operations_ui --> syncdb
+@enduml
+
+@startuml
+title ITIR / SensibLaw - Container Deployment Bundle
+
+left to right direction
+
+actor User
+actor Reviewer
+
+rectangle "Local Runtime" {
+  component "Input Interface" as input
+  component "Mode Controller" as mode2
+  component "Processing Engine" as processing2
+  component "Identity Engine" as identity2
+  component "Graph Engine" as graph2
+  component "Alignment Engine" as alignment2
+  component "Obligation Layer" as obligation2
+  component "Output Engine" as output2
+  component "Governance Layer" as governance2
+}
+
+database "PostgreSQL Local Store" as pg
+folder "Encrypted Evidence Store" as evidence_store
+
+User --> input
+input --> mode2
+mode2 --> processing2
+mode2 --> identity2
+processing2 --> graph2
+identity2 --> graph2
+graph2 --> alignment2
+alignment2 --> obligation2
+obligation2 --> output2
+governance2 --> output2
+
+processing2 --> pg
+identity2 --> pg
+graph2 --> pg
+alignment2 --> pg
+obligation2 --> pg
+output2 --> pg
+governance2 --> pg
+
+processing2 --> evidence_store
+output2 --> User
+
+Reviewer --> governance2 : reviewed items only
+@enduml
+
+@startuml
+title User Dashboard - Normal and Strict Modes
+
+package "User Dashboard" {
+  rectangle "Home Panel" as home {
+    [What this looks like]
+    [What matters]
+    [What to do next]
+    [Current mode]
+  }
+
+  rectangle "Case Panel" as case_panel {
+    [Summary]
+    [Timeline]
+    [Evidence count]
+    [Open questions]
+    [Trust notes]
+  }
+
+  rectangle "Next Step Panel" as next_steps {
+    [Action 1]
+    [Action 2]
+    [Action 3]
+    [Effort level]
+    [Expected outcome]
+  }
+
+  rectangle "Evidence Panel" as evidence_panel {
+    [Documents]
+    [Transcripts]
+    [Anchors]
+    [Redactions]
+  }
+
+  rectangle "Privacy Panel" as privacy_panel {
+    [Local only]
+    [Shared with]
+    [Revoke access]
+  }
+
+  rectangle "Strict Mode Panel" as strict_panel {
+    [Obligations]
+    [Deadlines]
+    [Fallback]
+    [Escalation]
+  }
+}
+
+home --> case_panel
+home --> next_steps
+case_panel --> evidence_panel
+case_panel --> strict_panel
+home --> privacy_panel
+@enduml
+
+@startuml
+title Operations Dashboard
+
+package "Operations Dashboard" {
+  rectangle "Case Queue" {
+    [Active cases by type]
+    [Mode distribution]
+    [Cases by severity]
+  }
+
+  rectangle "Execution Panel" {
+    [Open obligations]
+    [SLA breaches]
+    [Unassigned needs]
+    [Escalations]
+  }
+
+  rectangle "Review Panel" {
+    [Review queue]
+    [Disputes]
+    [Abstentions]
+    [Corrections]
+  }
+
+  rectangle "Processing Health" {
+    [Evidence processing failures]
+    [Transcript backlog]
+    [Mode overrides]
+  }
+}
+@enduml
+
+@startuml
+title Governance Dashboard
+
+package "Governance Dashboard" {
+  rectangle "Quality" {
+    [Traceability coverage]
+    [Unsafe inference rate]
+    [Trust rejection rate]
+    [Nonconformance count]
+  }
+
+  rectangle "Compliance" {
+    [Sharing events]
+    [Export events]
+    [Access grants]
+    [Revocations]
+  }
+
+  rectangle "Corrective Actions" {
+    [Open CAPA items]
+    [Correction turnaround]
+    [Recurring defects]
+  }
+
+  rectangle "Audit" {
+    [Recent audit events]
+    [Mode changes]
+    [Breach to escalation lag]
+  }
+}
+@enduml
+
+@startuml
+title Mode Selection Sequence
+
+actor User
+participant "Input Interface" as input3
+participant "Mode Controller" as mode3
+participant "Processing Engine" as processing3
+participant "Output Engine" as output3
+
+User -> input3 : provide situation
+input3 -> mode3 : risk, time, conflict,\nevidence, user state
+mode3 -> mode3 : compute scores
+mode3 --> input3 : selected mode
+input3 -> processing3 : run according to mode
+processing3 -> output3 : draft result
+
+alt light mode
+  output3 --> User : guidance + next steps
+else hybrid mode
+  output3 --> User : structured guidance + evidence links
+else strict mode
+  output3 --> User : obligations + deadlines + fallback
+end
+@enduml
+
+@startuml
+title Obligation Lifecycle and Monitoring
+
+start
+
+:Alignment identifies unmet need;
+:Create obligation;
+:Assign actor;
+:Set deadline and fallback;
+:Display in strict panel and operations dashboard;
+
+if (completed before deadline?) then (yes)
+  :Mark completed;
+  :Log audit event;
+else (no)
+  :Mark breached;
+  :Trigger escalation;
+  :Log breach and escalation;
+endif
+
+stop
+@enduml

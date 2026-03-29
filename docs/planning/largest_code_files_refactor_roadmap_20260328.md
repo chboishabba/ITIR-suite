@@ -58,25 +58,23 @@ Why it is oversized:
 
 Primary seams:
 
-- `DbMatch` lookup and FTS candidate resolution around
-  [`scripts/chat_context_resolver.py:320`](/home/c/Documents/code/ITIR-suite/scripts/chat_context_resolver.py#L320)
-  should move into a `chat_context_resolver/db_lookup.py` module.
-- Live web fallback and `re_gpt` command construction around
-  [`scripts/chat_context_resolver.py:531`](/home/c/Documents/code/ITIR-suite/scripts/chat_context_resolver.py#L531)
-  and
-  [`scripts/chat_context_resolver.py:721`](/home/c/Documents/code/ITIR-suite/scripts/chat_context_resolver.py#L721)
-  should move into a `live_fetch.py` module.
+- `DbMatch` lookup, FTS candidate resolution, and canonical-selector routing
+  around [`scripts/chat_context_resolver.py:320`](/home/c/Documents/code/ITIR-suite/scripts/chat_context_resolver.py#L320)
+  should live in `chat_context_resolver_lib/db_lookup.py`.
+- Live web fallback, `re_gpt` command construction, and optional persistence
+  handling around [`scripts/chat_context_resolver.py:531`](/home/c/Documents/code/ITIR-suite/scripts/chat_context_resolver.py#L531)
+  and [`scripts/chat_context_resolver.py:721`](/home/c/Documents/code/ITIR-suite/scripts/chat_context_resolver.py#L721)
+  should live in `chat_context_resolver_lib/live_provider.py`.
 - Thread-local and cross-thread analysis around
   [`scripts/chat_context_resolver.py:1216`](/home/c/Documents/code/ITIR-suite/scripts/chat_context_resolver.py#L1216)
-  and
-  [`scripts/chat_context_resolver.py:1275`](/home/c/Documents/code/ITIR-suite/scripts/chat_context_resolver.py#L1275)
-  should move into `analysis.py`.
-- Web-miss persistence and structurer ingest around
+  and [`scripts/chat_context_resolver.py:1275`](/home/c/Documents/code/ITIR-suite/scripts/chat_context_resolver.py#L1275)
+  now live in `chat_context_resolver_lib/analysis.py` (with transcript helpers in
+  `chat_context_resolver_lib/transcript.py`).
+- Output formatting, persist warning text, and CLI wiring around
   [`scripts/chat_context_resolver.py:1491`](/home/c/Documents/code/ITIR-suite/scripts/chat_context_resolver.py#L1491)
-  should move into `persist.py`.
-- CLI parsing/output rendering should stay thin, with `main()` in
-  [`scripts/chat_context_resolver.py:1674`](/home/c/Documents/code/ITIR-suite/scripts/chat_context_resolver.py#L1674)
-  reduced to orchestration only.
+  and [`scripts/chat_context_resolver.py:1674`](/home/c/Documents/code/ITIR-suite/scripts/chat_context_resolver.py#L1674)
+  should move into `chat_context_resolver_lib/formatters.py` and
+  `chat_context_resolver_lib/cli.py`.
 
 Normalization note:
 

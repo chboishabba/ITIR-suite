@@ -219,6 +219,58 @@ and [chat-export-structurer/README.md](chat-export-structurer/README.md).
   [docs/planning/all_sources_factbundle_reconciliation_boundary_20260328.md](docs/planning/all_sources_factbundle_reconciliation_boundary_20260328.md)
 - sentiment / affect non-canonical boundary:
   [docs/planning/sentiment_affect_noncanonical_boundary_20260328.md](docs/planning/sentiment_affect_noncanonical_boundary_20260328.md)
+- publish-layer findings and role split:
+  [docs/planning/publish_layer_findings_20260328.md](docs/planning/publish_layer_findings_20260328.md)
+- ZOS / SL / Zelph contract findings:
+  [docs/planning/zos_sl_zelph_contract_findings_20260328.md](docs/planning/zos_sl_zelph_contract_findings_20260328.md)
+- ZOS vs fuzzymodo / Casey / StatiBaker:
+  [docs/planning/zos_vs_fuzzymodo_casey_statiBaker_20260328.md](docs/planning/zos_vs_fuzzymodo_casey_statiBaker_20260328.md)
+- publisher/puller contract for Zelph consumers:
+  [docs/planning/publisher_puller_contract_for_zelph_consumers_20260328.md](docs/planning/publisher_puller_contract_for_zelph_consumers_20260328.md)
+- JMD push/pull surfaces and blockers:
+  [docs/planning/jmd_push_pull_surfaces_and_blockers_20260329.md](docs/planning/jmd_push_pull_surfaces_and_blockers_20260329.md)
+- Zelph / ERDFA / HF / IPFS example flow:
+  [docs/planning/zelph_erdfa_hf_ipfs_example_flow_20260329.md](docs/planning/zelph_erdfa_hf_ipfs_example_flow_20260329.md)
+- `n00b` corroborating surfaces:
+  [docs/planning/n00b_corroborating_surfaces_20260329.md](docs/planning/n00b_corroborating_surfaces_20260329.md)
+- `erdfa-publish-rs` vs shared shard contract:
+  [docs/planning/erdfa_publish_rs_vs_shared_shard_contract_20260329.md](docs/planning/erdfa_publish_rs_vs_shared_shard_contract_20260329.md)
+- canonical ZKP / SL / DA51 message schema findings:
+  [docs/planning/canonical_zkp_sl_da51_message_schema_findings_20260329.md](docs/planning/canonical_zkp_sl_da51_message_schema_findings_20260329.md)
+- JMD HF container and spectral retrieval findings:
+  [docs/planning/jmd_hf_container_and_spectral_retrieval_findings_20260329.md](docs/planning/jmd_hf_container_and_spectral_retrieval_findings_20260329.md)
+- notebooklm-pack vs ZOS/JMD boundary:
+  [docs/planning/notebooklm_pack_zos_jmd_boundary_20260329.md](docs/planning/notebooklm_pack_zos_jmd_boundary_20260329.md)
+- notebooklm-pack to notebooklm-py interface:
+  [docs/planning/notebooklm_pack_to_notebooklm_py_interface_20260329.md](docs/planning/notebooklm_pack_to_notebooklm_py_interface_20260329.md)
+- JMD NotebookLM seam minimal object:
+  [docs/planning/jmd_notebooklm_seam_minimal_object_20260329.md](docs/planning/jmd_notebooklm_seam_minimal_object_20260329.md)
+- repo-local NotebookLM clarify bridge:
+  `scripts/notebooklm_clarify.py`
+- HF container/index contract:
+  [docs/planning/hf_container_index_contract_20260329.md](docs/planning/hf_container_index_contract_20260329.md)
+- HF container/index fixture v1:
+  [docs/planning/hf_container_index_fixture_v1_20260329.md](docs/planning/hf_container_index_fixture_v1_20260329.md)
+- `erdfa-publish-rs` manifest promotion v1:
+  [docs/planning/erdfa_publish_rs_manifest_promotion_v1_20260329.md](docs/planning/erdfa_publish_rs_manifest_promotion_v1_20260329.md)
+- spectral post-selector retrieval contract:
+  [docs/planning/spectral_post_selector_retrieval_contract_20260329.md](docs/planning/spectral_post_selector_retrieval_contract_20260329.md)
+- shard stack layer order:
+  [docs/planning/shard_stack_layer_order_20260329.md](docs/planning/shard_stack_layer_order_20260329.md)
+- RG toy completion findings:
+  [docs/planning/rg_toy_completion_findings_20260329.md](docs/planning/rg_toy_completion_findings_20260329.md)
+- Resonance and Overlap findings:
+  [docs/planning/resonance_and_overlap_findings_20260329.md](docs/planning/resonance_and_overlap_findings_20260329.md)
+- TEMP ZOS/SL bridge review:
+  [docs/planning/temp_zos_sl_bridge_impl_review_20260329.md](docs/planning/temp_zos_sl_bridge_impl_review_20260329.md)
+- affidavit claim reconciliation contract:
+  [docs/planning/affidavit_claim_reconciliation_contract_20260329.md](docs/planning/affidavit_claim_reconciliation_contract_20260329.md)
+- affidavit coverage review lane and Johl Mary-parity fixture:
+  [docs/planning/affidavit_coverage_review_lane_20260325.md](docs/planning/affidavit_coverage_review_lane_20260325.md)
+- zkperf on SL roadmap:
+  [docs/planning/zkperf_on_sl_roadmap_20260329.md](docs/planning/zkperf_on_sl_roadmap_20260329.md)
+- zkperf on SL contract v1:
+  [docs/planning/zkperf_on_sl_contract_v1_20260329.md](docs/planning/zkperf_on_sl_contract_v1_20260329.md)
 
 ### Proven example and handoff docs
 

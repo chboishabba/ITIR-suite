@@ -153,6 +153,11 @@ Current substrate assumptions:
     review items when absent from the affidavit
   - contested or abstained source rows remain distinct from clear omissions
   - comparison rows keep provenance-bearing source and affidavit handles
+  - cross-side duplicate or near-duplicate claims can be grouped under one
+    shared claim root without flattening side-local wording
+  - same-incident sibling leaves do not cross-swap into the wrong support row
+  - support, qualification, contradiction, and adjacent-event relations are
+    resolved at the leaf level within a shared root
 
 ### Legal/procedural observation visibility
 - Required by:
@@ -197,6 +202,23 @@ Current substrate assumptions:
   - person, office, organization, and jurisdiction remain distinguishable
   - office-holder and institution are not silently merged
   - structural ambiguity remains inspectable
+
+### Family-law / cross-side affidavit reconciliation
+- Required by:
+  - `SL-US-25`
+  - `SL-US-26`
+  - `SL-US-28`
+  - `SL-US-31`
+- Current coverage:
+  - partial; provenance-first coexistence is real, but duplicate-root
+    clustering and side-local leaf reconciliation are still weak in the
+    affidavit lane
+- Acceptance checks:
+  - John-side and Johl-side wording remain side-local
+  - materially duplicate claims can share one root cluster
+  - later context or qualification does not silently erase the shared root
+  - contradiction is asserted at the leaf level, not by flattening the whole
+    cluster into one side's wording
 
 ### Public-figure legality assessment posture
 - Required by:

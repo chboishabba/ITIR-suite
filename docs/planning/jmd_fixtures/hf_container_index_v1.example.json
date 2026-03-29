@@ -1,0 +1,27 @@
+{
+  "artifactId": "wikidata-2026-demo",
+  "artifactRevision": "rev-20260329-a",
+  "containerId": "hf-container-0001",
+  "containerRevision": "container-rev-20260329-a",
+  "containerEncoding": "tar+zstd",
+  "containerObjectRef": {
+    "sink": "hf",
+    "uri": "hf://datasets/acrion/zelph-demo/containers/2026/03/29/container-0001.tar.zst",
+    "contentDigest": "sha256:container-0001-example",
+    "sizeBytes": 16384
+  },
+  "members": [
+    {
+      "shardId": "left-bucket-001",
+      "contentDigest": "sha256:left-bucket-001-example",
+      "memberPath": "payload/left-bucket-001.cbor",
+      "sizeBytes": 2048
+    },
+    {
+      "shardId": "nodeOfName-en-017",
+      "contentDigest": "sha256:nodeofname-en-017-example",
+      "memberPath": "payload/nodeOfName-en-017.cbor",
+      "sizeBytes": 1024
+    }
+  ]
+}

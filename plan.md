@@ -1,6 +1,6 @@
 # Implementation Plan
 
-## Milestone X: Latent-State and Cross-System Mapping Contract (in progress)
+## Milestone X: Latent-State and Cross-System Mapping Contract (completed)
 1. Normalize the canonical planning state around the current doctrine:
    - `spec.md`
    - `architecture.md`
@@ -36,8 +36,8 @@
      into emitted mapping explanations
    - DONE: formalize the first typed `L(P)` node/edge/constraint slice over
      promoted relations and connect it back to emitted `Phi` mapping refs
-   - explain any future `v2` schema relative to the current bounded `v1`
-     transport contract
+   - DONE: explain any future `v2` schema relative to the current bounded
+     `v1` transport contract via the executable versioning note
 
 ## Milestone A: Shared state + page wiring (completed)
 1. Create shared review-state helper.

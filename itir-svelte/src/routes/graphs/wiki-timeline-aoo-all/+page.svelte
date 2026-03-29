@@ -2,6 +2,45 @@
   import Panel from '$lib/ui/Panel.svelte';
   import LayeredGraph, { type LayerNode, type LayeredEdge } from '$lib/ui/LayeredGraph.svelte';
   import { afterUpdate } from 'svelte';
+  import ControlsPanel from '$lib/wiki_timeline/components/ControlsPanel.svelte';
+  import ContextPanel from '$lib/wiki_timeline/components/ContextPanel.svelte';
+  import { defaultFilters, viewportKey } from '$lib/wiki_timeline/filters';
+  import {
+    pad2,
+    canonicalUnitToken,
+    collapseWhitespace,
+    parseNumericValueToken,
+    normalizeNumericMention,
+    numericKey,
+    numericMentionsFromValues,
+    numericMentionsForEvent,
+    numericLabelFromKey,
+    numericSortValueFromKey,
+    numericSortUnitFromKey,
+    compareNumericLaneEntries,
+    actionLabel,
+    stepEntityObjects,
+    eventEntityObjects,
+    stepNumericObjects,
+    eventNumericObjects,
+    sourceLabelsForEvent as _sourceLabelsForEvent,
+    lensLabelsForEvent as _lensLabelsForEvent,
+    evidenceLabelsFromEvent as _evidenceLabelsFromEvent,
+    timeKeyForEvent,
+    factAnchorKey,
+    uniqueStrings,
+    collectFollowProviders,
+  } from '$lib/wiki_timeline/graph';
+  import {
+    keyFromNodeId,
+    eventMatchesNode,
+    highlightParts,
+    top,
+    countLabels,
+    defaultFollowOrder,
+    requesterFlags,
+    hasRequesterActor as _hasRequesterActor,
+  } from '$lib/wiki_timeline/selection';
 
   type RequesterCoverage = {
     request_signal_events?: number;
@@ -106,20 +145,21 @@
   };
 
   type TimeGranularity = 'year' | 'month' | 'day';
-  let timeGranularity: TimeGranularity = 'month';
-  let limitEvents = 80;
-  let maxSubjects = 120;
-  let maxObjects = 160;
-  let maxNumbers = 120;
-  let maxSources = 80;
-  let maxLenses = 120;
-  let maxEvidence = 140;
-  let includeSources = true;
-  let includeLenses = true;
-  let includeRequesters = true;
-  let includePurpose = false;
-  let includeEvidence = false;
-  let orderByFactDate = false;
+  const filterDefaults = defaultFilters();
+  let timeGranularity: TimeGranularity = filterDefaults.timeGranularity;
+  let limitEvents = filterDefaults.limitEvents;
+  let maxSubjects = filterDefaults.maxSubjects;
+  let maxObjects = filterDefaults.maxObjects;
+  let maxNumbers = filterDefaults.maxNumbers;
+  let maxSources = filterDefaults.maxSources;
+  let maxLenses = filterDefaults.maxLenses;
+  let maxEvidence = filterDefaults.maxEvidence;
+  let includeSources = filterDefaults.includeSources;
+  let includeLenses = filterDefaults.includeLenses;
+  let includeRequesters = filterDefaults.includeRequesters;
+  let includePurpose = filterDefaults.includePurpose;
+  let includeEvidence = filterDefaults.includeEvidence;
+  let orderByFactDate = filterDefaults.orderByFactDate;
   let showAllContextRows = false;
 
   let selectedNodeId: string | null = null;
@@ -131,21 +171,23 @@
   const GRAPH_LEFT_PAD = 100;
   // Reset the viewport only when the graph layout meaningfully changes (dataset/filters),
   // not when the user clicks around selecting nodes.
-  $: graphViewportKey = [
-    String(data?.source ?? 'gwb'),
-    String(timeGranularity),
-    String(limitEvents),
-    String(maxSubjects),
-    String(maxObjects),
-    String(maxNumbers),
-    includeSources ? `src:${maxSources}` : 'src:off',
-    includeLenses ? `lens:${maxLenses}` : 'lens:off',
-    includeEvidence ? `evd:${maxEvidence}` : 'evd:off',
-    includeRequesters ? 'req:on' : 'req:off',
-    includePurpose ? 'purpose:on' : 'purpose:off',
-    orderByFactDate ? 'fact_date:on' : 'fact_date:off',
-    String(graphEvents?.length ?? 0)
-  ].join('|');
+  $: filters = {
+    timeGranularity,
+    limitEvents,
+    maxSubjects,
+    maxObjects,
+    maxNumbers,
+    maxSources,
+    maxLenses,
+    maxEvidence,
+    includeSources,
+    includeLenses,
+    includeRequesters,
+    includePurpose,
+    includeEvidence,
+    orderByFactDate
+  };
+  $: graphViewportKey = viewportKey(data?.source, filters, graphEvents?.length ?? 0);
   $: graphWidth = Math.max(
     3600,
     GRAPH_LEFT_PAD * 2 + Math.max(0, (graph as any)?.layers?.length ? (graph as any).layers.length - 1 : 8) * GRAPH_COL_GAP + 720
@@ -154,10 +196,6 @@
   function node(id: string, label: string, color: string, tooltip?: string): LayerNode {
     const short = label.length > 54 ? label.slice(0, 54) + '...' : label;
     return { id, label: short, fullLabel: label, color, tooltip: tooltip ?? label };
-  }
-
-  function pad2(n: number): string {
-    return String(n).padStart(2, '0');
   }
 
   function fmtBytes(n: number): string {
@@ -277,465 +315,14 @@
     missingRequesterEventIds: string[];
   };
 
-  function uniqueStrings(xs: any[]): string[] {
-    const out = new Set<string>();
-    for (const x of xs ?? []) {
-      const s = String(x ?? '').trim();
-      if (s) out.add(s);
-    }
-    return Array.from(out);
-  }
 
-  type NumericMention = { key: string; label: string };
+  const sourceLabelsForEvent = (e: any): string[] => _sourceLabelsForEvent(e, data.payload);
 
-  const NUMERIC_UNITS = new Set([
-    '%',
-    'percent',
-    'million',
-    'billion',
-    'trillion',
-    'thousand',
-    'hundred',
-    'year',
-    'years',
-    'month',
-    'months',
-    'day',
-    'days',
-    'line',
-    'lines',
-    'point',
-    'points',
-    'dollar',
-    'dollars',
-    'usd',
-    'aud',
-    'eur',
-    'gbp'
-  ]);
-  const NUMERIC_SCALE_UNITS = new Set(['hundred', 'thousand', 'million', 'billion', 'trillion']);
-  const NUMERIC_CURRENCY_UNITS = new Set(['usd', 'aud', 'eur', 'gbp']);
-  const NUMERIC_SCALE_POW: Record<string, number> = {
-    hundred: 2,
-    thousand: 3,
-    million: 6,
-    billion: 9,
-    trillion: 12
-  };
+  const lensLabelsForEvent = (e: any): string[] => _lensLabelsForEvent(e, data.payload);
 
-  function scientificFromScaled(value: string, pow: number): string {
-    const num = Number(value);
-    if (!Number.isFinite(num)) return '';
-    const scaled = num * Math.pow(10, pow);
-    if (!Number.isFinite(scaled)) return '';
-    if (scaled === 0) return '0';
-    const exp = scaled.toExponential();
-    const parts = exp.split('e');
-    if (parts.length !== 2) return '';
-    let mantissa = String(parts[0] ?? '');
-    const exponent = Number.parseInt(String(parts[1] ?? ''), 10);
-    if (!Number.isFinite(exponent)) return '';
-    while (mantissa.includes('.') && mantissa.endsWith('0')) mantissa = mantissa.slice(0, -1);
-    if (mantissa.endsWith('.')) mantissa = mantissa.slice(0, -1);
-    return `${mantissa}e${exponent}`;
-  }
+  const hasRequesterActor = (e: any): boolean => _hasRequesterActor(e);
 
-  function canonicalUnitToken(raw: string): string {
-    const u = String(raw ?? '').toLowerCase();
-    if (!u) return '';
-    if (u === '%' || u === 'percentage' || u === 'percent') return 'percent';
-    if (u === 'dollar' || u === 'dollars' || u === 'usd') return 'usd';
-    if (u === 'years' || u === 'year') return 'year';
-    if (u === 'months' || u === 'month') return 'month';
-    if (u === 'days' || u === 'day') return 'day';
-    if (u === 'lines' || u === 'line') return 'line';
-    if (u === 'points' || u === 'point') return 'point';
-    if (u === 'aud' || u === 'eur' || u === 'gbp') return u;
-    return u;
-  }
-
-  function collapseWhitespace(raw: string): string {
-    let out = '';
-    let prevSpace = true;
-    for (const ch of String(raw ?? '')) {
-      const isSpace = ch.trim() === '';
-      if (isSpace) {
-        if (!prevSpace) out += ' ';
-      } else {
-        out += ch;
-      }
-      prevSpace = isSpace;
-    }
-    return out.trim();
-  }
-
-  function parseNumericValueToken(raw: string): string {
-    const compact = String(raw ?? '').trim().split(',').join('');
-    if (!compact) return '';
-    let i = 0;
-    let sign = '';
-    if (compact[0] === '+' || compact[0] === '-') {
-      sign = compact[0];
-      i = 1;
-    }
-    let seenDigit = false;
-    let seenDot = false;
-    let intPart = '';
-    let fracPart = '';
-    for (; i < compact.length; i++) {
-      const ch = compact[i] ?? '';
-      const isDigit = ch >= '0' && ch <= '9';
-      if (isDigit) {
-        seenDigit = true;
-        if (seenDot) fracPart += ch;
-        else intPart += ch;
-        continue;
-      }
-      if (ch === '.' && !seenDot) {
-        seenDot = true;
-        continue;
-      }
-      return '';
-    }
-    if (!seenDigit) return '';
-
-    while (intPart.startsWith('0') && intPart.length > 1) intPart = intPart.slice(1);
-    while (fracPart.endsWith('0')) fracPart = fracPart.slice(0, -1);
-
-    let value = fracPart ? `${intPart}.${fracPart}` : intPart;
-    if (value === '0') sign = '';
-    if (sign === '-') value = `-${value}`;
-    return value;
-  }
-
-  function normalizeNumericMention(raw: string): string {
-    const t = collapseWhitespace(String(raw ?? ''));
-    if (!t) return '';
-    const src = t.split(' ').filter(Boolean);
-    const toks: string[] = [];
-    for (let i = 0; i < src.length; i++) {
-      const low = String(src[i] ?? '').toLowerCase();
-      const next = i + 1 < src.length ? String(src[i + 1] ?? '').toLowerCase() : '';
-      if (low === 'per' && next === 'cent') {
-        toks.push('percent');
-        i += 1;
-      } else {
-        toks.push(String(src[i] ?? ''));
-      }
-    }
-    let currency = '';
-    if (toks.length) {
-      let first = String(toks[0] ?? '');
-      const low = first.toLowerCase();
-      if (low === '$') {
-        currency = 'usd';
-        toks.shift();
-      } else if (low === 'us$') {
-        currency = 'usd';
-        toks.shift();
-      } else if (low === 'a$') {
-        currency = 'aud';
-        toks.shift();
-      } else if (low === '€') {
-        currency = 'eur';
-        toks.shift();
-      } else if (low === '£') {
-        currency = 'gbp';
-        toks.shift();
-      } else if (low === 'usd' || low === 'aud' || low === 'eur' || low === 'gbp') {
-        currency = low;
-        toks.shift();
-      } else if (low.startsWith('$')) {
-        currency = 'usd';
-        first = first.slice(1);
-        toks[0] = first;
-      } else if (low.startsWith('us$')) {
-        currency = 'usd';
-        first = first.slice(3);
-        toks[0] = first;
-      } else if (low.startsWith('a$')) {
-        currency = 'aud';
-        first = first.slice(2);
-        toks[0] = first;
-      } else if (low.startsWith('€')) {
-        currency = 'eur';
-        first = first.slice(1);
-        toks[0] = first;
-      } else if (low.startsWith('£')) {
-        currency = 'gbp';
-        first = first.slice(1);
-        toks[0] = first;
-      }
-    }
-    if (!toks.length) return '';
-    if (toks.length === 1) {
-      const single = String(toks[0] ?? '');
-      let j = 0;
-      if (single[0] === '+' || single[0] === '-') j = 1;
-      let seenDigit = false;
-      let seenDot = false;
-      for (; j < single.length; j++) {
-        const ch = single[j] ?? '';
-        const isDigit = ch >= '0' && ch <= '9';
-        if (isDigit) {
-          seenDigit = true;
-          continue;
-        }
-        if (ch === ',' || (!seenDot && ch === '.')) {
-          if (ch === '.') seenDot = true;
-          continue;
-        }
-        break;
-      }
-      if (seenDigit && j < single.length) {
-        const left = single.slice(0, j);
-        const right = single.slice(j).toLowerCase();
-        if (NUMERIC_UNITS.has(right)) return currency ? `${left} ${right} ${currency}` : `${left} ${right}`;
-      }
-    }
-    for (let i = 1; i < toks.length; i++) {
-      const u = canonicalUnitToken(String(toks[i] ?? ''));
-      if (u) toks[i] = u;
-    }
-    if (currency) {
-      const lowParts = new Set(toks.map((x) => String(x ?? '').toLowerCase()));
-      if (!lowParts.has('usd') && !lowParts.has('aud') && !lowParts.has('eur') && !lowParts.has('gbp')) toks.push(currency);
-    }
-    return toks.join(' ');
-  }
-
-  function numericKey(raw: string): string {
-    const mention = normalizeNumericMention(raw);
-    if (!mention) return '';
-    const toks = mention.split(' ').filter(Boolean);
-    if (!toks.length) return '';
-    const value = parseNumericValueToken(toks[0] ?? '');
-    if (!value) return '';
-    const units = toks.slice(1).map((u) => canonicalUnitToken(u)).filter(Boolean);
-    if (!units.length) return `${value}|`;
-    const uniq = Array.from(new Set(units));
-    if (uniq.some((u) => !NUMERIC_UNITS.has(u))) return '';
-    let unit = '';
-    let outValue = value;
-    if (uniq.length === 1) {
-      unit = uniq[0] ?? '';
-    } else if (uniq.length === 2) {
-      const scale = uniq.find((u) => NUMERIC_SCALE_UNITS.has(u)) ?? '';
-      const ccy = uniq.find((u) => NUMERIC_CURRENCY_UNITS.has(u)) ?? '';
-      if (!scale || !ccy) return '';
-      const pow = NUMERIC_SCALE_POW[scale] ?? null;
-      if (pow === null) return '';
-      const sci = scientificFromScaled(value, pow);
-      if (!sci) return '';
-      outValue = sci;
-      unit = ccy;
-    } else {
-      return '';
-    }
-    return `${outValue}|${unit}`;
-  }
-
-  function numericMentionsFromValues(values: any[]): NumericMention[] {
-    const byKey = new Map<string, string>();
-    for (const raw of values ?? []) {
-      const label = normalizeNumericMention(String(raw ?? ''));
-      const key = numericKey(label);
-      if (!label || !key) continue;
-      if (!byKey.has(key)) byKey.set(key, label);
-    }
-    return Array.from(byKey.entries()).map(([key, label]) => ({ key, label }));
-  }
-
-  function numericMentionsForEvent(e: any): NumericMention[] {
-    const stepNums = Array.isArray((e as any)?.steps)
-      ? uniqueStrings((e as any).steps.flatMap((s: any) => stepNumericObjects(s)))
-      : [];
-    const nums = stepNums.length ? stepNums : uniqueStrings(eventNumericObjects(e));
-    return numericMentionsFromValues(nums);
-  }
-
-  function numericLabelFromKey(key: string): string {
-    const parts = String(key ?? '').split('|');
-    const value = parts[0] ?? '';
-    const unit = parts[1] ?? '';
-    if (!value) return String(key ?? '');
-    if (!unit) return value;
-    if (unit === 'percent') return `${value} percent`;
-    return `${value} ${unit}`;
-  }
-
-  function numericSortValueFromKey(key: string): number | null {
-    const raw = String(key ?? '').split('|')[0] ?? '';
-    const n = Number(raw);
-    if (!Number.isFinite(n)) return null;
-    return n;
-  }
-
-  function numericSortUnitFromKey(key: string): string {
-    return String(key ?? '').split('|')[1] ?? '';
-  }
-
-  function compareNumericLaneEntries(a: [string, number], b: [string, number]): number {
-    const av = numericSortValueFromKey(a[0]);
-    const bv = numericSortValueFromKey(b[0]);
-    if (av !== null && bv !== null) {
-      const ad = Math.abs(av);
-      const bd = Math.abs(bv);
-      if (bd !== ad) return bd - ad;
-      if (bv !== av) return bv - av;
-    } else if (av !== null) {
-      return -1;
-    } else if (bv !== null) {
-      return 1;
-    }
-
-    const au = numericSortUnitFromKey(a[0]);
-    const bu = numericSortUnitFromKey(b[0]);
-    if (au !== bu) return au.localeCompare(bu);
-    return a[0].localeCompare(b[0]);
-  }
-
-  function actionLabel(action: string | null | undefined, negation?: { kind?: string | null }): string {
-    const base = String(action ?? '').trim();
-    if (!base) return '(no action matched)';
-    if (String(negation?.kind ?? '').toLowerCase() === 'not') return `not_${base}`;
-    return base;
-  }
-
-  function stepEntityObjects(step: any): string[] {
-    if (Array.isArray(step?.entity_objects)) return step.entity_objects.map((x: any) => String(x)).filter(Boolean);
-    if (Array.isArray(step?.objects)) return step.objects.map((x: any) => String(x)).filter(Boolean);
-    return [];
-  }
-
-  function eventEntityObjects(e: any): string[] {
-    if (Array.isArray(e?.entity_objects)) return e.entity_objects.map((x: any) => String(x)).filter(Boolean);
-    if (Array.isArray(e?.objects)) return e.objects.map((o: any) => String(o?.title ?? '')).filter(Boolean);
-    return [];
-  }
-
-  function stepNumericObjects(step: any): string[] {
-    if (Array.isArray(step?.numeric_objects)) return step.numeric_objects.map((x: any) => String(x)).filter(Boolean);
-    return [];
-  }
-
-  function eventNumericObjects(e: any): string[] {
-    if (Array.isArray(e?.numeric_objects)) return e.numeric_objects.map((x: any) => String(x)).filter(Boolean);
-    return [];
-  }
-
-  function sourceLabelsForEvent(e: any): string[] {
-    const out: string[] = [];
-    const src = (data.payload as any)?.source_entity;
-    if (src && typeof src === 'object') {
-      const title = String(src.title ?? '').trim();
-      const typ = String(src.type ?? '').trim();
-      if (title && typ) out.push(`source:${title} (${typ})`);
-      else if (title) out.push(`source:${title}`);
-      else if (typ) out.push(`source_type:${typ}`);
-    }
-    const extraction = (data.payload as any)?.extraction_record;
-    if (extraction && typeof extraction === 'object') {
-      const parserVersion = String(extraction.parser_version ?? '').trim();
-      if (parserVersion) out.push(`parser:${parserVersion}`);
-    }
-    const timeline = (data.payload as any)?.source_timeline;
-    if (timeline && typeof timeline === 'object') {
-      const p = String((timeline as any)?.path ?? '').trim();
-      if (p) out.push(`timeline:${p.split('/').slice(-2).join('/')}`);
-    }
-
-    // Always show per-event extraction provenance signals (even when citations are empty),
-    // otherwise the Source lane collapses to "(none)" for the wiki datasets.
-    if (e && typeof e === 'object') {
-      const actSrc = String((e as any)?.action_meta?.source ?? '').trim();
-      if (actSrc) out.push(`action_meta:${actSrc}`);
-
-      if (Array.isArray((e as any)?.actors)) {
-        for (const a of (e as any).actors) {
-          const s = String(a?.source ?? '').trim();
-          if (s) out.push(`actor_source:${s}`);
-        }
-      }
-      if (Array.isArray((e as any)?.objects)) {
-        for (const o of (e as any).objects) {
-          const s = String(o?.source ?? '').trim();
-          if (s) out.push(`object_source:${s}`);
-        }
-      }
-      if (Array.isArray((e as any)?.steps)) {
-        for (const step of (e as any).steps) {
-          const s = String(step?.action_meta?.source ?? '').trim();
-          if (s) out.push(`step_action_meta:${s}`);
-        }
-      }
-    }
-
-    // For source-pack timelines, each row is its own source-ish artifact. Preserve
-    // the row title and any follow URL host so sources are visible per-event.
-    if (Array.isArray(e?.citations)) {
-      for (const c of e.citations) {
-        const kind = String((c as any)?.kind ?? '').trim().toLowerCase();
-        const text = String((c as any)?.text ?? '').trim();
-        if (kind === 'source_row' && text) out.push(`source_row:${text}`);
-        const follow = Array.isArray((c as any)?.follow) ? (c as any).follow : [];
-        for (const h of follow) {
-          const url = String((h as any)?.url ?? '').trim();
-          if (!url) continue;
-          try {
-            const host = new URL(url).host;
-            if (host) out.push(`host:${host}`);
-          } catch {
-            // ignore invalid URLs
-          }
-        }
-      }
-    }
-    const citationProviders = Array.isArray(e?.citations) ? collectFollowProviders(e.citations) : [];
-    const slRefProviders = Array.isArray(e?.sl_references) ? collectFollowProviders(e.sl_references) : [];
-    for (const p of uniqueStrings([...citationProviders, ...slRefProviders])) out.push(`provider:${p}`);
-    return uniqueStrings(out);
-  }
-
-  function lensLabelsForEvent(e: any): string[] {
-    const out: string[] = [];
-    const profile = (data.payload as any)?.extraction_profile;
-    if (profile && typeof profile === 'object') {
-      const profileId = String(profile.profile_id ?? '').trim();
-      const profileVersion = String(profile.profile_version ?? '').trim();
-      const predicateClassifier = String(profile.predicate_classifier ?? '').trim();
-      if (profileId && profileVersion) out.push(`profile:${profileId}@${profileVersion}`);
-      else if (profileId) out.push(`profile:${profileId}`);
-      if (predicateClassifier) out.push(`classifier:${predicateClassifier}`);
-    }
-    if ((e as any)?.claim_bearing === true) out.push('claim:claim_bearing');
-    if (Array.isArray((e as any)?.steps)) {
-      const claimBearingSteps = (e as any).steps.filter((s: any) => s?.claim_bearing === true).length;
-      if (claimBearingSteps > 0) out.push(`claim_steps:${claimBearingSteps}`);
-    }
-    if (Array.isArray((e as any)?.sl_references)) {
-      for (const r of (e as any).sl_references) {
-        const lane = String((r as any)?.lane ?? '').trim();
-        if (lane) out.push(`sl_lane:${lane}`);
-      }
-    }
-    const markers = (e as any)?.legal_section_markers;
-    if (markers && typeof markers === 'object' && Array.isArray(markers.sl_reference_lanes)) {
-      for (const lane of markers.sl_reference_lanes) {
-        const x = String(lane ?? '').trim();
-        if (x) out.push(`sl_lane:${x}`);
-      }
-    }
-    if (Array.isArray((e as any)?.timeline_facts) && (e as any).timeline_facts.length) out.push('fact:timeline');
-    return uniqueStrings(out);
-  }
-
-  function hasRequesterActor(e: any): boolean {
-    return (e?.actors ?? []).some((a: any) => {
-      if ((a?.role ?? '') !== 'requester') return false;
-      return Boolean(String(a?.resolved ?? a?.label ?? '').trim());
-    });
-  }
+  const evidenceLabelsFromEvent = _evidenceLabelsFromEvent;
 
   function asCount(raw: any): number {
     const n = Number(raw);
@@ -787,71 +374,7 @@
     return out;
   })();
 
-  const DEFAULT_FOLLOW_ORDER = ['wikipedia', 'wiki_connector', 'austlii', 'jade', 'source_document', 'source_pdf'];
-
-  function collectFollowProviders(rows: any[]): string[] {
-    const out: string[] = [];
-    for (const row of rows ?? []) {
-      if (!row || typeof row !== 'object') continue;
-      if (Array.isArray((row as any).follower_order)) {
-        for (const x of (row as any).follower_order) out.push(String(x ?? '').trim());
-      }
-      if (Array.isArray((row as any).follow)) {
-        for (const h of (row as any).follow) {
-          const p = String((h as any)?.provider ?? '').trim();
-          if (p) out.push(p);
-        }
-      }
-    }
-    return uniqueStrings(out);
-  }
-
-  function evidenceLabelsFromEvent(e: any): string[] {
-    const citationTexts = Array.isArray(e?.citations)
-      ? (e.citations as any[])
-          .map((c: any) => String(c?.text ?? '').trim())
-          .filter(Boolean)
-      : [];
-    const slRefTexts = Array.isArray(e?.sl_references)
-      ? (e.sl_references as any[])
-          .map((r: any) => {
-            const t = String(r?.text ?? '').trim();
-            if (t) return t;
-            const auth = String(r?.authority ?? '').trim();
-            const ref = String(r?.ref_value ?? '').trim();
-            return `${auth} ${ref}`.trim();
-          })
-          .filter(Boolean)
-      : [];
-    return uniqueStrings([...citationTexts, ...slRefTexts]);
-  }
-
-  function keyFromNodeId(id: string): { kind: string; key: string } {
-    const m = /^([a-z]+):(.+)$/.exec(id);
-    if (!m) return { kind: 'other', key: id };
-    const kind = m[1] ?? 'other';
-    const key = m[2] ?? id;
-    return { kind, key };
-  }
-
-  function timeKeyForEvent(e: { anchor: { year: number; month: number | null; day: number | null } }, g: TimeGranularity): string {
-    const y = String(e.anchor.year || 0);
-    if (g === 'year') return y;
-    const m = e.anchor.month ?? null;
-    if (!m) return y;
-    const ym = `${y}-${pad2(m)}`;
-    if (g === 'month') return ym;
-    const d = e.anchor.day ?? null;
-    if (!d) return ym;
-    return `${ym}-${pad2(d)}`;
-  }
-
-  function factAnchorKey(a: any): string {
-    const y = String(a?.year ?? 0);
-    const m = typeof a?.month === 'number' ? pad2(a.month) : '99';
-    const d = typeof a?.day === 'number' ? pad2(a.day) : '99';
-    return `${y}-${m}-${d}`;
-  }
+  const followOrder = defaultFollowOrder();
 
   function eventMatchesNode(e: any, nodeId: string): boolean {
     if (!nodeId) return false;
@@ -1034,7 +557,7 @@
         ...slRefFollowers,
         ...(citations.length || slRefs.length ? ['wikipedia', 'wiki_connector', 'source_document', 'source_pdf'] : []),
         ...(hasLegalSignals ? ['austlii', 'jade'] : []),
-        ...(citations.length || slRefs.length ? DEFAULT_FOLLOW_ORDER : [])
+        ...(citations.length || slRefs.length ? followOrder : [])
       ]);
       const factRows = Array.isArray((e as any).timeline_facts)
         ? uniqueStrings(
@@ -1179,11 +702,6 @@
       for (const lens of lensLabelsForEvent(e)) lensCount.set(lens, (lensCount.get(lens) ?? 0) + 1);
       for (const ev of evidenceLabelsFromEvent(e)) evidenceCount.set(ev, (evidenceCount.get(ev) ?? 0) + 1);
     }
-
-    const top = (m: Map<string, number>, n: number) =>
-      Array.from(m.entries())
-        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-        .slice(0, Math.max(0, Math.floor(n)));
 
     const topSubjects = top(subjectCount, maxSubjects);
     const topObjects = top(objectCount, maxObjects);
@@ -1350,142 +868,24 @@
 </script>
 
 <div class="space-y-4 p-6">
-  <Panel>
-    <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Wiki timeline AAO: whole-article combined</div>
-    <div class="mt-2 text-sm text-ink-950">
-      Timeline input: <span class="font-mono text-xs">{data.relPath}</span>
-    </div>
-    <div class="mt-2 text-xs text-ink-800/60">
-      DB run: <span class="font-mono break-all">{data.payload.run_id ?? '(unknown)'}</span>
-      <span class="mx-2">|</span>
-      stored timeline_path: <span class="font-mono break-all">{(data.payload.source_timeline as any)?.path ?? '(unknown)'}</span>
-      <span class="mx-2">|</span>
-      loaded_from_db: <span class="font-mono">{data.payload.__loaded_from_db ? 'true' : 'false'}</span>
-    </div>
-    <div class="mt-2 text-xs text-ink-800/60">
-      Union graph over many sentence-local AAO extractions. Non-causal. Non-authoritative.
-    </div>
-
-    <div class="mt-4 flex flex-wrap items-center gap-3 text-sm">
-      <label class="flex items-center gap-2">
-        <span class="text-ink-800/70">Dataset</span>
-        <select
-          class="rounded-md border border-ink-950/15 bg-white px-2 py-1 text-sm"
-          value={data.source ?? 'gwb'}
-          aria-label="Dataset source"
-          on:change={(e) => {
-            const v = (e.currentTarget as HTMLSelectElement).value;
-            window.location.href = `/graphs/wiki-timeline-aoo-all?source=${encodeURIComponent(v)}`;
-          }}
-        >
-          <option value="gwb">gwb</option>
-          <option value="gwb_public_bios_v1">gwb_public_bios_v1</option>
-          <option value="gwb_corpus_v1">gwb_corpus_v1</option>
-          <option value="hca">hca</option>
-          <option value="legal">legal</option>
-          <option value="legal_follow">legal_follow</option>
-        </select>
-      </label>
-      <label class="flex items-center gap-2">
-        <span class="text-ink-800/70">Time</span>
-        <select bind:value={timeGranularity} class="rounded-md border border-ink-950/15 bg-white px-2 py-1 text-sm" aria-label="Time granularity">
-          <option value="year">Year</option>
-          <option value="month">Month</option>
-          <option value="day">Day</option>
-        </select>
-      </label>
-      <label class="flex items-center gap-2">
-        <span class="text-ink-800/70">Events</span>
-        <input
-          type="number"
-          min="10"
-          max={eventsAll.length}
-          step="5"
-          bind:value={limitEvents}
-          class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs"
-          aria-label="Max events"
-        />
-      </label>
-      <label class="flex items-center gap-2">
-        <span class="text-ink-800/70">Max subjects</span>
-        <input type="number" min="10" max="400" step="10" bind:value={maxSubjects} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" aria-label="Max subjects" />
-      </label>
-      <label class="flex items-center gap-2">
-        <span class="text-ink-800/70">Max objects</span>
-        <input type="number" min="10" max="600" step="10" bind:value={maxObjects} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" aria-label="Max objects" />
-      </label>
-      <label class="flex items-center gap-2">
-        <span class="text-ink-800/70">Max numeric</span>
-        <input type="number" min="10" max="600" step="10" bind:value={maxNumbers} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" aria-label="Max numeric values" />
-      </label>
-      <label class="flex items-center gap-2">
-        <input type="checkbox" bind:checked={includeSources} aria-label="Show source lane" />
-        <span class="text-ink-800/70">Source lane</span>
-      </label>
-      {#if includeSources}
-        <label class="flex items-center gap-2">
-          <span class="text-ink-800/70">Max sources</span>
-          <input type="number" min="10" max="400" step="10" bind:value={maxSources} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" aria-label="Max sources" />
-        </label>
-      {/if}
-      <label class="flex items-center gap-2">
-        <input type="checkbox" bind:checked={includeLenses} aria-label="Show lens lane" />
-        <span class="text-ink-800/70">Lens lane</span>
-      </label>
-      {#if includeLenses}
-        <label class="flex items-center gap-2">
-          <span class="text-ink-800/70">Max lenses</span>
-          <input type="number" min="10" max="500" step="10" bind:value={maxLenses} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" aria-label="Max lenses" />
-        </label>
-      {/if}
-      <label class="flex items-center gap-2">
-        <input type="checkbox" bind:checked={includeEvidence} aria-label="Show evidence lane" />
-        <span class="text-ink-800/70">Evidence lane</span>
-      </label>
-      {#if includeEvidence}
-        <label class="flex items-center gap-2">
-          <span class="text-ink-800/70">Max evidence</span>
-          <input type="number" min="10" max="400" step="10" bind:value={maxEvidence} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" aria-label="Max evidence" />
-        </label>
-      {/if}
-      <label class="flex items-center gap-2">
-        <input type="checkbox" bind:checked={includeRequesters} aria-label="Show requesters" />
-        <span class="text-ink-800/70">Requesters</span>
-      </label>
-      <label class="flex items-center gap-2">
-        <input type="checkbox" bind:checked={includePurpose} aria-label="Show purpose" />
-        <span class="text-ink-800/70">Purpose</span>
-      </label>
-      <label class="flex items-center gap-2">
-        <input type="checkbox" bind:checked={orderByFactDate} />
-        <span class="text-ink-800/70">Fact-date order</span>
-      </label>
-      <a
-        class="rounded-md border border-ink-950/15 px-2 py-1 text-xs text-ink-950 hover:border-ink-950/30 hover:bg-ink-950/[0.03]"
-        href={`/graphs/wiki-timeline?source=${encodeURIComponent(data.source ?? 'gwb')}`}
-      >
-        Open Timeline
-      </a>
-      <a
-        class="rounded-md border border-ink-950/15 px-2 py-1 text-xs text-ink-950 hover:border-ink-950/30 hover:bg-ink-950/[0.03]"
-        href={`/graphs/wiki-timeline-aoo?source=${encodeURIComponent(data.source ?? 'gwb')}`}
-      >
-        Open AAO
-      </a>
-      <a
-        class="rounded-md border border-ink-950/15 px-2 py-1 text-xs text-ink-950 hover:border-ink-950/30 hover:bg-ink-950/[0.03]"
-        href={`/graphs/wiki-timeline-aoo?source=${encodeURIComponent(data.source ?? 'gwb')}&view=step-ribbon`}
-      >
-        Open Step-Ribbon
-      </a>
-      <a
-        class="rounded-md border border-ink-950/15 px-2 py-1 text-xs text-ink-950 hover:border-ink-950/30 hover:bg-ink-950/[0.03]"
-        href={`/graphs/wiki-fact-timeline?source=${encodeURIComponent(data.source ?? 'gwb')}`}
-      >
-        Open Fact Timeline
-      </a>
-    </div>
-  </Panel>
+  <ControlsPanel
+    {data}
+    eventsAllLength={eventsAll.length}
+    bind:timeGranularity
+    bind:limitEvents
+    bind:maxSubjects
+    bind:maxObjects
+    bind:maxNumbers
+    bind:maxSources
+    bind:maxLenses
+    bind:maxEvidence
+    bind:includeSources
+    bind:includeLenses
+    bind:includeRequesters
+    bind:includePurpose
+    bind:includeEvidence
+    bind:orderByFactDate
+  />
 
   {#if (data.corpusDocs ?? []).length}
     {@const ref = referencedCorpusPaths()}
@@ -1556,224 +956,16 @@
     on:nodeSelect={(e) => (selectedNodeId = (e as CustomEvent<{ nodeId: string }>).detail.nodeId)}
   />
 
-  <Panel>
-    <div class="flex flex-wrap items-center justify-between gap-3">
-      <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Context</div>
-      <div class="flex flex-wrap items-center gap-3 text-[11px] font-mono text-ink-800/60">
-        {#if selectedNodeId}
-          <span>selected: {selectedNodeId}</span>
-          {#if contextRows.length > 80}
-            <label class="inline-flex items-center gap-1 rounded border border-ink-950/10 bg-white px-2 py-0.5">
-              <input type="checkbox" bind:checked={showAllContextRows} />
-              <span>all rows ({contextRows.length})</span>
-            </label>
-          {:else}
-            <span>rows: {contextRows.length}</span>
-          {/if}
-        {:else}
-          <span>click a node to preview the relevant extracted timeline text</span>
-        {/if}
-      </div>
-    </div>
-
-    <div class="mt-3 max-h-[320px] overflow-auto rounded-lg border border-ink-950/10 bg-white" bind:this={contextBox}>
-      {#if !selectedNodeId}
-        <div class="p-3 text-xs text-ink-800/70">
-          This panel shows sentence-local timeline evidence for the selected node (from the extracted timeline substrate, not the full Wikipedia article).
-        </div>
-      {:else}
-        {#if selectedNodeId === 'req:missing'}
-          <div class="border-b border-ink-950/10 bg-amber-50/40 p-3 text-[11px]">
-            <div class="font-mono text-ink-900">
-              requester_window: signal={requesterCoverageWindow.requestSignalEvents} requester={requesterCoverageWindow.requesterEvents}
-              missing={requesterCoverageWindow.missingRequesterEventIds.length} total={requesterCoverageWindow.totalEvents}
-            </div>
-            {#if requesterCoverageGlobal}
-              <div class="mt-1 font-mono text-ink-900">
-                requester_global: signal={requesterCoverageGlobal.requestSignalEvents} requester={requesterCoverageGlobal.requesterEvents}
-                missing={requesterCoverageGlobal.missingRequesterEventIds.length} total={requesterCoverageGlobal.totalEvents}
-              </div>
-            {:else}
-              <div class="mt-1 font-mono text-ink-800/70">requester_global: unavailable (payload missing requester_coverage)</div>
-            {/if}
-            <div class="mt-2 flex flex-wrap gap-2 font-mono">
-              {#if requesterCoverageWindowGap}
-                <span class="rounded bg-red-100 px-1.5 py-0.5 text-red-900">window_gap: request-signal events exceed requester-tagged events</span>
-              {:else}
-                <span class="rounded bg-emerald-100 px-1.5 py-0.5 text-emerald-900">window_gap: none</span>
-              {/if}
-              {#if requesterCoverageGlobalGap}
-                <span class="rounded bg-red-100 px-1.5 py-0.5 text-red-900">global_gap: request-signal events exceed requester-tagged events</span>
-              {:else if requesterCoverageGlobal}
-                <span class="rounded bg-emerald-100 px-1.5 py-0.5 text-emerald-900">global_gap: none</span>
-              {/if}
-            </div>
-            {#if requesterCoverageWindow.missingRequesterEventIds.length}
-              <div class="mt-2">
-                <span class="font-mono text-ink-800/60">window_missing_ids</span>
-                {#each requesterCoverageWindow.missingRequesterEventIds as x (x)}
-                  <span class="ml-1 inline-block rounded bg-red-50 px-1.5 py-0.5 font-mono text-red-900">{x}</span>
-                {/each}
-              </div>
-            {:else if requesterCoverageGlobal?.missingRequesterEventIds.length}
-              <div class="mt-2">
-                <span class="font-mono text-ink-800/60">global_missing_ids</span>
-                {#each requesterCoverageGlobal.missingRequesterEventIds.slice(0, 24) as x (x)}
-                  <span class="ml-1 inline-block rounded bg-red-50 px-1.5 py-0.5 font-mono text-red-900">{x}</span>
-                {/each}
-              </div>
-            {/if}
-          </div>
-        {/if}
-        {#if !contextRows.length}
-          <div class="p-3 text-xs text-ink-800/70">No matching extracted timeline rows for this node in the current event window.</div>
-        {:else}
-          {#each contextRowsShown as r (r.key)}
-            <div class="border-b border-ink-950/10 p-3 last:border-b-0" data-ctx-id={r.event_id}>
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <div class="font-mono text-[10px] text-ink-800/60">{r.time} {r.event_id}</div>
-              <div class="font-mono text-[10px] text-ink-800/60">section={r.section}</div>
-            </div>
-            <div class="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-ink-950">
-              {#if r.requesters.length}
-                {#each r.requesters as x (r.event_id + ':req:' + x)}
-                  <span class="rounded bg-purple-100 px-1.5 py-0.5 font-mono">[{x}]</span>
-                {/each}
-                <span class="font-mono text-ink-800/50">request</span>
-              {/if}
-              {#if r.subjects.length}
-                {#each r.subjects as x (r.event_id + ':sub:' + x)}
-                  <span class="rounded bg-emerald-100 px-1.5 py-0.5 font-mono">[{x}]</span>
-                {/each}
-                <span class="font-mono text-ink-800/50">do</span>
-              {/if}
-              {#if r.actions.length}
-                {#each r.actions as a (r.event_id + ':act:' + a)}
-                  <span class="rounded bg-amber-100 px-1.5 py-0.5 font-mono">[{a}]</span>
-                {/each}
-              {:else}
-                <span class="rounded bg-amber-100 px-1.5 py-0.5 font-mono">[{actionLabel(r.action, r.negation)}]</span>
-              {/if}
-              {#if r.objects.length}
-                <span class="font-mono text-ink-800/50">object</span>
-                {#each r.objects as x (r.event_id + ':obj:' + x)}
-                  <span class="rounded bg-slate-100 px-1.5 py-0.5 font-mono">[{x}]</span>
-                {/each}
-              {/if}
-              {#if r.numerics.length}
-                <span class="font-mono text-ink-800/50">numeric</span>
-                {#each r.numerics as x (r.event_id + ':num:' + x)}
-                  <span class="rounded bg-rose-100 px-1.5 py-0.5 font-mono">[{x}]</span>
-                {/each}
-              {/if}
-              {#if r.purpose}
-                <span class="font-mono text-ink-800/50">purpose</span>
-                <span class="rounded bg-yellow-50 px-1.5 py-0.5 font-mono">[{r.purpose}]</span>
-              {/if}
-            </div>
-            {#if r.connected.length}
-              <div class="mt-2 text-[11px]">
-                <span class="font-mono text-ink-800/50">connected</span>
-                {#each r.connected as x (r.event_id + ':conn:' + x)}
-                  <span class="ml-1 inline-block rounded bg-slate-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
-                {/each}
-              </div>
-            {/if}
-            {#if r.numericClaims.length}
-              <div class="mt-2 text-[11px]">
-                <span class="font-mono text-ink-800/50">numeric_claims</span>
-                {#each r.numericClaims.slice(0, 8) as x (r.event_id + ':nclaim:' + x)}
-                  <span class="ml-1 inline-block rounded bg-rose-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
-                {/each}
-              </div>
-            {/if}
-            {#if r.sources.length}
-              <div class="mt-2 text-[11px]">
-                <span class="font-mono text-ink-800/50">sources</span>
-                {#each r.sources.slice(0, 8) as x (r.event_id + ':src:' + x)}
-                  <span class="ml-1 inline-block rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
-                {/each}
-              </div>
-            {/if}
-            {#if r.lenses.length}
-              <div class="mt-2 text-[11px]">
-                <span class="font-mono text-ink-800/50">lenses</span>
-                {#each r.lenses.slice(0, 8) as x (r.event_id + ':lens:' + x)}
-                  <span class="ml-1 inline-block rounded bg-violet-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
-                {/each}
-              </div>
-            {/if}
-            {#if r.slRefs.length}
-              <div class="mt-2 text-[11px]">
-                <span class="font-mono text-ink-800/50">sl_refs</span>
-                {#each r.slRefs.slice(0, 6) as x (r.event_id + ':sl:' + x)}
-                  <span class="ml-1 inline-block rounded bg-blue-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
-                {/each}
-              </div>
-            {/if}
-            {#if r.checkNext.length}
-              <div class="mt-2 text-[11px]">
-                <span class="font-mono text-ink-800/50">check_next</span>
-                {#each r.checkNext as x (r.event_id + ':next:' + x)}
-                  <span class="ml-1 inline-block rounded bg-violet-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
-                {/each}
-              </div>
-            {/if}
-            {#if r.party}
-              <div class="mt-2 text-[11px]">
-                <span class="font-mono text-ink-800/50">party</span>
-                <span class="ml-1 inline-block rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-ink-900">{r.party}</span>
-              </div>
-            {/if}
-            {#if r.tocContext.length}
-              <div class="mt-2 text-[11px]">
-                <span class="font-mono text-ink-800/50">toc</span>
-                {#each r.tocContext.slice(0, 4) as x (r.event_id + ':toc:' + x)}
-                  <span class="ml-1 inline-block rounded bg-slate-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
-                {/each}
-              </div>
-            {/if}
-            {#if r.legalMarkers.length}
-              <div class="mt-2 text-[11px]">
-                <span class="font-mono text-ink-800/50">legal_markers</span>
-                {#each r.legalMarkers.slice(0, 8) as x (r.event_id + ':lm:' + x)}
-                  <span class="ml-1 inline-block rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
-                {/each}
-              </div>
-            {/if}
-            {#if r.factRows.length}
-              <div class="mt-2 text-[11px]">
-                <span class="font-mono text-ink-800/50">timeline_facts</span>
-                {#each r.factRows.slice(0, 4) as x (r.event_id + ':fact:' + x)}
-                  <span class="ml-1 inline-block rounded bg-lime-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
-                {/each}
-              </div>
-            {/if}
-            {#if r.citations.length}
-              <div class="mt-2 text-[11px]">
-                <span class="font-mono text-ink-800/50">citations</span>
-                {#each r.citations.slice(0, 6) as x (r.event_id + ':cit:' + x)}
-                  <span class="ml-1 inline-block rounded bg-amber-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
-                {/each}
-              </div>
-            {/if}
-            <div class="mt-2 text-sm text-ink-950">
-              {#if contextNeedle}
-                {#each highlightParts(r.text, contextNeedle) as part, i (r.event_id + ':' + i)}
-                  {#if part.hit}
-                    <span class="rounded bg-amber-200/60 px-1">{part.s}</span>
-                  {:else}
-                    {part.s}
-                  {/if}
-                {/each}
-              {:else}
-                {r.text}
-              {/if}
-            </div>
-            </div>
-          {/each}
-        {/if}
-      {/if}
-    </div>
-  </Panel>
+  <ContextPanel
+    bind:showAllContextRows
+    bind:contextBox
+    selectedNodeId={selectedNodeId}
+    contextRows={contextRows}
+    contextRowsShown={contextRowsShown}
+    requesterCoverageWindow={requesterCoverageWindow}
+    requesterCoverageGlobal={requesterCoverageGlobal}
+    requesterCoverageWindowGap={requesterCoverageWindowGap}
+    requesterCoverageGlobalGap={requesterCoverageGlobalGap}
+    contextNeedle={contextNeedle}
+  />
 </div>

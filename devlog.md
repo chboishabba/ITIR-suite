@@ -1,5 +1,10 @@
 # Devlog
 
+## 2026-03-29
+- Recorded that the AAO runtime helpers now live under `itir-svelte/src/lib/server/wiki_timeline/`, `wikiTimelineAoo.ts` is a thin adapter, and the AAO-all route now uses the shared helper modules plus extracted `ControlsPanel` and `ContextPanel` components.
+- Triaged the AAO runtime/route slice alongside the first Priority 1 brief set, leaving the remaining graph/evidence assembly as the next explicit follow-up.
+- Validated that the new adapter and panel boundaries behave by re-running `cd itir-svelte && node --test tests/graph_ui_regressions.test.js` after the helper/component split.
+
 ## 2026-03-28
 - Added `docs/planning/orchestrator_control_plane_20260328.md` to record the
   current orchestration control-plane state for this repo.

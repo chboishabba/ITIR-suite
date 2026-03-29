@@ -1,5 +1,120 @@
 # Compactified Context
 
+- 2026-03-29 AAO runtime/route roadmap checkpoint:
+  - source: current working turn
+  - main decision:
+    - the AAO timeline routing helpers now live under `itir-svelte/src/lib/server/wiki_timeline/`
+    - `itir-svelte/src/lib/server/wikiTimelineAoo.ts` is now a thin adapter sharing those helpers
+    - the `wiki-timeline-aoo-all` route consumes the shared `filters`, `graph`, and `selection` helpers, with the controls and context panels extracted into `ControlsPanel.svelte` and `ContextPanel.svelte`
+    - the remaining follow-up is the route-owned graph/evidence assembly residue, not the controls/context shell
+  - documentation artifacts updated:
+    - `docs/planning/largest_file_refactor_roadmap_20260328.md`
+    - `TODO.md`
+    - `devlog.md`
+    - `CHANGELOG.md`
+  - validation:
+    - `cd itir-svelte && node --test tests/graph_ui_regressions.test.js`
+
+- 2026-03-29 notebooklm-pack boundary check:
+  - source: current working turn
+  - checked:
+    - `../notebooklm-pack/Cargo.toml`
+    - `../notebooklm-pack/src/main.rs`
+    - `docs/planning/jmd_push_pull_surfaces_and_blockers_20260329.md`
+    - `docs/planning/temp_zos_sl_bridge_impl_review_20260329.md`
+  - docs path status:
+    - `/home/c/Documents/code/kant-zk-pastebin/DOCS.md` exists as a symlink,
+      but its target under `/home/mdupont/DOCS/...` is unavailable in this
+      environment
+  - main decision:
+    - `../notebooklm-pack` is a bounded Rust utility for repo-text collection
+      and NotebookLM source clustering only
+    - it should not be treated as evidence for `ZOS <-> SL` semantics, `JMD`
+      push/pull, admissibility, resonance/manifold logic, or proof/receipt
+      boundaries
+  - documentation artifacts added/updated:
+    - `docs/planning/notebooklm_pack_zos_jmd_boundary_20260329.md`
+    - `README.md`
+    - `TODO.md`
+- 2026-03-29 notebooklm-pack integration seam:
+  - source: current working turn
+  - checked against:
+    - `notebooklm-py/docs/interfaces.md`
+    - `StatiBaker/docs/notebooklm_connector.md`
+    - `docs/planning/notebooklm_metadata_review_parity_20260311.md`
+    - `docs/planning/notebooklm_interaction_capture_contract_20260311.md`
+  - main decision:
+    - the sibling pack is useful as an upstream source-pack producer for
+      NotebookLM Channel A source ingress
+    - the correct container order is:
+      repo corpus -> notebooklm-pack -> notebooklm-py -> StatiBaker capture ->
+      SensibLaw reuse
+    - if implemented later, the first bounded seam should be a tiny wrapper or
+      manifest-normalizer, not a semantic bridge
+  - artifacts added/updated:
+    - `docs/planning/notebooklm_pack_to_notebooklm_py_interface_20260329.md`
+    - `README.md`
+    - `TODO.md`
+- 2026-03-29 notebooklm-pack dry-run wrapper:
+  - source: current working turn
+  - main decision:
+    - implement the smallest honest seam as a dry-run-first wrapper rather than
+      jumping straight to auth-backed live NotebookLM mutation
+  - implementation:
+    - added `scripts/notebooklm_pack_ingest.py`
+    - wrapper supports:
+      - optional `notebooklm-pack` execution
+      - manifest normalization
+      - source file hashing
+      - deterministic `notebooklm` command planning
+      - optional live execution behind `--execute`
+  - validation:
+    - added `tests/test_notebooklm_pack_ingest.py`
+    - local test result:
+      `.venv/bin/python -m pytest -q tests/test_notebooklm_pack_ingest.py`
+      -> `4 passed`
+  - live followthrough:
+    - local authenticated NotebookLM execution now succeeds
+    - real wrapper mismatches were found and fixed:
+      - nested `notebook` JSON shape from `create --json`
+      - nested `source` JSON shape from `source add --json`
+      - local CLI version does not support `--interval` on `source wait`
+      - local CLI discovery needed to prefer the repo `.venv` binary
+    - persistent validation notebook kept:
+      - title: `ITIR notebooklm-pack integration`
+      - id: `ad2bbd9a-2c9c-47ee-a607-f2b735999d99`
+      - url:
+        `https://notebooklm.google.com/notebook/ad2bbd9a-2c9c-47ee-a607-f2b735999d99`
+    - seeded linkage artifact:
+      `/home/c/Documents/code/ITIR-suite/.cache_local/notebooklm_pack_runs/20260329_persistent_integration_seed/result.json`
+    - NotebookLM produced a coherent two-source summary for the kept notebook,
+      which is a practical success signal for the pack->ingest loop
+  - next gap:
+    - downstream StatiBaker linkage enrichment remains separate follow-up work
+    - the next JMD question is no longer NotebookLM liveness; it is seam
+      object disambiguation and receipt-vs-observer classification
+
+- 2026-03-29 JMD NotebookLM seam disambiguation:
+  - source: current working turn
+  - main decision:
+    - the new live NotebookLM loop does not make NotebookLM metadata into JMD
+      receipts by itself
+    - the right next bounded object is `NotebookLMExternalLink.v1`
+  - minimal fields:
+    - `pack_run_id`
+    - `source_file_hash`
+    - `notebook_id`
+    - `notebook_source_id`
+    - `artifact_ids`
+    - bounded titles and timestamps
+  - classification rule:
+    - titles, counts, statuses, and NotebookLM-generated summaries remain
+      observer metadata
+    - hashes, manifest linkage, and stable external ids are receipt
+      candidates only if a sharper JMD contract later adopts them
+  - artifact:
+    - `docs/planning/jmd_notebooklm_seam_minimal_object_20260329.md`
+
 - 2026-03-28 refreshed online thread sync:
   - source: current working turn via `robust-context-fetch`
   - refreshed online threads:
@@ -29,6 +144,262 @@
     - `docs/planning/all_sources_factbundle_reconciliation_boundary_20260328.md`
     - `docs/planning/sentiment_affect_noncanonical_boundary_20260328.md`
 
+- 2026-03-28 bounded climate text producer into the Wikidata `Phi` bridge:
+  - source: current working turn
+  - main decision:
+    - the first real text-side producer for the `P5991 -> P14143` lane should
+      stay narrow and revision-locked rather than pretending to be general text
+      understanding
+    - the producer emits `sl.observation_claim.contract.v1` rows from explicit
+      year/value climate lines, then feeds those rows into the existing
+      migration-pack bridge as additive pressure only
+  - implementation:
+    - schema:
+      `SensibLaw/schemas/sl.wikidata.climate_text_source.v1.schema.yaml`
+    - runtime helpers:
+      `SensibLaw/src/ontology/wikidata.py`
+    - materializer hook:
+      `SensibLaw/scripts/materialize_wikidata_migration_pack.py`
+  - validation:
+    - `/home/c/Documents/code/ITIR-suite/.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_projection.py SensibLaw/tests/test_materialize_wikidata_migration_pack.py SensibLaw/tests/test_wikidata_cli.py SensibLaw/tests/test_observation_claim_wikidata_projection.py`
+  - target-selection result:
+    - `HSBC` / `Q190464` is not currently a valid lane target because it
+      currently returns no live `P5991` statements
+    - the first real artifact hunt should therefore pivot to already-pinned
+      entities with live `P5991`, especially `Q10422059`
+      (`Atrium Ljungberg`) and `Q10403939` (`Akademiska Hus`)
+  - first non-fixture artifact now exists:
+    `SensibLaw/data/ontology/wikidata_migration_packs/p5991_p14143_climate_pilot_20260328/climate_text_source_q10403939_akademiska_hus_scope1_2018_2020.json`
+    built from official Akademiska Hus annual report excerpts for 2018, 2019,
+    and 2020
+  - first real bridge result:
+    the artifact validates against `sl.wikidata.climate_text_source.v1`,
+    yields `3` promoted observations / claims, and after the new temporal
+    gating pass drives `split_pressure` on all `24` current `Q10403939`
+    candidates
+  - interpretation:
+    this is useful because it shows the bridge refusing to equate older
+    scope-1 totals with the current 2023 multi-scope structured bundle, while
+    no longer overstating that mismatch as hard contradiction
+  - next gap:
+    add simple scope-tag carriage / matching before using real text evidence
+    as support rather than only temporal-dimension pressure
+  - next generalization boundary:
+    source capture should become source-unit driven rather than PDF-driven
+  - runtime move is now implemented:
+    `sl.wikidata.climate_text_source.v1` remains as a backward-compatible
+    legacy subtype, and a generic revision-locked `sl.source_unit.v1` plus a
+    `SourceUnitAdapter` path now exists for PDF snapshot text and HTML
+    snapshot text
+  - broader abstraction note:
+    the next higher formalism above current boundary objects is not just
+    another shared interface; it is a typed composition system over boundary
+    artifacts and governed morphisms
+  - current decision:
+    keep that as a docs-first planning note for now rather than introducing a
+    shared runtime algebra prematurely
+  - candidate concrete next layer, if runtime pressure later justifies it:
+    `BoundaryArtifact.v1` + `Morphism.v1` + a bounded composition validator +
+    a small readable transformation DSL
+  - cross-system note:
+    `Phi_meta` is already a shipped bounded executable layer; the next useful
+    move there is a concrete `common_law <-> civil_law` example plus a bounded
+    real-data prototype, not another abstract schema rewrite
+  - track separation:
+    the Wikidata climate lane and the cross-system legal lane now have
+    different optimal next moves:
+    - climate lane: `source_capture -> SourceUnit`
+    - cross-system lane: bounded two-system prototype over promoted records
+
+- 2026-03-28 ITIR / SensibLaw receipts-first compiler spine:
+  - source: current working turn
+  - main decision:
+    treat ITIR/SensibLaw as a receipts-first compiler with five explicit
+    layers:
+    source substrate -> deterministic extraction -> promotion -> reasoning ->
+    public-action packaging
+  - architectural center:
+    promotion, not embeddings, graph ML, or public rendering
+  - canonical truth rule:
+    only promoted truth is canonical; graph and publish layers remain derived
+    downstream consequences
+  - downstream rule:
+    public-facing outputs must stay receipt-backed and must not outrun the
+    promoted proof base
+  - next milestone:
+    one bounded doctrine prototype emitting clause candidates with spans,
+    promoted facts with abstentions, typed graph, proof tree, and one
+    receipt-backed public-action artifact
+
+- 2026-03-28 ITIR / SensibLaw identity-trust alignment refinement:
+  - source: current working turn
+  - documentation artifact added:
+    `docs/planning/itir_sensiblaw_identity_trust_alignment_layer_20260328.md`
+  - main decision:
+    the suite must not be treated as only a legal compiler; it is also a
+    trust-preserving alignment layer between lived experience, evidence,
+    formal rules, and actionable next steps
+  - stronger requirement:
+    convert fragmented lived experience into trustworthy, non-gaslighting
+    legal and identity support without forcing full restatement from scratch
+  - bounded internal lane:
+    any identity/trust compiler surfaces remain user-sovereign,
+    non-diagnostic, and non-canonical relative to promoted legal truth
+  - lattice refinement:
+    success now depends on legal validity, evidential validity, and
+    trust-preserving interpretability together
+  - milestone refinement:
+    the first bounded doctrine prototype should prove both fact -> rule
+    legibility and truth -> trust usability
+
+- 2026-03-28 refreshed online thread sync:
+  - title: `ZKP for ITIR SensibLaw`
+  - online UUID: `69c7b950-daec-839d-89a9-8fd8e22c9136`
+  - canonical thread ID: `31a47318f53b61cac9f82705e2595b1a08f9af66`
+  - source used: `db` after direct UUID pull into `~/chat_archive.sqlite`
+  - documentation artifact added:
+    `docs/planning/itir_sensiblaw_operational_readiness_overlay_20260328.md`
+  - main decision:
+    the current receipts-first + trust-preserving architecture still holds,
+    but the next maturity gap is operational readiness rather than more
+    ontology
+  - newly-sharpened gaps:
+    - missing service-level definitions
+    - missing incident vs problem distinction
+    - missing measurable success criteria
+    - system-boundary / handoff views still too implicit
+  - implementation note:
+    resolving this thread exposed a refactor regression in
+    `scripts/chat_context_resolver.py`; stale `_truncate_text` references were
+    fixed so DB-backed UUID resolution works again
+
+- 2026-03-28 ITIR / SensibLaw standard service application model:
+  - source: current working turn
+  - documentation artifact added:
+    `docs/planning/itir_sensiblaw_standard_service_application_model_20260328.md`
+  - main decision:
+    move from case-specific framing to one repeatable service application
+    pattern for new scenarios
+  - standard flow:
+    intake -> evidence structuring -> identity/context modelling -> alignment
+    -> obligation assignment -> output -> monitoring/escalation
+  - standard control additions:
+    standardized intake fields, mandatory obligation layer, one
+    nonconformance grammar, and one comparable metric set across case families
+  - adaptation rule:
+    only rule sets, risk models, trust sensitivity, and SLA values should vary
+    by case; the service structure itself stays constant
+
+- 2026-03-28 ITIR / SensibLaw everyday mode:
+  - source: current working turn
+  - documentation artifact added:
+    `docs/planning/itir_sensiblaw_everyday_mode_20260328.md`
+  - main decision:
+    ordinary users should use the same architecture under a lighter operating
+    mode rather than a separate product
+  - mode shift:
+    crisis/adversarial mode remains strict, formal, auditable, and
+    enforceability-oriented; everyday mode becomes lighter, faster,
+    suggestive, and confidence-building
+  - output shift:
+    everyday mode should bias toward next-best-action guidance rather than
+    proof-heavy packaging
+  - next design gap:
+    add bounded switching criteria between crisis/adversarial mode and
+    everyday/navigation mode
+
+- 2026-03-28 ITIR / SensibLaw case-type libraries + KPI model:
+  - source: current working turn
+  - documentation artifact added:
+    `docs/planning/itir_sensiblaw_case_type_libraries_and_kpi_model_20260328.md`
+  - main decision:
+    case handling should now be organized around fixed-shape service libraries
+    rather than topic buckets only
+  - first libraries:
+    tenancy, abuse/accountability, medical/trauma-informed care,
+    welfare/support
+  - control decision:
+    use one shared KPI language across libraries:
+    service, quality, obligation, trust/usability, plus a small
+    library-specific slice
+  - next prototype rule:
+    choose one concrete library and one minimal KPI slice rather than staying
+    fully generic
+
+- 2026-03-28 ITIR / SensibLaw diagrams + mode-switching / UI / templates:
+  - source: current working turn
+  - documentation artifacts added:
+    - `docs/planning/itir_sensiblaw_service_architecture_plantuml_20260328.puml`
+    - `docs/planning/itir_sensiblaw_mode_switching_ui_and_templates_20260328.md`
+  - main decision:
+    the suite now has repo-owned PlantUML definitions for the context,
+    containers, standard flow, four case libraries, and obligation sequence
+  - mode decision:
+    one architecture, two bounded operating modes, with switching based on
+    risk, time pressure, conflict level, evidence density,
+    trust fragility, and user intent
+  - product decision:
+    ordinary-user UX should optimize for quick capture, fast orientation, one
+    next-best action, and progressive depth rather than proof-heavy default
+    views
+  - stricter mode note:
+    strict mode is now explicitly tied to actor/time/fallback obligations,
+    mandatory provenance, explicit uncertainty states, and escalation-ready
+    handling
+  - guardrails:
+    no identity assertions without evidence, no moralizing language,
+    no hidden assumptions, abstain when uncertain, local-first by default
+  - template set:
+    work/manager conversation, email/communication, tenancy friction,
+    money/bills, health/appointments, personal planning, low-to-high conflict
+  - KPI/control note:
+    mode correctness, user overrides, first-pass usefulness, 24h action rate,
+    tone-mismatch rework, retraumatization flags, escalation success,
+    strict-mode obligation completion
+  - C4 placement:
+    mode is now documented as an explicit controller surface between
+    trigger-detection input/alignment and obligation/output rendering rather
+    than a hidden presentation toggle
+  - consolidated product-spec note:
+    the mode controller now has explicit inputs, outputs, deterministic
+    selection rules, behavior profiles, and governance enforcement levels
+  - obligation primitive:
+    the documented core object is now:
+    need, responsible actor, required action, deadline, status,
+    evidence links, fallback actor, escalation rule
+  - PlantUML extension:
+    the architecture bundle now also includes explicit mode-controller
+    alignment and everyday UX-flow diagrams, plus compact context/container,
+    mode-selection, standard-flow, and obligation-lifecycle variants
+  - summary reading:
+    the suite is now documented as a controlled service that turns human
+    situations into structured, actionable, accountable outcomes
+  - next design rule:
+    widen normal-user scope only after defining a bounded switch table and a
+    small starter set of everyday templates
+
+- 2026-03-28 ITIR / SensibLaw production schema / dashboard / deployment pack:
+  - source: current working turn
+  - documentation artifact added:
+    `docs/planning/itir_sensiblaw_production_schema_dashboard_deployment_pack_20260328.md`
+  - main decision:
+    the next production-facing contract layer now exists for entities,
+    dashboards, and local-first deployment
+  - entity decision:
+    the first production entity set now explicitly includes case, evidence,
+    atoms, identity/trust signals, gaps, obligations, outputs, review,
+    audit, access, and mode state
+  - dashboard decision:
+    the monitoring/UI split is now:
+    user dashboard, operations dashboard, governance dashboard
+  - deployment decision:
+    default local-first single-user runtime first, optional trusted sync
+    second, restricted collaboration only as a later profile
+  - first production-validation slice:
+    validate local-first single-user case engine, truth-status states,
+    obligation object, and dashboard surfaces before attempting full
+    collaboration-platform scope
+
 - 2026-03-28 orchestrator control-plane status:
   - source: current working turn
   - documentation artifact added:
@@ -49,8 +420,9 @@
 
 - 2026-03-28 largest-file refactor / normalization audit:
   - source: current working turn
-  - documentation artifact added:
-    `docs/planning/largest_file_refactor_roadmap_20260328.md`
+  - documentation artifacts added:
+    - `docs/planning/largest_file_refactor_roadmap_20260328.md`
+    - `docs/planning/largest_file_refactor_priority1_briefs_20260328.md`
   - main decision:
     - large-file cleanup in `ITIR-suite` should be driven by contract
       decomposition and naming hygiene, not line count alone
@@ -61,11 +433,36 @@
       - `scripts/chat_context_resolver.py`
     - triage for any specific file should begin only after a bounded
       file-local refactor brief exists in the roadmap lane
+    - the first five Priority 1 targets now satisfy that requirement and are
+      ready for actual triage/execution sequencing
     - route files and CLI entrypoints should become thinner composition shells
       over extracted helpers instead of continuing to absorb parser/reducer
       logic
   - no behavior change:
     - docs/TODO/context/changelog only
+
+- 2026-03-28 first `chat_context_resolver` extraction slice:
+  - source: current working turn
+  - implementation:
+    - added helper package:
+      `chat_context_resolver_lib/`
+    - added transcript helpers in:
+      `chat_context_resolver_lib/transcript.py`
+    - added transcript-analysis helpers in:
+      `chat_context_resolver_lib/analysis.py`
+    - rewired:
+      `scripts/chat_context_resolver.py`
+    - added focused tests:
+      `tests/test_chat_context_resolver_analysis.py`
+  - main decision:
+    - the first bounded implementation slice for the refactor lane is the
+      transcript/analysis subsystem, not DB lookup or live-provider fallback
+    - the helper package uses `chat_context_resolver_lib/` because the repo
+      already contains the file `scripts/chat_context_resolver.py`
+    - live-provider and DB lookup remain explicit pending seams for later
+      slices
+  - validation:
+    - `pytest -q tests/test_chat_context_resolver_analysis.py`
 
 - 2026-03-28 largest code-file refactor roadmap:
   - source: current working turn
@@ -171,6 +568,24 @@
       `open|reviewed|waived` via `mismatch_report.workflow`
     - this remains a bounded `v1` slice, not the full richer `Phi vNext`
       witness/type system
+  - validation:
+    - `/home/c/Documents/code/ITIR-suite/.venv/bin/python -m pytest -q SensibLaw/tests/test_cross_system_phi_schema.py SensibLaw/tests/test_cross_system_phi_prototype.py`
+
+- 2026-03-29 `Phi` v2 boundary note carried in the shipped `v1` payload:
+  - source: current working turn
+  - implementation:
+    - added `versioning_note` to:
+      `SensibLaw/src/cross_system_phi.py`
+      `SensibLaw/schemas/sl.cross_system_phi.contract.v1.schema.yaml`
+      `SensibLaw/examples/cross_system_phi_minimal.json`
+  - main decision:
+    - the shipped `v1` transport payload now states its own boundary
+      explicitly: `exact|partial|incompatible|undefined` remains the current
+      grammar, while future `Phi v2` semantics are reserved for a separate
+      schema that can split relation kinds, scores, and richer latent graph
+      structure
+    - this keeps the next semantic layer visible without turning it into a
+      hidden truth tier inside the current contract
   - validation:
     - `/home/c/Documents/code/ITIR-suite/.venv/bin/python -m pytest -q SensibLaw/tests/test_cross_system_phi_schema.py SensibLaw/tests/test_cross_system_phi_prototype.py`
 
@@ -489,6 +904,564 @@
   - followthrough:
     - tracked in `TODO.md`
     - recorded in `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-28 Publish-layer findings before Rust template exploration:
+  - source: current working turn
+  - planning note:
+    `docs/planning/publish_layer_findings_20260328.md`
+  - main decision:
+    - the uncertainty is not whether the suite has a publication concern; it is
+      where to freeze the publish-layer boundary and ownership
+    - current best-fit read remains:
+      `kant-zk-pastebin` as the strongest retrieval / shard-manifest reference
+      surface, `erdfa-publish-rs` as the strongest ERDFA shard-production
+      surface, ZOS as publish/pull orchestrator, and Zelph as read/query
+      consumer
+    - the first publish-layer prototype should stay narrow:
+      logical artifact input -> digest and sink refs -> receipt output
+    - query routing, JMD bridge semantics, and promotion/governance stay
+      outside that first publisher slice
+    - `../rust-nix-template` is useful as scaffolding for a Rust-facing
+      transform/publisher seam, but it does not by itself settle the shared
+      sink contract
+    - the current template `src/main.rs` is scaffold-quality and not a clean
+      implementation baseline
+  - followthrough:
+    - recorded in `README.md` and `TODO.md`
+    - no code changes were made in this pass
+
+- 2026-03-28 Robust context fetch for ZOS / SL / Zelph ordering:
+  - source: db after direct online UUID pull into canonical archive
+  - title:
+    `JMD FORMAL EXPLAIN - Meme System Explanation`
+  - online UUID:
+    `69c4a9b1-d014-83a0-8bb0-873e4eaa4098`
+  - canonical thread ID:
+    `c6e383233d0d7c4efde671be1432c825054cb222`
+  - planning note:
+    `docs/planning/zos_sl_zelph_contract_findings_20260328.md`
+  - main decision:
+    - the fetched thread sharpens the intended role split as:
+      `ZOS -> SL -> Zelph`
+    - `ZOS` is the dynamic candidate-state / evolving ontology layer
+    - `SL` is the deterministic extraction and promotion layer
+    - `Zelph` is the downstream fact-graph / query / reasoning layer
+    - the intended next-step order from the thread is:
+      define the `ZOS <-> SL` contract, build a minimal ZOS engine in Python,
+      then map ZOS outputs into a Zelph input layer
+    - this means the publish-layer question is still real, but it sits
+      downstream of the `ZOS -> SL -> Zelph` boundary rather than replacing it
+    - refreshed online pull on 2026-03-28 inserted new turns that make the
+      disambiguation stricter:
+      ZOS must not replace/supplant SL; it should supplement SL by consuming
+      structured promoted facts and proposing overlays or candidate facts back
+      through the SL boundary
+    - the refreshed thread also rules out naive token-frequency ZOS:
+      first ZOS prototypes should operate on structured fact inputs
+      `(predicate, arguments, qualifiers)` rather than raw text co-occurrence
+    - practical enforcement rule:
+      if ZOS overrides SL truth state, that is a design error; if it organizes
+      SL facts and routes proposals back through SL promotion, that is
+      acceptable layering
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-28 ZOS vs fuzzymodo / Casey / StatiBaker role comparison:
+  - source: current working turn
+  - planning note:
+    `docs/planning/zos_vs_fuzzymodo_casey_statiBaker_20260328.md`
+  - main decision:
+    - `ZOS` is not best compared equally to all three existing surfaces
+    - it is closest to `fuzzymodo` as a supplemental reasoning/organization
+      layer over already-exposed state
+    - it is not a good role match for `casey-git-clone`, which owns mutable
+      possibility/workspace/build state
+    - it is not a good role match for `StatiBaker`, which owns observer-only
+      memory, receipts, and timeline/alignment state
+    - the real overlap risk is `ZOS` duplicating or fuzzily re-describing work
+      that may already fit inside `fuzzymodo`
+    - current recommended posture:
+      if `ZOS` becomes concrete, either narrow it into a semantic sub-lane of
+      `fuzzymodo`, or keep it separate with explicit prohibitions against truth,
+      mutable workspace, and observer-memory ownership
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-28 Publisher/puller contract clarification for Zelph consumers:
+  - source: current working turn
+  - planning note:
+    `docs/planning/publisher_puller_contract_for_zelph_consumers_20260328.md`
+  - main decision:
+    - `Zelph` should be described as the read/query consumer side, not as the
+      publish-layer authority
+    - publisher/puller flow should stay explicit as:
+      logical artifact -> shard ids -> sink refs -> receipt
+    - Zelph consumer flow should stay explicit as:
+      selector -> logical shard ids -> fetch -> Zelph load/query
+    - the useful abstraction for `ITIR` is therefore:
+      upstream truth/promotion, downstream Zelph query consumption, and a
+      separate publish/pull artifact-serving layer between them
+    - this sharpens the earlier shard-matrix and publish-layer notes without
+      changing their role-fit conclusions
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-29 JMD push/pull blocker separation:
+  - source: current working turn
+  - planning note:
+    `docs/planning/jmd_push_pull_surfaces_and_blockers_20260329.md`
+  - main decision:
+    - the refreshed JMD thread clarifies semantic/governance boundaries
+      (`ZOS` supplements `SL`; `Zelph` stays downstream) and also adds a
+      stronger proof-first API framing:
+      JMD describes service proof in terms of Nix flake, git history, perf
+      profile, and resource use, and explicitly says `zkperf + erdfa` is "the
+      API"
+    - one provisional contract inference is now reasonable:
+      `artifact + erdfa payload + zkperf receipt`
+      but this remains inference rather than declared JMD spec
+    - even with that stronger inference, the thread does not by itself define
+      a stable JMD push/pull host contract
+    - `../rust-nix-template` clarifies a plausible local Rust/Nix home for a
+      publisher/puller seam, but it does not pin remote JMD endpoint, receipt,
+      or replay semantics
+    - the still-missing blocker for moving beyond the current
+      `kant-zk-pastebin` / `erdfa-publish-rs` reference pair remains external
+      infra certainty:
+      stable browse/raw behavior, replay/cache semantics, and publication
+      acknowledgement shape
+    - `ITIR` should therefore keep semantic boundary findings, local scaffold
+      status, and external infra uncertainty as three separate planning inputs
+      rather than treating any one of them as a full replacement for the
+      others
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-29 Zelph / ERDFA / HF / IPFS example-flow clarification:
+  - source: current working turn
+  - planning note:
+    `docs/planning/zelph_erdfa_hf_ipfs_example_flow_20260329.md`
+  - main decision:
+    - the concrete current repo reading should be explained as:
+      publisher emits logical shards and sink refs, then `Zelph` resolves
+      selectors to logical shard ids before choosing an HF/IPFS object ref
+    - `erdfa`/Kant-style packaging is the publish-side reference for shard
+      identity, digests, manifests, and sink refs
+    - HF and IPFS are alternate object locations for the same logical shard,
+      not competing semantic models
+    - `Zelph` must route by logical selector -> logical shard id first, not by
+      HF path structure or IPFS CID structure
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-29 `n00b` corroborating-surface check:
+  - source: current working turn
+  - planning note:
+    `docs/planning/n00b_corroborating_surfaces_20260329.md`
+  - main decision:
+    - `n00b/` is useful as corroborating evidence for a proof-first /
+      HF-hosted / Nix-backed direction, but not as a new authoritative ITIR
+      contract source
+    - `n00b/.gitmodules` declares these relevant source repos:
+      `source/solfunmeme-dioxus` ->
+      `https://github.com/meta-introspector/solfunmeme-dioxus.git`,
+      `source/erdfa-publish` ->
+      `https://github.com/meta-introspector/erdfa-publish.git`,
+      `source/solfunmeme-introspector` ->
+      `https://github.com/jmikedupont2/solfunmeme-introspector.git`,
+      `source/pick-up-nix` ->
+      `https://github.com/meta-introspector/pick-up-nix.git`
+    - this strengthens ecosystem evidence for HF-hosted shards and
+      `erdfa-publish` on the publish side, but does not reduce the current
+      uncertainty around Zelph routing contracts or JMD infra semantics
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-29 `erdfa-publish-rs` vs shared-shard-contract comparison:
+  - source: current working turn
+  - planning note:
+    `docs/planning/erdfa_publish_rs_vs_shared_shard_contract_20260329.md`
+  - main decision:
+    - local `/home/c/Documents/code/erdfa-publish-rs` materially strengthens
+      the publish-side evidence:
+      it already has `Shard`, `ShardSet`, deterministic content-derived `cid`,
+      DA51 CBOR serialization, tar emission, and IPFS/paste helpers
+    - it aligns with the ITIR contract on publish/package primitives, but it
+      does not yet carry the richer fields ITIR wants for Zelph-facing shared
+      artifacts:
+      artifact revision/provenance, routing keys, explicit multi-sink
+      `objectRefs[]`, and first-class per-shard `section` / `logicalKind` /
+      `encoding` / `sizeBytes`
+    - therefore the correct posture is:
+      keep `erdfa-publish-rs` as the publish-side substrate and keep the shared
+      ITIR contract as the thin richer layer above it, rather than collapsing
+      the shared contract into the current `ShardSet` model
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-29 Robust context fetch for message-envelope direction:
+  - source: db after direct online UUID pull into canonical archive
+  - title:
+    `Canonical ZKP ↔ SL ↔ DA51 message schema`
+  - online UUID:
+    `69c3f3e7-3440-839c-8a3e-05309f1269dd`
+  - canonical thread ID:
+    `d70ac076cbdc08df81a593b66a8915541f71f08b`
+  - planning note:
+    `docs/planning/canonical_zkp_sl_da51_message_schema_findings_20260329.md`
+  - main decision:
+    - the fetched thread is useful as a future envelope-layer reference:
+      content-addressed message identity, JSON/CBOR dual projection,
+      provenance/parent DAG links, and optional proofs/signatures
+    - this sharpens the distinction between:
+      shard/artifact contracts ("what artifact is this?") and
+      message/envelope contracts ("what signed/provenanced transmission is
+      carrying it?")
+    - it should not yet be treated as a normative ITIR wire standard because
+      hashing rules, exact CBOR layout, signature suite, proof attachment
+      conventions, and transport semantics are still unpinned
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-29 Robust context fetch for formal toolchain watchlist:
+  - source: db after direct online UUID pull into canonical archive
+  - title:
+    `2025‑26 formal toolchain watchlist`
+  - online UUID:
+    `69c3f3fa-b1d0-83a0-9954-27a65a228a03`
+  - canonical thread ID:
+    `4713552f782e95ec70a2f93813bcca4b57156f09`
+  - main read:
+    - useful watchlist context around DSLean / Lean solver interop and adjacent
+      formal-tooling developments
+    - not sharp enough to justify a new repo-facing contract or planning note
+      in this pass
+  - followthrough:
+    - retained as follow-up context only; no dedicated doc update in this pass
+
+- 2026-03-29 Robust context refresh for JMD HF containerization and spectral retrieval:
+  - source: db after repeated direct online UUID pulls into canonical archive
+  - title:
+    `JMD FORMAL EXPLAIN - Meme System Explanation`
+  - online UUID:
+    `69c4a9b1-d014-83a0-8bb0-873e4eaa4098`
+  - canonical thread ID:
+    `c6e383233d0d7c4efde671be1432c825054cb222`
+  - planning note:
+    `docs/planning/jmd_hf_container_and_spectral_retrieval_findings_20260329.md`
+  - main decision:
+    - the thread now materially sharpens three repo-facing points:
+      the logical artifact contract is more mature than "missing API", HF
+      file-count/rate pressure requires a container/index design read, and
+      spectral retrieval should be treated as a post-selector ranking layer
+      rather than a replacement for selector/shard routing
+    - useful batching direction from the thread:
+      `microshards -> sealed container -> uploaded object -> published manifest index`
+      with `tar` outer format, `CBOR` payload members, `JSON` control/meta, and
+      optional `zstd`
+    - useful retrieval constraint from the later turns:
+      any eigenvector/spectral layer must use structured SL facts or zkperf
+      trace structure rather than raw tokens or generic embeddings
+    - latest navigator/manifold turns also sharpen a domain-validity rule:
+      symmetry/meaning should be treated as valid within a manifold; projection
+      collapse is a real failure mode
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-29 HF container/index contract pass:
+  - source: current working turn
+  - planning note:
+    `docs/planning/hf_container_index_contract_20260329.md`
+  - main decision:
+    - HF file-count/rate pressure should now be modeled as a distinct batching
+      layer, not as a reason to blur logical shards into HF object layout
+    - correct ordering is:
+      logical shards -> container membership -> uploaded HF objects ->
+      published index
+    - selector-first retrieval remains mandatory even under batching:
+      selector -> logical shard ids -> container index -> HF object ->
+      member payload -> local load/query
+    - current best-fit physical direction is:
+      `tar` outer format, `CBOR` payload members, `JSON` control/meta, optional
+      `zstd`
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-29 HF container/index fixture v1 pass:
+  - source: current working turn
+  - planning note:
+    `docs/planning/hf_container_index_fixture_v1_20260329.md`
+  - fixture:
+    `docs/planning/jmd_fixtures/hf_container_index_v1.example.json`
+  - main decision:
+    - the first tiny batching fixture now exists and keeps three levels
+      separate:
+      artifact identity, container metadata, and member metadata
+    - each member entry now explicitly repeats:
+      `shardId`, `contentDigest`, `memberPath`, and `sizeBytes`
+    - HF object path remains confined to container metadata and does not become
+      shard identity
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-29 `erdfa-publish-rs` manifest-promotion v1 pass:
+  - source: current working turn
+  - planning note:
+    `docs/planning/erdfa_publish_rs_manifest_promotion_v1_20260329.md`
+  - main decision:
+    - the second ranked step is now pinned as a manifest-layer promotion, not
+      a shard-payload rewrite
+    - keep existing `Shard`, `cid`, and DA51/CBOR packaging discipline intact
+    - add only the smallest richer manifest metadata:
+      artifact identity/provenance plus per-shard `logicalKind`,
+      `encoding`, `sizeBytes`, and optional `objectRefs[]` / `routingKeys[]`
+    - keep routing/runtime behavior out of this first promotion slice
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-29 `erdfa-publish-rs` promoted-manifest fixture implementation:
+  - source: current working turn
+  - fixture:
+    `docs/planning/jmd_fixtures/erdfa_manifest_promotion_v1.example.json`
+  - main decision:
+    - the second ranked design step now has a concrete fixture showing
+      artifact-level identity/provenance plus enriched shard refs with
+      `logicalKind`, `encoding`, `sizeBytes`, optional `objectRefs[]`, and
+      `routingKeys[]`
+    - this fixture keeps existing shard id / `cid` semantics intact while
+      enriching only the manifest/catalog layer
+  - validation:
+    - `tests/test_erdfa_manifest_promotion_fixture.py`
+    - combined targeted run:
+      `pytest -q tests/test_erdfa_manifest_promotion_fixture.py tests/test_hf_container_rehearsal.py`
+      passed
+  - followthrough:
+    - recorded in `TODO.md` and `CHANGELOG.md`
+
+- 2026-03-29 HF container rehearsal harness implementation:
+  - source: current working turn
+  - main decision:
+    - the first ranked implementation-facing rehearsal slice is now real in
+      `itir_jmd_bridge`
+    - new module:
+      `itir_jmd_bridge/hf_rehearsal.py`
+      loads the pinned HF container fixture and resolves `shardId` to
+      container/member metadata
+    - new CLI command:
+      `python -m itir_jmd_bridge rehearse-hf-container --fixture ... --shard-id ...`
+    - targeted regression coverage added in:
+      `tests/test_hf_container_rehearsal.py`
+  - validation:
+    - `pytest -q tests/test_hf_container_rehearsal.py` passed
+  - followthrough:
+    - recorded in `TODO.md` and `CHANGELOG.md`
+
+- 2026-03-29 Selector-to-container rehearsal composition:
+  - source: current working turn
+  - main decision:
+    - the local rehearsal path now composes the promoted-manifest fixture with
+      the HF container fixture so the suite can resolve:
+      selector -> logical shard -> container member
+    - new functions in `itir_jmd_bridge/hf_rehearsal.py`:
+      `load_erdfa_manifest_fixture`, `resolve_selector_to_shard`, and
+      `resolve_selector_to_container_member`
+    - new CLI command:
+      `python -m itir_jmd_bridge rehearse-selector-fetch --manifest-fixture ... --container-fixture ... --selector ...`
+  - validation:
+    - `pytest -q tests/test_hf_container_rehearsal.py tests/test_erdfa_manifest_promotion_fixture.py`
+      passed
+  - followthrough:
+    - recorded in `TODO.md` and `CHANGELOG.md`
+
+- 2026-03-29 Local tar extraction added to rehearsal path:
+  - source: current working turn
+  - main decision:
+    - the rehearsal path now goes one step further and can extract the resolved
+      member payload from a local tar archive
+    - new helper functions in `itir_jmd_bridge/hf_rehearsal.py`:
+      `extract_tar_member_bytes` and
+      `resolve_selector_to_local_member_payload`
+    - new CLI commands in `itir_jmd_bridge/cli.py`:
+      `rehearse-local-tar-extract` and
+      `rehearse-selector-local-tar-fetch`
+    - a real tar was generated from `/home/c/Documents/code/erdfa-publish-rs`
+      via `cargo run --example demo`, producing `/tmp/erdfa-demo.tar`, while
+      deterministic tests use a tiny temp tar matching the fixture member paths
+  - validation:
+    - `pytest -q tests/test_hf_container_rehearsal.py tests/test_erdfa_manifest_promotion_fixture.py`
+      passed
+  - followthrough:
+    - recorded in `TODO.md` and `CHANGELOG.md`
+
+- 2026-03-29 `erdfa-publish-rs` promoted-manifest code patch:
+  - source: current working turn
+  - repo:
+    `/home/c/Documents/code/erdfa-publish-rs`
+  - main decision:
+    - the additive manifest-layer patch is now real in the upstream publish
+      crate rather than only in ITIR fixtures
+    - `src/lib.rs` now adds `BuildProvenance`, `ObjectRef`,
+      `PromotedShardRef`, and `PromotedShardSet` while preserving existing
+      `Shard` and `ShardSet` APIs
+    - `Shard` now exposes helper conversions for both the thin manifest ref and
+      the promoted ref, so the richer catalog layer can be adopted without a
+      shard-payload rewrite
+    - `/home/c/Documents/code/erdfa-publish-rs/README.md` now documents the
+      promoted-manifest usage slice
+  - validation:
+    - `cargo test -q` passed in `/home/c/Documents/code/erdfa-publish-rs`
+  - followthrough:
+    - recorded in `TODO.md` and `CHANGELOG.md`
+
+- 2026-03-29 RG toy completion thread:
+  - source: db after async pull of online UUID `69c89099-c7f4-839c-a9ac-93246ca708e7` (title: `RG toy completion steps`), canonical thread ID `fb062abe619bc64e9c50719311bb3a0374a38b6c`
+  - main finding:
+    remaining work is proof/content, not shell: need sharper coarse-agreement relation, real coarse-graining operator, scaling/relevance theorem, observable algebra, and universality statement
+  - hinge theorem packs still missing: quadratic emergence, signature/arrow/cone coupling, MDL Lyapunov descent, constraint closure, and universality instances
+  - followthrough:
+    added `docs/planning/rg_toy_completion_findings_20260329.md` and synced `README.md`, `TODO.md`, `CHANGELOG.md`
+
+- 2026-03-29 Resonance and Overlap thread:
+  - source: db after async pull of online UUID `69c8913d-5240-839b-9bf8-d757ae8b208a` (title: `Resonance and Overlap`), canonical thread ID `343e73cc6a60cd1f29be15301a69aed0fa682002`
+  - main finding:
+    `CLOCK` should be modeled as a cyclic `Z/6` lift of `DASHI`'s `Z/3` phase, not as a dihedral construction
+  - stronger schema:
+    phase alone is only kinematics; admissible physical evolution requires cone admissibility, contractive / Lyapunov directionality, and MDL descent
+  - tightened reading:
+    the extra `CLOCK` bit is microphase / half-step refinement, not a symmetry involution, and the safe structural analogy is `CLOCK -> DASHI` as proposal/refinement -> admissible coarse phase
+  - followthrough:
+    added `docs/planning/resonance_and_overlap_findings_20260329.md` and synced `README.md`, `TODO.md`, `CHANGELOG.md`
+
+- 2026-03-29 TEMP ZOS/SL bridge bundle review:
+  - source: local review of `/home/c/Documents/code/ITIR-suite/TEMP_zos_sl_bridge_impl`
+  - main findings:
+    - retrieval over-claims manifold awareness today
+    - query and shard features do not intersect enough for cosine similarity to be semantically meaningful
+    - domain scoring is effectively inactive because the query domain is always unset
+    - surrogate hash-derived resonance is mixed into the core score even though it is not grounded in `SL` facts or zkperf invariants
+    - `pytest -q` in `TEMP_zos_sl_bridge_impl/python` fails during collection with `ModuleNotFoundError: No module named 'zos_pipeline'`
+  - governance read:
+    keep `SL` as truth authority, keep `ZOS` in the proposal layer only, make domain/manifold logic real before trusting it, and add an explicit admissibility / acceptance boundary before widening implementation
+  - followthrough:
+    added `docs/planning/temp_zos_sl_bridge_impl_review_20260329.md` and synced `README.md`, `TODO.md`, `CHANGELOG.md`
+
+- 2026-03-29 TEMP ZOS/SL bridge bundle remediation pass:
+  - source: current working turn
+  - scope chosen:
+    packaging/tests, query/shard feature intersection, and real query-sensitive domain scoring
+  - implementation:
+    - added `pythonpath = ["."]` plus a minimal setuptools build-system to `TEMP_zos_sl_bridge_impl/python/pyproject.toml`
+    - changed `feature_map.py` so shard and query vectors now share lexical `lex::*` features derived from structured fact content, predicate hints, selectors, and role hints
+    - changed `retrieval.py` so shard domains prefer explicit `domain_hint` values and otherwise fall back to clustered trace windows, with query domain assigned by nearest centroid instead of a constant `None`
+    - left resonance weighting unchanged on purpose; it remains a later governance/admissibility follow-up
+  - validation:
+    - `pytest -q` in `TEMP_zos_sl_bridge_impl/python` passed (`3 passed`)
+    - `python -m zos_pipeline.cli --query "tenant mould complaint"` ran successfully
+  - followthrough:
+    - updated `TEMP_zos_sl_bridge_impl/README.md`
+    - updated `TEMP_zos_sl_bridge_impl/docs/INTEGRATION_NOTE.md`
+    - updated `docs/planning/temp_zos_sl_bridge_impl_review_20260329.md`
+    - synced `TODO.md` and `CHANGELOG.md`
+  - remaining direction:
+    the preferred operator shape is now explicit:
+    `manifold_aware_rank -> candidate set -> admissibility filter -> promoted outputs`
+    so the bundle stops at proposal/ranking until an acceptance boundary is implemented
+
+- 2026-03-29 ITIR rehearsal supports real promoted manifest + tar:
+  - source: current working turn
+  - main decision:
+    - `resolve_selector_to_container_member` and selector/tar rehearse CLI commands now allow the container fixture to be optional, inferring member paths (`shardId.cbor` or `payload/shardId.cbor`) when missing
+    - harness can now point directly at `/tmp/erdfa-promoted-manifest.json` and `/tmp/erdfa-demo.tar` emitted by `cargo run --example demo` in `/home/c/Documents/code/erdfa-publish-rs`
+  - validation:
+    - `pytest -q tests/test_hf_container_rehearsal.py tests/test_erdfa_manifest_promotion_fixture.py`
+  - followthrough:
+    - recorded in `TODO.md` and `CHANGELOG.md`
+
+- 2026-03-29 Spectral post-selector retrieval contract pass:
+  - source: current working turn
+  - planning note:
+    `docs/planning/spectral_post_selector_retrieval_contract_20260329.md`
+  - main decision:
+    - spectral/eigenvector retrieval is now pinned as an optional ranking layer
+      that runs only after selector resolution and before fetch
+    - correct ordering is:
+      selector -> logical shard ids -> spectral ranking -> fetch subset
+    - the feature-basis rule is explicit:
+      only structured SL facts / predicates / roles / qualifiers / zkperf
+      traces or similarly modeled system outputs are allowed
+    - abstention is required when manifold/domain validity fails; ranking must
+      not invent certainty where no stable neighborhood exists
+    - when HF batching is also present, ranking still occurs before container
+      resolution
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-29 Shard stack layer-order summary pass:
+  - source: current working turn
+  - planning note:
+    `docs/planning/shard_stack_layer_order_20260329.md`
+  - main decision:
+    - the current shortest stable stack summary is now pinned as:
+      `SL -> logical shard/artifact contract -> optional spectral ranking -> optional HF container/index -> sink fetch -> Zelph`
+    - this note exists as the anti-confusion reference so truth, shard
+      identity, ranking, batching, and retrieval do not collapse back into one
+      vague "API" layer
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-29 zkperf-on-SL roadmap pass:
+  - source: current working turn
+  - planning note:
+    `docs/planning/zkperf_on_sl_roadmap_20260329.md`
+  - main decision:
+    - `zkperf` on `SL` is now pinned as the next gating lane before the
+      previously-ranked implementation steps around HF container fixtures,
+      richer `erdfa-publish-rs` manifests, and rehearsal harnesses
+    - the intended role is:
+      structured, receipt-bearing execution/proof material represented on the
+      `SL` side before it is used by ranking or artifact-linkage layers
+    - `zkperf` must remain non-authoritative for truth promotion and must not
+      redefine the logical shard contract
+    - the next smallest useful deliverable after this roadmap is a tiny
+      `zkperf_on_sl_contract_v1` note plus fixture
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
+    - no code changes were made in this pass
+
+- 2026-03-29 zkperf-on-SL contract v1 pass:
+  - source: current working turn
+  - planning note:
+    `docs/planning/zkperf_on_sl_contract_v1_20260329.md`
+  - fixture:
+    `docs/planning/jmd_fixtures/zkperf_on_sl_observation_v1.example.json`
+  - main decision:
+    - the first bounded `zkperf`-on-`SL` shape is now pinned as
+      `ZKPerfObservation`
+    - it is explicitly observational and receipt-bearing, not a truth
+      promotion surface
+    - required fields now cover:
+      trace/run identity, provenance/source ref, structured `metrics`,
+      `trace_refs`, `proof_refs`, optional `related_artifact_refs`, and a
+      deterministic `hash`
+    - artifact linkage is allowed only through existing artifact/shard ids,
+      never via sink path semantics
+  - followthrough:
+    - recorded in `README.md`, `TODO.md`, and `CHANGELOG.md`
     - no code changes were made in this pass
 
 - 2026-03-27 Zelph upstream handoff state:
@@ -2172,3 +3145,196 @@
     - review summary/workbench now prefer normalized semantic rows and only
       fall back to legacy derivation for non-materialized runs
     - lexical Zelph graphs remain derived/materialized, not OLTP-normalized
+- `2026-03-28` ITIR / SensibLaw PostgreSQL schema and deployment bundle:
+  - added
+    `docs/planning/itir_sensiblaw_postgres_schema_and_deployment_bundle_20260328.md`
+    as the execution-oriented refinement of the production pack
+  - current repo-facing decision:
+    - PostgreSQL is the reference production schema
+    - SQLite/local-first still remains valid for the first single-user runtime
+    - the reference bundle should stay explicit about:
+      extensions/enums, dependency-ordered core tables, trigger helpers,
+      operational views, deployment tiers, and dashboard roles
+    - the first dashboard-facing SQL surfaces are:
+      `vw_active_obligations`, `vw_sla_breaches`,
+      `vw_traceability_coverage`, `vw_open_gaps`
+    - the immediate production build order should remain bounded:
+      core schema -> intake/evidence/atoms/signals/artifacts ->
+      graph/gaps -> obligations/views -> audit/access -> optional sync/review
+    - if implementation begins, prefer one bounded next artifact:
+      migration-ready SQL in execution order or a local service/API spec over
+      the same entity set
+    - the schema/API refinement now also keeps explicit:
+      migration ordering, `/api/v1` REST surface, and local worker-service
+      split so the next implementation step can stay database-first or
+      service-first without widening into full platform rollout
+- `2026-03-29` affidavit local-first proving slice decision:
+  - added
+    `docs/planning/affidavit_local_first_proving_slice_20260329.md`
+  - current repo-facing decision:
+    - use affidavit as the first SQLite/local-first proving slice for
+      narrative integrity and evidence structure
+    - keep tenancy as the later proving slice for obligation/SLA execution
+    - do not create a parallel affidavit runtime; reuse the existing lane:
+      `build_affidavit_coverage_review.py`,
+      `persist_contested_affidavit_review(...)`,
+      `fact_intake.read_model`, and `query_fact_review.py`
+    - the immediate implementation target is one bounded read-model/workbench
+      surface over persisted contested-review runs with grouped statuses and
+      minimal next steps
+  - implemented surface:
+    - `build_contested_affidavit_proving_slice(...)` in
+      `SensibLaw/src/fact_intake/read_model.py`
+    - `contested-proving-slice` query surface in
+      `SensibLaw/scripts/query_fact_review.py`
+    - focused regression coverage in:
+      `SensibLaw/tests/test_affidavit_coverage_review.py`
+      and `SensibLaw/tests/test_query_fact_review_script.py`
+  - proving-slice regrouping refinement:
+    - `covered` remains sacred, but proving-slice grouping now also uses
+      `best_response_role`, `support_status`, `support_direction`, and
+      `conflict_state`
+    - the grouped output now includes `weakly_addressed`
+    - on the real Google Docs affidavit/response run this shifted the top-line
+      read from:
+      `supported 1 / missing 28 / needs_clarification 17 / disputed 0`
+      to:
+      `supported 1 / disputed 7 / weakly_addressed 36 / missing 2`
+  - long-running live contested Google Docs builders now expose opt-in
+    progress over:
+    fetch, extract, grouping, proposition matching, artifact writing, and
+    persistence, so slow forward movement is visible instead of looking hung
+  - the same builders now also expose opt-in trace streaming for:
+    proposition start, tokenization, top candidate selection, response packet
+    inference, classification, semantic basis, and promotion result
+  - next quality contract is now pinned as
+    `docs/planning/affidavit_claim_reconciliation_contract_20260329.md`
+  - current affidavit grouped resolver should now be treated as a bounded
+    `v0` surface; the intended next improvement is relation-driven claim
+    reconciliation with:
+    normalized proposition/response fields, explicit relation types, dominant
+    relation precedence, and bucket mapping derived from relation type rather
+    than similarity alone
+  - `weakly_addressed` should now be read as a transitional defect bucket, not
+    a stable target class; the next classifier pass should split it into
+    `partial_support`, `adjacent_event`, `substitution`, and
+    `non_substantive_response`
+  - minimum operator-facing explanation per proposition should become:
+    classification, matched response, reason, and missing dimension
+  - cross-lane priority is now explicit:
+    affidavit claim reconciliation comes before further widening of
+    `TEMP_zos_sl_bridge_impl`; the temp bridge remains second priority until
+    it gains an explicit admissibility / acceptance boundary
+  - first implementation followthrough is now landed in the proving-slice read
+    model:
+    it emits `relation_root`, `relation_leaf`, `explanation`, and
+    `missing_dimensions`, and replaces the stable `weakly_addressed` section
+    with explicit non-resolving subclasses
+  - remaining affidavit-lane quality gap:
+    move relation typing upstream from the read model into the builder /
+    persisted comparison rows
+- `2026-03-29` affidavit relation-classifier followthrough:
+  - supervised a delegated bounded implementation pass inside the `SensibLaw`
+    affidavit lane only
+  - `SensibLaw/src/fact_intake/read_model.py` now computes typed contested
+    affidavit relations with explicit subject/action/polarity-aware checks and
+    emits:
+    - `relation_type`
+    - `relation_root`
+    - `relation_leaf`
+    - `explanation`
+    - `missing_dimensions`
+  - dominant section bucketing in the proving slice now resolves from typed
+    relation output rather than only from coverage/support heuristics
+  - `SensibLaw/tests/test_query_fact_review_script.py` now asserts
+    `relation_type` and classification behavior on the proving-slice output
+  - local validation passed:
+    `cd /home/c/Documents/code/ITIR-suite && .venv/bin/python -m pytest -q SensibLaw/tests/test_query_fact_review_script.py SensibLaw/tests/test_affidavit_coverage_review.py`
+    -> `32 passed`
+  - builder/persisted-row followthrough also landed:
+    contested comparison rows now carry `relation_root`, `relation_leaf`,
+    `primary_target_component`, `explanation`, and `missing_dimensions`
+    before query-time fallback derivation
+- `2026-03-29` Johl Mary-parity fixture interpretation:
+  - the live Johl affidavit / response pair should now be treated as the
+    primary Mary-parity fixture for the next affidavit-lane quality pass
+  - highest-signal finding:
+    the main remaining failure is not simply substitution undercounting; it is
+    weak duplicate-root and same-incident sibling-leaf handling across sides
+  - next reading:
+    - cluster materially duplicate or near-duplicate John-side and Johl-side
+      claims under one shared claim root or incident root
+    - preserve side-local wording beneath that root
+    - resolve support, qualification, contradiction, adjacent-event, and
+      procedural framing at the leaf level
+    - treat authority as local to the relation being shown, not one global
+      winner for the whole cluster
+  - direct examples under review:
+    - `p2-s5`, `p2-s6`, `p2-s38`, `p2-s39` look like support failures caused
+      by cross-swapped sibling leaves inside shared incident roots
+    - `p2-s21` still looks closer to adjacent event or substitution than
+      support
+  - docs and TODO now treat duplicate-root / side-local leaf reconciliation as
+    the next honest priority ahead of broader substitution widening
+- `2026-03-29` first duplicate-root affidavit followthrough:
+  - updated `SensibLaw/scripts/build_affidavit_coverage_review.py` so the
+    builder can promote a duplicate or near-duplicate support clause ahead of a
+    nearby contextual clause and now emits:
+    - `claim_root_id`
+    - `claim_root_text`
+    - `claim_root_basis`
+    - `alternate_context_excerpt`
+  - added focused regression coverage in
+    `SensibLaw/tests/test_affidavit_coverage_review.py`
+  - local validation passed:
+    `cd /home/c/Documents/code/ITIR-suite && .venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_query_fact_review_script.py`
+    -> `35 passed`
+  - live Johl rerun after that pass shifted the relation reading to:
+    - `exact_support 1`
+    - `equivalent_support 11`
+    - `partial_support 7`
+    - `explicit_dispute 6`
+    - `adjacent_event 2`
+    - `non_substantive_response 2`
+    - `missing 22`
+  - concrete result:
+    - `p2-s38` and `p2-s39` now resolve as support via duplicate-root handling
+    - `p2-s5` and `p2-s6` remain the next same-incident sibling-leaf failure
+    - `p2-s21` still reads closer to adjacent event or substitution than true
+      support
+- `2026-03-29` Agda-boundary docs alignment:
+  - checked the Agda-facing SensibLaw docs against the newer `CLOCK` /
+    `DASHI` doctrine
+  - updated `SensibLaw/docs/interfaces.md` and
+    `SensibLaw/docs/plan_qg_unification_sl_da51_agda_contract_20260324.md` so
+    any later Agda formalization preserves the cyclic `Z/6 -> Z/3` lift
+    reading, avoids dihedral phrasing, and keeps admissibility on the cone /
+    contraction / MDL side instead of treating phase labels as sufficient
+  - updated `SensibLaw/todo.md` so future Agda work keeps the same guardrail
+- `2026-03-29` TEMP ZOS/SL bridge admissibility stage:
+  - supervised a delegated lane-1 implementation pass scoped to
+    `TEMP_zos_sl_bridge_impl/python`
+  - the temp bridge now has an explicit post-ranking boundary:
+    - `manifold_aware_rank(...)` remains candidate generation
+    - `admissibility_filter(...)` emits accepted/rejected decisions
+    - `manifold_aware_select(...)` composes the two
+  - CLI now supports `--admit`, `--min-score`, and `--min-spectral`
+  - local validation passed:
+    - `cd TEMP_zos_sl_bridge_impl/python && pytest -q` -> `4 passed`
+    - `python -m zos_pipeline.cli --query "tenant mould complaint" --admit`
+  - current remaining gap is no longer boundary absence; it is policy tuning:
+    admissibility thresholds remain provisional and resonance still sits in the
+    core score instead of a pure proposal/tiebreak layer
+  - priority ordering still holds:
+    affidavit claim reconciliation remains ahead of widening this bridge
+- `2026-03-30` NotebookLM clarify bridge:
+  - suite docs already described NotebookLM query/operation ingress as an
+    intended core surface, but the concrete repo-local helper was missing
+  - added `scripts/notebooklm_clarify.py` as the bounded in-repo bridge
+  - helper behavior:
+    - normalize notebook id / URL input
+    - build a simple structured `Please clarify:` prompt from repeated
+      `category:text` lines plus optional context / agent message
+    - execute NotebookLM `ask` through the local CLI
+  - richer persistence/history/status behavior still lives in the external
+    `notebooklm-pack-ops` wrapper

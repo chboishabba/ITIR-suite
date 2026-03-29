@@ -80,6 +80,41 @@ The currently implemented schema is intentionally coarser:
 - `conflict` -> currently represented by `incompatible`
 - `none` -> currently represented by `undefined` or omitted candidate pairs
 
+## `Phi_meta` Status
+The repo already ships a bounded executable admissibility layer in:
+
+- `SensibLaw/schemas/sl.cross_system_phi_meta.v1.schema.yaml`
+- `SensibLaw/src/cross_system_phi_meta.py`
+
+The current `v1` shape is already close to the bounded transport-first schema
+that should be used going forward:
+
+- `meta_mapping_id`
+- `left_system`
+- `right_system`
+- `type_alignments`
+- `role_alignments`
+- `authority_alignments`
+- `constraint_compatibility`
+- `scope_rules`
+- `forbidden_pairs`
+- `thresholds`
+- `witness_policy`
+
+So the next valuable step is not another abstract redesign of `Phi_meta`.
+It is:
+
+1. add one concrete example instance such as `common_law <-> civil_law`
+2. keep the existing bounded validation invariants explicit
+3. run the first real two-system prototype over promoted records
+
+The current safe reading is:
+
+- `Phi_meta` = admissibility/type gate
+- `Phi_ij` = mapping over admissible pairs
+- richer graph/law semantics remain planning-level until they are backed by
+  bounded fixtures or real promoted data
+
 So the repo should read the richer model as `Phi vNext semantics`, not as a
 claim that the current executable schema already exposes all of those
 distinctions.

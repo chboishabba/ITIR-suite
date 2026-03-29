@@ -224,11 +224,31 @@ Current mixed concerns:
 
 Recommended modules:
 
-- `resolver/db_lookup.py`
-- `resolver/live_provider.py`
-- `resolver/analysis.py`
-- `resolver/formatters.py`
-- `resolver/cli.py`
+- `chat_context_resolver_lib/db_lookup.py`
+- `chat_context_resolver_lib/live_provider.py`
+- `chat_context_resolver_lib/analysis.py`
+- `chat_context_resolver_lib/formatters.py`
+- `chat_context_resolver_lib/cli.py`
+
+Filesystem note:
+the repo already has the file `scripts/chat_context_resolver.py`, so the
+actual helper package cannot live at `scripts/chat_context_resolver/` on disk.
+Use a real helper package such as `chat_context_resolver_lib/` while keeping
+the same logical split.
+
+First completed slice:
+
+- `chat_context_resolver_lib/transcript.py`
+- `chat_context_resolver_lib/analysis.py`
+- focused regression coverage in
+  `tests/test_chat_context_resolver_analysis.py`
+
+Remaining extractions:
+
+- DB lookup
+- live provider
+- formatters
+- CLI/parser wiring
 
 Important naming correction:
 
@@ -251,6 +271,11 @@ Recommended split:
 - `server/wiki_timeline/hca_overlay.ts`
 - `server/wiki_timeline/aoo_adapter.ts`
 
+Implementation status:
+
+- helper package now exists under `itir-svelte/src/lib/server/wiki_timeline/` with the listed runtime/normalize/overlay/adapter modules in place
+- `wikiTimelineAoo.ts` has been reduced to a thin adapter that re-exports the shared types and the loader, preserving the existing CLI surface
+
 ### `itir-svelte/src/routes/graphs/wiki-timeline-aoo-all/+page.svelte`
 
 Current mixed concerns:
@@ -268,6 +293,12 @@ Recommended split:
 - `WikiTimelineEvidencePanel.svelte`
 - `wikiTimelineGraph.ts`
 - `wikiTimelineSelection.ts`
+
+Implementation status:
+
+- shared helpers now live under `itir-svelte/src/lib/wiki_timeline/{filters,graph,selection}.ts` and are wired into the route for the graph/selection contracts
+- `+page.svelte` now imports those helpers, and the controls/context panels have been extracted into `ControlsPanel.svelte` and `ContextPanel.svelte`; the route still owns the graph assembly and evidence-lane derivation that are not yet componentized
+- regression guard still points at `tests/graph_ui_regressions.test.js`, which currently passes after the helper rewires
 
 ### `itir-svelte/src/lib/server/corpora.ts`
 
@@ -439,6 +470,24 @@ This keeps the workflow explicit:
 - then implementation
 
 Without that brief, triage is premature.
+
+## Prepared Pre-Triage Briefs
+
+The first priority brief set now exists at:
+
+- `docs/planning/largest_file_refactor_priority1_briefs_20260328.md`
+
+That note contains the bounded pre-triage briefs for:
+
+- `scripts/chat_context_resolver.py`
+- `itir-svelte/src/lib/server/wikiTimelineAoo.ts`
+- `itir-svelte/src/routes/graphs/wiki-timeline-aoo-all/+page.svelte`
+- `tools/build_zelph_hf_manifest.py` +
+  `tools/build_shared_shard_artifact_contract.py`
+- `itir_jmd_bridge/runtime.py`
+
+Those targets now satisfy the current docs-first gate. The next step is
+bounded triage against that brief set rather than starting from raw line count.
 
 ### Priority 2: frontend/server decomposition
 

@@ -4,6 +4,14 @@ import argparse
 import json
 from pathlib import Path
 
+from .hf_rehearsal import (
+    extract_tar_member_bytes,
+    load_erdfa_manifest_fixture,
+    load_hf_container_fixture,
+    resolve_container_member,
+    resolve_selector_to_local_member_payload,
+    resolve_selector_to_container_member,
+)
 from .providers.pastebin import discover_host_capabilities
 from .runtime import build_runtime_bundle, build_runtime_graph, ingest_latest_pastes, inspect_latest_pastes_with_prototype
 
@@ -61,6 +69,53 @@ def main(argv: list[str] | None = None) -> int:
     discover.add_argument("--base-url", required=True)
     discover.add_argument("--output", type=Path)
 
+    rehearse_hf = sub.add_parser(
+        "rehearse-hf-container",
+        help="Resolve one shardId through the local HF container fixture",
+    )
+    rehearse_hf.add_argument("--fixture", type=Path, required=True)
+    rehearse_hf.add_argument("--shard-id", required=True)
+    rehearse_hf.add_argument("--output", type=Path)
+
+    rehearse_selector = sub.add_parser(
+        "rehearse-selector-fetch",
+        help="Resolve selectors through the promoted-manifest fixture and optional HF container fixture",
+    )
+    rehearse_selector.add_argument("--manifest-fixture", type=Path, required=True)
+    rehearse_selector.add_argument("--container-fixture", type=Path, help="If omitted, default memberPath inference is used")
+    rehearse_selector.add_argument(
+        "--selector",
+        action="append",
+        dest="selectors",
+        required=True,
+        help="Selector key such as route-name=tenant or route-lang=en",
+    )
+    rehearse_selector.add_argument("--output", type=Path)
+
+    rehearse_tar = sub.add_parser(
+        "rehearse-local-tar-extract",
+        help="Extract one member from a local tar/tar.zst by member path",
+    )
+    rehearse_tar.add_argument("--tar-path", type=Path, required=True)
+    rehearse_tar.add_argument("--member-path", required=True)
+    rehearse_tar.add_argument("--output", type=Path)
+
+    rehearse_selector_tar = sub.add_parser(
+        "rehearse-selector-local-tar-fetch",
+        help="Resolve selectors through fixtures and extract the matching member from a local tar",
+    )
+    rehearse_selector_tar.add_argument("--manifest-fixture", type=Path, required=True)
+    rehearse_selector_tar.add_argument("--container-fixture", type=Path, help="If omitted, memberPath is inferred (shardId.cbor or payload/shardId.cbor)")
+    rehearse_selector_tar.add_argument("--tar-path", type=Path, required=True)
+    rehearse_selector_tar.add_argument(
+        "--selector",
+        action="append",
+        dest="selectors",
+        required=True,
+        help="Selector key such as route-name=tenant or route-lang=en",
+    )
+    rehearse_selector_tar.add_argument("--output", type=Path)
+
     args = parser.parse_args(argv)
 
     if args.command == "resolve-bundle":
@@ -105,6 +160,45 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "discover-capabilities":
         payload = discover_host_capabilities(base_url=args.base_url)
+        _write_json(payload, args.output)
+        return 0
+
+    if args.command == "rehearse-hf-container":
+        fixture = load_hf_container_fixture(args.fixture)
+        payload = resolve_container_member(fixture, shard_id=args.shard_id)
+        _write_json(payload, args.output)
+        return 0
+
+    if args.command == "rehearse-selector-fetch":
+        manifest = load_erdfa_manifest_fixture(args.manifest_fixture)
+        container_fixture = load_hf_container_fixture(args.container_fixture) if args.container_fixture else None
+        payload = resolve_selector_to_container_member(
+            manifest,
+            container_fixture,
+            selectors=list(args.selectors),
+        )
+        _write_json(payload, args.output)
+        return 0
+
+    if args.command == "rehearse-local-tar-extract":
+        payload = {
+            "memberPath": args.member_path,
+            "payload": {
+                "sizeBytes": len(extract_tar_member_bytes(args.tar_path, member_path=args.member_path)),
+            },
+        }
+        _write_json(payload, args.output)
+        return 0
+
+    if args.command == "rehearse-selector-local-tar-fetch":
+        manifest = load_erdfa_manifest_fixture(args.manifest_fixture)
+        container_fixture = load_hf_container_fixture(args.container_fixture) if args.container_fixture else None
+        payload = resolve_selector_to_local_member_payload(
+            manifest,
+            container_fixture,
+            selectors=list(args.selectors),
+            tar_path=args.tar_path,
+        )
         _write_json(payload, args.output)
         return 0
 

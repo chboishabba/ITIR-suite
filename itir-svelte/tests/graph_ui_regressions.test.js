@@ -43,10 +43,10 @@ test('AAO-all server uses canonical HCA AAO suffix instead of thin narrative tim
 });
 
 test('wikiTimelineAoo overlays richer HCA AAO events onto DB-backed metadata when needed', () => {
-  const s = read('src/lib/server/wikiTimelineAoo.ts');
-  assert.ok(s.includes('maybeOverlayHcaPayload'));
-  assert.ok(s.includes('needsHcaEventOverlay'));
-  assert.ok(s.includes('wiki_timeline_hca_s942025_aoo.json'));
+  const overlay = read('src/lib/server/wiki_timeline/hca_overlay.ts');
+  assert.ok(overlay.includes('maybeOverlayHcaPayload'));
+  assert.ok(overlay.includes('needsHcaEventOverlay'));
+  assert.ok(overlay.includes('wiki_timeline_hca_s942025_aoo.json'));
 });
 
 test('chat archive path resolver falls back to non-dot chat archive path', () => {
@@ -299,18 +299,26 @@ test('Wiki fact timeline controls are labeled', () => {
 });
 
 test('Wiki timeline AAO-all controls are labeled', () => {
-  const page = read('src/routes/graphs/wiki-timeline-aoo-all/+page.svelte');
-  assert.ok(page.includes('aria-label="Dataset source"'));
-  assert.ok(page.includes('aria-label="Time granularity"'));
-  assert.ok(page.includes('aria-label="Max events"'));
-  assert.ok(page.includes('aria-label="Max subjects"'));
-  assert.ok(page.includes('aria-label="Max objects"'));
-  assert.ok(page.includes('aria-label="Max numeric values"'));
-  assert.ok(page.includes('aria-label="Show source lane"'));
-  assert.ok(page.includes('aria-label="Show lens lane"'));
-  assert.ok(page.includes('aria-label="Show evidence lane"'));
-  assert.ok(page.includes('aria-label="Show requesters"'));
-  assert.ok(page.includes('aria-label="Show purpose"'));
+  const panel = read('src/lib/wiki_timeline/components/ControlsPanel.svelte');
+  assert.ok(panel.includes('aria-label="Dataset source"'));
+  assert.ok(panel.includes('aria-label="Time granularity"'));
+  assert.ok(panel.includes('aria-label="Max events"'));
+  assert.ok(panel.includes('aria-label="Max subjects"'));
+  assert.ok(panel.includes('aria-label="Max objects"'));
+  assert.ok(panel.includes('aria-label="Max numeric values"'));
+  assert.ok(panel.includes('aria-label="Show source lane"'));
+  assert.ok(panel.includes('aria-label="Show lens lane"'));
+  assert.ok(panel.includes('aria-label="Show evidence lane"'));
+  assert.ok(panel.includes('aria-label="Show requesters"'));
+  assert.ok(panel.includes('aria-label="Show purpose"'));
+});
+
+test('Wiki timeline AAO-all context panel is extracted', () => {
+  const panel = read('src/lib/wiki_timeline/components/ContextPanel.svelte');
+  assert.ok(panel.includes('selected: {selectedNodeId}'));
+  assert.ok(panel.includes('requester_window: signal={requesterCoverageWindow.requestSignalEvents}'));
+  assert.ok(panel.includes('data-ctx-id={r.event_id}'));
+  assert.ok(panel.includes('bind:this={contextBox}'));
 });
 
 test('Wiki revision contested selects are labeled', () => {

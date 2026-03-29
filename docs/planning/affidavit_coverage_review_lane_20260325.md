@@ -120,6 +120,10 @@ Recommended implementation posture:
 Current implementation surface:
 - builder:
   `SensibLaw/scripts/build_affidavit_coverage_review.py`
+- proving-slice read model:
+  `build_contested_affidavit_proving_slice(...)`
+- proving-slice query surface:
+  `SensibLaw/scripts/query_fact_review.py contested-proving-slice`
 - focused regression:
   `SensibLaw/tests/test_affidavit_coverage_review.py`
 - current accepted source inputs:
@@ -138,12 +142,144 @@ Current v1 output:
     - `abstained_source`
     - `unsupported_affidavit`
 - human-readable markdown summary
+- persisted SQLite review run plus a bounded grouped read model exposing:
+  - supported
+  - disputed
+  - missing
+  - needs clarification
+  - minimal derived next steps
 
 Current limitation:
 - matching is still lexical/provenance-first rather than deep semantic
   equivalence
 - this is correct for the first bounded lane because it keeps review pressure
   explicit instead of hiding uncertain merges
+- however, this should now be treated as a transitional `v0` matching posture,
+  not the intended final reconciliation model
+- cross-side duplicate and same-incident sibling handling is still weak:
+  a composite response paragraph can support one proposition directly while a
+  nearby sibling proposition is incorrectly chosen as the best match
+
+## Johl fixture reading
+
+The live Johl affidavit / response pair should now be treated as the primary
+Mary-parity fixture for the next quality step.
+
+Why this fixture matters:
+- it pressures family-law and cross-side operator stories directly
+- it contains same-incident sibling claims stated on both sides
+- it contains shared-root claims with later contextual additions
+- it exposes duplicate-root, authority, and contradiction-handling failures
+  more clearly than the narrower AU-only fixtures
+
+## Next quality boundary
+
+The next improvement should be a bounded `claim reconciliation` layer rather
+than a broader ontology rewrite.
+
+This means the lane should move toward:
+- normalized affidavit propositions
+- normalized response units
+- typed proposition-response relation classification
+- dominant relation resolution before final bucket assignment
+
+The target relation set is now:
+- `exact_support`
+- `equivalent_support`
+- `explicit_dispute`
+- `implicit_dispute`
+- `partial_overlap`
+- `adjacent_event`
+- `substitution`
+- `procedural_nonanswer`
+- `unrelated`
+
+The next bounded extension should also add:
+- shared `claim_root` / `incident_root` clustering for materially duplicate or
+  near-duplicate cross-side claims
+- side-local leaf claims beneath that root
+- typed authority reading for the matched material:
+  source-local assertion, shared-text duplicate, procedural record, or later
+  contextual addition
+
+This relation layer should eventually drive the operator-facing bucket surface
+more directly than raw similarity scores.
+
+Target bucket reading:
+- `supported`:
+  exact/equivalent support
+- `disputed`:
+  explicit/implicit dispute
+- `needs_clarification`:
+  partial overlap, adjacent event, substitution
+- `non_substantive_response`:
+  procedural nonanswer
+- `missing`:
+  unrelated / no viable candidate
+
+Current grouped read model remains valid as a proving-slice surface, but it
+should now be interpreted as a bounded bridge toward this richer
+relation-driven resolver rather than the final quality model.
+
+Current implementation status:
+- the persisted lane now stores relation-led comparison fields directly:
+  - `relation_root`
+  - `relation_leaf`
+  - `primary_target_component`
+  - `explanation`
+  - `missing_dimensions`
+- the proving-slice read model now derives and emits:
+  - `relation_root`
+  - `relation_leaf`
+  - `explanation`
+  - `missing_dimensions`
+- the proving-slice section layout now includes explicit non-resolving
+  subclasses and treats `needs_clarification` as a derived rollup rather than
+  the only explanatory class
+- a first bounded duplicate-root followthrough now exists in the builder:
+  - duplicate or near-duplicate support clauses can now be promoted ahead of a
+    nearby contextual clause
+  - builder output now emits:
+    - `claim_root_id`
+    - `claim_root_text`
+    - `claim_root_basis`
+    - `alternate_context_excerpt`
+- the persisted lane still does not fully cluster duplicate roots or
+  same-incident sibling leaves before final best-match selection
+
+Current live Johl reading after that first pass:
+- `p2-s38` and `p2-s39` now promote to support via duplicate-root handling
+- `p2-s5` and `p2-s6` remain unresolved as same-incident sibling-leaf
+  cross-swap failures
+- `p2-s21` still looks closer to adjacent event or substitution than true
+  support
+
+Forward interpretation rule:
+- treat `weakly_addressed` as a transitional proving-slice output only
+- do not preserve it as a stable target bucket in the next classifier pass
+- the next quality step should redistribute those rows into:
+  - `partial_support`
+  - `adjacent_event`
+  - `substitution`
+  - `non_substantive_response`
+
+Immediate next implementation priority:
+- continue the duplicate-root / incident-cluster pass for cross-side and
+  same-incident sibling leaves
+- stop the Johl keyboard/audio pair from cross-swapping into the wrong support
+  or dispute rows
+- keep support, qualification, contradiction, adjacent-event, and procedural
+  readings at the leaf level under a shared root
+
+The operator-facing question is no longer just:
+- was this proposition touched?
+
+It is now:
+- was it supported?
+- was it disputed?
+- was it only partially answered?
+- was the response about a nearby but different event?
+- was it a substitution or procedural nonanswer?
 
 ## Acceptance criteria
 
@@ -162,6 +298,20 @@ Current limitation:
 - reviewers can reopen the same run and inspect coverage rows without rerunning
   the source extraction pipeline
 
+### P4
+- top-line grouped output does not rely on `weakly_addressed` as a mixed
+  catch-all bucket
+- explicit denials are surfaced as `disputed`
+- operator-facing rows include a short explanation:
+  classification, matched response, reason, missing dimension
+
+### P5
+- materially duplicate or near-duplicate cross-side claims can be grouped
+  under one shared root without flattening side-local wording
+- same-incident sibling leaves do not cross-swap into the wrong support row
+- authority is typed locally to the relation being shown rather than treated
+  as one global winner for the whole cluster
+
 ## Governance
 
 Promotable claims for this lane:
@@ -169,11 +319,16 @@ Promotable claims for this lane:
   source substrate
 - omission review is explicit
 - ambiguity and contestation survive comparison
+- the repo can now articulate the next honest quality boundary as
+  duplicate-root and side-local leaf reconciliation, not just stronger
+  similarity
 
 Non-claims for this lane:
 - the system has extracted every semantically possible fact from a corpus
 - the affidavit is legally sufficient
 - a missing-review row is automatically a filing omission
+- the lane already resolves duplicate-root clustering or cross-side authority
+  selection robustly
 
 ## Immediate repo followthrough
 
@@ -182,3 +337,8 @@ Non-claims for this lane:
 - track an `affidavit_coverage_review` implementation lane in `TODO.md`
 - use AU dense-substrate reality as the first planning anchor instead of
   inventing a fresh synthetic-only lane
+- use `docs/planning/affidavit_claim_reconciliation_contract_20260329.md` as
+  the next quality contract for moving beyond similarity-led bucketing
+- use the Johl affidavit / response pair as the next Mary-parity fixture for:
+  duplicate-root clustering, side-local leaf support/contradiction, and typed
+  authority reading

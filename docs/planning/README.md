@@ -48,6 +48,7 @@ Future external graph/task surface awareness:
 - `docs/planning/jmd_triage_roadmap_20260320.md`
 - `docs/planning/jmd_fixture_v1_20260320.md`
 - `docs/planning/jmd_fixtures/README.md`
+- `docs/planning/jmd_notebooklm_seam_minimal_object_20260329.md`
 
 Text-surface graph vs canonical SL bridge boundary:
 - `docs/planning/textgraphs_sl_bridge_contract_20260324.md`

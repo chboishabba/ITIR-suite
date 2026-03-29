@@ -3,8 +3,11 @@
 Fixture pack for the first JMD -> SL bridge example.
 
 Files:
+- `erdfa_manifest_promotion_v1.example.json`
 - `jmd_sl_ingest_v1.example.json`
 - `sl_jmd_overlay_v1.example.json`
+- `zkperf_on_sl_observation_v1.example.json`
+- `hf_container_index_v1.example.json`
 
 These fixtures are documentation-first examples, not live protocol tests.
 
