@@ -2838,12 +2838,17 @@
     sample artifact; private runs should use `runs_local/` / `SB_RUNS_ROOT`
   - next: audit remaining docs/scripts that still imply a checked-in dashboard
     DB is the normal way to reproduce or test SB locally
-- NotebookLM clarify helper followthrough:
-  - DONE: add repo-local `scripts/notebooklm_clarify.py` for minimal structured
-    `Please clarify:` asks against notebook ids / URLs
-  - next: decide whether source selection, persisted-history verification, and
-    richer status polling should also move from the external skill wrapper into
-    a suite-owned helper
+- [ ] Affidavit echo-masking followthrough:
+  - current live Dad/Johl state:
+    `p2-s21` now lands as `conceded_fact` with operator-facing meaning
+    `Conceded Fact (+ Technical Qualification)`
+  - next real gap:
+    strict echo masking for respondent-side pasted allegation headers /
+    copied affidavit scaffolding
+  - target behavior:
+    high-similarity quote/header blocks should not win `supported` rows by
+    themselves; the matcher should prefer the respondent's authored rebuttal or
+    admission text underneath
 
 ## Blockers / constraints
 - No explicit blockers listed in submodule TODO files.

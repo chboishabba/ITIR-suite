@@ -3717,3 +3717,26 @@
     `53 passed in 2.36s`
   - timed live targeted Dad/Johl `p2-s21` probe:
     fetch + group + payload build + row scoring completed in about `5.606s`
+- `2026-03-30` conceded-fact followthrough:
+  - landed first-class `technical_qualification` and `conceded_fact`
+    handling in the affidavit lane
+  - focused verification:
+    `57 passed in 2.44s`
+  - live full Dad/Johl rerun now lands `p2-s21` as:
+    - `relation_root = supports`
+    - `relation_leaf = conceded_fact`
+    - `relation_type = conceded_fact`
+  - winning rebuttal clause:
+    `John had failed to complete the necessary steps to revoke his EPOA`
+  - same response block also contains strong confirmation:
+    `This is corroborated by the dated signature on the revocation documents.`
+  - retained lineage echo:
+    `In August 2024 I took steps to revoke my EPOA`
+  - Dad Court notebook persisted-thread follow-up agreed:
+    `p2-s21` supports `conceded_fact`
+  - recommended operator label:
+    `Conceded Fact (+ Technical Qualification)`
+  - next real refinement:
+    strict echo masking for respondent-side pasted allegation headers /
+    copied affidavit scaffolding, especially the `p2-s5` / `p2-s6` /
+    `p2-s38` shapes

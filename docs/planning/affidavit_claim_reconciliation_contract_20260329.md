@@ -569,3 +569,38 @@ The first bounded optimization pass is now landed:
   `53 passed in 2.36s`
 - a timed live targeted Dad/Johl `p2-s21` probe now completes fetch + group +
   payload build + row scoring in about `5.606s`
+
+## Live Dad/Johl followthrough
+
+The first `technical_qualification` pass is now landed and verified locally,
+but the decisive live result was one step further:
+
+- the live Dad/Johl rerun now lands `p2-s21` as:
+  - `relation_root = supports`
+  - `relation_leaf = conceded_fact`
+  - `relation_type = conceded_fact`
+- winning response clause:
+  `John had failed to complete the necessary steps to revoke his EPOA`
+- retained lineage echo:
+  `In August 2024 I took steps to revoke my EPOA`
+- decisive nearby confirmation in the same Johl block:
+  `This is corroborated by the dated signature on the revocation documents.`
+
+Interpretation:
+- `technical_qualification` remains the correct response-role shape for the
+  rebuttal clause itself
+- but when the same response block also carries strong independent
+  confirmation, the row should be promoted to `conceded_fact`
+
+Notebook-assisted review on the persisted Dad Court thread agreed with this:
+- `p2-s21` now supports `conceded_fact`
+- the recommended operator label is:
+  `Conceded Fact (+ Technical Qualification)`
+- the highest-signal next refinement is now strict echo masking for the
+  respondent's pasted allegation headers / copied affidavit text
+
+Immediate next implementation target:
+- hard-block high-similarity allegation echoes from winning supported rows when
+  they are only quote headers or draft scaffolding
+- force the matcher to prefer Johl-authored rebuttal / admission text beneath
+  those echoed headers

@@ -1223,3 +1223,26 @@
     -> `53 passed in 2.36s`
   - Timed live targeted Dad/Johl `p2-s21` probe:
     fetch + group + payload build + row scoring completed in about `5.606s`
+  - Landed first-class `technical_qualification` / `conceded_fact` response
+    handling in:
+    - `SensibLaw/scripts/build_affidavit_coverage_review.py`
+    - `SensibLaw/src/fact_intake/read_model.py`
+  - Added focused regressions in:
+    `SensibLaw/tests/test_affidavit_coverage_review.py`
+  - Reverified with:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_query_fact_review_script.py`
+    -> `57 passed in 2.44s`
+  - Live full Dad/Johl rerun now lands `p2-s21` as:
+    - `supports / conceded_fact`
+    - matched rebuttal clause:
+      `John had failed to complete the necessary steps to revoke his EPOA`
+    - retained lineage echo:
+      `In August 2024 I took steps to revoke my EPOA`
+    - nearby independent confirmation in the same response block:
+      `This is corroborated by the dated signature on the revocation documents.`
+  - Persisted Dad Court notebook follow-up on the same visible thread agreed:
+    - `p2-s21` supports `conceded_fact`
+    - best operator-facing label:
+      `Conceded Fact (+ Technical Qualification)`
+    - next highest-signal refinement:
+      strict echo masking for quoted allegation headers / pasted affidavit text
