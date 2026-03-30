@@ -37,6 +37,8 @@ That means the current lane is sufficient for:
 - lifecycle review
 - source/artifact inspection
 - source-local text reuse
+- privacy-preserving broad-theme review from notebook summaries or asks when
+  local docs are not enough
 
 It is **not** yet sufficient for:
 - honest waterfall/timeline activity parity
@@ -81,6 +83,10 @@ NotebookLM should expose a bounded report/query surface with:
 - event counts by kind
 - bounded recent-event rows
 - provenance-rich source snippets/keywords
+- privacy-preserving thematic answers derived from notebook asks/history when:
+  - the operator asks broad workflow/product questions
+  - local docs are shallow or fragmented
+  - no private facts need to be exported into repo records
 
 ### Source-unit projection
 
@@ -102,3 +108,5 @@ Until then, NotebookLM remains:
 - metadata observer
 - source/review substrate
 - source-local text provider
+- optional privacy-preserving synthesis aid for broad product questions, not a
+  truth-promotion lane

@@ -18,6 +18,6 @@ Generated as a bounded reference implementation for:
 
 Current status:
 - packaging/tests are runnable from `python/`
-- resonance remains heuristic and is not yet separated into a pure proposal/tiebreak layer
+- resonance is now demoted to proposal/tiebreak only
 - admissibility is now explicit as a second stage:
   `manifold_aware_rank -> admissibility_filter -> accepted/rejected decisions`

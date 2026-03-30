@@ -3,108 +3,15 @@ from __future__ import annotations
 import io
 import json
 import tarfile
-from datetime import UTC, datetime
 from hashlib import sha256
 from pathlib import Path
 from typing import Any, Iterable
 
-from .providers.hf import download_hf_object_bytes, fetch_hf_object, upload_hf_file_with_ack
+from .providers.hf import fetch_hf_object, upload_hf_file_with_ack, download_hf_object_bytes
 
 
 def load_zkperf_stream_fixture(path: str | Path) -> dict[str, Any]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
-
-
-def load_zkperf_observations(path: str | Path) -> list[dict[str, Any]]:
-    raw = Path(path).read_text(encoding="utf-8")
-    stripped = raw.strip()
-    if not stripped:
-        return []
-    if stripped.startswith("["):
-        payload = json.loads(stripped)
-        if not isinstance(payload, list):
-            raise ValueError("expected a JSON array of observations")
-        return [dict(item) for item in payload]
-    if stripped.startswith("{"):
-        payload = json.loads(stripped)
-        observations = payload.get("observations")
-        if not isinstance(observations, list):
-            raise ValueError("expected an object with an observations list")
-        return [dict(item) for item in observations]
-    observations = []
-    for line in raw.splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        observations.append(dict(json.loads(line)))
-    return observations
-
-
-def build_zkperf_stream_fixture_from_observations(
-    observations: list[dict[str, Any]],
-    *,
-    stream_id: str | None = None,
-    stream_revision: str | None = None,
-    created_at_utc: str | None = None,
-    max_observations_per_window: int | None = None,
-) -> dict[str, Any]:
-    if not observations:
-        raise ValueError("at least one observation is required")
-    for observation in observations:
-        _validate_zkperf_observation(observation)
-    created_at = created_at_utc or _derive_created_at_utc(observations)
-    revision = stream_revision or _default_stream_revision(created_at)
-    resolved_stream_id = stream_id or _derive_stream_id(observations)
-
-    grouped: dict[tuple[str, str], list[dict[str, Any]]] = {}
-    for observation in observations:
-        group_key = (
-            str(observation.get("run_id") or "unknown-run"),
-            str(observation.get("trace_id") or observation["zkperf_observation_id"]),
-        )
-        grouped.setdefault(group_key, []).append(observation)
-
-    ordered_groups = sorted(
-        grouped.items(),
-        key=lambda entry: (
-            min(_parse_utc(item["asserted_at"]) for item in entry[1]),
-            entry[0][0],
-            entry[0][1],
-        ),
-    )
-    chunk_size = max_observations_per_window or 0
-    sequence = 1
-    windows: list[dict[str, Any]] = []
-    for (run_id, trace_id), group in ordered_groups:
-        ordered = sorted(group, key=lambda item: (_parse_utc(item["asserted_at"]), item["zkperf_observation_id"]))
-        chunks = [ordered]
-        if chunk_size > 0:
-            chunks = [ordered[index:index + chunk_size] for index in range(0, len(ordered), chunk_size)]
-        for chunk in chunks:
-            windows.append(
-                {
-                    "windowId": f"window-{sequence:04d}",
-                    "sequence": sequence,
-                    "runId": run_id,
-                    "traceId": trace_id,
-                    "observationIds": [item["zkperf_observation_id"] for item in chunk],
-                    "startedAtUtc": min(item["asserted_at"] for item in chunk),
-                    "endedAtUtc": max(item["asserted_at"] for item in chunk),
-                    "payload": {"observations": chunk},
-                }
-            )
-            sequence += 1
-
-    return {
-        "contractVersion": "zkperf-stream/v1",
-        "streamId": resolved_stream_id,
-        "streamRevision": revision,
-        "streamKind": "zkperf-observation-stream",
-        "windowingMode": "trace-id-grouped",
-        "createdAtUtc": created_at,
-        "windows": windows,
-        "containerObjectRef": None,
-    }
 
 
 def build_zkperf_stream_bundle(stream_manifest: dict[str, Any]) -> dict[str, Any]:
@@ -212,7 +119,10 @@ def publish_zkperf_stream_to_hf(
     return payload
 
 
-def build_zkperf_stream_latest(stream_manifest: dict[str, Any], hf_receipt: dict[str, Any]) -> dict[str, Any]:
+def build_zkperf_stream_latest(
+    stream_manifest: dict[str, Any],
+    hf_receipt: dict[str, Any],
+) -> dict[str, Any]:
     return {
         "contractVersion": "zkperf-stream-latest/v1",
         "streamId": stream_manifest["streamId"],
@@ -226,11 +136,15 @@ def build_zkperf_stream_latest(stream_manifest: dict[str, Any], hf_receipt: dict
     }
 
 
-def write_zkperf_stream_publish_artifacts(*, output_root: str | Path, publish_payload: dict[str, Any]) -> dict[str, str]:
+def write_zkperf_stream_publish_artifacts(
+    *,
+    output_root: str | Path,
+    publish_payload: dict[str, Any],
+) -> dict[str, str]:
     stream_manifest = publish_payload["streamManifest"]
     root = Path(output_root) / stream_manifest["streamId"] / stream_manifest["streamRevision"]
     root.mkdir(parents=True, exist_ok=True)
-    paths: dict[str, Path] = {
+    paths = {
         "streamManifest": root / "stream-manifest.json",
         "streamLatest": root / "stream-latest.json",
         "hfReceipt": root / "hf-receipt.json",
@@ -249,12 +163,19 @@ def write_zkperf_stream_publish_artifacts(*, output_root: str | Path, publish_pa
     return {key: str(value) for key, value in paths.items()}
 
 
-def build_zkperf_stream_index(*, stream_id: str, index_hf_uri: str | None = None, created_at: str | None = None, retention_policy: dict[str, Any] | None = None) -> dict[str, Any]:
+def build_zkperf_stream_index(
+    *,
+    stream_id: str,
+    index_hf_uri: str | None = None,
+    created_at: str | None = None,
+    retention_policy: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     return {
         "contractVersion": "zkperf-stream-index/v1",
         "streamId": stream_id,
         "createdAtUtc": created_at,
-        "retentionPolicy": retention_policy or {
+        "retentionPolicy": retention_policy
+        or {
             "policyVersion": "zkperf-retention/v1",
             "mode": "retain-latest-n",
             "maxRevisionCount": 2,
@@ -263,11 +184,18 @@ def build_zkperf_stream_index(*, stream_id: str, index_hf_uri: str | None = None
         "latestWindowId": None,
         "revisionCount": 0,
         "revisions": [],
-        "indexObjectRef": {"sink": "hf", "uri": index_hf_uri} if index_hf_uri else None,
+        "indexObjectRef": {
+            "sink": "hf",
+            "uri": index_hf_uri,
+        } if index_hf_uri else None,
     }
 
 
-def load_remote_zkperf_stream_index(index_hf_uri: str, *, revision: str | None = None) -> dict[str, Any] | None:
+def load_remote_zkperf_stream_index(
+    index_hf_uri: str,
+    *,
+    revision: str | None = None,
+) -> dict[str, Any] | None:
     try:
         fetched = fetch_hf_object(hf_uri=index_hf_uri, revision=revision)
     except Exception:
@@ -278,7 +206,12 @@ def load_remote_zkperf_stream_index(index_hf_uri: str, *, revision: str | None =
     return json.loads(text)
 
 
-def get_zkperf_stream_index_record(stream_index: dict[str, Any], *, stream_revision: str | None = None, latest: bool = False) -> dict[str, Any]:
+def get_zkperf_stream_index_record(
+    stream_index: dict[str, Any],
+    *,
+    stream_revision: str | None = None,
+    latest: bool = False,
+) -> dict[str, Any]:
     revisions = list(stream_index.get("revisions") or [])
     if latest:
         target = stream_index.get("latestRevision")
@@ -324,7 +257,10 @@ def update_zkperf_stream_index(
     revisions = [item for item in revisions if item["streamRevision"] != record["streamRevision"]]
     revisions.append(record)
     revisions.sort(key=lambda item: item["sequenceRange"]["end"] or -1)
-    revisions = apply_zkperf_stream_retention_policy(revisions, index.get("retentionPolicy"))
+    revisions = apply_zkperf_stream_retention_policy(
+        revisions,
+        index.get("retentionPolicy"),
+    )
     index["revisions"] = revisions
     index["revisionCount"] = len(revisions)
     latest = revisions[-1] if revisions else None
@@ -335,7 +271,10 @@ def update_zkperf_stream_index(
     return index
 
 
-def apply_zkperf_stream_retention_policy(revisions: list[dict[str, Any]], retention_policy: dict[str, Any] | None) -> list[dict[str, Any]]:
+def apply_zkperf_stream_retention_policy(
+    revisions: list[dict[str, Any]],
+    retention_policy: dict[str, Any] | None,
+) -> list[dict[str, Any]]:
     if not retention_policy:
         return revisions
     mode = retention_policy.get("mode")
@@ -347,7 +286,12 @@ def apply_zkperf_stream_retention_policy(revisions: list[dict[str, Any]], retent
     return revisions[-max_revision_count:]
 
 
-def publish_zkperf_stream_index_to_hf(*, stream_index: dict[str, Any], index_hf_uri: str, commit_message: str | None = None) -> dict[str, Any]:
+def publish_zkperf_stream_index_to_hf(
+    *,
+    stream_index: dict[str, Any],
+    index_hf_uri: str,
+    commit_message: str | None = None,
+) -> dict[str, Any]:
     temp_index = Path("/tmp") / f"{stream_index['streamId']}-stream-index.json"
     temp_index.write_text(json.dumps(stream_index, indent=2, sort_keys=True), encoding="utf-8")
     return upload_hf_file_with_ack(
@@ -372,7 +316,11 @@ def resolve_zkperf_stream_from_index_hf(
     stream_index = load_remote_zkperf_stream_index(index_hf_uri, revision=index_revision)
     if stream_index is None:
         raise RuntimeError(f"unable to load stream index from {index_hf_uri}")
-    record = get_zkperf_stream_index_record(stream_index, stream_revision=stream_revision, latest=latest)
+    record = get_zkperf_stream_index_record(
+        stream_index,
+        stream_revision=stream_revision,
+        latest=latest,
+    )
     fixture = load_zkperf_stream_fixture(fixture_path)
     stream_manifest = {
         "contractVersion": fixture["contractVersion"],
@@ -389,7 +337,11 @@ def resolve_zkperf_stream_from_index_hf(
     }
     hf_revision = record["acknowledgedRevision"]
     if window_id is not None:
-        payload = resolve_remote_zkperf_stream_window(stream_manifest=stream_manifest, hf_revision=hf_revision, window_id=window_id)
+        payload = resolve_remote_zkperf_stream_window(
+            stream_manifest=stream_manifest,
+            hf_revision=hf_revision,
+            window_id=window_id,
+        )
     else:
         payload = resolve_remote_zkperf_stream_windows(
             stream_manifest=stream_manifest,
@@ -408,7 +360,12 @@ def resolve_zkperf_stream_from_index_hf(
     return payload
 
 
-def resolve_remote_zkperf_stream_window(*, stream_manifest: dict[str, Any], hf_revision: str, window_id: str) -> dict[str, Any]:
+def resolve_remote_zkperf_stream_window(
+    *,
+    stream_manifest: dict[str, Any],
+    hf_revision: str,
+    window_id: str,
+) -> dict[str, Any]:
     window = next((w for w in stream_manifest.get("windows", []) if w["windowId"] == window_id), None)
     if window is None:
         raise KeyError(f"unknown windowId: {window_id}")
@@ -509,68 +466,6 @@ def select_zkperf_stream_windows(
         high = sequence_end if sequence_end is not None else max(window["sequence"] for window in windows)
         return [window for window in windows if low <= window["sequence"] <= high]
     raise ValueError("must select latest, a sequence range, or explicit window ids")
-
-
-def _validate_zkperf_observation(observation: dict[str, Any]) -> None:
-    required = [
-        "zkperf_observation_id",
-        "trace_id",
-        "run_id",
-        "asserted_at",
-        "source_ref",
-        "status",
-        "metrics",
-        "trace_refs",
-        "proof_refs",
-        "hash",
-    ]
-    missing = [field for field in required if field not in observation or observation[field] in (None, "")]
-    if missing:
-        raise ValueError(f"observation {observation.get('zkperf_observation_id', '<unknown>')} missing required fields: {missing}")
-    if not isinstance(observation.get("metrics"), list):
-        raise ValueError("metrics must be a list")
-    if not isinstance(observation.get("trace_refs"), list):
-        raise ValueError("trace_refs must be a list")
-    if not isinstance(observation.get("proof_refs"), list):
-        raise ValueError("proof_refs must be a list")
-    if not observation.get("trace_refs") and not observation.get("proof_refs"):
-        raise ValueError("at least one of trace_refs or proof_refs must be present")
-    _parse_utc(str(observation["asserted_at"]))
-
-
-def _parse_utc(value: str) -> datetime:
-    if value.endswith("Z"):
-        value = value[:-1] + "+00:00"
-    return datetime.fromisoformat(value).astimezone(UTC)
-
-
-def _derive_created_at_utc(observations: list[dict[str, Any]]) -> str:
-    latest = max(_parse_utc(item["asserted_at"]) for item in observations)
-    return latest.replace(microsecond=0).isoformat().replace("+00:00", "Z")
-
-
-def _default_stream_revision(created_at_utc: str) -> str:
-    stamp = _parse_utc(created_at_utc).strftime("%Y%m%dT%H%M%SZ")
-    return f"rev-{stamp}"
-
-
-def _derive_stream_id(observations: list[dict[str, Any]]) -> str:
-    run_ids = sorted({str(item.get("run_id") or "unknown-run") for item in observations})
-    if len(run_ids) == 1:
-        suffix = _slugify(run_ids[0])
-    else:
-        suffix = "multi-run"
-    return f"zkperf-stream-{suffix}"
-
-
-def _slugify(value: str) -> str:
-    chars = []
-    for char in value.lower():
-        chars.append(char if char.isalnum() else "-")
-    slug = "".join(chars).strip("-")
-    while "--" in slug:
-        slug = slug.replace("--", "-")
-    return slug or "stream"
 
 
 def _canonical_json_bytes(payload: dict[str, Any]) -> bytes:

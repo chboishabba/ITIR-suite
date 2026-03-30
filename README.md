@@ -267,10 +267,33 @@ and [chat-export-structurer/README.md](chat-export-structurer/README.md).
   [docs/planning/affidavit_claim_reconciliation_contract_20260329.md](docs/planning/affidavit_claim_reconciliation_contract_20260329.md)
 - affidavit coverage review lane and Johl Mary-parity fixture:
   [docs/planning/affidavit_coverage_review_lane_20260325.md](docs/planning/affidavit_coverage_review_lane_20260325.md)
+- local publish / consume release gates:
+  [docs/planning/local_publish_consume_release_gates_20260330.md](docs/planning/local_publish_consume_release_gates_20260330.md)
+- hosted sink acknowledgement contract:
+  [docs/planning/hosted_sink_acknowledgement_contract_20260330.md](docs/planning/hosted_sink_acknowledgement_contract_20260330.md)
+- HF acknowledgement probe:
+  [docs/planning/hf_acknowledgement_probe_20260330.md](docs/planning/hf_acknowledgement_probe_20260330.md)
+- HF write acknowledgement probe:
+  [docs/planning/hf_write_acknowledgement_probe_20260330.md](docs/planning/hf_write_acknowledgement_probe_20260330.md)
+- HF receipt binding and remote bundle rehearsal:
+  [docs/planning/hf_receipt_binding_and_remote_bundle_rehearsal_20260330.md](docs/planning/hf_receipt_binding_and_remote_bundle_rehearsal_20260330.md)
+- IPFS acknowledgement readiness:
+  [docs/planning/ipfs_acknowledgement_readiness_20260330.md](docs/planning/ipfs_acknowledgement_readiness_20260330.md)
+- publisher-native hosted acknowledgement receipts:
+  [docs/planning/publisher_native_hosted_ack_receipts_20260330.md](docs/planning/publisher_native_hosted_ack_receipts_20260330.md)
+- ITIR real bundle consumer rehearsal:
+  [docs/planning/itir_real_bundle_consumer_rehearsal_20260330.md](docs/planning/itir_real_bundle_consumer_rehearsal_20260330.md)
 - zkperf on SL roadmap:
   [docs/planning/zkperf_on_sl_roadmap_20260329.md](docs/planning/zkperf_on_sl_roadmap_20260329.md)
 - zkperf on SL contract v1:
   [docs/planning/zkperf_on_sl_contract_v1_20260329.md](docs/planning/zkperf_on_sl_contract_v1_20260329.md)
+- zkperf stream shard contract v1:
+  [docs/planning/zkperf_stream_shard_contract_v1_20260330.md](docs/planning/zkperf_stream_shard_contract_v1_20260330.md)
+
+### ZKPerf stream operator command
+
+- one-shot publish plus verify:
+  `scripts/run_zkperf_stream_hf.sh --fixture <path-to-zkperf-stream-json>`
 
 ### Proven example and handoff docs
 

@@ -104,11 +104,11 @@ def manifold_aware_rank(
         summary_bytes = ("|".join(sorted(f.fact_id for f in s.facts)) + "|" + s.shard_id).encode("utf-8")
         res = resonance_score_from_hash(hash_file_bytes(summary_bytes))
         spectral_score = _cosine(q_vec.values, s_vec)
-        score = 0.65 * spectral_score + 0.20 * res.resonance_strength + 0.15 * domain_match
+        score = 0.65 * spectral_score + 0.15 * domain_match
 
         reasons = []
         if res.resonance:
-            reasons.append("lattice_resonance")
+            reasons.append("resonance_tiebreak")
         if spectral_score > 0.25:
             reasons.append("spectral_alignment")
         if domain_match == 1.0:
@@ -125,7 +125,7 @@ def manifold_aware_rank(
             )
         )
 
-    results.sort(key=lambda r: r.score, reverse=True)
+    results.sort(key=lambda r: (r.score, r.resonance_strength), reverse=True)
     return results[:top_k] if top_k is not None else results
 
 

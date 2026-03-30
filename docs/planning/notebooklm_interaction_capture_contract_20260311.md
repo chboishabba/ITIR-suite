@@ -98,6 +98,8 @@ This slice is intended to support:
 - source-local text reuse
 - future mission-lens evidence reuse
 - later sessionization design work
+- privacy-preserving review of prior NotebookLM conversations for product
+  improvement themes, when retained only as sanitized workflow findings
 
 It is not intended to support, yet:
 - SB waterfall/timeline integration
@@ -128,6 +130,12 @@ Current implementation exposes a producer-owned report/query seam with:
 - Do not write these rows into `logs/notes/<date>.jsonl`.
 - Do not fold them into dashboard activity accounting yet.
 - Do not invent session spans from sparse observations.
+- Do not copy private case facts, names, or sensitive allegations from
+  NotebookLM conversation history into repo docs, TODOs, or changelogs.
+- When NotebookLM history informs product work, retain only sanitized themes:
+  workflow pain points, review/matching/provenance requirements,
+  contradiction-handling patterns, privacy controls, and operator-experience
+  needs.
 
 ## Follow-on milestone
 

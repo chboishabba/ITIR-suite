@@ -23,15 +23,16 @@ current status after patch
     - `manifold_aware_rank(...)` remains candidate generation
     - `admissibility_filter(...)` now emits accepted/rejected decisions with reasons
     - `manifold_aware_select(...)` composes the two stages
+  - resonance is now demoted to proposal/tiebreak only:
+    it no longer contributes to the core correctness score
 - Still open:
-  - resonance remains in the core score rather than a pure proposal/tiebreak layer
   - policy tuning remains heuristic:
     thresholds and acceptance rules are now explicit, but still provisional
 
 governance reading
 - Keep `SL` as truth authority.
 - Keep `ZOS` in the proposal layer only.
-- If resonance is kept, it must not act as correctness or truth authority.
+- Resonance may exist only as proposal/tiebreak signal, never as correctness or truth authority.
 - Domain/manifold logic must be real and query-sensitive, not a constant score prior.
 - Structural reading:
   - `ZOS` stands to `SL` as `CLOCK` stands to `DASHI`
@@ -55,8 +56,8 @@ priority reading
 - This bridge is no longer the first implementation priority while the
   affidavit local-first proving slice still has a coarse mixed classifier.
 - Near-term priority order:
-  1. affidavit claim reconciliation and explanation fields
-  2. resonance-policy tightening and threshold calibration in this temporary bridge
+  1. affidavit root/incident clustering and operator-facing lineage quality
+  2. threshold calibration in this temporary bridge
 - Even with the new admissibility stage, keep this bundle bounded as
   proposal/retrieval infrastructure rather than promoted truth machinery.
 

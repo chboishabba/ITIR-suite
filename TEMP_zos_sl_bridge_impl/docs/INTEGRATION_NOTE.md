@@ -16,14 +16,14 @@ This package implements a bounded prototype of:
 5. Manifold-aware spectral retrieval:
    - selector/candidate set assumed upstream
    - rank candidate shards by cosine similarity over `Φ`
-   - add resonance and domain-match priors
+   - add domain-match prior only (resonance is tiebreak-only)
 
 ## Important limitation
 
 The exact `monster-hash(file)` algorithm was not available in the pasted artifact.  
 This prototype uses a SHA-256-derived 64-bit integer as a deterministic stand-in, behind a replaceable function.
 
-Resonance is still a heuristic prior in the rank score. It is not yet demoted to a pure proposal/tiebreak layer.
+Resonance is now tiebreak-only and is not part of the core rank score.
 
 An explicit post-ranking admissibility boundary is now implemented:
 
@@ -46,5 +46,4 @@ An explicit post-ranking admissibility boundary is now implemented:
 - replace surrogate hash with real `monster-hash`
 - feed real zkperf trace windows
 - compare retrieval precision@k against SL-promoted facts
-- demote resonance to proposal/tiebreak only
-- demote resonance from core score into proposal/tiebreak-only influence
+- keep resonance in proposal/tiebreak only

@@ -37,7 +37,7 @@ What this version does:
 Grounded gate first: candidates must pass SL-compatible structured overlap/similarity before anything else.
 Real manifold rerank: builds a KNN graph over domain vectors only, then runs personalized PageRank seeded by grounded_similarity × query↔domain similarity.
 No fake domain bump: unknown domain stays unknown.
-Resonance stays experimental: tiny tiebreak only, never authority.
+Resonance stays experimental: tiebreak-only, never authority.
 Proposal ≠ authority: inadmissible shards cannot be rescued by spectral or resonance priors.
 
 Core retrieval logic is in score_candidates() and top_k() inside manifold_retrieval.py.
@@ -49,7 +49,7 @@ Design:
 1. Grounded retrieval gates candidates using SL-compatible structured features.
 2. Spectral reranking operates only on real domain/manifold vectors.
 3. Personalized PageRank propagates query-anchored mass across the domain graph.
-4. Experimental resonance remains optional and low-weight.
+4. Experimental resonance remains optional and tiebreak-only.
 
 Files:
 - manifold_retrieval.py

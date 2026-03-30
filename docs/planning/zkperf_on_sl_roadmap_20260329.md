@@ -100,11 +100,18 @@ discussed:
 - do not let `zkperf` turn into an excuse for raw-vector retrieval
 - do not let `zkperf` redefine the logical shard contract
 
-## Practical next artifact
+## Followthrough
 
-The next smallest useful deliverable after this roadmap note is:
+That first gate is now complete:
 
-- a tiny `zkperf_on_sl_contract_v1` note plus fixture
+- contract:
+  `docs/planning/zkperf_on_sl_contract_v1_20260329.md`
+- fixture:
+  `docs/planning/jmd_fixtures/zkperf_on_sl_observation_v1.example.json`
 
-That should be the gate before proceeding with the previously ranked 1/2/3
-implementation options.
+The next bounded layer on top is now:
+
+- `docs/planning/zkperf_stream_shard_contract_v1_20260330.md`
+
+which carries observational `zkperf` windows into a stream/container/HF
+publication path without changing `SL` truth authority.

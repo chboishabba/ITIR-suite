@@ -1,6 +1,211 @@
 # Changelog
 
 ## Unreleased
+- zkperf on SL stream-to-HF bounded lane:
+  - Added `docs/planning/zkperf_stream_shard_contract_v1_20260330.md` and
+    fixture `docs/planning/jmd_fixtures/zkperf_stream_v1.example.json`.
+  - Added `itir_jmd_bridge/zkperf_stream.py` plus CLI commands to build a
+    stream bundle, publish it to HF, and resolve one remote window by
+    acknowledged revision.
+  - Added regression coverage in `tests/test_zkperf_stream.py`.
+  - Live HF publication succeeded for
+    `hf://datasets/chbwa/itir-zos-ack-probe/zkperf-stream/zkperf-stream-demo.tar`
+    at revision `17da96cee89e48088938a8163610371d9b8b3f46`.
+  - Revision-bound read-back of `window-0002` matched the local bundle and
+    kept `zkperf` observational rather than truth-promotive.
+  - Extended the stream manifest with `windowCount`, `latestWindowId`, and
+    `sequenceRange`.
+  - `publish-zkperf-stream-hf` now optionally writes
+    `stream-manifest.json`, `stream-latest.json`, and `hf-receipt.json`.
+  - Added `resolve-zkperf-stream-range-hf` for latest-window, explicit
+    `windowId`, and sequence-range selection by acknowledged HF revision.
+  - Live latest-window recovery succeeded for `window-0002`.
+  - Added append-style `zkperf-stream-index/v1` support and optional HF index
+    publication from `publish-zkperf-stream-hf`.
+  - Live HF index publication succeeded for
+    `hf://datasets/chbwa/itir-zos-ack-probe/zkperf-stream/zkperf-stream-demo.index.json`
+    at revision `55ec2221f3a0dd627543eb5e1237b6df31a4d350`.
+  - Exercised a second distinct stream revision `rev-20260330-b`; the tar ack
+    advanced to `e5f4982bfdf213f92a6c5d9464c86bbd0243141a` and the index ack
+    advanced to `4c53115b6606a9a8fd8af83b865e12ac1d9aefa1`.
+  - Fetched remote index now preserves both revisions with
+    `revisionCount = 2` and `latestWindowId = window-0003`.
+  - Added index-driven consumer resolution so latest or chosen stream
+    revisions can be resolved from the HF index object directly.
+  - After republishing the index with per-revision window refs, live
+    latest-from-index recovery succeeded for
+    `rev-20260330-b -> window-0003 -> zkperf-obsv-0003`
+    with index ack `b7e2c40fd8b5d5e5ec315c3aa9cad3ee9d1e89a0`.
+  - Added explicit `zkperf-retention/v1` lifecycle policy with
+    `retain-latest-n` enforcement in the index update path.
+  - Live HF verification with `rev-20260330-c` and retention count `2`
+    produced tar ack `8716333c2ae72b271b2c2c938cbc47118c8691f7` and index ack
+    `640e2a6a2f91d61771e63d6b0f8ddee8ba4d98f1`.
+  - The fetched remote index now retains only
+    `rev-20260330-b` and `rev-20260330-c` with `revisionCount = 2`.
+  - Added `scripts/run_zkperf_stream_hf.sh` as a one-shot operator wrapper for
+    publish, index update, and index-driven verification.
+- affidavit contested-narrative echo demotion:
+  - `SensibLaw/scripts/build_affidavit_coverage_review.py` now demotes
+    allegation/OCR echo blocks earlier in candidate generation so they do not
+    win support simply by restating John's text.
+  - contested rows now prefer explicit response sections such as `Your
+    Explanation:` and `Defense Context:` while keeping duplicate allegation text
+    only as reference context.
+  - focused affidavit/query regression slice is green:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_query_fact_review_script.py`
+    -> `48 passed`.
+- publisher-native hosted acknowledgement receipts:
+  - Updated the sibling publisher repo
+    `/home/c/Documents/code/erdfa-publish-rs` so `PublishReceipt` now carries
+    `container_ref` plus optional `hosted_acknowledgement`.
+  - Added native validation for binding hosted acknowledgement facts back into
+    publisher receipts without changing shard semantics.
+  - Added bounded native hosted workflow helpers:
+    `publish_hf_with_ack(...)` and `publish_ipfs_with_ack(...)`.
+  - Added and ran `cargo run --example publish_hosted`, which bound live HF and
+    local IPFS acknowledgements into native publisher receipts with
+    `verified=true`.
+  - Added native artifact emission for publish outcomes so the hosted workflow
+    now writes `manifest.json`, `container-index.json`, and `receipt.json` per
+    sink.
+  - Added `docs/planning/publisher_native_hosted_ack_receipts_20260330.md`.
+- IPFS acknowledgement readiness:
+  - Added bounded IPFS bridge commands for gateway probe, fetch/read-back,
+    local publish acknowledgement, and remote consumer rehearsal over
+    `ipfs://...` object refs.
+  - Added `docs/planning/ipfs_acknowledgement_readiness_20260330.md`.
+  - Verified the code/test path first, then live local parity after IPFS
+    Desktop/Kubo became reachable.
+  - Published the real emitted tar bundle through the local Kubo API as
+    `ipfs://QmR3Z8n2XFm8LPBcmNCc9d4W9tqMwDRBeUnUnXRGQy2eCa`.
+  - Verified gateway read-back digest parity against the local tar:
+    `4dcd386fb6323a76f934174db94deb9e528028d88c648607875c832941cb37b7`.
+  - Verified remote selector rehearsal over that CID through the local gateway.
+- HF receipt binding and remote bundle rehearsal:
+  - Added `python -m itir_jmd_bridge publish-hf-ack` so a local artifact can
+    be uploaded to HF, acknowledged by commit revision, fetched back by that
+    revision, and emitted as one verified HF receipt payload.
+  - Added `python -m itir_jmd_bridge rehearse-remote-hf-bundle` so a real
+    emitted tar-backed manifest can resolve
+    selector -> shard id -> objectRefs -> remote HF fetch by revision ->
+    payload digest parity.
+  - Added
+    `docs/planning/hf_receipt_binding_and_remote_bundle_rehearsal_20260330.md`.
+  - Verified the remote consumer path against
+    `hf://datasets/chbwa/itir-zos-ack-probe/bundle-demo/erdfa-demo.tar`
+    at acknowledged revision
+    `dccdb582947b0ccdc7be03db5b1caa879c56d187`.
+- HF write acknowledgement probe:
+  - Confirmed authenticated HF user `chbwa`, created dataset
+    `chbwa/itir-zos-ack-probe`, and uploaded a bounded probe artifact.
+  - HF returned concrete commit acknowledgement
+    `0c56f0d5b090f447d35a5525a1a8e01df10ee284`.
+  - Added revision-aware HF fetch support in
+    `itir_jmd_bridge/providers/hf.py` plus CLI
+    `python -m itir_jmd_bridge fetch-hf-object`.
+  - Verified revision-anchored read-back against that commit and confirmed the
+    fetched sha256 matches the local artifact digest exactly:
+    `52a02d3502cc39411dab1c291e7d6f9789f3a72aef77417a4b11637cdd4c3dfb`.
+  - Added `docs/planning/hf_write_acknowledgement_probe_20260330.md`.
+  - Updated `README.md`, `TODO.md`, and `COMPACTIFIED_CONTEXT.md` so the repo
+    now records that HF write acknowledgement is concrete on a bounded probe
+    object, while emitted-bundle binding remains the next gap.
+- emitted HF tar bundle verification:
+  - Generated a real emitted tar bundle from
+    `/home/c/Documents/code/erdfa-publish-rs` and uploaded it to
+    `hf://datasets/chbwa/itir-zos-ack-probe/bundle-demo/erdfa-demo.tar`.
+  - HF returned acknowledged commit
+    `dccdb582947b0ccdc7be03db5b1caa879c56d187`.
+  - Revision-anchored read-back matched the local tar sha256 exactly:
+    `4dcd386fb6323a76f934174db94deb9e528028d88c648607875c832941cb37b7`.
+  - Tightened `itir_jmd_bridge/providers/hf.py` so binary HF objects no longer
+    dump full payload text and commit metadata is preserved from redirect-chain
+    headers when the final CAS response omits it.
+- HF acknowledgement probe:
+  - Added `itir_jmd_bridge/providers/hf.py` and a new CLI command,
+    `python -m itir_jmd_bridge probe-hf-ack`, to capture public HF resolve
+    acknowledgement metadata from an `hf://...` object.
+  - Added `tests/test_hf_acknowledgement_probe.py`.
+  - Added `docs/planning/hf_acknowledgement_probe_20260330.md` to record the
+    successful public probe against
+    `hf://datasets/chbwa/zelph-sharded/minimal-proof/manifest.json`.
+  - Updated `README.md`, `TODO.md`, and `COMPACTIFIED_CONTEXT.md` so the repo
+    now records that HF read-side acknowledgement metadata is concrete, while
+    write-side acknowledgement remains the next gap.
+- hosted sink acknowledgement gate:
+  - Added `docs/planning/hosted_sink_acknowledgement_contract_20260330.md`
+    to pin the minimum remote acknowledgement object required before hosted
+    HF/IPFS integration can be claimed as complete.
+  - Updated `README.md`, `TODO.md`, and `COMPACTIFIED_CONTEXT.md` so the next
+    hosted-integration step is now explicit:
+    acknowledgement object, read-after-write verification, and replay/cache
+    semantics.
+- delegated local publish / consume completion pass:
+  - Added `docs/planning/local_publish_consume_release_gates_20260330.md`
+    to record the implemented local-first artifact publication/consumption
+    flow, PlantUML architecture views, and the remaining remote blockers.
+  - Updated `docs/planning/affidavit_claim_reconciliation_contract_20260329.md`
+    so the current repo status now explicitly records upstream persisted
+    `relation_type` alongside the already-persisted relation metadata.
+  - Updated `docs/planning/temp_zos_sl_bridge_impl_review_20260329.md` so the
+    temp bridge review now reflects the current state accurately:
+    resonance is tiebreak-only, while threshold/policy tuning remains open.
+  - Added `docs/planning/itir_real_bundle_consumer_rehearsal_20260330.md` to
+    record the real emitted-bundle consumer path in `itir_jmd_bridge`.
+  - Updated `README.md`, `TODO.md`, and `COMPACTIFIED_CONTEXT.md` so the repo
+    now records:
+    - local-first publish substrate completion
+    - real-bundle consumer rehearsal completion
+    - resonance demotion in the temp ZOS bridge
+    - remaining blockers for real-network HF/IPFS integration and remote JMD
+      push/pull
+- affidavit relation persistence upstreaming:
+  - Updated `SensibLaw/scripts/build_affidavit_coverage_review.py` so the
+    builder now persists `relation_type` alongside the existing contested
+    relation metadata.
+  - Updated `SensibLaw/src/fact_intake/read_model.py` and added
+    `SensibLaw/database/migrations/016_contested_affidavit_relation_type.sql`
+    so `contested_review_affidavit_rows` now store `relation_type`, with
+    fallback derivation retained for older rows.
+  - Updated `SensibLaw/tests/test_affidavit_coverage_review.py` and revalidated
+    the focused affidavit suite:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_query_fact_review_script.py SensibLaw/tests/test_affidavit_coverage_review.py`
+    -> `45 passed`.
+- Affidavit sibling-leaf builder followthrough:
+  - Updated `SensibLaw/scripts/build_affidavit_coverage_review.py` so the
+    builder now runs a bounded sibling-leaf arbitration pass over contested
+    candidates before final winner selection, keeping the direct leaf ahead of
+    a nearby sibling clause when predicate alignment is stronger.
+  - Tightened relation classification so `partial_support` no longer wins on
+    mere contextual or same-time overlap; support now requires duplicate
+    support or predicate alignment, while weaker same-window matches stay in
+    `adjacent_event` or `substitution`.
+  - Added focused regression coverage in
+    `SensibLaw/tests/test_affidavit_coverage_review.py` for sibling-leaf
+    disambiguation, the p2-s21-style adjacent-event guardrail, and strong
+    partial-match promotion.
+  - Revalidated the focused affidavit suite with
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_query_fact_review_script.py`
+    -> `40 passed`.
+  - Updated `docs/planning/affidavit_claim_reconciliation_contract_20260329.md`,
+    `TODO.md`, and `COMPACTIFIED_CONTEXT.md` so the repo now records that
+    upstream relation typing was already landed before this pass and that the
+    current affidavit boundary is sibling-leaf/root-cluster quality, not
+    upstream persistence.
+- privacy-preserving NotebookLM history review:
+  - updated `docs/planning/notebooklm_metadata_review_parity_20260311.md` and
+    `docs/planning/notebooklm_interaction_capture_contract_20260311.md` so the
+    NotebookLM lane now explicitly allows sanitized product/theme extraction
+    from notebook asks/history when local docs are insufficient
+  - recorded the operational rule that NotebookLM conversation history must not
+    be copied into repo records with names, allegations, or case-specific
+    factual detail
+  - updated `TODO.md` and `COMPACTIFIED_CONTEXT.md` with the safe retained
+    product themes:
+    chunked review workflow, evidence-to-claim matching, provenance,
+    contradiction handling, privacy redaction/selective sharing, and operator
+    burden reduction
 - notebooklm-pack dry-run wrapper:
   - Added `scripts/notebooklm_pack_ingest.py` as the first bounded integration
     seam between sibling `notebooklm-pack` output and the repo’s existing
@@ -943,14 +1148,78 @@
     `SensibLaw/tests/test_query_fact_review_script.py`.
   - Verified with:
     `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_query_fact_review_script.py`
-- NotebookLM clarify bridge:
-  - confirmed the suite docs already treat NotebookLM operation ingress as a
-    core intended surface, but the repo lacked a small suite-owned helper for
-    structured clarify asks
-  - added `scripts/notebooklm_clarify.py`
-    - accepts notebook id or NotebookLM URL
-    - builds a minimal structured `Please clarify:` prompt from repeated
-      `category:text` items plus optional context / agent message
-    - executes NotebookLM `ask` through the local CLI
-  - added focused regression coverage in:
-    `tests/test_notebooklm_clarify.py`
+  - Refined builder-side sibling-leaf arbitration in
+    `SensibLaw/scripts/build_affidavit_coverage_review.py` so same-incident
+    sibling clauses can survive as alternate context without replacing a direct
+    duplicate-root winner.
+  - Added a tighter predicate-alignment boundary and explanatory-clause guard:
+    explanatory framing like “true fact regarding ... insofar as ...” now stays
+    non-substantive instead of being promoted as sibling support.
+  - Extended focused affidavit regressions and reverified with:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_query_fact_review_script.py`
+  - Added bounded clause-level candidate decomposition inside
+    `SensibLaw/scripts/build_affidavit_coverage_review.py` so compound source
+    rows can yield clause candidates for action and cause/effect leaves without
+    changing persisted affidavit proposition ids.
+  - Tightened alternate-context selection so embedded clause fragments do not
+    displace better sibling-segment context in the top match summary.
+  - Reverified with:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_query_fact_review_script.py`
+  - Added a response-side `claim_echo` boundary so duplicate John claim text
+    that appears as a heading/reference inside a longer Johl response block is
+    treated as quoted claim framing rather than automatic support.
+  - Live five-row Johl spot-check after the clause pass:
+    - `p2-s5` and `p2-s6` now resolve to direct clause-level support
+    - `p2-s38` and `p2-s39` remain support inside the same incident cluster
+    - `p2-s21` still promotes, so the remaining gap is quote/reference versus
+      Johl-authored assertion disambiguation, not the old cross-swap matcher bug
+  - Reverified local gates with:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_query_fact_review_script.py`
+  - Tightened revocation-row handling in
+    `SensibLaw/scripts/build_affidavit_coverage_review.py`:
+    - EPOA rebuttal clauses such as
+      `failed to complete the necessary steps to revoke his EPOA`
+      now classify as dispute instead of weak support
+    - stronger independent confirmation anchors such as
+      dated revocation signatures and receipt-of-revocation language now score
+      above generic status references
+    - duplicate echoed John claim text no longer rescues a disputed response
+      row back into support
+  - Live targeted Dad/Johl rerun for `p2-s21` now lands as:
+    - `disputed / explicit_dispute`
+    - matched response:
+      `John had failed to complete the necessary steps to revoke his EPOA`
+    - duplicate John claim preserved only as lineage:
+      `In August 2024 I took steps to revoke my EPOA`
+  - Dad Court notebook persisted-thread feedback on the exact updated strings:
+    - agreed the quote echo should not rescue support
+    - ranked independent Johl-authored confirmation candidates like
+      `I had only received the revocation three weeks ago` and
+      `This is corroborated by the dated signature on the revocation documents`
+      as support-bearing
+    - suggested the next refinement is a technical-qualification /
+      conceded-fact class for rows like `p2-s21`, rather than a flat dispute
+  - Reverified with:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_query_fact_review_script.py`
+  - Checked the local formalism repos `../dashi_agda` and `../zkperf` before
+    widening the new EPOA-specific heuristics further.
+    Result:
+    - the current lexical anchor/rebuttal lists should be treated as stopgap
+      witness heuristics only
+    - the target shape is:
+      preserve event root, refine leaf relation, and keep witness/admissibility
+      separate from the semantic class
+    - recorded that direction in
+      `docs/planning/affidavit_claim_reconciliation_contract_20260329.md` and
+      `TODO.md`
+  - Landed a bounded affidavit matcher optimization pass in
+    `SensibLaw/scripts/build_affidavit_coverage_review.py`:
+    - source-row segment/clause candidates are now precomputed once per row
+    - repeated tokenization, clause splitting, structural parsing, and
+      leaf-signature derivation now use local memoization
+    - non-contested segment-level matching remains intact
+  - Reverified with:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_query_fact_review_script.py`
+    -> `53 passed in 2.36s`
+  - Timed live targeted Dad/Johl `p2-s21` probe:
+    fetch + group + payload build + row scoring completed in about `5.606s`

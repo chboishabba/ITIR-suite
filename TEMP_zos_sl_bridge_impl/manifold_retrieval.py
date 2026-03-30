@@ -76,8 +76,8 @@ class RetrievalConfig:
     ppr_steps: int = 30
     spectral_weight: float = 0.30
 
-    # Optional low-weight experimental tiebreak
-    resonance_weight: float = 0.02
+    # Optional experimental tiebreak (never part of core score)
+    resonance_tiebreak_weight: float = 0.02
 
     # Numerical stability
     eps: float = 1e-12
@@ -322,12 +322,13 @@ def score_candidates(
     seed = _seed_vector(query, shortlist, cfg)
     spectral = _personalized_pagerank(graph, seed, cfg)
 
-    # 3. Final rerank = grounded primary + spectral secondary + tiny experimental tiebreak.
+    # 3. Final rerank = grounded primary + spectral secondary.
+    #    Resonance is tiebreak-only and never part of the core score.
     out: List[RetrievalScore] = []
     for idx, node in enumerate(shortlist):
-        resonance = cfg.resonance_weight * _resonance_tiebreak(query, node.shard)
+        resonance = cfg.resonance_tiebreak_weight * _resonance_tiebreak(query, node.shard)
         spectral_score = cfg.spectral_weight * spectral[idx]
-        total = node.grounded_similarity + spectral_score + resonance
+        total = node.grounded_similarity + spectral_score
 
         reasons = ["accepted:grounded"]
         if node.shard.phi.domain and query.phi.domain:
@@ -335,7 +336,7 @@ def score_candidates(
         else:
             reasons.append("domain:unknown")
         if resonance > 0.0:
-            reasons.append("resonance:experimental")
+            reasons.append("resonance:tiebreak")
 
         out.append(
             RetrievalScore(

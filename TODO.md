@@ -2041,6 +2041,177 @@
     - `rehearse-selector-fetch` and `rehearse-selector-local-tar-fetch` now accept an optional container fixture; when absent, member paths are inferred (`shardId.cbor` or `payload/shardId.cbor`)
     - supports pointing directly at `/tmp/erdfa-promoted-manifest.json` and `/tmp/erdfa-demo.tar` emitted by `cargo run --example demo` in `/home/c/Documents/code/erdfa-publish-rs`
     - regression coverage added in `tests/test_hf_container_rehearsal.py`
+  - DONE: exercise one real local artifact path instead of fixture-only rehearsal:
+    - `erdfa-publish-rs` now emits a local bundle workflow with:
+      promoted manifest, container index, tar payload, sink refs, and per-sink receipts
+    - `itir_jmd_bridge` now consumes a real emitted manifest/tar path and proves:
+      selector -> shard id -> objectRefs -> fetch -> payload digest/size verification
+    - current contract note:
+      `docs/planning/local_publish_consume_release_gates_20260330.md`
+  - DONE: keep sink adapters transport-only:
+    - local `file`, projected `hf`, and projected `ipfs` adapters attach sink refs and receipts without redefining shard semantics
+  - DONE: make the receipt model explicit in the local-first publish lane:
+    - artifact id/revision, shard refs, sink refs, content digests, and publish result are now emitted in per-sink receipts
+  - DONE: demote resonance out of the core ZOS score:
+    - `TEMP_zos_sl_bridge_impl` now keeps resonance as proposal/tiebreak only
+    - admissibility remains explicit and separate from ranking
+  - blocked for completion claims beyond local-first:
+    - stable real-network HF/IPFS write integration remains unavailable as a deterministic CI-safe gate
+    - remote JMD push/pull remains blocked on endpoint semantics, replay/cache policy, and receipt/ack contract
+  - use `docs/planning/hosted_sink_acknowledgement_contract_20260330.md` as
+    the next hosted integration gate:
+    - require a real remote acknowledgement object, not only projected sink refs
+    - require read-after-write verification against the acknowledged remote ref
+    - require replay/cache semantics explicit enough to reproduce later
+  - DONE: add the first bounded `zkperf(SL) -> stream -> HF` lane:
+    - contract:
+      `docs/planning/zkperf_stream_shard_contract_v1_20260330.md`
+    - fixture:
+      `docs/planning/jmd_fixtures/zkperf_stream_v1.example.json`
+    - bridge/runtime:
+      `itir_jmd_bridge/zkperf_stream.py`
+    - CLI now supports:
+      `build-zkperf-stream`,
+      `publish-zkperf-stream-hf`,
+      and `resolve-zkperf-stream-window-hf`
+    - live HF publication succeeded for:
+      `hf://datasets/chbwa/itir-zos-ack-probe/zkperf-stream/zkperf-stream-demo.tar`
+      at acknowledged revision
+      `17da96cee89e48088938a8163610371d9b8b3f46`
+    - revision-bound read-back of `window-0002` matched the local bundle and
+      preserved observational `zkperf` payload semantics
+  - DONE: extend the zkperf stream lane with first-class publish artifacts and
+    latest/range consumer selection:
+    - `publish-zkperf-stream-hf` now optionally writes
+      `stream-manifest.json`, `stream-latest.json`, and `hf-receipt.json`
+    - `resolve-zkperf-stream-range-hf` now supports:
+      latest-window selection, explicit `windowId`s, and sequence-range
+      selection by acknowledged HF revision
+    - live latest-window recovery from HF succeeded for `window-0002`
+  - DONE: add append-style revision indexing for the zkperf stream lane:
+    - `publish-zkperf-stream-hf` now optionally accepts an HF index target and
+      updates a `zkperf-stream-index/v1` artifact
+    - the index tracks `latestRevision`, `latestWindowId`, revision count, and
+      per-revision acknowledged/container facts
+    - live HF index publication succeeded for:
+      `hf://datasets/chbwa/itir-zos-ack-probe/zkperf-stream/zkperf-stream-demo.index.json`
+      at acknowledged revision
+      `55ec2221f3a0dd627543eb5e1237b6df31a4d350`
+  - DONE: exercise a second distinct zkperf stream revision against the same
+    HF index:
+    - published `rev-20260330-b` with a new latest window `window-0003`
+    - tar acknowledgement advanced to
+      `e5f4982bfdf213f92a6c5d9464c86bbd0243141a`
+    - index acknowledgement advanced to
+      `4c53115b6606a9a8fd8af83b865e12ac1d9aefa1`
+    - fetched remote index now preserves both revisions:
+      `rev-20260330-a`, `rev-20260330-b`
+      with `revisionCount = 2`
+  - DONE: add an index-driven consumer path for zkperf streams:
+    - `resolve-zkperf-stream-from-index-hf` now resolves latest or chosen
+      stream revisions directly from the HF index object
+    - after republishing the index with per-revision window refs, live
+      latest-from-index recovery succeeded for:
+      `rev-20260330-b -> window-0003 -> zkperf-obsv-0003`
+  - DONE: add and enforce explicit retention policy in the zkperf stream index:
+    - `zkperf-retention/v1` with `retain-latest-n`
+    - `publish-zkperf-stream-hf --retain-latest-n 2` now enforces active index
+      compaction while leaving published container objects immutable
+    - live HF verification with `rev-20260330-c` showed:
+      `revisionCount = 2` and retained revisions:
+      `rev-20260330-b`, `rev-20260330-c`
+  - DONE: add a one-shot operator script for the real SL run:
+    - `scripts/run_zkperf_stream_hf.sh`
+    - wraps publish, index update, and index-driven verification in one command
+  - DONE: pin one concrete public HF read-side acknowledgement surface:
+    - `docs/planning/hf_acknowledgement_probe_20260330.md`
+    - provider:
+      `itir_jmd_bridge/providers/hf.py`
+    - CLI:
+      `python -m itir_jmd_bridge probe-hf-ack --hf-uri hf://datasets/chbwa/zelph-sharded/minimal-proof/manifest.json`
+    - this now proves public HF resolve responses expose revision and etag metadata, while write-side acknowledgement remains the next gap
+  - DONE: pin one controlled HF write-side acknowledgement probe:
+    - dataset:
+      `chbwa/itir-zos-ack-probe`
+    - acknowledged commit:
+      `0c56f0d5b090f447d35a5525a1a8e01df10ee284`
+    - new doc:
+      `docs/planning/hf_write_acknowledgement_probe_20260330.md`
+    - new read-back seam:
+      `python -m itir_jmd_bridge fetch-hf-object --hf-uri hf://datasets/chbwa/itir-zos-ack-probe/ack-probe/ack-probe.json --revision 0c56f0d5b090f447d35a5525a1a8e01df10ee284`
+    - verified:
+      committed read-back returns `200` and sha256
+      `52a02d3502cc39411dab1c291e7d6f9789f3a72aef77417a4b11637cdd4c3dfb`,
+      matching the local artifact exactly
+  - next HF gate:
+    - bind revision-anchored read-back digest parity into the real emitted
+      bundle publisher path rather than a bounded JSON probe object
+  - DONE: verify one real emitted tar bundle by acknowledged HF revision:
+    - object:
+      `hf://datasets/chbwa/itir-zos-ack-probe/bundle-demo/erdfa-demo.tar`
+    - acknowledged commit:
+      `dccdb582947b0ccdc7be03db5b1caa879c56d187`
+    - fetched sha256 matches local tar sha256 exactly:
+      `4dcd386fb6323a76f934174db94deb9e528028d88c648607875c832941cb37b7`
+    - note:
+      `docs/planning/hf_write_acknowledgement_probe_20260330.md`
+  - next next HF gate:
+    - fold the same revision-anchored verification into the normal emitted
+      bundle receipt path instead of a manual bounded probe
+  - DONE: add a bounded bridge-side HF receipt binding and remote consumer path:
+    - CLI:
+      `python -m itir_jmd_bridge publish-hf-ack --local-path ... --hf-uri ...`
+    - emits acknowledged revision plus read-back digest parity in one receipt
+    - CLI:
+      `python -m itir_jmd_bridge rehearse-remote-hf-bundle --manifest-path ... --tar-path ... --hf-uri ... --hf-revision ... --selector ...`
+    - proves:
+      selector -> shard id -> objectRefs -> remote HF fetch by revision -> payload digest parity
+    - note:
+      `docs/planning/hf_receipt_binding_and_remote_bundle_rehearsal_20260330.md`
+  - next hosted gate after HF receipt binding:
+    - move the same acknowledgement fields into the normal local publish substrate
+    - add equivalent hosted acknowledgement treatment for IPFS
+  - DONE: bring IPFS up to the same bounded contract shape as HF:
+    - CLI:
+      `python -m itir_jmd_bridge probe-ipfs-ack --ipfs-uri ...`
+    - CLI:
+      `python -m itir_jmd_bridge fetch-ipfs-object --ipfs-uri ...`
+    - CLI:
+      `python -m itir_jmd_bridge publish-ipfs-ack --local-path ...`
+    - CLI:
+      `python -m itir_jmd_bridge rehearse-remote-ipfs-bundle --manifest-path ... --tar-path ... --ipfs-uri ... --selector ...`
+    - note:
+      `docs/planning/ipfs_acknowledgement_readiness_20260330.md`
+  - current IPFS blocker:
+    - RESOLVED for the local Desktop/Kubo surface:
+      - Kubo API on `127.0.0.1:5001` is reachable
+      - local gateway on `127.0.0.1:8080` is reachable
+      - emitted tar bundle now has live IPFS add/pin acknowledgement plus
+        gateway read-back digest parity
+      - remote selector rehearsal over the pinned CID now succeeds
+  - remaining IPFS gap:
+      - bind the same CID/gateway verification fields into the normal local
+        publish substrate
+      - optionally add one non-local pinning surface
+  - DONE: move hosted acknowledgement fields into the normal publish substrate:
+    - sibling `/home/c/Documents/code/erdfa-publish-rs` now gives
+      `PublishReceipt` a `container_ref` plus optional
+      `hosted_acknowledgement`
+    - native validation now exists for binding commit/CID acknowledgement back
+      into the publisher receipt model
+    - note:
+      `docs/planning/publisher_native_hosted_ack_receipts_20260330.md`
+  - next publish-substrate gap:
+    - RESOLVED for a bounded native workflow:
+      - sibling `/home/c/Documents/code/erdfa-publish-rs` now has
+        `publish_hf_with_ack(...)` and `publish_ipfs_with_ack(...)`
+      - `cargo run --example publish_hosted` now binds live HF/IPFS
+        acknowledgement into native publisher receipts with `verified=true`
+      - the hosted workflow now writes first-class emitted artifacts per sink:
+        `manifest.json`, `container-index.json`, and `receipt.json`
+    - remaining publish-substrate gap:
+      - decide whether IPFS per-shard refs should remain projected placeholders
+        or be upgraded to real hosted shard refs
   - add RG toy completion checkpoint note:
     - `docs/planning/rg_toy_completion_findings_20260329.md` captures that remaining RG-toy work is proof/content: sharper coarse agreement, real coarse-graining operator, scaling/relevance theorem, observable algebra, universality, and theorem packs for quadratic emergence, signature/arrow/cone coupling, MDL Lyapunov descent, constraint closure, and universality instances
   - add Resonance and Overlap checkpoint note:
@@ -2097,6 +2268,15 @@
         `tests/test_notebooklm_pack_ingest.py`
     - preserve pack run id, source file hash, contributing repos, and later
       NotebookLM notebook/source linkage for observer traceability
+    - DONE: validate privacy-preserving NotebookLM history review on an
+      affidavit-oriented notebook:
+      - only sanitized product themes should be copied into repo records
+      - safe retained themes:
+        workflow chunking, evidence-to-claim matching, provenance/traceability,
+        contradiction handling, privacy-redaction, selective sharing, operator
+        review burden
+      - do not copy names, allegations, or case-specific factual detail from
+        NotebookLM conversation history into docs/TODO/changelog
     - next:
       - freeze the minimal seam object in
         `docs/planning/jmd_notebooklm_seam_minimal_object_20260329.md`
@@ -2492,9 +2672,10 @@
       `relation_type`, `relation_root`, `relation_leaf`, `explanation`, and
       `missing_dimensions`
     - DONE in the builder / persisted row layer:
-      contested comparison rows now carry `relation_root`, `relation_leaf`,
-      `primary_target_component`, `explanation`, and `missing_dimensions`
-      before query-time fallback derivation
+      contested comparison rows now carry `relation_type`,
+      `relation_root`, `relation_leaf`, `primary_target_component`,
+      `explanation`, and `missing_dimensions` before query-time fallback
+      derivation
   - treat the live Johl affidavit / response pair as the next Mary-parity
     fixture for the affidavit lane:
     - use it to pressure-test family-law / cross-side review behavior rather
@@ -2515,11 +2696,45 @@
     - first bounded duplicate-root followthrough landed:
       `p2-s38` and `p2-s39` now promote to support via duplicate-root
       handling
-    - current next gap:
-      `p2-s5` and `p2-s6` still cross-swap as sibling leaves inside the same
-      incident cluster
-    - `p2-s21` still looks closer to adjacent event or substitution than true
-      support
+    - first bounded sibling-leaf arbitration followthrough landed:
+      builder-side candidate selection now preserves the direct leaf ahead of
+      a nearby sibling clause when predicate alignment is stronger
+    - current guardrail now pinned:
+      `p2-s21` still looks closer to adjacent event or substitution than true
+      support, and support should not promote without duplicate support or
+      predicate alignment
+    - live five-row post-clause spot-check:
+      `p2-s5`, `p2-s6`, `p2-s38`, and `p2-s39` now resolve on the intended
+      direct leaf; `p2-s21` no longer false-promotes to support and now lands
+      as `explicit_dispute` off the rebuttal clause
+      `John had failed to complete the necessary steps to revoke his EPOA`
+    - quote/reference handling now also keeps the echoed John clause only as
+      lineage context, not as a support rescue path
+    - next bounded pass:
+      distinguish technical qualification / conceded fact from flat factual
+      dispute for rows like `p2-s21`, where Johl appears to accept that steps
+      were attempted while disputing legal completion/effect
+    - formalism guard:
+      treat the current EPOA-specific anchor/rebuttal lists as temporary
+      witness heuristics only, not as the long-term semantic contract
+    - use the local formalism reading from:
+      `../dashi_agda/Contraction.agda`,
+      `../dashi_agda/Monster/Projection.agda`,
+      `../dashi_agda/Monster/TraceSound.agda`,
+      and `../zkperf/README.md`
+      to shape the replacement:
+      preserve root, refine leaf, keep witness/admissibility separate from the
+      semantic class
+    - next structural refactor:
+      introduce first-class `technical_qualification` /
+      `conceded_fact` response-intent roles and route the current lexical
+      heuristics through that layer instead of growing more token lists
+    - immediate bounded optimization pass before more ontology growth:
+      - precompute response-row segment/clause candidates once
+      - cache repeated tokenization / clause-splitting / structural parsing /
+        leaf-signature derivation
+      - target the live Dad/Johl Google Docs loop specifically, since current
+        per-proposition matching time is far too high for a corpus this small
     row just because a nearby clause scores similarly
   - treat these as nonconformance classes to drive review and testing:
     weakly_addressed_mixed_class, false_support, hidden_dispute,

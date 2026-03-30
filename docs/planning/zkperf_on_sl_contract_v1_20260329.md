@@ -142,6 +142,8 @@ Required fields:
 - spectral ranking may consume `ZKPerfObservation` features later
 - shard/artifact layers may link to `related_artifact_refs`
 - message/envelope layers may carry this object later
+- stream/container publication may batch observations into explicit windows via:
+  `docs/planning/zkperf_stream_shard_contract_v1_20260330.md`
 
 But this contract itself remains local, bounded, and observational.
 

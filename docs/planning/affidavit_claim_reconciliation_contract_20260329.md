@@ -20,10 +20,11 @@ Current repo status after the first followthrough patch:
   - `missing_dimensions`
 - the proving-slice sections now expose explicit non-resolving subclasses
   instead of a stable `weakly_addressed` output section
-- the upstream builder is still transitional:
-  it persists `coverage_status` plus supporting signals, and the richer
-  relation typing is still being derived in the read model rather than at the
-  first classification boundary
+- the upstream builder now also persists the richer relation typing at source:
+  contested comparison rows now carry `relation_type`, `relation_root`,
+  `relation_leaf`, `primary_target_component`, `explanation`, and
+  `missing_dimensions`, with read-model derivation retained as a
+  backward-compatible fallback only for older rows
 
 ## Problem
 
@@ -361,8 +362,6 @@ What is now done:
   from coverage/support heuristics
 
 What remains:
-- move relation typing upstream into the builder so the persisted comparison
-  rows are relation-led at source, not only at read time
 - add duplicate-root / incident-cluster handling so cross-side restatements
   and sibling leaves stop cross-swapping into the wrong support or dispute row
 
@@ -383,6 +382,45 @@ Current live Johl reading after that pass:
 - `p2-s21` still reads closer to adjacent event / substitution pressure than
   support
 
+First bounded sibling-leaf followthrough now landed:
+- builder-side winner selection now runs a bounded sibling-leaf arbitration
+  pass over near candidates so the direct leaf can beat a nearby contextual
+  or sibling clause inside the same incident row
+- relation classification now requires predicate alignment before
+  `partial_support` can win over `adjacent_event` or `substitution`
+- `partial` rows with strong direct leaf alignment can now promote to
+  `equivalent_support` rather than being trapped under weaker contextual
+  support labels
+- focused regressions now pin:
+  - keyboard/audio sibling-leaf disambiguation
+  - the p2-s21-style adjacent-event guardrail
+  - strong partial-match promotion to `equivalent_support`
+
+Live five-row Johl spot-check after the clause pass:
+- `p2-s5` now resolves to `supports / equivalent_support` on the direct
+  keyboard/audio incident leaf via a clause winner
+- `p2-s6` now resolves to `supports / equivalent_support` on the direct
+  keyboard/audio incident leaf via a clause winner
+- `p2-s38` and `p2-s39` still resolve to support inside the same incident
+  cluster
+- `p2-s21` no longer false-promotes to support:
+  it now resolves to `disputed / explicit_dispute` on the rebuttal clause
+  `John had failed to complete the necessary steps to revoke his EPOA`, with
+  the echoed John claim preserved only as lineage via
+  `duplicate_match_excerpt`
+
+Dad Court notebook followthrough on the persisted visible conversation now
+adds a more specific refinement target:
+- it agrees the echoed John clause should not rescue the row into support
+- it agrees independent Johl-authored confirmation candidates such as
+  `I had only received the revocation three weeks ago` and
+  `This is corroborated by the dated signature on the revocation documents`
+  are stronger support signals than quote echoes
+- but it suggests `p2-s21` may eventually need a
+  technical-qualification / conceded-fact class rather than a flat
+  `explicit_dispute`, because Johl appears to contest completion/effect rather
+  than the existence of revocation steps
+
 ## Immediate prioritization
 
 The next improvement order should be:
@@ -397,6 +435,33 @@ The next improvement order should be:
 4. continue tightening proposition decomposition so compound rows split into:
    event, characterization, and consequence where possible
 5. add the minimum explanation layer before chasing broader semantic recall
+6. keep explanatory clauses and same-incident sibling leaves distinct:
+   true explanatory framing should stay non-substantive, while sibling-action
+   promotion should be reserved for clauses that align on the same leaf act
+7. add bounded clause-level candidate decomposition inside source matching so
+   compound narrative rows can expose action, cause, and effect leaves without
+   changing persisted proposition ids
+8. disambiguate response-side quote/reference headings from Johl-authored
+   assertions so exact duplicate John claim text inside a longer Johl response
+   block does not automatically count as support
+9. demote allegation/OCR echo blocks before winner selection, not only after
+   classification:
+   if a contested row contains section headers such as `Allegation:`, `OCR of
+   the Affidavit:`, `Your Explanation:`, or `Defense Context:`, the scorer
+   should prefer the substantive response section and preserve the duplicate
+   allegation text only as reference context
+10. Dad Court notebook feedback on the exact row strings agrees with that
+    direction:
+    - `p2-s5`, `p2-s6`, and `p2-s38` should anchor support to Johl-authored
+      explanation/admission text rather than echoed allegation text
+    - `p2-s39` should not become full support from a quoted restatement alone
+    - `p2-s21` should not be rescued by quote echo; it should either match an
+      independent Johl confirmation of the revocation event or be treated as a
+      qualification/rebuttal about completion rather than bare support
+11. Next bounded refinement:
+    split technical qualification / conceded fact from flat dispute when the
+    response concedes the event root but contests completion, legal effect, or
+    characterization
 
 ## Cross-lane priority
 
@@ -422,3 +487,85 @@ This note does not authorize:
 - silent semantic collapse
 - replacing review with automatic legal conclusions
 - heavy-model-first matching without bounded rule surfaces
+
+## Formalism note
+
+The current bounded EPOA-specific pattern lists are a stopgap, not the target
+logical shape.
+
+After checking the local formalism repos:
+- `../dashi_agda/Contraction.agda`
+- `../dashi_agda/Monster/Projection.agda`
+- `../dashi_agda/Monster/TraceSound.agda`
+- `../zkperf/README.md`
+- `../zkperf/LATTICE_SHARDS.md`
+
+the cleaner target is:
+- preserve the event root
+- refine the leaf relation by bounded projection / contraction
+- keep witness-like lexical cues as admissibility evidence, not as the
+  semantic class itself
+
+So for affidavit reconciliation, the intended shape is:
+- root:
+  shared event / claim family
+- leaf:
+  support
+  dispute
+  technical_qualification
+  conceded_fact
+  adjacent_event
+  non_substantive_response
+- witness / admissibility:
+  quote echo
+  rebuttal pattern
+  dated-signature confirmation
+  receipt-of-revocation confirmation
+  speaker-role attribution
+
+This matches the formalism direction better than growing more ad hoc token
+lists:
+- `Projection` suggests duplicate-root text should remain a preserved root
+  witness, not become the winning leaf by itself
+- `Contraction` suggests refinement should move from broad/supportive collapse
+  toward a smaller, more specific leaf class when the response narrows or
+  qualifies the claim
+- `TraceSound` suggests the row should remain tied to the concrete supporting
+  clause/witness that actually produced the classification
+- `zkperf` supports the same split in practice:
+  witness-bearing evidence and receipts justify a classification but are not
+  themselves the classification
+
+Immediate implication:
+- the current EPOA-specific anchor/rebuttal lists should be treated as local
+  witness heuristics only
+- the next real implementation step is to introduce a first-class
+  `technical_qualification` / `conceded_fact` response-intent layer and route
+  the current lexical heuristics through that layer
+
+## Performance constraint
+
+The current Google Docs contested-affidavit path is functionally useful but too
+slow for the live Dad/Johl loop on such a small corpus.
+
+The next bounded optimization pass should therefore:
+- precompute source-row segment/clause candidates once per row
+- cache repeated text analyses such as tokenization, clause splitting,
+  structural parsing, and leaf-signature derivation
+- avoid re-splitting and re-tokenizing the same response rows for every
+  proposition
+
+This is an implementation constraint, not a semantic change:
+- root/leaf behavior should remain the same
+- the optimization pass should reduce repeated local work before any further
+  ontology widening
+
+The first bounded optimization pass is now landed:
+- source-row segment/clause candidates are precomputed once per row
+- repeated tokenization, clause splitting, structural parsing, and
+  leaf-signature derivation are memoized locally
+- non-contested segment-level matching remains intact
+- focused verification is green:
+  `53 passed in 2.36s`
+- a timed live targeted Dad/Johl `p2-s21` probe now completes fetch + group +
+  payload build + row scoring in about `5.606s`
