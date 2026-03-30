@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from hashlib import sha256
+import time
 import re
 import subprocess
 from typing import Any, Callable
@@ -11,6 +12,26 @@ import requests
 
 def _strip_trailing_slash(value: str) -> str:
     return value[:-1] if value.endswith("/") else value
+
+
+def _is_transient_hf_upload_error(detail: str, returncode: int | None = None) -> bool:
+    text = detail.lower()
+    transient_markers = (
+        "temporary failure in name resolution",
+        "name or service not known",
+        "failed to resolve",
+        "connection reset",
+        "connection aborted",
+        "connection refused",
+        "timed out",
+        "timeout",
+        "tlsv1 alert internal error",
+        "remote disconnected",
+        "network is unreachable",
+    )
+    if any(marker in text for marker in transient_markers):
+        return True
+    return returncode in {6, 7, 28}
 
 
 @dataclass(frozen=True)
@@ -162,6 +183,8 @@ def upload_hf_file_with_ack(
     commit_message: str | None = None,
     run: Callable[..., Any] | None = None,
     fetch: Callable[..., dict[str, Any]] | None = None,
+    max_attempts: int = 2,
+    retry_delay_seconds: float = 1.0,
 ) -> dict[str, Any]:
     reference = parse_hf_uri(hf_uri)
     object_path = reference.object_path
@@ -184,12 +207,34 @@ def upload_hf_file_with_ack(
     ]
     if commit_message:
         command.extend(["--commit-message", commit_message])
-    completed = cli(
-        command,
-        check=True,
-        capture_output=True,
-        text=True,
-    )
+    completed = None
+    last_error = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            completed = cli(
+                command,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            break
+        except subprocess.CalledProcessError as error:
+            stdout = getattr(error, "stdout", "") or ""
+            stderr = getattr(error, "stderr", "") or ""
+            detail = "\n".join(part for part in [stdout.strip(), stderr.strip()] if part)
+            last_error = error
+            if attempt < max_attempts and _is_transient_hf_upload_error(
+                detail, error.returncode
+            ):
+                time.sleep(retry_delay_seconds)
+                continue
+            raise RuntimeError(
+                f"HF upload failed for {hf_uri} with exit code {error.returncode}"
+                + (f": {detail}" if detail else "")
+            ) from error
+    if completed is None:
+        assert last_error is not None
+        raise RuntimeError(f"HF upload failed for {hf_uri} after {max_attempts} attempts") from last_error
     stdout = getattr(completed, "stdout", "") or ""
     stderr = getattr(completed, "stderr", "") or ""
     combined = "\n".join(part for part in [stdout, stderr] if part)

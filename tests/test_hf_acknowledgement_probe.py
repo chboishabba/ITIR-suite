@@ -165,6 +165,45 @@ def test_upload_hf_file_with_ack_parses_commit_and_verifies(tmp_path) -> None:
     assert payload["fetch"]["statusCode"] == 200
 
 
+def test_upload_hf_file_with_ack_retries_transient_failure(tmp_path) -> None:
+    local_path = tmp_path / "bundle.tar"
+    local_path.write_bytes(b"demo-bytes")
+    calls = {"count": 0}
+
+    class _Completed:
+        stdout = "https://huggingface.co/datasets/chbwa/itir-zos-ack-probe/commit/0123456789abcdef0123456789abcdef01234567\n"
+        stderr = ""
+
+    def _run(*args, **kwargs):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            raise subprocess.CalledProcessError(
+                1,
+                kwargs.get("args", args[0] if args else "hf upload"),
+                output="",
+                stderr="Temporary failure in name resolution",
+            )
+        return _Completed()
+
+    payload = upload_hf_file_with_ack(
+        local_path=str(local_path),
+        hf_uri="hf://datasets/chbwa/itir-zos-ack-probe/bundle-demo/erdfa-demo.tar",
+        commit_message="demo",
+        run=_run,
+        fetch=lambda **kwargs: {
+            "statusCode": 200,
+            "revision": "0123456789abcdef0123456789abcdef01234567",
+            "sha256": "3957a235fae214722cb1521c7702aca6a4a6deefcbf5f7e221879662ed84cd4b",
+            "sizeBytes": 10,
+        },
+        retry_delay_seconds=0.0,
+    )
+
+    assert calls["count"] == 2
+    assert payload["acknowledgedRevision"] == "0123456789abcdef0123456789abcdef01234567"
+    assert payload["verified"] is True
+
+
 def test_cli_publish_hf_ack(tmp_path, monkeypatch) -> None:
     local_path = tmp_path / "bundle.tar"
     local_path.write_bytes(b"demo-bytes")

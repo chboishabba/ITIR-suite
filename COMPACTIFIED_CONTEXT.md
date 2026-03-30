@@ -1,5 +1,60 @@
 # Compactified Context
 
+- 2026-03-30 Python domain-ownership architecture correction:
+  - source: current working turn
+  - main decision:
+    - no business logic should live in TS/JS
+    - Python-owned layers must own domain semantics, normalization, projection
+      policy, coalescing, resolver rules, and other cross-lane reusable logic
+    - `itir-svelte` is restricted to presentation, route composition,
+      interaction state, and transport-safe adapter glue
+  - immediate governance artifacts:
+    - `docs/planning/python_domain_ownership_policy_20260330.md`
+    - `TODO.md` promoted this to a new `P0`
+    - `README.md` now links the policy under architecture boundaries
+  - practical implication:
+    - existing TS/JS timeline and projection logic is now migration debt, not
+      an accepted end state
+    - future refactor slices must either move semantics into Python or make the
+      remaining TS/JS shell-only
+  - first completed migration slice:
+    - wiki fact-timeline projection now lives in
+      `SensibLaw/src/wiki_timeline/fact_timeline_projection.py`
+    - `SensibLaw/scripts/query_wiki_timeline_aoo_db.py` now emits
+      `--projection fact_timeline`
+    - `itir-svelte/src/routes/graphs/wiki-fact-timeline/+page.server.ts`
+      now consumes the Python projection instead of TS-owned projection logic
+  - next active slice:
+    - generic wiki timeline view normalization must move out of
+      `itir-svelte/src/lib/server/wikiTimeline.ts`
+    - the intended replacement is a Python-owned `timeline_view` projection in
+      `SensibLaw/scripts/query_wiki_timeline_aoo_db.py`
+    - `itir-svelte` should only select the source and consume the projected
+      payload
+  - current follow-on:
+    - wiki source-key to suffix / rel-path resolution is also being collapsed
+      behind the Python query path so `itir-svelte` routes stop owning local
+      `SOURCE_PATHS` maps for wiki timeline and fact-timeline views
+
+- 2026-03-30 affidavit Phase 1 gate v3:
+  - live Dad/Johl loop now runs directly from SQLite:
+    - DB:
+      `/tmp/dad_johl_phase1_gate_v3/itir.sqlite`
+    - review run:
+      `contested_review:b9d0cbbccb02c13e`
+    - row query surface:
+      `SensibLaw/scripts/query_fact_review.py contested-rows`
+  - packet-local clause selection now keeps:
+    - `p2-s5` on the intended audio-control clause:
+      `I acknowledge this likely occurred on many occasions`
+    - `p2-s6` on the intended keyboard-control clause:
+      `after repeatedly telling him I would do so along with why I was asking him to stop, I was forced to remove the keyboard to prevent further disagreements.`
+  - `p2-s21` remains on the EPOA revocation family with
+    `relation_leaf = exact_support`
+  - remaining live semantic gap:
+    `p2-s38` / `p2-s39` still reciprocally swap within the same
+    quote-to-rebuttal row
+
 - 2026-03-29 AAO runtime/route roadmap checkpoint:
   - source: current working turn
   - main decision:
@@ -3463,6 +3518,193 @@
 - `2026-03-30` affidavit clause-decomposition matcher pass:
   - added bounded clause-level candidate decomposition in
     `SensibLaw/scripts/build_affidavit_coverage_review.py`
+- `2026-03-30` affidavit reconciliation-text normalization decision:
+  - affidavit still has duplicated parsing / lexing / grouping ideas, but the
+    immediate problem is Python-internal duplication rather than TS ownership
+  - first bounded normalization slice was to extract the Google Docs contested
+    narrative duplicate-heading helpers out of
+    `SensibLaw/scripts/build_google_docs_contested_narrative_review.py`
+    and into one shared Python reconciliation-text module
+  - landed implementation:
+    - `SensibLaw/src/policy/affidavit_reconciliation_text.py`
+    - `SensibLaw/scripts/build_google_docs_contested_narrative_review.py`
+    - `SensibLaw/tests/test_affidavit_reconciliation_text.py`
+    - `SensibLaw/tests/test_google_docs_contested_narrative_review.py`
+  - this slice covers:
+    - enumeration-prefix stripping
+    - duplicate-filter tokenization
+    - token-overlap similarity
+    - duplicate affidavit-unit detection
+    - contested response block grouping
+  - this does not claim the broader affidavit reconciliation layer is unified;
+    it is a first shared foothold under the existing Python-owned rule
+  - local validation passed:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_reconciliation_text.py SensibLaw/tests/test_google_docs_contested_narrative_review.py`
+    -> `8 passed`
+- `2026-03-30` affidavit text-normalization component decision:
+  - next bounded Python-only extraction is the text-normalization core inside
+    `SensibLaw/scripts/build_affidavit_coverage_review.py`
+  - scope:
+    - token normalization
+    - predicate-focus token selection
+    - source segment splitting
+    - source clause splitting
+    - numbered rebuttal start detection
+    - affidavit clause/proposition decomposition
+  - non-goal:
+    scoring, relation typing, and duplicate-root arbitration stay in the
+    builder for now
+  - governance framing:
+    - ITIL: standard change
+    - ISO 9000: documented owner + stable acceptance gate
+    - Six Sigma: reduce variation by eliminating builder-local helper copies
+    - C4: builder consumes a shared text-normalization component
+- `2026-03-30` affidavit text-normalization component followthrough:
+  - landed implementation:
+    - `SensibLaw/src/policy/affidavit_text_normalization.py`
+    - `SensibLaw/scripts/build_affidavit_coverage_review.py`
+    - `SensibLaw/tests/test_affidavit_text_normalization.py`
+  - the builder now imports shared tokenization and clause-splitting helpers
+    instead of owning them inline, while preserving the existing helper names
+    for current callers and tests
+  - local validation passed:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_text_normalization.py SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_google_docs_contested_narrative_review.py`
+    -> `44 passed`
+- `2026-03-30` affidavit claim-root component decision:
+  - next bounded extraction is duplicate-response and claim-root text policy
+    inside `SensibLaw/scripts/build_affidavit_coverage_review.py`
+  - scope:
+    - duplicate-response excerpt detection
+    - claim-root text normalization
+    - stable claim-root id generation
+    - claim-root field derivation
+  - non-goal:
+    family-alignment scoring and duplicate-root arbitration stay in the
+    builder for now
+  - governance framing:
+    - ITIL: standard change
+    - ISO 9000: one explicit owner for claim-root text policy
+    - Six Sigma: reduce variation by eliminating builder-local duplicate-root
+      helper copies
+    - C4: builder consumes a shared claim-root component
+- `2026-03-30` affidavit claim-root component followthrough:
+  - landed implementation:
+    - `SensibLaw/src/policy/affidavit_claim_root.py`
+    - `SensibLaw/scripts/build_affidavit_coverage_review.py`
+    - `SensibLaw/tests/test_affidavit_claim_root.py`
+  - the builder now imports duplicate-response and claim-root field policy
+    from the shared component instead of owning those helpers inline
+  - local validation passed:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_claim_root.py SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_google_docs_contested_narrative_review.py`
+    -> `42 passed`
+- `2026-03-30` affidavit candidate-alignment component decision:
+  - next bounded extraction is candidate-alignment text policy inside
+    `SensibLaw/scripts/build_affidavit_coverage_review.py`
+  - scope:
+    - predicate-alignment scoring
+    - quote-rebuttal support detection
+    - sibling-family adjustment
+    - revocation-family adjustment
+  - non-goal:
+    arbitration order and relation typing stay in the builder for now
+  - governance framing:
+    - ITIL: standard change
+    - ISO 9000: one explicit owner for candidate-alignment text policy
+    - Six Sigma: reduce variation by eliminating builder-local ranking helper
+      copies
+    - C4: builder consumes a shared candidate-alignment component
+- `2026-03-30` affidavit candidate-alignment component followthrough:
+  - landed implementation:
+    - `SensibLaw/src/policy/affidavit_candidate_alignment.py`
+    - `SensibLaw/scripts/build_affidavit_coverage_review.py`
+    - `SensibLaw/tests/test_affidavit_candidate_alignment.py`
+  - the builder now imports predicate, quote-rebuttal, and family-alignment
+    policy from the shared component instead of owning those helpers inline
+  - local validation passed:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_candidate_alignment.py SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_google_docs_contested_narrative_review.py`
+    -> `43 passed`
+- `2026-03-30` affidavit candidate-arbitration component decision:
+  - Mary-parity docs and lane briefs agree the next promoted implementation
+    owner should be the arbitration core, not another helper split
+  - scope:
+    - sibling-leaf arbitration
+    - duplicate-root alternate promotion
+    - proposition-echo replacement
+    - clause-level alternate promotion
+    - final candidate winner and tie-break policy
+  - non-goal:
+    response semantics and relation classification stay outside this component
+  - governance framing:
+    - ITIL: standard change
+    - ISO 9000: one explicit owner for arbitration policy
+    - Six Sigma: reduce variation by eliminating builder-local winner logic
+    - C4: builder prepares candidates, arbitration component selects the winner
+- `2026-03-30` affidavit candidate-arbitration component followthrough:
+  - landed implementation:
+    - `SensibLaw/src/policy/affidavit_candidate_arbitration.py`
+    - `SensibLaw/scripts/build_affidavit_coverage_review.py`
+    - `SensibLaw/tests/test_affidavit_candidate_arbitration.py`
+  - the builder now delegates sibling-leaf arbitration, duplicate-root
+    alternate promotion, and final winner/tie-break policy to the shared
+    arbitration component instead of owning that block inline
+  - local validation passed:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_candidate_arbitration.py SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_google_docs_contested_narrative_review.py`
+    -> `42 passed`
+- `2026-03-30` affidavit response-semantics component decision:
+  - next promoted implementation lane is the selected-candidate semantics
+    block inside `SensibLaw/scripts/build_affidavit_coverage_review.py`
+  - scope:
+    - response packet shaping
+    - primary target-component selection
+    - semantic-basis derivation
+    - claim-state derivation
+    - missing-dimension derivation
+    - relation classification
+  - non-goal:
+    arbitration and parser glue stay outside this component
+  - governance framing:
+    - ITIL: standard change
+    - ISO 9000: one explicit owner for response semantics
+    - Six Sigma: reduce variation by eliminating builder-local semantic policy
+      copies
+    - C4: builder assembles data, response-semantics component interprets it
+- `2026-03-30` affidavit response-semantics component followthrough:
+  - landed implementation:
+    - `SensibLaw/src/policy/affidavit_response_semantics.py`
+    - `SensibLaw/scripts/build_affidavit_coverage_review.py`
+    - `SensibLaw/tests/test_affidavit_response_semantics.py`
+  - the builder now delegates packet, state, and relation policy to the shared
+    response-semantics component instead of owning that block inline
+  - local validation passed:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_response_semantics.py SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_google_docs_contested_narrative_review.py`
+    -> `45 passed`
+- `2026-03-30` affidavit structural sentence adapter decision:
+  - next promoted implementation lane is the parser-facing structural sentence
+    adapter inside `SensibLaw/scripts/build_affidavit_coverage_review.py`
+  - scope:
+    - dependency-parser fallback behavior
+    - subject extraction
+    - verb extraction
+    - negation signal
+    - first-person signal
+    - hedge-verb signal
+  - non-goal:
+    response semantics and heuristic policy stay outside this adapter
+  - governance framing:
+    - ITIL: standard change
+    - ISO 9000: one explicit owner for parser-facing structural analysis
+    - Six Sigma: reduce variation by eliminating builder-local parser glue
+    - C4: builder calls a shared structural sentence adapter
+- `2026-03-30` affidavit structural sentence adapter followthrough:
+  - landed implementation:
+    - `SensibLaw/src/policy/affidavit_structural_sentence.py`
+    - `SensibLaw/scripts/build_affidavit_coverage_review.py`
+    - `SensibLaw/tests/test_affidavit_structural_sentence.py`
+  - the builder now delegates parser-facing structural sentence analysis to the
+    shared adapter while preserving the same hook name for current tests
+  - local validation passed:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_structural_sentence.py SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_google_docs_contested_narrative_review.py`
+    -> `42 passed`
   - compound source rows now expose clause candidates for action and
     cause/effect leaves without changing persisted proposition ids
   - alternate-context selection now skips embedded clause fragments when a
@@ -3717,6 +3959,16 @@
     `53 passed in 2.36s`
   - timed live targeted Dad/Johl `p2-s21` probe:
     fetch + group + payload build + row scoring completed in about `5.606s`
+- `2026-03-30` affidavit matcher optimization pass v2:
+  - `SensibLaw/src/rules/dependencies.py` now caches dependency parses by text
+  - `SensibLaw/scripts/build_affidavit_coverage_review.py` now memoizes
+    tokenization, structural sentence analysis, lexical heuristic scans, and
+    text splitting directly at the helper layer
+  - corrected `.venv` profile on the Dad/Johl extracted fixture:
+    local build improved from about `13.691s` to about `8.934s`
+  - remaining dominant local cost is spaCy parse time itself, so the next
+    optimization boundary is parser amortization / gating, not more generic
+    regex caching
 - `2026-03-30` conceded-fact followthrough:
   - landed first-class `technical_qualification` and `conceded_fact`
     handling in the affidavit lane
@@ -3740,3 +3992,292 @@
     strict echo masking for respondent-side pasted allegation headers /
     copied affidavit scaffolding, especially the `p2-s5` / `p2-s6` /
     `p2-s38` shapes
+- `2026-03-30` measured `SL -> zkperf -> HF` followthrough:
+  - added `scripts/run_sl_with_zkperf.py` to execute an SL-producing command,
+    capture bounded runtime metrics, and emit one observational
+    `ZKPerfObservation`
+  - `scripts/run_sl_zkperf_stream_hf.sh` now supports both:
+    payload mode via `--sl-input` and measured execution mode via
+    `--sl-output ... -- COMMAND`
+  - focused verification:
+    `20 passed`
+  - live measured smoke run succeeded for:
+    `zkperf-stream-runtime-smoke`
+    with tar ack `94b4032278df4ca9e2dc150c7939dc8b4c5c0f7a`,
+    index ack `776e2d29b11d9bcb5f3bb98fccd9e10b0d836514`,
+    latest revision `rev-20260330T032430Z`,
+    and verified observation `zkperf-obsv:52689b3d2366a526a84328f6`
+- `2026-03-30` measured `SL bundle -> zkperf -> HF` fixture-backed run:
+  - `scripts/run_sl_zkperf_stream_hf.sh --sl-input ...fact_review_wave1_real_au_demo_bundle.json`
+    now proves the bounded artifact-backed path end to end
+  - dedicated stream/object names avoid cross-stream index collisions
+  - live result:
+    tar ack `6d794f29b1a1b8b40e4a4f5b80b421799cd91401`,
+    index ack `ea6ffe28a78fd53ef00bce32b256854608d9ec0e`,
+    and verified observation `zkperf-obsv:f390b4ba48896cf9ffb7463a`
+- `2026-03-30` operator docs followthrough for future users:
+  - added `docs/howto/profile_sl_to_hf.md`
+  - this closes the main usability gap between:
+    “repo intent is clear” and “a fresh operator can run the lane”
+  - the runbook now covers:
+    prerequisites, payload mode, measured execution mode, real examples,
+    output artifacts, metric interpretation, and troubleshooting
+- `2026-03-30` publish / verify stage timing enrichment:
+  - `itir_jmd_bridge/zkperf_stream.py` now records stream-build, HF publish,
+    index load/update/publish, and artifact-write timings for zkperf streams
+  - `scripts/run_zkperf_stream_hf.sh` now emits `timings.json` alongside the
+    existing publish/verify artifacts
+  - the runbook now calls out the timings artifact for operators
+- `2026-03-30` HF transient upload hardening for zkperf:
+  - `itir_jmd_bridge/providers/hf.py` now retries one transient DNS/network
+    failure during `hf upload` before failing hard
+  - upload failures still surface the underlying `hf` stderr/stdout so wrapper
+    failures stay diagnosable
+  - covered by `tests/test_hf_acknowledgement_probe.py`
+- `2026-03-30` affidavit zkperf SQLite/read-model followthrough:
+  - `itir_jmd_bridge/sl_zkperf.py` now supports deriving an observational
+    zkperf record from a persisted contested-review SQLite run, keyed by
+    `db_path + review_run_id`
+  - `scripts/build_zkperf_observation_from_sl.py` now supports `--db-path`
+    and optional `--review-run-id`
+  - `scripts/run_sl_with_zkperf.py` now supports `--sl-db-path` so the live
+    affidavit lane can be profiled from SQLite/read-model state without
+    requiring the bulky `affidavit_coverage_review_v1.json`
+  - `scripts/run_sl_zkperf_stream_hf.sh` now supports direct SQLite mode via
+    `--sl-db-path`
+- `2026-03-30` zkperf scope clarification:
+  - the repo now has a real operational zkperf surface:
+    runtime/process, payload/read-model structure, affidavit semantic counters,
+    and publish/verify timings
+  - this is still narrower than the intended theory-level `zkperf` surface
+    discussed in planning and chat:
+    cone/contraction, MDL descent, eigen/resonance, embedding-collapse, and a
+    unified health readout are not yet implemented in the live wrapper
+  - the correct naming is therefore:
+    `zkperf-operational-v1` implemented, `zkperf-full-theory` not yet
+- `2026-03-30` affidavit semantic objective followthrough:
+  - the affidavit zkperf lane now derives `semantic_gap_score` from existing
+    semantic counters
+  - this score is intentionally bounded and labeled `semantic-v1`
+  - it is meant for operator comparison across runs, not as a truth-promotion
+    rule or a claim of full MDL/Lyapunov integration
+- `2026-03-30` zkperf spectrogram rendering contract:
+  - added
+    `docs/planning/zkperf_spectrogram_rendering_contract_20260330.md`
+  - the first rendering stack is now pinned as:
+    - structured feature spectrogram
+    - PCA spectrogram
+    - later query-conditioned spectrogram
+  - the contract explicitly says the view is a structure-over-execution
+    spectrogram, not an audio/frequency spectrogram
+  - rendering inputs must come from structured `SL` facts and zkperf traces,
+    not raw token overlap or generic embeddings
+- `2026-03-30` zkperf spectrogram renderer followthrough:
+  - added `itir_jmd_bridge/zkperf_viz.py`
+  - added CLI surfaces:
+    - `render-zkperf-feature-spectrogram`
+    - `render-zkperf-pca-spectrogram`
+  - v1 renders a structured feature spectrogram ordered by variance / support
+  - v2 renders a PCA-mode spectrogram over the same structured metric surface
+  - regression coverage added in `tests/test_zkperf_viz.py`
+- `2026-03-30` zkperf measured execution-trace followthrough:
+  - `itir_jmd_bridge/sl_zkperf.py` now parses shared CLI progress logs and
+    turns them into stepwise zkperf observations
+  - `scripts/run_sl_with_zkperf.py` now supports:
+    - `--trace-observations-output`
+    - `--stream-observations-output`
+  - `scripts/run_sl_zkperf_stream_hf.sh` now publishes the combined
+    execution-trace observation surface when measured execution emits progress
+    events
+  - this resolves the earlier mismatch where spectrograms were being fed only
+    SQLite/read-model snapshots and therefore looked flat by design
+  - targeted verification:
+    - `.venv/bin/python -m pytest -q tests/test_sl_zkperf.py tests/test_zkperf_viz.py tests/test_zkperf_stream.py`
+      -> `28 passed`
+  - local measured trace smoke:
+    - outputs under `/tmp/zkperf-trace-smoke/`
+    - four-row stream fixture
+    - feature spectrogram and PCA spectrogram both rendered successfully
+- `2026-03-30` zkperf trace-operator followthrough:
+  - added `scripts/render_sl_zkperf_spectrogram.py`
+    - accepts local fixture/observations, SQLite contested-review state, and
+      HF/IPFS index-backed selections
+    - renders feature and PCA spectrograms in one operator call
+  - added `scripts/summarize_zkperf_trace.py`
+    - prints compact step/stage/section/status summaries for measured trace
+      observations
+  - `itir_jmd_bridge/zkperf_viz.py` now supports optional row clustering with:
+    - `clusterLabels`
+    - `clusterCounts`
+  - focused verification:
+    - `.venv/bin/python -m pytest -q tests/test_render_sl_zkperf_spectrogram.py tests/test_summarize_zkperf_trace.py tests/test_zkperf_viz.py`
+      -> `7 passed`
+- `2026-03-30` zkperf operator/debug followthrough:
+  - added `scripts/compare_zkperf_runs.py`
+    - compares two output roots or explicit observation files
+    - reports bounded metric deltas, trace-step deltas, and wrapper total ms
+      deltas when available
+  - added `scripts/inspect_zkperf_clusters.py`
+    - prints cluster counts and row membership from cluster-aware spectrogram
+      metadata
+  - `itir_jmd_bridge/sl_zkperf.py` trace observations now add:
+    - stage-family metrics
+    - progress remaining / delta ratios
+    - message presence / length
+    - ordered transition markers
+  - `itir_jmd_bridge/zkperf_viz.py` now includes a query-conditioned
+    spectrogram renderer over the existing metric surface
+  - focused verification:
+    - `.venv/bin/python -m pytest -q tests/test_zkperf_viz.py tests/test_sl_zkperf.py tests/test_compare_zkperf_runs.py tests/test_inspect_zkperf_clusters.py tests/test_render_sl_zkperf_spectrogram.py tests/test_summarize_zkperf_trace.py tests/test_zkperf_stream.py`
+      -> `27 passed`
+- `2026-03-30` zkperf retrieval/debug ergonomics followthrough:
+  - `scripts/render_sl_zkperf_spectrogram.py` now supports repeatable
+    `--query-preset` with bounded preset families:
+    - `semantic-gap`
+    - `coverage-focus`
+    - `conflict-pressure`
+    - `trace-motion`
+    - `runtime-cost`
+  - the same wrapper can now emit a fixture-aware
+    `zkperf-cluster-report.json` directly from rendered cluster metadata
+  - `scripts/inspect_zkperf_clusters.py` now supports cluster filtering,
+    largest-cluster selection, and per-cluster top metric aggregation
+  - cluster drilldown now also supports a bounded query-aware selection path:
+    recommended clusters and row labels over real run fixtures
+  - the same path can now be materialized as a smaller subfixture containing
+    only the recommended rows
+  - `itir_jmd_bridge/sl_zkperf.py` trace rows now add bounded
+    `trace.domain_role.*` metrics plus `trace_domain_role` refs
+  - the theory-level zkperf contract is now explicit:
+    - `STRUCTURE` / `SEMANTICS`: implemented
+    - `DYNAMICS` / `GEOMETRY` / `ALIGNMENT`: scaffolded
+    - `MDL`: unavailable
+- `2026-03-30` query-conditioned wrapper followthrough:
+  - `scripts/render_sl_zkperf_spectrogram.py` now exposes the
+    query-conditioned spectrogram via repeatable `--query-metric name=value`
+    inputs
+  - wrapper regression coverage added in
+    `tests/test_render_sl_zkperf_spectrogram.py`
+- `2026-03-30` zkperf spectrogram wrapper direction:
+  - next implementation should be one operator-facing wrapper:
+    `scripts/render_sl_zkperf_spectrogram.py`
+  - supported first-class inputs:
+    - SQLite/read-model affidavit runs
+    - local observation JSON / NDJSON
+    - local zkperf fixtures
+    - remote HF-resolved zkperf stream windows
+  - deferred transport:
+    - remote IPFS zkperf stream resolution
+  - rule:
+    compose existing `sl_zkperf`, `zkperf_stream`, and `zkperf_viz` surfaces
+    rather than inventing a parallel renderer stack
+- `2026-03-30` zkperf spectrogram wrapper landed:
+  - added `scripts/render_sl_zkperf_spectrogram.py`
+  - supported first-class inputs:
+    - SQLite/read-model affidavit runs
+    - local observation JSON / NDJSON
+    - local zkperf fixtures
+    - remote HF-resolved zkperf stream windows via `--fixture-seed`
+  - regression coverage added in:
+    `tests/test_render_sl_zkperf_spectrogram.py`
+  - remote IPFS zkperf-stream rendering remains explicitly deferred
+- `2026-03-30` affidavit predicate-family routing pass:
+  - matcher now keeps adjusted duplicate-root rows in proposition ranking even
+    when raw segment overlap is zero
+  - bounded family routing now keeps:
+    - audio-control distinct from keyboard-control
+    - EPOA revocation distinct from nearby August procedural/RTA rows
+  - live Dad/Johl artifact:
+    `/tmp/dad_johl_predicate_family_v5/affidavit_coverage_review_v1.json`
+  - current live target rows:
+    - `p2-s5` -> `supports / equivalent_support` on the intended audio row
+    - `p2-s6` -> `supports / equivalent_support` on the intended keyboard row
+    - `p2-s21` -> correct EPOA row family, current shape
+      `supports / equivalent_support` with `best_response_role = procedural_frame`
+    - `p2-s38` and `p2-s39` remain in the improved same-incident sibling state
+  - focused verification:
+    `54 passed`
+- `2026-03-30` affidavit SQLite-first runtime seam:
+  - the core affidavit writer can now persist contested-review runs to SQLite
+    without emitting bulky JSON/markdown artifacts
+  - the live Google Docs wrapper now accepts `--db-path` and defaults to
+    SQLite-first behavior when that flag is present
+  - `--write-artifacts` is now the explicit opt-in for the large review JSON
+    and markdown outputs
+  - this closes the main policy/implementation mismatch from
+    `docs/planning/json_artifact_boundary_20260327.md` for the affidavit lane:
+    SQLite is now the default operational surface for persisted live runs,
+    while JSON remains derived receipt/output only
+  - focused verification:
+    `51 passed in 2.25s`
+- `2026-03-30` affidavit Phase 1 milestone 1:
+  - added `SensibLaw/scripts/query_fact_review.py contested-rows` as the first
+    narrow SQLite-first Dad/Johl row inspection surface
+  - `scripts/run_sl_with_zkperf.py` now supports DB-backed command execution
+    without requiring a fake JSON payload path
+  - `scripts/run_sl_zkperf_stream_hf.sh` now preserves the live
+    `--sl-db-path ... -- COMMAND` measurement path rather than silently
+    degrading into static DB inspection
+  - this closes the main Phase 1 ops blocker identified by the lane workers:
+    the affidavit proving slice now has both
+    - a DB-first debug/query seam
+    - and a DB-native zkperf run boundary
+  - focused verification:
+    `SensibLaw/tests/test_query_fact_review_script.py` and
+    `tests/test_sl_zkperf.py` passed
+- `2026-03-30` zkperf last-mile operator/theory polish:
+  - `scripts/render_sl_zkperf_spectrogram.py` now supports:
+    - higher-level `--query-intent`
+    - `--list-query-presets`
+  - `itir_jmd_bridge/sl_zkperf.py` now emits bounded
+    `trace.domain_signal.*` metrics / refs in addition to domain roles
+  - `scripts/inspect_zkperf_clusters.py` now promotes cluster drilldown into
+    bounded retrieval guidance with:
+    - dominant stage/domain summaries
+    - window counts
+    - retrieval candidates
+  - `scripts/summarize_zkperf_trace.py` now exposes:
+    - progress-shape / monotonicity summary
+    - availability-aware theory scaffold / health readout
+  - `scripts/compare_zkperf_runs.py` now includes bounded
+    regression/descent judgements and an overall summary
+  - focused verification:
+    `30 passed`
+- `2026-03-30` zkperf MDL bridge from `../dashi_agda`:
+  - live observations can now ingest bounded external theory evidence JSON
+    from `../dashi_agda`
+  - current bridge supports:
+    - family latest regime-test reports
+    - family classification lists
+    - tail-boundary batch aggregates
+  - the bridge now emits real theory metrics such as:
+    - `theory.mdl.descent_monotone`
+    - `theory.mdl.violation_count`
+    - `theory.mdl.worst_increase`
+    - `theory.dynamics.cone_ok`
+    - `theory.dynamics.fejer_ok`
+    - `theory.dynamics.closest_ok`
+  - wrapper/CLI surfaces now accept:
+    - `--theory-evidence-json`
+    - `--theory-family`
+  - trace summary can now read the final observation and promote
+    `MDL` / `DYNAMICS` from scaffold status when attached theory evidence is
+    present
+  - focused verification:
+    `31 passed`
+
+- `2026-03-30` local function-relative MDL followthrough staged but deferred:
+  - source: current working turn
+  - decision:
+    - a program can be "MDL-known" operationally in this stack either via
+      external witness artifacts (for example `mdl-evidence-v1`) or, later, via
+      a bounded empirical function-relative surface
+    - the deferred candidate is `local_function_mdl_v1`:
+      one function id, one output schema, one normalization rule, and a local
+      learned baseline over prior outputs from that same function
+    - this future surface is for anomaly / regression / novelty detection
+      within one function family, not for universal or cross-function MDL claims
+  - followthrough:
+    - record the design in zkperf contract/roadmap docs and `TODO.md`
+    - defer implementation until a concrete lane and local baseline model are
+      chosen

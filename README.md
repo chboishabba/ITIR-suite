@@ -205,6 +205,8 @@ and [chat-export-structurer/README.md](chat-export-structurer/README.md).
   [docs/planning/itir_orchestrator.md](docs/planning/itir_orchestrator.md)
 - architecture boundary doctrine:
   [docs/architecture/admissibility_lattice.md](docs/architecture/admissibility_lattice.md)
+- Python domain-ownership policy:
+  [docs/planning/python_domain_ownership_policy_20260330.md](docs/planning/python_domain_ownership_policy_20260330.md)
 - JMD x SensibLaw truth-construction boundary:
   [docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md](docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md)
 - motif candidate / promotion / legal-tree boundary:
@@ -289,11 +291,110 @@ and [chat-export-structurer/README.md](chat-export-structurer/README.md).
   [docs/planning/zkperf_on_sl_contract_v1_20260329.md](docs/planning/zkperf_on_sl_contract_v1_20260329.md)
 - zkperf stream shard contract v1:
   [docs/planning/zkperf_stream_shard_contract_v1_20260330.md](docs/planning/zkperf_stream_shard_contract_v1_20260330.md)
+- zkperf spectrogram rendering contract:
+  [docs/planning/zkperf_spectrogram_rendering_contract_20260330.md](docs/planning/zkperf_spectrogram_rendering_contract_20260330.md)
 
 ### ZKPerf stream operator command
 
-- one-shot publish plus verify:
+- operator runbook:
+  [docs/howto/profile_sl_to_hf.md](docs/howto/profile_sl_to_hf.md)
+- one-shot publish plus verify from a prepared stream fixture:
   `scripts/run_zkperf_stream_hf.sh --fixture <path-to-zkperf-stream-json>`
+- one-shot generate plus publish plus verify from raw zkperf observations:
+  `scripts/run_zkperf_stream_hf.sh --observations <path-to-zkperf-observations-json-or-ndjson>`
+- one-shot execute an SL-producing command, derive observational zkperf, then
+  publish plus verify:
+  `scripts/run_sl_zkperf_stream_hf.sh --sl-output <path-to-sl-json> -- <sl-command> ...`
+  - when the command emits shared progress events, the wrapper also derives a
+    stepwise execution-trace observation set for spectrogram rendering and
+    publishes that richer stream surface
+  - optional theory bridge:
+    `--theory-evidence-json <path-to-dashi-json-or-mdl-evidence-v1> [--theory-family <family>]`
+- one-shot derive observational zkperf from an existing SL payload:
+  `scripts/run_sl_zkperf_stream_hf.sh --sl-input <path-to-sl-json>`
+- one-shot derive observational zkperf from a persisted contested-review
+  SQLite run:
+  `scripts/run_sl_zkperf_stream_hf.sh --sl-db-path <path-to-itir.sqlite> [--sl-review-run-id <review-run-id>]`
+- render a structured feature spectrogram from a zkperf stream fixture:
+  `python -m itir_jmd_bridge render-zkperf-feature-spectrogram --fixture <path-to-zkperf-stream-json> --png-output <path-to-feature.png>`
+- render a PCA spectrogram from a zkperf stream fixture:
+  `python -m itir_jmd_bridge render-zkperf-pca-spectrogram --fixture <path-to-zkperf-stream-json> --png-output <path-to-pca.png>`
+- core query-conditioned spectrogram renderer:
+  `itir_jmd_bridge.zkperf_viz.render_zkperf_query_spectrogram(...)`
+- operator wrapper for feature + PCA spectrograms from an output root, local
+  observations, SQLite contested-review state, or resolved HF/IPFS index:
+  `scripts/render_sl_zkperf_spectrogram.py --output-dir <dir> --fixture <path-to-zkperf-stream-json>`
+- operator wrapper can also render the query-conditioned view with repeatable
+  query metrics:
+  `scripts/render_sl_zkperf_spectrogram.py --output-dir <dir> --fixture <path-to-zkperf-stream-json> --query-metric summary.covered_count=1 --query-metric summary.missing_review_count=-1`
+- operator wrapper also supports higher-level query presets:
+  `scripts/render_sl_zkperf_spectrogram.py --output-dir <dir> --fixture <path-to-zkperf-stream-json> --query-preset semantic-gap`
+  - current presets:
+    - `semantic-gap`
+    - `coverage-focus`
+    - `conflict-pressure`
+    - `trace-motion`
+    - `runtime-cost`
+- operator wrapper also supports higher-level query intents:
+  `scripts/render_sl_zkperf_spectrogram.py --output-dir <dir> --fixture <path-to-zkperf-stream-json> --query-intent coverage-recovery`
+  - current intents:
+    - `coverage-recovery`
+    - `conflict-audit`
+    - `trace-debug`
+  - print the current preset/intent catalog with:
+    `scripts/render_sl_zkperf_spectrogram.py --list-query-presets`
+- compact stage summary for measured execution traces:
+  `scripts/summarize_zkperf_trace.py --input <path-to-generated-zkperf-trace-observations.json>`
+  - now includes:
+    - domain role / signal counts
+    - progress-shape summary
+    - availability-aware health readout
+  - optional final observation enrichment:
+    `--observation <path-to-generated-zkperf-observation.json>`
+- compare two zkperf runs:
+  `scripts/compare_zkperf_runs.py --left-output-root <dir> --right-output-root <dir>`
+  - now includes bounded regression/descent judgements and an overall summary
+- inspect cluster metadata from a rendered spectrogram:
+  `scripts/inspect_zkperf_clusters.py --input <path-to-spectrogram-metadata.json>`
+  - now includes:
+    - dominant stage families / domain roles / domain signals
+    - window counts
+    - bounded retrieval candidates per cluster
+- emit a fixture-aware cluster report directly from the wrapper:
+  `scripts/render_sl_zkperf_spectrogram.py --fixture <path-to-zkperf-stream-json> --output-dir <dir> --cluster-k 4 --cluster-report`
+- emit a query-aware cluster selection path over real run outputs:
+  `scripts/render_sl_zkperf_spectrogram.py --fixture <path-to-zkperf-stream-json> --output-dir <dir> --cluster-k 4 --cluster-report --query-preset semantic-gap`
+  - this writes cluster ranking and recommended row labels into
+    `zkperf-cluster-report.json`
+  - and materializes the recommended rows as
+    `zkperf-selection-fixture.json`
+- current zkperf status:
+  - implemented now as an operational profiling surface
+    (runtime/process, payload/read-model structure, affidavit semantic counters,
+    bounded semantic objective, and publish/verify timings)
+  - optional external theory evidence from `../dashi_agda` or direct `mdl-evidence-v1` JSON can now be ingested
+    into live observations
+    - current bridge covers:
+      - MDL monotonicity / violation / worst-increase witnesses
+      - closest-point / Fejér / cone-family admissibility flags when present
+  - availability-aware theory scaffold is now exposed in operator summaries and
+    becomes evidence-backed when those theory metrics are attached:
+    - `STRUCTURE = implemented`
+    - `SEMANTICS = implemented`
+    - `DYNAMICS = scaffolded|implemented`
+    - `MDL = unavailable|implemented`
+    - `GEOMETRY = scaffolded`
+    - `ALIGNMENT = scaffolded`
+  - not yet the full theory-level cone / MDL / eigen / resonance diagnostic
+    surface
+  - theory-level work is currently scaffolded as an explicit contract/status
+    surface, not a fake implementation
+- publish / index / verify stage timings are emitted in the output root
+  alongside `publish.json` and `verify.json`
+- stream fixture generator:
+  `scripts/build_zkperf_stream_fixture.py --input <path-to-zkperf-observations-json-or-ndjson> --output <path-to-zkperf-stream-json>`
+- SL payload to bounded zkperf observation:
+  `scripts/build_zkperf_observation_from_sl.py --input <path-to-sl-json> --output <path-to-zkperf-observation-json>`
 
 ### Proven example and handoff docs
 

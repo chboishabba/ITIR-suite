@@ -46,6 +46,8 @@ Required fields:
 - `windowingMode`
 - `createdAtUtc`
 - `windowCount`
+- `observationCount`
+- `observationIndex[]` (canonical observation identity rows)
 - `latestWindowId`
 - `sequenceRange`
 - `windows[]`
@@ -60,6 +62,7 @@ Required fields:
 - `latestRevision`
 - `latestWindowId`
 - `windowCount`
+- `observationCount`
 - `sequenceRange`
 - `containerObjectRef`
 - `acknowledgedRevision`
@@ -75,6 +78,8 @@ Required fields:
 - `latestRevision`
 - `latestWindowId`
 - `revisionCount`
+- `observationCount` (mirrors latest revision)
+- `observationIndex` (canonical observation identity rows for the revision)
 - `revisions[]`
 - `indexObjectRef`
 
@@ -141,6 +146,8 @@ Each revision record carries:
 - `sequenceRange`
 - `containerObjectRef`
 - `verified`
+- `observationCount`
+- `observationIndex`
 
 When `retain-latest-n` is active, the index may prune the oldest revision
 records after appending a newer one. Published container objects remain

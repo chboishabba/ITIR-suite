@@ -44,6 +44,86 @@
 - [P2] Important but deferrable
 - [P3] Nice-to-have / polish
 
+- [P0] Python-owned domain logic normalization:
+  - use `docs/planning/python_domain_ownership_policy_20260330.md` as the
+    canonical architecture rule
+  - keep the suite rule explicit:
+    - Python owns business logic, normalization, projection semantics, and
+      cross-lane reusable rules
+    - TS/JS is limited to presentation, route composition, interaction state,
+      and transport-safe adapter glue
+  - treat the current TS/JS business-logic surfaces as migration debt rather
+    than acceptable architecture, including:
+    - `itir-svelte/src/lib/server/wikiTimeline.ts`
+    - `itir-svelte/src/routes/graphs/wiki-fact-timeline/projection.ts`
+    - `itir-svelte/src/lib/wiki_timeline/numeric.ts`
+    - `itir-svelte/src/lib/wiki_timeline/graph.ts`
+    - `itir-svelte/src/routes/graphs/timeline-ribbon/+page.server.ts`
+  - immediate migration sequence:
+    - move wiki/timeline normalization and projection semantics to Python-owned
+      runtime modules
+    - move timeline-ribbon payload assembly and ordering semantics to
+      Python-owned runtime modules
+    - keep affidavit logic Python-owned and do not create any parallel TS/JS
+      semantic lane
+    - normalize duplicated affidavit reconciliation text helpers inside Python
+      instead of leaving them stranded in wrapper scripts
+    - reject any new PR that adds business logic to TS/JS without an explicit
+      temporary migration waiver
+  - first implementation slices under this policy:
+    - continue `chat_context_resolver` Python seam extraction
+    - harden `itir-mcp` as an adapter contract only
+    - DONE: move wiki fact-timeline projection from
+      `itir-svelte/src/routes/graphs/wiki-fact-timeline/projection.ts`
+      into a Python-owned wiki timeline module and route query path via:
+      - `SensibLaw/src/wiki_timeline/fact_timeline_projection.py`
+      - `SensibLaw/scripts/query_wiki_timeline_aoo_db.py --projection fact_timeline`
+      - `itir-svelte/src/routes/graphs/wiki-fact-timeline/+page.server.ts`
+    - next: move generic wiki timeline view normalization from
+      `itir-svelte/src/lib/server/wikiTimeline.ts`
+      into a Python-owned `timeline_view` projection behind
+      `SensibLaw/scripts/query_wiki_timeline_aoo_db.py`
+    - thin `itir-svelte` route/server shells while planning Python-owned
+      replacements for the remaining timeline semantics
+    - DONE: extract duplicate-heading / contested-response grouping helpers
+      from `SensibLaw/scripts/build_google_docs_contested_narrative_review.py`
+      into the shared Python module
+      `SensibLaw/src/policy/affidavit_reconciliation_text.py`, with focused
+      coverage in:
+      - `SensibLaw/tests/test_affidavit_reconciliation_text.py`
+      - `SensibLaw/tests/test_google_docs_contested_narrative_review.py`
+    - next affidavit normalization slice:
+      DONE: move reusable tokenization and clause-splitting helpers out of
+      `SensibLaw/scripts/build_affidavit_coverage_review.py` into the shared
+      Python component
+      `SensibLaw/src/policy/affidavit_text_normalization.py`, while keeping
+      scoring and relation logic in the builder
+    - next affidavit normalization slice:
+      DONE: move duplicate excerpt detection and claim-root field derivation
+      out of `SensibLaw/scripts/build_affidavit_coverage_review.py` into the
+      shared Python component
+      `SensibLaw/src/policy/affidavit_claim_root.py`
+    - next affidavit normalization slice:
+      DONE: move predicate-alignment, quote-rebuttal, and family-alignment
+      helpers out of `SensibLaw/scripts/build_affidavit_coverage_review.py`
+      into the shared Python component
+      `SensibLaw/src/policy/affidavit_candidate_alignment.py`
+    - next affidavit normalization slice:
+      DONE: promote the Mary-parity-critical candidate arbitration core into
+      `SensibLaw/src/policy/affidavit_candidate_arbitration.py`, keeping
+      arbitration order and artifact shape stable
+    - next affidavit normalization slice:
+      DONE: promote the response semantics core into
+      `SensibLaw/src/policy/affidavit_response_semantics.py`
+    - next affidavit normalization slice:
+      DONE: promote the structural sentence adapter into
+      `SensibLaw/src/policy/affidavit_structural_sentence.py`
+    - next affidavit normalization slice:
+      promote the lexical heuristics and justification mapping lane:
+      move lexical cue grouping and justification packet policy out of
+      `SensibLaw/scripts/build_affidavit_coverage_review.py` into one shared
+      Python component
+
 - [P1] Largest-file refactor / normalization roadmap:
   - use `docs/planning/largest_file_refactor_roadmap_20260328.md` as the
     current inventory and sequencing note for repo-owned large-file cleanup
@@ -84,6 +164,16 @@
     widening features further
   - when a name remains lane-specific, require an explicit reason that the
     underlying contract is still genuinely lane-specific
+
+- [P1] SimulStreaming WhisperX sidecar:
+  - use `docs/planning/simulstreaming_whisperx_sidecar_contract_20260330.md`
+    as the contract for this slice
+  - keep SimulStreaming as the live streaming ASR engine
+  - run WhisperX only on committed/final segments
+  - emit a secondary WhisperX-style alignment row instead of blocking or
+    replacing the primary SimulStreaming stream
+  - keep server-mode alignment async so TCP streaming latency does not inherit
+    WhisperX runtime cost
 
 - [P1] Workspace coordination boundary discipline:
   - use `docs/planning/workspace_coordination_boundary_20260327.md` as the
@@ -2123,6 +2213,176 @@
   - DONE: add a one-shot operator script for the real SL run:
     - `scripts/run_zkperf_stream_hf.sh`
     - wraps publish, index update, and index-driven verification in one command
+  - DONE: add a measured SL execution boundary for zkperf:
+    - `scripts/run_sl_with_zkperf.py`
+      executes an SL-producing command, captures bounded runtime metrics, and
+      emits one observational `ZKPerfObservation`
+    - `scripts/run_sl_zkperf_stream_hf.sh`
+      now supports both:
+      existing payload mode via `--sl-input` and measured execution mode via
+      `--sl-output ... -- COMMAND`
+    - focused verification:
+      `tests/test_sl_zkperf.py` plus `tests/test_zkperf_stream.py`
+      -> `20 passed`
+    - live measured smoke run succeeded for:
+      `zkperf-stream-runtime-smoke`
+      with tar ack `94b4032278df4ca9e2dc150c7939dc8b4c5c0f7a`,
+      index ack `776e2d29b11d9bcb5f3bb98fccd9e10b0d836514`,
+      and verified observation `zkperf-obsv:52689b3d2366a526a84328f6`
+  - DONE: add publish / verify stage timing enrichment for the zkperf stream
+    lane:
+    - `itir_jmd_bridge/zkperf_stream.py`
+      now records stream build, HF publish, index load/update/publish,
+      artifact write, and verify-side fetch timings
+    - `scripts/run_zkperf_stream_hf.sh`
+      now emits `timings.json` alongside the existing publish/verify artifacts
+    - operator docs now call out the timings artifact in the runbook
+  - DONE: harden HF upload for transient zkperf publish failures:
+    - `itir_jmd_bridge/providers/hf.py`
+      now retries one transient DNS/network upload failure before failing
+      hard, while still surfacing the underlying CLI stderr/stdout
+    - covered by `tests/test_hf_acknowledgement_probe.py`
+  - DONE: add SQLite/read-model zkperf support for the affidavit lane:
+    - `itir_jmd_bridge/sl_zkperf.py`
+      can now derive zkperf observations from persisted contested-review runs
+      via `db_path + review_run_id`
+    - `scripts/build_zkperf_observation_from_sl.py`
+      now supports `--db-path [--review-run-id ...]`
+    - `scripts/run_sl_with_zkperf.py`
+      can use `--sl-db-path` so measured execution no longer depends on bulky
+      affidavit JSON artifacts
+    - `scripts/run_sl_zkperf_stream_hf.sh`
+      now supports direct SQLite mode via `--sl-db-path`
+  - next zkperf design gate:
+    - define a formal layer contract that separates:
+      - implemented now:
+        runtime/process, payload/read-model structure, affidavit semantic
+        counters, publish/verify timings
+      - not yet implemented:
+        cone/contraction diagnostics, MDL trajectories, eigen/resonance,
+        embedding-collapse diagnostics, unified health readout
+    - keep calling the current lane `zkperf-operational-v1` rather than
+      pretending the full theory surface is already live
+  - next bounded zkperf objective step:
+    - add `semantic_gap_score` for the affidavit lane
+    - compute it from existing semantic counters rather than inventing a new
+      source surface
+    - keep it explicitly labeled as a `semantic-v1` heuristic objective
+  - next zkperf rendering step:
+    - DONE: implement the first honest spectrogram-style renderer over
+      structured zkperf traces
+    - DONE v1:
+      structured feature spectrogram
+    - DONE v2:
+      PCA spectrogram
+    - v3:
+      query-conditioned spectrogram
+    - keep the renderer grounded in `SL` facts + zkperf traces, not raw token
+      overlap or generic embeddings
+  - next measured-trace followthrough:
+    - derive stepwise zkperf observations from measured execution progress
+      events so spectrograms render real pipeline dynamics
+    - keep the surface split explicit:
+      - execution trace surface = harmonic / phase analysis
+      - SQLite/read-model surface = semantic-state comparison
+    - DONE: add operator follow-up tools over the trace surface:
+      - `scripts/render_sl_zkperf_spectrogram.py`
+      - `scripts/summarize_zkperf_trace.py`
+    - DONE: add bounded clustering metadata over spectrogram rows
+    - DONE: add compare-two-runs operator surface:
+      - `scripts/compare_zkperf_runs.py`
+    - DONE: add cluster drilldown operator surface:
+      - `scripts/inspect_zkperf_clusters.py`
+    - DONE: enrich trace observations with bounded progress-derived features:
+      - stage family
+      - message signal
+      - progress remaining / delta ratios
+      - transition markers
+    - DONE: add query-conditioned spectrogram in the core viz layer
+    - DONE: add cluster-aware retrieval/debug views over real run outputs:
+      - `scripts/inspect_zkperf_clusters.py`
+        now supports fixture-aware drilldown with top metrics / signals
+      - `scripts/render_sl_zkperf_spectrogram.py`
+        can now emit `zkperf-cluster-report.json` directly from rendered runs
+      - cluster drilldown can now also emit a bounded query-aware selection path
+        with recommended clusters and row labels over real run fixtures
+      - the selection path can now be materialized as a subfixture containing
+        only the recommended rows
+    - DONE: add higher-level query ergonomics:
+      - `scripts/render_sl_zkperf_spectrogram.py`
+        now supports repeatable `--query-preset`
+      - current presets:
+        `semantic-gap`, `coverage-focus`, `conflict-pressure`,
+        `trace-motion`, `runtime-cost`
+      - it now also supports:
+        - repeatable `--query-intent`
+        - `--list-query-presets`
+      - current intents:
+        `coverage-recovery`, `conflict-audit`, `trace-debug`
+    - DONE: enrich trace observations with bounded domain-role semantics:
+      - `itir_jmd_bridge/sl_zkperf.py`
+        now emits `trace.domain_role.*` metrics and `trace_domain_role` refs
+    - DONE: enrich trace observations with bounded domain-signal semantics:
+      - `itir_jmd_bridge/sl_zkperf.py`
+        now emits `trace.domain_signal.*` metrics and `trace_domain_signal`
+        refs
+    - DONE: promote cluster drilldown from membership-only to bounded retrieval
+      guidance:
+      - `scripts/inspect_zkperf_clusters.py`
+        now surfaces dominant stage/domain signals, window counts, and
+        retrieval candidates per cluster
+    - next theory-facing step:
+      keep the theory scaffold explicit and advance one layer honestly:
+      - DONE immediate bridge:
+        attach bounded `../dashi_agda` JSON evidence so MDL and cone-family
+        witness surfaces stop being permanently unavailable in the live wrapper
+        - live surfaces now accept:
+          - `--theory-evidence-json`
+          - `--theory-family`
+        - trace summary can now promote `MDL` / `DYNAMICS` when attached theory
+          evidence is present
+      - next bounded MDL design followthrough:
+        define `local_function_mdl_v1` as a function-relative empirical
+        description-length surface
+        - scope: one function id + one normalized output schema
+        - use: anomaly / regression / novelty detection within that function
+        - do not present it as cross-function or universal MDL
+      - DONE scaffold:
+        - compact trace summary now emits an availability-aware health readout
+          over:
+          `STRUCTURE`, `SEMANTICS`, `DYNAMICS`, `MDL`, `GEOMETRY`,
+          `ALIGNMENT`
+      - DONE bounded runtime proxy:
+        - trace summary now reports monotonicity / progress-shape signals
+          without pretending full cone diagnostics exist
+      - remaining deeper theory work:
+        - real cone/contraction diagnostics
+        - MDL descent traces
+        - eigen/resonance overlap beyond query-alignment scaffolds
+  - next wrapper followthrough:
+    - DONE: added `scripts/render_sl_zkperf_spectrogram.py` as one
+      operator-facing entrypoint over existing zkperf primitives
+    - DONE first-class inputs:
+      - SQLite/read-model affidavit runs
+      - local observation JSON / NDJSON
+      - local zkperf fixtures
+      - remote HF-resolved zkperf stream windows
+    - deferred transport:
+      - remote IPFS zkperf stream resolution
+    - rule retained:
+      compose existing `sl_zkperf`, `zkperf_stream`, and `zkperf_viz`
+      surfaces; do not create a parallel spectrogram logic stack
+  - DONE: add a future-operator runbook for SL profiling:
+    - `docs/howto/profile_sl_to_hf.md`
+    - includes:
+      real commands, prerequisites, output paths, metric interpretation,
+      stream-id/retention guidance, and troubleshooting
+  - DONE: add a generator for real SL zkperf observations:
+    - `scripts/build_zkperf_stream_fixture.py`
+    - accepts a single `ZKPerfObservation`, a JSON array, an object with
+      `observations[]`, or NDJSON
+    - `run_zkperf_stream_hf.sh` now accepts `--observations` and builds the
+      stream fixture automatically before publish/verify
   - DONE: pin one concrete public HF read-side acknowledgement surface:
     - `docs/planning/hf_acknowledgement_probe_20260330.md`
     - provider:
@@ -2735,6 +2995,16 @@
         leaf-signature derivation
       - target the live Dad/Johl Google Docs loop specifically, since current
         per-proposition matching time is far too high for a corpus this small
+    - next bounded optimization pass after local memoization:
+      - focus on dependency-parser amortization in `.venv`, not generic regex
+        or token caching
+      - current corrected local profile dropped from about `13.691s` to about
+        `8.934s`, but the dominant remaining local cost is still spaCy parse
+        time inside `src/rules/dependencies.py`
+      - next candidate moves:
+        - batch or reuse dependency parses across repeated excerpts
+        - tighten lexical gates so fewer candidate excerpts invoke dependency
+          parsing at all
     row just because a nearby clause scores similarly
   - treat these as nonconformance classes to drive review and testing:
     weakly_addressed_mixed_class, false_support, hidden_dispute,
@@ -2849,6 +3119,59 @@
     high-similarity quote/header blocks should not win `supported` rows by
     themselves; the matcher should prefer the respondent's authored rebuttal or
     admission text underneath
+- [ ] Affidavit predicate-family followthrough, v5:
+  - DONE: keep `p2-s5` on the audio-control row instead of sibling keyboard,
+    passive listening, or generic computer rows
+  - DONE: keep `p2-s6` on the keyboard-control row instead of sibling audio
+  - DONE: keep `p2-s21` on the EPOA revocation row instead of the nearby August
+    RTA/procedural row
+  - current live artifact:
+    `/tmp/dad_johl_predicate_family_v5/affidavit_coverage_review_v1.json`
+  - next semantic gap:
+    refine the response-role shape for `p2-s21`, which is now on the correct
+    row family but still represented as `best_response_role = procedural_frame`
+    instead of a richer `technical_qualification` / `conceded_fact` path
+- [ ] Affidavit Phase 1 gate v3:
+  - DONE: the main Dad/Johl debug loop now runs SQLite-first with:
+    - live DB:
+      `/tmp/dad_johl_phase1_gate_v3/itir.sqlite`
+    - review run:
+      `contested_review:b9d0cbbccb02c13e`
+    - row query surface:
+      `SensibLaw/scripts/query_fact_review.py contested-rows`
+  - DONE: packet-local clause selection now keeps:
+    - `p2-s5` on the intended audio-control clause
+    - `p2-s6` on the intended keyboard-control clause
+  - current remaining live gap:
+    - `p2-s38` / `p2-s39` still reciprocally swap within the same
+      quote-to-rebuttal row
+    - `p2-s21` remains on the correct EPOA row family but still exposes
+      `best_response_role = procedural_frame`
+  - next:
+    make the quote-to-rebuttal clause preference directional enough to stop the
+    `p2-s38` / `p2-s39` reciprocal swap without reopening the `p2-s5` /
+    `p2-s6` sibling pair
+- [ ] Affidavit SQLite-first ops followthrough:
+  - DONE: `SensibLaw/scripts/build_affidavit_coverage_review.py` now supports
+    persistence without bulky JSON/markdown via `write_artifacts = False`
+  - DONE: `SensibLaw/scripts/build_google_docs_contested_narrative_review.py`
+    now accepts `--db-path` and defaults to SQLite-first live runs when it is
+    provided
+  - DONE: bulky JSON/markdown review artifacts are now opt-in via
+    `--write-artifacts` on the live Google Docs wrapper
+  - DONE: focused regression coverage now proves the live wrapper can persist a
+    contested run to SQLite without emitting the large review JSON
+  - DONE: `SensibLaw/scripts/query_fact_review.py contested-rows` now provides
+    a narrow SQLite-first row inspection surface for persisted affidavit runs
+  - DONE: `scripts/run_sl_with_zkperf.py` now supports true SQLite-native
+    command mode without requiring a fake `--sl-output` path
+  - DONE: `scripts/run_sl_zkperf_stream_hf.sh` now preserves the live
+    `--sl-db-path ... -- COMMAND` boundary instead of short-circuiting into
+    static DB inspection
+  - next ops gap:
+    point the main operator/debug workflow at `contested-rows` and related
+    DB-backed queries by default, then retire bulky JSON artifact inspection as
+    the normal Dad/Johl loop
 
 ## Blockers / constraints
 - No explicit blockers listed in submodule TODO files.

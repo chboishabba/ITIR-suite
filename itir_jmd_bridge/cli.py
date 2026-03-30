@@ -23,13 +23,19 @@ from .providers.ipfs import fetch_ipfs_object, probe_ipfs_gateway_acknowledgemen
 from .runtime import build_runtime_bundle, build_runtime_graph, ingest_latest_pastes, inspect_latest_pastes_with_prototype
 from .zkperf_stream import (
     build_zkperf_stream_bundle,
+    build_zkperf_stream_fixture_from_observations,
     get_zkperf_stream_index_record,
+    load_zkperf_observations,
     load_zkperf_stream_fixture,
     load_remote_zkperf_stream_index,
     publish_zkperf_stream_to_hf,
     resolve_zkperf_stream_from_index_hf,
     resolve_remote_zkperf_stream_windows,
     resolve_remote_zkperf_stream_window,
+)
+from .zkperf_viz import (
+    render_zkperf_feature_spectrogram,
+    render_zkperf_pca_spectrogram,
 )
 
 
@@ -241,6 +247,17 @@ def main(argv: list[str] | None = None) -> int:
     build_zkperf.add_argument("--fixture", type=Path, required=True)
     build_zkperf.add_argument("--output", type=Path)
 
+    build_zkperf_from_obs = sub.add_parser(
+        "build-zkperf-stream-from-observations",
+        help="Build a zkperf stream fixture from observation JSON or NDJSON input",
+    )
+    build_zkperf_from_obs.add_argument("--input", type=Path, required=True)
+    build_zkperf_from_obs.add_argument("--stream-id")
+    build_zkperf_from_obs.add_argument("--stream-revision")
+    build_zkperf_from_obs.add_argument("--created-at-utc")
+    build_zkperf_from_obs.add_argument("--max-observations-per-window", type=int)
+    build_zkperf_from_obs.add_argument("--output", type=Path)
+
     publish_zkperf = sub.add_parser(
         "publish-zkperf-stream-hf",
         help="Publish a bounded zkperf stream bundle to HF and emit the acknowledged receipt",
@@ -290,6 +307,27 @@ def main(argv: list[str] | None = None) -> int:
     resolve_zkperf_index.add_argument("--sequence-end", type=int)
     resolve_zkperf_index.add_argument("--select-window-id", action="append", dest="window_ids")
     resolve_zkperf_index.add_argument("--output", type=Path)
+
+    feature_spectrogram = sub.add_parser(
+        "render-zkperf-feature-spectrogram",
+        help="Render a structured feature spectrogram from a zkperf stream fixture",
+    )
+    feature_spectrogram.add_argument("--fixture", type=Path, required=True)
+    feature_spectrogram.add_argument("--png-output", type=Path, required=True)
+    feature_spectrogram.add_argument("--metadata-output", type=Path)
+    feature_spectrogram.add_argument("--top-k-features", type=int, default=32)
+    feature_spectrogram.add_argument("--feature-prefix", action="append", dest="feature_prefixes")
+
+    pca_spectrogram = sub.add_parser(
+        "render-zkperf-pca-spectrogram",
+        help="Render a PCA spectrogram from a zkperf stream fixture",
+    )
+    pca_spectrogram.add_argument("--fixture", type=Path, required=True)
+    pca_spectrogram.add_argument("--png-output", type=Path, required=True)
+    pca_spectrogram.add_argument("--metadata-output", type=Path)
+    pca_spectrogram.add_argument("--top-k-features", type=int, default=32)
+    pca_spectrogram.add_argument("--components", type=int, default=8)
+    pca_spectrogram.add_argument("--feature-prefix", action="append", dest="feature_prefixes")
 
     args = parser.parse_args(argv)
 
@@ -514,6 +552,17 @@ def main(argv: list[str] | None = None) -> int:
         _write_json(payload, args.output)
         return 0
 
+    if args.command == "build-zkperf-stream-from-observations":
+        payload = build_zkperf_stream_fixture_from_observations(
+            load_zkperf_observations(args.input),
+            stream_id=args.stream_id,
+            stream_revision=args.stream_revision,
+            created_at_utc=args.created_at_utc,
+            max_observations_per_window=args.max_observations_per_window,
+        )
+        _write_json(payload, args.output)
+        return 0
+
     if args.command == "publish-zkperf-stream-hf":
         payload = publish_zkperf_stream_to_hf(
             fixture_path=args.fixture,
@@ -584,6 +633,31 @@ def main(argv: list[str] | None = None) -> int:
             window_ids=args.window_ids,
         )
         _write_json(payload, args.output)
+        return 0
+
+    if args.command == "render-zkperf-feature-spectrogram":
+        fixture = load_zkperf_stream_fixture(args.fixture)
+        payload = render_zkperf_feature_spectrogram(
+            fixture,
+            output_path=args.png_output,
+            metadata_path=args.metadata_output,
+            top_k_features=args.top_k_features,
+            feature_prefixes=list(args.feature_prefixes) if args.feature_prefixes else None,
+        )
+        _write_json(payload, None)
+        return 0
+
+    if args.command == "render-zkperf-pca-spectrogram":
+        fixture = load_zkperf_stream_fixture(args.fixture)
+        payload = render_zkperf_pca_spectrogram(
+            fixture,
+            output_path=args.png_output,
+            metadata_path=args.metadata_output,
+            top_k_features=args.top_k_features,
+            components=args.components,
+            feature_prefixes=list(args.feature_prefixes) if args.feature_prefixes else None,
+        )
+        _write_json(payload, None)
         return 0
 
     payload = json.loads(args.runtime_object.read_text(encoding="utf-8"))

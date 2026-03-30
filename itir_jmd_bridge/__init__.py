@@ -61,6 +61,11 @@ from .providers.ipfs import (
     probe_ipfs_gateway_acknowledgement,
     publish_ipfs_file_with_ack,
 )
+from .zkperf_viz import (
+    build_zkperf_feature_spectrogram_payload,
+    render_zkperf_feature_spectrogram,
+    render_zkperf_pca_spectrogram,
+)
 
 __all__ = [
     "NullTransportPlugin",
@@ -112,4 +117,7 @@ __all__ = [
     "publish_ipfs_file_with_ack",
     "upload_hf_file_with_ack",
     "write_zkperf_stream_publish_artifacts",
+    "build_zkperf_feature_spectrogram_payload",
+    "render_zkperf_feature_spectrogram",
+    "render_zkperf_pca_spectrogram",
 ]

@@ -11,12 +11,16 @@ from itir_jmd_bridge.zkperf_stream import (
     build_zkperf_stream_latest,
     get_zkperf_stream_index_record,
     load_zkperf_stream_fixture,
-    resolve_zkperf_stream_from_index_hf,
+    load_remote_zkperf_stream_index_ipfs,
     publish_zkperf_stream_index_to_hf,
     publish_zkperf_stream_to_hf,
-    update_zkperf_stream_index,
     resolve_remote_zkperf_stream_window,
+    resolve_remote_zkperf_stream_window_ipfs,
     resolve_remote_zkperf_stream_windows,
+    resolve_remote_zkperf_stream_windows_ipfs,
+    resolve_zkperf_stream_from_index_hf,
+    resolve_zkperf_stream_from_index_ipfs,
+    update_zkperf_stream_index,
     write_zkperf_stream_publish_artifacts,
 )
 
@@ -29,7 +33,29 @@ def test_build_zkperf_stream_bundle() -> None:
     assert bundle['streamManifest']['streamId'] == 'zkperf-stream-demo'
     assert len(bundle['streamManifest']['windows']) == 2
     assert bundle['streamManifest']['latestWindowId'] == 'window-0002'
+    assert bundle['streamManifest']['observationCount'] == 2
+    index = bundle['streamManifest']['observationIndex']
+    assert len(index) == 2
+    assert index[0]['observationId']
+    assert index[0]['runId']
+    assert index[0]['traceId']
+    assert index[0]['hash']
     assert bundle['tarDigest']
+    # Ensure artifact/stream metrics are injected into observations.
+    import tarfile
+    import io
+    payload = {}
+    with tarfile.open(fileobj=io.BytesIO(bundle['tarBytes']), mode='r:*') as handle:
+        member = handle.getmember('windows/window-0001.json')
+        extracted = handle.extractfile(member)
+        assert extracted is not None
+        payload = json.loads(extracted.read().decode('utf-8'))
+    metrics = payload['observations'][0]['metrics']
+    metric_keys = {item.get('metric') or item.get('name') for item in metrics}
+    assert 'stream_window_count' in metric_keys
+    assert 'stream_observation_count' in metric_keys
+    assert 'window_observation_count' in metric_keys
+    assert 'window_sequence' in metric_keys
 
 
 def test_publish_zkperf_stream_to_hf(monkeypatch) -> None:
@@ -52,6 +78,9 @@ def test_publish_zkperf_stream_to_hf(monkeypatch) -> None:
     assert output['hfReceipt']['verified'] is True
     assert output['streamManifest']['containerObjectRef']['uri'].startswith('hf://datasets/chbwa/')
     assert output['streamLatest']['latestWindowId'] == 'window-0002'
+    assert output['streamLatest']['observationCount'] == output['streamManifest']['observationCount']
+    assert output['timings']['streamBuildMs'] >= 0
+    assert output['timings']['hfPublishMs'] >= 0
 
 
 def test_update_zkperf_stream_index_append() -> None:
@@ -279,6 +308,8 @@ def test_resolve_zkperf_stream_from_index_hf(monkeypatch) -> None:
     )
     assert payload['streamIndex']['resolvedStreamRevision'] == 'rev-20260330-b'
     assert payload['windows'][0]['window']['windowId'] == 'window-0003'
+    assert payload['timings']['indexLoadMs'] >= 0
+    assert payload['timings']['fetchAndExtractMs'] >= 0
 
 
 def test_write_zkperf_stream_publish_artifacts(tmp_path: Path) -> None:
