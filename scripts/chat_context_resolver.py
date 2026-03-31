@@ -21,7 +21,7 @@ from chat_context_resolver_lib.analysis import (
 )
 from chat_context_resolver_lib.cli import (
     build_parser as _build_parser,
-    resolve_runtime_options as _resolve_runtime_options,
+    parse_invocation as _parse_invocation,
 )
 from chat_context_resolver_lib.db_lookup import (
     connect_sqlite_ro as _connect_sqlite_ro,
@@ -328,12 +328,11 @@ def _cross_thread_analysis_payload(
 
 def main() -> int:
     parser = _build_parser()
-    args = parser.parse_args()
-
     repo_root = Path(__file__).resolve().parents[1]
     try:
-        runtime = _resolve_runtime_options(
-            args,
+        invocation = _parse_invocation(
+            parser=parser,
+            argv=None,
             repo_root=repo_root,
             parse_terms=_parse_terms,
             parse_range_spec=_parse_range_spec,
@@ -342,8 +341,10 @@ def main() -> int:
         )
     except ValueError as exc:
         payload = {"source": "error", "error": str(exc)}
-        _print_result(payload, args.json)
+        _print_result(payload, False)
         return 2
+    args = invocation.args
+    runtime = invocation.runtime
 
     exit_code, payload = _resolve_flow(
         args,

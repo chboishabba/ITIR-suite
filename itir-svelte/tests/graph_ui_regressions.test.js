@@ -30,6 +30,50 @@ test('AAO view does not reset viewport on selection changes', () => {
   assert.ok(s.includes('graphViewportKey'));
 });
 
+test('AAO route delegates selected-context rendering to a route-local panel', () => {
+  const route = read('src/routes/graphs/wiki-timeline-aoo/+page.svelte');
+  const panel = read('src/routes/graphs/wiki-timeline-aoo/_components/SelectedContextPanel.svelte');
+  assert.ok(route.includes("import SelectedContextPanel from './_components/SelectedContextPanel.svelte'"));
+  assert.ok(route.includes('<SelectedContextPanel'));
+  assert.ok(!route.includes('connected {selectedContext.summary.join('));
+  assert.ok(panel.includes('connected {selectedContext.summary.join('));
+  assert.ok(panel.includes('expand details'));
+  assert.ok(panel.includes('timeline_facts'));
+});
+
+test('AAO route delegates selected-event header and controls to a route-local panel', () => {
+  const route = read('src/routes/graphs/wiki-timeline-aoo/+page.svelte');
+  const panel = read('src/routes/graphs/wiki-timeline-aoo/_components/SelectedEventPanel.svelte');
+  assert.ok(route.includes("import SelectedEventPanel from './_components/SelectedEventPanel.svelte'"));
+  assert.ok(route.includes('<SelectedEventPanel'));
+  assert.ok(!route.includes("`step-ribbon` preserves sentence order"));
+  assert.ok(panel.includes("`step-ribbon` preserves sentence order"));
+  assert.ok(panel.includes('onSetTimeGranularity'));
+  assert.ok(panel.includes('hrefFor(source,'));
+});
+
+test('AAO route delegates span candidates rendering to a route-local panel', () => {
+  const route = read('src/routes/graphs/wiki-timeline-aoo/+page.svelte');
+  const panel = read('src/routes/graphs/wiki-timeline-aoo/_components/SpanCandidatesPanel.svelte');
+  assert.ok(route.includes("import SpanCandidatesPanel from './_components/SpanCandidatesPanel.svelte'"));
+  assert.ok(route.includes('<SpanCandidatesPanel'));
+  assert.ok(!route.includes('No span candidates for this event.'));
+  assert.ok(panel.includes('No span candidates for this event.'));
+  assert.ok(panel.includes('onToggleShowAll'));
+  assert.ok(panel.includes('showing {spanShown.length} / {totalSpanCount}'));
+});
+
+test('AAO route delegates object resolver hints rendering to a route-local panel', () => {
+  const route = read('src/routes/graphs/wiki-timeline-aoo/+page.svelte');
+  const panel = read('src/routes/graphs/wiki-timeline-aoo/_components/ObjectResolverHintsPanel.svelte');
+  assert.ok(route.includes("import ObjectResolverHintsPanel from './_components/ObjectResolverHintsPanel.svelte'"));
+  assert.ok(route.includes('<ObjectResolverHintsPanel {objectHintRows}'));
+  assert.ok(!route.includes('No objects available for hinting in this event.'));
+  assert.ok(panel.includes('No objects available for hinting in this event.'));
+  assert.ok(panel.includes('no resolver hints'));
+  assert.ok(panel.includes('{h.kind}@{h.lane}: {h.title}'));
+});
+
 test('AAO server supports gwb_corpus_v1', () => {
   const s = read('src/routes/graphs/wiki-timeline-aoo/+page.server.ts');
   const shared = read('src/lib/server/wikiTimeline.ts');
@@ -60,10 +104,18 @@ test('AAO-all route delegates corpus docs rendering to a route-local panel', () 
 });
 
 test('wikiTimelineAoo overlays richer HCA AAO events onto DB-backed metadata when needed', () => {
+  const adapter = read('src/lib/server/wiki_timeline/aoo_adapter.ts');
   const overlay = read('src/lib/server/wiki_timeline/hca_overlay.ts');
+  const script = read('../SensibLaw/scripts/query_wiki_timeline_aoo_db.py');
+  const runtime = read('../SensibLaw/src/wiki_timeline/query_runtime.py');
+  assert.ok(adapter.includes("'--rel-path'"));
+  assert.ok(!adapter.includes('loadFromDbCandidates'));
+  assert.ok(!adapter.includes('resolveItirDbPath'));
   assert.ok(overlay.includes('maybeOverlayHcaPayload'));
   assert.ok(overlay.includes('needsHcaEventOverlay'));
   assert.ok(overlay.includes('wiki_timeline_hca_s942025_aoo.json'));
+  assert.ok(script.includes('load_rel_path_envelope'));
+  assert.ok(runtime.includes('def load_rel_path_envelope('));
 });
 
 test('chat archive path resolver falls back to non-dot chat archive path', () => {

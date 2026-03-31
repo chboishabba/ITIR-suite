@@ -1,5 +1,32 @@
 # Compactified Context
 
+- 2026-04-01 cross-lane reusable surface meta-priority:
+  - source: current working turn
+  - main decision:
+    - the top execution rule is no longer just "keep domain logic in Python"
+    - it is also "use disparate lanes to build the strongest normalized,
+      reusable, generalized suite surfaces first"
+    - this is a `P-1` meta-priority over ordinary `P0` sequencing
+    - lane-local cleanup should lose priority unless it fixes correctness,
+      unblocks operators, or reveals hidden canonical logic
+  - governance artifacts:
+    - `docs/planning/cross_lane_reusable_surface_priority_20260401.md`
+    - `TODO.md`
+
+- 2026-04-01 wiki timeline UI priority demotion:
+  - source: current working turn
+  - main decision:
+    - the remaining AAO route work in `itir-svelte` is now mostly
+      presentation-only shell residue
+    - that means it is no longer the correct active priority compared with
+      Python/runtime/store consolidation
+    - further AAO route-shell extraction should be treated as opportunistic
+      cleanup unless it reveals a real remaining TS runtime rule or unblocks an
+      operator workflow
+  - governance artifacts:
+    - `docs/planning/wiki_timeline_ui_priority_demotion_20260401.md`
+    - `TODO.md`
+
 - 2026-03-31 wiki revision monitor blob contraction:
   - source: current working turn
   - main decision:
@@ -12,16 +39,210 @@
       candidate-pair placeholder-only blob columns
     - existing v0.3 DBs now also migrate in place: the runner rebuilds those
       two tables without the dead columns and preserves surviving row data
+    - the stricter v0.5 cut is now also landed:
+      `summary_json` and `graph_json` are gone from fresh schema and from
+      in-place migration
+    - the query lane is now SQLite-only:
+      no DB-blob fallback and no JSON artifact fallback for runs, summaries,
+      or selected graphs
+    - the first redundant runner-side JSON sidecars are now gone too:
+      no `runs/<run_id>.json` summary sidecar and no duplicate
+      `contested_graphs/<article_id>__latest.json` alias
   - governance artifacts:
     - `docs/planning/wiki_revision_monitor_blob_deprecation_matrix_20260331.md`
     - `docs/planning/wiki_revision_monitor_schema_contraction_plan_20260331.md`
     - `docs/planning/wiki_revision_monitor_v0_4_placeholder_blob_drop_20260331.md`
     - `docs/planning/wiki_revision_monitor_v0_4_in_place_migration_20260331.md`
+    - `docs/planning/wiki_revision_monitor_v0_5_backcompat_blob_drop_20260331.md`
+    - `docs/planning/wiki_revision_monitor_sqlite_only_query_20260331.md`
+    - `docs/planning/wiki_revision_monitor_sidecar_contraction_slice1_20260331.md`
     - `TODO.md`
     - `SensibLaw/todo.md`
   - next:
-    - keep `summary_json` and `graph_json` as bounded backcompat until the
-      stricter v0.5 consumer audit is complete
+    - decide the canonical replacement contract for the remaining runner
+      working artifacts before removing snapshot, pair-report, timeline, and
+      AOO JSON surfaces
+
+- 2026-04-01 wiki revision monitor writer contraction roadmap:
+  - source: current working turn
+  - main decision:
+    - the revision-monitor lane is not complete until the writer side stops
+      using JSON working artifacts as shadow storage
+    - the completion roadmap is now explicit:
+      1. remove runner-side dependence on pair-report JSON after write
+      2. classify remaining working artifacts as SQLite-owned, temporary tool
+         inputs, explicit exports, or dead duplication
+      3. remove persistent pair-report dependence from operational state
+      4. collapse current snapshot/timeline/AOO persistence toward bounded
+         temporary artifacts or SQLite-owned equivalents
+      5. remove pair-side snapshot/timeline/AOO sidecar reliance from pair
+         comparison flow
+      6. decide final export posture
+    - the first promoted slice is to stop rereading `pair_report_path` for
+      issue packets and contested-graph shaping while preserving the current
+      pair-report export file
+  - governance artifacts:
+    - `docs/planning/wiki_revision_monitor_writer_contraction_roadmap_20260401.md`
+    - `TODO.md`
+
+- 2026-04-01 wiki revision monitor pair temp-artifact boundary:
+  - source: current working turn
+  - main decision:
+    - pair-side snapshot, timeline, and AOO JSON files should not survive as
+      durable out-dir state just because subprocesses still need file paths
+    - pair comparison now uses bounded temp files for those subprocess inputs
+      and keeps only the pair report as the temporary durable pair-side export
+    - this advances roadmap step 5 without changing the pair-report export
+      posture yet
+  - governance artifacts:
+    - `docs/planning/wiki_revision_monitor_pair_temp_artifacts_20260401.md`
+    - `TODO.md`
+
+- 2026-04-01 wiki revision monitor pair-report state demotion:
+  - source: current working turn
+  - main decision:
+    - pair report remains a temporary legacy link, not a runtime state carrier
+    - run-level `reported` counts now derive from selected pair state rather
+      than pair-report path presence
+    - article-state continuity no longer carries forward prior `report_path`
+  - governance artifacts:
+    - `docs/planning/wiki_revision_monitor_pair_report_state_demotion_20260401.md`
+    - `TODO.md`
+
+- 2026-04-01 wiki revision monitor current-state temp-artifact boundary:
+  - source: current working turn
+  - main decision:
+    - current timeline and current AOO paths should not survive as continuity
+      state in article rows
+    - baseline initialization no longer persists timeline/AOO continuity state
+    - article-state continuity is reduced further toward revid, timestamps,
+      and status rather than JSON path carry-forward
+  - governance artifacts:
+    - `docs/planning/wiki_revision_monitor_current_state_temp_artifacts_20260401.md`
+    - `TODO.md`
+
+- 2026-04-01 wiki revision monitor in-process extractors:
+  - source: current working turn
+  - main decision:
+    - bounded temp JSON files were only a transitional compromise
+    - the default revision-monitor path now calls timeline and AOO extraction
+      in-process
+    - `wiki_timeline_extract.py` now exposes an importable timeline builder
+    - `wiki_timeline_aoo_extract.py` now exposes an importable AAO builder
+    - `revision_pack_runner.py` uses those builders directly and keeps
+      compatibility shims for older override callables
+    - the remaining writer-side JSON decision is now narrowed to explicit
+      export posture, especially pair report and contested graph outputs
+  - governance artifacts:
+    - `docs/planning/wiki_revision_monitor_inprocess_extractors_20260401.md`
+    - `docs/planning/wiki_revision_monitor_writer_contraction_roadmap_20260401.md`
+    - `TODO.md`
+
+- 2026-03-31 wiki timeline query runtime normalization:
+  - source: current working turn
+  - main decision:
+    - the remaining generic timeline-view runtime residue was not event
+      semantics anymore; it was loader and resolver policy still in
+      `itir-svelte/src/lib/server/wikiTimeline.ts`
+    - that policy now lives in:
+      `SensibLaw/src/wiki_timeline/query_runtime.py`
+    - `query_wiki_timeline_aoo_db.py` is now a thinner CLI wrapper over the
+      shared Python runtime for:
+      - db-path fallback resolution
+      - source-key normalization
+      - source-meta envelope loading for `timeline_view`
+    - `wikiTimeline.ts` is reduced further toward a shell that invokes Python
+      and consumes the returned envelope
+  - governance artifacts:
+    - `docs/planning/wiki_timeline_query_runtime_component_20260331.md`
+    - `TODO.md`
+  - next:
+    - move the remaining AAO-specific loader residue in
+      `itir-svelte/src/lib/server/wiki_timeline/aoo_adapter.ts` behind the
+      same Python runtime family without mixing in HCA overlay behavior
+
+- 2026-03-31 chat context resolver shell finish:
+  - source: current working turn
+  - main decision:
+    - after the flow extraction, the remaining resolver shell debt was small
+      and should be closed without touching analysis or flow semantics again
+    - parse/runtime handoff now belongs cohesively to
+      `chat_context_resolver_lib/cli.py`
+    - plaintext rendering now has explicit db/web/error branches inside
+      `chat_context_resolver_lib/formatters.py`
+    - `scripts/chat_context_resolver.py` is reduced further toward a pure
+      composition wrapper
+  - governance artifacts:
+    - `docs/planning/chat_context_resolver_shell_finish_20260331.md`
+    - `TODO.md`
+
+- 2026-03-31 wiki timeline AAO query runtime normalization:
+  - source: current working turn
+  - main decision:
+    - after the generic timeline-view runtime move, the remaining AAO runtime
+      residue was loader policy in `aoo_adapter.ts`, not overlay behavior
+    - suffix-candidate generation, rel-path load policy, and source-variant
+      raw-envelope loading now belong to the Python wiki timeline runtime
+      family in `SensibLaw/src/wiki_timeline/query_runtime.py`
+    - `aoo_adapter.ts` is reduced further toward adapter-only behavior:
+      invoke Python, normalize payload, and optionally apply HCA overlay
+    - HCA overlay stays TS-local in this slice
+  - governance artifacts:
+    - `docs/planning/wiki_timeline_aoo_query_runtime_component_20260331.md`
+    - `TODO.md`
+  - next:
+    - only presentation-only AAO route-shell residue remains as the safe TS
+      follow-up unless another canonical runtime rule is found
+
+- 2026-03-31 wiki timeline AAO selected-context panel extraction:
+  - source: current working turn
+  - main decision:
+    - after the AAO runtime normalization, the next safe TS slice was the
+      selected context panel in `wiki-timeline-aoo/+page.svelte`
+    - that panel now renders through a route-local component:
+      `SelectedContextPanel.svelte`
+    - context derivation, graph assembly, and node-meaning policy remain in
+      the route
+  - governance artifacts:
+    - `docs/planning/wiki_timeline_aoo_selected_context_panel_20260331.md`
+    - `TODO.md`
+
+- 2026-04-01 wiki timeline AAO selected-event panel extraction:
+  - source: current working turn
+  - main decision:
+    - after the selected-context split, the next safe presentation-only block
+      was the selected event header and layout/time controls in
+      `wiki-timeline-aoo/+page.svelte`
+    - that block now renders through a route-local component:
+      `SelectedEventPanel.svelte`
+    - the route still owns layout/time state and navigation wiring
+  - governance artifacts:
+    - `docs/planning/wiki_timeline_aoo_selected_event_panel_20260401.md`
+    - `TODO.md`
+
+- 2026-04-01 wiki timeline AAO span-candidates panel extraction:
+  - source: current working turn
+  - main decision:
+    - after the selected-event split, the next safe presentation-only block
+      was the span candidates panel in `wiki-timeline-aoo/+page.svelte`
+    - that panel now renders through a route-local component:
+      `SpanCandidatesPanel.svelte`
+    - span ranking, truncation, and parser-display state remain in the route
+  - governance artifacts:
+    - `docs/planning/wiki_timeline_aoo_span_candidates_panel_20260401.md`
+    - `TODO.md`
+
+- 2026-04-01 wiki timeline AAO object-resolver-hints panel extraction:
+  - source: current working turn
+  - main decision:
+    - after the span-candidates split, the next safe presentation-only block
+      was the object resolver hints panel in `wiki-timeline-aoo/+page.svelte`
+    - that panel now renders through a route-local component:
+      `ObjectResolverHintsPanel.svelte`
+    - hint-row derivation and ranking remain in the route
+  - governance artifacts:
+    - `docs/planning/wiki_timeline_aoo_object_resolver_hints_panel_20260401.md`
+    - `TODO.md`
 
 - 2026-03-31 zkperf generic upstreaming lane:
   - source: current working turn
@@ -4938,3 +5159,421 @@
     - record the design in zkperf contract/roadmap docs and `TODO.md`
     - defer implementation until a concrete lane and local baseline model are
       chosen
+
+- `2026-03-31` Wikidata Phi bridge scope-dimension normalization:
+  - source: current working turn
+  - normalized the bounded text-assist path as:
+    source unit -> observation claim -> Phi bridge -> migration review
+  - extended `SensibLaw/src/ontology/wikidata.py` so additive scope tags can
+    be carried through evidence links and surfaced as explicit scope-dimension
+    mismatch instead of collapsing into generic temporal pressure or hard
+    contradiction
+  - kept the governance boundary unchanged:
+    Wikipedia / climate text remain upstream evidence surfaces only, not direct
+    migration authority
+  - docs updated:
+    `SensibLaw/docs/planning/wikidata_phi_text_bridge_contract_20260328.md`
+    `SensibLaw/docs/planning/wikidata_climate_change_property_migration_protocol_20260327.md`
+    `TODO.md`
+  - focused verification:
+    `SensibLaw/tests/test_wikidata_projection.py`
+
+- `2026-04-01` Wiki revision source-unit lattice admission slice:
+  - source: current working turn
+  - main decision:
+    - revision-locked Wikipedia text is now treated as admissible upstream
+      state when captured as `sl.source_unit.v1` with
+      `retrieval_method = wiki_revision`
+    - no new bridge or truth engine was added; the existing
+      source-unit -> observation-claim -> Phi bridge path is the admission path
+  - pinned artifacts:
+    - planning note:
+      `SensibLaw/docs/planning/wiki_revision_source_unit_lattice_admission_20260401.md`
+    - fixture:
+      `SensibLaw/tests/fixtures/wikidata/wiki_revision_source_unit_fixture_20260401.json`
+  - verification:
+    - fixture validates as `sl.source_unit.v1`
+    - fixture emits Observation/Claim rows through the existing extractor
+    - fixture enters the existing bridge as bounded review pressure
+    - focused coverage:
+      `SensibLaw/tests/test_wikidata_projection.py`
+  - next:
+    - define the fuller wiki-state-to-lattice contract above this fixture so
+      wiki-derived checked/promoted/held transitions are explicit governance
+      objects rather than only an exercised path
+
+- `2026-04-01` Nat WDU sandbox migration mapping slice:
+  - source: current working turn
+  - main decision:
+    - the provided sandbox page
+      `User:Nat (WDU)/Sandbox/Fossil fuel industries/Migrate from carbon footprint to GHG emissions`
+      is strong enough to normalize as a proposal/cohort surface rather than
+      leaving it as informal chat context
+    - its task list was mapped into:
+      - business-family baseline cohort
+      - other reconciled `instance of` cohort
+      - non-GHG-protocol or missing-determination-method cohort
+      - no-`instance of` cohort
+      - unreconciled-`instance of` cohort
+    - its qualifier and reference lists were preserved as expected-shape
+      constraints for future cohort manifests
+  - pinned artifacts:
+    - mapping note:
+      `SensibLaw/docs/planning/wikidata_nat_wdu_sandbox_migration_mapping_20260401.md`
+    - source-unit fixture:
+      `SensibLaw/tests/fixtures/wikidata/wiki_revision_nat_wdu_sandbox_p5991_p14143_20260401.json`
+  - verification:
+    - fixture validates as `sl.source_unit.v1`
+    - fixture preserves migration source/target property metadata and anchor
+      labels for goal, cohorts, qualifier/reference family, and query anchor
+    - focused coverage:
+      `SensibLaw/tests/test_wikidata_projection.py`
+  - next:
+    - promote the mapped cohort families and expected-shape constraints into
+      explicit migration-pack or review manifests so the sandbox page stops at
+      planning/proposal authority and the runtime owns per-statement execution
+
+- `2026-04-01` Nat lane review cohort manifest slice:
+  - source: current working turn
+  - main decision:
+    - the Nat lane now carries an explicit bounded review-manifest layer above
+      future migration-pack materialization
+    - the five sandbox-derived cohort families are now pinned as explicit
+      artifacts rather than only a narrative mapping
+    - Nat-lane progress is now measured against eight bounded milestones
+  - pinned artifacts:
+    - planning note:
+      `SensibLaw/docs/planning/wikidata_nat_lane_cohort_manifests_20260401.md`
+    - fixture:
+      `SensibLaw/tests/fixtures/wikidata/wikidata_nat_lane_review_manifests_20260401.json`
+  - progress baseline:
+    - completed milestones:
+      - proposal page captured
+      - task buckets mapped
+      - review cohort manifests pinned
+    - remaining milestones:
+      - cohort slices materialized
+      - qualifier/reference shape scan completed
+      - migration-pack classification completed
+      - checked-safe or review-only exports produced
+      - post-edit verification exercised
+    - normalized progress:
+      - `3 / 8`
+      - `37.5%`
+  - verification:
+    - focused coverage:
+      `SensibLaw/tests/test_wikidata_projection.py`
+    - the fixture pins:
+      - five cohort ids
+      - expected qualifier/reference property sets
+      - known population counts for the business-family, missing-instance-of,
+        and unreconciled-instance-of cohorts
+      - the completion model summary
+  - next:
+    - materialize Cohort A as the first bounded migration-pack slice
+    - measure real qualifier/reference drift against the pinned expected-shape
+      sets
+
+- `2026-04-01` Nat Cohort A seed slice materialization:
+  - source: current working turn
+  - main decision:
+    - reuse the existing revision-locked climate pilot business-family subset
+      as the first Nat-lane Cohort A seed slice rather than pretending the full
+      business-family population is already materialized
+    - keep the slice explicitly review-first because all current rows remain
+      `split_required`
+  - pinned artifacts:
+    - planning note:
+      `SensibLaw/docs/planning/wikidata_nat_cohort_a_seed_slice_20260401.md`
+    - fixture:
+      `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_seed_slice_20260401.json`
+  - seed summary:
+    - entities:
+      `Q10403939`
+      `Q10422059`
+    - candidate count:
+      `53`
+    - classification counts:
+      - `split_required`: `53`
+    - checked-safe subset:
+      none
+  - progress baseline update:
+    - Nat-lane normalized progress is now:
+      - `4 / 8`
+      - `50%`
+  - next:
+    - measure qualifier/reference drift against the pinned expected-shape sets
+      for this materialized Cohort A seed slice
+
+- `2026-04-01` Nat Cohort A shape-scan slice:
+  - source: current working turn
+  - main decision:
+    - compare the materialized Cohort A seed directly against the Nat expected
+      qualifier/reference families instead of leaving shape assumptions
+      implicit
+    - the measured seed is shape-clean relative to the Nat expectation set
+  - pinned artifacts:
+    - planning note:
+      `SensibLaw/docs/planning/wikidata_nat_cohort_a_shape_scan_20260401.md`
+    - fixture:
+      `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_shape_scan_20260401.json`
+  - measured shape:
+    - actual qualifiers:
+      `P3831`
+      `P459`
+      `P518`
+      `P580`
+      `P582`
+    - actual references:
+      `P854`
+    - unexpected qualifier/reference properties:
+      none
+  - progress baseline update:
+    - Nat-lane normalized progress is now:
+      - `5 / 8`
+      - `62.5%`
+  - next:
+    - choose the next bounded classification slice:
+      either expand Cohort A beyond the current seed or branch to Cohort C as
+      the higher-risk non-GHG / missing-`P459` lane
+
+- `2026-04-01` Wikidata ontology-group Nat-lane handoff:
+  - source: current working turn
+  - main decision:
+    - add one short ontology-group-facing handoff surface for the normalized
+      Nat lane before continuing execution work
+    - keep the handoff centered on bounded progress, current Cohort A truth,
+      and the next branch decision
+  - pinned artifact:
+    - `SensibLaw/docs/planning/wikidata_ontology_group_handoff_nat_lane_20260401.md`
+  - status-page update:
+    - `SensibLaw/docs/wikidata_working_group_status.md` now points to the Nat
+      handoff and summarizes:
+      - progress:
+        `5 / 8`
+        `62.5%`
+      - current Cohort A result:
+        `53` candidate rows, all `split_required`
+      - next group decision:
+        expand Cohort A or branch to Cohort C
+  - next:
+    - continue with the next bounded Nat classification branch only after the
+      ontology-group handoff surface is in place
+
+- `2026-04-01` Nat Cohort A classification-checkpoint slice:
+  - source: current working turn
+  - main decision:
+    - pin the classifier output for the materialized Cohort A seed as a first
+      explicit Nat classification checkpoint artifact
+    - treat this as completion of the current classification milestone for the
+      materialized bounded cohort scope while keeping full planned-cohort
+      coverage explicitly open
+  - pinned artifacts:
+    - planning note:
+      `SensibLaw/docs/planning/wikidata_nat_cohort_a_classification_checkpoint_20260401.md`
+    - fixture:
+      `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_classification_checkpoint_20260401.json`
+  - checkpoint summary:
+    - entities:
+      `Q10403939`
+      `Q10422059`
+    - candidate count:
+      `53`
+    - classification:
+      `split_required = 53`
+    - action:
+      `split = 53`
+    - checked-safe subset:
+      none
+  - progress baseline update:
+    - Nat-lane normalized progress is now:
+      - `6 / 8`
+      - `75%`
+  - next:
+    - choose the next bounded cohort-expansion branch:
+      expand Cohort A further or branch to Cohort C
+
+- `2026-04-01` Combined Wikidata roadmap note:
+  - source: current working turn
+  - main decision:
+    - pin one combined roadmap for the Nat lane and the broader
+      Peter/Ege/Rosario assist lane
+    - keep Nat progress repo-owned and make assist-lane progress repo-owned as
+      well through a separate formal completion model
+  - pinned artifact:
+    - `docs/planning/wikidata_combined_roadmap_nat_and_assist_20260401.md`
+  - pinned progress accounting:
+    - Nat:
+      `6 / 8`
+      `75%`
+    - assist lane:
+      `4 / 7`
+      `57.142857%`
+  - sequence decision:
+    - finish Nat first
+    - then finish the assist lane
+    - then produce one combined outward-facing Wikidata assist handoff
+
+- `2026-04-01` Nat Cohort A targeted checked-safe hunt slice:
+  - source: current working turn
+  - main decision:
+    - after the first live tranche returned only `split_required`, run one
+      bounded low-complexity Cohort A hunt targeted at checked-safe yield
+    - keep the hunt live-discovery -> pinned artifact -> classify, without any
+      execution jump
+  - pinned artifacts:
+    - planning note:
+      `SensibLaw/docs/planning/wikidata_nat_cohort_a_checked_safe_hunt_20260401.md`
+    - fixture:
+      `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_checked_safe_hunt_20260401.json`
+  - hunt result:
+    - selected QIDs:
+      `Q1068745` (`Check24`)
+      `Q1489170` (`immowelt`)
+    - candidate rows:
+      `2`
+    - checked-safe subset:
+      `2`
+    - classification:
+      `safe_with_reference_transfer = 2`
+  - progress:
+    - Nat remains:
+      `7 / 8`
+      `87.5%`
+    - reason:
+      post-edit verification is still required for completion
+  - next:
+    - run bounded post-edit verification over this discovered checked-safe
+      subset
+
+- `2026-04-01` Combined Wikidata outward-facing assist handoff:
+  - source: current working turn
+  - main decision:
+    - collapse the updated Nat and assist lane states into one current
+      outward-facing first-link handoff
+    - repoint the repo's first-link Wikidata/Zelph reading surfaces to that
+      new note
+  - pinned artifact:
+    - `docs/planning/wikidata_combined_assist_handoff_20260401.md`
+  - pinned outward-facing state:
+    - Nat:
+      `6 / 8`
+      `75%`
+    - assist lane:
+      `4 / 7`
+      `57.142857%`
+  - updated entry surfaces:
+    - `SensibLaw/docs/wikidata_working_group_status.md`
+    - `docs/planning/zelph_external_handoff_20260320.md`
+    - `docs/planning/zelph_handoff_index_20260324.md`
+
+- `2026-04-01` Nat Cohort A review-only export slice:
+  - source: current working turn
+  - main decision:
+    - satisfy the Nat export gate with review-only artifacts rather than
+      waiting for a nonexistent checked-safe subset
+    - pair the review CSV with a review-only split plan so the seed remains
+      explicitly split-first
+  - pinned artifacts:
+    - planning note:
+      `SensibLaw/docs/planning/wikidata_nat_cohort_a_review_only_export_20260401.md`
+    - review export:
+      `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_review_only_export_20260401.csv`
+      `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_review_only_export_20260401.json`
+    - split plan:
+      `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_split_plan_20260401.json`
+  - pinned export truth:
+    - review rows:
+      `53`
+    - review bucket counts:
+      `split_required = 53`
+    - split plans:
+      `2`
+    - checked-safe subset:
+      none
+  - progress baseline update:
+    - Nat-lane normalized progress is now:
+      - `7 / 8`
+      - `87.5%`
+  - next:
+    - the remaining final Nat gate is post-edit verification on any future
+      promoted subset
+
+- `2026-04-01` Nat Cohort A live tranche slice:
+  - source: current working turn
+  - main decision:
+    - stop treating Nat's active business-family work as just a `seed`; keep
+      the first seed note as historical provenance and move the operational
+      language to live-discovered, repo-pinned tranches
+    - run the first live Cohort A expansion pass against the Nat business /
+      enterprise / public-company rule and pin only the bounded tranche used
+  - pinned artifacts:
+    - planning note:
+      `SensibLaw/docs/planning/wikidata_nat_cohort_a_live_tranche_20260401.md`
+    - live discovery fixture:
+      `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_live_discovery_20260401.json`
+    - live tranche fixture:
+      `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_live_tranche_20260401.json`
+  - pinned tranche truth:
+    - materialized tranche qids:
+      `Q30938280`
+      `Q731938`
+      `Q1785637`
+      `Q738421`
+    - candidate rows:
+      `188`
+    - checked-safe subset:
+      `0`
+    - requires review:
+      `188`
+    - bucket counts:
+      `split_required = 188`
+    - split-plan summary:
+      `4 structurally_decomposable`
+  - implication:
+    - Nat remains `7 / 8 = 87.5%`
+    - the next useful move is no longer blind Cohort A expansion; it is either
+      a targeted checked-safe hunt inside Cohort A or a branch to Cohort C
+
+- `2026-04-01` Peter/Ege/Rosario assist-lane completion model:
+  - source: current working turn
+  - main decision:
+    - replace the assist lane's prior progress estimate with a formal local
+      completion model
+    - keep prior-work boundaries explicit while making the lane finishable
+  - pinned artifact:
+    - `docs/planning/wikidata_assist_lane_completion_model_20260401.md`
+  - pinned progress accounting:
+    - `4 / 7`
+    - `57.142857%`
+  - completed milestones:
+    - prior-work / originality boundary pinned
+    - Rosario parity gap note pinned
+    - bounded `P2738` disjointness lane exists
+    - checked wiki/Wikidata structural handoff exists
+  - remaining milestones:
+    - broader `P2738` coverage
+    - better culprit sophistication
+    - combined outward-facing assist packet
+
+- `2026-04-01` Nat Cohort C branch state:
+  - source: current working turn
+  - main decision:
+    - pin the first bounded Cohort C branch state for the non-GHG or
+      missing-`P459` lane
+    - keep Nat mainline progress unchanged while making the branch discoverable
+  - pinned artifacts:
+    - `SensibLaw/docs/planning/wikidata_nat_cohort_c_branch_20260401.md`
+    - `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_c_branch_20260401.json`
+  - branch state:
+    - cohort id:
+      `non_ghg_protocol_or_missing_p459`
+    - status:
+      `branch_pinned`
+    - population:
+      unknown
+    - next gate:
+      `review_first_population_scan`
+  - progress meaning:
+    - Nat mainline remains at `7 / 8`
+    - Cohort C is now explicit repo memory, not an implied future option

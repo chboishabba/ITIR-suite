@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import scripts.chat_context_resolver as resolver
 from chat_context_resolver_lib.analysis import parse_range_spec, parse_terms
-from chat_context_resolver_lib.cli import resolve_runtime_options
+from chat_context_resolver_lib.cli import parse_invocation, resolve_runtime_options
 from chat_context_resolver_lib.formatters import print_result
 from chat_context_resolver_lib.live_provider import extract_online_thread_id_from_url
 
@@ -96,6 +96,22 @@ def test_resolve_runtime_options_reports_missing_term_file(tmp_path: Path) -> No
         raise AssertionError("Expected ValueError for missing --term-file")
 
 
+def test_parse_invocation_returns_args_and_runtime(tmp_path: Path) -> None:
+    parser = resolver._build_parser()
+    invocation = parse_invocation(
+        parser=parser,
+        argv=["selector", "--db", "sqlite/chat_archive.sqlite"],
+        repo_root=tmp_path,
+        parse_terms=parse_terms,
+        parse_range_spec=parse_range_spec,
+        parse_datetime=resolver._parse_datetime,
+        extract_online_thread_id=extract_online_thread_id_from_url,
+    )
+
+    assert invocation.args.selector == "selector"
+    assert invocation.runtime.db_path == tmp_path / "sqlite/chat_archive.sqlite"
+
+
 def test_print_result_db_plaintext_still_includes_recent_turns(capsys) -> None:
     payload = {
         "source": "db",
@@ -129,3 +145,37 @@ def test_print_result_db_plaintext_still_includes_recent_turns(capsys) -> None:
     assert "latest_paragraphs:" in out
     assert "recent_turns:" in out
     assert "turn text" in out
+
+
+def test_print_result_web_plaintext_includes_command_and_warning(capsys) -> None:
+    payload = {
+        "source": "web",
+        "decision_reason": "db_miss",
+        "web_recent_turns_warning": "live timestamps unavailable",
+        "web_recent_turns": [
+            {
+                "ts": "2026-03-28T01:00:00Z",
+                "ts_utc": "2026-03-28T01:00:00Z",
+                "role": "user",
+                "text": "hello",
+            }
+        ],
+        "web": {
+            "command": ["python", "-m", "re_gpt.cli", "--view", "selector"],
+            "stderr": "warning",
+            "stdout": "resolved",
+        },
+    }
+
+    print_result(payload, as_json=False)
+    out = capsys.readouterr().out
+    assert "web_command:" in out
+    assert "web_recent_turns_warning: live timestamps unavailable" in out
+    assert "web_stderr:" in out
+    assert "resolved" in out
+
+
+def test_print_result_error_plaintext_emits_error(capsys) -> None:
+    print_result({"source": "error", "error": "bad runtime"}, as_json=False)
+    out = capsys.readouterr().out
+    assert out.strip() == "source: error\nbad runtime"

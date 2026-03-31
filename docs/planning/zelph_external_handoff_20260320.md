@@ -8,7 +8,7 @@ could exist.
 
 If someone needs one short meeting-ready link that works for both the Wikidata
 Ontology Working Group and the Zelph developer, start with:
-- `docs/planning/wikidata_zelph_single_handoff_20260325.md`
+- `docs/planning/wikidata_combined_assist_handoff_20260401.md`
 
 Canonical doc index for this collaboration surface:
 - `docs/planning/zelph_handoff_index_20260324.md`

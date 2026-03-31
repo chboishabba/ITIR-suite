@@ -21,6 +21,12 @@ class RuntimeOptions:
     threshold: Optional[dt.datetime]
 
 
+@dataclass(frozen=True)
+class ParsedInvocation:
+    args: argparse.Namespace
+    runtime: RuntimeOptions
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
@@ -247,3 +253,25 @@ def resolve_runtime_options(
         analysis_requested=analysis_requested,
         threshold=threshold,
     )
+
+
+def parse_invocation(
+    *,
+    parser: argparse.ArgumentParser,
+    argv: list[str] | None,
+    repo_root: Path,
+    parse_terms: Callable[[list[str]], list[str]],
+    parse_range_spec: Callable[[str, str], tuple[int, int]],
+    parse_datetime: Callable[[str], dt.datetime],
+    extract_online_thread_id: Callable[[str], Optional[str]],
+) -> ParsedInvocation:
+    args = parser.parse_args(argv)
+    runtime = resolve_runtime_options(
+        args,
+        repo_root=repo_root,
+        parse_terms=parse_terms,
+        parse_range_spec=parse_range_spec,
+        parse_datetime=parse_datetime,
+        extract_online_thread_id=extract_online_thread_id,
+    )
+    return ParsedInvocation(args=args, runtime=runtime)

@@ -1,6 +1,10 @@
 <script lang="ts">
   import Panel from '$lib/ui/Panel.svelte';
   import LayeredGraph, { type LayerNode, type LayeredEdge } from '$lib/ui/LayeredGraph.svelte';
+  import ObjectResolverHintsPanel from './_components/ObjectResolverHintsPanel.svelte';
+  import SelectedEventPanel from './_components/SelectedEventPanel.svelte';
+  import SelectedContextPanel from './_components/SelectedContextPanel.svelte';
+  import SpanCandidatesPanel from './_components/SpanCandidatesPanel.svelte';
 
   export let data: {
     payload: {
@@ -921,70 +925,14 @@
 
     <div class="space-y-4">
       {#if selected}
-        <Panel>
-          <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Selected</div>
-          <div class="mt-2 text-sm text-ink-950">{selected.text}</div>
-          <div class="mt-2 text-xs text-ink-800/60">
-            {selected.anchor.text} | section: <span class="font-mono">{selected.section}</span>
-          </div>
-          {#if selected.chains?.length}
-            <div class="mt-2 text-xs text-ink-800/60 font-mono">
-              chains:
-              {#each selected.chains as c, i (i)}
-                <span class="ml-2">{c.kind}({c.from_step ?? '-'}->{c.to_step ?? c.to ?? '-'})</span>
-              {/each}
-            </div>
-          {/if}
-          <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-ink-950">
-            <div class="font-mono text-[10px] uppercase tracking-[0.20em] text-ink-800/70">Layout</div>
-            <button
-              class="rounded-md border px-2 py-1 font-mono text-[11px] {layoutMode==='step_ribbon' ? 'border-ink-950/40 bg-ink-950/[0.04]' : 'border-ink-950/10 bg-white hover:border-ink-950/25 hover:bg-ink-950/[0.02]'}"
-              on:click={() => {
-                window.location.href = hrefFor(data.source ?? 'gwb', 'step-ribbon');
-              }}
-            >
-              step-ribbon
-            </button>
-            <button
-              class="rounded-md border px-2 py-1 font-mono text-[11px] {layoutMode==='roles' ? 'border-ink-950/40 bg-ink-950/[0.04]' : 'border-ink-950/10 bg-white hover:border-ink-950/25 hover:bg-ink-950/[0.02]'}"
-              on:click={() => {
-                window.location.href = hrefFor(data.source ?? 'gwb', 'roles');
-              }}
-            >
-              roles
-            </button>
-          </div>
-          <div class="mt-2 text-[11px] text-ink-800/65">
-            `step-ribbon` preserves sentence order (S1 -&gt; S2 ...) with explicit `then` edges; it is linearization only, not causality.
-          </div>
-          <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-ink-950">
-            <div class="font-mono text-[10px] uppercase tracking-[0.20em] text-ink-800/70">Time view</div>
-            <button
-              class="rounded-md border px-2 py-1 font-mono text-[11px] {timeGranularity==='auto' ? 'border-ink-950/40 bg-ink-950/[0.04]' : 'border-ink-950/10 bg-white hover:border-ink-950/25 hover:bg-ink-950/[0.02]'}"
-              on:click={() => (timeGranularity = 'auto')}
-            >
-              auto
-            </button>
-            <button
-              class="rounded-md border px-2 py-1 font-mono text-[11px] {timeGranularity==='year' ? 'border-ink-950/40 bg-ink-950/[0.04]' : 'border-ink-950/10 bg-white hover:border-ink-950/25 hover:bg-ink-950/[0.02]'}"
-              on:click={() => (timeGranularity = 'year')}
-            >
-              year
-            </button>
-            <button
-              class="rounded-md border px-2 py-1 font-mono text-[11px] {timeGranularity==='month' ? 'border-ink-950/40 bg-ink-950/[0.04]' : 'border-ink-950/10 bg-white hover:border-ink-950/25 hover:bg-ink-950/[0.02]'}"
-              on:click={() => (timeGranularity = 'month')}
-            >
-              month
-            </button>
-            <button
-              class="rounded-md border px-2 py-1 font-mono text-[11px] {timeGranularity==='day' ? 'border-ink-950/40 bg-ink-950/[0.04]' : 'border-ink-950/10 bg-white hover:border-ink-950/25 hover:bg-ink-950/[0.02]'}"
-              on:click={() => (timeGranularity = 'day')}
-            >
-              day
-            </button>
-          </div>
-        </Panel>
+        <SelectedEventPanel
+          {selected}
+          source={data.source ?? 'gwb'}
+          {layoutMode}
+          {timeGranularity}
+          {hrefFor}
+          onSetTimeGranularity={(value) => (timeGranularity = value)}
+        />
 
         <LayeredGraph
           layers={graph.layers}
@@ -999,190 +947,27 @@
         on:nodeSelect={(e) => handleNodeSelect(e as CustomEvent<{ nodeId: string }>)}
       />
 
-        <Panel>
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Context</div>
-            <div class="text-[11px] font-mono text-ink-800/60">
-              {#if selected}
-                selected: {selected.event_id}{#if selectedNodeId} ({selectedNodeId}){/if}
-                <button
-                  class="ml-2 rounded border border-ink-950/10 bg-white px-2 py-0.5 text-[10px] hover:border-ink-950/25"
-                  on:click={() => (expandContextDetails = !expandContextDetails)}
-                >
-                  {expandContextDetails ? 'collapse details' : 'expand details'}
-                </button>
-              {:else}
-                click a node to inspect context
-              {/if}
-            </div>
-          </div>
-          {#if selected && selectedContext}
-            <div class="mt-3 rounded-lg border border-ink-950/10 bg-white p-3">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <div class="font-mono text-[10px] text-ink-800/60">{fmtTime(selected.anchor)} {selected.event_id}</div>
-                <div class="font-mono text-[10px] text-ink-800/60">section={selected.section}</div>
-              </div>
-              <div class="mt-2 text-sm text-ink-950 leading-relaxed">
-                {#each highlightParts(selected.text, selectedContext.needle) as p, i (i)}
-                  {#if p.hit}
-                    <mark class="rounded bg-amber-100 px-0.5">{p.s}</mark>
-                  {:else}
-                    <span>{p.s}</span>
-                  {/if}
-                {/each}
-              </div>
-              <div class="mt-2 text-[11px] text-ink-800/65 font-mono">
-                connected {selectedContext.summary.join(' ')}
-              </div>
-              {#if expandContextDetails}
-                <div class="mt-3 max-h-[280px] overflow-auto rounded border border-ink-950/10 bg-slate-50 p-2 text-[11px]">
-                  {#if selectedContextDetails.requesters.length}
-                    <div class="mb-1">
-                      <span class="font-mono text-ink-800/60">requesters</span>
-                      {#each selectedContextDetails.requesters as x (selected.event_id + ':req:' + x)}
-                        <span class="ml-1 inline-block rounded bg-purple-100 px-1.5 py-0.5 font-mono">[{x}]</span>
-                      {/each}
-                    </div>
-                  {/if}
-                  {#if selectedContextDetails.subjects.length}
-                    <div class="mb-1">
-                      <span class="font-mono text-ink-800/60">subjects</span>
-                      {#each selectedContextDetails.subjects as x (selected.event_id + ':sub:' + x)}
-                        <span class="ml-1 inline-block rounded bg-emerald-100 px-1.5 py-0.5 font-mono">[{x}]</span>
-                      {/each}
-                    </div>
-                  {/if}
-                  {#if selectedContextDetails.actions.length}
-                    <div class="mb-1">
-                      <span class="font-mono text-ink-800/60">actions</span>
-                      {#each selectedContextDetails.actions as x (selected.event_id + ':act:' + x)}
-                        <span class="ml-1 inline-block rounded bg-amber-100 px-1.5 py-0.5 font-mono">[{x}]</span>
-                      {/each}
-                    </div>
-                  {/if}
-                  {#if selectedContextDetails.objects.length}
-                    <div class="mb-1">
-                      <span class="font-mono text-ink-800/60">objects</span>
-                      {#each selectedContextDetails.objects as x (selected.event_id + ':obj:' + x)}
-                        <span class="ml-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 font-mono">[{x}]</span>
-                      {/each}
-                    </div>
-                  {/if}
-                  {#if selectedContextDetails.numerics.length}
-                    <div class="mb-1">
-                      <span class="font-mono text-ink-800/60">numeric</span>
-                      {#each selectedContextDetails.numerics as x (selected.event_id + ':num:' + x)}
-                        <span class="ml-1 inline-block rounded bg-rose-100 px-1.5 py-0.5 font-mono">[{x}]</span>
-                      {/each}
-                    </div>
-                  {/if}
-                  {#if selectedContextDetails.factRows.length}
-                    <div class="mb-1">
-                      <span class="font-mono text-ink-800/60">timeline_facts</span>
-                      {#each selectedContextDetails.factRows.slice(0, 6) as x (selected.event_id + ':fact:' + x)}
-                        <span class="ml-1 mt-1 inline-block rounded bg-lime-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
-                      {/each}
-                    </div>
-                  {/if}
-                  {#if selectedContextDetails.citations.length}
-                    <div class="mb-1">
-                      <span class="font-mono text-ink-800/60">citations</span>
-                      {#each selectedContextDetails.citations.slice(0, 8) as x (selected.event_id + ':cit:' + x)}
-                        <span class="ml-1 inline-block rounded bg-amber-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
-                      {/each}
-                    </div>
-                  {/if}
-                  {#if selectedContextDetails.slRefs.length}
-                    <div class="mb-1">
-                      <span class="font-mono text-ink-800/60">sl_refs</span>
-                      {#each selectedContextDetails.slRefs.slice(0, 8) as x (selected.event_id + ':sl:' + x)}
-                        <span class="ml-1 inline-block rounded bg-blue-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
-                      {/each}
-                    </div>
-                  {/if}
-                  {#if selectedContextDetails.warnings.length}
-                    <div>
-                      <span class="font-mono text-ink-800/60">warnings</span>
-                      {#each selectedContextDetails.warnings as x (selected.event_id + ':warn:' + x)}
-                        <span class="ml-1 inline-block rounded bg-rose-50 px-1.5 py-0.5 font-mono text-ink-900">{x}</span>
-                      {/each}
-                    </div>
-                  {/if}
-                </div>
-              {/if}
-            </div>
-          {/if}
-        </Panel>
+        <SelectedContextPanel
+          {selected}
+          {selectedNodeId}
+          {selectedContext}
+          {selectedContextDetails}
+          {expandContextDetails}
+          onToggleDetails={() => (expandContextDetails = !expandContextDetails)}
+          {fmtTime}
+          {highlightParts}
+        />
 
-        <Panel>
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Span candidates</div>
-            <div class="font-mono text-[10px] text-ink-800/60">
-              {#if data.payload.parser}
-                parser={data.payload.parser.model ?? '(unknown)'}
-              {:else}
-                parser=(none)
-              {/if}
-            </div>
-          </div>
-          {#if selected.span_candidates?.length}
-            <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-ink-950">
-              <label class="flex items-center gap-2">
-                <input type="checkbox" bind:checked={showAllSpans} />
-                <span class="text-ink-800/70">show all</span>
-              </label>
-              <div class="font-mono text-[10px] text-ink-800/60">
-                showing {spanShown.length} / {selected.span_candidates.length}
-              </div>
-            </div>
-            <div class="mt-3 flex flex-wrap gap-2 text-[11px]">
-              {#each spanShown as s (s.span_id)}
-                <span class="rounded border border-ink-950/10 bg-white px-2 py-1 font-mono text-ink-950">
-                  <span class="text-ink-800/70">{s.span_type}</span>
-                  <span class="ml-2">{s.text}</span>
-                  {#if s.hygiene?.view_score !== undefined}
-                    <span class="ml-2 text-ink-800/60">score={Number(s.hygiene.view_score).toFixed(2)}</span>
-                  {/if}
-                  {#if s.recurrence?.seen_events}
-                    <span class="ml-2 text-ink-800/60">seen={s.recurrence.seen_events}</span>
-                  {/if}
-                </span>
-              {/each}
-            </div>
-          {:else}
-            <div class="mt-3 text-xs text-ink-800/70">
-              No span candidates emitted (model not installed, parsing disabled, or no noun chunks outside resolved entities).
-            </div>
-          {/if}
-        </Panel>
+        <SpanCandidatesPanel
+          parserModel={data.payload.parser ? data.payload.parser.model ?? '(unknown)' : null}
+          hasSpanCandidates={Boolean(selected.span_candidates?.length)}
+          {showAllSpans}
+          {spanShown}
+          totalSpanCount={selected.span_candidates?.length ?? 0}
+          onToggleShowAll={() => (showAllSpans = !showAllSpans)}
+        />
 
-        <Panel>
-          <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Object resolver hints</div>
-          {#if objectHintRows.length}
-            <div class="mt-3 max-h-[260px] overflow-auto space-y-2">
-              {#each objectHintRows as r (r.title + ':' + r.source)}
-                <div class="rounded border border-ink-950/10 bg-white px-2 py-2">
-                  <div class="font-mono text-[11px] text-ink-950">
-                    [{r.source}] {r.title}
-                  </div>
-                  {#if r.hints.length}
-                    <div class="mt-1 flex flex-wrap gap-2 text-[10px]">
-                      {#each r.hints as h, i (r.title + ':' + i)}
-                        <span class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-ink-900">
-                          {h.kind}@{h.lane}: {h.title} ({Number(h.score).toFixed(2)})
-                        </span>
-                      {/each}
-                    </div>
-                  {:else}
-                    <div class="mt-1 text-[11px] text-ink-800/70">no resolver hints</div>
-                  {/if}
-                </div>
-              {/each}
-            </div>
-          {:else}
-            <div class="mt-3 text-xs text-ink-800/70">No objects available for hinting in this event.</div>
-          {/if}
-        </Panel>
+        <ObjectResolverHintsPanel {objectHintRows} />
       {/if}
     </div>
   </div>

@@ -11,13 +11,18 @@ function read(rel) {
 
 test('wikiTimeline centralizes source registry and DB source loader', () => {
   const server = read('src/lib/server/wikiTimeline.ts');
+  const script = read('../SensibLaw/scripts/query_wiki_timeline_aoo_db.py');
+  const runtime = read('../SensibLaw/src/wiki_timeline/query_runtime.py');
   assert.ok(server.includes('export function normalizeWikiTimelineSourceKey'));
   assert.ok(server.includes('export async function loadWikiTimelineSourceDb'));
   assert.ok(server.includes("'--source-key'"));
   assert.ok(server.includes("'--with-source-meta'"));
   assert.ok(server.includes("'timeline_view'"));
+  assert.ok(script.includes('load_source_meta_envelope'));
+  assert.ok(runtime.includes('def resolve_query_db_path('));
   assert.ok(!server.includes('outEvents.sort('));
   assert.ok(!server.includes('event_id = String('));
+  assert.ok(!server.includes('SL_WIKI_TIMELINE_DB / SL_WIKI_TIMELINE_AOO_DB is deprecated'));
 });
 
 test('wiki-timeline route server delegates source resolution to shared loader', () => {

@@ -16,7 +16,7 @@ completeness claim, or a pack note as if it were the whole technical contract.
 
 ## Recommended Reading Order
 ### 1. Start here for external orientation
-- `docs/planning/wikidata_zelph_single_handoff_20260325.md`
+- `docs/planning/wikidata_combined_assist_handoff_20260401.md`
 
 What it is for:
 - one short plain-language handoff that works for both the Wikidata Ontology
@@ -133,7 +133,7 @@ Reason:
 
 ## Use This Index When Sharing
 If someone needs only one link first:
-- send `docs/planning/wikidata_zelph_single_handoff_20260325.md`
+- send `docs/planning/wikidata_combined_assist_handoff_20260401.md`
 
 If they immediately ask "what exactly is in scope now?":
 - send `docs/planning/zelph_real_world_pack_v1_6_20260325.md`

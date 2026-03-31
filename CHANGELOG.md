@@ -1,5 +1,131 @@
+## 2026-04-01
+
+- Removed the default revision-monitor subprocess JSON handoff for timeline
+  and AOO extraction.
+  - Added `docs/planning/wiki_revision_monitor_inprocess_extractors_20260401.md`.
+  - Extended `docs/planning/wiki_revision_monitor_writer_contraction_roadmap_20260401.md`.
+  - Rewired `SensibLaw/scripts/wiki_timeline_extract.py` to expose an
+    importable timeline builder.
+  - Rewired `SensibLaw/scripts/wiki_timeline_aoo_extract.py` to expose an
+    importable AAO builder with a thin CLI wrapper.
+  - Rewired `SensibLaw/src/wiki_timeline/revision_pack_runner.py` so the
+    default path calls those builders in-process instead of shelling out
+    through temp JSON files.
+  - Kept compatibility wrappers for older override callables.
+  - Verified with:
+    `../.venv/bin/python -m pytest -q tests/test_wiki_revision_pack_runner.py tests/test_revision_monitor_read_models.py tests/test_revision_monitor_query.py tests/test_revision_pack_summary.py`
+    from `SensibLaw/` (`18 passed`).
+
+- Demoted current revision-monitor timeline/AOO persistence to bounded temp
+  artifacts.
+  - Added `docs/planning/wiki_revision_monitor_current_state_temp_artifacts_20260401.md`.
+  - Rewired `SensibLaw/src/wiki_timeline/revision_pack_runner.py` so baseline
+    current timeline/AOO generation uses temp files and those paths are no
+    longer stored as durable article-state or article-result continuity.
+  - Tightened `SensibLaw/tests/test_wiki_revision_pack_runner.py`.
+
+- Removed pair-report path from revision-monitor operational semantics.
+  - Added `docs/planning/wiki_revision_monitor_pair_report_state_demotion_20260401.md`.
+  - Rewired `SensibLaw/src/wiki_timeline/revision_pack_runner.py` so
+    run-level reported counts derive from selected pair state and
+    article-state continuity no longer carries forward prior `report_path`.
+  - Kept pair report paths in payloads as legacy links for this slice.
+  - Tightened `SensibLaw/tests/test_wiki_revision_pack_runner.py`.
+
+- Demoted pair-side snapshot, timeline, and AOO revision-monitor artifacts to
+  bounded temp files.
+  - Added `docs/planning/wiki_revision_monitor_pair_temp_artifacts_20260401.md`.
+  - Rewired `SensibLaw/src/wiki_timeline/revision_pack_runner.py` so pair
+    comparison uses temp-file subprocess inputs instead of durable out-dir
+    sidecars for pair snapshots, pair timelines, and pair AOO payloads.
+  - Kept pair report export intact for this slice.
+  - Tightened `SensibLaw/tests/test_wiki_revision_pack_runner.py`.
+
+- Promoted cross-lane reusable surface building to a `P-1` meta-priority.
+  - Added `docs/planning/cross_lane_reusable_surface_priority_20260401.md`.
+  - Updated `TODO.md` and `COMPACTIFIED_CONTEXT.md` so task choice now favors
+    the strongest normalized, reusable, generalized Python/store/runtime
+    surfaces across lanes before local cleanup.
+
+- Demoted the remaining wiki timeline AAO route-shell cleanup from active
+  priority to opportunistic cleanup.
+  - Added `docs/planning/wiki_timeline_ui_priority_demotion_20260401.md`.
+  - Updated `TODO.md` and `COMPACTIFIED_CONTEXT.md` so further presentation-only
+    `itir-svelte` shell extraction is treated as `P3` unless it exposes a real
+    remaining runtime rule in TS or unblocks an operator workflow.
+
+- Extracted the AAO object resolver hints block into a route-local component.
+  - Added `docs/planning/wiki_timeline_aoo_object_resolver_hints_panel_20260401.md`.
+  - Added `itir-svelte/src/routes/graphs/wiki-timeline-aoo/_components/ObjectResolverHintsPanel.svelte`.
+  - Rewired `itir-svelte/src/routes/graphs/wiki-timeline-aoo/+page.svelte` to
+    delegate resolver-hint card rendering to the new route-local panel while
+    keeping hint-row derivation and ordering in the route.
+  - Tightened `itir-svelte/tests/graph_ui_regressions.test.js`.
+- Extracted the AAO span candidates block into a route-local component.
+  - Added `docs/planning/wiki_timeline_aoo_span_candidates_panel_20260401.md`.
+  - Added `itir-svelte/src/routes/graphs/wiki-timeline-aoo/_components/SpanCandidatesPanel.svelte`.
+  - Rewired `itir-svelte/src/routes/graphs/wiki-timeline-aoo/+page.svelte` to
+    delegate parser badge, toggle UI, and span-chip rendering to the new
+    route-local panel while keeping span ordering and slice state in the route.
+  - Tightened `itir-svelte/tests/graph_ui_regressions.test.js`.
+- Extracted the next presentation-only AAO route-shell block into a route-local component.
+  - Added `docs/planning/wiki_timeline_aoo_selected_event_panel_20260401.md`.
+  - Added `itir-svelte/src/routes/graphs/wiki-timeline-aoo/_components/SelectedEventPanel.svelte`.
+  - Rewired `itir-svelte/src/routes/graphs/wiki-timeline-aoo/+page.svelte` to
+    delegate selected-event header and layout/time-controls rendering to the
+    new route-local panel while keeping UI state in the route.
+  - Tightened `itir-svelte/tests/graph_ui_regressions.test.js`.
+
 ## 2026-03-31
 
+- Extracted the next presentation-only AAO route-shell block into a route-local component.
+  - Added `docs/planning/wiki_timeline_aoo_selected_context_panel_20260331.md`.
+  - Added `itir-svelte/src/routes/graphs/wiki-timeline-aoo/_components/SelectedContextPanel.svelte`.
+  - Rewired `itir-svelte/src/routes/graphs/wiki-timeline-aoo/+page.svelte` to
+    delegate selected-context rendering to the new route-local panel while
+    keeping derivation in the route.
+  - Tightened `itir-svelte/tests/graph_ui_regressions.test.js`.
+- Moved the remaining AAO loader/runtime policy behind the Python wiki
+  timeline runtime family.
+  - Added `docs/planning/wiki_timeline_aoo_query_runtime_component_20260331.md`.
+  - Extended `SensibLaw/src/wiki_timeline/query_runtime.py` and rewired
+    `SensibLaw/scripts/query_wiki_timeline_aoo_db.py` so rel-path and
+    source-variant AAO loading no longer depend on TS-side suffix-candidate
+    or DB-candidate policy.
+  - Thinned `itir-svelte/src/lib/server/wiki_timeline/aoo_adapter.ts` so it
+    keeps payload normalization and HCA overlay only.
+  - Tightened focused wiki timeline Python and `itir-svelte` regression tests.
+- Finished the remaining `chat_context_resolver` shell cleanup.
+  - Added `docs/planning/chat_context_resolver_shell_finish_20260331.md`.
+  - Rewired `chat_context_resolver_lib/cli.py` to provide a cohesive
+    parse/runtime handoff for the script entrypoint.
+  - Split plaintext db/web/error rendering inside
+    `chat_context_resolver_lib/formatters.py` while preserving the public
+    print entrypoint.
+  - Thinned `scripts/chat_context_resolver.py` further toward a pure
+    composition wrapper.
+  - Extended `tests/test_chat_context_resolver_cli_formatters.py`.
+- Moved the remaining generic wiki timeline loader/resolver policy behind a
+  Python runtime owner.
+  - Added `docs/planning/wiki_timeline_query_runtime_component_20260331.md`.
+  - Added `SensibLaw/src/wiki_timeline/query_runtime.py`.
+  - Rewired `SensibLaw/scripts/query_wiki_timeline_aoo_db.py` to delegate
+    DB-path fallback resolution, source-key normalization, and timeline-view
+    source-envelope loading to the shared runtime owner.
+  - Thinned `itir-svelte/src/lib/server/wikiTimeline.ts` so the timeline-view
+    DB loader no longer owns that runtime policy inline.
+  - Tightened `SensibLaw/tests/test_timeline_view_projection.py` and
+    `itir-svelte/tests/wiki_timeline_refactor_regressions.test.js`.
+- Removed the first redundant runner-side JSON sidecars from the wiki
+  revision-monitor lane.
+  - Added `docs/planning/wiki_revision_monitor_sidecar_contraction_slice1_20260331.md`.
+  - Rewired `SensibLaw/src/wiki_timeline/revision_pack_runner.py` so it no
+    longer emits:
+    - `runs/<run_id>.json`
+    - `contested_graphs/<article_id>__latest.json`
+  - Kept the canonical contested-graph artifact path unchanged.
+  - Tightened `SensibLaw/tests/test_wiki_revision_pack_runner.py` to pin the
+    no-summary-sidecar and no-latest-graph-alias boundary.
 - Defined the next wiki revision monitor contraction slice after the
   SQLite-first read-model work:
   freeze a deprecation matrix for legacy blob columns and stop writing full
@@ -36,6 +162,21 @@
     placeholder-only columns are still present.
   - Extended `SensibLaw/tests/test_wiki_revision_pack_runner.py` to prove the
     migration removes the dead columns and preserves surviving row data.
+- Promoted the v0.5 backcompat blob drop for the wiki revision monitor lane.
+  - Added `docs/planning/wiki_revision_monitor_v0_5_backcompat_blob_drop_20260331.md`.
+  - Bumped `SensibLaw/src/wiki_timeline/revision_pack_runner.py` to
+    `wiki_revision_pack_state_v0_5`.
+  - Fresh schema and in-place migration now remove:
+    - `wiki_revision_monitor_runs.summary_json`
+    - `wiki_revision_monitor_contested_graphs.graph_json`
+  - `SensibLaw/src/wiki_timeline/revision_monitor_query.py` now uses SQLite
+    read models plus artifact fallback only; DB-blob fallback is gone.
+  - Extended revision-monitor tests to pin the no-blob v0.5 schema boundary
+    and migration behavior.
+- Removed JSON artifact fallback from the revision-monitor query lane.
+  - Added `docs/planning/wiki_revision_monitor_sqlite_only_query_20260331.md`.
+  - `SensibLaw/src/wiki_timeline/revision_monitor_query.py` is now SQLite-only
+    for runs, summaries, and selected graphs.
 - Froze the concrete zkperf upstream PR1 payload and added a staging helper.
   - Added `docs/planning/zkperf_pr1_payload_to_upstream_20260331.md`.
   - Added `scripts/prepare_zkperf_upstream_bundle.py`.
@@ -2113,3 +2254,296 @@
     - `SensibLaw/tests/test_revision_monitor_query.py`
     - `SensibLaw/tests/test_revision_monitor_read_models.py`
     - `SensibLaw/tests/test_wiki_revision_pack_runner.py`
+- `2026-03-31` Wikidata Phi bridge scope-dimension normalization:
+  - updated
+    `SensibLaw/docs/planning/wikidata_phi_text_bridge_contract_20260328.md`
+    and
+    `SensibLaw/docs/planning/wikidata_climate_change_property_migration_protocol_20260327.md`
+    so the bounded text-assist path is now explicitly source-unit driven and
+    scope-aware
+  - updated `TODO.md` so the scope-tag followthrough is recorded as done and
+    the next wiki-assisted quality slice is pinned as a bounded
+    `wiki_revision` source-unit exercise
+  - extended `SensibLaw/src/ontology/wikidata.py` so source-unit extraction
+    carries additive scope tags through Observation/Claim evidence links and
+    the Phi bridge can distinguish temporal mismatch from scope-dimension
+    mismatch without changing the allowed pressure vocabulary
+  - kept `sl.wikidata.climate_text_source.v1` backward-compatible through the
+    existing source-unit adaptation path
+  - added focused regression coverage in:
+    - `SensibLaw/tests/test_wikidata_projection.py`
+- `2026-04-01` Wiki revision source-unit lattice admission slice:
+  - added
+    `SensibLaw/docs/planning/wiki_revision_source_unit_lattice_admission_20260401.md`
+    to pin the first explicit admission rule for revision-locked Wikipedia text
+    into the existing source-unit -> observation-claim -> Phi bridge path
+  - added the first bounded pinned wiki revision fixture at
+    `SensibLaw/tests/fixtures/wikidata/wiki_revision_source_unit_fixture_20260401.json`
+    using a captured `wiki_revision` source-unit shape rather than a new
+    one-off contract
+  - extended `SensibLaw/tests/test_wikidata_projection.py` so the fixture is
+    validated as `sl.source_unit.v1`, emits Observation/Claim rows through the
+    existing extractor, and enters the bridge as bounded review pressure
+  - updated `TODO.md` and `COMPACTIFIED_CONTEXT.md` so the wiki-assisted slice
+    is durable repo state and the next followthrough is a fuller
+    wiki-state-to-lattice admission contract
+- `2026-04-01` Nat WDU sandbox migration mapping slice:
+  - added
+    `SensibLaw/docs/planning/wikidata_nat_wdu_sandbox_migration_mapping_20260401.md`
+    to normalize the provided Nat WDU sandbox page into:
+    - ZKP framing
+    - migration cohorts
+    - expected qualifier/reference constraint sets
+    - ITIL / ISO 9000 / Six Sigma / C4 readings
+  - added the first pinned source-unit fixture for that proposal page at
+    `SensibLaw/tests/fixtures/wikidata/wiki_revision_nat_wdu_sandbox_p5991_p14143_20260401.json`
+    using the existing `wiki_revision` admission path rather than a new
+    proposal-only contract
+  - extended `SensibLaw/tests/test_wikidata_projection.py` with focused schema
+    validation for the sandbox fixture and its migration metadata / anchor map
+  - updated `TODO.md` and `COMPACTIFIED_CONTEXT.md` so the next followthrough
+    is to promote the sandbox page's cohort families into explicit executable
+    manifests or review cohort artifacts
+- `2026-04-01` Nat lane review cohort manifest slice:
+  - added
+    `SensibLaw/docs/planning/wikidata_nat_lane_cohort_manifests_20260401.md`
+    to turn the sandbox mapping into explicit bounded review cohort artifacts
+    with:
+    - a five-cohort partition
+    - expected qualifier/reference constraint families
+    - an eight-milestone completion model
+    - a normalized `3 / 8` (`37.5%`) progress baseline
+  - added the pinned manifest fixture at
+    `SensibLaw/tests/fixtures/wikidata/wikidata_nat_lane_review_manifests_20260401.json`
+    so the Nat lane now has an explicit artifact layer between proposal capture
+    and future migration-pack materialization
+  - extended `SensibLaw/tests/test_wikidata_projection.py` to pin the five
+    cohort ids, the expected qualifier/reference sets, the business-family /
+    missing-instance / unreconciled-instance population counts, and the lane
+    completion summary
+  - updated `TODO.md` and `COMPACTIFIED_CONTEXT.md` so the next Nat-lane move
+    is to materialize Cohort A into a real bounded migration-pack slice and
+    measure drift against the pinned expected-shape sets
+- `2026-04-01` Nat Cohort A seed slice materialization:
+  - added
+    `SensibLaw/docs/planning/wikidata_nat_cohort_a_seed_slice_20260401.md`
+    to promote the first revision-locked business-family subset into an
+    explicit Nat-lane Cohort A seed artifact
+  - added the pinned seed fixture at
+    `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_seed_slice_20260401.json`
+    using the existing climate pilot pack as its materialization source rather
+    than re-fetching live Wikidata
+  - pinned the current business-family seed summary:
+    - entities:
+      `Q10403939`, `Q10422059`
+    - candidate count:
+      `53`
+    - classification:
+      `split_required = 53`
+    - checked-safe subset:
+      empty
+  - updated
+    `SensibLaw/docs/planning/wikidata_nat_lane_cohort_manifests_20260401.md`
+    and
+    `SensibLaw/tests/fixtures/wikidata/wikidata_nat_lane_review_manifests_20260401.json`
+    so Nat-lane progress is now pinned at `4 / 8` (`50%`)
+  - extended `SensibLaw/tests/test_wikidata_projection.py` with focused checks
+    for the Cohort A seed fixture and the updated completion model
+- `2026-04-01` Nat Cohort A shape-scan slice:
+  - added
+    `SensibLaw/docs/planning/wikidata_nat_cohort_a_shape_scan_20260401.md`
+    to compare the materialized business-family seed against the Nat expected
+    qualifier/reference families
+  - added the pinned scan fixture at
+    `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_shape_scan_20260401.json`
+    with the measured property sets and occurrence counts from the revision-
+    locked seed
+  - pinned the measured seed shape:
+    - actual qualifiers:
+      `P3831`, `P459`, `P518`, `P580`, `P582`
+    - actual references:
+      `P854`
+    - unexpected qualifier/reference properties:
+      none
+  - updated
+    `SensibLaw/docs/planning/wikidata_nat_lane_cohort_manifests_20260401.md`
+    and
+    `SensibLaw/tests/fixtures/wikidata/wikidata_nat_lane_review_manifests_20260401.json`
+    so Nat-lane progress is now pinned at `5 / 8` (`62.5%`)
+  - extended `SensibLaw/tests/test_wikidata_projection.py` with focused checks
+    for the shape-scan fixture and the updated completion model
+- `2026-04-01` Wikidata ontology-group Nat-lane handoff:
+  - added
+    `SensibLaw/docs/planning/wikidata_ontology_group_handoff_nat_lane_20260401.md`
+    as the short working-group-facing handoff for the normalized Nat
+    `P5991 -> P14143` lane
+  - updated `SensibLaw/docs/wikidata_working_group_status.md` so the top-level
+    working-group status page now points to the Nat handoff and summarizes:
+    - current progress:
+      `5 / 8` (`62.5%`)
+    - current bounded Cohort A state:
+      `53` rows, all `split_required`
+    - next ontology-group decision:
+      expand Cohort A further or branch to Cohort C
+  - updated `TODO.md` and `COMPACTIFIED_CONTEXT.md` so the ontology-group
+    handoff step is durable repo state
+- `2026-04-01` Nat Cohort C branch state:
+  - added
+    `SensibLaw/docs/planning/wikidata_nat_cohort_c_branch_20260401.md`
+    to pin the first bounded Nat Cohort C branch state for the
+    non-GHG / missing-`P459` lane
+  - added the pinned branch fixture at
+    `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_c_branch_20260401.json`
+    so Cohort C now exists as explicit repo state before any population scan
+  - extended `SensibLaw/tests/test_wikidata_projection.py` with focused
+    coverage for the branch-state fixture
+  - updated `SensibLaw/docs/wikidata_working_group_status.md`, `TODO.md`, and
+    `COMPACTIFIED_CONTEXT.md` so the branch is discoverable without widening
+    Nat mainline progress
+- `2026-04-01` Nat Cohort A classification-checkpoint slice:
+  - added
+    `SensibLaw/docs/planning/wikidata_nat_cohort_a_classification_checkpoint_20260401.md`
+    to pin the first explicit migration-pack classification checkpoint over the
+    materialized Nat business-family seed
+  - added the pinned checkpoint fixture at
+    `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_classification_checkpoint_20260401.json`
+    with the measured bounded seed classification state:
+    - `candidate_count = 53`
+    - `split_required = 53`
+    - `action split = 53`
+    - `checked_safe_subset = []`
+  - updated Nat-lane progress references in:
+    - `SensibLaw/tests/fixtures/wikidata/wikidata_nat_lane_review_manifests_20260401.json`
+    - `SensibLaw/docs/planning/wikidata_nat_lane_cohort_manifests_20260401.md`
+    - `SensibLaw/docs/planning/wikidata_nat_cohort_a_shape_scan_20260401.md`
+    - `SensibLaw/docs/planning/wikidata_ontology_group_handoff_nat_lane_20260401.md`
+    - `SensibLaw/docs/wikidata_working_group_status.md`
+    so the bounded Nat completion model now reads:
+    - `6 / 8`
+    - `75%`
+  - extended `SensibLaw/tests/test_wikidata_projection.py` with focused checks
+    for the new checkpoint fixture and the updated completion summary
+- `2026-04-01` Combined Wikidata roadmap note:
+  - added
+    `docs/planning/wikidata_combined_roadmap_nat_and_assist_20260401.md`
+    to pin one execution-order roadmap across:
+    - the Nat `P5991 -> P14143` migration-review lane
+    - the Peter/Ege/Rosario assist lane
+  - the note keeps the progress accounting explicit:
+    - Nat:
+      repo-pinned `5 / 8` (`62.5%`)
+    - assist lane:
+      repo-pinned `4 / 7` (`57.142857%`)
+  - updated `SensibLaw/docs/wikidata_working_group_status.md` so the working
+    group status page points to the combined roadmap as the current
+    execution-order view
+  - updated `TODO.md` and `COMPACTIFIED_CONTEXT.md` so the combined roadmap is
+    durable repo state
+- `2026-04-01` Combined Wikidata outward-facing assist handoff:
+  - added
+    `docs/planning/wikidata_combined_assist_handoff_20260401.md`
+    as the current first-link outward-facing handoff for the Wikidata-facing
+    work
+  - the handoff now states the current lane truth explicitly:
+    - Nat:
+      `6 / 8` (`75%`)
+    - assist lane:
+      `4 / 7` (`57.142857%`)
+  - updated
+    `SensibLaw/docs/wikidata_working_group_status.md`,
+    `docs/planning/zelph_external_handoff_20260320.md`, and
+    `docs/planning/zelph_handoff_index_20260324.md`
+    so the repo's first-link reading order now points to the new combined
+    handoff instead of the older single-handoff note
+  - updated `TODO.md` and `COMPACTIFIED_CONTEXT.md` so the handoff change is
+    durable repo state
+- `2026-04-01` Nat Cohort A review-only export slice:
+  - added
+    `SensibLaw/docs/planning/wikidata_nat_cohort_a_review_only_export_20260401.md`
+    to pin the honest export gate for the current Nat seed as review-only
+  - materialized the review-only export artifacts:
+    - `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_review_only_export_20260401.csv`
+    - `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_review_only_export_20260401.json`
+    - `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_split_plan_20260401.json`
+  - pinned current export truth:
+    - review CSV rows:
+      `53`
+    - review CSV bucket counts:
+      `split_required = 53`
+    - split plans:
+      `2 structurally_decomposable`
+    - checked-safe subset:
+      none
+  - updated the Nat progress-bearing docs so the lane is now pinned at
+    `7 / 8` (`87.5%`)
+  - extended `SensibLaw/tests/test_wikidata_projection.py` to pin the review
+    export summary, CSV row set, and split-plan fixture
+- `2026-04-01` Nat Cohort A live tranche slice:
+  - added
+    `SensibLaw/docs/planning/wikidata_nat_cohort_a_live_tranche_20260401.md`
+    to shift Nat's active language from historical `seed` provenance to a
+    live-discovered, repo-pinned tranche workflow
+  - added the pinned live fixtures:
+    - `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_live_discovery_20260401.json`
+    - `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_live_tranche_20260401.json`
+  - materialized the first bounded live Cohort A tranche under
+    `/tmp/wikidata_nat_cohort_a_live_tranche_20260401` from:
+    - `Q30938280` (`Essity`)
+    - `Q731938` (`AstraZeneca`)
+    - `Q1785637` (`Apoteket`)
+    - `Q738421` (`Assa Abloy`)
+  - pinned live tranche truth:
+    - candidate rows:
+      `188`
+    - checked-safe subset:
+      `0`
+    - requires review:
+      `188`
+    - bucket counts:
+      `split_required = 188`
+    - split-plan summary:
+      `4 structurally_decomposable`
+  - updated Nat-facing docs and TODO wording so active operational state now
+    uses `tranche` language while keeping `seed` only as historical provenance
+  - updated the Nat recommendation: stop blind business-family expansion and
+    switch to a targeted checked-safe hunt inside Cohort A, or branch to
+    Cohort C if no promotable subset appears
+- `2026-04-01` Nat Cohort A targeted checked-safe hunt slice:
+  - added
+    `SensibLaw/docs/planning/wikidata_nat_cohort_a_checked_safe_hunt_20260401.md`
+    to pin the first bounded low-complexity checked-safe hunt inside Cohort A
+  - added the pinned hunt fixture:
+    `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_checked_safe_hunt_20260401.json`
+  - materialized a bounded two-QID tranche under
+    `/tmp/wikidata_nat_cohort_a_checked_safe_hunt_20260401` from:
+    - `Q1068745` (`Check24`)
+    - `Q1489170` (`immowelt`)
+  - pinned hunt truth:
+    - candidate rows:
+      `2`
+    - checked-safe subset:
+      `2`
+    - bucket:
+      `safe_with_reference_transfer = 2`
+  - updated Nat docs/status/TODO/context so the next highest-value gate is
+    bounded post-edit verification on the discovered checked-safe subset
+- `2026-04-01` Peter/Ege/Rosario assist-lane completion model:
+  - added
+    `docs/planning/wikidata_assist_lane_completion_model_20260401.md`
+    to pin the assist lane's finish line as a local repo-owned completion
+    model rather than an inferred estimate
+  - the assist lane is now formally tracked at:
+    - `4 / 7`
+    - `57.142857%`
+  - updated
+    `docs/planning/wikidata_combined_roadmap_nat_and_assist_20260401.md`
+    and
+    `SensibLaw/docs/wikidata_working_group_status.md`
+    so the assist lane is no longer described as only inferred
+  - updated `TODO.md` and `COMPACTIFIED_CONTEXT.md` so the pinned finish-line
+    model is durable repo state
+- 2026-04-01: froze the wiki revision monitor writer-contraction roadmap in
+  `docs/planning/wiki_revision_monitor_writer_contraction_roadmap_20260401.md`,
+  updated `TODO.md` and `COMPACTIFIED_CONTEXT.md`, and promoted the next slice
+  to remove runner-side dependence on pair-report JSON as working state while
+  preserving the existing pair-report export path temporarily.

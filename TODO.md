@@ -50,17 +50,62 @@
   - DONE: complete the local workspace consumer audit and promote the v0.4
     placeholder-only schema drop for newly created DBs
   - DONE: add the in-place v0.4 migration for older revision-monitor DBs
-  - next: decide when the remaining v0.5 backcompat blobs
-    (`summary_json`, `graph_json`) can be dropped after stricter audit
+  - DONE: drop the remaining v0.5 backcompat blobs
+    (`summary_json`, `graph_json`) from fresh schema and old-DB migration
+  - DONE: remove JSON artifact fallback from the query lane
+  - DONE: remove the first redundant runner-side JSON sidecars:
+    - `runs/<run_id>.json`
+    - `contested_graphs/<article_id>__latest.json`
+    - contract note:
+      `docs/planning/wiki_revision_monitor_sidecar_contraction_slice1_20260331.md`
+  - next completion roadmap is now frozen in:
+    `docs/planning/wiki_revision_monitor_writer_contraction_roadmap_20260401.md`
+  - next promoted slice:
+    demote pair snapshot, pair timeline, and pair AOO files to bounded temp
+    subprocess artifacts inside pair comparison flow while keeping pair report
+    as the only durable pair-side export surface for now
+  - contract note:
+    `docs/planning/wiki_revision_monitor_pair_temp_artifacts_20260401.md`
+  - next promoted slice:
+    remove pair-report path from operational semantics:
+    derive reported counts from selected-pair state and stop carrying prior
+    `report_path` forward in article-state continuity
+  - contract note:
+    `docs/planning/wiki_revision_monitor_pair_report_state_demotion_20260401.md`
+  - DONE: stop the default runner path from using subprocess JSON handoff for
+    timeline and AOO extraction
+  - contract notes:
+    - `docs/planning/wiki_revision_monitor_current_state_temp_artifacts_20260401.md`
+    - `docs/planning/wiki_revision_monitor_inprocess_extractors_20260401.md`
+  - next promoted slice:
+    decide the final export posture for the remaining writer-side JSON
+    artifacts, especially pair report and contested graph outputs
 - Chatistics: no TODOs found.
 - pyThunderbird: no TODOs found.
 
 ## Active TODOs
 ## Priority legend
+- [P-1] Meta-priority governing how `P0` work is chosen
 - [P0] Blocking / core platform correctness
 - [P1] Near-term platform capability unlocks
 - [P2] Important but deferrable
 - [P3] Nice-to-have / polish
+
+- [P-1] Cross-lane reusable surface building:
+  - use disparate active lanes to build the most normalized, reusable, and
+    generalized suite surfaces first
+  - prefer work that:
+    - collapses duplicated policy across lanes
+    - creates one Python-owned canonical owner
+    - reduces truth-surface count
+    - improves adopter parity
+    - leaves wrappers, adapters, and routes thinner
+  - demote lane-local cleanup unless it:
+    - fixes correctness
+    - unblocks an operator workflow
+    - or exposes a hidden canonical rule in the wrong layer
+  - contract note:
+    `docs/planning/cross_lane_reusable_surface_priority_20260401.md`
 
 - [P1] zkperf upstream split hardening:
   - DONE: physically split stream core, index, and transport into:
@@ -82,6 +127,16 @@
       lane there
     - decide whether `transport.py` joins PR1 or remains PR2 after the first
       transplant pass
+
+- [P3] Presentation-only wiki timeline route-shell cleanup:
+  - remaining AAO route-shell work in `itir-svelte` is now opportunistic
+    cleanup, not an active platform lane
+  - examples:
+    - `itir-svelte/src/routes/graphs/wiki-timeline-aoo/+page.svelte`
+    - `itir-svelte/src/routes/graphs/wiki-timeline-aoo-all/+page.svelte`
+  - only promote more extraction there if:
+    - a concrete operator workflow is blocked, or
+    - a hidden runtime rule is discovered still living in TS
 
 - [P0] Python-owned domain logic normalization:
   - use `docs/planning/python_domain_ownership_policy_20260330.md` as the
@@ -114,6 +169,12 @@
     - DONE: move the resolver DB-vs-web decision tree out of
       `scripts/chat_context_resolver.py` into a shared Python flow owner so
       the script becomes a thin CLI coordinator
+    - DONE: finish the remaining resolver shell debt:
+      - cohesive parse/runtime handoff in `chat_context_resolver_lib/cli.py`
+      - source-specific plaintext rendering in
+        `chat_context_resolver_lib/formatters.py`
+      - contract note:
+        `docs/planning/chat_context_resolver_shell_finish_20260331.md`
     - harden `itir-mcp` as an adapter contract only
     - DONE: move wiki fact-timeline projection from
       `itir-svelte/src/routes/graphs/wiki-fact-timeline/projection.ts`
@@ -236,12 +297,41 @@
       disjointness overlap:
       - shared checked disjointness rows and cue fanout
       - shared dense disjointness rows and cue fanout
-    - next: move generic wiki timeline view normalization from
-      `itir-svelte/src/lib/server/wikiTimeline.ts`
-      into a Python-owned `timeline_view` projection behind
-      `SensibLaw/scripts/query_wiki_timeline_aoo_db.py`
-    - thin `itir-svelte` route/server shells while planning Python-owned
-      replacements for the remaining timeline semantics
+    - DONE: move the remaining generic timeline-view loader and resolver
+      policy out of `itir-svelte/src/lib/server/wikiTimeline.ts` and behind
+      one Python runtime owner:
+      - `SensibLaw/src/wiki_timeline/query_runtime.py`
+      - `docs/planning/wiki_timeline_query_runtime_component_20260331.md`
+    - DONE: take the AAO-specific loader residue in
+      `itir-svelte/src/lib/server/wiki_timeline/aoo_adapter.ts` and move its
+      source-variant / DB candidate policy behind the same Python runtime
+      family without mixing in HCA overlay behavior:
+      - `docs/planning/wiki_timeline_aoo_query_runtime_component_20260331.md`
+    - DONE: extract the next presentation-only AAO route-shell block:
+      the selected context panel in
+      `itir-svelte/src/routes/graphs/wiki-timeline-aoo/+page.svelte`
+      now renders through a route-local component. Contract note:
+      `docs/planning/wiki_timeline_aoo_selected_context_panel_20260331.md`
+    - DONE: extract the selected event header/layout/time-controls block in
+      `itir-svelte/src/routes/graphs/wiki-timeline-aoo/+page.svelte` into a
+      route-local component. Contract note:
+      `docs/planning/wiki_timeline_aoo_selected_event_panel_20260401.md`
+    - DONE: extract the span candidates panel in
+      `itir-svelte/src/routes/graphs/wiki-timeline-aoo/+page.svelte` into a
+      route-local component. Contract note:
+      `docs/planning/wiki_timeline_aoo_span_candidates_panel_20260401.md`
+    - DONE: extract the object resolver hints panel in
+      `itir-svelte/src/routes/graphs/wiki-timeline-aoo/+page.svelte` into a
+      route-local component. Contract note:
+      `docs/planning/wiki_timeline_aoo_object_resolver_hints_panel_20260401.md`
+    - DONE: demote remaining AAO route-shell extraction from active priority
+      to opportunistic cleanup because the remaining work is now
+      presentation-only shell slimming. Contract note:
+      `docs/planning/wiki_timeline_ui_priority_demotion_20260401.md`
+    - next: prioritize Python/runtime/store consolidation ahead of any
+      further AAO route-shell extraction
+    - later: continue AAO route-shell slimming only as P3 cleanup unless
+      another remaining wiki runtime rule is found
     - DONE: extract duplicate-heading / contested-response grouping helpers
       from `SensibLaw/scripts/build_google_docs_contested_narrative_review.py`
       into the shared Python module
@@ -611,15 +701,112 @@
         older scope-1 evidence while the current structured bundle is 2023
         multi-scope data, so it should surface dimensional mismatch rather than
         hard contradiction
-      - next followthrough:
-        add simple scope-tag carriage / matching so the bridge can distinguish
-        "different scope" from generic temporal split pressure
+      - DONE: add simple scope-tag carriage / matching so the bridge can
+        distinguish "different scope" from generic temporal split pressure
+      - current normalization:
+        route scope tags through the generic `sl.source_unit.v1` ->
+        `sl.observation_claim.contract.v1` -> `Phi` bridge path so the same
+        bounded comparison surface can later be exercised against
+        revision-locked Wikipedia text without adding a parallel bridge
       - next source-capture generalization:
         add a generic revision-locked `sl.source_unit.v1` contract plus a
         `SourceUnitAdapter` runtime path
       - governance:
         this must keep `sl.wikidata.climate_text_source.v1` working as a
         backward-compatible legacy subtype and must not widen bridge semantics
+      - next wiki-assisted quality slice:
+        DONE: exercise one bounded `wiki_revision` source-unit fixture through
+        that same path and keep Wikipedia text treated as upstream evidence
+        only, never as direct migration authority
+        - planning note:
+          `SensibLaw/docs/planning/wiki_revision_source_unit_lattice_admission_20260401.md`
+        - pinned fixture:
+          `SensibLaw/tests/fixtures/wikidata/wiki_revision_source_unit_fixture_20260401.json`
+      - next wiki-assisted followthrough:
+        define a small wiki-state-to-lattice admission contract above the
+        fixture so checked/promoted/held transitions over wiki-derived
+        observations are explicit rather than implied by test coverage alone
+      - DONE: capture the Nat WDU sandbox migration page as a first-class
+        `wiki_revision` proposal fixture and map its task buckets into the
+        migration-pack protocol
+        - mapping note:
+          `SensibLaw/docs/planning/wikidata_nat_wdu_sandbox_migration_mapping_20260401.md`
+        - fixture:
+          `SensibLaw/tests/fixtures/wikidata/wiki_revision_nat_wdu_sandbox_p5991_p14143_20260401.json`
+      - DONE: turn the sandbox page's cohort families and expected
+        qualifier/reference sets into explicit Nat-lane review cohort manifests
+        with a finite completion model
+        - planning note:
+          `SensibLaw/docs/planning/wikidata_nat_lane_cohort_manifests_20260401.md`
+        - pinned manifest fixture:
+          `SensibLaw/tests/fixtures/wikidata/wikidata_nat_lane_review_manifests_20260401.json`
+      - DONE: materialize the first bounded Nat Cohort A migration-pack
+        tranche
+        slice from already pinned revision-locked business-family entities
+        - planning note:
+          `SensibLaw/docs/planning/wikidata_nat_cohort_a_seed_slice_20260401.md`
+        - pinned seed fixture:
+          `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_seed_slice_20260401.json`
+      - DONE: measure qualifier/reference drift against the pinned expected
+        Nat shape for the first materialized Cohort A tranche
+        - planning note:
+          `SensibLaw/docs/planning/wikidata_nat_cohort_a_shape_scan_20260401.md`
+        - pinned scan fixture:
+          `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_shape_scan_20260401.json`
+      - DONE: pin a migration-pack classification checkpoint for the first
+        materialized Cohort A tranche
+        - planning note:
+          `SensibLaw/docs/planning/wikidata_nat_cohort_a_classification_checkpoint_20260401.md`
+        - pinned checkpoint fixture:
+          `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_classification_checkpoint_20260401.json`
+      - DONE: emit review-only export artifacts for the classified Cohort A
+        tranche so the Nat export gate is explicit even without a checked-safe
+        subset
+        - planning note:
+          `SensibLaw/docs/planning/wikidata_nat_cohort_a_review_only_export_20260401.md`
+        - exported artifacts:
+          `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_review_only_export_20260401.csv`
+          `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_review_only_export_20260401.json`
+          `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_split_plan_20260401.json`
+      - DONE: run the first live Cohort A expansion pass and pin it as a
+        bounded tranche rather than leaving business-family discovery ambient
+        - planning note:
+          `SensibLaw/docs/planning/wikidata_nat_cohort_a_live_tranche_20260401.md`
+        - pinned fixtures:
+          `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_live_discovery_20260401.json`
+          `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_live_tranche_20260401.json`
+      - DONE: run a bounded targeted checked-safe hunt inside Cohort A and pin
+        the resulting tranche
+        - planning note:
+          `SensibLaw/docs/planning/wikidata_nat_cohort_a_checked_safe_hunt_20260401.md`
+        - pinned hunt fixture:
+          `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_a_checked_safe_hunt_20260401.json`
+      - DONE: add the working-group handoff note for the normalized Nat lane
+        so ontology reviewers have one concise status/decision surface
+        - handoff note:
+          `SensibLaw/docs/planning/wikidata_ontology_group_handoff_nat_lane_20260401.md`
+      - DONE: add one combined roadmap note for finishing the Nat lane and the
+        broader Peter/Ege/Rosario assist lane with explicit pinned-vs-inferred
+        progress accounting
+        - roadmap note:
+          `docs/planning/wikidata_combined_roadmap_nat_and_assist_20260401.md`
+      - DONE: pin a formal local completion model for the Peter/Ege/Rosario
+        assist lane so its finish line is repo-owned rather than inferred
+        - model note:
+          `docs/planning/wikidata_assist_lane_completion_model_20260401.md`
+      - DONE: add one current outward-facing combined assist handoff note so
+        the Nat and assist lane states are shareable in one place
+        - handoff note:
+          `docs/planning/wikidata_combined_assist_handoff_20260401.md`
+      - DONE: pin the first bounded Cohort C branch state for the
+        non-GHG/missing-`P459` lane
+        - planning note:
+          `SensibLaw/docs/planning/wikidata_nat_cohort_c_branch_20260401.md`
+        - pinned branch fixture:
+          `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_c_branch_20260401.json`
+      - next protocol followthrough from that sandbox mapping:
+        run bounded post-edit verification on the discovered checked-safe
+        subset before any completion claim
     - DONE: add checked-safe export after the pinned climate pack exists
     - DONE: add bounded post-edit verification for the checked-safe subset
     - keep broader execution claims blocked until verification is exercised on

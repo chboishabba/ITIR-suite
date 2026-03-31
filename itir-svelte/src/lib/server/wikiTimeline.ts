@@ -29,22 +29,6 @@ function isObj(v: unknown): v is Record<string, unknown> {
   return Boolean(v) && typeof v === 'object';
 }
 
-let warnedLegacyTimelineDbEnv = false;
-
-function resolveItirDbPath(repoRoot: string, explicitDbEnv?: string | null): string {
-  const modern = explicitDbEnv && explicitDbEnv.trim() ? explicitDbEnv.trim() : process.env.ITIR_DB_PATH?.trim();
-  if (modern) return path.resolve(repoRoot, modern);
-  const legacy = process.env.SL_WIKI_TIMELINE_DB?.trim() || process.env.SL_WIKI_TIMELINE_AOO_DB?.trim();
-  if (legacy) {
-    if (!warnedLegacyTimelineDbEnv) {
-      warnedLegacyTimelineDbEnv = true;
-      console.warn('SL_WIKI_TIMELINE_DB / SL_WIKI_TIMELINE_AOO_DB is deprecated; use ITIR_DB_PATH.');
-    }
-    return path.resolve(repoRoot, legacy);
-  }
-  return path.resolve(repoRoot, '.cache_local', 'itir.sqlite');
-}
-
 async function readStdout(cmd: string, args: string[], cwd: string): Promise<string> {
   return await new Promise<string>((resolve, reject) => {
     const child = spawn(cmd, args, { cwd });
@@ -70,16 +54,15 @@ type SourceEnvelope = {
 };
 
 async function loadFromDb(repoRoot: string, sourceKey: WikiTimelineSourceKey, dbEnv: string | null): Promise<SourceEnvelope> {
-  const dbPath = resolveItirDbPath(repoRoot, dbEnv);
   const script = path.join(repoRoot, 'SensibLaw', 'scripts', 'query_wiki_timeline_aoo_db.py');
-  const stdout = await readStdout(
-    'python',
-    [script, '--db-path', dbPath, '--source-key', sourceKey, '--projection', 'timeline_view', '--with-source-meta'],
-    repoRoot
-  );
+  const args = [script, '--source-key', sourceKey, '--projection', 'timeline_view', '--with-source-meta'];
+  if (dbEnv && dbEnv.trim()) {
+    args.splice(1, 0, '--db-path', dbEnv.trim());
+  }
+  const stdout = await readStdout('python', args, repoRoot);
   const parsed = JSON.parse(stdout);
   if (!parsed) {
-    throw new Error(`No DB payload found for source ${sourceKey} in ${dbPath}`);
+    throw new Error(`No DB payload found for source ${sourceKey}`);
   }
   if (!isObj(parsed)) throw new Error('DB payload missing');
   return parsed as SourceEnvelope;
