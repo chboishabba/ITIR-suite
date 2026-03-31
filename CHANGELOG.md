@@ -1,3 +1,258 @@
+## 2026-03-31
+
+- Defined the next wiki revision monitor contraction slice after the
+  SQLite-first read-model work:
+  freeze a deprecation matrix for legacy blob columns and stop writing full
+  operational payload blobs where no repo-local consumers remain.
+  - Added `docs/planning/wiki_revision_monitor_blob_deprecation_matrix_20260331.md`.
+  - Rewired `SensibLaw/src/wiki_timeline/revision_pack_runner.py` so:
+    - `summary_json` and `graph_json` remain bounded full backcompat writes
+    - article-result and candidate-pair legacy operational blob columns now
+      receive compact placeholder writes
+  - Tightened `SensibLaw/tests/test_wiki_revision_pack_runner.py` to pin the
+    retained-vs-placeholder split.
+- Froze the versioned schema contraction plan for the remaining wiki revision
+  monitor blob columns.
+  - Added `docs/planning/wiki_revision_monitor_schema_contraction_plan_20260331.md`.
+  - Updated `SensibLaw/docs/wiki_revision_pack_runner_contract_v0_3.md` to
+    record the v0.3 backcompat boundary and point at the contraction docs.
+- Promoted the v0.4 placeholder-only schema drop for the wiki revision monitor
+  lane after a clean local workspace consumer audit.
+  - Added `docs/planning/wiki_revision_monitor_v0_4_placeholder_blob_drop_20260331.md`.
+  - Bumped `SensibLaw/src/wiki_timeline/revision_pack_runner.py` to
+    `wiki_revision_pack_state_v0_4`.
+  - New DBs no longer create placeholder-only legacy blob columns in:
+    - `wiki_revision_monitor_article_results`
+    - `wiki_revision_monitor_candidate_pairs`
+  - Kept older DBs writable by continuing to insert through explicit column
+    lists.
+  - Updated `SensibLaw/tests/test_wiki_revision_pack_runner.py` to pin the
+    v0.4 schema boundary.
+- Added the in-place v0.4 migration for existing revision-monitor DBs.
+  - Added `docs/planning/wiki_revision_monitor_v0_4_in_place_migration_20260331.md`.
+  - `SensibLaw/src/wiki_timeline/revision_pack_runner.py` now rebuilds
+    `wiki_revision_monitor_article_results` and
+    `wiki_revision_monitor_candidate_pairs` in place when legacy
+    placeholder-only columns are still present.
+  - Extended `SensibLaw/tests/test_wiki_revision_pack_runner.py` to prove the
+    migration removes the dead columns and preserves surviving row data.
+- Froze the concrete zkperf upstream PR1 payload and added a staging helper.
+  - Added `docs/planning/zkperf_pr1_payload_to_upstream_20260331.md`.
+  - Added `scripts/prepare_zkperf_upstream_bundle.py`.
+  - The new note records:
+    - exact source files for PR1
+    - recommended destination layout inside `meta-introspector/zkperf`
+    - explicit exclusions for SL and ITIR-local wrappers
+    - the current recommendation to start with the stricter PR1 cut before
+      deciding whether transport joins immediately
+- Extended the SL zkperf adapter so local SL observations now emit the generic
+  register/flow surface expected by the newer zkperf visualization lane.
+  - `itir_jmd_bridge/sl_zkperf.py` now adds deterministic pseudo-registers,
+    register fingerprints, register changes, flow tags, and region/transition
+    fields to SL payload observations and progress-trace observations.
+  - Added focused assertions in `tests/test_sl_zkperf.py` proving that:
+    - SL observations expose `registers`, `registerFingerprints`,
+      `registerChanges`, and flow-region/tag fields
+    - the generic spectrogram builder sees `reg.*` and `flow.*` features from
+      an SL-derived fixture
+- Completed the public-surface follow-through for the zkperf stream split:
+  package-root exports and CLI imports now target the split stream modules
+  directly instead of treating `itir_jmd_bridge/zkperf_stream.py` as the
+  canonical generic import surface.
+  - `itir_jmd_bridge/zkperf_stream.py` now carries an explicit compatibility
+    facade docstring.
+  - `itir_jmd_bridge/__init__.py` now imports zkperf stream symbols from:
+    - `itir_jmd_bridge/zkperf_stream_core.py`
+    - `itir_jmd_bridge/zkperf_stream_index.py`
+    - `itir_jmd_bridge/zkperf_stream_transport.py`
+  - `itir_jmd_bridge/cli.py` now imports zkperf stream behavior from the split
+    modules directly.
+- Defined the next Wikipedia-side normalization slice after the Wikidata
+  geometry pass:
+  revision-pack artifact naming and JSON IO should consume one shared Python
+  storage owner instead of staying inline in the runner.
+  - Added `docs/planning/wiki_revision_pack_storage_component_20260331.md`.
+  - Added `SensibLaw/src/wiki_timeline/revision_pack_storage.py`.
+  - Rewired `SensibLaw/src/wiki_timeline/revision_pack_runner.py` to consume
+    the shared storage owner for artifact-path shaping and JSON read/write.
+  - Added focused coverage in:
+    - `SensibLaw/tests/test_revision_pack_storage.py`
+    - `SensibLaw/tests/test_wiki_revision_pack_runner.py`
+- Defined the next NotebookLM reporting normalization slice:
+  observer and activity surfaces should consume one shared Python run loader
+  instead of duplicating runs-root resolution and dated artifact discovery.
+  - Added `docs/planning/notebooklm_run_loader_component_20260331.md`.
+  - Added `SensibLaw/src/reporting/notebooklm_run_loader.py`.
+  - Rewired `SensibLaw/src/reporting/notebooklm_observer.py` and
+    `SensibLaw/src/reporting/notebooklm_activity.py` to consume the shared
+    run loader.
+  - Added focused coverage in:
+    - `SensibLaw/tests/test_notebooklm_run_loader.py`
+    - `SensibLaw/tests/test_notebooklm_observer.py`
+    - `SensibLaw/tests/test_notebooklm_activity.py`
+- Defined the next `chat_context_resolver` normalization slice:
+  the DB-vs-web branch logic should consume one shared Python flow owner
+  instead of staying inline in `main()`.
+  - Added `docs/planning/chat_context_resolver_flow_component_20260331.md`.
+  - Added `chat_context_resolver_lib/flow.py`.
+  - Rewired `scripts/chat_context_resolver.py` to delegate resolver flow to
+    the shared coordinator and keep the script as a thin CLI wrapper.
+  - Added focused coverage in:
+    - `tests/test_chat_context_resolver_flow.py`
+    - `tests/test_chat_context_resolver_cli_formatters.py`
+- Defined the next presentation-only AAO-all route-shell slice:
+  the corpus-docs block should render through one route-local component
+  instead of staying inline in the route shell.
+  - Added `docs/planning/wiki_timeline_aoo_all_corpus_docs_panel_20260331.md`.
+  - Added
+    `itir-svelte/src/routes/graphs/wiki-timeline-aoo-all/_components/CorpusDocsPanel.svelte`.
+  - Rewired
+    `itir-svelte/src/routes/graphs/wiki-timeline-aoo-all/+page.svelte` to
+    render the new route-local presenter.
+  - Updated `itir-svelte/tests/graph_ui_regressions.test.js` to pin the new
+    shell/component boundary.
+- Defined the next revision-monitor Python normalization slice:
+  pack triage and run-summary assembly should consume one shared Python
+  summary owner instead of staying inline in the runner.
+  - Added `docs/planning/wiki_revision_pack_summary_component_20260331.md`.
+  - Added `SensibLaw/src/wiki_timeline/revision_pack_summary.py`.
+  - Rewired `SensibLaw/src/wiki_timeline/revision_pack_runner.py` to consume
+    the shared summary owner for triage and summary rendering.
+  - Added focused coverage in:
+    - `SensibLaw/tests/test_revision_pack_summary.py`
+    - `SensibLaw/tests/test_wiki_revision_pack_runner.py`
+- Defined the next revision-monitor query/read-model slice:
+  pack/run/article query assembly should consume one shared Python query owner
+  instead of staying inline in the CLI script.
+  - Added `docs/planning/wiki_revision_monitor_query_component_20260331.md`.
+  - Added `SensibLaw/src/wiki_timeline/revision_monitor_query.py`.
+  - Rewired `SensibLaw/scripts/query_wiki_revision_monitor.py` into a thin
+    wrapper over the shared query owner.
+  - Added focused coverage in:
+    - `SensibLaw/tests/test_revision_monitor_query.py`
+- Defined the next different review-family normalization slice after
+  affidavit, GWB, and Wikidata:
+  transcript and AU fact-review bundles should consume one shared Python
+  bundle component instead of rebuilding chronology, abstentions, and bundle
+  envelope shaping separately.
+  - Added `docs/planning/fact_review_bundle_component_20260331.md`.
+  - Added `SensibLaw/src/fact_intake/review_bundle.py`.
+  - Rewired `SensibLaw/src/fact_intake/transcript_review_bundle.py` and
+    `SensibLaw/src/fact_intake/au_review_bundle.py` to consume the shared
+    bundle component.
+  - Added focused coverage in:
+    - `SensibLaw/tests/test_fact_review_bundle_component.py`
+    - `SensibLaw/tests/test_transcript_fact_review_bundle.py`
+    - `SensibLaw/tests/test_au_fact_review_bundle.py`
+- Defined the next lower transcript/AU normalization slice:
+  fact-intake payload scaffolding should consume one shared Python payload
+  builder instead of rebuilding run/source/excerpt/statement/fact row shells
+  in each adapter.
+  - Added `docs/planning/fact_intake_payload_builder_component_20260331.md`.
+  - Added `SensibLaw/src/fact_intake/payload_builder.py`.
+  - Rewired `SensibLaw/src/fact_intake/transcript_review_bundle.py` and
+    `SensibLaw/src/fact_intake/au_review_bundle.py` to consume the shared
+    payload builder while preserving lane-specific observation semantics.
+  - Added focused coverage in:
+    - `SensibLaw/tests/test_fact_intake_payload_builder.py`
+    - `SensibLaw/tests/test_transcript_fact_review_bundle.py`
+    - `SensibLaw/tests/test_au_fact_review_bundle.py`
+- Defined the next transcript/AU normalization slice after payload
+  scaffolding:
+  observation row geometry should consume one shared Python observation
+  builder instead of rebuilding observation IDs and row dictionaries inline.
+  - Added `docs/planning/fact_intake_observation_builder_component_20260331.md`.
+  - Added `SensibLaw/src/fact_intake/observation_builder.py`.
+  - Rewired `SensibLaw/src/fact_intake/transcript_review_bundle.py` and
+    `SensibLaw/src/fact_intake/au_review_bundle.py` to consume the shared
+    observation builder.
+  - Added focused coverage in:
+    - `SensibLaw/tests/test_fact_intake_observation_builder.py`
+    - `SensibLaw/tests/test_transcript_fact_review_bundle.py`
+    - `SensibLaw/tests/test_au_fact_review_bundle.py`
+- Defined the next transcript/AU normalization slice after observation row
+  geometry:
+  projection mechanics should consume one shared Python helper instead of
+  keeping relation-status, fact-status, and generic role/relation emission
+  logic duplicated in each adapter.
+  - Added `docs/planning/fact_intake_projection_helpers_component_20260331.md`.
+  - Added `SensibLaw/src/fact_intake/projection_helpers.py`.
+  - Rewired `SensibLaw/src/fact_intake/transcript_review_bundle.py` and
+    `SensibLaw/src/fact_intake/au_review_bundle.py` to consume the shared
+    projection helpers.
+  - Added focused coverage in:
+    - `SensibLaw/tests/test_fact_intake_projection_helpers.py`
+    - `SensibLaw/tests/test_transcript_fact_review_bundle.py`
+    - `SensibLaw/tests/test_au_fact_review_bundle.py`
+- Defined the next fact-intake disclosure/export normalization slice:
+  personal handoff and protected-disclosure adopters should consume one shared
+  disclosure-policy component instead of duplicating recipient normalization,
+  protected-disclosure settings, share-with normalization, stable hashing, and
+  UTC creation stamps.
+  - Added `docs/planning/fact_intake_disclosure_policy_component_20260331.md`.
+  - Added `SensibLaw/src/fact_intake/disclosure_policy.py`.
+  - Rewired `SensibLaw/src/fact_intake/personal_handoff_bundle.py` and
+    `SensibLaw/src/fact_intake/protected_disclosure_envelope.py` to consume
+    the shared disclosure-policy component, and aligned
+    `SensibLaw/src/fact_intake/personal_chat_import.py` to the same shared
+    recipient and protected-disclosure defaults.
+  - Added focused coverage in:
+    - `SensibLaw/tests/test_fact_intake_disclosure_policy.py`
+    - `SensibLaw/tests/test_personal_handoff_bundle.py`
+    - `SensibLaw/tests/test_protected_disclosure_envelope.py`
+    - `SensibLaw/tests/test_personal_chat_import.py`
+- Defined the next fact-intake support-utility normalization slice:
+  personal handoff and acceptance fixtures should consume one shared
+  payload-mutation component instead of duplicating observation, review, and
+  contestation append logic plus deterministic mutation-row IDs.
+  - Added `docs/planning/fact_intake_payload_mutations_component_20260331.md`.
+  - Added `SensibLaw/src/fact_intake/payload_mutations.py`.
+  - Rewired `SensibLaw/src/fact_intake/personal_handoff_bundle.py` and
+    `SensibLaw/src/fact_intake/acceptance_fixtures.py` to consume the shared
+    payload-mutation component.
+  - Added focused coverage in:
+    - `SensibLaw/tests/test_fact_intake_payload_mutations.py`
+    - `SensibLaw/tests/test_personal_handoff_bundle.py`
+    - `SensibLaw/tests/test_fact_review_acceptance_wave.py`
+- Defined the next fact-intake script-family normalization slice:
+  the handoff script entrypoints should consume one shared artifact writer
+  instead of duplicating mode/version routing, summary selection, artifact
+  emission, and common return-payload shaping.
+  - Added `docs/planning/fact_intake_handoff_artifact_writer_component_20260331.md`.
+  - Added `SensibLaw/src/fact_intake/handoff_artifacts.py`.
+  - Rewired `SensibLaw/scripts/build_personal_handoff_from_chat_json.py`,
+    `SensibLaw/scripts/build_personal_handoff_from_messenger_export.py`,
+    `SensibLaw/scripts/build_personal_handoff_from_google_public.py`, and
+    `SensibLaw/scripts/build_personal_handoff_from_message_db.py` plus
+    `SensibLaw/scripts/build_personal_handoff_from_openrecall.py` to consume
+    the shared artifact writer.
+  - Added focused coverage in:
+    - `SensibLaw/tests/test_fact_intake_handoff_artifacts.py`
+    - `SensibLaw/tests/test_personal_chat_import.py`
+    - `SensibLaw/tests/test_personal_messenger_export_import.py`
+    - `SensibLaw/tests/test_google_public_import.py`
+    - `SensibLaw/tests/test_personal_message_db_import.py`
+    - `SensibLaw/tests/test_personal_openrecall_import.py`
+- Defined the next loader-side normalization slice:
+  Messenger, Google Public, structure-report DB loaders, and OpenRecall should
+  consume one shared `TextUnit` builder instead of duplicating indexed unit
+  construction, timestamped speaker rendering, and header/body composition.
+  - Added `docs/planning/reporting_text_unit_builder_component_20260331.md`.
+  - Added `SensibLaw/src/reporting/text_unit_builders.py`.
+  - Rewired `SensibLaw/src/fact_intake/messenger_export_import.py`,
+    `SensibLaw/src/fact_intake/google_public_import.py`,
+    `SensibLaw/src/reporting/structure_report.py`, and
+    `SensibLaw/src/reporting/openrecall_import.py` to consume the shared
+    builder component.
+  - Added focused coverage in:
+    - `SensibLaw/tests/test_reporting_text_unit_builders.py`
+    - `SensibLaw/tests/test_personal_messenger_export_import.py`
+    - `SensibLaw/tests/test_google_public_import.py`
+    - `SensibLaw/tests/test_personal_openrecall_import.py`
+    - `SensibLaw/tests/test_structure_report.py`
+
+
+
 ## 2026-03-30
 
 - Defined and implemented the first SimulStreaming WhisperX sidecar slice.
@@ -86,6 +341,62 @@
     delegate structural sentence analysis to the shared adapter.
   - Added focused coverage in
     `SensibLaw/tests/test_affidavit_structural_sentence.py`.
+- Defined the next affidavit normalization slice as a shared Python
+  lexical heuristics component for cue inventory and grouping policy.
+  - Added
+    `docs/planning/affidavit_lexical_heuristics_component_20260330.md`.
+  - Added `SensibLaw/src/policy/affidavit_lexical_heuristics.py`.
+  - Rewired `SensibLaw/scripts/build_affidavit_coverage_review.py` to
+    delegate lexical cue grouping and justification packet shaping to the
+    shared component.
+  - Added focused coverage in
+    `SensibLaw/tests/test_affidavit_lexical_heuristics.py`.
+- Defined the next affidavit normalization slice as a shared Python
+  extraction hints component for hint extraction, candidate anchors, and
+  provisional anchor queueing.
+  - Added
+    `docs/planning/affidavit_extraction_hints_component_20260330.md`.
+  - Added `SensibLaw/src/policy/affidavit_extraction_hints.py`.
+  - Rewired `SensibLaw/scripts/build_affidavit_coverage_review.py` to
+    delegate extraction-hint derivation, candidate-anchor shaping,
+    provisional-anchor queueing, and hint-aware workload recommendations to
+    the shared component.
+  - Added focused coverage in
+    `SensibLaw/tests/test_affidavit_extraction_hints.py`.
+- Defined the first cross-lane adoption slice after affidavit normalization:
+  GWB public review should consume the shared Python extraction-hints
+  component for anchor queueing while preserving its artifact shape.
+  - Added
+    `docs/planning/gwb_public_review_anchor_normalization_20260330.md`.
+  - Rewired `SensibLaw/scripts/build_gwb_public_review.py` to consume
+    `SensibLaw/src/policy/affidavit_extraction_hints.py` for calendar-anchor
+    shaping and provisional-anchor ranking/bundling.
+  - Added a focused adoption regression in
+    `SensibLaw/tests/test_gwb_public_review.py`.
+- Defined the next cross-lane reuse slice:
+  Wikidata checked/dense structural review should consume one shared Python
+  review-queue component instead of keeping queueing helpers in a builder
+  file.
+  - Added `docs/planning/wikidata_review_queue_component_20260330.md`.
+  - Added `SensibLaw/src/policy/wikidata_review_queue.py`.
+  - Rewired `SensibLaw/scripts/build_wikidata_structural_review.py` and
+    `SensibLaw/scripts/build_wikidata_dense_structural_review.py` to consume
+    the shared queue component.
+  - Added focused coverage in
+    `SensibLaw/tests/test_wikidata_review_queue.py`.
+  - Pinned the AU checked/dense builders as thin wrappers in
+    `SensibLaw/tests/test_au_affidavit_coverage_review.py` and
+    `SensibLaw/tests/test_au_dense_affidavit_coverage_review.py`.
+- Defined the next cross-lane reuse slice after Wikidata:
+  GWB broader review should consume the shared Python extraction-hints
+  component for provisional queueing while preserving its artifact shape.
+  - Added
+    `docs/planning/gwb_broader_review_anchor_normalization_20260331.md`.
+  - Rewired `SensibLaw/scripts/build_gwb_broader_review.py` to consume
+    `SensibLaw/src/policy/affidavit_extraction_hints.py` for provisional
+    review ranking and bundle rollup.
+  - Added a focused adoption regression in
+    `SensibLaw/tests/test_gwb_broader_review.py`.
 - Promoted a new suite-level architecture rule:
   Python owns domain/business logic, normalization, and cross-lane reusable
   semantics; TS/JS is restricted to presentation, route composition,
@@ -119,6 +430,43 @@
     source metadata instead of maintaining local source-path maps
   - `/graphs/wiki-fact-timeline` extracted its top header/controls panel into a
     route-local component without widening shared TS business logic.
+- `2026-03-31` zkperf generic upstreaming prep:
+  - `docs/planning/zkperf_generic_upstreaming_to_meta_introspector_20260331.md`
+    now freezes the architecture-driven PR1 versus PR2 boundary with a compact
+    C4/PlantUML split and explicit artifact classification
+  - extracted the first physical stream-core split:
+    - added `itir_jmd_bridge/zkperf_stream_core.py` for transport-free fixture,
+      bundle, helper, and selection logic
+    - kept `itir_jmd_bridge/zkperf_stream.py` as the compatibility facade so
+      CLI/tests stay stable while the transport slice remains local
+  - completed the next physical split:
+    - added `itir_jmd_bridge/zkperf_stream_transport.py` for HF/IPFS publish
+      and resolve behavior
+    - kept `itir_jmd_bridge/zkperf_stream.py` as the stable facade so current
+      monkeypatch and CLI surfaces remain unchanged while exports are still
+      intentionally wide
+  - completed the transport-free index split:
+    - added `itir_jmd_bridge/zkperf_stream_index.py` for latest/index,
+      retention, and publish-artifact helpers
+    - kept `itir_jmd_bridge/zkperf_stream.py` as the stable facade so public
+      imports still resolve while cleanup of the broad export surface is
+      deferred
+  - `itir_jmd_bridge/zkperf_viz.py` now projects generic register/flow
+    observation surfaces into numeric features rather than assuming only flat
+    scalar metrics
+  - the renderer now understands:
+    - register values via `reg.<NAME>.value`
+    - register deltas via `reg.<NAME>.delta`
+    - register fingerprint codes via `reg.<NAME>.fingerprint_code`
+    - tagged flow events via `flow.tag.<TAG>`
+    - region / transition one-hot features via `flow.region.*` and
+      `flow.transition.*`
+  - `scripts/inspect_zkperf_clusters.py` now consumes the same projected metric
+    surface and reports generic flow/register signals in cluster drilldown
+  - focused coverage now exercises register-aware and tagged-flow-aware
+    fixtures in:
+    - `tests/test_zkperf_viz.py`
+    - `tests/test_inspect_zkperf_clusters.py`
 - `2026-03-30` zkperf MDL bridge from `../dashi_agda`:
   - `itir_jmd_bridge/sl_zkperf.py` can now ingest bounded external theory
     evidence JSON and attach real theory metrics/refs to live observations
@@ -1621,3 +1969,147 @@
   - reverified with:
     `.venv/bin/python -m pytest -q SensibLaw/tests/test_query_fact_review_script.py tests/test_sl_zkperf.py`
     -> focused suites passed
+- `2026-03-31` importer-side source identity normalization:
+  - added `SensibLaw/src/reporting/source_identity.py` as the shared owner for
+    hashed source IDs, Google public source-id formatting, UTC millisecond
+    timestamp rendering, local capture timestamp/date derivation, and
+    OpenRecall capture IDs
+  - rewired:
+    - `SensibLaw/src/fact_intake/messenger_export_import.py`
+    - `SensibLaw/src/fact_intake/google_public_import.py`
+    - `SensibLaw/src/reporting/openrecall_import.py`
+    to consume the shared owner instead of keeping local source-identity
+    helpers inline
+  - added focused regressions in:
+    - `SensibLaw/tests/test_reporting_source_identity.py`
+    - `SensibLaw/tests/test_personal_messenger_export_import.py`
+    - `SensibLaw/tests/test_google_public_import.py`
+    - `SensibLaw/tests/test_personal_openrecall_import.py`
+- `2026-03-31` importer-side source loader normalization:
+  - added `SensibLaw/src/reporting/source_loaders.py` as the shared owner for
+    loader path resolution, Messenger export discovery, HTTP text fetch, and
+    timestamped artifact lookup
+  - rewired:
+    - `SensibLaw/src/fact_intake/messenger_export_import.py`
+    - `SensibLaw/src/fact_intake/google_public_import.py`
+    - `SensibLaw/src/reporting/openrecall_import.py`
+    to consume the shared loader owner instead of keeping local loader-entry
+    policy inline
+  - added focused regressions in:
+    - `SensibLaw/tests/test_reporting_source_loaders.py`
+    - `SensibLaw/tests/test_personal_messenger_export_import.py`
+    - `SensibLaw/tests/test_google_public_import.py`
+    - `SensibLaw/tests/test_personal_openrecall_import.py`
+- `2026-03-31` Wikidata structural IO normalization:
+  - added `SensibLaw/src/policy/wikidata_structural_io.py` as the shared owner
+    for repo-relative path shaping, JSON fixture loading, and JSON+markdown
+    artifact emission
+  - rewired:
+    - `SensibLaw/scripts/build_wikidata_structural_handoff.py`
+    - `SensibLaw/scripts/build_wikidata_structural_review.py`
+    - `SensibLaw/scripts/build_wikidata_dense_structural_review.py`
+    to consume the shared IO owner instead of keeping local IO helpers inline
+  - added focused regressions in:
+    - `SensibLaw/tests/test_wikidata_structural_io.py`
+    - `SensibLaw/tests/test_wikidata_structural_handoff.py`
+    - `SensibLaw/tests/test_wikidata_structural_review.py`
+    - `SensibLaw/tests/test_wikidata_dense_structural_review.py`
+- `2026-03-31` Wikidata structural geometry normalization, slice 1:
+  - added `SensibLaw/src/policy/wikidata_structural_geometry.py` as the shared
+    owner for the first checked/dense overlap: qualifier-drift row and cue
+    construction
+  - rewired:
+    - `SensibLaw/scripts/build_wikidata_structural_review.py`
+    - `SensibLaw/scripts/build_wikidata_dense_structural_review.py`
+    to consume the shared qualifier-drift geometry helpers
+  - added focused regressions in:
+    - `SensibLaw/tests/test_wikidata_structural_geometry.py`
+    - `SensibLaw/tests/test_wikidata_structural_review.py`
+    - `SensibLaw/tests/test_wikidata_dense_structural_review.py`
+- `2026-03-31` Wikidata structural geometry normalization, slice 2:
+  - extended `SensibLaw/src/policy/wikidata_structural_geometry.py` so the
+    checked and dense builders also share hotspot row and cue construction
+  - rewired:
+    - `SensibLaw/scripts/build_wikidata_structural_review.py`
+    - `SensibLaw/scripts/build_wikidata_dense_structural_review.py`
+    to consume the shared hotspot geometry helpers
+  - added focused regressions in:
+    - `SensibLaw/tests/test_wikidata_structural_geometry.py`
+    - `SensibLaw/tests/test_wikidata_structural_review.py`
+    - `SensibLaw/tests/test_wikidata_dense_structural_review.py`
+- `2026-03-31` Wikidata structural geometry normalization, slice 3:
+  - extended `SensibLaw/src/policy/wikidata_structural_geometry.py` so the
+    checked and dense builders also share disjointness row and cue construction
+  - rewired:
+    - `SensibLaw/scripts/build_wikidata_structural_review.py`
+    - `SensibLaw/scripts/build_wikidata_dense_structural_review.py`
+    to consume the shared disjointness geometry helpers
+  - added focused regressions in:
+    - `SensibLaw/tests/test_wikidata_structural_geometry.py`
+    - `SensibLaw/tests/test_wikidata_structural_review.py`
+    - `SensibLaw/tests/test_wikidata_dense_structural_review.py`
+- `2026-03-31` Wiki revision monitor SQLite read-model normalization:
+  - added `docs/planning/wiki_revision_monitor_read_models_component_20260331.md`
+  - added `SensibLaw/src/wiki_timeline/revision_monitor_read_models.py`
+  - rewired:
+    - `SensibLaw/src/wiki_timeline/revision_pack_runner.py`
+    - `SensibLaw/src/wiki_timeline/revision_monitor_query.py`
+    to write and read explicit SQLite run-summary and changed-article
+    read-model tables instead of leaning on `summary_json` blobs for the main
+    query surfaces
+  - added focused regressions in:
+    - `SensibLaw/tests/test_revision_monitor_read_models.py`
+    - `SensibLaw/tests/test_revision_monitor_query.py`
+    - `SensibLaw/tests/test_wiki_revision_pack_runner.py`
+- `2026-03-31` Wiki revision monitor issue-packet read-model normalization:
+  - added `docs/planning/wiki_revision_monitor_issue_packets_component_20260331.md`
+  - extended `SensibLaw/src/wiki_timeline/revision_monitor_read_models.py`
+    with explicit selected issue-packet rows keyed by run/article/pair so
+    selected article packet detail lives in SQLite rather than pair-report
+    blobs
+  - rewired:
+    - `SensibLaw/src/wiki_timeline/revision_pack_runner.py`
+    - `SensibLaw/src/wiki_timeline/revision_monitor_query.py`
+    to write and read selected packet detail from SQLite
+  - added focused regressions in:
+    - `SensibLaw/tests/test_revision_monitor_read_models.py`
+    - `SensibLaw/tests/test_revision_monitor_query.py`
+    - `SensibLaw/tests/test_wiki_revision_pack_runner.py`
+- `2026-03-31` Wiki revision monitor selected-pair read-model normalization:
+  - added `docs/planning/wiki_revision_monitor_selected_pairs_component_20260331.md`
+  - extended `SensibLaw/src/wiki_timeline/revision_monitor_read_models.py`
+    with explicit selected-pair rows for pair kind, severity, score, and
+    top changed-section summaries
+  - rewired:
+    - `SensibLaw/src/wiki_timeline/revision_pack_runner.py`
+    - `SensibLaw/src/wiki_timeline/revision_monitor_query.py`
+    to write and read selected pair detail from SQLite
+  - added focused regressions in:
+    - `SensibLaw/tests/test_revision_monitor_read_models.py`
+    - `SensibLaw/tests/test_revision_monitor_query.py`
+    - `SensibLaw/tests/test_wiki_revision_pack_runner.py`
+- `2026-03-31` Wiki revision monitor contested-graph read-model normalization:
+  - added `docs/planning/wiki_revision_monitor_contested_graph_read_models_component_20260331.md`
+  - extended `SensibLaw/src/wiki_timeline/revision_monitor_read_models.py`
+    so `selected_graph` can be assembled from SQLite-first graph read models
+    rather than `graph_json` blobs
+  - rewired:
+    - `SensibLaw/src/wiki_timeline/revision_pack_runner.py`
+    - `SensibLaw/src/wiki_timeline/revision_monitor_query.py`
+    so contested graph event and epistemic rows are persisted and the query
+    layer reads graph, region, cycle, edge, pair, event, and epistemic rows
+    from SQLite
+  - added focused regressions in:
+    - `SensibLaw/tests/test_revision_monitor_read_models.py`
+    - `SensibLaw/tests/test_revision_monitor_query.py`
+    - `SensibLaw/tests/test_wiki_revision_pack_runner.py`
+- `2026-03-31` Wiki revision monitor blob backcompat boundary:
+  - added `docs/planning/wiki_revision_monitor_blob_backcompat_boundary_20260331.md`
+  - extended `SensibLaw/src/wiki_timeline/revision_monitor_query.py` so the
+    query payload reports `summary_source` and `selected_graph_source`
+  - pinned focused precedence tests showing SQLite read models win over blob
+    columns when both exist
+  - added focused regressions in:
+    - `SensibLaw/tests/test_revision_monitor_query.py`
+    - `SensibLaw/tests/test_revision_monitor_read_models.py`
+    - `SensibLaw/tests/test_wiki_revision_pack_runner.py`

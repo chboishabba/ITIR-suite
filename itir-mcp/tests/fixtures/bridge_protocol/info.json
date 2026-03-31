@@ -1,0 +1,14 @@
+{
+  "request": {
+    "op": "info"
+  },
+  "assert": {
+    "equals": {
+      "ok": true,
+      "version": "0.3.0",
+      "protocol": "2026-03-26",
+      "tools": 8,
+      "ready": true
+    }
+  }
+}

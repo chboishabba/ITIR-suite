@@ -9,7 +9,7 @@ ToolHandler = Callable[[Mapping[str, Any]], JsonDict]
 BridgeResponse = dict[str, Any]
 
 
-ITIR_MCP_VERSION = "0.2.0"
+ITIR_MCP_VERSION = "0.3.0"
 ITIR_MCP_PROTOCOL_VERSION = "2026-03-26"
 
 

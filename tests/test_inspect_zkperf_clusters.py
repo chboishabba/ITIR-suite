@@ -27,6 +27,11 @@ def _fixture() -> dict:
                                 {"metric": "trace.stage_family.progress", "value": 1, "unit": "count"},
                                 {"metric": "trace.domain_signal.review_gap", "value": 1, "unit": "count"},
                             ],
+                            "registers": {"AX": "0x4746454443424140", "BX": "0x10"},
+                            "registerFingerprints": {"AX": "C", "BX": "L"},
+                            "registerChanges": ["AX:=0x4746454443424140", "BX:0x01→0x10"],
+                            "flowTags": ["INPUT_READ", "ASCII_DATA"],
+                            "regionId": "R0",
                         },
                         {
                             "zkperf_observation_id": "obs-2",
@@ -37,6 +42,11 @@ def _fixture() -> dict:
                                 {"metric": "trace.stage_family.finish", "value": 1, "unit": "count"},
                                 {"metric": "trace.domain_signal.coverage_recovered", "value": 1, "unit": "count"},
                             ],
+                            "registers": {"AX": "0x01", "BX": "0x08", "R8": "0x7fffffffa0"},
+                            "registerFingerprints": {"AX": "C", "BX": "M", "R8": "H"},
+                            "registerChanges": ["AX:0x4746454443424140→0x1", "BX:0x10→0x08", "R8:=0x7fffffffa0"],
+                            "flowTags": ["MIX_ROUND", "LOOP_TICK", "FUNC_ENTER", "SEED_INIT"],
+                            "subRegion": "S4",
                         },
                     ]
                 },
@@ -55,6 +65,14 @@ def _fixture() -> dict:
                                 {"metric": "trace.stage_family.finish", "value": 1, "unit": "count"},
                                 {"metric": "trace.domain_signal.coverage_recovered", "value": 1, "unit": "count"},
                             ],
+                            "registers": {"AX": "0x02", "BX": "0x04"},
+                            "fingerprint": "CL",
+                            "registerOrder": ["AX", "BX"],
+                            "registerChanges": [{"register": "AX", "old": "0x1", "new": "0x2"}],
+                            "flowTags": ["OUTPUT_WRITE"],
+                            "regionId": "R1",
+                            "fromRegion": "R0",
+                            "toRegion": "R1",
                         }
                     ]
                 },
@@ -127,6 +145,8 @@ def test_inspect_zkperf_clusters_with_fixture_drilldown(tmp_path: Path) -> None:
     assert len(payload["clusters"][0]["topMetrics"]) <= 2
     assert payload["clusters"][0]["signals"]["matchedRowCount"] >= 1
     assert "dominantStageFamilies" in payload["clusters"][0]["signals"]
+    assert "dominantFlowTags" in payload["clusters"][0]["signals"]
+    assert "changedRegisters" in payload["clusters"][0]["signals"]
     assert "retrievalCandidates" in payload["clusters"][0]
 
 

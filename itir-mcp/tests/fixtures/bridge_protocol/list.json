@@ -1,0 +1,17 @@
+{
+  "request": {
+    "op": "list"
+  },
+  "assert": {
+    "equals": {
+      "ok": true
+    },
+    "min_len": {
+      "tools": 8
+    },
+    "tool_names_contains": [
+      "chat_export_structurer.search_threads",
+      "sensiblaw.obligations_query"
+    ]
+  }
+}

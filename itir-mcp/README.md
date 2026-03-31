@@ -10,6 +10,7 @@ logic without taking canonical ownership away from the underlying components.
 Current scope:
 - local tool/spec registry
 - SensibLaw-first read-only tool adapters
+- chat-export-structurer read-only archive lookup adapters
 - optional FastMCP transport when the Python MCP SDK is available
 - persistent JSON bridge protocol for `dioxus` via `python -m itir_mcp --bridge`
 
@@ -25,6 +26,28 @@ Not in scope for the first increment:
 - `sensiblaw.obligations_alignment`
 - `sensiblaw.obligations_projection`
 - `sensiblaw.obligations_activate`
+- `chat_export_structurer.resolve_thread`
+- `chat_export_structurer.search_threads`
+- `chat_export_structurer.thread_messages`
+
+## Chat Archive Platform Filtering
+
+The `chat_export_structurer.*` tools accept an optional `platform` field so
+clients can scope archive lookups to a specific source instead of mixing chat
+systems in one result set.
+
+Examples:
+
+```json
+{"selector":"James Michael","platform":"telegram"}
+{"selector":"incident review","platform":"discord","limit":10}
+{"canonical_thread_id":"<thread-id>","platform":"telegram","limit":200}
+```
+
+This works for any platform already present in the archive DB, including
+Telegram and Discord. If Facebook/Messenger data is ingested into the same
+archive with `platform="facebook"` or `platform="messenger"`, the MCP tools
+can filter and fetch it the same way.
 
 ## Development
 
@@ -55,6 +78,10 @@ bridges and local adapters:
 {"ok": true, "result": {...}}
 {"ok": false, "error": {"code": "input_error", "message": "...", "details": {...}}}
 ```
+
+For persistent bridge sessions, clients may include `request_id` on any valid
+request object (`health`/`info`/`list`/`call`); the bridge echoes it on the
+response for deterministic correlation.
 
 ## Relationship to Dioxus
 

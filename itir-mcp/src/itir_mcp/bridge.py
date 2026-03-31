@@ -15,7 +15,7 @@ def _to_json(message: dict[str, Any]) -> str:
 def _registry_envelope() -> BridgeResponse:
     try:
         registry = build_default_registry()
-        tools = registry.list_tools()
+        tools = sorted(registry.list_tools(), key=lambda spec: spec.name)
         return {
             "ok": True,
             "tools": [
@@ -32,6 +32,13 @@ def _registry_envelope() -> BridgeResponse:
         }
     except Exception as exc:  # pragma: no cover - one-time bootstrap hardening
         return error_payload(exc)  # type: ignore[arg-type]
+
+
+def _with_request_id(response: BridgeResponse, request: dict[str, Any]) -> BridgeResponse:
+    if "request_id" in request:
+        response = dict(response)
+        response["request_id"] = request["request_id"]
+    return response
 
 
 def _call_tool(name: str, payload: dict[str, Any]) -> BridgeResponse:
@@ -62,8 +69,7 @@ def run() -> int:
 
         try:
             request = json.loads(line)
-            op = request.get("op")
-        except (json.JSONDecodeError, AttributeError):
+        except json.JSONDecodeError:
             print(
                 _to_json(
                     {
@@ -74,23 +80,39 @@ def run() -> int:
                 flush=True,
             )
             continue
+        if not isinstance(request, dict):
+            print(
+                _to_json(
+                    {
+                        "ok": False,
+                        "error": {"code": "protocol_error", "message": "invalid request object", "details": {}},
+                    }
+                ),
+                flush=True,
+            )
+            continue
+
+        op = request.get("op")
 
         if op == "health":
-            print(_to_json(_health()), flush=True)
+            print(_to_json(_with_request_id(_health(), request)), flush=True)
             continue
         if op == "list":
-            print(_to_json(_registry_envelope()), flush=True)
+            print(_to_json(_with_request_id(_registry_envelope(), request)), flush=True)
             continue
         if op == "info":
             print(
                 _to_json(
-                    {
-                        "ok": True,
-                        "version": ITIR_MCP_VERSION,
-                        "protocol": ITIR_MCP_PROTOCOL_VERSION,
-                        "tools": len(build_default_registry().list_tools()),
-                        "ready": True,
-                    }
+                    _with_request_id(
+                        {
+                            "ok": True,
+                            "version": ITIR_MCP_VERSION,
+                            "protocol": ITIR_MCP_PROTOCOL_VERSION,
+                            "tools": len(build_default_registry().list_tools()),
+                            "ready": True,
+                        },
+                        request,
+                    )
                 ),
                 flush=True,
             )
@@ -100,15 +122,18 @@ def run() -> int:
             if not isinstance(payload, dict):
                 payload = {}
             name = request.get("name", "")
-            print(_to_json(_call_tool(name, payload)), flush=True)
+            print(_to_json(_with_request_id(_call_tool(name, payload), request)), flush=True)
             continue
 
         print(
             _to_json(
-                {
-                    "ok": False,
-                    "error": {"code": "invalid_operation", "message": f"unknown op: {op}", "details": {}},
-                }
+                _with_request_id(
+                    {
+                        "ok": False,
+                        "error": {"code": "invalid_operation", "message": f"unknown op: {op}", "details": {}},
+                    },
+                    request,
+                )
             ),
             flush=True,
         )

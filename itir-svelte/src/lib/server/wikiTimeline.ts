@@ -1,4 +1,3 @@
-import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 
@@ -23,6 +22,8 @@ export type WikiTimelinePayload = {
   snapshot: { title: string | null; wiki: string | null; revid: number | null; source_url: string | null };
   events: TimelineEvent[];
 };
+
+export type WikiTimelineSourceKey = 'gwb' | 'gwb_public_bios_v1' | 'gwb_corpus_v1' | 'hca' | 'legal' | 'legal_follow';
 
 function isObj(v: unknown): v is Record<string, unknown> {
   return Boolean(v) && typeof v === 'object';
@@ -61,105 +62,66 @@ async function readStdout(cmd: string, args: string[], cwd: string): Promise<str
   });
 }
 
-async function loadFromDb(repoRoot: string, timelineSuffix: string, dbEnv: string | null): Promise<WikiTimelinePayload> {
+type SourceEnvelope = {
+  source: WikiTimelineSourceKey;
+  rel_path: string;
+  timeline_suffix: string;
+  payload: WikiTimelinePayload;
+};
+
+async function loadFromDb(repoRoot: string, sourceKey: WikiTimelineSourceKey, dbEnv: string | null): Promise<SourceEnvelope> {
   const dbPath = resolveItirDbPath(repoRoot, dbEnv);
   const script = path.join(repoRoot, 'SensibLaw', 'scripts', 'query_wiki_timeline_aoo_db.py');
-  const stdout = await readStdout('python', [script, '--db-path', dbPath, '--timeline-path-suffix', timelineSuffix], repoRoot);
+  const stdout = await readStdout(
+    'python',
+    [script, '--db-path', dbPath, '--source-key', sourceKey, '--projection', 'timeline_view', '--with-source-meta'],
+    repoRoot
+  );
   const parsed = JSON.parse(stdout);
   if (!parsed) {
-    throw new Error(`No DB payload found for suffix ${timelineSuffix} in ${dbPath}`);
+    throw new Error(`No DB payload found for source ${sourceKey} in ${dbPath}`);
   }
   if (!isObj(parsed)) throw new Error('DB payload missing');
-  const payload = parsed as any;
-  const snapshot = isObj(payload?.snapshot) ? payload.snapshot : {};
-  const events = Array.isArray(payload?.events) ? (payload.events as any[]) : [];
-
-  const outEvents: TimelineEvent[] = [];
-  for (const e of events) {
-    if (!isObj(e)) continue;
-    const event_id = String(e.event_id ?? '').trim();
-    const text = String(e.text ?? '').trim();
-    if (!event_id || !text) continue;
-    const section = String(e.section ?? '').trim() || '(unknown)';
-    const anchor = isObj(e.anchor) ? e.anchor : {};
-    const a: TimelineAnchor = {
-      year: Number((anchor as any).year ?? 0) || 0,
-      month: Number.isFinite(Number((anchor as any).month)) ? Number((anchor as any).month) : null,
-      day: Number.isFinite(Number((anchor as any).day)) ? Number((anchor as any).day) : null,
-      precision: (anchor as any).precision === 'day' || (anchor as any).precision === 'month' ? (anchor as any).precision : 'year',
-      text: String((anchor as any).text ?? ''),
-      kind: String((anchor as any).kind ?? '')
-    };
-    const links = Array.isArray(e.links) ? e.links.map((x: any) => String(x)).filter(Boolean) : [];
-    outEvents.push({ event_id, anchor: a, section, text, links });
-  }
-
-  outEvents.sort((a, b) => {
-    const ka = (a.anchor.year || 9999) * 10_000 + (a.anchor.month ?? 99) * 100 + (a.anchor.day ?? 99);
-    const kb = (b.anchor.year || 9999) * 10_000 + (b.anchor.month ?? 99) * 100 + (b.anchor.day ?? 99);
-    return ka - kb || a.event_id.localeCompare(b.event_id);
-  });
-
-  return {
-    snapshot: {
-      title: typeof snapshot.title === 'string' ? snapshot.title : null,
-      wiki: typeof snapshot.wiki === 'string' ? snapshot.wiki : null,
-      revid: Number.isFinite(Number(snapshot.revid)) ? Number(snapshot.revid) : null,
-      source_url: typeof snapshot.source_url === 'string' ? snapshot.source_url : null
-    },
-    events: outEvents
-  };
+  return parsed as SourceEnvelope;
 }
 
-export async function loadWikiTimeline(repoRoot: string, relPath: string): Promise<WikiTimelinePayload> {
-  const p = path.resolve(repoRoot, relPath);
-  const raw = await fs.readFile(p, 'utf-8');
-  const parsed = JSON.parse(raw) as any;
-  const snapshot = isObj(parsed?.snapshot) ? parsed.snapshot : {};
-  const events = Array.isArray(parsed?.events) ? (parsed.events as any[]) : [];
-
-  const outEvents: TimelineEvent[] = [];
-  for (const e of events) {
-    if (!isObj(e)) continue;
-    const event_id = String(e.event_id ?? '').trim();
-    const text = String(e.text ?? '').trim();
-    if (!event_id || !text) continue;
-    const section = String(e.section ?? '').trim() || '(unknown)';
-    const anchor = isObj(e.anchor) ? e.anchor : {};
-    const a: TimelineAnchor = {
-      year: Number((anchor as any).year ?? 0) || 0,
-      month: Number.isFinite(Number((anchor as any).month)) ? Number((anchor as any).month) : null,
-      day: Number.isFinite(Number((anchor as any).day)) ? Number((anchor as any).day) : null,
-      precision: (anchor as any).precision === 'day' || (anchor as any).precision === 'month' ? (anchor as any).precision : 'year',
-      text: String((anchor as any).text ?? ''),
-      kind: String((anchor as any).kind ?? '')
-    };
-    const links = Array.isArray(e.links) ? e.links.map((x: any) => String(x)).filter(Boolean) : [];
-    outEvents.push({ event_id, anchor: a, section, text, links });
+export function normalizeWikiTimelineSourceKey(rawSource: string | null | undefined, fallback: WikiTimelineSourceKey = 'gwb'): WikiTimelineSourceKey {
+  const normalized = String(rawSource ?? fallback).trim().toLowerCase() as WikiTimelineSourceKey;
+  if (
+    normalized === 'gwb' ||
+    normalized === 'gwb_public_bios_v1' ||
+    normalized === 'gwb_corpus_v1' ||
+    normalized === 'hca' ||
+    normalized === 'legal' ||
+    normalized === 'legal_follow'
+  ) {
+    return normalized;
   }
-
-  // Sort by date (best-effort). Unknown year goes last.
-  outEvents.sort((a, b) => {
-    const ka = (a.anchor.year || 9999) * 10_000 + (a.anchor.month ?? 99) * 100 + (a.anchor.day ?? 99);
-    const kb = (b.anchor.year || 9999) * 10_000 + (b.anchor.month ?? 99) * 100 + (b.anchor.day ?? 99);
-    return ka - kb || a.event_id.localeCompare(b.event_id);
-  });
-
-  return {
-    snapshot: {
-      title: typeof snapshot.title === 'string' ? snapshot.title : null,
-      wiki: typeof snapshot.wiki === 'string' ? snapshot.wiki : null,
-      revid: Number.isFinite(Number(snapshot.revid)) ? Number(snapshot.revid) : null,
-      source_url: typeof snapshot.source_url === 'string' ? snapshot.source_url : null
-    },
-    events: outEvents
-  };
+  return fallback;
 }
 
-export async function loadWikiTimelineDb(repoRoot: string, opts: { dbEnv?: string | null; timelineSuffix: string }) {
+export async function loadWikiTimelineDb(repoRoot: string, opts: { dbEnv?: string | null; sourceKey: WikiTimelineSourceKey }) {
   const dbEnv = opts?.dbEnv ?? process.env.ITIR_DB_PATH ?? process.env.SL_WIKI_TIMELINE_DB ?? process.env.SL_WIKI_TIMELINE_AOO_DB ?? null;
-  if (!opts?.timelineSuffix) {
-    throw new Error('timelineSuffix is required for DB loader');
+  if (!opts?.sourceKey) {
+    throw new Error('sourceKey is required for DB loader');
   }
-  return loadFromDb(repoRoot, opts.timelineSuffix, dbEnv);
+  return loadFromDb(repoRoot, opts.sourceKey, dbEnv);
+}
+
+export async function loadWikiTimelineSourceDb(
+  repoRoot: string,
+  rawSource: string | null | undefined,
+  opts?: { dbEnv?: string | null; fallback?: WikiTimelineSourceKey }
+): Promise<{ source: WikiTimelineSourceKey; relPath: string; timelineSuffix: string; payload: WikiTimelinePayload }> {
+  const sourceKey = normalizeWikiTimelineSourceKey(rawSource, opts?.fallback ?? 'gwb');
+  const loaded = await loadWikiTimelineDb(repoRoot, {
+    dbEnv: opts?.dbEnv ?? null,
+    sourceKey
+  });
+  return {
+    source: loaded.source,
+    relPath: loaded.rel_path,
+    timelineSuffix: loaded.timeline_suffix,
+    payload: loaded.payload
+  };
 }

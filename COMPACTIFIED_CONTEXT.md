@@ -1,5 +1,268 @@
 # Compactified Context
 
+- 2026-03-31 wiki revision monitor blob contraction:
+  - source: current working turn
+  - main decision:
+    - the lane is now SQLite-first enough that most legacy operational blob
+      writes are no longer justified
+    - `summary_json` and `graph_json` remain bounded backcompat writes
+    - the local workspace audit found no surviving consumer for the
+      placeholder-only v0.4 drop set
+    - newly created DBs no longer create the article-result and
+      candidate-pair placeholder-only blob columns
+    - existing v0.3 DBs now also migrate in place: the runner rebuilds those
+      two tables without the dead columns and preserves surviving row data
+  - governance artifacts:
+    - `docs/planning/wiki_revision_monitor_blob_deprecation_matrix_20260331.md`
+    - `docs/planning/wiki_revision_monitor_schema_contraction_plan_20260331.md`
+    - `docs/planning/wiki_revision_monitor_v0_4_placeholder_blob_drop_20260331.md`
+    - `docs/planning/wiki_revision_monitor_v0_4_in_place_migration_20260331.md`
+    - `TODO.md`
+    - `SensibLaw/todo.md`
+  - next:
+    - keep `summary_json` and `graph_json` as bounded backcompat until the
+      stricter v0.5 consumer audit is complete
+
+- 2026-03-31 zkperf generic upstreaming lane:
+  - source: current working turn
+  - main decision:
+    - the local spectrogram / stream layer should no longer be framed as
+      primarily `SL`-specific
+    - `meta-introspector/zkperf` has moved on with register-focused commits,
+      so the local next step is to genericize the renderer/stream lane against
+      register-bearing observations and upstream that narrower surface
+    - `SL` wrappers remain local adapters, not the upstream target
+  - governance artifacts:
+    - `docs/planning/zkperf_generic_upstreaming_to_meta_introspector_20260331.md`
+    - `TODO.md`
+  - active worker lanes:
+    - Lane A: upstream file-surface cut
+    - Lane B: vis/register alignment
+    - Lane C: stream core versus transport split
+  - architecture decision:
+    - PR1 is the generic stream/vis contract core
+    - PR2 is the HF/IPFS transport-adapter layer
+    - `SL` wrappers remain ITIR-local
+    - this follows the same package-boundary discipline seen in neighboring
+      repos such as `../zkperf`, `../zos-server`, `../ipfs-dasl`, and
+      `../solfunmeme-dioxus`
+    - the planning note now freezes the split with a compact C4/PlantUML view
+      and an explicit artifact matrix for PR1, PR2, keep-local, and
+      split-before-upstreaming surfaces
+  - governance lens:
+    - ITIL: standard change with explicit service boundary
+    - ISO 9000: one owner for stream semantics and separate owners for adapter
+      behavior
+    - Six Sigma: reduce variance by removing contract/transport coupling
+    - C4: treat stream core and transport adapters as separate containers
+  - current promotion gate:
+    - freeze a clean PR1 file set
+    - prove register-aware vis/test coverage
+    - isolate provider coupling into PR2 unless a smaller transport-neutral
+      seam is proven
+  - implementation status:
+    - first physical split is now complete
+    - pure fixture/bundle/selection logic lives in
+      `itir_jmd_bridge/zkperf_stream_core.py`
+    - transport-free latest/index/retention/artifact logic lives in
+      `itir_jmd_bridge/zkperf_stream_index.py`
+    - HF/IPFS publish and resolve logic lives in
+      `itir_jmd_bridge/zkperf_stream_transport.py`
+    - `itir_jmd_bridge/zkperf_stream.py` remains the compatibility facade for
+      current local scripts/tests
+    - package-root exports in `itir_jmd_bridge/__init__.py` and zkperf CLI
+      imports in `itir_jmd_bridge/cli.py` now point at the split modules
+      directly, so the facade is no longer the canonical generic import path
+    - `itir_jmd_bridge/sl_zkperf.py` now emits a deterministic pseudo-register
+      and flow projection from SL acceptance/workbench state and progress-log
+      events, so local SL runs can light up `reg.*` and `flow.*` features in
+      `zkperf_viz.py` without needing literal CPU-register telemetry
+    - the real HF rerun `zkperf-stream-wave1-real-au-regflow-20260331` proved
+      that the published stream now contains the generic register/flow surface
+      end to end
+    - the next upstream handoff step is now frozen in:
+      - `docs/planning/zkperf_pr1_payload_to_upstream_20260331.md`
+      - `scripts/prepare_zkperf_upstream_bundle.py`
+    - the staging script snapshots the PR1 payload into:
+      - `/tmp/zkperf-pr1-upstream-bundle`
+
+- 2026-03-31 transcript/AU fact-review bundle normalization:
+  - source: current working turn
+  - main decision:
+    - the next different review-family duplicate after affidavit/GWB/Wikidata
+      was the `fact_intake` transcript/AU bundle family
+    - the real duplication was not the CLI wrappers; it was the shared review
+      bundle assembly geometry in:
+      - `SensibLaw/src/fact_intake/transcript_review_bundle.py`
+      - `SensibLaw/src/fact_intake/au_review_bundle.py`
+    - chronology assembly, abstention rollup, and review-bundle envelope
+      shaping now live in:
+      - `SensibLaw/src/fact_intake/review_bundle.py`
+  - adopters:
+    - transcript review bundle now consumes the shared component and keeps only
+      transcript-specific semantic-context shaping
+    - AU review bundle now consumes the shared component and keeps only
+      AU-specific semantic-context, legal-procedural summary, and
+      `authority_follow` view logic
+  - governance artifacts:
+    - `docs/planning/fact_review_bundle_component_20260331.md`
+    - `TODO.md`
+    - `SensibLaw/todo.md`
+  - validation:
+    - focused transcript/AU + shared-component tests remain green
+
+- 2026-03-31 transcript/AU fact-intake payload normalization:
+  - source: current working turn
+  - main decision:
+    - the next lower duplicate seam under the shared review-bundle component
+      was payload scaffolding, not queue semantics
+    - transcript and AU were both rebuilding:
+      - run hashing
+      - source row creation and late source fallback
+      - excerpt shells
+      - statement shells
+      - fact-candidate shells
+      - final fact-intake payload envelope
+    - those now live in:
+      - `SensibLaw/src/fact_intake/payload_builder.py`
+  - adopters:
+    - `SensibLaw/src/fact_intake/transcript_review_bundle.py`
+    - `SensibLaw/src/fact_intake/au_review_bundle.py`
+  - rule:
+    - shared payload geometry is centralized
+    - lane-specific observation semantics stay local
+  - governance artifacts:
+    - `docs/planning/fact_intake_payload_builder_component_20260331.md`
+    - `TODO.md`
+    - `SensibLaw/todo.md`
+
+- 2026-03-31 transcript/AU observation geometry normalization:
+  - source: current working turn
+  - main decision:
+    - the next remaining shared seam in transcript/AU payload adaptation was
+      observation row geometry
+    - transcript and AU were both rebuilding observation IDs and the same row
+      field layout inline
+    - those now live in:
+      - `SensibLaw/src/fact_intake/observation_builder.py`
+  - rule:
+    - shared row identity and shape are centralized
+    - transcript and AU still own which predicates and relations they emit
+  - governance artifacts:
+    - `docs/planning/fact_intake_observation_builder_component_20260331.md`
+    - `TODO.md`
+    - `SensibLaw/todo.md`
+
+- 2026-03-31 transcript/AU projection mechanics normalization:
+  - source: current working turn
+  - main decision:
+    - the next reusable seam after row geometry was the shared projection
+      mechanics, not the lane-specific mapping tables themselves
+    - transcript and AU now share:
+      - relation-status policy
+      - statement fact-status policy
+      - generic role observation emission
+      - generic relation observation emission
+    - those now live in:
+      - `SensibLaw/src/fact_intake/projection_helpers.py`
+  - rule:
+    - shared projection mechanics are centralized
+    - transcript and AU still own their role maps and relation tables
+  - governance artifacts:
+    - `docs/planning/fact_intake_projection_helpers_component_20260331.md`
+    - `TODO.md`
+    - `SensibLaw/todo.md`
+
+- 2026-03-31 fact-intake disclosure/export policy normalization:
+  - source: current working turn
+  - main decision:
+    - the next reusable seam after transcript/AU mechanics was the disclosure
+      and recipient-scoping layer used by fact-intake handoff/export surfaces
+    - `personal_handoff_bundle.py` and
+      `protected_disclosure_envelope.py` were both rebuilding:
+      - recipient profile normalization
+      - protected-disclosure settings normalization
+      - share-with normalization
+      - stable payload hashing
+      - UTC creation stamps
+    - those now live in:
+      - `SensibLaw/src/fact_intake/disclosure_policy.py`
+  - adopters:
+    - `SensibLaw/src/fact_intake/personal_handoff_bundle.py`
+    - `SensibLaw/src/fact_intake/protected_disclosure_envelope.py`
+    - `SensibLaw/src/fact_intake/personal_chat_import.py`
+  - governance artifacts:
+    - `docs/planning/fact_intake_disclosure_policy_component_20260331.md`
+    - `TODO.md`
+    - `SensibLaw/todo.md`
+
+- 2026-03-31 fact-intake payload mutation normalization:
+  - source: current working turn
+  - main decision:
+    - after the disclosure/export slice, the next shared support seam was
+      payload mutation logic, not more importer-local glue
+    - `personal_handoff_bundle.py` and `acceptance_fixtures.py` were both
+      rebuilding:
+      - observation row append logic
+      - review row append logic
+      - contestation row append logic
+      - deterministic mutation-row IDs
+    - those now live in:
+      - `SensibLaw/src/fact_intake/payload_mutations.py`
+  - adopters:
+    - `SensibLaw/src/fact_intake/personal_handoff_bundle.py`
+    - `SensibLaw/src/fact_intake/acceptance_fixtures.py`
+  - governance artifacts:
+    - `docs/planning/fact_intake_payload_mutations_component_20260331.md`
+    - `TODO.md`
+    - `SensibLaw/todo.md`
+
+- 2026-03-31 fact-intake handoff artifact writer normalization:
+  - source: current working turn
+  - main decision:
+    - after the payload-mutation slice, the next shared seam was the handoff
+      script family’s artifact emission block
+    - the chat-json, Messenger, Google Public, and message-db entrypoints were
+      all rebuilding:
+      - mode-to-version routing
+      - summary renderer selection
+      - normalized/report/summary file emission
+      - common return payload fields
+    - those now live in:
+      - `SensibLaw/src/fact_intake/handoff_artifacts.py`
+  - adopters:
+    - `SensibLaw/scripts/build_personal_handoff_from_chat_json.py`
+    - `SensibLaw/scripts/build_personal_handoff_from_messenger_export.py`
+    - `SensibLaw/scripts/build_personal_handoff_from_google_public.py`
+    - `SensibLaw/scripts/build_personal_handoff_from_message_db.py`
+    - `SensibLaw/scripts/build_personal_handoff_from_openrecall.py`
+  - governance artifacts:
+    - `docs/planning/fact_intake_handoff_artifact_writer_component_20260331.md`
+    - `TODO.md`
+    - `SensibLaw/todo.md`
+
+- 2026-03-31 reporting text-unit builder normalization:
+  - source: current working turn
+  - main decision:
+    - after the handoff writer slice, the next shared seam was loader-side
+      `TextUnit` shaping rather than more script glue
+    - Messenger, Google Public, structure-report DB loaders, and OpenRecall
+      were all rebuilding:
+      - indexed `TextUnit` construction
+      - timestamped speaker line rendering
+      - header/body composition
+    - those now live in:
+      - `SensibLaw/src/reporting/text_unit_builders.py`
+  - adopters:
+    - `SensibLaw/src/fact_intake/messenger_export_import.py`
+    - `SensibLaw/src/fact_intake/google_public_import.py`
+    - `SensibLaw/src/reporting/structure_report.py`
+    - `SensibLaw/src/reporting/openrecall_import.py`
+  - governance artifacts:
+    - `docs/planning/reporting_text_unit_builder_component_20260331.md`
+    - `TODO.md`
+    - `SensibLaw/todo.md`
+
 - 2026-03-30 Python domain-ownership architecture correction:
   - source: current working turn
   - main decision:
@@ -3705,12 +3968,128 @@
   - local validation passed:
     `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_structural_sentence.py SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_google_docs_contested_narrative_review.py`
     -> `42 passed`
+- `2026-03-30` affidavit lexical heuristics component decision:
+  - next promoted implementation lane is the lexical heuristic inventory and
+    grouping block inside `SensibLaw/scripts/build_affidavit_coverage_review.py`
+  - scope:
+    - heuristic rule inventory
+    - cue grouping by label
+    - match packet shape
+    - justification cue matching
+  - non-goal:
+    parser and response semantics stay outside this component
+  - governance framing:
+    - ITIL: standard change
+    - ISO 9000: one explicit owner for lexical cue policy
+    - Six Sigma: reduce variation by eliminating builder-local heuristic rules
+    - C4: builder calls a shared lexical heuristics component
   - compound source rows now expose clause candidates for action and
     cause/effect leaves without changing persisted proposition ids
   - alternate-context selection now skips embedded clause fragments when a
     better sibling segment is available
   - focused regressions cover:
     - clause-level action extraction
+- `2026-03-30` affidavit lexical heuristics component followthrough:
+  - landed implementation:
+    - `SensibLaw/src/policy/affidavit_lexical_heuristics.py`
+    - `SensibLaw/scripts/build_affidavit_coverage_review.py`
+    - `SensibLaw/tests/test_affidavit_lexical_heuristics.py`
+  - the builder now delegates lexical cue grouping and justification packet
+    shaping to the shared component while preserving the same helper hooks for
+    current callers and tests
+  - next promoted implementation lane is extraction hints and provisional
+    anchors
+- `2026-03-30` affidavit extraction hints component decision:
+  - next promoted implementation lane is the extraction-hint and provisional
+    anchor block inside `SensibLaw/scripts/build_affidavit_coverage_review.py`
+  - scope:
+    - transcript, calendar, and procedural-event hint extraction
+    - candidate-anchor shaping
+    - provisional-anchor ranking and bundling
+    - hint-aware workload recommendations
+  - non-goal:
+    arbitration, lexical heuristics, and response semantics stay outside this
+    component
+  - governance framing:
+    - ITIL: standard change
+    - ISO 9000: one explicit owner for hint and anchor policy
+    - Six Sigma: reduce variation by eliminating builder-local anchor queueing
+      and recommendation logic
+    - C4: builder calls a shared extraction-hints component
+- `2026-03-30` affidavit extraction hints component followthrough:
+  - landed implementation:
+    - `SensibLaw/src/policy/affidavit_extraction_hints.py`
+    - `SensibLaw/scripts/build_affidavit_coverage_review.py`
+    - `SensibLaw/tests/test_affidavit_extraction_hints.py`
+  - the builder now delegates extraction-hint derivation, candidate-anchor
+    shaping, provisional-anchor queueing, and hint-aware workload advice to
+    the shared component while preserving the same helper hooks for current
+    callers and tests
+  - focused validation passed:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_extraction_hints.py SensibLaw/tests/test_affidavit_coverage_review.py SensibLaw/tests/test_google_docs_contested_narrative_review.py`
+    -> `45 passed`
+- `2026-03-30` first cross-lane adoption after affidavit normalization:
+  - the first honest adopter is
+    `SensibLaw/scripts/build_gwb_public_review.py`, because it still duplicated
+    calendar-anchor packets plus provisional-anchor ranking and bundle rollup
+  - adoption rule:
+    preserve the GWB artifact shape while delegating queueing math to
+    `SensibLaw/src/policy/affidavit_extraction_hints.py`
+  - governance framing:
+    - ITIL: standard change
+    - ISO 9000: cross-lane queueing policy gets one owner
+    - Six Sigma: reduce duplicated ranking variation across affidavit and GWB
+    - C4: GWB builder consumes a shared anchor component instead of owning it
+- `2026-03-30` GWB public review anchor normalization followthrough:
+  - landed implementation:
+    - `SensibLaw/scripts/build_gwb_public_review.py`
+    - `SensibLaw/tests/test_gwb_public_review.py`
+  - the GWB builder now consumes the shared extraction-hints component for
+    calendar-anchor shaping and provisional-anchor ranking/bundling while
+    preserving the emitted `provisional_review_id` contract
+  - focused validation passed:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_extraction_hints.py SensibLaw/tests/test_gwb_public_review.py`
+    -> `9 passed`
+- `2026-03-30` AU + Wikidata cross-lane followthrough decision:
+  - AU checked and dense affidavit builders are already thin wrappers over the
+    normalized affidavit builder, so they do not need a new semantic migration
+    slice here
+  - the real next code slice is Wikidata checked/dense queueing policy, which
+    still lives in `SensibLaw/scripts/build_wikidata_structural_review.py`
+    and is imported by the dense builder from there
+- `2026-03-30` AU + Wikidata cross-lane followthrough:
+  - AU checked and dense affidavit builders are now explicitly pinned as thin
+    wrappers over `write_affidavit_coverage_review(...)`
+  - landed implementation:
+    - `SensibLaw/src/policy/wikidata_review_queue.py`
+    - `SensibLaw/scripts/build_wikidata_structural_review.py`
+    - `SensibLaw/scripts/build_wikidata_dense_structural_review.py`
+    - `SensibLaw/tests/test_wikidata_review_queue.py`
+    - `SensibLaw/tests/test_au_affidavit_coverage_review.py`
+    - `SensibLaw/tests/test_au_dense_affidavit_coverage_review.py`
+  - checked and dense Wikidata structural review now consume one shared Python
+    queue owner for workload recommendation, provisional-review rows, and
+    bundle ranking
+  - focused validation passed:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_review_queue.py SensibLaw/tests/test_wikidata_structural_review.py SensibLaw/tests/test_wikidata_dense_structural_review.py SensibLaw/tests/test_au_affidavit_coverage_review.py SensibLaw/tests/test_au_dense_affidavit_coverage_review.py`
+    -> `8 passed`
+- `2026-03-31` next cross-lane review-family target:
+  - after GWB checked and Wikidata, the remaining review-family duplicate is
+    `SensibLaw/scripts/build_gwb_broader_review.py`
+  - the broader builder should keep its lane-specific anchor kinds, but it
+    should stop owning provisional-review ranking and bundle rollup
+  - planned owner:
+    `SensibLaw/src/policy/affidavit_extraction_hints.py`
+- `2026-03-31` GWB broader review anchor normalization followthrough:
+  - landed implementation:
+    - `SensibLaw/scripts/build_gwb_broader_review.py`
+    - `SensibLaw/tests/test_gwb_broader_review.py`
+  - the broader GWB builder now consumes the shared extraction-hints component
+    for provisional-review ranking and bundle rollup while preserving the
+    emitted broader-review artifact shape
+  - focused validation passed:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_affidavit_extraction_hints.py SensibLaw/tests/test_gwb_broader_review.py`
+    -> `9 passed`
     - clause-level causal extraction
     - preservation of sibling alternate context reporting
   - validation passed:
@@ -4265,6 +4644,284 @@
     present
   - focused verification:
     `31 passed`
+
+- `2026-03-31` importer-side source identity normalization:
+  - added `SensibLaw/src/reporting/source_identity.py` as the shared owner for:
+    - hashed source IDs
+    - Google public source-id formatting
+    - UTC millisecond timestamp rendering
+    - local capture timestamp/date derivation
+    - OpenRecall capture IDs
+  - adopters now include:
+    - `SensibLaw/src/fact_intake/messenger_export_import.py`
+    - `SensibLaw/src/fact_intake/google_public_import.py`
+    - `SensibLaw/src/reporting/openrecall_import.py`
+  - this follows the earlier `TextUnit` builder slice and moves the remaining
+    importer-side identity policy out of loader-local helpers
+  - focused verification:
+    `tests/test_reporting_source_identity.py`
+    `tests/test_personal_messenger_export_import.py`
+    `tests/test_google_public_import.py`
+    `tests/test_personal_openrecall_import.py`
+
+- `2026-03-31` importer-side source loader normalization:
+  - added `SensibLaw/src/reporting/source_loaders.py` as the shared owner for:
+    - loader path resolution
+    - Messenger export file discovery
+    - HTTP text fetch
+    - timestamped screenshot artifact lookup
+  - adopters now include:
+    - `SensibLaw/src/fact_intake/messenger_export_import.py`
+    - `SensibLaw/src/fact_intake/google_public_import.py`
+    - `SensibLaw/src/reporting/openrecall_import.py`
+  - this follows the earlier source-identity slice and removes the remaining
+    loader-entry policy from those importer-local helpers
+  - focused verification:
+    `tests/test_reporting_source_loaders.py`
+    `tests/test_personal_messenger_export_import.py`
+    `tests/test_google_public_import.py`
+    `tests/test_personal_openrecall_import.py`
+    `tests/test_openrecall_integration.py`
+    `tests/test_google_docs_contested_narrative_review.py`
+
+- `2026-03-31` Wikidata structural IO normalization:
+  - added `SensibLaw/src/policy/wikidata_structural_io.py` as the shared owner
+    for:
+    - repo-relative path shaping
+    - JSON fixture loading
+    - JSON+markdown artifact emission
+  - adopters now include:
+    - `SensibLaw/scripts/build_wikidata_structural_handoff.py`
+    - `SensibLaw/scripts/build_wikidata_structural_review.py`
+    - `SensibLaw/scripts/build_wikidata_dense_structural_review.py`
+  - this moves the repeated low-level IO policy out of the Wikidata structural
+    builders while leaving review semantics local
+  - focused verification:
+    `tests/test_wikidata_structural_io.py`
+    `tests/test_wikidata_structural_handoff.py`
+    `tests/test_wikidata_structural_review.py`
+    `tests/test_wikidata_dense_structural_review.py`
+
+- `2026-03-31` Wikidata structural geometry normalization, slice 1:
+  - added `SensibLaw/src/policy/wikidata_structural_geometry.py` as the shared
+    owner for the first checked/dense overlap:
+    - checked qualifier-drift row and cue construction
+    - dense qualifier-drift row and cue construction
+  - adopters now include:
+    - `SensibLaw/scripts/build_wikidata_structural_review.py`
+    - `SensibLaw/scripts/build_wikidata_dense_structural_review.py`
+  - hotspot and disjointness geometry remain for later slices
+  - focused verification:
+    `tests/test_wikidata_structural_geometry.py`
+    `tests/test_wikidata_structural_review.py`
+    `tests/test_wikidata_dense_structural_review.py`
+- `2026-03-31` Wikidata structural geometry normalization, slice 2:
+  - extended `SensibLaw/src/policy/wikidata_structural_geometry.py` to cover
+    hotspot overlap between checked and dense review builders:
+    - checked hotspot summary/question rows and cue fanout
+    - dense hotspot summary/focus/family rows and cue fanout
+  - disjointness geometry remains the next slice
+  - focused verification:
+    `tests/test_wikidata_structural_geometry.py`
+    `tests/test_wikidata_structural_review.py`
+    `tests/test_wikidata_dense_structural_review.py`
+- `2026-03-31` Wikidata structural geometry normalization, slice 3:
+  - extended `SensibLaw/src/policy/wikidata_structural_geometry.py` to cover
+    disjointness overlap between checked and dense review builders:
+    - checked disjointness rows and cue fanout
+    - dense disjointness rows and cue fanout
+  - this closes the remaining obvious checked/dense structural geometry overlap
+  - focused verification:
+    `tests/test_wikidata_structural_geometry.py`
+    `tests/test_wikidata_structural_review.py`
+    `tests/test_wikidata_dense_structural_review.py`
+
+- `2026-03-31` Wiki revision pack storage normalization:
+  - added `SensibLaw/src/wiki_timeline/revision_pack_storage.py` as the shared
+    owner for:
+    - stable JSON serialization used by manifest hashing
+    - artifact slugging
+    - revision, pair, and contested-graph artifact path shaping
+    - JSON file read/write helpers
+    - default revision-pack output directory shaping
+  - adopter:
+    - `SensibLaw/src/wiki_timeline/revision_pack_runner.py`
+  - this removes the runner's local storage mechanics while leaving SQLite
+    schema and run orchestration in place
+  - focused verification:
+    `tests/test_revision_pack_storage.py`
+    `tests/test_wiki_revision_pack_runner.py`
+
+- `2026-03-31` NotebookLM run-loader normalization:
+  - added `SensibLaw/src/reporting/notebooklm_run_loader.py` as the shared
+    owner for:
+    - runs-root resolution
+    - date-directory validation
+    - dated artifact discovery for observer logs
+    - dated artifact discovery for activity outputs
+  - adopters:
+    - `SensibLaw/src/reporting/notebooklm_observer.py`
+    - `SensibLaw/src/reporting/notebooklm_activity.py`
+  - this removes the duplicated local file lookup policy while leaving row
+    parsing and report shaping in each adopter
+  - focused verification:
+    `tests/test_notebooklm_run_loader.py`
+    `tests/test_notebooklm_observer.py`
+    `tests/test_notebooklm_activity.py`
+
+- `2026-03-31` Chat context resolver flow normalization:
+  - added `chat_context_resolver_lib/flow.py` as the shared owner for:
+    - DB-vs-web decision routing
+    - recent-turn preload and warning shaping
+    - cross-thread vs thread-local analysis routing
+    - web fallback and no-web error payload assembly
+  - adopter:
+    - `scripts/chat_context_resolver.py`
+  - this leaves the script as a thin parser/runtime/print wrapper rather than
+    another resolver logic bucket
+  - focused verification:
+    `tests/test_chat_context_resolver_analysis.py`
+    `tests/test_chat_context_resolver_db_lookup.py`
+    `tests/test_chat_context_resolver_live_provider.py`
+    `tests/test_chat_context_resolver_cli_formatters.py`
+    `tests/test_chat_context_resolver_flow.py`
+
+- `2026-03-31` AAO-all corpus docs panel extraction:
+  - added route-local `itir-svelte/src/routes/graphs/wiki-timeline-aoo-all/_components/CorpusDocsPanel.svelte`
+    as the presenter for:
+    - corpus-doc card rendering
+    - referenced/unreferenced badge shaping
+    - local follow-hint path matching
+    - human-readable file-size rendering
+  - adopter:
+    - `itir-svelte/src/routes/graphs/wiki-timeline-aoo-all/+page.svelte`
+  - this keeps the route more composition-only without moving any graph or
+    timeline semantics back into TS helpers
+  - focused verification:
+    `itir-svelte/tests/graph_ui_regressions.test.js`
+    `itir-svelte/tests/wiki_timeline_refactor_regressions.test.js`
+    `itir-svelte` `npm run check`
+
+- `2026-03-31` Wiki revision pack summary normalization:
+  - added `SensibLaw/src/wiki_timeline/revision_pack_summary.py` as the shared
+    owner for:
+    - severity ranking for pack triage
+    - top article/pair/section/graph/cycle/region ranking
+    - run-summary payload assembly
+    - human-readable summary rendering
+  - adopter:
+    - `SensibLaw/src/wiki_timeline/revision_pack_runner.py`
+  - this removes the runner's inline reporting geometry while leaving fetch,
+    scoring, graph building, and SQLite persistence in place
+  - focused verification:
+    `SensibLaw/tests/test_revision_pack_summary.py`
+    `SensibLaw/tests/test_wiki_revision_pack_runner.py`
+
+- `2026-03-31` Wiki revision monitor query normalization:
+  - added `SensibLaw/src/wiki_timeline/revision_monitor_query.py` as the shared
+    owner for:
+    - repo-root resolution from the state DB
+    - pack registry normalization
+    - artifact-backed run discovery
+    - graph-summary fallback assembly
+    - selected run/article graph loading
+    - final query payload assembly
+  - adopter:
+    - `SensibLaw/scripts/query_wiki_revision_monitor.py`
+  - this leaves the script as a thin CLI wrapper over producer-owned read
+    models rather than a second logic bucket
+  - focused verification:
+    `SensibLaw/tests/test_revision_monitor_query.py`
+
+- `2026-03-31` Wiki revision monitor SQLite read-model normalization:
+  - added `SensibLaw/src/wiki_timeline/revision_monitor_read_models.py` as the
+    shared owner for:
+    - explicit run-summary read-model tables
+    - explicit changed-article read-model tables
+    - runner-side upsert helpers
+    - query-side latest-run and changed-article reads
+    - minimal summary reconstruction from SQLite rows
+  - adopters:
+    - `SensibLaw/src/wiki_timeline/revision_pack_runner.py`
+    - `SensibLaw/src/wiki_timeline/revision_monitor_query.py`
+  - this lets the revision-monitor query lane prefer normalized SQLite rows
+    over stored `summary_json` blobs for latest-run and changed-article
+    selection
+  - focused verification:
+    `SensibLaw/tests/test_revision_monitor_read_models.py`
+    `SensibLaw/tests/test_revision_monitor_query.py`
+    `SensibLaw/tests/test_wiki_revision_pack_runner.py`
+
+- `2026-03-31` Wiki revision monitor issue-packet read-model normalization:
+  - added `docs/planning/wiki_revision_monitor_issue_packets_component_20260331.md`
+  - extended `SensibLaw/src/wiki_timeline/revision_monitor_read_models.py` so
+    the shared owner also persists and serves:
+    - selected issue-packet rows per run/article/pair
+    - normalized packet severity, summary, event id, surfaces, related
+      entities, state-change summary, and review-context fields
+  - adopters:
+    - `SensibLaw/src/wiki_timeline/revision_pack_runner.py`
+    - `SensibLaw/src/wiki_timeline/revision_monitor_query.py`
+  - this lets the query lane return selected article packet detail directly
+    from SQLite instead of relying on pair-report blobs
+  - focused verification:
+    `SensibLaw/tests/test_revision_monitor_read_models.py`
+    `SensibLaw/tests/test_revision_monitor_query.py`
+    `SensibLaw/tests/test_wiki_revision_pack_runner.py`
+
+- `2026-03-31` Wiki revision monitor selected-pair read-model normalization:
+  - added `docs/planning/wiki_revision_monitor_selected_pairs_component_20260331.md`
+  - extended `SensibLaw/src/wiki_timeline/revision_monitor_read_models.py` so
+    the shared owner also persists and serves:
+    - selected pair rows per run/article
+    - normalized pair kind, pair-kind family, revision ids, candidate score,
+      top severity, pair-report path, and top changed-section summaries
+  - adopters:
+    - `SensibLaw/src/wiki_timeline/revision_pack_runner.py`
+    - `SensibLaw/src/wiki_timeline/revision_monitor_query.py`
+  - this lets the query lane return selected pair detail directly from SQLite
+    instead of relying on pair-report blobs
+  - focused verification:
+    `SensibLaw/tests/test_revision_monitor_read_models.py`
+    `SensibLaw/tests/test_revision_monitor_query.py`
+    `SensibLaw/tests/test_wiki_revision_pack_runner.py`
+
+- `2026-03-31` Wiki revision monitor contested-graph read-model normalization:
+  - added `docs/planning/wiki_revision_monitor_contested_graph_read_models_component_20260331.md`
+  - extended `SensibLaw/src/wiki_timeline/revision_monitor_read_models.py` so
+    the shared owner can assemble `selected_graph` from SQLite-first graph read
+    models using:
+    - existing graph / region / cycle / edge rows
+    - selected-pair rows
+    - new contested event rows
+    - new contested epistemic rows
+  - adopters:
+    - `SensibLaw/src/wiki_timeline/revision_pack_runner.py`
+    - `SensibLaw/src/wiki_timeline/revision_monitor_query.py`
+  - this removes the main contested-graph query lane's dependence on
+    `graph_json` blobs and artifact fallback when SQLite graph rows exist
+  - focused verification:
+    `SensibLaw/tests/test_revision_monitor_read_models.py`
+    `SensibLaw/tests/test_revision_monitor_query.py`
+    `SensibLaw/tests/test_wiki_revision_pack_runner.py`
+
+- `2026-03-31` Wiki revision monitor blob backcompat boundary:
+  - added `docs/planning/wiki_revision_monitor_blob_backcompat_boundary_20260331.md`
+  - extended `SensibLaw/src/wiki_timeline/revision_monitor_query.py` so the
+    query payload now reports:
+    - `summary_source`
+    - `selected_graph_source`
+  - current source values are:
+    - `sqlite_read_model`
+    - `db_blob`
+    - `artifact`
+    - `none`
+  - focused regression coverage now pins that SQLite read models win over blob
+    columns when both exist
+  - focused verification:
+    `SensibLaw/tests/test_revision_monitor_query.py`
+    `SensibLaw/tests/test_revision_monitor_read_models.py`
+    `SensibLaw/tests/test_wiki_revision_pack_runner.py`
 
 - `2026-03-30` local function-relative MDL followthrough staged but deferred:
   - source: current working turn

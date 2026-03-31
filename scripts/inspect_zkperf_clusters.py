@@ -5,7 +5,14 @@ import argparse
 import json
 from pathlib import Path
 import re
+import sys
 from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from itir_jmd_bridge.zkperf_viz import project_zkperf_observation_metrics
 
 
 def _cluster_sort_key(value: Any) -> tuple[int, str]:
@@ -52,19 +59,7 @@ def _load_observations_from_fixture(fixture: dict[str, Any]) -> dict[str, dict[s
         for index, observation in enumerate(observations, start=1):
             if not isinstance(observation, dict):
                 continue
-            metrics = observation.get("metrics")
-            if not isinstance(metrics, list):
-                continue
-            values: dict[str, float] = {}
-            for metric_row in metrics:
-                if not isinstance(metric_row, dict):
-                    continue
-                name = metric_row.get("metric")
-                value = metric_row.get("value")
-                if not isinstance(name, str):
-                    continue
-                if isinstance(value, (int, float)):
-                    values[name] = float(value)
+            values = project_zkperf_observation_metrics(observation)
             if not values:
                 continue
             row_label = f"{window_id}:{index}"
@@ -108,6 +103,10 @@ def _summarize_cluster_metrics(
     signal["dominantStageFamilies"] = _top_prefixed_metric_counts(averages, "trace.stage_family.", top_n=3)
     signal["dominantDomainRoles"] = _top_prefixed_metric_counts(averages, "trace.domain_role.", top_n=4)
     signal["dominantDomainSignals"] = _top_prefixed_metric_counts(averages, "trace.domain_signal.", top_n=4)
+    signal["dominantFlowTags"] = _top_prefixed_metric_counts(averages, "flow.tag.", top_n=4)
+    signal["dominantFlowRegions"] = _top_prefixed_metric_counts(averages, "flow.region.", top_n=4)
+    signal["changedRegisters"] = _top_suffix_metric_counts(averages, "reg.", ".changed", top_n=6)
+    signal["registerFingerprints"] = _top_suffix_metric_counts(averages, "reg.", ".fingerprint_code", top_n=6)
     return top, signal
 
 
@@ -116,6 +115,16 @@ def _top_prefixed_metric_counts(values: dict[str, float], prefix: str, *, top_n:
         key[len(prefix) :]: value
         for key, value in values.items()
         if key.startswith(prefix) and isinstance(value, (int, float))
+    }
+    ranked = sorted(subset.items(), key=lambda item: (-abs(item[1]), item[0]))
+    return {key: value for key, value in ranked[: max(1, top_n)]}
+
+
+def _top_suffix_metric_counts(values: dict[str, float], prefix: str, suffix: str, *, top_n: int) -> dict[str, float]:
+    subset = {
+        key[len(prefix) : -len(suffix)]: value
+        for key, value in values.items()
+        if key.startswith(prefix) and key.endswith(suffix) and isinstance(value, (int, float))
     }
     ranked = sorted(subset.items(), key=lambda item: (-abs(item[1]), item[0]))
     return {key: value for key, value in ranked[: max(1, top_n)]}
@@ -352,6 +361,11 @@ def _cluster_retrieval_candidates(row_values: list[str], metrics_by_row: dict[st
         score += float(metric_map.get("trace.progress_delta_ratio", 0.0))
         score += float(metric_map.get("summary.covered_count", 0.0))
         score -= float(metric_map.get("summary.missing_review_count", 0.0))
+        score += sum(
+            float(value)
+            for key, value in metric_map.items()
+            if key.startswith("flow.tag.") or key.endswith(".changed")
+        )
         candidates.append(
             {
                 "rowLabel": row,

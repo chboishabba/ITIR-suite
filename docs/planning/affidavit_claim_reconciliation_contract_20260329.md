@@ -473,6 +473,9 @@ Reason:
 - affidavit is the active SQLite/local-first proving slice
 - it already has live runs, persisted review data, and operator-facing grouped
   output
+- the live Google Docs wrapper now supports `--db-path` and defaults to the
+  persisted SQLite receiver, with bulky JSON/markdown kept as opt-in derived
+  artifacts via `--write-artifacts`
 - the current uncertainty is in classification correctness, which can be
   reduced directly by relation typing and explanation fields
 
@@ -570,6 +573,24 @@ The first bounded optimization pass is now landed:
 - a timed live targeted Dad/Johl `p2-s21` probe now completes fetch + group +
   payload build + row scoring in about `5.606s`
 
+The next bounded optimization pass is also now landed:
+- `src/rules/dependencies.py` caches dependency parses per text instead of
+  re-running spaCy on repeated identical excerpts
+- `build_affidavit_coverage_review.py` now memoizes tokenization, structural
+  sentence analysis, lexical heuristic scans, and source/affidavit segment
+  splitting at the text level
+- corrected `.venv` profiling shows the local build path improved from about
+  `13.691s` to about `8.934s` on the Dad/Johl extracted fixture
+- the dominant remaining local cost is now the actual spaCy parse call itself,
+  not repeated Python-side tokenization or regex work
+
+Implication:
+- the next optimization target is parser amortization, not more micro-caching
+- likely directions are:
+  - batch repeated structural parses
+  - reduce the number of excerpts that require dependency analysis
+  - gate spaCy use behind stronger lexical preconditions in the contested lane
+
 ## Live Dad/Johl followthrough
 
 The first `technical_qualification` pass is now landed and verified locally,
@@ -604,3 +625,71 @@ Immediate next implementation target:
   they are only quote headers or draft scaffolding
 - force the matcher to prefer Johl-authored rebuttal / admission text beneath
   those echoed headers
+
+## Live Dad/Johl followthrough, Phase 1 gate v3
+
+The latest SQLite-first Dad/Johl rerun is now operating on the intended Phase 1
+surface:
+
+- focused verification:
+  `SensibLaw/tests/test_affidavit_coverage_review.py`,
+  `SensibLaw/tests/test_query_fact_review_script.py`,
+  `tests/test_sl_zkperf.py`
+- live Dad/Johl run:
+  `/tmp/dad_johl_phase1_gate_v3/itir.sqlite`
+- live review run id:
+  `contested_review:b9d0cbbccb02c13e`
+- inspection surface:
+  `SensibLaw/scripts/query_fact_review.py contested-rows`
+
+Current live target rows:
+- `p2-s5`
+  - now resolves on the intended audio-control row
+  - `relation_root = supports`
+  - `relation_leaf = equivalent_support`
+  - `best_match_basis = clause`
+  - winning non-echo clause:
+    `I acknowledge this likely occurred on many occasions`
+  - retained duplicate root:
+    `Johl came into my room and would turn off or stop what I was listening to on my computer.`
+- `p2-s6`
+  - now resolves on the intended keyboard-control row
+  - `relation_root = supports`
+  - `relation_leaf = equivalent_support`
+  - `best_match_basis = clause`
+  - winning non-echo clause:
+    `after repeatedly telling him I would do so along with why I was asking him to stop, I was forced to remove the keyboard to prevent further disagreements.`
+  - retained duplicate root:
+    `Johl came into my room and pulled out the keyboard so I couldn't type.`
+- `p2-s21`
+  - no longer drifts to the August RTA filing row
+  - now anchors on the EPOA revocation family
+  - current live shape:
+    `relation_root = supports`
+    `relation_leaf = exact_support`
+    `best_response_role = procedural_frame`
+  - winning clause:
+    `For a number of weeks and months, John had failed to complete the necessary steps to revoke his EPOA`
+- `p2-s38`
+  - still stays inside the correct quote-to-rebuttal packet
+  - current live winner:
+    `Due to concerns that conversation may escalate I didn't want to come out of my room.`
+  - retained duplicate root:
+    `I think it was due to the fact that he had come to my door and wanted me to come out and talk to him.`
+- `p2-s39`
+  - still stays inside the correct quote-to-rebuttal packet
+  - current live winner:
+    `I think it was due to the fact that he had come to my door and wanted me to come out and talk to him.`
+  - retained duplicate root:
+    `Due to concerns that conversation may escalate I didn't want to come out of my room.`
+
+Interpretation:
+- the scorer now correctly keeps:
+  - audio-control separate from keyboard-control
+  - EPOA revocation separate from the nearby August procedural/RTA row
+  - packet-local rebuttal clauses above broad same-row admissions
+- the remaining live semantic gap is narrower still:
+  - `p2-s38` and `p2-s39` are reciprocally swapping within the same source row
+  - `p2-s21` is on the right row family, but its response-role label is still
+    flatter than the intended `technical_qualification` / `conceded_fact`
+    interpretation

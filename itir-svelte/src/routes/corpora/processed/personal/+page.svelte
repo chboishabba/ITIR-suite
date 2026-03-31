@@ -101,6 +101,21 @@
     title="Feedback Receipts"
     subtitle="Capture actual frustrations, delight signals, and competitor pain points into the canonical receiver without dropping to raw CLI or sqlite."
   >
+    <div class="-mx-2 mt-4 rounded-[20px] border border-dashed border-ink-900/10 bg-paper-50/80 p-1 shadow-inner">
+      <Panel padded={false}>
+        <div class="space-y-2 px-4 py-3 text-[13px] text-ink-800/80">
+          <div class="font-semibold uppercase tracking-[0.3em] text-ink-900/70">Capture strategy</div>
+          <p>Strong drill-ins come from canonical families, so use the fields below to link each receipt to a known trace before jotting down the anecdotal summary.</p>
+          <ul class="space-y-1 pl-4 text-[12px] leading-5 text-ink-900/70">
+            <li>Pick a recent fact-review run or canonical thread, then copy its `workflow_kind`, `workflow_run_id`, `source_label`, or thread id into the provenance fields to unlock the related surface.</li>
+            <li>Summarize what the person said, add the exact quote, and state what they wanted instead — the rest of the form is optional but useful for context.</li>
+            <li>Tags, target-product/surface, and workflow labels keep the collector surface searchable; keep them consistent across receipts for the same surface.</li>
+          </ul>
+          <p class="text-[11px] text-ink-800/60">Need to capture more than one receipt? Use the JSONL importer with the `feedback.receipt.v1` shape after you collect a batch.</p>
+        </div>
+      </Panel>
+    </div>
+
     {#if form?.error}
       <div class="rounded-2xl bg-amber-100 px-4 py-3 text-sm text-ink-950 ring-1 ring-amber-900/15">
         {form.error}

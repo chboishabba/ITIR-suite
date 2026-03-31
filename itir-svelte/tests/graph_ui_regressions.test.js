@@ -32,14 +32,31 @@ test('AAO view does not reset viewport on selection changes', () => {
 
 test('AAO server supports gwb_corpus_v1', () => {
   const s = read('src/routes/graphs/wiki-timeline-aoo/+page.server.ts');
-  assert.ok(s.includes('gwb_corpus_v1'));
-  assert.ok(s.includes('wiki_timeline_gwb_corpus_v1_aoo.json'));
+  const shared = read('src/lib/server/wikiTimeline.ts');
+  assert.ok(shared.includes('gwb_corpus_v1'));
+  assert.ok(s.includes('normalizeWikiTimelineSourceKey'));
+  assert.ok(s.includes('loadWikiTimelineAooSource'));
+  assert.ok(s.includes("variant: 'aoo'"));
+  assert.ok(!s.includes('const SOURCE_PATHS = {'));
 });
 
 test('AAO-all server uses canonical HCA AAO suffix instead of thin narrative timeline', () => {
   const s = read('src/routes/graphs/wiki-timeline-aoo-all/+page.server.ts');
-  assert.ok(s.includes("SensibLaw', '.cache_local', 'wiki_timeline_hca_s942025_aoo.json"));
+  assert.ok(s.includes('loadWikiTimelineAooSource'));
+  assert.ok(s.includes("variant: 'aoo_all'"));
+  assert.ok(!s.includes('const SOURCE_PATHS = {'));
   assert.ok(!s.includes('hca_case_narrative.timeline.json'));
+});
+
+test('AAO-all route delegates corpus docs rendering to a route-local panel', () => {
+  const route = read('src/routes/graphs/wiki-timeline-aoo-all/+page.svelte');
+  const panel = read('src/routes/graphs/wiki-timeline-aoo-all/_components/CorpusDocsPanel.svelte');
+  assert.ok(route.includes("import CorpusDocsPanel from './_components/CorpusDocsPanel.svelte'"));
+  assert.ok(route.includes('<CorpusDocsPanel'));
+  assert.ok(!route.includes('follow_hints_in_run:'));
+  assert.ok(panel.includes('follow_hints_in_run:'));
+  assert.ok(panel.includes('referencedCorpusPaths'));
+  assert.ok(panel.includes('refHasDoc'));
 });
 
 test('wikiTimelineAoo overlays richer HCA AAO events onto DB-backed metadata when needed', () => {
@@ -80,8 +97,9 @@ test('timeline ribbon workbench is distinct from step-ribbon and wires the ribbo
   assert.ok(home.includes('/graphs/timeline-ribbon'));
   assert.ok(page.includes('Timeline Ribbon Workbench'));
   assert.ok(page.includes('This keeps conserved-allocation ribbon behavior separate from AAO step-ribbon graph placement.'));
-  assert.ok(server.includes('buildTimelinePayload'));
   assert.ok(server.includes('query_dashboard_db.py'));
+  assert.ok(server.includes("'timeline_ribbon'"));
+  assert.ok(!server.includes('buildTimelinePayload'));
   assert.ok(server.includes('timeline'));
   assert.ok(ribbon.includes('data-testid="ribbon-viewport"'));
   assert.ok(ribbon.includes('data-testid="conservation-badge"'));
@@ -121,9 +139,13 @@ test('mission lens workbench uses fused bipartite plus layered mission graph', (
 
 test('wiki fact timeline surfaces proposition overlay details', () => {
   const server = read('src/routes/graphs/wiki-fact-timeline/+page.server.ts');
+  const projection = read('src/routes/graphs/wiki-fact-timeline/projection.ts');
   const page = read('src/routes/graphs/wiki-fact-timeline/+page.svelte');
-  assert.ok(server.includes('type AooProposition'));
-  assert.ok(server.includes('proposition_links'));
+  assert.ok(server.includes("'fact_timeline'"));
+  assert.ok(server.includes('query_wiki_timeline_aoo_db.py') || server.includes('runPythonJson'));
+  assert.ok(!server.includes('buildFactTimelineProjection'));
+  assert.ok(projection.includes('AooProposition,'));
+  assert.ok(projection.includes('proposition_links'));
   assert.ok(page.includes('Propositions'));
   assert.ok(page.includes('propositionLabel('));
   assert.ok(page.includes('does_not_negate'));
@@ -295,7 +317,9 @@ test('Wiki timeline AAO controls are labeled', () => {
 
 test('Wiki fact timeline controls are labeled', () => {
   const page = read('src/routes/graphs/wiki-fact-timeline/+page.svelte');
-  assert.ok(page.includes('aria-label="Max facts"'));
+  const header = read('src/routes/graphs/wiki-fact-timeline/_components/FactTimelineHeaderPanel.svelte');
+  assert.ok(page.includes('FactTimelineHeaderPanel'));
+  assert.ok(header.includes('aria-label="Max facts"'));
 });
 
 test('Wiki timeline AAO-all controls are labeled', () => {

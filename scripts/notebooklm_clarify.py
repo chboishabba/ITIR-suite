@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -90,6 +91,20 @@ def build_ask_command(
     return cmd
 
 
+def extract_visible_conversation_ids(history_text: str) -> list[str]:
+    uuid_re = re.compile(r"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$")
+    ids: list[str] = []
+    for line in history_text.splitlines():
+        line = line.strip()
+        if "│" not in line:
+            continue
+        parts = [part.strip() for part in line.split("│")]
+        for candidate in parts:
+            if uuid_re.fullmatch(candidate):
+                ids.append(candidate)
+    return ids
+
+
 def execute_command(cmd: list[str]) -> subprocess.CompletedProcess[str]:
     env = os.environ.copy()
     env.setdefault("PYTHONUNBUFFERED", "1")
@@ -101,6 +116,19 @@ def execute_command(cmd: list[str]) -> subprocess.CompletedProcess[str]:
         env=env,
         check=False,
     )
+
+
+def pick_default_conversation_id(
+    *,
+    notebook_id: str,
+    notebooklm_cli: str,
+) -> str | None:
+    history_cmd = [notebooklm_cli, "history", "--notebook", notebook_id]
+    result = execute_command(history_cmd)
+    if result.returncode != 0:
+        return None
+    ids = extract_visible_conversation_ids(result.stdout)
+    return ids[0] if ids else None
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -137,11 +165,24 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     notebooklm_cli = resolve_notebooklm_cli(args.notebooklm_cli)
+    conversation_id = args.conversation_id
+    defaulted_visible_conversation_id: str | None = None
+    if not conversation_id and not args.new:
+        defaulted_visible_conversation_id = pick_default_conversation_id(
+            notebook_id=notebook_id,
+            notebooklm_cli=notebooklm_cli,
+        )
+        conversation_id = defaulted_visible_conversation_id
+        if defaulted_visible_conversation_id:
+            print(
+                f"[notebooklm_clarify] defaulting to visible conversation {defaulted_visible_conversation_id}",
+                file=sys.stderr,
+            )
     cmd = build_ask_command(
         notebook_id=notebook_id,
         question=question,
         notebooklm_cli=notebooklm_cli,
-        conversation_id=args.conversation_id,
+        conversation_id=conversation_id,
         new_conversation=bool(args.new),
     )
     payload: dict[str, Any] = {
@@ -149,6 +190,14 @@ def main(argv: list[str] | None = None) -> int:
         "notebook_id": notebook_id,
         "question": question,
         "command": cmd,
+        "conversation_strategy": (
+            "new"
+            if args.new
+            else "explicit"
+            if args.conversation_id
+            else "persist_visible"
+        ),
+        "selected_conversation_id": conversation_id,
     }
     if args.dry_run:
         print(json.dumps(payload, indent=2, sort_keys=True))

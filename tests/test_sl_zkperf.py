@@ -18,6 +18,7 @@ from itir_jmd_bridge.sl_zkperf import (
     build_zkperf_observation_from_sl_file,
     build_zkperf_trace_observations_from_progress_log,
 )
+from itir_jmd_bridge.zkperf_viz import build_zkperf_feature_spectrogram_payload
 
 
 FIXTURE = Path("itir-svelte/tests/fixtures/fact_review_wave1_real_au_demo_bundle.json")
@@ -43,6 +44,36 @@ def test_build_zkperf_observation_from_sl_file() -> None:
     assert metrics["acceptance_story_count"] == 6
     assert metrics["acceptance_pass_count"] == 6
     assert metrics["dict_nodes"] > 0
+    assert observation["registers"]["AX"] == hex(6)
+    assert observation["registerFingerprints"]["AX"] == "H"
+    assert observation["registerChanges"]
+    assert "AU_SEMANTIC" in observation["flowTags"]
+    assert observation["region"] == "SL_WORKBENCH"
+    assert observation["fromRegion"] == "SL_ACCEPTANCE"
+    assert observation["toRegion"] == "SL_WORKBENCH"
+
+
+def test_sl_observation_projects_generic_register_and_flow_features() -> None:
+    observation = build_zkperf_observation_from_sl_file(FIXTURE)
+    fixture = {
+        "contractVersion": "zkperf-stream/v1",
+        "streamId": "sl-demo",
+        "streamRevision": "rev-demo",
+        "streamKind": "zkperf-observation-stream",
+        "windowingMode": "single",
+        "windows": [
+            {
+                "windowId": "window-0001",
+                "sequence": 1,
+                "payload": {"observations": [observation]},
+            }
+        ],
+    }
+    payload = build_zkperf_feature_spectrogram_payload(fixture, top_k_features=64)
+    assert "reg.AX.value" in payload["featureNames"]
+    assert "reg.BX.value" in payload["featureNames"]
+    assert "flow.tag.AU_SEMANTIC" in payload["featureNames"]
+    assert "flow.transition.SL_ACCEPTANCE__SL_WORKBENCH" in payload["featureNames"]
 
 
 def test_built_observation_is_json_serializable() -> None:
@@ -139,6 +170,10 @@ def test_run_sl_with_zkperf_script_emits_trace_observations_from_progress(tmp_pa
     assert trace_metrics[1]["trace.stage_family.finish"] == 1
     assert trace_metrics[1]["trace.progress_delta_ratio"] == 1.0
     assert trace_metrics[1]["trace.transition.load-started__to__load-finished"] == 1
+    assert trace_observations[0]["registers"]["AX"] == hex(1)
+    assert "TRACE" in trace_observations[0]["flowTags"]
+    assert trace_observations[1]["fromRegion"] == "LOAD-STARTED"
+    assert trace_observations[1]["toRegion"] == "DEMO"
 
     stream_payload = json.loads(stream_output.read_text(encoding="utf-8"))
     assert len(stream_payload) == 3

@@ -48,6 +48,13 @@ class DbMatch:
         return _parse_message_ts(self.earliest_ts)
 
 
+@dataclass
+class DbLookupResult:
+    match: Optional[DbMatch]
+    candidates: list[dict]
+    warning: Optional[str]
+
+
 def _parse_datetime(value: str) -> dt.datetime:
     text = value.strip()
     if not text:
@@ -210,7 +217,7 @@ def query_db_fts_candidates(
         FROM messages_fts
         JOIN messages m ON m.rowid = messages_fts.rowid
         WHERE messages_fts MATCH ?
-        GROUP BY m.canonical_thread_id, title
+        GROUP BY m.canonical_thread_id, m.title
         ORDER BY hit_count DESC, latest_ts DESC
         LIMIT ?
         """,
@@ -363,3 +370,55 @@ def query_db_match(
 
     con.close()
     return None
+
+
+def resolve_db_lookup(
+    db_path: Path,
+    selector: str,
+    *,
+    candidate_limit: int = 10,
+    allow_canonical_match: bool = False,
+) -> DbLookupResult:
+    warning: Optional[str] = None
+    match: Optional[DbMatch] = None
+    candidates: list[dict] = []
+
+    if not db_path.exists():
+        return DbLookupResult(
+            match=None,
+            candidates=[],
+            warning=f"DB path does not exist: {db_path}",
+        )
+
+    try:
+        match = query_db_match(
+            db_path,
+            selector,
+            allow_canonical_match=allow_canonical_match,
+        )
+    except sqlite3.Error as exc:
+        warning = f"DB lookup failed: {exc}"
+
+    normalized_selector = selector.strip()
+    should_query_candidates = (
+        match is None
+        and len(normalized_selector) >= 3
+        and not looks_like_online_thread_id(normalized_selector)
+        and not looks_like_canonical_thread_id(normalized_selector)
+    )
+    if should_query_candidates:
+        try:
+            con = connect_sqlite_ro(db_path)
+            try:
+                candidates = query_db_fts_candidates(
+                    con.cursor(),
+                    normalized_selector,
+                    limit=candidate_limit,
+                )
+            finally:
+                con.close()
+        except sqlite3.Error as exc:
+            extra = f"DB FTS lookup failed: {exc}"
+            warning = f"{warning}; {extra}" if warning else extra
+
+    return DbLookupResult(match=match, candidates=candidates, warning=warning)

@@ -1,6 +1,24 @@
 from __future__ import annotations
 
 import argparse
+import datetime as dt
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Callable, Optional
+
+
+@dataclass(frozen=True)
+class RuntimeOptions:
+    selector_input: str
+    selector_for_db: str
+    selector_for_web: str
+    db_path: Path
+    venv_python_path: Path
+    analysis_terms: list[str]
+    thread_range: tuple[int, int] | None
+    message_range: tuple[int, int] | None
+    analysis_requested: bool
+    threshold: Optional[dt.datetime]
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -154,3 +172,78 @@ def build_parser() -> argparse.ArgumentParser:
         help="Max rows for cross-thread analysis results (default: %(default)s).",
     )
     return parser
+
+
+def resolve_runtime_options(
+    args: argparse.Namespace,
+    *,
+    repo_root: Path,
+    parse_terms: Callable[[list[str]], list[str]],
+    parse_range_spec: Callable[[str, str], tuple[int, int]],
+    parse_datetime: Callable[[str], dt.datetime],
+    extract_online_thread_id: Callable[[str], Optional[str]],
+) -> RuntimeOptions:
+    db_path = Path(args.db).expanduser()
+    if not db_path.is_absolute():
+        db_path = repo_root / db_path
+
+    venv_python_input = Path(args.venv_python).expanduser()
+    if venv_python_input.is_absolute():
+        venv_python_path = venv_python_input
+    else:
+        venv_python_path = repo_root / venv_python_input
+
+    analysis_terms = parse_terms(list(args.analyze_term or []))
+    if args.term_file:
+        term_file = Path(args.term_file).expanduser()
+        if not term_file.is_absolute():
+            term_file = repo_root / term_file
+        if not term_file.exists():
+            raise ValueError(f"Term file does not exist: {term_file}")
+        file_terms = [line.strip() for line in term_file.read_text(encoding="utf-8").splitlines() if line.strip()]
+        analysis_terms.extend(parse_terms(file_terms))
+        analysis_terms = parse_terms(analysis_terms)
+
+    selector_input = (args.selector or "").strip()
+    extracted_online_id = extract_online_thread_id(selector_input)
+    selector_for_db = extracted_online_id or selector_input
+    selector_for_web = extracted_online_id or selector_input
+
+    thread_range: tuple[int, int] | None = None
+    message_range: tuple[int, int] | None = None
+    if args.thread_range:
+        thread_range = parse_range_spec(args.thread_range, "--range")
+    if args.message_range:
+        message_range = parse_range_spec(args.message_range, "--message-range")
+
+    threshold: Optional[dt.datetime] = None
+    if args.if_newer_than:
+        try:
+            threshold = parse_datetime(args.if_newer_than)
+        except ValueError as exc:
+            raise ValueError(f"Invalid --if-newer-than: {exc}") from exc
+
+    analysis_requested = bool(
+        analysis_terms
+        or args.top_terms > 0
+        or args.show_lines
+        or args.show_line_context > 0
+        or thread_range
+        or message_range
+        or args.cross_thread
+        or args.term_frequency
+        or args.mention_density
+    )
+
+    return RuntimeOptions(
+        selector_input=selector_input,
+        selector_for_db=selector_for_db,
+        selector_for_web=selector_for_web,
+        db_path=db_path,
+        venv_python_path=venv_python_path,
+        analysis_terms=analysis_terms,
+        thread_range=thread_range,
+        message_range=message_range,
+        analysis_requested=analysis_requested,
+        threshold=threshold,
+    )

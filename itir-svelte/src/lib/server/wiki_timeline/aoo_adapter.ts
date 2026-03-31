@@ -1,9 +1,11 @@
 import path from 'node:path';
 
+import type { WikiTimelineSourceKey } from '$lib/server/wikiTimeline';
+
 import type { WikiTimelineAooPayload } from './types';
 import { normalizePayloadObject } from './normalize';
 import { isHcaCanonicalRelPath, maybeOverlayHcaPayload } from './hca_overlay';
-import { fileExists, loadFromDbCandidates, resolveItirDbPath } from './runtime';
+import { fileExists, loadFromDbCandidates, resolveItirDbPath, runPythonJson } from './runtime';
 
 function timelineSuffixCandidates(relPath: string): string[] {
   const base = path.basename(relPath);
@@ -41,4 +43,39 @@ export async function loadWikiTimelineAoo(repoRoot: string, relPath: string): Pr
       'Fix: rerun wiki_timeline_aoo_extract with DB persistence, or set ITIR_DB_PATH to the canonical sqlite path.',
     ].join(' '),
   );
+}
+
+export async function loadWikiTimelineAooSource(
+  repoRoot: string,
+  sourceKey: WikiTimelineSourceKey,
+  opts?: { variant?: 'aoo' | 'aoo_all' }
+): Promise<{ source: WikiTimelineSourceKey; relPath: string; timelineSuffix: string; payload: WikiTimelineAooPayload }> {
+  const dbPath = resolveItirDbPath(repoRoot);
+  const raw = await runPythonJson(repoRoot, [
+    '--db-path',
+    dbPath,
+    '--source-key',
+    sourceKey,
+    '--projection',
+    'raw',
+    '--with-source-meta',
+    '--source-variant',
+    opts?.variant ?? 'aoo'
+  ]);
+  if (!raw || typeof raw !== 'object') {
+    throw new Error(`No AAO payload found for source ${sourceKey} in ${dbPath}`);
+  }
+  const row = raw as { source?: string; rel_path?: string; timeline_suffix?: string; payload?: unknown };
+  if (!row.payload || typeof row.payload !== 'object') {
+    throw new Error(`AAO payload envelope missing payload for source ${sourceKey} in ${dbPath}`);
+  }
+  const relPath = typeof row.rel_path === 'string' ? row.rel_path : '';
+  const payload = normalizePayloadObject({ ...(row.payload as any), __loaded_from_db: true });
+  const finalPayload = isHcaCanonicalRelPath(relPath) ? await maybeOverlayHcaPayload(repoRoot, relPath, payload) : payload;
+  return {
+    source: sourceKey,
+    relPath,
+    timelineSuffix: typeof row.timeline_suffix === 'string' ? row.timeline_suffix : '',
+    payload: finalPayload
+  };
 }

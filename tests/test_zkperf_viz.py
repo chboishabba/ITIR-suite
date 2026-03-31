@@ -5,6 +5,7 @@ from pathlib import Path
 
 from itir_jmd_bridge.zkperf_viz import (
     build_zkperf_feature_spectrogram_payload,
+    project_zkperf_observation_metrics,
     render_zkperf_feature_spectrogram,
     render_zkperf_pca_spectrogram,
     render_zkperf_query_spectrogram,
@@ -28,6 +29,13 @@ def _fixture(tmp_path: Path) -> Path:
                                 {"metric": "summary.missing_review_count", "value": 5, "unit": "count"},
                                 {"metric": "semantic_gap_score", "value": 7, "unit": "semantic_cost"},
                             ],
+                            "registers": {"AX": "0x41", "BX": "0x10"},
+                            "registerFingerprints": {"AX": "C", "BX": "H"},
+                            "registerChanges": ["AX:=0x41", "BX:0x01→0x10", "ip:0x1000→0x1100"],
+                            "flowTags": ["INPUT_READ", "ASCII_DATA"],
+                            "regionId": "R0",
+                            "fromRegion": "R0",
+                            "toRegion": "R1",
                         }
                     ]
                 },
@@ -44,6 +52,15 @@ def _fixture(tmp_path: Path) -> Path:
                                 {"metric": "summary.missing_review_count", "value": 3, "unit": "count"},
                                 {"metric": "semantic_gap_score", "value": 4, "unit": "semantic_cost"},
                             ],
+                            "registers": {"AX": "0x42", "BX": "0x08"},
+                            "fingerprint": "LM",
+                            "registerOrder": ["AX", "BX"],
+                            "registerChanges": [
+                                {"register": "AX", "old": "0x41", "new": "0x42"},
+                                {"register": "BX", "old": "0x10", "new": "0x08"},
+                            ],
+                            "flowTags": ["MIX_ROUND", "LOOP_TICK"],
+                            "subRegion": "S4",
                         }
                     ]
                 },
@@ -59,13 +76,38 @@ def test_build_feature_spectrogram_payload(tmp_path: Path) -> None:
     fixture = json.loads(_fixture(tmp_path).read_text(encoding="utf-8"))
     payload = build_zkperf_feature_spectrogram_payload(
         fixture,
-        top_k_features=3,
-        feature_prefixes=["summary", "semantic_gap_score"],
+        top_k_features=20,
+        feature_prefixes=["summary", "semantic_gap_score", "reg", "flow"],
     )
     assert payload["streamId"] == "zkperf-stream-demo"
     assert len(payload["rowLabels"]) == 2
     assert "semantic_gap_score" in payload["featureNames"]
+    assert "reg.AX.value" in payload["featureNames"]
+    assert "flow.tag.MIX_ROUND" in payload["featureNames"]
     assert len(payload["matrix"]) == 2
+
+
+def test_project_register_and_flow_observation_metrics() -> None:
+    payload = project_zkperf_observation_metrics(
+        {
+            "metrics": [{"metric": "summary.covered_count", "value": 3}],
+            "registers": {"AX": "0x41"},
+            "registerFingerprints": {"AX": "C"},
+            "registerChanges": ["AX:0x40→0x41", "ip:0x1000→0x1010"],
+            "flowTags": ["ASCII_DATA", "INPUT_READ"],
+            "regionId": "R0",
+            "fromRegion": "R0",
+            "toRegion": "R1",
+        }
+    )
+    assert payload["summary.covered_count"] == 3.0
+    assert payload["reg.AX.value"] == 65.0
+    assert payload["reg.AX.fingerprint_code"] == 0.0
+    assert payload["reg.AX.changed"] == 1.0
+    assert payload["reg.AX.delta"] == 1.0
+    assert payload["flow.tag.ASCII_DATA"] == 1.0
+    assert payload["flow.region.R0"] == 1.0
+    assert payload["flow.transition.R0__R1"] == 1.0
 
 
 def test_render_feature_and_pca_spectrogram(tmp_path: Path) -> None:
@@ -81,14 +123,14 @@ def test_render_feature_and_pca_spectrogram(tmp_path: Path) -> None:
         fixture,
         output_path=feature_png,
         metadata_path=feature_meta,
-        top_k_features=3,
+        top_k_features=20,
         cluster_k=2,
     )
     pca_payload = render_zkperf_pca_spectrogram(
         fixture,
         output_path=pca_png,
         metadata_path=pca_meta,
-        top_k_features=3,
+        top_k_features=20,
         components=2,
         cluster_k=2,
     )
@@ -96,7 +138,7 @@ def test_render_feature_and_pca_spectrogram(tmp_path: Path) -> None:
         fixture,
         output_path=query_png,
         metadata_path=query_meta,
-        query_metrics={"summary.covered_count": 1.0, "summary.missing_review_count": -1.0},
+        query_metrics={"summary.covered_count": 1.0, "reg.AX.value": 65.0, "flow.tag.INPUT_READ": 1.0},
     )
 
     assert feature_png.exists()

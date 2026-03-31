@@ -88,6 +88,7 @@ def build_zkperf_observation_from_sl_payload(
     if theory_evidence is not None:
         proof_refs.extend(theory_evidence["proof_refs"])
     related_artifact_refs = _build_related_artifact_refs(payload)
+    projection = _build_sl_state_projection(payload)
 
     observation = {
         "zkperf_observation_id": "",
@@ -101,6 +102,7 @@ def build_zkperf_observation_from_sl_payload(
         "proof_refs": proof_refs,
         "related_artifact_refs": related_artifact_refs,
         "hash": "",
+        **projection,
     }
     return _finalize_observation(observation)
 
@@ -184,12 +186,17 @@ def build_zkperf_trace_observations_from_progress_log(
     observations: list[dict[str, Any]] = []
     previous_stage_slug: str | None = None
     previous_progress_ratio: float | None = None
+    previous_completed: float | None = None
+    previous_total: float | None = None
+    previous_message_length: float | None = None
     for index, event in enumerate(events, start=1):
         stage_name = str(event.get("stage") or "unknown")
         stage_slug = _slugify(stage_name)
         stage_family = _derive_stage_family(stage_name)
         domain_roles = _derive_domain_roles(stage_name, event.get("section"), event.get("message"))
         domain_signals = _derive_domain_signals(stage_name, event.get("section"), event.get("status"), event.get("message"))
+        completed_value = float(event["completed"]) if isinstance(event.get("completed"), (int, float)) else None
+        total_value = float(event["total"]) if isinstance(event.get("total"), (int, float)) else None
         metrics: list[dict[str, Any]] = [
             {"metric": "trace.step_index", "value": index, "unit": "count"},
             {"metric": "trace.progress_event", "value": 1, "unit": "count"},
@@ -252,6 +259,7 @@ def build_zkperf_trace_observations_from_progress_log(
                 )
             previous_progress_ratio = progress_ratio
         message_text = str(event.get("message") or "")
+        message_length = float(len(message_text))
         metrics.append({"metric": "trace.message_present", "value": 1 if message_text else 0, "unit": "flag"})
         if message_text:
             metrics.append({"metric": "trace.message_length_chars", "value": len(message_text), "unit": "chars"})
@@ -291,6 +299,34 @@ def build_zkperf_trace_observations_from_progress_log(
         if sl_db_path is not None:
             related_artifact_refs.append({"kind": "sl_db_path", "ref": str(Path(sl_db_path).resolve())})
 
+        region = _derive_trace_region(stage_slug, stage_family, event.get("section"), domain_roles, domain_signals)
+        flow_tags = _build_trace_flow_tags(stage_family, event.get("section"), status, domain_roles, domain_signals)
+        register_changes = _build_trace_register_changes(
+            index=index,
+            completed=completed_value,
+            total=total_value,
+            message_length=message_length,
+            role_count=float(len(domain_roles)),
+            signal_count=float(len(domain_signals)),
+            previous_completed=previous_completed,
+            previous_total=previous_total,
+            previous_message_length=previous_message_length,
+        )
+        registers = {
+            "AX": hex(index),
+            "DX": hex(int(message_length)),
+            "SI": hex(len(domain_roles)),
+            "DI": hex(len(domain_signals)),
+        }
+        if completed_value is not None:
+            registers["BX"] = hex(int(completed_value))
+        if total_value is not None:
+            registers["CX"] = hex(int(total_value))
+        register_fingerprints = {
+            name: _register_fingerprint_for_value(int(value, 16))
+            for name, value in registers.items()
+        }
+
         observation = {
             "zkperf_observation_id": "",
             "trace_id": trace_id,
@@ -303,9 +339,20 @@ def build_zkperf_trace_observations_from_progress_log(
             "proof_refs": [],
             "related_artifact_refs": related_artifact_refs,
             "hash": "",
+            "registers": registers,
+            "registerFingerprints": register_fingerprints,
+            "registerChanges": register_changes,
+            "flowTags": flow_tags,
+            "region": region,
+            "transition": stage_slug.upper(),
+            "fromRegion": previous_stage_slug.upper() if previous_stage_slug is not None else "TRACE_START",
+            "toRegion": region,
         }
         observations.append(_finalize_observation(observation))
         previous_stage_slug = stage_slug
+        previous_completed = completed_value
+        previous_total = total_value
+        previous_message_length = message_length
     return observations
 
 
@@ -928,6 +975,220 @@ def _build_affidavit_metrics(payload: dict[str, Any]) -> list[dict[str, Any]]:
     metrics.extend(gap_metrics)
 
     return metrics
+
+
+def _build_sl_state_projection(payload: dict[str, Any]) -> dict[str, Any]:
+    counters = _collect_sl_state_counters(payload)
+    register_order = ["AX", "BX", "CX", "DX", "SI", "DI", "R8", "R9", "R10", "R11"]
+    register_map = {
+        "AX": counters.get("pass_count", 0),
+        "BX": counters.get("review_gap_count", 0),
+        "CX": counters.get("contested_count", 0),
+        "DX": counters.get("fact_count", 0),
+        "SI": counters.get("review_queue_count", 0),
+        "DI": counters.get("event_count", 0),
+        "R8": counters.get("observation_count", 0),
+        "R9": counters.get("statement_count", 0),
+        "R10": counters.get("source_count", 0),
+        "R11": counters.get("excerpt_count", 0),
+    }
+    registers = {name: hex(int(max(value, 0))) for name, value in register_map.items()}
+    register_fingerprints = {
+        name: _register_fingerprint_for_value(int(max(value, 0)))
+        for name, value in register_map.items()
+    }
+    register_changes = [
+        {"register": name, "old": "0x0", "new": registers[name]}
+        for name in register_order
+        if int(registers[name], 16) > 0
+    ]
+
+    return {
+        "registerOrder": register_order,
+        "registers": registers,
+        "registerFingerprints": register_fingerprints,
+        "registerChanges": register_changes,
+        "flowTags": _build_sl_flow_tags(payload, counters),
+        "region": "SL_WORKBENCH" if isinstance(payload.get("workbench"), dict) else "SL_ACCEPTANCE",
+        "fromRegion": "SL_ACCEPTANCE" if isinstance(payload.get("acceptance"), dict) else "SL_SOURCE",
+        "toRegion": "SL_WORKBENCH" if isinstance(payload.get("workbench"), dict) else "SL_ACCEPTANCE",
+        "transition": _derive_sl_transition(payload),
+    }
+
+
+def _collect_sl_state_counters(payload: dict[str, Any]) -> dict[str, int]:
+    acceptance_summary = _lookup(payload, "acceptance", "summary")
+    workbench_summary = _lookup(payload, "workbench", "summary")
+
+    def count(mapping: Any, key: str) -> int:
+        if isinstance(mapping, dict):
+            value = mapping.get(key)
+            if isinstance(value, (int, float)):
+                return int(value)
+        return 0
+
+    review_gap_count = (
+        count(acceptance_summary, "fail_count")
+        + count(acceptance_summary, "partial_count")
+        + count(workbench_summary, "review_queue_count")
+        + count(workbench_summary, "policy_review_required_count")
+        + count(workbench_summary, "needs_followup_count")
+    )
+    contested_count = (
+        count(workbench_summary, "contested_fact_count")
+        + count(workbench_summary, "contested_item_count")
+        + count(workbench_summary, "contested_chronology_item_count")
+    )
+    return {
+        "pass_count": max(count(acceptance_summary, "pass_count"), count(workbench_summary, "reviewed_fact_count")),
+        "review_gap_count": review_gap_count,
+        "contested_count": contested_count,
+        "fact_count": count(workbench_summary, "fact_count"),
+        "review_queue_count": count(workbench_summary, "review_queue_count"),
+        "event_count": count(workbench_summary, "event_count") + count(workbench_summary, "approximate_event_count"),
+        "observation_count": count(workbench_summary, "observation_count"),
+        "statement_count": count(workbench_summary, "statement_count"),
+        "source_count": count(workbench_summary, "source_count"),
+        "excerpt_count": count(workbench_summary, "excerpt_count"),
+    }
+
+
+def _build_sl_flow_tags(payload: dict[str, Any], counters: dict[str, int]) -> list[str]:
+    tags: list[str] = []
+
+    def append(value: Any) -> None:
+        token = _feature_tag(value)
+        if token and token not in tags:
+            tags.append(token)
+
+    selector = payload.get("selector")
+    acceptance = payload.get("acceptance")
+    workbench = payload.get("workbench")
+    append("SL")
+    if isinstance(selector, dict):
+        append(selector.get("workflow_kind"))
+        append(selector.get("wave"))
+        append(selector.get("source_label"))
+    if isinstance(acceptance, dict):
+        append("ACCEPTANCE")
+        append(acceptance.get("fixture_kind"))
+    if isinstance(workbench, dict):
+        append("WORKBENCH")
+    if counters.get("pass_count", 0) > 0:
+        append("ACCEPTANCE_PASS")
+    if counters.get("review_gap_count", 0) > 0:
+        append("REVIEW_QUEUE")
+        append("REVIEW_GAP")
+    if counters.get("contested_count", 0) > 0:
+        append("CONTESTED")
+    if counters.get("event_count", 0) > 0:
+        append("CHRONOLOGY")
+    if counters.get("fact_count", 0) > 0:
+        append("FACT_STATE")
+    if isinstance(workbench, dict) and isinstance(workbench.get("zelph"), dict):
+        append("ZELPH")
+    if _counter_from_summary(payload, "legal_procedural_review_queue_count") > 0:
+        append("LEGAL_PROCEDURAL")
+    return tags
+
+
+def _derive_sl_transition(payload: dict[str, Any]) -> str:
+    selector = payload.get("selector")
+    workflow_kind = selector.get("workflow_kind") if isinstance(selector, dict) else None
+    if workflow_kind:
+        return _feature_tag(workflow_kind) or "SL_FLOW"
+    return "SL_FLOW"
+
+
+def _counter_from_summary(payload: dict[str, Any], key: str) -> int:
+    summary = _lookup(payload, "workbench", "summary")
+    if isinstance(summary, dict):
+        value = summary.get(key)
+        if isinstance(value, (int, float)):
+            return int(value)
+    return 0
+
+
+def _build_trace_flow_tags(
+    stage_family: str,
+    section: Any,
+    status: Any,
+    domain_roles: list[str],
+    domain_signals: list[str],
+) -> list[str]:
+    tags: list[str] = ["TRACE", _feature_tag(stage_family) or "OTHER"]
+    section_tag = _feature_tag(section)
+    status_tag = _feature_tag(status)
+    if section_tag and section_tag not in tags:
+        tags.append(section_tag)
+    if status_tag and status_tag not in tags:
+        tags.append(status_tag)
+    for item in domain_roles:
+        token = _feature_tag(item)
+        if token and token not in tags:
+            tags.append(token)
+    for item in domain_signals:
+        token = _feature_tag(item)
+        if token and token not in tags:
+            tags.append(token)
+    return tags
+
+
+def _derive_trace_region(
+    stage_slug: str,
+    stage_family: str,
+    section: Any,
+    domain_roles: list[str],
+    domain_signals: list[str],
+) -> str:
+    for value in (section, domain_roles[0] if domain_roles else None, domain_signals[0] if domain_signals else None):
+        token = _feature_tag(value)
+        if token:
+            return token
+    return _feature_tag(stage_family) or _feature_tag(stage_slug) or "TRACE"
+
+
+def _build_trace_register_changes(
+    *,
+    index: int,
+    completed: float | None,
+    total: float | None,
+    message_length: float,
+    role_count: float,
+    signal_count: float,
+    previous_completed: float | None,
+    previous_total: float | None,
+    previous_message_length: float | None,
+) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = [{"register": "AX", "old": max(index - 1, 0), "new": index}]
+    if completed is not None:
+        rows.append({"register": "BX", "old": previous_completed or 0, "new": completed})
+    if total is not None:
+        rows.append({"register": "CX", "old": previous_total or 0, "new": total})
+    rows.append({"register": "DX", "old": previous_message_length or 0, "new": message_length})
+    rows.append({"register": "SI", "old": 0, "new": role_count})
+    rows.append({"register": "DI", "old": 0, "new": signal_count})
+    return rows
+
+
+def _register_fingerprint_for_value(value: int) -> str:
+    if value <= 0:
+        return "C"
+    if value <= 2:
+        return "L"
+    if value <= 5:
+        return "M"
+    return "H"
+
+
+def _feature_tag(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    token = re.sub(r"[^A-Za-z0-9]+", "_", text).strip("_").upper()
+    return token or None
 
 
 def _build_affidavit_semantic_gap_metrics(payload: dict[str, Any]) -> list[dict[str, Any]]:

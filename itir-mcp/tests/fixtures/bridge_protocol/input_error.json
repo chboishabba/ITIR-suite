@@ -1,0 +1,17 @@
+{
+  "request": {
+    "op": "call",
+    "name": "sensiblaw.obligations_query",
+    "payload": {
+      "source_id": "contract"
+    }
+  },
+  "assert": {
+    "equals": {
+      "ok": false,
+      "error.code": "input_error",
+      "error.message": "Expected non-empty string field: text",
+      "error.details": {}
+    }
+  }
+}

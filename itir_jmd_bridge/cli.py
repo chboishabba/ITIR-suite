@@ -21,17 +21,18 @@ from .providers.pastebin import discover_host_capabilities
 from .providers.hf import fetch_hf_object, probe_hf_resolve_acknowledgement, upload_hf_file_with_ack
 from .providers.ipfs import fetch_ipfs_object, probe_ipfs_gateway_acknowledgement, publish_ipfs_file_with_ack
 from .runtime import build_runtime_bundle, build_runtime_graph, ingest_latest_pastes, inspect_latest_pastes_with_prototype
-from .zkperf_stream import (
+from .zkperf_stream_core import (
     build_zkperf_stream_bundle,
     build_zkperf_stream_fixture_from_observations,
-    get_zkperf_stream_index_record,
-    load_zkperf_observations,
     load_zkperf_stream_fixture,
+    load_zkperf_observations,
+)
+from .zkperf_stream_transport import (
     load_remote_zkperf_stream_index,
     publish_zkperf_stream_to_hf,
-    resolve_zkperf_stream_from_index_hf,
-    resolve_remote_zkperf_stream_windows,
     resolve_remote_zkperf_stream_window,
+    resolve_remote_zkperf_stream_windows,
+    resolve_zkperf_stream_from_index_hf,
 )
 from .zkperf_viz import (
     render_zkperf_feature_spectrogram,

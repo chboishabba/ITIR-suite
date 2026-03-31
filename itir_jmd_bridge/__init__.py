@@ -30,22 +30,32 @@ from .hf_rehearsal import (
     resolve_selector_to_shard,
 )
 from .transport import NullTransportPlugin, TransportPlugin, publish_bundle
-from .zkperf_stream import (
+from .zkperf_stream_core import (
     build_zkperf_stream_bundle,
+    build_zkperf_stream_fixture_from_observations,
+    load_zkperf_observations,
+    load_zkperf_stream_fixture,
+    select_zkperf_stream_windows,
+)
+from .zkperf_stream_index import (
+    apply_zkperf_stream_retention_policy,
     build_zkperf_stream_index,
     build_zkperf_stream_latest,
-    apply_zkperf_stream_retention_policy,
     get_zkperf_stream_index_record,
-    load_zkperf_stream_fixture,
+    update_zkperf_stream_index,
+    write_zkperf_stream_publish_artifacts,
+)
+from .zkperf_stream_transport import (
     load_remote_zkperf_stream_index,
+    load_remote_zkperf_stream_index_ipfs,
     publish_zkperf_stream_index_to_hf,
     publish_zkperf_stream_to_hf,
+    resolve_remote_zkperf_stream_window_ipfs,
+    resolve_remote_zkperf_stream_windows_ipfs,
+    resolve_zkperf_stream_from_index_ipfs,
     resolve_zkperf_stream_from_index_hf,
     resolve_remote_zkperf_stream_window,
     resolve_remote_zkperf_stream_windows,
-    select_zkperf_stream_windows,
-    update_zkperf_stream_index,
-    write_zkperf_stream_publish_artifacts,
 )
 from .providers.hf import (
     download_hf_object_bytes,
@@ -77,6 +87,7 @@ __all__ = [
     "build_runtime_receipt",
     "apply_zkperf_stream_retention_policy",
     "build_zkperf_stream_bundle",
+    "build_zkperf_stream_fixture_from_observations",
     "build_zkperf_stream_index",
     "build_zkperf_stream_latest",
     "build_container_index_from_tar",
@@ -90,8 +101,10 @@ __all__ = [
     "get_zkperf_stream_index_record",
     "load_erdfa_manifest_fixture",
     "load_hf_container_fixture",
+    "load_zkperf_observations",
     "load_zkperf_stream_fixture",
     "load_remote_zkperf_stream_index",
+    "load_remote_zkperf_stream_index_ipfs",
     "publish_bundle",
     "publish_zkperf_stream_index_to_hf",
     "publish_zkperf_stream_to_hf",
@@ -106,8 +119,11 @@ __all__ = [
     "resolve_selector_to_container_member",
     "resolve_selector_to_shard",
     "resolve_remote_zkperf_stream_window",
+    "resolve_remote_zkperf_stream_window_ipfs",
     "resolve_remote_zkperf_stream_windows",
+    "resolve_remote_zkperf_stream_windows_ipfs",
     "resolve_zkperf_stream_from_index_hf",
+    "resolve_zkperf_stream_from_index_ipfs",
     "select_zkperf_stream_windows",
     "update_zkperf_stream_index",
     "run_runtime_bundle_pipeline",

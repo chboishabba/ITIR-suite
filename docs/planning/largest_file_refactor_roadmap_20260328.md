@@ -21,6 +21,16 @@ file is hiding multiple contracts that should live in separate modules, and
 where product- or corpus-specific naming is leaking into suite-level
 infrastructure that is meant to stay general.
 
+As of 2026-03-30, this roadmap is subordinate to the stronger architecture rule
+in `docs/planning/python_domain_ownership_policy_20260330.md`:
+
+- large-file refactors in TS/JS are acceptable only when they reduce those
+  files to presentation/shell behavior
+- moving business logic from one TS/JS module to another is not sufficient
+  normalization
+- canonical domain semantics should migrate to Python-owned layers instead of
+  being stabilized in route/server TypeScript
+
 This lane is docs-first. Before triaging any specific file into an
 implementation queue, write a short file-local refactor brief in this roadmap
 or in a linked child note. That brief must state:

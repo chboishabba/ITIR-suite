@@ -2,42 +2,8 @@ import path from 'node:path';
 import { existsSync } from 'node:fs';
 import fs from 'node:fs/promises';
 
-import { loadWikiTimelineAoo } from '$lib/server/wikiTimelineAoo';
-
-const GWB_REL = path.join('SensibLaw', '.cache_local', 'wiki_timeline_gwb.json');
-const GWB_PUBLIC_BIOS_REL = path.join(
-  'SensibLaw',
-  'demo',
-  'ingest',
-  'gwb',
-  'public_bios_v1',
-  'wiki_timeline_gwb_public_bios_v1.json'
-);
-const GWB_CORPUS_REL = path.join('SensibLaw', 'demo', 'ingest', 'gwb', 'corpus_v1', 'wiki_timeline_gwb_corpus_v1.json');
-const HCA_REL = path.join('SensibLaw', '.cache_local', 'wiki_timeline_hca_s942025_aoo.json');
-const LEGAL_REL = path.join(
-  'SensibLaw',
-  'demo',
-  'ingest',
-  'legal_principles_au_v1',
-  'wiki_timeline_legal_principles_au_v1.json'
-);
-const LEGAL_FOLLOW_REL = path.join(
-  'SensibLaw',
-  'demo',
-  'ingest',
-  'legal_principles_au_v1',
-  'follow',
-  'wiki_timeline_legal_principles_au_v1_follow.json'
-);
-const SOURCE_PATHS = {
-  gwb: GWB_REL,
-  gwb_public_bios_v1: GWB_PUBLIC_BIOS_REL,
-  gwb_corpus_v1: GWB_CORPUS_REL,
-  hca: HCA_REL,
-  legal: LEGAL_REL,
-  legal_follow: LEGAL_FOLLOW_REL
-} as const;
+import { normalizeWikiTimelineSourceKey } from '$lib/server/wikiTimeline';
+import { loadWikiTimelineAooSource } from '$lib/server/wikiTimelineAoo';
 
 type CorpusDoc = {
   relPath: string;
@@ -97,16 +63,16 @@ async function listCorpusDocs(repoRoot: string, source: string): Promise<CorpusD
 
 export async function load({ url }: { url: URL }) {
   const repoRoot = resolveRepoRoot();
-  const source = (url.searchParams.get('source') || 'gwb').toLowerCase();
-  const rel = SOURCE_PATHS[source as keyof typeof SOURCE_PATHS] ?? GWB_REL;
+  const source = normalizeWikiTimelineSourceKey(url.searchParams.get('source'), 'gwb');
   try {
-    const payload = await loadWikiTimelineAoo(repoRoot, rel);
+    const loaded = await loadWikiTimelineAooSource(repoRoot, source, { variant: 'aoo_all' });
+    const payload = loaded.payload;
     const corpusDocs = await listCorpusDocs(repoRoot, source);
-    return { payload, relPath: rel, source, corpusDocs, error: null as string | null };
+    return { payload, relPath: loaded.relPath, source, corpusDocs, error: null as string | null };
   } catch (e) {
     return {
       payload: { root_actor: { label: '', surname: '' }, events: [] },
-      relPath: rel,
+      relPath: '',
       source,
       corpusDocs: [] as CorpusDoc[],
       error: e instanceof Error ? e.message : String(e)

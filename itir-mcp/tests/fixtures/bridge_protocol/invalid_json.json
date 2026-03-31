@@ -1,0 +1,11 @@
+{
+  "raw_request": "{\"op\":",
+  "assert": {
+    "equals": {
+      "ok": false,
+      "error.code": "protocol_error",
+      "error.message": "invalid json",
+      "error.details": {}
+    }
+  }
+}

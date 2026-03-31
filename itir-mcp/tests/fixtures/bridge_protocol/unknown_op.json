@@ -1,0 +1,13 @@
+{
+  "request": {
+    "op": "unknown_operation"
+  },
+  "assert": {
+    "equals": {
+      "ok": false,
+      "error.code": "invalid_operation",
+      "error.message": "unknown op: unknown_operation",
+      "error.details": {}
+    }
+  }
+}

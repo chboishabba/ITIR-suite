@@ -1,0 +1,19 @@
+{
+  "request": {
+    "op": "call",
+    "name": "sensiblaw.obligations_query",
+    "payload": {
+      "text": "The tenant must pay rent on time.",
+      "source_id": "contract"
+    }
+  },
+  "assert": {
+    "equals": {
+      "ok": true,
+      "result.version": "obligation.query.v1"
+    },
+    "min_len": {
+      "result.results": 1
+    }
+  }
+}

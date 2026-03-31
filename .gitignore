@@ -40,6 +40,9 @@ logs/
 
 # Chat exports and context sync artifacts (often contain PII)
 chat_exports/
+chat_exports/telegram/
+telegram_export/
+telegram_exports/
 __CONTEXT/last_sync/
 
 # NotebookLM auth export (contains session cookies/tokens)
@@ -76,3 +79,7 @@ codex_history*.sqlite*
 .cache_local/messenger_export*/
 .cache_local/openrecall_handoff/
 .cache_local/openrecall_handoff*/
+.cache_local/telegram_export/
+.cache_local/telegram_export*/
+.cache_local/telegram_exports/
+.cache_local/telegram_exports*/

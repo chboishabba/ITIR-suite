@@ -23,9 +23,30 @@ schema authority.
 ## Current provider posture
 
 - `SensibLaw` is the first provider lane
+- `chat-export-structurer` now exposes read-only archive lookup tools
+- archive lookup tools support optional per-platform filtering via `platform`
+  (for example `telegram`, `discord`, `facebook`, `messenger`)
 - tool family is read-only and deterministic
 - wider ITIR/timeline/capture surfaces are deferred until the transport and
   Dioxus client seam are verified
+
+## Chat Archive Tool Notes
+
+`chat_export_structurer.resolve_thread`
+- Required: `selector`
+- Optional: `db_path`, `allow_canonical_match`, `platform`
+
+`chat_export_structurer.search_threads`
+- Required: `selector`
+- Optional: `db_path`, `limit`, `platform`
+
+`chat_export_structurer.thread_messages`
+- Required: `canonical_thread_id`
+- Optional: `db_path`, `limit`, `platform`
+
+The `platform` filter is pass-through archive scoping. It does not impose a
+fixed enum at the MCP layer; any platform label present in the underlying
+archive can be queried.
 
 ## Bridge Operations (Persistent Session)
 
@@ -33,6 +54,10 @@ schema authority.
 - `info`: contract/runtime metadata for clients
 - `list`: stable tool specs
 - `call`: tool invocation (`name`, `payload`)
+
+If present on a valid request object, `request_id` is echoed in the response.
+This gives native clients deterministic request/response correlation across a
+persistent bridge session.
 
 Every response is wrapped as:
 

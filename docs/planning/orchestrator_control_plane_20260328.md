@@ -66,3 +66,24 @@ Add a small governed registry/ownership layer for orchestrator hierarchies:
 - shared registry of active orchestrators
 - claim/heartbeat metadata
 - parent-facing completion/escalation reporting
+
+## 2026-03-30 bounded contract slice (documentation only)
+
+Status:
+
+- proposed control-plane contract, not runtime-shipped
+- this note defines data contracts and governance gates only
+- no claim here implies that registry/heartbeat/reporting persistence exists
+
+Contract note:
+
+- `docs/planning/orchestrator_hierarchy_contract_v0_20260330.md`
+
+Promotion rule for this slice:
+
+- acceptable claims today:
+  - "contract defined"
+  - "fields and event envelopes are specified"
+- unacceptable claims today:
+  - "hierarchical runtime implemented"
+  - "registry heartbeats active in production by default"

@@ -1,0 +1,6 @@
+{"raw":"not-json","expected":{"error_code":"protocol_error","ok":false}}
+{"raw":"[]","expected":{"error_code":"protocol_error","ok":false}}
+{"request":{"op":"bogus"},"expected":{"error_code":"invalid_operation","ok":false}}
+{"request":{"op":"bogus","request_id":"bad-op-1"},"expected":{"error_code":"invalid_operation","ok":false,"request_id":"bad-op-1"}}
+{"request":{"op":"call","name":"","payload":{}},"expected":{"error_code":"input_error","ok":false}}
+{"request":{"op":"call","name":"sensiblaw.obligations_query","payload":"bad"},"expected":{"error_code":"input_error","ok":false}}

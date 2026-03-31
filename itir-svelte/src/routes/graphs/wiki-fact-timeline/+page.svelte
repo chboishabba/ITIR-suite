@@ -3,6 +3,7 @@
   import LayeredGraph, { type LayerNode, type LayeredEdge } from '$lib/ui/LayeredGraph.svelte';
   import { computeImportanceScores, percentileScaleMap, type ImportanceProfileId } from '$lib/importanceProfiles';
   import { afterUpdate } from 'svelte';
+  import FactTimelineHeaderPanel from './_components/FactTimelineHeaderPanel.svelte';
 
   export let data: {
     payload: {
@@ -109,6 +110,9 @@
       return `not_${base}`;
     }
     return base;
+  }
+  function isImportanceProfileNone(profile: ImportanceProfileId): boolean {
+    return profile === 'none';
   }
 
   $: factsAll = data.payload.facts ?? [];
@@ -218,12 +222,12 @@
     const partyNodes = topParties.map(([k, c]) => node(`pty:${k}`, `${k} (${c})`, '#efe7ff'));
     const subNodes = topSubs.map(([k, c]) => {
       const score = Number(scoreByEntity.get(k) ?? 0);
-      const scale = importanceProfile === 'none' ? 1 : Number(subScale.get(k) ?? 1);
+      const scale = isImportanceProfileNone(importanceProfile) ? 1 : Number(subScale.get(k) ?? 1);
       return node(`sub:${k}`, `${k} (${c})`, '#bbf7d0', `${k} | count=${c} | importance=${score.toFixed(3)}`, scale);
     });
     const objNodes = topObjs.map(([k, c]) => {
       const score = Number(scoreByEntity.get(k) ?? 0);
-      const scale = importanceProfile === 'none' ? 1 : Number(objScale.get(k) ?? 1);
+      const scale = isImportanceProfileNone(importanceProfile) ? 1 : Number(objScale.get(k) ?? 1);
       return node(`obj:${k}`, `${k} (${c})`, '#f5f5f5', `${k} | count=${c} | importance=${score.toFixed(3)}`, scale);
     });
 
@@ -304,77 +308,16 @@
 </script>
 
 <div class="space-y-4 p-6">
-  <Panel>
-    <div class="text-xs uppercase tracking-[0.28em] text-ink-800/70">Fact timeline</div>
-    <div class="mt-2 text-sm text-ink-950">
-      Source: <span class="font-mono text-xs">{data.relPath}</span>
-    </div>
-    <div class="mt-2 text-xs text-ink-800/60">
-      Linearized fact rows from sentence-local extraction. Non-causal. Non-authoritative.
-    </div>
-    {#if data.payload.diagnostics}
-      <div class="mt-2 font-mono text-[10px] text-ink-800/70">
-        events={data.payload.diagnostics.event_count}
-        rows_raw={data.payload.diagnostics.raw_fact_rows}
-        rows_out={data.payload.diagnostics.output_fact_rows}
-        source={data.payload.diagnostics.fact_row_source}
-      </div>
-    {/if}
-
-    <div class="mt-4 flex flex-wrap items-center gap-3 text-sm">
-      <label class="flex items-center gap-2">
-        <span class="text-ink-800/70">Dataset</span>
-        <select
-          class="rounded-md border border-ink-950/15 bg-white px-2 py-1 text-sm"
-          value={data.source ?? 'hca'}
-          on:change={(e) => {
-            const v = (e.currentTarget as HTMLSelectElement).value;
-            window.location.href = `/graphs/wiki-fact-timeline?source=${encodeURIComponent(v)}`;
-          }}
-        >
-          <option value="hca">hca</option>
-          <option value="gwb">gwb</option>
-          <option value="legal">legal</option>
-          <option value="legal_follow">legal_follow</option>
-        </select>
-      </label>
-      <label class="flex items-center gap-2">
-        <span class="text-ink-800/70">Time</span>
-        <select bind:value={granularity} class="rounded-md border border-ink-950/15 bg-white px-2 py-1 text-sm">
-          <option value="year">Year</option>
-          <option value="month">Month</option>
-          <option value="day">Day</option>
-        </select>
-      </label>
-      <label class="flex items-center gap-2">
-        <span class="text-ink-800/70">Facts</span>
-        <input type="number" min="20" max={factsAll.length} step="10" bind:value={maxFacts} class="w-24 rounded-md border border-ink-950/15 px-2 py-1 font-mono text-xs" aria-label="Max facts" />
-      </label>
-      <label class="flex items-center gap-2">
-        <span class="text-ink-800/70">Importance</span>
-        <select bind:value={importanceProfile} class="rounded-md border border-ink-950/15 bg-white px-2 py-1 text-sm">
-          <option value="entropy_role_section_v1">entropy_role_section_v1</option>
-          <option value="none">none</option>
-        </select>
-      </label>
-      <a
-        class="rounded-md border border-ink-950/15 px-2 py-1 text-xs text-ink-950 hover:border-ink-950/30 hover:bg-ink-950/[0.03]"
-        href={`/graphs/wiki-timeline-aoo-all?source=${encodeURIComponent(data.source ?? 'hca')}`}
-      >
-        Open AAO-all
-      </a>
-    </div>
-    <div class="mt-2 font-mono text-[10px] text-ink-800/70">
-      scope_validator={graph.scopeValidation.ok ? 'ok' : 'leak'}
-      leaks={graph.scopeValidation.leakCount}
-      profile={importanceProfile}
-    </div>
-    {#if !graph.scopeValidation.ok}
-      <div class="mt-1 rounded border border-red-300/60 bg-red-50 px-2 py-1 font-mono text-[10px] text-red-800">
-        {graph.scopeValidation.sample.join(' | ')}
-      </div>
-    {/if}
-  </Panel>
+  <FactTimelineHeaderPanel
+    relPath={data.relPath}
+    source={data.source}
+    diagnostics={data.payload.diagnostics}
+    bind:granularity={granularity}
+    bind:maxFacts={maxFacts}
+    factsAllLength={factsAll.length}
+    bind:importanceProfile={importanceProfile}
+    scopeValidation={graph.scopeValidation}
+  />
 
   {#if data.error}
     <Panel tone="danger">

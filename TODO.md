@@ -30,10 +30,28 @@
   - DONE: define and implement the bounded NotebookLM interaction lane
     (`conversation_observed`, `note_observed`, separate normalized signal,
     query/read-model helpers, no dashboard session claims)
+  - DONE: move shared runs-root resolution and dated artifact discovery into
+    one Python loader so observer/activity surfaces stop duplicating local
+    NotebookLM file lookup policy
   - next: decide whether a later interaction-grade capture/session contract
     should be sourced from richer NotebookLM events or remain review-only
   - later: define a separate interaction-grade NotebookLM activity contract
     before treating NotebookLM as a first-class SB usage lane
+- Wiki revision monitor SQLite contraction:
+  - DONE: make query precedence explicit with `summary_source` and
+    `selected_graph_source`
+  - DONE: freeze a blob deprecation matrix in
+    `docs/planning/wiki_revision_monitor_blob_deprecation_matrix_20260331.md`
+  - DONE: freeze the versioned schema contraction plan in
+    `docs/planning/wiki_revision_monitor_schema_contraction_plan_20260331.md`
+  - DONE: keep only `summary_json` and `graph_json` as bounded full
+    backcompat writes; downgrade article-result and candidate-pair operational
+    blobs to compact placeholders
+  - DONE: complete the local workspace consumer audit and promote the v0.4
+    placeholder-only schema drop for newly created DBs
+  - DONE: add the in-place v0.4 migration for older revision-monitor DBs
+  - next: decide when the remaining v0.5 backcompat blobs
+    (`summary_json`, `graph_json`) can be dropped after stricter audit
 - Chatistics: no TODOs found.
 - pyThunderbird: no TODOs found.
 
@@ -43,6 +61,27 @@
 - [P1] Near-term platform capability unlocks
 - [P2] Important but deferrable
 - [P3] Nice-to-have / polish
+
+- [P1] zkperf upstream split hardening:
+  - DONE: physically split stream core, index, and transport into:
+    - `itir_jmd_bridge/zkperf_stream_core.py`
+    - `itir_jmd_bridge/zkperf_stream_index.py`
+    - `itir_jmd_bridge/zkperf_stream_transport.py`
+  - DONE: move package-root and CLI imports onto the split modules so
+    `itir_jmd_bridge/zkperf_stream.py` is a compatibility facade rather than
+    the canonical generic surface
+  - DONE: make `itir_jmd_bridge/sl_zkperf.py` emit generic pseudo-register and
+    flow fields so local SL rerenders exercise the same register-aware vis
+    surface as the upstream zkperf lane
+  - DONE: freeze the concrete PR1 upstream payload and add a staging script:
+    - `docs/planning/zkperf_pr1_payload_to_upstream_20260331.md`
+    - `scripts/prepare_zkperf_upstream_bundle.py`
+  - next:
+    - sync latest `../zkperf`
+    - materialize the staged PR1 payload into the new bounded Python package
+      lane there
+    - decide whether `transport.py` joins PR1 or remains PR2 after the first
+      transplant pass
 
 - [P0] Python-owned domain logic normalization:
   - use `docs/planning/python_domain_ownership_policy_20260330.md` as the
@@ -72,13 +111,131 @@
       temporary migration waiver
   - first implementation slices under this policy:
     - continue `chat_context_resolver` Python seam extraction
+    - DONE: move the resolver DB-vs-web decision tree out of
+      `scripts/chat_context_resolver.py` into a shared Python flow owner so
+      the script becomes a thin CLI coordinator
     - harden `itir-mcp` as an adapter contract only
     - DONE: move wiki fact-timeline projection from
       `itir-svelte/src/routes/graphs/wiki-fact-timeline/projection.ts`
       into a Python-owned wiki timeline module and route query path via:
       - `SensibLaw/src/wiki_timeline/fact_timeline_projection.py`
       - `SensibLaw/scripts/query_wiki_timeline_aoo_db.py --projection fact_timeline`
-      - `itir-svelte/src/routes/graphs/wiki-fact-timeline/+page.server.ts`
+    - DONE: first cross-lane Python reuse after affidavit normalization:
+      `SensibLaw/scripts/build_gwb_public_review.py` now consumes
+      `SensibLaw/src/policy/affidavit_extraction_hints.py` for anchor queueing
+    - DONE: next cross-lane Python reuse:
+      move Wikidata checked/dense review queueing policy out of
+      `SensibLaw/scripts/build_wikidata_structural_review.py` into one shared
+      Python component
+    - DONE: next cross-lane Python reuse:
+      move GWB broader review off builder-local provisional queueing and onto
+      `SensibLaw/src/policy/affidavit_extraction_hints.py`
+    - DONE: normalize duplicated transcript and AU fact-review bundle
+      assembly behind one shared Python owner:
+      - `SensibLaw/src/fact_intake/review_bundle.py`
+      - shared chronology assembly, abstention rollup, and review-bundle
+        envelope shaping
+      - adopters:
+        - `SensibLaw/src/fact_intake/transcript_review_bundle.py`
+        - `SensibLaw/src/fact_intake/au_review_bundle.py`
+    - DONE: normalize duplicated transcript and AU fact-intake payload
+      scaffolding behind one shared Python owner:
+      - `SensibLaw/src/fact_intake/payload_builder.py`
+      - shared run/source/excerpt/statement/fact-candidate geometry and final
+        payload envelope
+      - transcript and AU keep lane-specific observation semantics only
+    - DONE: normalize duplicated transcript and AU observation row geometry
+      behind one shared Python owner:
+      - `SensibLaw/src/fact_intake/observation_builder.py`
+      - shared observation ID generation and row shaping
+      - transcript and AU keep lane-specific predicate and relation choice
+    - DONE: normalize duplicated transcript and AU projection mechanics
+      behind one shared Python owner:
+      - `SensibLaw/src/fact_intake/projection_helpers.py`
+      - shared relation-status policy, fact-status policy, and generic
+        role/relation observation emission
+      - transcript and AU keep lane-specific role maps and relation tables
+    - DONE: normalize duplicated fact-intake disclosure/export policy behind
+      one shared Python owner:
+      - `SensibLaw/src/fact_intake/disclosure_policy.py`
+      - shared recipient normalization, protected-disclosure settings,
+        share-with normalization, stable hashing, and UTC creation stamps
+      - adopters:
+        - `SensibLaw/src/fact_intake/personal_handoff_bundle.py`
+        - `SensibLaw/src/fact_intake/protected_disclosure_envelope.py`
+        - `SensibLaw/src/fact_intake/personal_chat_import.py`
+    - DONE: normalize duplicated fact-intake payload mutation helpers behind
+      one shared Python owner:
+      - `SensibLaw/src/fact_intake/payload_mutations.py`
+      - shared observation, review, and contestation append semantics with
+        deterministic mutation-row IDs
+      - adopters:
+        - `SensibLaw/src/fact_intake/personal_handoff_bundle.py`
+        - `SensibLaw/src/fact_intake/acceptance_fixtures.py`
+    - DONE: normalize duplicated fact-intake handoff artifact writing behind
+      one shared Python owner:
+      - `SensibLaw/src/fact_intake/handoff_artifacts.py`
+      - shared mode/version routing, summary renderer selection, artifact
+        emission, and common return-payload shaping
+      - adopters:
+        - `SensibLaw/scripts/build_personal_handoff_from_chat_json.py`
+        - `SensibLaw/scripts/build_personal_handoff_from_messenger_export.py`
+        - `SensibLaw/scripts/build_personal_handoff_from_google_public.py`
+        - `SensibLaw/scripts/build_personal_handoff_from_message_db.py`
+        - `SensibLaw/scripts/build_personal_handoff_from_openrecall.py`
+    - DONE: normalize duplicated loader-side `TextUnit` shaping behind one
+      shared Python owner:
+      - `SensibLaw/src/reporting/text_unit_builders.py`
+      - shared indexed-unit construction, timestamped speaker text, and
+        header/body composition
+      - adopters:
+        - `SensibLaw/src/fact_intake/messenger_export_import.py`
+        - `SensibLaw/src/fact_intake/google_public_import.py`
+        - `SensibLaw/src/reporting/structure_report.py`
+        - `SensibLaw/src/reporting/openrecall_import.py`
+    - DONE: normalize duplicated importer-side source identity and timestamp
+      policy behind one shared Python owner:
+      - `SensibLaw/src/reporting/source_identity.py`
+      - shared hashed source IDs, Google public source-id formatting, UTC
+        millisecond timestamp rendering, local capture timestamp/date
+        derivation, and OpenRecall capture IDs
+      - adopters:
+        - `SensibLaw/src/fact_intake/messenger_export_import.py`
+        - `SensibLaw/src/fact_intake/google_public_import.py`
+        - `SensibLaw/src/reporting/openrecall_import.py`
+    - DONE: normalize duplicated importer-side source loader policy behind one
+      shared Python owner:
+      - `SensibLaw/src/reporting/source_loaders.py`
+      - shared path resolution, Messenger export discovery, HTTP text fetch,
+        and timestamped artifact lookup
+      - adopters:
+        - `SensibLaw/src/fact_intake/messenger_export_import.py`
+        - `SensibLaw/src/fact_intake/google_public_import.py`
+        - `SensibLaw/src/reporting/openrecall_import.py`
+    - DONE: normalize duplicated Wikidata structural IO policy behind one
+      shared Python owner:
+      - `SensibLaw/src/policy/wikidata_structural_io.py`
+      - shared repo-relative path shaping, JSON fixture loading, and
+        JSON+markdown artifact emission
+      - adopters:
+        - `SensibLaw/scripts/build_wikidata_structural_handoff.py`
+        - `SensibLaw/scripts/build_wikidata_structural_review.py`
+        - `SensibLaw/scripts/build_wikidata_dense_structural_review.py`
+    - DONE: start Wikidata checked/dense review geometry normalization with
+      the qualifier-drift overlap:
+      - `SensibLaw/src/policy/wikidata_structural_geometry.py`
+      - shared checked and dense qualifier-drift row/cue construction
+      - adopters:
+        - `SensibLaw/scripts/build_wikidata_structural_review.py`
+        - `SensibLaw/scripts/build_wikidata_dense_structural_review.py`
+    - DONE: extend Wikidata checked/dense review geometry normalization to the
+      hotspot overlap:
+      - shared checked hotspot summary/question rows and cue fanout
+      - shared dense hotspot summary/focus/family rows and cue fanout
+    - DONE: extend Wikidata checked/dense review geometry normalization to the
+      disjointness overlap:
+      - shared checked disjointness rows and cue fanout
+      - shared dense disjointness rows and cue fanout
     - next: move generic wiki timeline view normalization from
       `itir-svelte/src/lib/server/wikiTimeline.ts`
       into a Python-owned `timeline_view` projection behind
@@ -119,10 +276,11 @@
       DONE: promote the structural sentence adapter into
       `SensibLaw/src/policy/affidavit_structural_sentence.py`
     - next affidavit normalization slice:
-      promote the lexical heuristics and justification mapping lane:
-      move lexical cue grouping and justification packet policy out of
-      `SensibLaw/scripts/build_affidavit_coverage_review.py` into one shared
-      Python component
+      DONE: promote the lexical heuristics and justification mapping lane into
+      `SensibLaw/src/policy/affidavit_lexical_heuristics.py`
+    - next affidavit normalization slice:
+      DONE: promote the extraction hints and provisional anchors lane into
+      `SensibLaw/src/policy/affidavit_extraction_hints.py`
 
 - [P1] Largest-file refactor / normalization roadmap:
   - use `docs/planning/largest_file_refactor_roadmap_20260328.md` as the
@@ -155,6 +313,50 @@
   - current triage-ready targets:
     - `scripts/chat_context_resolver.py`
     - `itir-svelte/src/lib/server/wikiTimelineAoo.ts`
+
+- [P1] `zkperf` generic upstreaming to `meta-introspector/zkperf`:
+  - use
+    `docs/planning/zkperf_generic_upstreaming_to_meta_introspector_20260331.md`
+    as the current planning note
+  - treat the current local `zkperf` renderer/stream surface as generic
+    `zkperf`, not `SL`-owned product logic
+  - before any upstream PR:
+    - separate generic `zkperf` files from `SL`/ITIR wrappers
+    - align the visualization/tests with newer register-bearing upstream
+      observations and tagged flow events
+    - physically separate stream contract core from HF/IPFS transport adapters
+      before upstream packaging
+  - current bounded lanes:
+    - Lane A: freeze include/exclude/split file set for upstream PR1
+    - Lane B: define register-aware vis/test changes in
+      `itir_jmd_bridge/zkperf_viz.py`
+    - Lane C:
+      - DONE: extracted the first pure stream-core slice into
+        `itir_jmd_bridge/zkperf_stream_core.py` while keeping
+        `itir_jmd_bridge/zkperf_stream.py` as the stable facade
+      - DONE: extracted transport-free latest/index/retention/artifact logic
+        into `itir_jmd_bridge/zkperf_stream_index.py`
+      - DONE: peeled HF/IPFS publish/resolve into
+        `itir_jmd_bridge/zkperf_stream_transport.py` while preserving facade
+        monkeypatch points for current CLI/tests
+      - next: narrow facade exports in `itir_jmd_bridge/zkperf_stream.py` and
+        then decide whether `itir_jmd_bridge/cli.py` and
+        `itir_jmd_bridge/__init__.py` should keep or reduce the broad surface
+  - architecture rule for this lane:
+    - stream/window/index/retention/selection semantics are the product core
+    - HF/IPFS publish/resolve are adapter layers
+    - `SL` wrappers remain ITIR-local producer/operator surfaces
+  - docs-first gate is not satisfied until the planning note freezes:
+    - PR1 artifact set
+    - PR2 artifact set
+    - keep-local set
+    - split-required files
+    - test/doc ownership fallout
+  - adjacent-repo references for boundary discipline:
+    - `../zkperf`
+    - `../zos-server`
+    - `../ipfs-dasl`
+    - `../solfunmeme-dioxus`
     - `itir-svelte/src/routes/graphs/wiki-timeline-aoo-all/+page.svelte`
     - `tools/build_zelph_hf_manifest.py` +
       `tools/build_shared_shard_artifact_contract.py`
@@ -787,8 +989,33 @@
           - DONE: `build_gwb_public_bios_rich_timeline.py`
           - DONE: `build_gwb_broader_corpus_checkpoint.py`
           - DONE: `build_gwb_broader_promotion_diagnostics.py`
-          - DONE: `run_wikidata_qualifier_drift_scan.py`
-          - DONE: `wiki_revision_pack_runner.py`
+        - DONE: `run_wikidata_qualifier_drift_scan.py`
+        - DONE: `wiki_revision_pack_runner.py`
+        - DONE: move wiki revision pack artifact naming and JSON IO behind one
+          shared Python storage owner so the runner keeps orchestration/state
+          policy rather than storage mechanics
+        - DONE: move wiki revision pack triage and run-summary assembly behind
+          one shared Python summary owner so the runner stops owning reporting
+          geometry inline
+        - DONE: move wiki revision monitor query/read-model assembly behind one
+          shared Python query owner so latest-run and selected-graph queries no
+          longer depend on a fat CLI script
+        - DONE: add explicit SQLite run-summary and changed-article read-model
+          tables behind one shared Python owner so latest-run and
+          changed-article queries prefer normalized SQLite rows over stored
+          `summary_json` blobs
+        - DONE: add explicit SQLite selected issue-packet rows behind that
+          same shared Python owner so selected-article packet detail no longer
+          depends on pair-report blobs
+        - DONE: add explicit SQLite selected-pair rows behind that same shared
+          Python owner so pair kind, severity, score, and section-touch
+          summaries no longer depend on pair-report blobs
+        - DONE: add explicit SQLite contested-graph event and epistemic rows,
+          and assemble selected contested graphs from SQLite-first graph read
+          models instead of `graph_json` blobs
+        - DONE: expose `summary_source` and `selected_graph_source` in the
+          query payload so the remaining blob columns are explicitly treated as
+          backcompat fallback surfaces rather than silent live dependencies
         - next: lift the same shared helper into the remaining long-running
           import/extract/build scripts and add a richer bar renderer only if the
           current terminal bar mode proves insufficient
@@ -1537,7 +1764,7 @@
     - admissibility gate: `docs/planning/oac_object_admissibility_contract_v1_20260211.md`
   - status:
     - wiki-timeline runtime is now split: `itir-svelte/src/lib/server/wiki_timeline/` hosts runtime, normalize, overlay, and adapter helpers and `wikiTimelineAoo.ts` reduced to a thin loader/adapter
-    - `itir-svelte/src/routes/graphs/wiki-timeline-aoo-all/+page.svelte` now consumes `$lib/wiki_timeline/{filters,graph,selection}`, with the controls sheet extracted to `ControlsPanel.svelte` and the context panel extracted to `ContextPanel.svelte`; the remaining follow-up is the evidence-lane/graph assembly residue that still lives in the route
+    - `itir-svelte/src/routes/graphs/wiki-timeline-aoo-all/+page.svelte` now consumes `$lib/wiki_timeline/{filters,graph,selection}`, with the controls sheet extracted to `ControlsPanel.svelte`, the context panel extracted to `ContextPanel.svelte`, and the corpus-docs block extracted to route-local `CorpusDocsPanel.svelte`; the remaining follow-up is the evidence-lane/graph assembly residue that still lives in the route
     - regression check: rerun `cd itir-svelte && node --test tests/graph_ui_regressions.test.js` after the next route slice if evidence-lane extraction lands
 - [P1] Wikipedia random article-ingest coverage followthrough:
   - DONE: define the parent contract for revision-locked random-page article ingest

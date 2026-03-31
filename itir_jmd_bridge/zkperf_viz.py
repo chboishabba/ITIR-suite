@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import re
 from typing import Any
 
 import matplotlib
@@ -10,12 +11,31 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
+_REGISTER_NAMES = ["AX", "BX", "CX", "DX", "SI", "DI", "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15"]
+_FINGERPRINT_CODES = {"C": 0.0, "L": 1.0, "M": 2.0, "H": 3.0}
+_HEX_RE = re.compile(r"^0x[0-9a-fA-F]+$")
+_FLOW_RE = re.compile(
+    r"^(?P<name>[A-Za-z0-9_?]+):(?:(?P<old>0x[0-9a-fA-F]+)→(?P<new>0x[0-9a-fA-F]+)|=(?P<assign>0x[0-9a-fA-F]+))$"
+)
+
 
 def load_zkperf_stream_fixture(path: str | Path) -> dict[str, Any]:
     payload = json.loads(Path(path).read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
         raise ValueError("zkperf stream fixture must be a JSON object")
     return payload
+
+
+def project_zkperf_observation_metrics(observation: dict[str, Any]) -> dict[str, float]:
+    values: dict[str, float] = {}
+    _merge_explicit_metrics(observation, values)
+    _merge_register_values(observation, values)
+    _merge_register_fingerprints(observation, values)
+    _merge_register_changes(observation, values)
+    _merge_flow_tags(observation, values)
+    _merge_flow_regions(observation, values)
+    _merge_flow_transitions(observation, values)
+    return values
 
 
 def build_zkperf_feature_spectrogram_payload(
@@ -221,10 +241,13 @@ def _flatten_stream_observations(fixture: dict[str, Any]) -> list[dict[str, Any]
 
 
 def _metric_map(observation: dict[str, Any]) -> dict[str, float]:
-    values: dict[str, float] = {}
+    return project_zkperf_observation_metrics(observation)
+
+
+def _merge_explicit_metrics(observation: dict[str, Any], values: dict[str, float]) -> None:
     metrics = observation.get("metrics")
     if not isinstance(metrics, list):
-        return values
+        return
     for row in metrics:
         if not isinstance(row, dict):
             continue
@@ -232,7 +255,223 @@ def _metric_map(observation: dict[str, Any]) -> dict[str, float]:
         value = row.get("value")
         if isinstance(name, str) and isinstance(value, (int, float)):
             values[name] = float(value)
-    return values
+
+
+def _merge_register_values(observation: dict[str, Any], values: dict[str, float]) -> None:
+    for key in ("registers", "regs", "registerValues", "register_values"):
+        payload = observation.get(key)
+        if isinstance(payload, dict):
+            for name, raw in payload.items():
+                register = _normalize_register_name(name)
+                number = _coerce_number(raw)
+                if register and number is not None:
+                    values[f"reg.{register}.value"] = number
+        elif isinstance(payload, list):
+            for row in payload:
+                if not isinstance(row, dict):
+                    continue
+                register = _normalize_register_name(
+                    row.get("register") or row.get("reg") or row.get("name") or row.get("registerName")
+                )
+                number = _coerce_number(row.get("value"))
+                if register and number is not None:
+                    values[f"reg.{register}.value"] = number
+
+
+def _merge_register_fingerprints(observation: dict[str, Any], values: dict[str, float]) -> None:
+    for key in ("registerFingerprints", "register_fingerprints", "fingerprints", "registerPatterns"):
+        payload = observation.get(key)
+        if isinstance(payload, dict):
+            for name, raw in payload.items():
+                register = _normalize_register_name(name)
+                code = _coerce_fingerprint_code(raw)
+                if register and code is not None:
+                    values[f"reg.{register}.fingerprint_code"] = code
+        elif isinstance(payload, list):
+            for row in payload:
+                if not isinstance(row, dict):
+                    continue
+                register = _normalize_register_name(
+                    row.get("register") or row.get("reg") or row.get("name") or row.get("registerName")
+                )
+                code = _coerce_fingerprint_code(
+                    row.get("fingerprint") or row.get("variance") or row.get("class") or row.get("tag")
+                )
+                if register and code is not None:
+                    values[f"reg.{register}.fingerprint_code"] = code
+    overall = observation.get("fingerprint")
+    if isinstance(overall, str):
+        register_order = observation.get("registerOrder")
+        if isinstance(register_order, list) and register_order:
+            names = [_normalize_register_name(item) or "" for item in register_order]
+        else:
+            names = _REGISTER_NAMES
+        for register, raw in zip(names, overall):
+            code = _coerce_fingerprint_code(raw)
+            if register and code is not None:
+                values[f"reg.{register}.fingerprint_code"] = code
+
+
+def _merge_register_changes(observation: dict[str, Any], values: dict[str, float]) -> None:
+    for key in (
+        "registerChanges",
+        "register_changes",
+        "changedRegisters",
+        "changed_registers",
+        "registerFlows",
+        "register_flows",
+        "flows",
+    ):
+        payload = observation.get(key)
+        if not isinstance(payload, list):
+            continue
+        for row in payload:
+            _merge_one_register_change(row, values)
+
+
+def _merge_one_register_change(row: Any, values: dict[str, float]) -> None:
+    if isinstance(row, str):
+        parsed = _FLOW_RE.match(row.strip())
+        if parsed is None:
+            return
+        name = parsed.group("name")
+        register = _normalize_register_name(name)
+        if register == "IP":
+            values["flow.transition.ip"] = values.get("flow.transition.ip", 0.0) + 1.0
+            delta = _coerce_delta(parsed.group("old"), parsed.group("new"), parsed.group("assign"))
+            if delta is not None:
+                values["flow.ip.delta"] = delta
+            return
+        if register is None:
+            return
+        values[f"reg.{register}.changed"] = 1.0
+        delta = _coerce_delta(parsed.group("old"), parsed.group("new"), parsed.group("assign"))
+        if delta is not None:
+            values[f"reg.{register}.delta"] = delta
+        return
+    if not isinstance(row, dict):
+        return
+    register = _normalize_register_name(
+        row.get("register") or row.get("reg") or row.get("name") or row.get("registerName")
+    )
+    old_value = _coerce_number(row.get("old") or row.get("from"))
+    new_value = _coerce_number(row.get("new") or row.get("to") or row.get("value"))
+    if register == "IP":
+        values["flow.transition.ip"] = values.get("flow.transition.ip", 0.0) + 1.0
+        if old_value is not None and new_value is not None:
+            values["flow.ip.delta"] = new_value - old_value
+        return
+    if register is None:
+        return
+    values[f"reg.{register}.changed"] = 1.0
+    if old_value is not None and new_value is not None:
+        values[f"reg.{register}.delta"] = new_value - old_value
+    elif new_value is not None:
+        values.setdefault(f"reg.{register}.value", new_value)
+
+
+def _merge_flow_tags(observation: dict[str, Any], values: dict[str, float]) -> None:
+    for key in ("flowTags", "flow_tags", "tags"):
+        payload = observation.get(key)
+        if isinstance(payload, str):
+            items = [item.strip() for item in payload.split(",") if item.strip()]
+        elif isinstance(payload, list):
+            items = []
+            for item in payload:
+                if isinstance(item, str):
+                    items.append(item.strip())
+        else:
+            continue
+        for tag in items:
+            token = _sanitize_feature_token(tag)
+            if token:
+                values[f"flow.tag.{token}"] = values.get(f"flow.tag.{token}", 0.0) + 1.0
+
+
+def _merge_flow_regions(observation: dict[str, Any], values: dict[str, float]) -> None:
+    for key in ("region", "regionId", "region_id", "subRegion", "sub_region", "blockRegion", "ipRegion"):
+        token = _sanitize_feature_token(observation.get(key))
+        if token:
+            values[f"flow.region.{token}"] = 1.0
+
+
+def _merge_flow_transitions(observation: dict[str, Any], values: dict[str, float]) -> None:
+    for key in ("transition", "ipTransition", "ip_transition"):
+        payload = observation.get(key)
+        if isinstance(payload, str):
+            token = _sanitize_feature_token(payload)
+            if token:
+                values[f"flow.transition.{token}"] = 1.0
+    pairs = [
+        ("fromRegion", "toRegion"),
+        ("from_region", "to_region"),
+        ("sourceRegion", "targetRegion"),
+    ]
+    for left_key, right_key in pairs:
+        left = _sanitize_feature_token(observation.get(left_key))
+        right = _sanitize_feature_token(observation.get(right_key))
+        if left and right:
+            values[f"flow.transition.{left}__{right}"] = 1.0
+
+
+def _normalize_register_name(value: Any) -> str | None:
+    if isinstance(value, int):
+        if 0 <= value < len(_REGISTER_NAMES):
+            return _REGISTER_NAMES[value]
+        return None
+    if not isinstance(value, str):
+        return None
+    token = value.strip().upper()
+    if token.startswith("R") and token[1:].isdigit():
+        return token
+    if token in {"AX", "BX", "CX", "DX", "SI", "DI", "IP"}:
+        return token
+    return token if token in _REGISTER_NAMES else None
+
+
+def _coerce_number(value: Any) -> float | None:
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        stripped = value.strip()
+        if _HEX_RE.match(stripped):
+            return float(int(stripped, 16))
+        try:
+            return float(stripped)
+        except ValueError:
+            return None
+    return None
+
+
+def _coerce_delta(old_raw: str | None, new_raw: str | None, assign_raw: str | None) -> float | None:
+    if assign_raw is not None:
+        assigned = _coerce_number(assign_raw)
+        return assigned if assigned is not None else None
+    old_value = _coerce_number(old_raw)
+    new_value = _coerce_number(new_raw)
+    if old_value is None or new_value is None:
+        return None
+    return new_value - old_value
+
+
+def _coerce_fingerprint_code(value: Any) -> float | None:
+    if isinstance(value, str):
+        token = value.strip().upper()
+        if token in _FINGERPRINT_CODES:
+            return _FINGERPRINT_CODES[token]
+    if isinstance(value, (int, float)):
+        return float(value)
+    return None
+
+
+def _sanitize_feature_token(value: Any) -> str | None:
+    if value is None:
+        return None
+    token = str(value).strip()
+    if not token:
+        return None
+    token = re.sub(r"[^A-Za-z0-9_]+", "_", token).strip("_")
+    return token or None
 
 
 def _select_feature_names(

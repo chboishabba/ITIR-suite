@@ -1,9 +1,8 @@
-import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 
 import { parseDashboardPayload } from '$lib/sb-dashboard/contracts/parse';
-import type { DashboardPayload, DashboardTimelineEvent } from '$lib/sb-dashboard/contracts/dashboard';
+import type { DashboardPayload } from '$lib/sb-dashboard/contracts/dashboard';
 
 function isDateText(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(value);
@@ -19,24 +18,6 @@ function resolveDbPath(runsRoot: string): string {
   const explicit = process.env.SB_DASHBOARD_DB?.trim();
   if (explicit) return path.resolve(explicit);
   return path.join(runsRoot, 'dashboard.sqlite');
-}
-
-async function tryReadJson(filePath: string): Promise<unknown | null> {
-  try {
-    const raw = await fs.readFile(filePath, 'utf-8');
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
-
-async function fileExists(filePath: string): Promise<boolean> {
-  try {
-    await fs.stat(filePath);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 async function runPythonJson(repoRoot: string, args: string[]): Promise<unknown> {
@@ -59,81 +40,14 @@ async function runPythonJson(repoRoot: string, args: string[]): Promise<unknown>
   });
 }
 
-function dateRangeInclusive(start: string, end: string): string[] {
-  const out: string[] = [];
-  if (start > end) [start, end] = [end, start];
-  const startParts = start.split('-').map((x) => Number(x));
-  const endParts = end.split('-').map((x) => Number(x));
-  if (startParts.length !== 3 || endParts.length !== 3) return [];
-  const [sy, sm, sd] = startParts as [number, number, number];
-  const [ey, em, ed] = endParts as [number, number, number];
-  if (![sy, sm, sd, ey, em, ed].every((value) => Number.isFinite(value))) return [];
-  const startDate = new Date(Date.UTC(sy, sm - 1, sd));
-  const endDate = new Date(Date.UTC(ey, em - 1, ed));
-  for (let current = startDate; current <= endDate; current = new Date(current.getTime() + 86_400_000)) {
-    out.push(current.toISOString().slice(0, 10));
-  }
-  return out;
-}
-
 async function listAvailableDates(repoRoot: string, runsRoot: string, dbPath: string): Promise<string[]> {
-  if (await fileExists(dbPath)) {
-    try {
-      const raw = await runPythonJson(repoRoot, ['--db-path', dbPath, '--view', 'daily', '--list-dates']);
-      if (Array.isArray(raw)) return raw.filter((value) => typeof value === 'string' && isDateText(value)).sort();
-    } catch {
-      // fall through to disk scan
-    }
-  }
   try {
-    const entries = await fs.readdir(runsRoot, { withFileTypes: true });
-    return entries
-      .filter((entry) => entry.isDirectory() && isDateText(entry.name))
-      .map((entry) => entry.name)
-      .sort();
+    const raw = await runPythonJson(repoRoot, ['--db-path', dbPath, '--view', 'daily', '--list-dates', '--runs-root', runsRoot]);
+    if (Array.isArray(raw)) return raw.filter((value) => typeof value === 'string' && isDateText(value)).sort();
   } catch {
     return [];
   }
-}
-
-async function loadDashboardForDate(repoRoot: string, runsRoot: string, dbPath: string, date: string): Promise<{ payload: DashboardPayload; source: string } | null> {
-  if (await fileExists(dbPath)) {
-    try {
-      const raw = await runPythonJson(repoRoot, ['--db-path', dbPath, '--view', 'daily', '--date', date, '--prefer-all']);
-      const tuple = raw as any;
-      if (tuple?.payload) {
-        return {
-          payload: parseDashboardPayload(tuple.payload),
-          source: `${dbPath}#daily:${date}:${String(tuple?.scope ?? '')}`
-        };
-      }
-    } catch {
-      // fall back to JSON
-    }
-  }
-
-  const fullPath = path.join(runsRoot, date, 'outputs', 'dashboard_all.json');
-  const scopedPath = path.join(runsRoot, date, 'outputs', 'dashboard.json');
-  const full = await tryReadJson(fullPath);
-  if (full) return { payload: parseDashboardPayload(full), source: fullPath };
-  const scoped = await tryReadJson(scopedPath);
-  if (scoped) return { payload: parseDashboardPayload(scoped), source: scopedPath };
-  return null;
-}
-
-function buildTimelinePayload(dailies: DashboardPayload[], start: string, end: string): DashboardPayload {
-  const timeline: DashboardTimelineEvent[] = [];
-  for (const payload of dailies) {
-    for (const event of payload.timeline ?? []) timeline.push(event);
-  }
-  timeline.sort((a, b) => String(a.ts).localeCompare(String(b.ts)));
-  return {
-    date: end,
-    period_start: start,
-    period_end: end,
-    days: dailies.length,
-    timeline
-  };
+  return [];
 }
 
 export async function load({ url }: { url: URL }) {
@@ -155,14 +69,28 @@ export async function load({ url }: { url: URL }) {
     };
   }
 
-  const dates = dateRangeInclusive(start, end);
-  const loaded: Array<{ payload: DashboardPayload; source: string }> = [];
-  for (const date of dates) {
-    const result = await loadDashboardForDate(repoRoot, runsRoot, dbPath, date);
-    if (result) loaded.push(result);
+  let projected: any = null;
+  try {
+    projected = await runPythonJson(repoRoot, [
+      '--db-path',
+      dbPath,
+      '--view',
+      'daily',
+      '--start',
+      start,
+      '--end',
+      end,
+      '--prefer-all',
+      '--projection',
+      'timeline_ribbon',
+      '--runs-root',
+      runsRoot
+    ]);
+  } catch {
+    projected = null;
   }
 
-  if (!loaded.length) {
+  if (!projected?.payload) {
     return {
       availableDates,
       selected: { start, end },
@@ -172,17 +100,11 @@ export async function load({ url }: { url: URL }) {
     };
   }
 
-  const payload = loaded.length === 1 && start === end ? loaded[0]!.payload : buildTimelinePayload(loaded.map((row) => row.payload), start, end);
-  const source =
-    loaded.length === 1 && start === end
-      ? loaded[0]!.source
-      : `${loaded.length} payloads merged from ${start} to ${end}`;
-
   return {
     availableDates,
     selected: { start, end },
-    payload,
-    source,
+    payload: parseDashboardPayload(projected.payload as Record<string, unknown>),
+    source: String(projected?.source ?? ''),
     error: null as string | null
   };
 }

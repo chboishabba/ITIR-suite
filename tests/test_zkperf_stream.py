@@ -384,7 +384,7 @@ def test_cli_resolve_zkperf_stream_window_hf(monkeypatch, tmp_path: Path) -> Non
     fixture = load_zkperf_stream_fixture(FIXTURE)
     bundle = build_zkperf_stream_bundle(fixture)
     monkeypatch.setattr(
-        'itir_jmd_bridge.zkperf_stream.download_hf_object_bytes',
+        'itir_jmd_bridge.zkperf_stream_transport.download_hf_object_bytes',
         lambda **kwargs: {
             'bytes': bundle['tarBytes'],
             'metadata': {'statusCode': 200, 'revision': kwargs['revision'], 'sha256': bundle['tarDigest']},
@@ -413,7 +413,7 @@ def test_cli_resolve_zkperf_stream_range_hf(monkeypatch, tmp_path: Path) -> None
     fixture = load_zkperf_stream_fixture(FIXTURE)
     bundle = build_zkperf_stream_bundle(fixture)
     monkeypatch.setattr(
-        'itir_jmd_bridge.zkperf_stream.download_hf_object_bytes',
+        'itir_jmd_bridge.zkperf_stream_transport.download_hf_object_bytes',
         lambda **kwargs: {
             'bytes': bundle['tarBytes'],
             'metadata': {'statusCode': 200, 'revision': kwargs['revision'], 'sha256': bundle['tarDigest']},

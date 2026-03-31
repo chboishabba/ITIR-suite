@@ -44,11 +44,24 @@ def test_bridge_protocol_smoke() -> None:
         assert health["ok"] is True
         assert "version" in health
 
+        process.stdin.write(json.dumps({"op": "health", "request_id": "smoke-health-1"}) + "\n")
+        process.stdin.flush()
+        health_with_request_id = _read_json_line(process.stdout)
+        assert health_with_request_id["ok"] is True
+        assert health_with_request_id["request_id"] == "smoke-health-1"
+
+        process.stdin.write(json.dumps({"op": "info"}) + "\n")
+        process.stdin.flush()
+        info = _read_json_line(process.stdout)
+        assert info["ok"] is True
+        assert info["ready"] is True
+
         process.stdin.write(json.dumps({"op": "list"}) + "\n")
         process.stdin.flush()
         listed = _read_json_line(process.stdout)
         assert listed["ok"] is True
         tool_names = [tool["name"] for tool in listed["tools"]]
+        assert "chat_export_structurer.search_threads" in tool_names
         assert "sensiblaw.obligations_query" in tool_names
 
         payload = {

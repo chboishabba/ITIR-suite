@@ -13,4 +13,4 @@ export type {
   WikiTimelineAooPayload,
 } from './wiki_timeline/types';
 
-export { loadWikiTimelineAoo } from './wiki_timeline/aoo_adapter';
+export { loadWikiTimelineAoo, loadWikiTimelineAooSource } from './wiki_timeline/aoo_adapter';

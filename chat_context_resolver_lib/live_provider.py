@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime as dt
 import os
 import re
 import shutil
@@ -38,6 +39,18 @@ def load_session_token() -> Optional[str]:
     env_token = os.environ.get("CHATGPT_SESSION_TOKEN", "").strip()
     if env_token:
         return env_token
+
+    session_file_new = Path.home() / ".chatgpt_session_new"
+    if session_file_new.exists():
+        parts = [
+            line.strip()
+            for line in session_file_new.read_text(encoding="utf-8", errors="ignore").splitlines()
+            if line.strip()
+        ]
+        if parts:
+            token = "".join(parts).strip()
+            if token:
+                return token
 
     session_file = Path.home() / ".chatgpt_session"
     if session_file.exists():
@@ -227,6 +240,155 @@ def run_web_download(selector: str, repo_root: Path, venv_python: Path, timeout:
         venv_python=venv_python,
         timeout=timeout,
     )
+
+
+def extract_downloaded_json_paths(stdout: str, repo_root: Path) -> list[Path]:
+    paths: list[Path] = []
+    seen: set[str] = set()
+    pattern = re.compile(r"\bto\s+(.+?\.json)\s*$")
+    for raw_line in stdout.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        match = pattern.search(line)
+        if not match:
+            continue
+        raw_path = match.group(1).strip()
+        candidate = Path(raw_path)
+        if not candidate.is_absolute():
+            candidate = (repo_root / candidate).resolve()
+        key = str(candidate)
+        if key in seen:
+            continue
+        seen.add(key)
+        paths.append(candidate)
+    return paths
+
+
+def ingest_exports_to_structurer(
+    json_paths: list[Path],
+    db_path: Path,
+    venv_python: Path,
+    repo_root: Path,
+    timeout: int,
+) -> dict:
+    ingest_script = repo_root / "chat-export-structurer/src/ingest.py"
+    if not ingest_script.exists():
+        return {"ok": False, "error": f"Missing ingest script: {ingest_script}", "runs": []}
+
+    if not json_paths:
+        return {"ok": False, "error": "No downloaded export JSON paths found to ingest.", "runs": []}
+
+    source_id = f"resolver_auto_{dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+    runs = []
+    all_ok = True
+    for json_path in json_paths:
+        if not json_path.exists():
+            all_ok = False
+            runs.append(
+                {
+                    "ok": False,
+                    "json": str(json_path),
+                    "error": "Downloaded export file missing on disk.",
+                    "command": [],
+                }
+            )
+            continue
+
+        cmd = [
+            str(venv_python),
+            str(ingest_script),
+            "--in",
+            str(json_path),
+            "--db",
+            str(db_path),
+            "--format",
+            "chatgpt",
+            "--account",
+            "main",
+            "--source-id",
+            source_id,
+        ]
+        try:
+            proc = subprocess.run(
+                cmd,
+                cwd=str(repo_root),
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+                check=False,
+            )
+            ok = proc.returncode == 0
+            all_ok = all_ok and ok
+            runs.append(
+                {
+                    "ok": ok,
+                    "json": str(json_path),
+                    "returncode": proc.returncode,
+                    "stdout": proc.stdout,
+                    "stderr": proc.stderr,
+                    "command": cmd,
+                    "source_id": source_id,
+                }
+            )
+        except subprocess.TimeoutExpired:
+            all_ok = False
+            runs.append(
+                {
+                    "ok": False,
+                    "json": str(json_path),
+                    "error": f"Ingest timed out after {timeout}s",
+                    "command": cmd,
+                    "source_id": source_id,
+                }
+            )
+        except OSError as exc:
+            all_ok = False
+            runs.append(
+                {
+                    "ok": False,
+                    "json": str(json_path),
+                    "error": f"Failed to execute ingest command: {exc}",
+                    "command": cmd,
+                    "source_id": source_id,
+                }
+            )
+
+    return {
+        "ok": all_ok,
+        "runs": runs,
+        "source_id": source_id,
+        "ingested_count": sum(1 for run in runs if run.get("ok")),
+    }
+
+
+def persist_selector_to_structurer(
+    selector: str,
+    repo_root: Path,
+    db_path: Path,
+    venv_python: Path,
+    timeout: int,
+) -> dict:
+    download = run_web_download(
+        selector,
+        repo_root=repo_root,
+        venv_python=venv_python,
+        timeout=timeout,
+    )
+    json_paths = extract_downloaded_json_paths(download.get("stdout") or "", repo_root=repo_root)
+    ingest = ingest_exports_to_structurer(
+        json_paths=json_paths,
+        db_path=db_path,
+        venv_python=venv_python,
+        repo_root=repo_root,
+        timeout=timeout,
+    )
+    return {
+        "ok": bool(download.get("ok")) and bool(ingest.get("ok")),
+        "download": download,
+        "downloaded_json_paths": [str(path) for path in json_paths],
+        "ingest": ingest,
+    }
 
 
 def resolve_live_conversation(chatgpt: object, selector: str) -> Optional[dict]:

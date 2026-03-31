@@ -1,0 +1,10 @@
+{"request":{"op":"health"},"expected":{"ok":true,"protocol":"2026-03-26","service":"itir-mcp-bridge","version":"0.3.0"}}
+{"request":{"op":"health","request_id":"health-1"},"expected":{"ok":true,"protocol":"2026-03-26","service":"itir-mcp-bridge","version":"0.3.0","request_id":"health-1"}}
+{"request":{"op":"info"},"expected":{"ok":true,"protocol":"2026-03-26","ready":true,"version":"0.3.0"}}
+{"request":{"op":"info","request_id":"info-1"},"expected":{"ok":true,"protocol":"2026-03-26","ready":true,"version":"0.3.0","request_id":"info-1"}}
+{"request":{"op":"list"},"expected":{"ok":true,"tool_names":["chat_export_structurer.resolve_thread","chat_export_structurer.search_threads","chat_export_structurer.thread_messages","sensiblaw.obligations_activate","sensiblaw.obligations_alignment","sensiblaw.obligations_explain","sensiblaw.obligations_projection","sensiblaw.obligations_query"]}}
+{"request":{"op":"list","request_id":"list-1"},"expected":{"ok":true,"tool_names":["chat_export_structurer.resolve_thread","chat_export_structurer.search_threads","chat_export_structurer.thread_messages","sensiblaw.obligations_activate","sensiblaw.obligations_alignment","sensiblaw.obligations_explain","sensiblaw.obligations_projection","sensiblaw.obligations_query"],"request_id":"list-1"}}
+{"request":{"op":"call","name":"sensiblaw.obligations_query","payload":{"text":"The tenant must pay rent on time."}},"expected":{"ok":true,"result_version":"obligation.query.v1"}}
+{"request":{"op":"call","name":"sensiblaw.obligations_query","payload":{"text":"The tenant must pay rent on time."},"request_id":"call-1"},"expected":{"ok":true,"result_version":"obligation.query.v1","request_id":"call-1"}}
+{"request":{"op":"call","name":"sensiblaw.obligations_query","payload":{"text":5}},"expected":{"error_code":"input_error","ok":false}}
+{"request":{"op":"call","name":"sensiblaw.obligations_query","payload":{"text":5},"request_id":"call-err-1"},"expected":{"error_code":"input_error","ok":false,"request_id":"call-err-1"}}
