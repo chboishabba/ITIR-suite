@@ -1596,3 +1596,7 @@
       `Conceded Fact (+ Technical Qualification)`
     - next highest-signal refinement:
       strict echo masking for quoted allegation headers / pasted affidavit text
+- 2026-04-02: Tightened the Shixiong Wikidata handoff note so it reflects his
+  actual fit better: bounded validation, correction-worthiness criteria,
+  reviewer-inspectable packet surfaces, and provenance strictness, rather than
+  generic migration onboarding.

@@ -4137,3 +4137,19 @@
     - F:
       remaining external gap is funder-form mapping and budget text, not core
       technical positioning
+## 2026-04-02 Shixiong handoff fit correction
+
+- rechecked the Shixiong onboarding note against his paper
+  `Diagnosing and Mitigating Semantic Inconsistencies in Wikidata's Classification Hierarchy`
+- conclusion: the first note was acceptable as generic onboarding, but it
+  undersold the actual fit
+- updated
+  `SensibLaw/docs/planning/wikidata_shixiong_handoff_20260402.md`
+  to frame the overlap correctly:
+  - bounded validation of real Wikidata problems
+  - explicit correction-worthiness criteria
+  - reviewer-inspectable decision surfaces
+  - provenance / evidence strictness
+- practical effect:
+  - Shixiong should now be pointed less toward generic migration mechanics and
+    more toward reviewing the hard-case decision rule and packet sufficiency
