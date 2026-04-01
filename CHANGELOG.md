@@ -125,6 +125,8 @@
   - Added a bounded live scan preview helper using the same selection rule, so
     Cohort C now has a live-query-backed review-first runtime surface without a
     blanket execution lane.
+  - Added an operator packet wrapper over the Cohort C preview so the decision
+    state, triage prompts, and fail-closed behavior are explicit.
 - revision-monitor provenance boundary clarification:
   - Added
     `docs/planning/wiki_revision_monitor_provenance_path_boundary_20260401.md`

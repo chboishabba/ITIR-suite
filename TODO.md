@@ -534,6 +534,10 @@
   `SensibLaw/tests/test_wikidata_projection.py`
 - note: live-query unavailability is surfaced explicitly rather than hidden
   behind retry noise.
+- DONE: package the Cohort C live preview into an operator-facing review packet
+  so the candidate set, triage prompts, and hold/review decision are explicit:
+  `SensibLaw/src/ontology/wikidata.py`
+  `SensibLaw/tests/test_wikidata_projection.py`
 - DONE: add the assist-lane reviewer-packet alignment note and the
   smallest fixture note so the Peter/Ege/Rosario lane can reuse Nat field
   names without claiming parity or execution authority:

@@ -138,6 +138,8 @@
       a bounded runtime scan normalizer in `SensibLaw/src/ontology/wikidata.py`
       and a matching test in `SensibLaw/tests/test_wikidata_projection.py`
     - the same selection rule now has a bounded live scan preview helper
+    - the preview is now packaged into an operator-facing review packet with
+      explicit triage prompts and hold/review decision text
     - this is a review-first runtime surface, not a blanket live population scan
   - documentation artifact:
     - `SensibLaw/docs/planning/wikidata_nat_cohort_c_population_scan_20260402.md`
