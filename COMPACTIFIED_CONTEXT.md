@@ -14,6 +14,25 @@
   - documentation artifact:
     - `SensibLaw/docs/planning/wikidata_shixiong_handoff_20260402.md`
 
+- 2026-04-02 Wikidata reviewer-packet variant comparison:
+  - the Nat reviewer-packet lane now explicitly allows bounded
+    variant-comparison as a diagnostic lever
+  - the comparison is limited to a few relevant variants and is not a truth
+    engine
+  - the goal is to sharpen split-shape clustering and reviewer packets,
+    not open-ended diff hunting
+  - the lane now also has a grounded sibling-variant path using real Nat
+    split-plan peers, and that comparison can be auto-derived from the split
+    payload when sibling plans are present, so the comparison surface can
+    compare actual cohort neighbors instead of only synthetic examples
+
+- 2026-04-02 Wikidata reviewer-packet helper lanes:
+  - standalone helper modules now exist for follow depth, claim-boundary
+    mapping, cross-source alignment, reviewer actions, and bounded variant
+    comparison
+  - the same helpers are now aggregated behind the optional semantic sidecar
+    without widening the packet contract
+
 - 2026-04-02 major user-story alignment and reprioritization pass:
   - source: current orchestration turn
   - docs checked:
@@ -91,6 +110,11 @@
       `include_semantic_decomposition=True`
     - it stays separate from `parsed_page` and should remain explicit rather
       than being assumed as part of the shallow parser
+    - the sidecar now also lifts bounded follow receipts into candidate units
+      so the receipt boundary stays visible without being promoted to a
+      grounded semantic claim
+    - the sidecar now also lifts its missing-evidence list into gap units so
+      the reviewer can see what remains ungrounded
     - the shallow packet contract remains the default behavior
   - documentation artifact:
     - `SensibLaw/docs/planning/wikidata_review_packet_semantic_layer_20260402.md`
@@ -3372,9 +3396,16 @@
   - updated `SensibLaw/docs/wikidata_working_group_status.md` and `TODO.md` so
     the next implementation slices are explicit and this pass is clearly marked
     docs-only
-  - later packet coverage expansion broadened the first multi-row Nat
-    attachment surface from `2 / 53` to `10 / 53`, adding eight wider-online
-    reviewed rows from the live tranche to the original two held rows
+- later packet coverage expansion broadened the first multi-row Nat
+-    attachment surface from `2 / 53` to `13 / 53`, adding eight wider-online
+    reviewed rows from the live tranche plus two pilot-pack packets to the
+    original two held rows
+-  - the plan now also records that the semantic sidecar surfaces anchor-derived
+  -  the plan now also records that the semantic sidecar surfaces anchor-derived
+     reviewer units and merge-axis split-review context units while leaving the
+     shallow `parsed_page` helper intact, and that packet coverage is near
+     diminishing returns so only genuinely new split shapes merit another
+     attachment step
 - 2026-04-01 Wikidata Nat end-product / tiered automation alignment:
   - the next clarification gap was not about doctrine or next implementation
     slice, but about the overall destination for Nat

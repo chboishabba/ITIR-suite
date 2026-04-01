@@ -9,6 +9,20 @@
   - Updated `SensibLaw/docs/wikidata_working_group_status.md`, `TODO.md`, and
     `COMPACTIFIED_CONTEXT.md` so the handoff is discoverable from the main
     Wikidata status surfaces.
+- Wikidata reviewer-packet variant comparison:
+  - Added a bounded variant-comparison lane to the Nat reviewer-packet plan
+    and contract so targeted cross-variant inspection can reduce uncertainty
+    without becoming a hidden truth engine.
+  - Added a grounded sibling-variant comparison path so the Nat packet can
+    compare real cohort peers from the same split-plan family, not just
+    abstract examples, and derive that bounded comparison automatically when
+    sibling plans are present in the split payload.
+- Wikidata reviewer-packet helper lanes:
+  - Added standalone helper modules and tests for follow depth,
+    claim-boundary mapping, cross-source alignment, reviewer actions, and
+    bounded variant comparison so the reviewer-packet lane now has explicit
+    bounded sub-lanes, and wired those helpers into the optional semantic
+    sidecar.
 - major user-story alignment and reprioritization pass:
   - Added
     `docs/planning/user_story_alignment_and_reprioritization_20260402.md`
@@ -91,11 +105,18 @@
     updated the packet docs so the repo now says explicitly that the new layer
     is a separate sidecar above/beside `parsed_page`, not a replacement for
     it.
+  - The sidecar now publishes anchor-derived reviewer units plus explicit
+    bounded follow-receipt units, explicit missing-evidence gap units, plus
+    explicit split-review context units (merged split axes + recommended
+    actions), so reviewers can rely on the layer without assuming
+    `parsed_page` is already full semantic decomposition.
 - Nat reviewer-packet coverage expansion:
   - Expanded `SensibLaw/tests/fixtures/wikidata/wikidata_nat_review_packet_attachment_coverage_20260401.json`
     and the matching planning note to `13 / 53` packetized rows after adding
     `Q10416948` and `Q56404383` as additional sidecar-backed pilot-pack
     packets on top of `Q731938` as a third packetized held row.
+  - Clarified that the packet coverage lane is now near diminishing returns and
+    only genuinely new split shapes should justify another attachment record.
 - revision-monitor provenance boundary clarification:
   - Added
     `docs/planning/wiki_revision_monitor_provenance_path_boundary_20260401.md`

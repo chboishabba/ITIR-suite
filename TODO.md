@@ -302,6 +302,13 @@
   - next layers for this lane remain:
     - broader packet attachment across held Nat split rows
     - later semantic decomposition above or beside `parsed_page`
+    - bounded variant comparison for targeted split-shape uncertainty
+      reduction
+    - grounded sibling-variant comparison across real Nat split plans so the
+      diagnostic lane compares actual cohort peers instead of only synthetic
+      examples, and can be auto-derived from the split payload when siblings
+      are present
+    - extend the semantic helper lanes with more grounded evidence inputs
   - DONE: add one short plain-language onboarding handoff for the current
     climate migration + Nat reviewer-packet lane:
     `SensibLaw/docs/planning/wikidata_shixiong_handoff_20260402.md`
@@ -503,20 +510,26 @@
         `build_wikidata_review_packet(...)`
       - pinned fixture:
         `SensibLaw/tests/fixtures/wikidata/wikidata_nat_review_packet_20260401.json`
-    - DONE: widen Nat reviewer-packet attachment across held split rows to a
-      first bounded multi-row surface:
-      `SensibLaw/tests/fixtures/wikidata/wikidata_nat_review_packet_attachment_coverage_20260401.json`
-      records `13 / 53` packetized held split rows, spanning the original two
-      held rows, the AstraZeneca held row, nine wider-online reviewed rows
-      from the live tranche, and two additional pilot-pack sidecar packets
-      for `Q10416948` and `Q56404383`
-    - DONE: add the assist-lane reviewer-packet alignment note and the
-      smallest fixture note so the Peter/Ege/Rosario lane can reuse Nat field
-      names without claiming parity or execution authority:
-      `docs/planning/wikidata_assist_lane_reviewer_packet_alignment_20260401.md`
-      and `docs/planning/wikidata_assist_lane_packet_fixture_note_20260402.md`
-    - DONE: land the optional semantic decomposition sidecar behind
-      `include_semantic_decomposition=True`, separate from `parsed_page`
+- DONE: widen Nat reviewer-packet attachment across held split rows to a
+  first bounded multi-row surface:
+  `SensibLaw/tests/fixtures/wikidata/wikidata_nat_review_packet_attachment_coverage_20260401.json`
+  records `13 / 53` packetized held split rows, spanning the original two
+  held rows, the AstraZeneca held row, nine wider-online reviewed rows
+  from the live tranche, and two additional pilot-pack sidecar packets
+  for `Q10416948` and `Q56404383`
+- note: this coverage lane is now experiencing diminishing returns; only new
+  split shapes deserve another packet attachment.
+- DONE: add the assist-lane reviewer-packet alignment note and the
+  smallest fixture note so the Peter/Ege/Rosario lane can reuse Nat field
+  names without claiming parity or execution authority:
+  `docs/planning/wikidata_assist_lane_reviewer_packet_alignment_20260401.md`
+  and `docs/planning/wikidata_assist_lane_packet_fixture_note_20260402.md`
+- DONE: land the optional semantic decomposition sidecar behind
+  `include_semantic_decomposition=True`, separate from `parsed_page`
+- note: the sidecar now emits anchor-derived reviewer units, bounded
+  follow-receipt units, explicit missing-evidence gap units, and split-review
+  context units (merged split axes + recommended steps) while leaving
+  `parsed_page` as the shallow surface helper.
     - DONE: strengthen the bounded parser for Nat sandbox page family:
       headings, done/to-do task buckets, query URLs, refs, outbound links,
       open questions
