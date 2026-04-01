@@ -137,7 +137,8 @@
     - the pinned Cohort C sample fixture for non-GHG / missing `P459` now has
       a bounded runtime scan normalizer in `SensibLaw/src/ontology/wikidata.py`
       and a matching test in `SensibLaw/tests/test_wikidata_projection.py`
-    - this is a review-first runtime surface, not a live population scan
+    - the same selection rule now has a bounded live scan preview helper
+    - this is a review-first runtime surface, not a blanket live population scan
   - documentation artifact:
     - `SensibLaw/docs/planning/wikidata_nat_cohort_c_population_scan_20260402.md`
 

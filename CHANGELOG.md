@@ -122,6 +122,9 @@
   - Added a bounded runtime normalizer for the pinned non-GHG / missing `P459`
     Cohort C sample fixture so the branch now has a review-first runtime
     surface without implying that a live population scan has already run.
+  - Added a bounded live scan preview helper using the same selection rule, so
+    Cohort C now has a live-query-backed review-first runtime surface without a
+    blanket execution lane.
 - revision-monitor provenance boundary clarification:
   - Added
     `docs/planning/wiki_revision_monitor_provenance_path_boundary_20260401.md`

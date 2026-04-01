@@ -527,6 +527,13 @@
   `SensibLaw/src/ontology/wikidata.py`
   `SensibLaw/tests/test_wikidata_projection.py`
   `SensibLaw/docs/planning/wikidata_nat_cohort_c_population_scan_20260402.md`
+- DONE: add a bounded live scan preview helper for Cohort C so the same
+  selection rule can be exercised on live data without turning the branch into
+  a blanket execution lane:
+  `SensibLaw/src/ontology/wikidata.py`
+  `SensibLaw/tests/test_wikidata_projection.py`
+- note: live-query unavailability is surfaced explicitly rather than hidden
+  behind retry noise.
 - DONE: add the assist-lane reviewer-packet alignment note and the
   smallest fixture note so the Peter/Ege/Rosario lane can reuse Nat field
   names without claiming parity or execution authority:
