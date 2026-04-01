@@ -41,6 +41,14 @@ What it is for:
 - why those artifacts are in the pack
 - what is still excluded or deferred
 
+### 3.5. If the question is "what is the smallest grantable slice?"
+- `docs/planning/zelph_nlnet_grant_draft_20260401.md`
+
+What it is for:
+- Stefan-facing bounded grant framing
+- lower-bound deliverable wording
+- explicit non-goals so the grant story does not overclaim deep integration
+
 ### 4. Then read the checked handoff artifact notes
 - Wikidata:
   `docs/planning/wikidata_structural_handoff_v1_20260325.md`

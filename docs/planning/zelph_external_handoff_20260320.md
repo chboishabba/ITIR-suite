@@ -12,6 +12,8 @@ Ontology Working Group and the Zelph developer, start with:
 
 Canonical doc index for this collaboration surface:
 - `docs/planning/zelph_handoff_index_20260324.md`
+- `docs/planning/zelph_nlnet_grant_draft_20260401.md` for bounded
+  grant-facing framing
 
 It is intentionally upstream-facing and should not be read as a claim that
 SensibLaw depends on Zelph or that a deep integration contract already exists.
@@ -36,6 +38,19 @@ The intended relationship to Zelph is:
   reason over already-structured graph facts, constraints, and rules
 
 This is a bridge/demo posture, not a dependency posture.
+
+Grant-ready lower-bound framing for Stefan:
+- smallest credible deliverable:
+  a reproducible fact-construction module plus one end-to-end demo showing
+  `text -> reviewed facts -> Zelph reasoning -> output`
+- claim boundary:
+  Zelph is not being positioned as a raw-text ingest engine; the bounded claim
+  is that SensibLaw/ITIR can deterministically turn unstructured text into
+  provenance-preserving graph facts that Zelph can then consume cleanly
+- scope discipline:
+  the first grant-safe story is a small corpus, deterministic export path,
+  explicit provenance, and a reproducible reasoning demo, not a broad
+  automation or ontology-completion promise
 
 Canonical companion artifacts for the current pack are now:
 - `docs/planning/zelph_real_world_pack_v1_20260324.md`

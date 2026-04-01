@@ -1,7 +1,7 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-03-28
+- 2026-04-02
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
@@ -39,10 +39,98 @@
 
 ## Active TODOs
 ## Priority legend
+- [P-1] Reusable substrate / canonical-surface work
 - [P0] Blocking / core platform correctness
 - [P1] Near-term platform capability unlocks
 - [P2] Important but deferrable
 - [P3] Nice-to-have / polish
+
+- [P-1] Cross-lane reusable substrate completion gate:
+  - treat the next execution rounds as substrate-first, not lane-local polish
+  - selection rule:
+    - shared Python/store/runtime owner first
+    - cross-lane reuse second
+    - local cleanup last
+  - orchestration posture:
+    - when a work surface is wide enough to split cleanly, assign one
+      nonblocking lane per worker
+    - keep lane ownership disjoint until an explicit merge checkpoint
+    - do not force parallelism onto a narrow single-gate task
+  - current state checkpoint:
+    - the root roadmap is behind actual code state and needs one real
+      reconciliation pass before the user-story sweep
+    - the wiki revision monitor lane is now much closer to canonical shape:
+      SQLite-first read models, no DB blob fallback, no query-time JSON
+      fallback, in-process timeline/AOO extraction on the default path, and
+      no routine pair-report or contested-graph JSON reports on the default
+      runner path
+  - current revision-monitor writer state is narrower than the older docs
+      implied, and the dead report/graph path residue is now removed from
+      fresh schema and old-DB rebuilds; the remaining questions are smaller
+      path-policy choices rather than JSON/runtime architecture
+    - the revision-monitor provenance boundary is now clearer:
+      local path fields are not truth, and any future share/publish posture
+      should resolve through logical artifact identity, revision, digest, sink
+      refs, and acknowledgement/receipt semantics rather than local JSON/path
+      assumptions
+    - a shared SQLite runtime owner now exists for repo-relative path
+      resolution and connection plumbing, with first adopters in wiki-timeline
+      and fact-review query surfaces
+    - a shared provenance / receipt geometry owner now exists for packet
+      headers and receipt rows, with first adopters in narrative comparison
+      and handoff artifact shaping
+    - a shared reviewer-packet geometry owner now exists for queue-item
+      normalization, with the fact-intake control plane as the first adopter
+    - the shared repo/runtime root owner at
+      `SensibLaw/src/storage/repo_roots.py` now also absorbs the last bounded
+      script bootstrap helpers that previously lived in the duplicate
+      `repo_runtime.py` module
+    - the tested Wikidata structural family and the adjacent broader GWB
+      checkpoint script now also consume the canonical root substrate instead
+      of recomputing `REPO_ROOT` / `SENSIBLAW_ROOT` inline
+    - the remaining obvious substrate work is no longer root/bootstrap
+      duplication; the next choice should be based on the strongest actual
+      shared semantic/runtime leverage
+    - the current execution round is split across:
+      - one last tiny revision-monitor path-residue cut
+      - one small manifest-root / manifest-load normalization slice
+    - both of those slices are now landed:
+      - revision monitor no longer stores `timeline_path` / `aoo_path` in
+        article state/results, leaving `snapshot_path` and `out_dir` as
+        provenance-only residue rather than runtime truth
+      - a shared manifest-path / manifest-load owner now exists in
+        `SensibLaw/src/storage/manifest_runtime.py` with first adopters in
+        fact-review acceptance fixtures and source-pack pull
+    - `chat_context_resolver` and the generic/AAO wiki-timeline runtime seams
+      are materially thinner than this TODO currently implies
+    - remaining AAO Svelte panel extraction is now demoted behind Python/store
+      work unless it reveals hidden runtime logic or blocks an operator flow
+  - remaining pre-user-story rounds:
+    - one round for a real roadmap/state reconciliation across root docs and
+      repo-local TODO/context files
+    - at most one narrower wiki revision monitor implementation round if the
+      remaining snapshot/timeline/out-dir path fields still need contraction
+      after the provenance-only boundary now recorded in
+      `docs/planning/wiki_revision_monitor_provenance_path_boundary_20260401.md`
+    - maybe one or two more cross-lane substrate promotions only if they are
+      clearly high leverage
+    - current promotion order:
+      - DONE: tiny revision-monitor path-residue cut
+      - DONE: manifest-root / manifest-load normalization
+      - DONE: major user-story alignment and reprioritization pass
+  - current completion read:
+    - the reusable substrate / canonical-surface campaign is now in the
+      late phase, roughly `90%+` complete for the intended pre-user-story
+      normalization program
+    - further substrate work should now be exception-driven rather than the
+      default top lane
+  - active posture after the alignment pass:
+    - user-story workflow gaps first
+    - evidence-backed prioritization second
+    - substrate work only when a story lane is genuinely blocked by missing
+      canonical infrastructure
+  - alignment note:
+    - `docs/planning/user_story_alignment_and_reprioritization_20260402.md`
 
 - [P1] Largest-file refactor / normalization roadmap:
   - use `docs/planning/largest_file_refactor_roadmap_20260328.md` as the
@@ -64,21 +152,22 @@
       - `chat_context_resolver_lib/analysis.py`
       - focused coverage:
         `tests/test_chat_context_resolver_analysis.py`
-    - next: extract DB lookup, live-provider, formatter, and CLI/parser seams
-      from `scripts/chat_context_resolver.py`
-    - extract neutral wiki-timeline server/runtime modules from the current
-      `wikiTimelineAoo` family
+    - DONE: extract DB lookup, live-provider, formatter, and CLI/parser seams
+      from `scripts/chat_context_resolver.py`, plus shared flow ownership
+    - DONE: extract neutral wiki-timeline server/runtime modules from the
+      current `wikiTimelineAoo` family into Python-owned query/runtime owners
     - extract neutral shared manifest/shard modules from the current
       Zelph/HF builders
-    - continue splitting `scripts/chat_context_resolver.py` into resolver,
-      live-provider, transcript-analysis, and CLI modules
+    - keep remaining route-shell Svelte cleanup demoted unless it exposes
+      hidden runtime logic
   - current triage-ready targets:
-    - `scripts/chat_context_resolver.py`
-    - `itir-svelte/src/lib/server/wikiTimelineAoo.ts`
     - `itir-svelte/src/routes/graphs/wiki-timeline-aoo-all/+page.svelte`
     - `tools/build_zelph_hf_manifest.py` +
       `tools/build_shared_shard_artifact_contract.py`
     - `itir_jmd_bridge/runtime.py`
+  - recently reduced targets:
+    - `scripts/chat_context_resolver.py`
+    - `itir-svelte/src/lib/server/wikiTimelineAoo.ts`
   - keep route files and CLI entrypoints thin:
     move view-model/parsing/storage logic behind package-local modules before
     widening features further
@@ -158,6 +247,66 @@
     - SB operator ergonomics
     - capture/transcription setup friction
     - cross-product handoff clarity
+
+- [P0] Guided workflow / next-action surfaces:
+  - use `docs/planning/user_story_alignment_and_reprioritization_20260402.md`
+    as the current post-substrate priority note
+  - strongest gap after the substrate pass:
+    - users can inspect more than before, but "what should I do next?" is
+      still too weak across the main workbench/browser surfaces
+  - next:
+    - add guided next-action surfaces in `itir-svelte` that translate existing
+      workbench/read-model state into one obvious operator path
+    - keep this grounded in canonical receipts, operator views, and current
+      read models rather than inventing a parallel action backend
+
+- [P0] Annotation / QA workbench slice:
+  - the current repo has lower-level review geometry, workbench payloads,
+    operator views, and queue/control-plane posture, but still lacks the
+    stronger human review/annotation execution loop implied by the user stories
+  - next:
+    - define and implement the first bounded annotation / QA workbench slice
+      over the existing fact-review/read-model/operator-view spine
+    - keep abstain/inter-rater/reviewer action semantics explicit instead of
+      burying them in opaque UI state
+
+- [P1] Live user-evidence gathering over proxy-story notes:
+  - the first receipt receiver/capture path exists and is useful, but the
+    major alignment pass confirms that the suite still relies too heavily on
+    proxy/story-derived evidence
+  - next:
+    - improve feedback receipt ergonomics beyond raw field entry
+    - gather direct interview/usability evidence into the canonical receipt
+      lane before major product reprioritization rounds
+
+- [P1] Capture / intake workflow hardening:
+  - keep setup/config friction and accessibility near the top of the
+    post-substrate queue for `tircorder-JOBBIE` and adjacent intake flows
+  - next:
+    - reduce capture-to-review friction
+    - expand accessibility/audit coverage
+
+- [P1] Chat/live continuity reliability:
+  - archive-first continuity is strong, but the user-story alignment pass
+    confirms that live fetch/auth/browser recovery remains a weaker surface
+  - next:
+    - improve live continuity ergonomics without weakening the
+      archive-first/canonical-thread posture
+
+- [P1] Wikidata reviewer-packet semantic-layer boundary:
+  - keep `parsed_page` explicitly framed as the shallow surface-parse layer
+    only: headings, task buckets, query rows, cohort/task lines
+  - do not let current packet docs imply that full SensibLaw clause
+    decomposition, contingent-branch parsing, or semantic-unit extraction is
+    already present in the reviewer-packet lane
+  - next layers for this lane remain:
+    - broader packet attachment across held Nat split rows
+    - later semantic decomposition above or beside `parsed_page`
+  - DONE: add one short plain-language onboarding handoff for the current
+    climate migration + Nat reviewer-packet lane:
+    `SensibLaw/docs/planning/wikidata_shixiong_handoff_20260402.md`
+    so new collaborators can get the state, boundaries, and useful entry
+    points without reading the whole roadmap first
 
 - [P1] Cross-source follow/review control-plane parity:
   - use `SensibLaw/docs/planning/cross_source_follow_control_plane_20260327.md`
@@ -335,6 +484,56 @@
     - DONE: add the first review-only split-plan artifact for structurally
       decomposable `split_required` slots
     - add split-plan verification before any split execution/export claim
+    - DONE: align the user-story/coverage docs with the actual review-first /
+      split-first goal for this lane:
+      - added explicit ITIR-backed wiki-revision review-assist story coverage
+      - made the partial implementation boundary explicit for
+        parse/refs/follow reviewer assist
+      - reference note:
+        `SensibLaw/docs/planning/wikidata_review_split_assist_user_story_alignment_20260401.md`
+    - DONE: pin the exact docs-first plan for the generic reviewer-facing lane:
+      `SensibLaw/docs/planning/wikidata_review_packet_plan_20260401.md`
+    - DONE: add a generic reviewer-packet contract for bounded wiki-derived
+      split/review assist:
+      `SensibLaw/docs/planning/wikidata_review_packet_contract_20260401.md`
+    - DONE: add the first bounded Nat reviewer-packet runtime slice:
+      - schema:
+        `SensibLaw/schemas/sl.wikidata_review_packet.v0_1.schema.yaml`
+      - builder:
+        `build_wikidata_review_packet(...)`
+      - pinned fixture:
+        `SensibLaw/tests/fixtures/wikidata/wikidata_nat_review_packet_20260401.json`
+    - DONE: widen Nat reviewer-packet attachment across held split rows to a
+      first bounded multi-row surface:
+      `SensibLaw/tests/fixtures/wikidata/wikidata_nat_review_packet_attachment_coverage_20260401.json`
+      records `13 / 53` packetized held split rows, spanning the original two
+      held rows, the AstraZeneca held row, nine wider-online reviewed rows
+      from the live tranche, and two additional pilot-pack sidecar packets
+      for `Q10416948` and `Q56404383`
+    - DONE: add the assist-lane reviewer-packet alignment note and the
+      smallest fixture note so the Peter/Ege/Rosario lane can reuse Nat field
+      names without claiming parity or execution authority:
+      `docs/planning/wikidata_assist_lane_reviewer_packet_alignment_20260401.md`
+      and `docs/planning/wikidata_assist_lane_packet_fixture_note_20260402.md`
+    - DONE: land the optional semantic decomposition sidecar behind
+      `include_semantic_decomposition=True`, separate from `parsed_page`
+    - DONE: strengthen the bounded parser for Nat sandbox page family:
+      headings, done/to-do task buckets, query URLs, refs, outbound links,
+      open questions
+    - next user-story-backed assist implementation slices:
+      1. add bounded follow-receipt support for selected cited
+         references/outbound links
+      2. extend packet attachment from the first bounded Nat split row to
+         broader held split-required Nat rows without treating page text or
+         followed sources as hidden authority
+    - DONE: pin the full Nat end-product / tiered automation posture so the
+      lane is no longer framed as “all rows should become blind automation”:
+      `SensibLaw/docs/planning/wikidata_nat_end_product_and_tiered_automation_20260401.md`
+    - keep the wider Nat lane aimed at full pipeline coverage:
+      - Tier 1 checked-safe automation where repeatedly justified
+      - Tier 2 semi-automated split
+      - Tier 3 review-only packets
+      - Tier 4 hold
     - DONE: add a docs-first shared `ProposalArtifact v1` contract above
       `MigrationPack` / `SplitPlan`
     - DONE: add a docs-first `BoundaryArtifact + Morphism` planning note above
@@ -417,6 +616,25 @@
     (`691ac8a3-4a30-8320-bd5f-f66efc3145e7`,
     canonical `dff5b29b89818300e7e352c0247c4cef3823bcfd`) as the current
     product-positioning source
+  - use `docs/planning/mirror_telegram_support_layer_boundary_20260401.md` as
+    the current control note for Telegram integration posture
+  - keep the authority boundary explicit:
+    - Mirror owns top-level Telegram routing and user-facing policy
+    - ITIR provides support-layer normalization, semantic disambiguation,
+      provenance, and reviewable typed observations
+    - Core AI remains downstream execution, not route ownership
+  - near-term next step for the sibling Mirror repo:
+    write the classifier-hardening spec that replaces brittle lexical routing
+    with an ITIR-shaped support envelope over:
+    - tokenizer lane
+    - parser lane
+    - labeled fallback lane
+    - provenance lane
+    - router consumption contract
+  - keep Telegram archive analysis local-first:
+    Telegram chats are now present in `~/chat_archive.sqlite`; use
+    `chat_context_resolver` against the canonical archive before relying on
+    paraphrased recollection in future Mirror packaging or routing notes
   - package SensibLaw/TiRC for Mirror as the missing `human risk layer` rather
     than as a competing crypto research assistant
   - keep the stage/market read explicit in any packaging draft:
@@ -466,9 +684,14 @@
   - Zelph external collaboration followthrough:
     - use `docs/planning/zelph_external_handoff_20260320.md` as the canonical
       Stefan-facing repo note
+    - DONE: add `docs/planning/zelph_nlnet_grant_draft_20260401.md` as the
+      bounded lower-bound-deliverable grant note for Stefan
     - use `docs/planning/wikidata_zelph_single_handoff_20260325.md` as the
       canonical first-link handoff when the audience spans both the Wikidata
       Ontology Working Group and Zelph
+    - if this moves from repo draft to actual submission:
+      map the grant note onto the exact funder form fields and budget language
+      without widening the current technical claim
     - real-first rule:
       synthetic fixtures are regression/contract material only and should not
       be used as the headline Zelph/demo evidence when real run-derived

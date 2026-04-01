@@ -73,14 +73,18 @@ Primary seams:
 - Output formatting, persist warning text, and CLI wiring around
   [`scripts/chat_context_resolver.py:1491`](/home/c/Documents/code/ITIR-suite/scripts/chat_context_resolver.py#L1491)
   and [`scripts/chat_context_resolver.py:1674`](/home/c/Documents/code/ITIR-suite/scripts/chat_context_resolver.py#L1674)
-  should move into `chat_context_resolver_lib/formatters.py` and
-  `chat_context_resolver_lib/cli.py`.
+  now live behind `chat_context_resolver_lib/formatters.py` and
+  `chat_context_resolver_lib/cli.py`, with shared flow ownership in
+  `chat_context_resolver_lib/flow.py`.
 
 Normalization note:
 
 - This is already general-use logic. Keep the name neutral. Do not let the
   fallback/persistence path implicitly depend on `reverse-engineered-chatgpt`
   naming in its public contract.
+- Current state:
+  the file remains large enough to watch, but the original core seam
+  extraction work is materially complete.
 
 ### 2. `itir-svelte/src/routes/graphs/wiki-timeline-aoo-all/+page.svelte`
 
@@ -218,6 +222,10 @@ Normalization note:
   support multiple wiki timeline surfaces, move the portable pieces under a
   generic `wikiTimeline` namespace and keep `Aoo` only on the final typed
   loader/export surface.
+- Current state:
+  the highest-pressure runtime and loader policy has already moved behind the
+  shared `server/wiki_timeline/*` helpers, so the remaining work is narrower
+  adapter and route-shell cleanup rather than the original mixed runtime core.
 
 ### 6. `itir_jmd_bridge/runtime.py`
 

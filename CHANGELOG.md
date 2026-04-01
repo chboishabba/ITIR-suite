@@ -1,6 +1,356 @@
 # Changelog
 
 ## Unreleased
+- Wikidata Shixiong handoff:
+  - Added
+    `SensibLaw/docs/planning/wikidata_shixiong_handoff_20260402.md`
+    as a short plain-language onboarding note for the current climate
+    migration + Nat reviewer-packet lane.
+  - Updated `SensibLaw/docs/wikidata_working_group_status.md`, `TODO.md`, and
+    `COMPACTIFIED_CONTEXT.md` so the handoff is discoverable from the main
+    Wikidata status surfaces.
+- major user-story alignment and reprioritization pass:
+  - Added
+    `docs/planning/user_story_alignment_and_reprioritization_20260402.md`
+    to freeze the first post-substrate story-fit read across the suite.
+  - Updated `TODO.md`, `SensibLaw/todo.md`, and `COMPACTIFIED_CONTEXT.md` so
+    the active priority order now favors guided workflow UX, annotation/QA
+    workbench depth, and direct feedback evidence over further broad substrate
+    refactoring.
+- manifest runtime substrate:
+  - Added `SensibLaw/src/storage/manifest_runtime.py` as the shared owner for
+    repo-owned manifest-path resolution and top-level JSON-object loading.
+  - Adopted it first in
+    `SensibLaw/src/fact_intake/acceptance_fixtures.py` and
+    `SensibLaw/scripts/source_pack_manifest_pull.py`.
+  - Added `SensibLaw/tests/test_manifest_runtime.py` and extended the
+    acceptance-wave and source-pack tests to pin the new shared owner.
+- revision-monitor path residue cut:
+  - Added `docs/planning/wiki_revision_monitor_path_residue_cut_20260402.md`
+    to freeze the last small schema contraction before the user-story pass.
+  - Updated `SensibLaw/src/wiki_timeline/revision_pack_runner.py` so
+    `timeline_path` and `aoo_path` are removed from article-state and
+    article-result storage, including old-DB rebuilds.
+  - Extended `SensibLaw/tests/test_wiki_revision_pack_runner.py` to pin the
+    narrower schema and migration boundary.
+- revision-monitor final tiny path-residue cut:
+  - Added `docs/planning/wiki_revision_monitor_path_residue_cut_20260402.md`
+    to freeze the last small schema/contract cleanup still worth landing
+    before the user-story sweep.
+- manifest-root normalization slice:
+  - Added `docs/planning/manifest_root_normalization_slice_20260402.md` to
+    freeze the first bounded manifest-path/manifest-load owner slice after the
+    repo-root substrate work.
+- shared repo-root structural script adoption:
+  - Added `docs/planning/repo_roots_structural_script_adoption_20260402.md`
+    to freeze the next tested adoption slice after the runtime collapse.
+  - Switched
+    `SensibLaw/scripts/build_wikidata_structural_handoff.py`,
+    `SensibLaw/scripts/build_wikidata_structural_review.py`,
+    `SensibLaw/scripts/build_wikidata_dense_structural_review.py`, and
+    `SensibLaw/scripts/build_gwb_broader_corpus_checkpoint.py` to consume the
+    canonical root helpers in `SensibLaw/src/storage/repo_roots.py`.
+  - Extended the focused Wikidata structural and broader checkpoint tests to
+    pin `repo_root()` / `sensiblaw_root()` adoption.
+- shared repo-root bootstrap collapse:
+  - Added `docs/planning/repo_roots_runtime_collapse_20260402.md` to freeze
+    the final collapse of the duplicate script bootstrap helper.
+  - Extended `SensibLaw/src/storage/repo_roots.py` so it now owns both the
+    canonical repo-root helpers and the remaining script-file-based root
+    resolution helpers.
+  - Switched the remaining adopters in
+    `SensibLaw/scripts/report_wiki_random_timeline_readiness.py`,
+    `SensibLaw/scripts/report_wiki_random_article_ingest_coverage.py`, and
+    `SensibLaw/scripts/run_fact_semantic_benchmark_matrix.py`, then removed
+    `SensibLaw/src/storage/repo_runtime.py` and its duplicate test file.
+- Wikidata orchestration posture clarification:
+  - Updated `SensibLaw/docs/wikidata_working_group_status.md`,
+    `SensibLaw/docs/planning/wikidata_review_packet_plan_20260401.md`,
+    `SensibLaw/docs/planning/wikidata_nat_end_product_and_tiered_automation_20260401.md`,
+    `TODO.md`, and `COMPACTIFIED_CONTEXT.md` so the repo now says explicitly
+    that when a work surface is wide enough, the preferred shape is one
+    nonblocking lane per worker with disjoint ownership rather than a single
+    serialized runner.
+  - This keeps the Nat review/split lane aligned with the existing
+    review-first posture while making parallel orchestration an explicit
+    documented option instead of an implicit practice.
+- Wikidata assist-lane reviewer-packet alignment:
+  - Added `docs/planning/wikidata_assist_lane_packet_fixture_note_20260402.md`
+    and updated `docs/planning/wikidata_assist_lane_reviewer_packet_alignment_20260401.md`
+    so the Peter/Ege/Rosario lane now has an explicit smallest-fixture note in
+    addition to the alignment note.
+  - Updated `SensibLaw/docs/wikidata_working_group_status.md` and `TODO.md`
+    so the shared docs point to the new assist-lane fixture note instead of
+    leaving it implicit.
+- Wikidata reviewer-packet semantic sidecar:
+  - Added `docs/planning/wikidata_review_packet_semantic_layer_20260402.md`
+    and extended `SensibLaw/src/ontology/wikidata.py` so the deeper semantic
+    layer now lives behind `include_semantic_decomposition=True` without
+    changing the default shallow packet contract.
+  - Added `SensibLaw/tests/test_wikidata_review_packet_semantics.py` and
+    updated the packet docs so the repo now says explicitly that the new layer
+    is a separate sidecar above/beside `parsed_page`, not a replacement for
+    it.
+- Nat reviewer-packet coverage expansion:
+  - Expanded `SensibLaw/tests/fixtures/wikidata/wikidata_nat_review_packet_attachment_coverage_20260401.json`
+    and the matching planning note to `13 / 53` packetized rows after adding
+    `Q10416948` and `Q56404383` as additional sidecar-backed pilot-pack
+    packets on top of `Q731938` as a third packetized held row.
+- revision-monitor provenance boundary clarification:
+  - Added
+    `docs/planning/wiki_revision_monitor_provenance_path_boundary_20260401.md`
+    to freeze the post-JSON/post-path read on provenance and sharing.
+  - Updated
+    `SensibLaw/docs/wiki_revision_pack_runner_contract_v0_3.md`,
+    `docs/planning/wiki_revision_monitor_no_routine_json_reports_20260401.md`,
+    `docs/planning/wiki_revision_monitor_path_contract_demotion_20260401.md`,
+    `TODO.md`, `SensibLaw/todo.md`, and `COMPACTIFIED_CONTEXT.md` so the repo
+    now says explicitly that local path fields are not truth, and that trusted
+    sharing should resolve through logical artifact identity, revision,
+    digest, sink refs, and acknowledgement/receipt semantics rather than local
+    JSON/path assumptions.
+- shared repo/runtime helper narrowing:
+  - Added `SensibLaw/src/storage/repo_runtime.py` as the bounded helper home
+    for script-file-based `repo_root` / `SensibLaw_root` resolution and
+    repo-relative path normalization.
+  - Adopted it in
+    `SensibLaw/scripts/report_wiki_random_timeline_readiness.py`,
+    `SensibLaw/scripts/report_wiki_random_article_ingest_coverage.py`, and
+    `SensibLaw/scripts/run_fact_semantic_benchmark_matrix.py`.
+  - Added `SensibLaw/tests/test_repo_runtime.py` and validated the focused
+    adopter gate.
+- shared repo-root substrate:
+  - Added `SensibLaw/src/storage/repo_roots.py` as the shared owner for repo
+    root and SensibLaw root resolution plus repo-relative path helpers.
+  - Adopted it first in `SensibLaw/scripts/build_gwb_corpus_scorecard.py`,
+    `SensibLaw/scripts/source_pack_manifest_pull.py`,
+    `SensibLaw/scripts/source_pack_authority_follow.py`,
+    `SensibLaw/scripts/report_wiki_random_timeline_readiness.py`, and
+    `SensibLaw/scripts/report_wiki_random_article_ingest_coverage.py`.
+  - Added `SensibLaw/tests/test_repo_roots.py` and verified the first adopter
+    set with the report and scorecard regression gates.
+- shared reviewer-packet geometry substrate:
+  - Added `SensibLaw/src/review_geometry/reviewer_packets.py` as the shared
+    owner for queue-item normalization and packet-summary counts.
+  - Adopted it first in `SensibLaw/src/fact_intake/control_plane.py`.
+  - Added a focused planning note and tests for deterministic queue-item
+    geometry.
+- shared provenance / receipt geometry substrate:
+  - Added `SensibLaw/src/policy/provenance_packet_geometry.py` as the shared
+    owner for receipt rows and packet-header normalization.
+  - Adopted it first in `SensibLaw/src/reporting/narrative_compare.py` and
+    `SensibLaw/src/fact_intake/handoff_artifacts.py`.
+  - Added a focused planning note for the new packet geometry contract.
+- shared SQLite runtime substrate:
+  - Added `SensibLaw/src/storage/sqlite_runtime.py` as the shared owner for
+    repo-relative SQLite path resolution and connection plumbing.
+  - Adopted it first in `SensibLaw/src/wiki_timeline/query_runtime.py`,
+    `SensibLaw/scripts/query_wiki_timeline_aoo_db.py`, and
+    `SensibLaw/scripts/query_fact_review.py`.
+  - Added `SensibLaw/tests/test_sqlite_runtime.py` to pin explicit-path and
+    read-only connection behavior.
+- revision-monitor dead-path schema drop:
+  - Added
+    `docs/planning/wiki_revision_monitor_dead_path_schema_drop_20260401.md`
+    to freeze the next schema-contraction slice after the no-routine-JSON cut.
+  - Updated `SensibLaw/src/wiki_timeline/revision_pack_runner.py` so fresh
+    revision-monitor schema and old-DB rebuilds drop `report_path`,
+    `pair_report_path`, and `graph_path` from the dead compatibility surfaces.
+  - Updated `SensibLaw/src/wiki_timeline/revision_monitor_read_models.py` so
+    the read-model schema also rebuilds out dead report/graph path columns.
+  - Extended `SensibLaw/tests/test_wiki_revision_pack_runner.py` and
+    `SensibLaw/tests/test_revision_monitor_read_models.py` to pin the in-place
+    rebuild boundary, with the focused revision-monitor gate still green.
+- revision-monitor no-routine-json-report slice:
+  - Added
+    `docs/planning/wiki_revision_monitor_no_routine_json_reports_20260401.md`
+    to freeze the export posture after the SQLite-first contraction work.
+  - Updated `SensibLaw/src/wiki_timeline/revision_pack_runner.py` so the
+    default runner path no longer writes pair-report JSON or contested-graph
+    JSON, and no longer advertises those paths in the returned article/pair
+    summary surface.
+  - Updated `SensibLaw/src/wiki_timeline/revision_pack_summary.py` so
+    pack-triage and human-summary output stop carrying report/graph path
+    fields as if they were routine operator contract.
+  - Updated `SensibLaw/tests/test_wiki_revision_pack_runner.py` and
+    `SensibLaw/tests/test_revision_pack_summary.py` to pin the no-routine-JSON
+    default path.
+- revision-monitor path contract demotion:
+  - Added
+    `docs/planning/wiki_revision_monitor_path_contract_demotion_20260401.md`
+    to freeze the first narrow post-contraction cleanup slice.
+  - Updated
+    `SensibLaw/src/wiki_timeline/revision_monitor_read_models.py` so default
+    changed-article, selected-pair, selected-graph, and summary top-article
+    payloads no longer expose export-path fields as ordinary runtime state.
+  - Extended
+    `SensibLaw/tests/test_revision_monitor_read_models.py` and
+    `SensibLaw/tests/test_revision_monitor_query.py` to pin the demoted
+    default payload contract.
+  - Verified from `SensibLaw/` with:
+    `../.venv/bin/python -m pytest -q tests/test_revision_monitor_read_models.py tests/test_revision_monitor_query.py tests/test_wiki_revision_pack_runner.py tests/test_revision_pack_summary.py`
+    -> `18 passed`.
+- roadmap/state reconciliation followthrough:
+  - Updated `TODO.md`, `COMPACTIFIED_CONTEXT.md`, and
+    `docs/planning/roadmap_state_reconciliation_20260401.md` so the root
+    status no longer overstates the revision-monitor writer side as fully
+    artifact-free.
+  - Updated
+    `docs/planning/chat_context_resolver_refactor_brief_20260328.md`,
+    `docs/planning/largest_file_refactor_roadmap_20260328.md`,
+    `docs/planning/largest_code_files_refactor_roadmap_20260328.md`, and
+    `docs/planning/wiki_timeline_aoo_all_route_refactor_brief_20260328.md`
+    so already-landed resolver and wiki-timeline runtime reductions are
+    recorded as completed or narrowed rather than still framed as open in their
+    old form.
+  - Updated
+    `SensibLaw/docs/wiki_revision_pack_runner_contract_v0_3.md`,
+    `SensibLaw/docs/external_ingestion.md`, and `SensibLaw/todo.md` so the
+    revision-monitor lane is described as SQLite-canonical in current posture
+    and the stale affidavit normalization umbrella is closed.
+- Wikidata reviewer-packet semantic-layer boundary clarification:
+  - Updated `SensibLaw/docs/planning/wikidata_review_packet_contract_20260401.md`,
+    `SensibLaw/docs/planning/wikidata_review_packet_plan_20260401.md`, and
+    `SensibLaw/docs/wikidata_working_group_status.md` so the repo now says
+    explicitly that `parsed_page` is only the current shallow surface-parse
+    helper, not the full SensibLaw decomposition / contingent-clause layer.
+  - Updated `TODO.md` and `COMPACTIFIED_CONTEXT.md` so the next missing layers
+    are recorded honestly: broader held-row packet coverage and later
+    semantic decomposition, while the initial bounded follow-receipt seam is
+    now explicit.
+- Wikidata reviewer-packet parser upgrade:
+  - Extended `build_wikidata_review_packet(...)` so the first Nat packet now
+    carries bounded parsed-page structure:
+    section headings, done/to-do task buckets, query rows, and cohort-oriented
+    task lines.
+  - Refreshed
+    `SensibLaw/tests/fixtures/wikidata/wikidata_nat_review_packet_20260401.json`
+    to pin the richer parsed-page surface.
+  - Extended focused regression coverage in
+    `SensibLaw/tests/test_wikidata_projection.py`.
+  - Verified with:
+    `../.venv/bin/python -m pytest -q tests/test_wikidata_projection.py`
+    from `SensibLaw/` (`48 passed`).
+- Wikidata reviewer-packet contract / first runtime slice:
+  - Added
+    `SensibLaw/docs/planning/wikidata_review_packet_contract_20260401.md`
+    to pin the machine-readable review-packet contract above
+    `sl.source_unit.v1` and `sl.wikidata_split_plan.v0_1`.
+  - Added schema
+    `SensibLaw/schemas/sl.wikidata_review_packet.v0_1.schema.yaml`.
+  - Added `build_wikidata_review_packet(...)` in
+    `SensibLaw/src/ontology/wikidata.py` so one revision-locked Nat wiki
+    source unit can be attached to one held split plan without widening
+    authority.
+  - Added pinned fixture
+    `SensibLaw/tests/fixtures/wikidata/wikidata_nat_review_packet_20260401.json`
+    plus focused regression coverage in
+    `SensibLaw/tests/test_wikidata_projection.py`.
+  - Verified with:
+    `../.venv/bin/python -m pytest -q tests/test_wikidata_projection.py`
+    from `SensibLaw/` (`48 passed`).
+- Wikidata reviewer-packet bounded follow receipts:
+  - `build_wikidata_review_packet(...)` now auto-attaches a bounded follow
+    receipt from the Nat query-link surface when one is present, while
+    explicit empty receipts remain an opt-out.
+  - The Nat packet fixture now pins that query-link receipt and no longer
+    advertises `no_follow_receipts` for the default packetized source surface.
+  - Focused regression coverage now includes both the auto-derived receipt and
+    explicit empty-receipt opt-out behavior.
+- Wikidata Nat packet attachment coverage:
+  - Added
+    `SensibLaw/docs/planning/wikidata_nat_review_packet_attachment_coverage_20260401.md`
+    and the machine-readable coverage index
+    `SensibLaw/tests/fixtures/wikidata/wikidata_nat_review_packet_attachment_coverage_20260401.json`.
+  - The Nat review-packet lane now has a first bounded multi-row attachment
+    surface with `10 / 53` packetized held split rows, covering the original
+    `Q10403939` packet, a second packetized held row for `Q10422059`, and
+    eight wider-online reviewed rows from the live tranche.
+- Wikidata assist-lane reviewer-packet alignment:
+  - Added `docs/planning/wikidata_assist_lane_reviewer_packet_alignment_20260401.md`
+    so the Peter/Ege/Rosario lane can adopt the reviewer-packet grammar
+    without overstating parity or completion.
+- Wikidata Nat end-product / tiered automation alignment:
+  - Added
+    `SensibLaw/docs/planning/wikidata_nat_end_product_and_tiered_automation_20260401.md`
+    to pin the full intended Nat flow and the honest tiered automation posture:
+    full pipeline coverage, but only bounded checked-safe automation where the
+    evidence repeatedly justifies it.
+  - Added shared handoff/roadmap notes at
+    `docs/planning/wikidata_combined_assist_handoff_20260401.md` and
+    `docs/planning/wikidata_combined_roadmap_nat_and_assist_20260401.md` so the
+    top-level status links now resolve again.
+  - Updated Nat-facing status and handoff notes to reflect current reality:
+    bounded mainline complete, wider proof lane complete, wider online lane
+    held, and reviewer-packet support as the next missing layer.
+- Mirror Telegram support-layer boundary:
+  - Added `docs/planning/mirror_telegram_support_layer_boundary_20260401.md`
+    to freeze the current ITIR posture for the sibling Mirror Telegram work:
+    ITIR should not own top-level Telegram routing, but it should own the
+    support-layer normalization, disambiguation, parser/model lanes,
+    provenance, and labeled fallback discipline that de-brittle routing.
+  - Updated `README.md`, `TODO.md`, and `COMPACTIFIED_CONTEXT.md` so the suite
+    now records:
+    - Mirror route ownership stays local
+    - Core AI remains downstream execution rather than route authority
+    - Telegram chats are now present in `~/chat_archive.sqlite` for local-first
+      follow-up analysis
+    - the next bounded followthrough is a classifier-hardening spec in the
+      sibling Mirror repo
+- roadmap/state reconciliation checkpoint:
+  - Updated `TODO.md`, `COMPACTIFIED_CONTEXT.md`, and `SensibLaw/todo.md` to
+    reflect the actual substrate state as of `2026-04-01` rather than the
+    older pre-contraction snapshot.
+  - Froze the current meta-priority explicitly:
+    reusable Python/store/runtime substrate first, cross-lane reuse second,
+    local cleanup last.
+  - Recorded the current pre-user-story sequence explicitly:
+    one real roadmap/state reconciliation round, one remaining wiki revision
+    monitor contract-cleanup round, and at most one or two more clearly
+    high-leverage cross-lane substrate promotions before the broader
+    user-story pass.
+- Zelph handoff / grant framing alignment:
+  - Added `docs/planning/zelph_nlnet_grant_draft_20260401.md` to freeze a
+    Stefan-facing lower-bound-deliverable grant draft backed by the resolved
+    thread `Strategic Contribution Advice`
+    (`69cbf880-05ec-839a-8603-8532ca426638` /
+    `b0499d873b1a162931c96a0a8e016b9906da540a`).
+  - Updated `docs/planning/zelph_external_handoff_20260320.md` so the bounded
+    grant-safe claim is explicit:
+    `text -> reviewed facts -> Zelph reasoning -> output`, without implying
+    that Zelph becomes a raw-text ingest engine.
+  - Updated `docs/planning/zelph_handoff_index_20260324.md` so the grant-ready
+    note sits beside the main external handoff reading order.
+  - Kept the framing pinned through ZKP, ITIL, ISO 9000, ISO 42001,
+    ISO 27001, Six Sigma, and C4/PlantUML rather than leaving the grant note as
+    free-floating prose.
+- Wikidata review packet plan:
+  - Added
+    `SensibLaw/docs/planning/wikidata_review_packet_plan_20260401.md` to pin
+    the exact next reviewer-assist workflow for Nat/Wikidata split-heavy rows:
+    revision capture, bounded parsing, selected follow receipts, and reviewer
+    packet attachment.
+  - Updated `SensibLaw/docs/wikidata_working_group_status.md` and `TODO.md` so
+    the repo now explicitly records that this pass was docs-only and that the
+    next work is contract/parser/follow-receipt implementation rather than
+    vague “assist” work.
+- Wikidata review/split user-story alignment:
+  - Added `docs/user_stories.md` story `ITIR-US-17: Wiki Revision Review Assist`
+    so the suite now explicitly says ITIR should capture revision-locked wiki
+    surfaces, expose refs/links, and reduce reviewer uncertainty without
+    turning wiki prose into authority.
+  - Strengthened `SensibLaw/docs/user_stories.md` for the `Wikidata editor /
+    ontology reviewer` role so ITIR-backed wiki parsing/follow assist is
+    explicit.
+  - Updated
+    `SensibLaw/docs/planning/user_story_implementation_coverage_20260326.md`
+    to say this support is partial today: revision-locked proposal capture and
+    split verification exist, but generic wiki-page ref/link-follow reviewer
+    packets do not yet.
+  - Added
+    `SensibLaw/docs/planning/wikidata_review_split_assist_user_story_alignment_20260401.md`
+    to pin the ZKP/ITIL/ISO 9000/ISO 42001/ISO 27001/Six Sigma/C4 framing for
+    that alignment.
 - zkperf on SL stream-to-HF bounded lane:
   - Added `docs/planning/zkperf_stream_shard_contract_v1_20260330.md` and
     fixture `docs/planning/jmd_fixtures/zkperf_stream_v1.example.json`.

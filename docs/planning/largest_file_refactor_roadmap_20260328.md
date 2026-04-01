@@ -243,12 +243,21 @@ First completed slice:
 - focused regression coverage in
   `tests/test_chat_context_resolver_analysis.py`
 
-Remaining extractions:
+Later completed slices:
 
-- DB lookup
-- live provider
-- formatters
-- CLI/parser wiring
+- `chat_context_resolver_lib/db_lookup.py`
+- `chat_context_resolver_lib/live_provider.py`
+- `chat_context_resolver_lib/formatters.py`
+- `chat_context_resolver_lib/cli.py`
+- `chat_context_resolver_lib/flow.py`
+
+Current read:
+
+- `scripts/chat_context_resolver.py` is still a useful example of a formerly
+  oversized CLI entrypoint
+- it is no longer open in the older “core seam extraction still pending” sense
+- remaining work is shell-envelope tightening or future contract cleanup, not
+  the original extraction set
 
 Important naming correction:
 

@@ -88,9 +88,22 @@ Completed on 2026-03-28:
 - added focused regression coverage in
   `tests/test_chat_context_resolver_analysis.py`
 
-Still pending from this brief:
+Later slices completed after this brief:
 
-- DB lookup extraction
-- live-provider extraction
-- formatter extraction
-- CLI/parser extraction
+- extracted DB lookup helpers to
+  `chat_context_resolver_lib/db_lookup.py`
+- extracted live-provider helpers to
+  `chat_context_resolver_lib/live_provider.py`
+- extracted formatter helpers to
+  `chat_context_resolver_lib/formatters.py`
+- extracted CLI/parser helpers to
+  `chat_context_resolver_lib/cli.py`
+- extracted shared flow ownership to
+  `chat_context_resolver_lib/flow.py`
+- reduced `scripts/chat_context_resolver.py` to a much thinner composition
+  wrapper over CLI parsing, flow wiring, flow execution, and printing
+
+Remaining from this brief:
+
+- only minor shell-envelope cleanup or future contract tightening, not the
+  original core seam extraction work

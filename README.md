@@ -213,6 +213,8 @@ and [chat-export-structurer/README.md](chat-export-structurer/README.md).
   [docs/planning/latent_state_over_promoted_truth_20260327.md](docs/planning/latent_state_over_promoted_truth_20260327.md)
 - global latent legal state across systems:
   [docs/planning/global_latent_legal_state_cross_system_20260327.md](docs/planning/global_latent_legal_state_cross_system_20260327.md)
+- Mirror Telegram support-layer boundary:
+  [docs/planning/mirror_telegram_support_layer_boundary_20260401.md](docs/planning/mirror_telegram_support_layer_boundary_20260401.md)
 - `Phi` mapping and latent graph schema:
   [docs/planning/phi_mapping_and_latent_graph_schema_20260328.md](docs/planning/phi_mapping_and_latent_graph_schema_20260328.md)
 - all-sources `FactBundle` / reconciliation boundary:

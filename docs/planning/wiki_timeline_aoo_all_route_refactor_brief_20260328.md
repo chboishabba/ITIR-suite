@@ -52,3 +52,20 @@ Those belong in the route shell or an explicit AAO-all adapter layer.
 - generic graph/control logic becomes reusable without carrying `aoo-all`
   naming
 - route file becomes mostly composition plus AAO-all defaults
+
+## Current status
+
+Later slices partially completed this brief:
+
+- shared graph/filter/selection helpers now live under
+  `itir-svelte/src/lib/wiki_timeline/`
+- the route no longer owns the full old helper surface inline
+- controls/context style panel extraction has advanced
+
+Remaining scope is narrower now:
+
+- evidence-lane and graph-assembly presentation residue
+- any remaining route-local panels that are still pure presentation
+
+This is no longer a top-priority runtime lane. It is a demoted route-shell
+cleanup note unless hidden runtime logic resurfaces.

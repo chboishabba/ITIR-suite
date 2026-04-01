@@ -128,6 +128,24 @@ Acceptance criteria:
 Detailed page deliverables for this workbench family are tracked in
 `docs/planning/recent_workbench_page_user_stories_20260310.md`.
 
+## ITIR-US-17: Wiki Revision Review Assist
+As a reviewer working from Wikipedia or Wikidata-adjacent migration/dispute
+pages, I want ITIR to capture a specific revision, parse its bounded sections
+and cited references, and follow selected links through bounded source seams so
+that difficult split/review cases become faster to inspect without treating the
+wiki page itself as authority.
+
+Acceptance criteria:
+- A specific wiki revision can be captured as a revision-locked artifact with
+  stable section/span anchors.
+- The system can expose cited references, outbound links, and selected follow
+  candidates as explicit review aids rather than hidden background crawling.
+- Review surfaces distinguish page wording, extracted review constraints,
+  followed source receipts, and unresolved uncertainty.
+- The system can reduce reviewer uncertainty or improve reviewer speed without
+  silently promoting wiki prose or followed links into semantic truth.
+- Failure to resolve or follow a cited source remains explicit and reviewable.
+
 ---
 
 # SB (StatiBaker) - Pattern Without Narrative

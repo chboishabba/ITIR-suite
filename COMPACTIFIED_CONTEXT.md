@@ -1,5 +1,245 @@
 # Compactified Context
 
+- 2026-04-02 Shixiong handoff note:
+  - source: current working turn
+  - main decision:
+    - the current climate migration + Nat reviewer-packet lane now has one
+      short plain-language onboarding note for new collaborators
+    - the note is intentionally concise and avoids roadmap sprawl
+    - it explains:
+      - what is already real
+      - what is not done
+      - which files matter
+      - where help is actually useful
+  - documentation artifact:
+    - `SensibLaw/docs/planning/wikidata_shixiong_handoff_20260402.md`
+
+- 2026-04-02 major user-story alignment and reprioritization pass:
+  - source: current orchestration turn
+  - docs checked:
+    - `docs/planning/repo_user_story_state_and_feedback_20260327.md`
+    - `docs/planning/feedback_receipt_contract_20260327.md`
+    - `SensibLaw/docs/planning/user_story_implementation_coverage_20260326.md`
+    - `TODO.md`
+    - `SensibLaw/todo.md`
+  - main decision:
+    - the reusable substrate / canonical-surface campaign is now far enough
+      along that the main remaining risk is story-fit and workflow friction,
+      not broad substrate ambiguity
+    - the suite is strongest on provenance, bounded review, and explicit
+      uncertainty; it is weakest on guided next-step UX, annotation/QA
+      execution flows, capture friction, and live continuity ergonomics
+    - remaining substrate work is now exception-driven only
+    - the strongest next implementation lanes are:
+      - guided workflow / next-action surfaces in `itir-svelte`
+      - first bounded annotation / QA workbench slice over existing
+        fact-review/read-model/operator-view surfaces
+      - improved direct feedback-receipt gathering beyond proxy/story notes
+  - worker split:
+    - Lorentz: SensibLaw operator/review story fit
+    - Ramanujan: `itir-svelte` workflow/guided-action fit
+    - Erdos: StatiBaker continuity/operator fit
+    - Ohm: TiRCorder intake/accessibility fit
+    - Huygens: chat/history continuity fit
+  - documentation artifact:
+    - `docs/planning/user_story_alignment_and_reprioritization_20260402.md`
+
+- 2026-04-02 final pre-story substrate split:
+  - source: current orchestration turn
+  - main decision:
+    - progress against the current substrate-first campaign is now in the
+      late phase, roughly `90%` of the intended pre-user-story normalization
+      program rather than early broad refactor territory
+    - the whole repo roadmap remains much larger, roughly `40%` complete,
+      because the product/control-plane/user-story work still extends well
+      beyond the normalization lane
+    - the active execution split is now only two bounded lanes:
+      - one last tiny revision-monitor path-residue cut
+      - one small manifest-root / manifest-load normalization slice
+    - after these, the next major step should be the user-story alignment pass
+    - both bounded slices are now landed:
+      - revision monitor no longer stores `timeline_path` / `aoo_path` in
+        article state/results
+      - `src/storage/manifest_runtime.py` now owns the first shared
+        manifest-path / manifest-load slice
+  - worker split:
+    - Lorentz: revision-monitor path-residue lane
+    - Huygens: manifest-root normalization lane
+  - documentation artifact:
+    - `docs/planning/wiki_revision_monitor_path_residue_cut_20260402.md`
+    - `docs/planning/manifest_root_normalization_slice_20260402.md`
+
+- 2026-04-02 Wikidata orchestration posture clarification:
+  - source: current working turn
+  - main decision:
+    - when the Nat/Wikidata surface is wide enough to split cleanly, the
+      preferred execution shape is one nonblocking lane per worker
+    - lane ownership should stay disjoint until a checkpoint explicitly merges
+      it
+    - parallelism is a throughput tool for review/split work, not a reason to
+      force concurrency onto a narrow single-gate task
+  - documentation artifact:
+    - `SensibLaw/docs/wikidata_working_group_status.md`
+    - `SensibLaw/docs/planning/wikidata_review_packet_plan_20260401.md`
+    - `SensibLaw/docs/planning/wikidata_nat_end_product_and_tiered_automation_20260401.md`
+    - `docs/planning/wikidata_assist_lane_reviewer_packet_alignment_20260401.md`
+    - `docs/planning/wikidata_assist_lane_packet_fixture_note_20260402.md`
+- 2026-04-02 Wikidata reviewer-packet semantic sidecar:
+  - source: current worker outputs plus local review-packet docs and tests
+  - main decision:
+    - the deeper semantic decomposition layer is now an opt-in sidecar behind
+      `include_semantic_decomposition=True`
+    - it stays separate from `parsed_page` and should remain explicit rather
+      than being assumed as part of the shallow parser
+    - the shallow packet contract remains the default behavior
+  - documentation artifact:
+    - `SensibLaw/docs/planning/wikidata_review_packet_semantic_layer_20260402.md`
+    - `SensibLaw/tests/test_wikidata_review_packet_semantics.py`
+- 2026-04-02 Nat reviewer-packet coverage expansion:
+  - source: current worker outputs
+  - main decision:
+    - Nat reviewer-packet attachment coverage expanded from `11 / 53` to
+      `13 / 53` with `Q10416948` and `Q56404383` added as additional
+      sidecar-backed pilot-pack packets on top of `Q731938` as a third
+      packetized held row
+    - the coverage note now reflects the AstraZeneca packet, the wider
+      reviewed tranche count, and the new sidecar-backed pilot-pack packets
+  - documentation artifact:
+    - `SensibLaw/docs/planning/wikidata_nat_review_packet_attachment_coverage_20260401.md`
+
+- 2026-04-01 revision-monitor provenance boundary clarification:
+  - source: current working turn plus local planning docs under `docs/planning/`
+    and sibling repo `../ipfs-dasl`
+  - docs checked:
+    - `docs/planning/shared_shard_artifact_contract_v1_20260327.md`
+    - `docs/planning/hosted_sink_acknowledgement_contract_20260330.md`
+    - `docs/planning/publisher_puller_contract_for_zelph_consumers_20260328.md`
+    - `docs/planning/zos_vs_fuzzymodo_casey_statiBaker_20260328.md`
+    - `docs/planning/ipfs_acknowledgement_readiness_20260330.md`
+    - `SensibLaw/docs/wiki_revision_pack_runner_contract_v0_3.md`
+    - `docs/planning/wiki_revision_monitor_no_routine_json_reports_20260401.md`
+    - `docs/planning/wiki_revision_monitor_path_contract_demotion_20260401.md`
+  - main decision:
+    - the remaining revision-monitor contract ambiguity is not about truth
+      storage anymore
+    - local path fields are not truth
+    - local JSON/path surfaces are not the trusted provenance-sharing shape
+    - trusted sharing should resolve through logical artifact identity,
+      artifact revision, content digest, sink refs, and acknowledgement or
+      receipt semantics
+    - HF/IPFS/ERDFA/ZOS may persist or host artifacts, but those sinks do not
+      become semantic authority
+    - CID or sink path alone is too weak because content-addressing alone is
+      not the full trust model
+  - revision-monitor implication:
+    - any surviving `snapshot_path`, `timeline_path`, `aoo_path`, or `out_dir`
+      fields should be treated as provenance-only or transient implementation
+      residue unless a concrete downstream consumer truly requires them
+  - documentation artifact:
+    - `docs/planning/wiki_revision_monitor_provenance_path_boundary_20260401.md`
+
+- 2026-04-01 Mirror Telegram support-layer boundary:
+  - source: current working turn plus sibling Mirror docs and local archive
+    checks via `robust-context-fetch`
+  - sibling docs checked:
+    - `/home/c/Documents/code/mirror_community_mgr/docs/MIRROR_AI_ITIR_INTEGRATION_CONTRACT.md`
+    - `/home/c/Documents/code/mirror_community_mgr/docs/MIRROR_AI_ITIR_PHASE1_TOOL_MAP.md`
+    - `/home/c/Documents/code/mirror_community_mgr/docs/MIRROR_AI_CORE_AI_API_CONTRACT.md`
+  - ITIR doctrine checked:
+    - `docs/planning/hca_case_s942025_ingest_followups_20260211.md`
+    - `docs/planning/priority_execution_sequence_20260306.md`
+    - `docs/planning/wiki_timeline_extraction_gwb_20260211.md`
+    - `docs/planning/assumption_stress_test_20260208.md`
+  - archive note:
+    - Telegram-related chats are now present in `~/chat_archive.sqlite`
+    - local resolver checks on `2026-04-01` returned DB-side FTS candidates
+      for Telegram queries, so follow-up analysis can now stay local-first
+    - this pass did not pin one single canonical Mirror Telegram thread title;
+      the archive result is still sufficient to justify recording the repo
+      stance and using the DB for future sharper retrieval
+  - main decision:
+    - ITIR should not be the top-level Telegram routing authority for Mirror
+    - ITIR should instead act as the support layer that de-brittles the
+      routing substrate under Mirror's locally owned router
+    - Mirror keeps route ownership and user-facing policy
+    - Core AI remains downstream execution, not route selection
+  - intended support-lane split:
+    - ingest normalization
+    - deterministic token or lexeme handling
+    - parser-first semantic feature extraction
+    - labeled regex or keyword fallback hygiene
+    - typed logic-model outputs with confidence or conflict markers
+    - provenance and policy-profile attachment
+    - Mirror-local router consumption
+  - missing gap now made explicit:
+    - canonical token or lexeme layer for Telegram text
+    - typed semantic observations instead of raw keyword gates
+    - fallback labeling and provenance on classifier outcomes
+    - lexical-noise and collision fixture suites as merge gates
+    - reviewed protected-disclosure policy profile
+  - artifact:
+    - `docs/planning/mirror_telegram_support_layer_boundary_20260401.md`
+
+- 2026-04-01 substrate status / roadmap reconciliation checkpoint:
+  - source: current working turn
+  - main decision:
+    - the active priority is now explicit:
+      build the best reusable Python/store/runtime surfaces first, prefer
+      cross-lane reuse second, and keep local UI cleanup last
+    - remaining AAO Svelte shell extraction is demoted; it is no longer a top
+      execution lane unless it exposes hidden runtime logic or unblocks an
+      operator workflow
+    - before the major user-story pass, the suite should complete:
+      - one real roadmap/state reconciliation round
+      - one remaining wiki revision monitor contract-cleanup round
+      - maybe one or two more clearly high-leverage cross-lane substrate
+        promotions
+  - actual code-state checkpoint:
+    - wiki revision monitor is much further along than the root docs implied:
+      SQLite-first read models exist, DB blob fallback is gone, query-time
+      JSON fallback is gone, the default timeline/AOO extraction path is now
+      in-process Python rather than subprocess JSON handoff, and the default
+      runner path no longer emits routine pair-report or contested-graph JSON
+      reports
+    - a shared SQLite runtime helper now owns repo-relative path resolution
+      and connection plumbing for the first wiki-timeline and fact-review
+      query callers
+    - a shared provenance / receipt geometry helper now owns the common
+      receipt-row and packet-header shape used by narrative comparison and
+      handoff artifacts
+    - a shared reviewer-packet geometry helper now owns queue-item
+      normalization for fact-intake control-plane surfaces
+    - the shared repo-root substrate now also absorbs the last bounded script
+      bootstrap helpers; `src/storage/repo_runtime.py` is gone and the
+      remaining wiki-random / benchmark scripts import
+      `src/storage/repo_roots.py` directly
+    - a shared repo/runtime helper now exists at
+      `SensibLaw/src/storage/repo_roots.py` for script-file-based root
+      resolution and repo-relative path shaping, with first adopters in wiki
+      random report scripts and one manifest consumer script
+    - the next tested adoption slice is now also landed:
+      `build_wikidata_structural_handoff.py`,
+      `build_wikidata_structural_review.py`,
+      `build_wikidata_dense_structural_review.py`, and
+      `build_gwb_broader_corpus_checkpoint.py` now source their repo roots
+      from `src/storage/repo_roots.py`
+    - the next likely cross-lane substrate promotion is the remaining
+      manifest-aware script bootstrap cleanup, rather than more UI shell
+      splitting
+    - the remaining revision-monitor writer posture is narrower than the old
+      docs implied, and the dead report/graph path residue is now removed from
+      fresh schema and old-DB rebuilds; any remaining cleanup is smaller
+      path-policy work rather than JSON runtime architecture
+    - `chat_context_resolver` shell/runtime seams are materially thinner than
+      the old TODO snapshot implied
+    - generic and AAO wiki-timeline runtime policy now sit behind Python-owned
+      query/runtime helpers; the remaining Svelte work is mostly presentation
+      residue, not core runtime semantics
+  - docs consequence:
+    - `TODO.md`, `SensibLaw/todo.md`, and this context file need to be treated
+      as a reconciliation target before the user-story sweep, because prior
+      summaries were lagging the actual substrate state
+
 - 2026-03-29 AAO runtime/route roadmap checkpoint:
   - source: current working turn
   - main decision:
@@ -3098,6 +3338,117 @@
     - `SensibLaw/docs/planning/user_story_implementation_coverage_20260326.md`
   - follow-on TODOs now explicitly track the missing implementation lanes so
     story coverage does not silently masquerade as code coverage
+- 2026-04-01 Wikidata review/split user-story alignment:
+  - the repo already had the right doctrine for Nat/Wikidata review-first
+    migration work, but the user-story wording was not explicit enough about
+    ITIR's intended role
+  - added `ITIR-US-17: Wiki Revision Review Assist` in `docs/user_stories.md`
+    so the suite now explicitly says ITIR should:
+    - capture revision-locked wiki pages/sandbox pages
+    - parse bounded sections/spans
+    - expose cited refs and outbound links
+    - follow selected cited sources through bounded seams
+    - reduce reviewer uncertainty without turning wiki prose into authority
+  - strengthened `SensibLaw/docs/user_stories.md` for the `Wikidata editor /
+    ontology reviewer` role with explicit ITIR-assisted review/split support
+  - updated `SensibLaw/docs/planning/user_story_implementation_coverage_20260326.md`
+    so the honest boundary is explicit:
+    revision-locked proposal capture and split verification exist, and the
+    reviewer-packet lane now has bounded query-link follow receipts while
+    broader link-follow coverage remains to be expanded
+  - pinned the alignment/governance note at:
+    `SensibLaw/docs/planning/wikidata_review_split_assist_user_story_alignment_20260401.md`
+- 2026-04-01 Wikidata review packet plan:
+  - after the user-story alignment pass, the next gap was no longer doctrinal;
+    it was lack of one exact docs-first workflow for how ITIR should reduce
+    reviewer uncertainty in split-heavy Nat cases
+  - added
+    `SensibLaw/docs/planning/wikidata_review_packet_plan_20260401.md`
+    to pin that workflow explicitly:
+    - capture revision-locked wiki surface
+    - parse headings/tasks/refs/links/open questions
+    - follow selected cited sources through bounded receipts
+    - attach the resulting packet to split-required review rows
+  - updated `SensibLaw/docs/wikidata_working_group_status.md` and `TODO.md` so
+    the next implementation slices are explicit and this pass is clearly marked
+    docs-only
+  - later packet coverage expansion broadened the first multi-row Nat
+    attachment surface from `2 / 53` to `10 / 53`, adding eight wider-online
+    reviewed rows from the live tranche to the original two held rows
+- 2026-04-01 Wikidata Nat end-product / tiered automation alignment:
+  - the next clarification gap was not about doctrine or next implementation
+    slice, but about the overall destination for Nat
+  - added
+    `SensibLaw/docs/planning/wikidata_nat_end_product_and_tiered_automation_20260401.md`
+    to pin the honest target:
+    - full pipeline coverage over the backlog
+    - Tier 1 checked-safe automation for repeatedly safe rows
+    - Tier 2 semi-automated split
+    - Tier 3 review-only packets
+    - Tier 4 hold
+  - this makes explicit that the product target is not “blindly automate all
+    50k,” but “process the whole backlog through the right lane for each row”
+  - also added the missing shared handoff / roadmap notes at:
+    - `docs/planning/wikidata_combined_assist_handoff_20260401.md`
+    - `docs/planning/wikidata_combined_roadmap_nat_and_assist_20260401.md`
+  - updated `SensibLaw/docs/planning/wikidata_ontology_group_handoff_nat_lane_20260401.md`
+    and `SensibLaw/docs/wikidata_working_group_status.md` so their current-state
+    wording matches the later Nat lane reality instead of the earlier 7/8
+    checkpoint
+- 2026-04-01 Wikidata reviewer-packet semantic-layer boundary clarification:
+  - the user correctly called out that SensibLaw as a whole has much richer
+    decomposition capability than the currently documented `parsed_page` field
+  - updated the contract/plan/status docs so this is now explicit:
+    - `parsed_page` is only the shallow surface-parse helper layer
+    - current coverage is headings, task buckets, query rows, and
+      cohort/task lines
+    - it must not be read as already including clause-level decomposition,
+      contingent branches, semantic-unit extraction, or richer reviewer logic
+  - the docs now say that those richer capabilities should land later as a
+    separate semantic layer above or beside `parsed_page`, rather than being
+    silently implied by it
+- 2026-04-01 Wikidata reviewer-packet contract / first runtime slice:
+  - the next user-approved implementation step was to start with the
+    reviewer-packet contract itself rather than jumping straight to a broad
+    parser/link-follow subsystem
+  - added
+    `SensibLaw/docs/planning/wikidata_review_packet_contract_20260401.md`
+    and machine-readable schema
+    `SensibLaw/schemas/sl.wikidata_review_packet.v0_1.schema.yaml`
+  - added `build_wikidata_review_packet(...)` in
+    `SensibLaw/src/ontology/wikidata.py`
+  - the first bounded attachment is now pinned at
+    `SensibLaw/tests/fixtures/wikidata/wikidata_nat_review_packet_20260401.json`
+    over the Nat sandbox source unit and one held split plan
+  - current honest boundary after this slice:
+    - contract exists
+    - first single-packet runtime exists
+    - richer parser coverage and broader held-row attachment still remain
+    - bounded follow receipts now exist for the query-link surface, while
+      explicit empty receipts remain an opt-out
+  - verification succeeded with
+    `../.venv/bin/python -m pytest -q tests/test_wikidata_projection.py`
+    from `SensibLaw/` (`48 passed`)
+- 2026-04-01 Wikidata reviewer-packet parser upgrade:
+  - the next useful followthrough after the first packet runtime was to make
+    the packet more review-usable without widening into generic crawl or
+    link-follow work
+  - extended `build_wikidata_review_packet(...)` so packets now carry bounded
+    parsed-page structure:
+    - section headings
+    - done / to-do buckets
+    - query rows
+    - cohort-oriented task lines
+  - refreshed
+    `SensibLaw/tests/fixtures/wikidata/wikidata_nat_review_packet_20260401.json`
+    and expanded focused tests in
+    `SensibLaw/tests/test_wikidata_projection.py`
+  - the next missing slice is now cleaner:
+    broader held-row packet coverage beyond the new `10 / 53` surface, then
+    later semantic decomposition
+  - verification again succeeded with
+    `../.venv/bin/python -m pytest -q tests/test_wikidata_projection.py`
+    from `SensibLaw/` (`48 passed`)
 - 2026-03-15 Mary-parity Wave 1 legal gate:
   - added a canonical fixture manifest at
     `SensibLaw/data/fact_review/wave1_legal_fixture_manifest_v1.json`
@@ -3740,3 +4091,49 @@
     strict echo masking for respondent-side pasted allegation headers /
     copied affidavit scaffolding, especially the `p2-s5` / `p2-s6` /
     `p2-s38` shapes
+- `2026-04-01` Stefan handoff and grant-draft refresh:
+  - resolved referenced thread via `robust-context-fetch`:
+    - title:
+      `Strategic Contribution Advice`
+    - online UUID:
+      `69cbf880-05ec-839a-8603-8532ca426638`
+    - canonical thread ID:
+      `b0499d873b1a162931c96a0a8e016b9906da540a`
+    - source used:
+      `web` pull into canonical archive, then `db` resolution
+  - main thread-backed decision:
+    the Stefan/NLnet-facing story should be a lower-bound deliverable, not a
+    broad future-platform pitch
+  - safe bounded wording:
+    - smallest credible artifact is:
+      deterministic `text -> reviewed facts` plus one reproducible
+      `facts -> Zelph reasoning -> output` demo
+    - do not describe Zelph as a raw-text ingest engine
+    - do describe SensibLaw/ITIR as the deterministic provenance-preserving
+      fact-construction layer upstream of Zelph
+  - repo updates aligned to that decision:
+    - `docs/planning/zelph_external_handoff_20260320.md`
+    - `docs/planning/zelph_handoff_index_20260324.md`
+    - `docs/planning/zelph_nlnet_grant_draft_20260401.md`
+    - `TODO.md`
+    - `CHANGELOG.md`
+  - ZKP frame:
+    - O:
+      Stefan / funders / ITIR-SensibLaw / Zelph / external reviewers
+    - R:
+      make the grant-facing deliverable bounded, reproducible, and honest
+    - C:
+      Zelph handoff docs, demo bridge, checked handoff artifacts
+    - S:
+      repo already proves the bridge, but grant framing needed a tighter LB
+      statement
+    - L:
+      corpus -> deterministic facts -> reviewed export -> Zelph demo ->
+      reproducible artifact
+    - P:
+      add a compact grant draft and tighten handoff wording
+    - G:
+      no raw-text-ingest claim, no truth-promotion transfer from SL to Zelph
+    - F:
+      remaining external gap is funder-form mapping and budget text, not core
+      technical positioning
