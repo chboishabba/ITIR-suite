@@ -131,6 +131,15 @@
       reviewed tranche count, and the new sidecar-backed pilot-pack packets
   - documentation artifact:
     - `SensibLaw/docs/planning/wikidata_nat_review_packet_attachment_coverage_20260401.md`
+- 2026-04-02 Cohort C scan normalizer:
+  - source: current working turn plus local non-company axis docs
+  - main decision:
+    - the pinned Cohort C sample fixture for non-GHG / missing `P459` now has
+      a bounded runtime scan normalizer in `SensibLaw/src/ontology/wikidata.py`
+      and a matching test in `SensibLaw/tests/test_wikidata_projection.py`
+    - this is a review-first runtime surface, not a live population scan
+  - documentation artifact:
+    - `SensibLaw/docs/planning/wikidata_nat_cohort_c_population_scan_20260402.md`
 
 - 2026-04-01 revision-monitor provenance boundary clarification:
   - source: current working turn plus local planning docs under `docs/planning/`

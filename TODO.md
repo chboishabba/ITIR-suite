@@ -522,6 +522,11 @@
 - note: the combined roadmap/status now treats the company-tranche axis as
   calibration under the non-company integration posture, not as ongoing
   expansion.
+- DONE: add a bounded Cohort C population-scan normalizer over the pinned
+  non-GHG / missing `P459` sample fixture so the branch is no longer docs-only:
+  `SensibLaw/src/ontology/wikidata.py`
+  `SensibLaw/tests/test_wikidata_projection.py`
+  `SensibLaw/docs/planning/wikidata_nat_cohort_c_population_scan_20260402.md`
 - DONE: add the assist-lane reviewer-packet alignment note and the
   smallest fixture note so the Peter/Ege/Rosario lane can reuse Nat field
   names without claiming parity or execution authority:

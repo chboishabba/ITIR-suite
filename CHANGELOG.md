@@ -118,6 +118,10 @@
     `Q731938` as a third packetized held row.
   - Clarified that the packet coverage lane is now near diminishing returns and
     only genuinely new split shapes should justify another attachment record.
+- Cohort C scan normalizer:
+  - Added a bounded runtime normalizer for the pinned non-GHG / missing `P459`
+    Cohort C sample fixture so the branch now has a review-first runtime
+    surface without implying that a live population scan has already run.
 - revision-monitor provenance boundary clarification:
   - Added
     `docs/planning/wiki_revision_monitor_provenance_path_boundary_20260401.md`
