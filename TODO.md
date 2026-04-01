@@ -513,12 +513,15 @@
 - DONE: widen Nat reviewer-packet attachment across held split rows to a
   first bounded multi-row surface:
   `SensibLaw/tests/fixtures/wikidata/wikidata_nat_review_packet_attachment_coverage_20260401.json`
-  records `13 / 53` packetized held split rows, spanning the original two
-  held rows, the AstraZeneca held row, nine wider-online reviewed rows
+  records `15 / 53` packetized held split rows, spanning the original two
+  held rows, the AstraZeneca held row, ten wider-online reviewed rows
   from the live tranche, and two additional pilot-pack sidecar packets
   for `Q10416948` and `Q56404383`
 - note: this coverage lane is now experiencing diminishing returns; only new
   split shapes deserve another packet attachment.
+- note: the combined roadmap/status now treats the company-tranche axis as
+  calibration under the non-company integration posture, not as ongoing
+  expansion.
 - DONE: add the assist-lane reviewer-packet alignment note and the
   smallest fixture note so the Peter/Ege/Rosario lane can reuse Nat field
   names without claiming parity or execution authority:

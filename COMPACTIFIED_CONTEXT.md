@@ -123,9 +123,10 @@
   - source: current worker outputs
   - main decision:
     - Nat reviewer-packet attachment coverage expanded from `11 / 53` to
-      `13 / 53` with `Q10416948` and `Q56404383` added as additional
-      sidecar-backed pilot-pack packets on top of `Q731938` as a third
-      packetized held row
+      `15 / 53` with `Q1785637` and `Q738421` added as additional
+      wider-online reviewed rows, plus `Q10416948` and `Q56404383` as
+      additional sidecar-backed pilot-pack packets on top of `Q731938` as a
+      third packetized held row
     - the coverage note now reflects the AstraZeneca packet, the wider
       reviewed tranche count, and the new sidecar-backed pilot-pack packets
   - documentation artifact:
@@ -3397,9 +3398,9 @@
     the next implementation slices are explicit and this pass is clearly marked
     docs-only
 - later packet coverage expansion broadened the first multi-row Nat
--    attachment surface from `2 / 53` to `13 / 53`, adding eight wider-online
+-    attachment surface from `2 / 53` to `15 / 53`, adding ten wider-online
     reviewed rows from the live tranche plus two pilot-pack packets to the
-    original two held rows
+    original three held rows
 -  - the plan now also records that the semantic sidecar surfaces anchor-derived
   -  the plan now also records that the semantic sidecar surfaces anchor-derived
      reviewer units and merge-axis split-review context units while leaving the

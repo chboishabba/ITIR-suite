@@ -16,6 +16,8 @@ Record the current execution-order roadmap across:
 - bounded mainline: complete
 - wider proof lane: complete
 - wider online lane: held pending better reviewer-packet support
+- non-company axis integration only, meaning the current company-focused
+  tranche is a calibration step rather than a new expansion
 
 ### Assist Lane
 

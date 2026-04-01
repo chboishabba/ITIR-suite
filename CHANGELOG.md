@@ -112,9 +112,10 @@
     `parsed_page` is already full semantic decomposition.
 - Nat reviewer-packet coverage expansion:
   - Expanded `SensibLaw/tests/fixtures/wikidata/wikidata_nat_review_packet_attachment_coverage_20260401.json`
-    and the matching planning note to `13 / 53` packetized rows after adding
-    `Q10416948` and `Q56404383` as additional sidecar-backed pilot-pack
-    packets on top of `Q731938` as a third packetized held row.
+    and the matching planning note to `15 / 53` packetized rows after adding
+    `Q1785637` and `Q738421` as additional wider-online reviewed rows on top of
+    `Q10416948` and `Q56404383` as sidecar-backed pilot-pack packets and
+    `Q731938` as a third packetized held row.
   - Clarified that the packet coverage lane is now near diminishing returns and
     only genuinely new split shapes should justify another attachment record.
 - revision-monitor provenance boundary clarification:
