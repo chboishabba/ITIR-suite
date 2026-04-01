@@ -538,6 +538,9 @@
   so the candidate set, triage prompts, and hold/review decision are explicit:
   `SensibLaw/src/ontology/wikidata.py`
   `SensibLaw/tests/test_wikidata_projection.py`
+- DONE: expose the Cohort C operator packet as a CLI entrypoint:
+  `sensiblaw wikidata cohort-c-operator-packet`
+  with saved-scan input or bounded live preview mode
 - DONE: add the assist-lane reviewer-packet alignment note and the
   smallest fixture note so the Peter/Ege/Rosario lane can reuse Nat field
   names without claiming parity or execution authority:

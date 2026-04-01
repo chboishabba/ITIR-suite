@@ -127,6 +127,8 @@
     blanket execution lane.
   - Added an operator packet wrapper over the Cohort C preview so the decision
     state, triage prompts, and fail-closed behavior are explicit.
+  - Added a CLI entrypoint for the Cohort C operator packet so reviewers can
+    export a saved-scan packet or request a bounded live preview in one call.
 - revision-monitor provenance boundary clarification:
   - Added
     `docs/planning/wiki_revision_monitor_provenance_path_boundary_20260401.md`

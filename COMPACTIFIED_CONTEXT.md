@@ -140,6 +140,8 @@
     - the same selection rule now has a bounded live scan preview helper
     - the preview is now packaged into an operator-facing review packet with
       explicit triage prompts and hold/review decision text
+    - the operator packet now has a CLI entrypoint for saved-scan input or
+      bounded live preview mode
     - this is a review-first runtime surface, not a blanket live population scan
   - documentation artifact:
     - `SensibLaw/docs/planning/wikidata_nat_cohort_c_population_scan_20260402.md`
