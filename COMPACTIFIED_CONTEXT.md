@@ -1,5 +1,114 @@
 # Compactified Context
 
+- 2026-04-02 moonshot compiler normalization reconsideration:
+  - source: current orchestration turn plus receipts-first compiler spine,
+    user-story alignment, judgment-architecture split, and AU/GWB TODO state
+  - main decision:
+    - the previous judgment-architecture pass was directionally right but too
+      Nat-centric
+    - AU and GWB should be normalized toward the same higher-order shape as
+      Wikidata/Nat:
+      bounded evidence group in -> promoted outcomes out -> derived
+      review/product/graph surfaces after that
+    - graph should be treated mainly as a derived inspection/product surface,
+      not the organizing abstraction
+    - the next reusable push should therefore prioritize:
+      - shared evidence-bundle -> promoted-outcome contract
+      - AU product normalization
+      - GWB product normalization
+      - Nat/Wikidata as one adopter family
+  - worker split:
+    - `Ramanujan`: shared evidence-bundle -> promoted-outcome contract
+    - `Erdos`: AU product normalization
+    - `Lorentz`: GWB product normalization
+    - `Euler`: minimal shared primitive/comparison support
+    - `Ohm`: derived graph/claim-boundary product discipline
+    - `Huygens`: promote/abstain/audit gate
+  - current promotion order:
+    - `Ramanujan`
+    - `Erdos`
+    - `Lorentz`
+    - `Euler`
+    - `Ohm`
+    - `Huygens`
+  - control note:
+    - `docs/planning/moonshot_compiler_normalization_reconsideration_20260402.md`
+      is the controlling lane-order note
+  - convergence point:
+    - docs and lane order are settled
+    - the next honest move is implementation promotion under the same worker
+      ownership
+    - docs-only orchestration updates are frozen for this checkpoint unless
+      new lane evidence materially changes ownership, order, or contract scope
+  - checkpoint re-read:
+    - order unchanged
+    - one worker per lane unchanged
+    - no further allocation change justified at this checkpoint
+    - rechecked again with no change
+    - repeated checkpoint confirmation: still no change
+    - further docs-only reaffirmation now adds no new governance signal
+  - documentation artifact:
+    - `docs/planning/moonshot_compiler_normalization_reconsideration_20260402.md`
+
+- 2026-04-02 judgment-architecture split after the substrate phase:
+  - source: current orchestration turn plus local moonshot/legal/graph docs
+  - main decision:
+    - the broad reusable substrate campaign is no longer the main fire
+    - the next reusable push should be grounded judgment architecture across
+      Wikidata, legal, and later evidence-heavy lanes
+    - current safe operating rule still holds:
+      - raw text is bounded evidence, not direct action authority
+      - graph work must not overstate causality or certainty
+      - stronger judgment layers must remain replayable, auditable, and
+        fail-closed
+    - active priority order is now:
+      - text bridge execution
+      - legal doctrinal primitive scaffold
+      - domain-agnostic primitive/comparison architecture
+      - Nat hard-packet grounding depth
+      - claim-boundary / competing-interpretation graph discipline
+      - promotion / abstain / audit gates
+  - worker split:
+    - `Ramanujan`: text bridge
+    - `Erdos`: legal doctrinal primitives
+    - `Euler`: common primitive/comparison architecture
+    - `Lorentz`: Nat grounding depth
+    - `Ohm`: graph discipline
+    - `Huygens`: governance gates
+  - documentation artifact:
+    - `docs/planning/judgment_architecture_lane_split_20260402.md`
+
+- 2026-04-02 judgment-architecture worker briefs returned:
+  - source: current orchestration turn plus returned bounded lane briefs
+  - main decision:
+    - the worker briefs confirmed the promotion order rather than changing it
+    - `Ramanujan` is first because the climate text bridge is already partly
+      real and only needs a pinned narrow additive slice
+    - `Erdos` is second because the first doctrinal primitive should be a
+      bounded projection/review layer, not a semantic-core rewrite
+    - `Euler` is third because the common primitive/comparison layer should be
+      derived from the first two concrete lanes, not invented before them
+    - `Lorentz`, `Ohm`, and `Huygens` remain real follow-on lanes
+  - confirmed promotion order:
+    - `Ramanujan`
+    - `Erdos`
+    - `Euler`
+    - `Lorentz`
+    - `Ohm`
+    - `Huygens`
+  - brief read:
+    - `Lorentz`: deepen representative hard-packet grounding without widening
+      packet shape
+    - `Ohm`: keep competing-interpretation work as explicit read-only overlays
+    - `Huygens`: formalize `promote | abstain | audit` above grounded proposal
+      artifacts
+  - immediate execution checkpoint:
+    - `Ramanujan` is the next implementation promotion
+    - the rest remain assigned in ranked order unless the first slice reveals
+      hidden coupling or a stronger bounded opportunity
+    - rechecked orchestrator state remains unchanged: no lane reassignment and
+      no order change before the first implementation promotion
+
 - 2026-04-02 Wikidata moonshot gap lane split:
   - source: current orchestration turn plus worker lane returns
   - main decision:

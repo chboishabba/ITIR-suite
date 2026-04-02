@@ -1,6 +1,40 @@
 # Changelog
 
 ## Unreleased
+- moonshot compiler normalization reconsideration:
+  - Added
+    `docs/planning/moonshot_compiler_normalization_reconsideration_20260402.md`
+    to restate the moonshot read in compiler/product terms across AU, GWB,
+    and Wikidata/Nat.
+  - Updated `docs/planning/judgment_architecture_lane_split_20260402.md`,
+    `TODO.md`, and `COMPACTIFIED_CONTEXT.md` so the next orchestration phase
+    centers on bounded evidence-group -> promoted-outcome contracts and
+    lane-normalized product surfaces, with graph remaining derived rather than
+    the organizing truth layer.
+  - Reaffirmed the one-worker-per-lane split and current promotion order:
+    `Ramanujan`, `Erdos`, `Lorentz`, `Euler`, `Ohm`, `Huygens`.
+  - Re-read the checkpoint and kept the same split and order with no reshuffle.
+  - Added an explicit note that no further allocation change is justified at
+    this checkpoint and the next valid move is implementation promotion.
+  - Rechecked the same moonshot orchestration checkpoint again with no change
+    in lane ownership or promotion order.
+  - Added one more explicit repeated-checkpoint note: still no lane or order
+    change, still no new evidence requiring a reshuffle.
+  - Added an explicit endpoint note: further docs-only reaffirmation would now
+    be repetition rather than new governance signal.
+  - Recorded the convergence point explicitly: the lane-order conflict is
+    resolved, the controlling note is stable, and the only honest next move is
+    implementation promotion under the same worker ownership.
+  - Resolved the remaining doc-order ambiguity by making the compiler/product
+    normalization note the controlling lane-order source and aligning the
+    judgment-support note behind `Ramanujan`, `Erdos`, `Lorentz`, `Euler`,
+    `Ohm`, `Huygens`.
+  - Added an explicit docs-freeze note for this checkpoint: no more docs-only
+    orchestration updates unless new lane evidence materially changes the
+    worker ownership, promotion order, or contract scope.
+  - Added an explicit user-override note: a user-requested reaffirmation may
+    append a no-change checkpoint without reopening the frozen worker split or
+    promotion order.
 - Wikidata moonshot gap lane split:
   - Added `SensibLaw/docs/planning/wikidata_nat_grounding_depth_evidence_20260402.md`,
     `SensibLaw/docs/planning/wikidata_nat_cohort_b_review_bucket_20260402.md`,
@@ -1695,6 +1729,31 @@
       `Conceded Fact (+ Technical Qualification)`
     - next highest-signal refinement:
       strict echo masking for quoted allegation headers / pasted affidavit text
+- 2026-04-02: Added
+  `docs/planning/judgment_architecture_lane_split_20260402.md` and synced
+  `TODO.md`, `SensibLaw/todo.md`, and `COMPACTIFIED_CONTEXT.md` so the next
+  execution split is explicitly grounded in reusable judgment architecture
+  rather than more default substrate cleanup. The current order is now:
+  text bridge first, legal doctrinal primitives second, common
+  primitive/comparison architecture third, then Nat grounding depth,
+  disciplined graph challengeability, and stronger promotion/audit gates.
+- 2026-04-02: Synced the returned judgment-architecture worker briefs into the
+  planning/status docs. The confirmed promotion order remains:
+  `Ramanujan`, `Erdos`, `Euler`, `Lorentz`, `Ohm`, `Huygens`. The briefs also
+  froze the safe boundaries:
+  Ramanujan as a pinned additive climate text bridge,
+  Erdos as a doctrinal projection layer rather than a semantic-core rewrite,
+  and Euler as a very small shared primitive/comparison surface that should be
+  derived from those two concrete lanes.
+- 2026-04-02: Added the immediate execution checkpoint to the
+  judgment-architecture note and synced root/SensibLaw status files:
+  promote `Ramanujan` next, keep the remaining lanes assigned in ranked order,
+  and only reshuffle if the first implementation slice reveals hidden coupling
+  or a stronger bounded promotion.
+- 2026-04-02: Reaffirmed the unchanged judgment-architecture orchestration
+  state in the planning/status docs:
+  same one-lane-per-worker split, same ranked order, and no new selection
+  round before the first implementation promotion.
 - 2026-04-02: Tightened the Shixiong Wikidata handoff note so it reflects his
   actual fit better: bounded validation, correction-worthiness criteria,
   reviewer-inspectable packet surfaces, and provenance strictness, rather than
