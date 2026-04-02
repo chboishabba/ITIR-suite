@@ -1,5 +1,124 @@
 # Compactified Context
 
+- 2026-04-02 Wikidata moonshot gap lane split:
+  - source: current orchestration turn plus worker lane returns
+  - main decision:
+    - the gap-to-moonshot program is no longer only a roadmap note
+    - it now has explicit lane-local artifacts for:
+      - grounding depth
+      - Cohort B review bucket
+      - Cohort C live-preview extension
+      - Cohort D review surface
+      - Cohort E diagnostics / reconciliation scan
+      - automation graduation criteria
+    - the current honest automation ceiling remains Level 1
+      reviewer-assisted split execution
+    - the highest-value next branches stay:
+      - grounding depth on representative hard packets
+      - structural breadth across the non-company cohorts
+      - promotion by explicit graduation gates rather than narrative
+        confidence
+  - documentation artifact:
+    - `SensibLaw/docs/planning/wikidata_nat_gap_to_moonshot_program_20260402.md`
+    - `SensibLaw/docs/planning/wikidata_nat_automation_graduation_criteria_20260402.md`
+
+- 2026-04-03 Wikidata moonshot helper tranche:
+  - source: current orchestration turn plus worker lane returns
+  - main decision:
+    - the moonshot gap lanes are no longer only docs/fixtures in several cases
+    - they now have bounded executable helpers for:
+      - grounding depth
+      - Cohort B operator packetization
+      - Cohort D type probing
+      - Cohort E diagnostics
+      - automation graduation evaluation
+    - Cohort C also now has a richer operator evidence packet over the held
+      live-preview surface
+    - the current automation ceiling is still Level 1; these helpers improve
+      review/control quality, not promotion by themselves
+  - verification:
+    - focused Nat moonshot-helper suite passed: `15 passed`
+
+- 2026-04-03 Wikidata moonshot operator-surface tranche:
+  - source: current orchestration turn plus lane-local worker outputs
+  - main decision:
+    - several helper lanes now have deterministic operator/control surfaces
+      rather than only helper modules:
+      - grounding-depth attachment
+      - Cohort B operator packet
+      - Cohort D operator review queue
+      - automation graduation report builder
+    - Cohort C operator evidence also now has a clearer pinned packet surface
+    - this still does not change the current automation ceiling; it improves
+      operator use and auditability
+  - verification:
+    - focused operator-surface suite passed: `21 passed`
+
+- 2026-04-03 Wikidata moonshot reproducible artifact tranche:
+  - source: current orchestration turn plus lane-local worker outputs
+  - main decision:
+    - several lanes now expose reproducible batch/report/CLI artifacts instead
+      of only helper functions:
+      - grounding-depth batch
+      - Cohort C operator report
+      - Cohort E diagnostics CLI/report
+      - automation-graduation CLI
+    - this improves operator reproducibility and auditability but does not
+      change the current automation ceiling
+  - verification:
+    - focused report/artifact suite passed: `15 passed, 24 deselected`
+
+- 2026-04-03 Wikidata moonshot reproducible batch/report tranche:
+  - source: current orchestration turn plus the latest worker-lane returns
+  - main decision:
+    - the moonshot-gap lanes now extend beyond single helper/report surfaces
+      into more repeatable operator paths:
+      - grounding-depth CLI plus batch review-packet report
+      - Cohort B operator report above the queue/packet surfaces
+      - Cohort C operator-report batch surface
+      - Cohort D operator report plus CLI
+      - Cohort E diagnostics batch report
+      - automation-graduation batch proposal evaluation
+    - the roadmap consequence is that the next yield should come from
+      measured repeated runs over broader real candidate sets, not from more
+      packet-shape expansion
+    - the honest automation ceiling is still Level 1
+
+- 2026-04-03 Wikidata moonshot broader measured-evidence tranche:
+  - source: current orchestration turn plus the latest six worker-lane returns
+  - main decision:
+    - the moonshot-gap lanes now have broader measured evidence above the
+      earlier single-report surfaces:
+      - grounding-depth evidence report over representative packet batches
+      - Cohort B deterministic operator batch report
+      - Cohort C broader measured evidence sample over real candidate slices
+      - Cohort D multi-case operator report batch
+      - Cohort E grouped diagnostics summary over batch runs
+      - automation-graduation repeated-run evidence report
+    - the program consequence is that repeated measured runs are becoming the
+      primary moonshot-readiness artifact, not one-off queue/report examples
+    - the honest automation ceiling is still Level 1
+  - verification:
+    - worker-reported focused lane suites passed
+
+- 2026-04-03 Wikidata moonshot broader operator/governance tranche:
+  - source: current orchestration turn plus the latest six worker-lane returns
+  - main decision:
+    - the moonshot-gap lanes now have broader operator/governance indexes
+      above the earlier measured-evidence surfaces:
+      - grounding-depth comparison/index report over packet batches
+      - Cohort B operator evidence index over multiple batch reports
+      - Cohort C operator index over broader real candidate slices
+      - Cohort D review-control index over multiple operator batches
+      - Cohort E aggregated disagreement/summary index
+      - automation-graduation governance index over repeated evidence
+        snapshots
+    - the program consequence is that the control plane is shifting from
+      single reports toward repeated-run governance summaries
+    - the honest automation ceiling is still Level 1
+  - verification:
+    - worker-reported focused lane suites passed
+
 - 2026-04-02 Shixiong handoff note:
   - source: current working turn
   - main decision:
@@ -25,6 +144,12 @@
     split-plan peers, and that comparison can be auto-derived from the split
     payload when sibling plans are present, so the comparison surface can
     compare actual cohort neighbors instead of only synthetic examples
+- 2026-04-02 Wikidata blind-migration moonshot framing:
+  - the Nat lane now says explicitly that blind migration automation is the
+    P0 moonshot
+  - current operating posture remains review-first, split-first, and
+    fail-closed until the smaller tiers prove stable enough to earn the
+    moonshot
 
 - 2026-04-02 Wikidata reviewer-packet helper lanes:
   - standalone helper modules now exist for follow depth, claim-boundary
@@ -4199,3 +4324,14 @@
 - practical effect:
   - Shixiong should now be pointed less toward generic migration mechanics and
     more toward reviewing the hard-case decision rule and packet sufficiency
+- 2026-04-02 Wikidata Nat gap-to-moonshot program:
+  - the explicit staged gap/program note now exists at
+    `SensibLaw/docs/planning/wikidata_nat_gap_to_moonshot_program_20260402.md`
+  - the current gap is framed as trustable automation readiness rather than
+    lack of one more packet field
+  - current priority order is now explicit:
+    - grounding depth on representative hard packets
+    - structural breadth on Cohort C and the other non-company lanes
+    - explicit automation graduation criteria
+  - broader company-family packet expansion is now secondary unless it reveals
+    a genuinely new split shape

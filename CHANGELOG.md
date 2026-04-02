@@ -1,6 +1,65 @@
 # Changelog
 
 ## Unreleased
+- Wikidata moonshot gap lane split:
+  - Added `SensibLaw/docs/planning/wikidata_nat_grounding_depth_evidence_20260402.md`,
+    `SensibLaw/docs/planning/wikidata_nat_cohort_b_review_bucket_20260402.md`,
+    `SensibLaw/docs/planning/wikidata_nat_cohort_c_live_preview_extension_20260402.md`,
+    `SensibLaw/docs/planning/wikidata_nat_cohort_d_review_lane_20260402.md`,
+    `SensibLaw/docs/planning/wikidata_nat_cohort_e_reconciliation_scan_plan_20260403.md`,
+    and `SensibLaw/docs/planning/wikidata_nat_automation_graduation_criteria_20260402.md`
+    so the current gap-to-moonshot program now resolves into explicit lane-local
+    artifacts rather than only roadmap language.
+  - Added the first bounded runtime/test surfaces for the new non-company axis:
+    `SensibLaw/src/ontology/wikidata_nat_cohort_b_review_bucket.py`,
+    `SensibLaw/tests/test_wikidata_nat_cohort_b_review_bucket.py`,
+    `SensibLaw/tests/test_wikidata_cohort_c_live_preview_extension.py`,
+    `SensibLaw/tests/test_wikidata_nat_cohort_d_review_lane.py`, and
+    `SensibLaw/tests/test_wikidata_nat_grounding_depth.py`.
+- Wikidata moonshot helper tranche:
+  - Added executable bounded helpers for the current moonshot-gap lanes:
+    `SensibLaw/src/ontology/wikidata_grounding_depth.py`,
+    `SensibLaw/src/ontology/wikidata_nat_cohort_b_operator_packet.py`,
+    `SensibLaw/src/ontology/wikidata_nat_cohort_d_review.py`,
+    `SensibLaw/src/ontology/wikidata_cohort_e_diagnostics.py`, and
+    `SensibLaw/src/ontology/wikidata_nat_automation_graduation.py`.
+  - Added matching docs/fixtures/tests for the richer Cohort C operator
+    evidence packet, Cohort D type-probing surface, Cohort E diagnostics
+    helper, and fail-closed graduation evaluator.
+- Wikidata moonshot operator-surface tranche:
+  - Added a grounding-depth attachment surface, a pinned Cohort B operator
+    packet surface, a Cohort D operator review queue surface, and the report
+    builder above the automation graduation evaluator.
+  - Validated the operator-facing Nat moonshot helper suite at `21 passed`.
+- Wikidata moonshot reproducible artifact tranche:
+  - Added the grounding-depth batch artifact, a deterministic Cohort C
+    operator report, a Cohort E diagnostics CLI/report lane, and the
+    automation-graduation operator CLI.
+  - Validated the focused report/artifact tranche at `15 passed, 24 deselected`.
+- Wikidata moonshot reproducible batch/report tranche:
+  - Added a grounding-depth CLI plus batch review-packet report,
+    a Cohort B operator report, a Cohort C operator-report batch surface,
+    a Cohort D operator report plus CLI, a Cohort E diagnostics batch report,
+    and automation-graduation batch proposal evaluation.
+  - Updated the moonshot roadmap/status/TODO/context surfaces so the current
+    gap now points at measured operator evidence rather than more packet-shape
+    expansion.
+- Wikidata moonshot broader measured-evidence tranche:
+  - Added a grounding-depth evidence report, a Cohort B deterministic
+    operator batch report, a broader Cohort C measured-evidence sample, a
+    Cohort D operator report batch plus CLI, a Cohort E grouped diagnostics
+    summary, and an automation-graduation repeated-run evidence report.
+  - Updated the moonshot roadmap/status/TODO/context surfaces so the next
+    gap-closing step is explicitly broader measured evidence over multiple
+    cases rather than more one-off examples.
+- Wikidata moonshot broader operator/governance tranche:
+  - Added a grounding-depth comparison/index report, a Cohort B operator
+    evidence index, a Cohort C operator index, a Cohort D review-control
+    index, a Cohort E summary index, and an automation-graduation governance
+    index over repeated evidence snapshots.
+  - Updated the moonshot roadmap/status/TODO/context surfaces so the next
+    gap-closing step is explicitly broader operator/governance evidence over
+    repeated runs rather than only more batch outputs.
 - Wikidata Shixiong handoff:
   - Added
     `SensibLaw/docs/planning/wikidata_shixiong_handoff_20260402.md`
@@ -9,6 +68,13 @@
   - Updated `SensibLaw/docs/wikidata_working_group_status.md`, `TODO.md`, and
     `COMPACTIFIED_CONTEXT.md` so the handoff is discoverable from the main
     Wikidata status surfaces.
+- Wikidata blind-migration moonshot framing:
+  - Updated `SensibLaw/docs/planning/wikidata_nat_end_product_and_tiered_automation_20260401.md`
+    and the matching status/TODO/context surfaces so the repo now says
+    explicitly that a blind migration bot is the P0 moonshot for the Nat lane.
+  - Kept the current operating posture honest: review-first, split-first, and
+    fail-closed until the smaller automation tiers prove stable enough to earn
+    that moonshot.
 - Wikidata reviewer-packet variant comparison:
   - Added a bounded variant-comparison lane to the Nat reviewer-packet plan
     and contract so targeted cross-variant inspection can reduce uncertainty
@@ -1633,3 +1699,12 @@
   actual fit better: bounded validation, correction-worthiness criteria,
   reviewer-inspectable packet surfaces, and provenance strictness, rather than
   generic migration onboarding.
+- Wikidata Nat gap-to-moonshot program is now pinned at
+  `SensibLaw/docs/planning/wikidata_nat_gap_to_moonshot_program_20260402.md`,
+  making the staged gap from the current review-first lane to the blind
+  migration-bot moonshot explicit in ZKP, ITIL, ISO 9000, ISO 42001, ISO
+  27001, ISO 27701, ISO 23894, NIST AI RMF, Six Sigma, C4, and PlantUML terms.
+- The Nat end-product, working-group status, combined roadmap, and TODO now
+  say the same thing about current priorities:
+  grounding depth first, non-company structural breadth second, promotion
+  gates third, and only then stronger moonshot-readiness claims.

@@ -218,6 +218,43 @@
     - likes/delight/retention signals
   - DONE: first bounded persisted receiver + query surface in `itir.sqlite`
     for `feedback.receipt.v1`
+
+- [P1] Wikidata Nat blind-migration moonshot gap:
+  - use
+    `SensibLaw/docs/planning/wikidata_nat_gap_to_moonshot_program_20260402.md`
+    as the governing staged program
+  - current honest ceiling:
+    - Level 1 reviewer-assisted split execution
+  - current executable operator surfaces now exist for:
+    - grounding depth CLI plus batch report
+    - Cohort B operator packet, queue, and report
+    - Cohort C operator report and batch report
+    - Cohort D operator review queue and operator report
+    - Cohort E diagnostics CLI plus batch report
+    - automation graduation eval/report plus batch proposal evaluation
+  - broader measured-evidence surfaces now also exist for:
+    - grounding-depth evidence report
+    - Cohort B operator batch report
+    - Cohort C broader measured evidence sample
+    - Cohort D operator report batch
+    - Cohort E grouped diagnostics summary
+    - automation-graduation repeated-run evidence report
+  - broader operator/governance surfaces now also exist for:
+    - grounding-depth comparison/index report
+    - Cohort B operator evidence index
+    - Cohort C operator index
+    - Cohort D review-control index
+    - Cohort E summary index
+    - automation-graduation governance index
+  - next priorities:
+    - use the new report/batch/index surfaces against broader real candidate
+      sets
+    - turn repeated runs into measured promotion evidence and governance
+      summaries
+    - keep non-company cohorts review-first until proposal batches and
+      hold/abstain behavior are stable
+    - do not spend another round on packet shape unless a genuinely new split
+      family appears
   - DONE: first capture helpers/import seams via
     `SensibLaw/scripts/query_fact_review.py`:
     - `feedback-add`
@@ -375,6 +412,12 @@
 - [P2] Wikidata climate-change property-migration review lane:
   - use `SensibLaw/docs/planning/wikidata_climate_change_property_migration_protocol_20260327.md`
     as the current control-plane note
+  - the long-term P0 moonshot is blind migration automation, but the lane
+    still has to earn that by proving the review-first / split-first tiers
+  - use
+    `SensibLaw/docs/planning/wikidata_nat_gap_to_moonshot_program_20260402.md`
+    as the explicit staged gap/program note from the current review-first lane
+    to the blind-migration-bot moonshot
   - treat `P5991 -> P14143` as a bounded migration-review problem, not a
     whole-property rewrite
   - DONE: define the first migration-pack contract for property-to-property
@@ -393,6 +436,71 @@
       - `safe_with_reference_transfer`: 2
       - `ambiguous_semantics`: 55
   - next:
+    - highest-value gap now is trustable automation readiness, not one more
+      packet field
+    - current priority order:
+      - grounding depth on representative hard packets
+      - structural breadth on Cohorts B/C/D/E, with Cohort C as the
+        highest-yield immediate branch
+      - explicit automation graduation criteria
+    - broader company-family packet coverage is now secondary unless it reveals
+      a genuinely new split family
+    - DONE: pin the grounding-depth lane for representative hard Nat packets:
+      - `SensibLaw/docs/planning/wikidata_nat_grounding_depth_evidence_20260402.md`
+      - `SensibLaw/tests/fixtures/wikidata/wikidata_nat_grounding_depth_packets_20260402.json`
+      - `SensibLaw/tests/test_wikidata_nat_grounding_depth.py`
+    - DONE: add the grounding-depth operator attachment surface:
+      - `SensibLaw/tests/fixtures/wikidata/wikidata_nat_grounding_depth_operator_surface_20260402.json`
+    - DONE: add the grounding-depth batch artifact:
+      - `SensibLaw/tests/fixtures/wikidata/wikidata_nat_grounding_depth_batch_20260402.json`
+    - DONE: turn Cohort B into a bounded runtime review bucket:
+      - `SensibLaw/docs/planning/wikidata_nat_cohort_b_review_bucket_20260402.md`
+      - `SensibLaw/src/ontology/wikidata_nat_cohort_b_review_bucket.py`
+      - `SensibLaw/tests/test_wikidata_nat_cohort_b_review_bucket.py`
+    - DONE: add a bounded Cohort B operator packet helper:
+      - `SensibLaw/docs/planning/wikidata_nat_cohort_b_packetization_plan_20260402.md`
+      - `SensibLaw/src/ontology/wikidata_nat_cohort_b_operator_packet.py`
+    - DONE: pin the bounded Cohort B operator packet surface:
+      - `SensibLaw/docs/planning/wikidata_nat_cohort_b_operator_packet_20260402.md`
+      - `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_b_operator_packet_20260402.json`
+      - `SensibLaw/tests/test_wikidata_nat_cohort_b_operator_packet.py`
+    - DONE: extend Cohort C's live preview with broader hold metadata:
+      - `SensibLaw/docs/planning/wikidata_nat_cohort_c_live_preview_extension_20260402.md`
+      - `SensibLaw/tests/test_wikidata_cohort_c_live_preview_extension.py`
+    - DONE: add a richer Cohort C operator evidence packet:
+      - `SensibLaw/docs/planning/wikidata_nat_cohort_c_operator_evidence_20260403.md`
+      - `SensibLaw/tests/test_wikidata_cohort_c_operator_packet_extension.py`
+    - DONE: add the Cohort C operator report helper:
+      - `SensibLaw/src/ontology/wikidata_cohort_c_operator_report.py`
+      - `SensibLaw/tests/test_wikidata_cohort_c_operator_report.py`
+    - DONE: pin the Cohort D review-first surface:
+      - `SensibLaw/docs/planning/wikidata_nat_cohort_d_review_lane_20260402.md`
+      - `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_d_review_surface_20260402.json`
+      - `SensibLaw/tests/test_wikidata_nat_cohort_d_review_lane.py`
+    - DONE: add the Cohort D type-probing helper surface:
+      - `SensibLaw/docs/planning/wikidata_nat_cohort_d_type_probing_surface_20260402.md`
+      - `SensibLaw/src/ontology/wikidata_nat_cohort_d_review.py`
+      - `SensibLaw/tests/test_wikidata_nat_cohort_d_type_probing_surface.py`
+    - DONE: pin the Cohort D operator review queue surface:
+      - `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_d_operator_review_surface_20260402.json`
+      - `SensibLaw/tests/test_wikidata_nat_cohort_d_operator_review_surface.py`
+      - `SensibLaw/docs/planning/wikidata_nat_cohort_d_operator_review_cli_20260402.md`
+    - DONE: pin the Cohort E diagnostics/reconciliation scan lane:
+      - `SensibLaw/docs/planning/wikidata_nat_cohort_e_reconciliation_scan_plan_20260403.md`
+      - `SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_e_split_axis_sample_20260403.json`
+    - DONE: add the Cohort E diagnostics helper:
+      - `SensibLaw/src/ontology/wikidata_cohort_e_diagnostics.py`
+      - `SensibLaw/tests/test_wikidata_cohort_e_diagnostics.py`
+      - `SensibLaw/docs/planning/wikidata_nat_cohort_e_diagnostics_cli_20260403.md`
+    - DONE: pin the explicit automation graduation criteria:
+      - `SensibLaw/docs/planning/wikidata_nat_automation_graduation_criteria_20260402.md`
+      - `SensibLaw/tests/fixtures/wikidata/wikidata_nat_automation_graduation_criteria_20260402.json`
+    - DONE: add the fail-closed automation graduation evaluator:
+      - `SensibLaw/src/ontology/wikidata_nat_automation_graduation.py`
+      - `SensibLaw/tests/test_wikidata_nat_automation_graduation.py`
+    - DONE: add the automation graduation report builder:
+      - `build_nat_automation_graduation_report(...)`
+      - `sensiblaw wikidata automation-graduation-eval`
     - DONE: use
       `SensibLaw/docs/planning/wikidata_phi_text_bridge_contract_20260328.md`
       as the boundary note for additive `Phi` bridge work in this lane
@@ -519,9 +627,12 @@
   for `Q10416948` and `Q56404383`
 - note: this coverage lane is now experiencing diminishing returns; only new
   split shapes deserve another packet attachment.
-- note: the combined roadmap/status now treats the company-tranche axis as
-  calibration under the non-company integration posture, not as ongoing
-  expansion.
+  - note: the combined roadmap/status now treats the company-tranche axis as
+    calibration under the non-company integration posture, not as ongoing
+    expansion.
+  - note: the blind migration bot is the P0 moonshot, but the current lane
+    posture stays review-first, split-first, and fail-closed until the
+    tiered automation path proves itself.
 - DONE: add a bounded Cohort C population-scan normalizer over the pinned
   non-GHG / missing `P459` sample fixture so the branch is no longer docs-only:
   `SensibLaw/src/ontology/wikidata.py`
