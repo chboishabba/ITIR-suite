@@ -218,12 +218,66 @@ This was checked again with no change in lane ownership or ordering.
 Repeated checkpoint confirmation:
 
 - no change in worker ownership
+
+## Completion Roadmap
+
+Treat the remaining top-priority work as one bounded program:
+
+1. land the shared evidence-bundle -> promoted-outcome contract
+2. normalize AU onto that contract
+3. normalize GWB onto that contract
+4. land the reusable `promote | abstain | audit` gate above those normalized
+   products
+5. complete the first operator-grade workflow layer over the normalized
+   outputs
+6. finish the remaining similarly prioritized workflow lanes only after the
+   product contract and gate are real
+7. expand the legal moonshot through normalized legal-follow products:
+   authority hints, citations, instruments, supporting legislation, and
+   derived legal graphs over promoted or review-shaped material
+
+Definition of done for this phase:
+
+- AU, GWB, and Wikidata/Nat all fit the same compiler-shaped contract:
+  bounded evidence bundle in -> promoted outcomes out -> derived products
+  after that
+- the reusable promotion gate exists above them
+- graph is explicit derived output rather than hidden truth
+- operators have a real guided inspect -> decide -> record -> follow-up path
+
+## Progress Read
+
+Current read across the broader repo:
+
+- reusable substrate / canonical-surface program: roughly `90-95%`
+- moonshot compiler-contract reframing: roughly `70-80%`
+- full project overall: roughly `45-50%`
+
+That means the foundations are mostly in place, but the compiler-shaped
+moonshot is not yet implemented as the real cross-lane spine.
 - the controlling order remains `Ramanujan`, `Erdos`, `Lorentz`, `Euler`,
   `Ohm`, `Huygens`
 
 ## Current Control Note
 
 This is the controlling moonshot note for lane order.
+
+## Legal Expansion Addendum
+
+The next legal expansion round should be read through this same compiler frame.
+
+That means:
+
+- AU and later legal lanes should emit explicit legal-follow products from
+  bounded evidence and receipts
+- case-follow, supporting-legislation, and instrument surfaces should be
+  derived products, not hidden truth layers
+- anti-panopticon doctrine remains load-bearing as these surfaces get stronger
+
+See:
+
+- `docs/planning/legal_surface_expansion_and_graph_union_20260402.md`
+- `docs/planning/anti_panopticon_red_team_provisions_20260402.md`
 
 Use `docs/planning/judgment_architecture_lane_split_20260402.md` as the
 judgment-support detail note only.

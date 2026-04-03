@@ -5,7 +5,19 @@
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
-- SL-reasoner: no TODOs found.
+- SL-reasoner:
+  - intentionally parked at scaffold level
+  - keep low priority while `SensibLaw` continues to host the substantive
+    deterministic engine work
+  - DONE bounded contract+adapter seam:
+    - `SL-reasoner` now has explicit validated read-only
+      `reasoner_input_artifact` consumption helpers
+    - `SL-reasoner` now has explicit derived reasoning artifact builders
+    - `SensibLaw` AU fact-review bundle now exports one
+      `semantic_context.reasoner_input_artifact`
+  - only revisit if core complexity grows enough that extracting optional
+    interpretive logic becomes materially cleaner than leaving it in
+    `SensibLaw`
 - tircorder-JOBBIE: accessibility TODOs (extend ARIA roles/labels, add `aria-live`, automate audits, expand manual testing).
 - Web transition:
   - treat `itir-svelte/` as the sole intended web interface
@@ -36,6 +48,208 @@
     before treating NotebookLM as a first-class SB usage lane
 - Chatistics: no TODOs found.
 - pyThunderbird: no TODOs found.
+
+## Current P0 control
+- [P0] Business-logic-first suite completion:
+  - DONE control read revision:
+    - normalized adapters are now sufficiently real that the next suite
+      driver is bounded search and uncertainty collapse over existing
+      proving-ground lanes and large corpora
+    - AU, GWB, Brexit, Wikidata/Nat, and large archive/retrieval surfaces now
+      return to priority-driver status as suite quality-pressure lanes
+    - do not expand search by default; derive bounded search or follow only
+      where current unresolved pressure and likely authority yield justify it
+  - DONE Nat live-follow source-order fidelity:
+    - all six bounded Nat categories now execute successfully as live bounded
+      follow runs
+    - `named_query_link` now resolves the split-heavy business-family rows
+      from local packet surfaces before fallback
+    - `named_reference_url` now resolves:
+      - policy-risk population preview from local Nat reference anchors
+      - reconciled non-business variance from pinned Cohort B packet-input
+        row reference URLs
+    - the Nat live executor now exercises preferred local source order across
+      the highest-value campaign categories instead of dropping early to
+      revision-locked fallback
+  - DONE Nat live-follow receipt feedback:
+    - `SensibLaw/src/ontology/wikidata_grounding_depth.py` now accepts
+      bounded Nat live-follow result rows and feeds them back into the
+      grounding summary, evidence report, and priority surface
+    - packets with fetched live receipts now shift from
+      `revision_*_evidence` search pressure to
+      `live_receipts_ready_for_review`
+    - the next bounded action becomes packet review of fetched local/live
+      evidence instead of another follow request
+  - DONE this round:
+    - root bounded union/join seam
+    - `chat-export-structurer` context-envelope convergence helper
+    - further `StatiBaker` compiled-state lineage/context hardening
+    - `pyThunderbird` bounded retrieval/follow normalized artifact
+    - expanded root governance over join + retrieval + archive families
+  - DONE refinement checkpoint:
+    - root join/composition compatibility signals tightened
+    - `StatiBaker` context-envelope export validation tightened
+    - `openrecall` retrieval/follow now has a dedicated producer-owned helper
+      that reuses the existing normalized search-follow contract
+    - `SensibLaw` authority-core correctly stayed no-op
+    - downstream domain-adopter widening correctly stayed on hold
+  - DONE named incompatibility + next-family checkpoint:
+    - root join/composition now emits structured named incompatibility
+      records
+    - `reverse-engineered-chatgpt` now has a producer-owned bounded
+      conversation-list follow helper and normalized `derived_product`
+      wrapper
+    - root governance now covers that new retrieval/follow family
+  - DONE archive-search + policy-summary checkpoint:
+    - `chat-export-structurer` now has a producer-owned archive-search follow
+      helper and normalized `derived_product` wrapper over bounded FTS search
+      results
+    - root join/composition now emits a `policy_summary` over named
+      incompatibility dispositions
+    - root governance now covers the new archive-search family
+  - DONE TIRC chat-history + policy-guidance checkpoint:
+    - `tircorder-JOBBIE` now has a producer-owned chat-history follow helper
+      and normalized `derived_product` wrapper over bounded conversation
+      discovery results
+    - root join/composition now emits per-code `policy_guidance` strings
+      above named incompatibility records and disposition counts
+    - root governance now covers the new TIRC chat-history family
+  - DONE dominant-disposition + ownership-audit checkpoint:
+    - root join/composition now emits `dominant_disposition` above the
+      existing incompatibility policy surfaces
+    - `StatiBaker` correctly stayed no-op because no stricter executable
+      context-envelope or lineage guard was justified
+    - `SensibLaw` correctly stayed no-op because no real authority-core gap
+      appeared
+    - further retrieval/archive family expansion correctly held because no
+      additional distinct producer-owned seam was found without duplication
+    - `tircorder-JOBBIE` chat-history is now treated as an ownership-alignment
+      surface and should not be deepened ahead of the upstream
+      `reverse-engineered-chatgpt` retrieval owner
+  - DONE join severity-rollup checkpoint:
+    - root join/composition now emits `severity_summary` and
+      `highest_severity` above the existing incompatibility policy surfaces
+    - this remains read-only policy metadata, not resolver logic
+  - DONE bounded-search planning checkpoint:
+    - root join/composition now emits a lightweight
+      `compatibility.uncertainty_surface` with:
+      - dominant unresolved-pressure status
+      - priority rank
+      - bounded-search recommendation
+    - root governance now asserts that bounded follow artifacts remain
+      local-first, authority-limited, and explicitly bounded by trigger,
+      scope, and stop semantics
+    - `StatiBaker` drift now emits a read-only `context_dominance` signal so
+      large-corpus state reduction can surface when one thread is collapsing
+      the visible context too aggressively
+    - `pyThunderbird` filtered index-search expansion remains on hold until it
+      has a dependency-light test gate rather than only `py_compile`
+  - DONE GWB/Brexit bounded follow bridge:
+    - `SensibLaw` GWB legal-follow operator view now emits a bounded
+      `follow.control.v1` plane plus actionable queue items over followed
+      legal sources
+    - Brexit-relevant followed sources now route through explicit bounded
+      targets such as `uk_legislation_follow` and `eur_lex_follow`
+    - the queue is now ranked for bounded uncertainty-collapse work using
+      `priority_score`, `priority_rank`, and likely `authority_yield`
+    - this closes the clearest gap relative to AU under the new
+      uncertainty-collapse / bounded-search control read
+  - NEW current bounded widening rule:
+    - global authority-source expansion is now the next contract-first lane,
+      but it stays English-first operationally for now
+    - English is an adapter, not the ontology
+    - translation stays below promotion as bounded alignment/anomaly evidence
+      only
+    - prioritize sources that already publish authoritative English text or
+      stable official parallel translations
+    - high-value early multilingual exceptions:
+      - UN document systems
+      - EUR-Lex
+      - comparable treaty/transnational bodies with stable English views
+    - do not claim continent-complete implementation before the normalized
+      global source contract, bounded search union, and heterogeneous follow
+      contract are in place
+  - DONE Wikidata/Nat grounding priority surface:
+    - `SensibLaw` Wikidata grounding-depth helpers now expose a ranked
+      priority surface over review packets
+    - grounded packets remain visible but unprioritized
+    - incomplete packets now surface:
+      - missing fields
+      - priority score
+      - bounded follow recommendation
+      - recommended follow target of `revision_locked_evidence`
+    - the priority surface now also distinguishes `grounding_gap_class` and
+      `recommended_follow_scope`, so the lane can tell whether the next
+      bounded step is missing revision evidence or a broader packet-level gap
+    - this gives the Nat lane its first explicit "what should we ground
+      next?" surface under the bounded uncertainty-collapse read
+    - Nat cohort-D operator report and control-index surfaces now also expose
+      read-only `workflow_summary` guidance so bounded packet consumers can
+      see whether the next move is unresolved-reference cleanup, queued
+      typing review, or simple record-state capture
+    - a first bounded Nat live-follow campaign is now pinned across several
+      uncertainty classes:
+      - hard grounding packet
+      - split-heavy business family
+      - reconciled non-business variance
+      - policy-risk population preview
+      - missing instance-of typing deficit
+      - unreconciled instance-of split-axis
+    - the next Nat runtime step should execute that manifest, not broaden into
+      open-ended crawl behavior
+    - DONE executable campaign plan:
+      - `sensiblaw wikidata nat-live-follow-campaign` now emits one bounded
+        per-target execution plan over that manifest
+    - DONE first bounded live execution:
+      - `sensiblaw wikidata nat-live-follow-execute` now runs the manifest
+        against live Wikidata within the existing hop/source bounds
+      - first real rows exercised:
+        - `hard_grounding_packet:1` fetched revision-locked evidence for
+          `Q10403939`
+        - `split_heavy_business_family:1` fell through the unsupported
+          query-link source class and fetched revision-locked evidence for
+          `Q738421`
+  - DONE AU legal-follow operator bridge:
+    - `SensibLaw` AU legal-follow operator view now emits a bounded
+      `follow.control.v1` plane plus queue items over derived follow targets
+    - cross-jurisdiction targets such as the UK/British follow target are now
+      surfaced as actionable bounded follow items rather than graph-only
+      metadata
+    - AU authority-follow queueing is now also ranked for bounded
+      uncertainty-collapse work using `priority_score`, `priority_rank`, and
+      likely `authority_yield`
+    - shared fact-review bundles now also expose read-only `workflow_summary`
+      guidance so AU packet consumers can see the recommended next operator
+      view without opening the full workbench
+    - this extends AU beyond authority-follow into explicit legal-follow
+      operator guidance under the same bounded uncertainty-collapse read
+  - next highest-leverage order:
+    - AU moonshot lift:
+      deeper legal-follow, cross-jurisdiction, promoted-outcome quality, and
+      uncertainty-collapse planning
+    - GWB and Brexit moonshot lift:
+      bounded legal-union, UK/EU follow, and cohort-quality pressure
+      - GWB review payloads now also expose read-only `workflow_summary`
+        guidance so bounded review consumers can see the next recommended
+        operator view directly on the payload
+    - Wikidata/Nat moonshot lift:
+      migration/split/hold quality and bounded grounding pressure
+    - large-corpus suite pressure:
+      Thunderbird and other archives as scale tests for bounded search,
+      retrieval, and continuity quality
+      - DONE bounded archive-search pressure cut:
+        - `chat-export-structurer` archive search now exposes
+          `search_bounds_status` plus a bounded `recommended_next_bound`
+        - local archive search can now distinguish between already-reviewable
+          result sets and ones that need a narrower local query
+      - DONE cross-lane uncertainty governance cut:
+        - root governance now asserts AU and GWB ranked follow summaries,
+          Wikidata/Nat grounding-gap triage, and archive-search bounded-search
+          signals
+    - keep `tircorder-JOBBIE` chat-history as an ownership/alignment watcher
+      unless it grows truly distinct downstream semantics
+    - further root join/composition refinement only if a real incompatibility
+      policy gap appears beyond the current summaries
 
 ## Active TODOs
 ## Priority legend
@@ -90,6 +304,520 @@
       new lane evidence materially changes ownership, order, or contract scope
   - contract note:
     `docs/planning/moonshot_compiler_normalization_reconsideration_20260402.md`
+  - completion roadmap:
+    - land the shared evidence-bundle -> promoted-outcome contract as the
+      real cross-lane spine
+    - normalize AU onto that contract
+    - normalize GWB onto that contract
+    - land the reusable `promote | abstain | audit` gate above those
+      normalized products
+    - complete the first operator-grade workflow layer over the normalized
+      outputs
+    - then finish the remaining similarly prioritized workflow lanes:
+      guided next-action UX, annotation / QA workbench, direct feedback
+      receipt capture, reviewer-packet / citation-follow completion,
+      personal escalation flow, and remaining capture/live-continuity/SB
+      ergonomics
+  - progress read:
+    - reusable substrate / canonical-surface program: roughly `90-95%`
+    - moonshot compiler-contract reframing: roughly `70-80%`
+    - full project overall: roughly `45-50%`
+  - completion condition:
+    - AU, GWB, and Wikidata/Nat all fit the same compiler-shaped contract:
+      bounded evidence bundle in -> promoted outcomes out -> derived products
+      after that
+    - reusable promotion gate exists above those products
+    - graph remains explicitly derived
+    - operators have a real guided inspect -> decide -> record -> follow-up
+      workflow over those outputs
+  - first implementation slice:
+    - DONE: landed one tiny shared `compiler_contract` payload with:
+      - `evidence_bundle`
+      - `promoted_outcomes`
+      - `derived_products`
+    - DONE: first adopters:
+      - AU public handoff
+      - GWB public handoff
+      - Wikidata migration pack
+    - keep lane semantics distinct; normalize product shape only
+  - current promoted lane:
+    - AU product normalization
+    - DONE first bounded cut:
+      - emit the shared `compiler_contract` from the AU fact-review bundle
+      - keep it inside the bundle semantic context
+  - current AU read:
+    - AU public handoff and AU fact-review bundle now share the compiler
+      summary shape
+  - next promoted lane:
+    - GWB product normalization
+    - DONE first bounded cut:
+      - emit `compiler_contract` from GWB public review
+      - emit `compiler_contract` from GWB broader review
+    - current GWB read:
+      - GWB public handoff, GWB public review, and GWB broader review now
+        share the compiler summary shape
+  - current promoted lane:
+    - reusable `promote | abstain | audit` gate
+    - DONE first bounded cut:
+      - add one shared gate record above normalized products
+      - adopt it first in AU, GWB, and Wikidata normalized outputs
+    - landed adopters:
+      - AU public handoff
+      - AU fact-review bundle
+      - GWB public handoff
+      - GWB public review
+      - GWB broader review
+      - Wikidata migration pack
+    - validation:
+      - `28 passed`
+      - touched modules `py_compile` clean
+  - next pinned lane:
+    - first operator-grade workflow layer over normalized outputs
+    - DONE first bounded cut:
+      - workbench now emits `semantic_context` and one derived
+        `workflow_summary`
+      - fact-review route now shows one explicit inspect -> decide -> record
+        -> follow-up card over the persisted run
+    - validation:
+      - backend focused gate: `30 passed`
+      - `read_model.py` `py_compile` clean
+      - repo-wide `npm run check` still blocked by unrelated pre-existing
+        errors in `graphs/wiki-timeline-aoo-all`
+  - next pinned lane:
+    - first bounded annotation / QA workbench slice over the existing
+      fact-review/read-model/operator-view spine
+  - current bounded legal/UI round:
+    - deepen AU supporting-legislation / cited-instrument attachment
+      provenance on top of the derived legal-follow graph
+    - surface the AU legal-follow graph in the fact-review operator workflow
+      as a read-only derived inspection surface
+    - keep the graph explicitly derived, optional, challengeable, and
+      non-authoritative
+    - DONE bounded cut:
+      - legal-follow graph summary now reports supporting receipt counts and
+        supporting authority-kind counts
+      - AU authority-follow payloads now also expose bounded
+        `jurisdiction_hint_counts` and `instrument_kind_counts`
+      - AU authority-follow payloads now also expose bounded
+        `ref_kind_counts`
+      - AU authority-follow payloads now also expose bounded
+        `citation_court_hint_counts` and `citation_year_counts`
+      - AU legal-follow graph now preserves those same jurisdiction /
+        instrument hints on supporting-legislation and cited-instrument
+        nodes and edges, and reports bounded summary counts for them
+      - AU legal-follow graph now also reports bounded
+        `reference_kind_counts`, `reference_class_counts`, `ref_kind_counts`,
+        `edge_kind_counts`, `edge_reference_class_counts`, and
+        `edge_ref_kind_counts`
+      - AU legal-follow graph now also reports bounded
+        `citation_court_hint_counts` and `citation_year_counts`
+      - fact-review workbench now surfaces one read-only derived legal-follow
+        graph pane from `semantic_context.legal_follow_graph`, including:
+        - summary card
+        - authority/receipt list
+        - ref/citation list
+        - typed-link list
+        - bounded distribution grids when the derived graph exposes them
+    - validation:
+      - focused AU/legal/compiler gate: `21 passed`
+      - touched Python modules `py_compile` clean
+      - `itir-svelte` `npm run check` still fails only on pre-existing
+        `graphs/wiki-timeline-aoo-all/+page.svelte` errors
+  - legal moonshot progress/full-flow checkpoint:
+    - current rough read:
+      - recent legal/compiler program: roughly `70-80%`
+      - broader legal-moonshot preparation: roughly `35-45%`
+      - full end-state moonshot: roughly `15-25%`
+    - full-flow target:
+      - evidence intake
+      - canonicalization
+      - typed extraction
+      - bounded follow planning/execution
+      - promote / abstain / hold
+      - derived graph construction
+      - graph union across jurisdictions/languages/time
+      - commonality / disjointness / basin / contradiction analysis
+      - operator inspection
+      - bounded product emission under anti-panopticon governance
+    - control note:
+      - keep this flow compiler-shaped and review-first
+      - do not mistake current AU/GWB bounded follow surfaces for global
+        legal-union completeness
+  - suite smart-journal moonshot checkpoint:
+    - root correction:
+      - the moonshot is broader than `SensibLaw`
+      - the original arc is capture -> archive -> canonicalize -> compile
+        state -> review/promote -> derive -> union -> inspect
+    - active suite roles:
+      - `tircorder-JOBBIE` / `WhisperX-WebUI`: capture + transcription intake
+      - chat/archive tools: canonical local memory/archive substrate
+      - `StatiBaker`: read-only state compilation and continuity
+      - `SensibLaw`: deterministic review, provenance, promotion, derived
+        graph/report products
+      - `itir-svelte`: operator-facing read-only/review-first surfaces
+    - suite-wide constraints:
+      - no hidden rewrite
+      - no authority crossing without promotion receipts
+      - no silent truth promotion from derived layers
+      - no context-free consequential rendering
+      - no accidental second canonical reducer
+      - no panopticon drift
+    - suite-wide invariants:
+      - provenance
+      - expansion
+      - context
+      - authority
+      - replay
+      - derived-only
+      - append-only state
+      - anti-panopticon
+    - suite-level preconditions:
+      - source artifacts are addressable
+      - provenance/identity are sufficient to anchor the flow
+      - context envelope exists where needed
+      - authority class of writes is known
+    - suite-level postconditions:
+      - outputs are replayable and inspectable
+      - canonical writes have promotion receipts
+      - derived outputs are explicitly marked
+      - unresolved pressure remains visible
+      - handoff preserves IDs, lineage, and versioned assumptions
+    - control note:
+      - keep future legal, state, capture, and archive work subordinate to
+        this broader smart-journal/compiler frame
+  - suite P0 normalized-concepts checkpoint:
+    - current plans are stepping stones, not the destination
+    - the suite should converge on a small shared concept set:
+      - source artifact
+      - provenance anchor
+      - context envelope
+      - canonical identity
+      - observed signal
+      - compiled state
+      - reviewable claim
+      - promoted record
+      - derived product
+      - follow obligation
+      - abstention / hold / unresolved pressure
+      - operator inspection surface
+      - bounded union surface
+    - submodule-local plans should be judged against those normalized
+      concepts rather than local metaphors
+    - active stepping-stone families:
+      - capture/intake/transcription adapters
+      - archive/acquisition/retrieval adapters
+      - read-only state reducers
+      - deterministic review/promotion adopters
+      - operator/integration surfaces
+      - bounded union/comparison proving grounds
+    - new hard suite control:
+      - no follow expansion without an explicit bounded trigger
+      - no accidental second canonical reducer in side systems
+      - no silent drift from local product shape to suite-level authority
+    - controlling note:
+      - `docs/planning/suite_p0_moonshot_normalized_concepts_20260402.md`
+    - completion roadmap:
+      - `docs/planning/suite_p0_completion_roadmap_20260402.md`
+    - worker split:
+      - `Huygens`: state reducer adoption
+      - `Dirac`: operator/integration adoption
+      - `Dalton`: capture/archive contract adoption
+      - `Meitner`: retrieval/research adapter posture
+      - `Mill`: review/promotion adoption
+      - `Epicurus`: contract validation and governance tests
+      - `Ohm`: bounded domain-adopter parity
+    - promotion order:
+      - `Huygens`
+      - `Dirac`
+      - `Dalton`
+      - `Meitner`
+      - `Mill`
+      - `Epicurus`
+      - `Ohm`
+    - control correction:
+      - do not prioritize older domain-specific proving grounds simply because
+        they already have active lanes
+      - AU/GWB/Wikidata/Nat/Brexit/related lanes remain adopters and proving
+        grounds, but suite priority is driven by missing product-stack
+        segments in the correct owning repos
+    - DONE first executable slice:
+      - root schema:
+        - `schemas/itir.normalized.artifact.v1.schema.json`
+      - minimal fixture:
+        - `examples/itir.normalized_artifact.minimal.json`
+      - focused schema gate:
+        - `tests/test_suite_normalized_artifact_schema.py`
+      - first machine-readable suite guarantees:
+        - promoted records require promoted-truth authority and a receipt
+        - derived products stay explicitly derived
+        - follow obligations require non-`none` unresolved pressure
+      - validation:
+        - `.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact_schema.py`
+          -> `3 passed`
+        - fixture validated against the root schema
+        - touched test module `py_compile` clean
+    - DONE first bounded adopter:
+      - `SensibLaw` AU fact-review bundle now emits
+        `semantic_context.suite_normalized_artifact`
+      - the emitted payload validates against the root
+        `itir.normalized.artifact.v1` schema
+      - the adopter is derived from the existing `compiler_contract` and
+        `promotion_gate` surfaces, not from a new reducer
+      - validation:
+        - from `SensibLaw`:
+          `../.venv/bin/python -m pytest -q tests/test_au_fact_review_bundle.py`
+          -> `6 passed`
+    - DONE first bounded state adopter:
+      - `StatiBaker` bundle export now emits
+        `suite_normalized_artifact.json` alongside `state.json`
+      - that payload is a `compiled_state` artifact aligned to the root
+        `itir.normalized.artifact.v1` schema
+      - the adopter is built from the existing `state.json` output rather than
+        a second state reducer
+      - validation:
+        - from repo root:
+          `.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact_schema.py`
+          -> `3 passed`
+        - from `StatiBaker`:
+          `../.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact.py tests/test_bundle.py`
+          -> `4 passed`
+    - DONE first bounded operator adopter:
+      - `itir-svelte` now exposes `/graphs/normalized-artifacts`
+      - that route reads normalized artifacts directly from current producing
+        repos:
+        - `SensibLaw` review/promotion artifact
+        - `StatiBaker` compiled-state artifact
+      - it stays read-only and does not reinterpret compiled state as review
+        output or review output as state
+      - validation:
+        - from `itir-svelte`:
+          `npm run check`
+          -> still fails only on unrelated pre-existing
+             `graphs/wiki-timeline-aoo-all/+page.svelte` errors
+    - DONE first bounded capture/archive adopter:
+      - `chat-export-structurer` ingest now supports
+        `--normalized-artifact-out`
+      - that sidecar is a producer-owned archive/source artifact aligned to
+        the root `itir.normalized.artifact.v1` schema
+      - it describes the archive batch without replacing the canonical SQLite
+        archive
+      - validation:
+        - from `chat-export-structurer`:
+          `../.venv/bin/python -m pytest -q tests/test_ingest.py tests/test_cli.py tests/test_suite_normalized_artifact.py`
+          -> `5 passed`
+    - DONE second bounded capture/archive adopter:
+      - `tircorder-JOBBIE` now has
+        `tircorder/normalized_source_sidecar.py`
+      - it emits one producer-owned `source_artifact` sidecar aligned to the
+        root `itir.normalized.artifact.v1` schema
+      - manual smoke:
+        - `python tircorder/normalized_source_sidecar.py --artifact-id smoke.capture.1 --source-path README.md --output /tmp/tircorder-normalized-sidecar.json`
+          -> emitted valid-looking normalized sidecar JSON
+    - DONE first bounded retrieval/research posture adopter:
+      - `notebooklm-py` now exposes `notebooklm research follow`
+      - it emits one bounded non-authoritative derived follow artifact over
+        completed research output
+      - validation:
+        - from `notebooklm-py`:
+          `PYTHONPATH=src ../.venv/bin/python -m pytest -q tests/unit/cli/test_helpers.py`
+          -> `66 passed`
+        - `../.venv/bin/python -m py_compile src/notebooklm/cli/helpers.py src/notebooklm/cli/research.py`
+          -> passed
+    - DONE widened operator/integration adoption:
+      - `itir-svelte` normalized-artifacts route now consumes, by explicit
+        producer-owned paths:
+        - `chat-export-structurer` archive/source artifacts
+        - `tircorder-JOBBIE` capture/source artifacts
+        - `notebooklm-py` retrieval/research normalized artifacts
+        - `reverse-engineered-chatgpt` live-conversation/source artifacts
+      - it keeps those families role-correct and read-only
+      - validation:
+        - root:
+          `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py tests/test_suite_normalized_artifact_schema.py`
+          -> `4 passed`
+        - `itir-svelte`:
+          `npm run check`
+          -> still fails only on unrelated pre-existing
+             `graphs/wiki-timeline-aoo-all/+page.svelte` errors
+    - DONE retrieval normalized wrapper:
+      - `notebooklm-py` research follow now has a producer-owned
+        `itir.normalized.artifact.v1` wrapper for read-only operator
+        consumption
+      - validation:
+        - from `notebooklm-py`:
+          `PYTHONPATH=src ../.venv/bin/python -m pytest -q tests/unit/cli/test_helpers.py`
+          -> `67 passed`
+        - root:
+          `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py tests/test_suite_normalized_artifact_schema.py`
+          -> `4 passed`
+    - DONE live acquisition/source wrapper:
+      - `reverse-engineered-chatgpt` download flow now supports a
+        producer-owned `itir.normalized.artifact.v1` conversation/source
+        artifact for a single explicit download target
+      - validation:
+        - from `reverse-engineered-chatgpt`:
+          `python -m pytest -q tests/test_storage.py tests/test_cli.py`
+          -> `23 passed`
+        - root:
+          `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py tests/test_suite_normalized_artifact_schema.py`
+          -> `4 passed`
+    - next honest stack move:
+      - widen operator/integration consumption to one more real producer
+        family beyond state/review/archive/capture/retrieval/live-acquisition
+      - then keep tightening cross-family governance tests and producer-owned
+        context-envelope posture
+  - next bounded legal parity cut:
+    - DONE: GWB public-review and broader-review products now emit one
+      derived `legal_follow_graph`
+    - DONE: GWB public-review and broader-review summaries now expose that
+      graph via a bounded "Derived Legal-Linkage Graph" section
+    - DONE: GWB graph summaries now expose bounded source-kind, source-family,
+      linkage-kind, review-status, and support-kind distributions so the
+      legal-linkage surface is inspectable without adding a new UI lane
+    - DONE: GWB review summaries now also expose bounded
+      `Graph inspection` and `Sample typed links` sections so the
+      legal-linkage graph is more inspectable without inventing a separate UI
+    - DONE: the existing fact-review legal-follow pane is typed to render
+      those bounded graph distributions when present, preserving the same
+      derived-only operator posture across AU and GWB legal graph surfaces
+    - DONE: GWB compiler contracts now list `legal_linkage_graph` as an
+      explicit derived product for those review outputs
+    - DONE: GWB review payloads now also expose one bounded JSON
+      `operator_views.legal_follow_graph` surface with summary,
+      highlight-node, and sample-edge inspection data
+    - DONE: the fact-review workbench now renders that same bounded
+      `operator_views.legal_follow_graph` block for GWB workflows in a
+      read-only derived-only posture
+    - DONE: GWB legal-linkage graphs now add bounded followed-source nodes
+      when source-review receipts already carry HTTP links
+    - keep the GWB graph honest:
+      - derived-only
+      - challengeable
+      - product-shape parity only, not AU-semantic parity
+    - validation:
+      - focused AU+GWB/compiler gate: `25 passed`
+      - touched modules `py_compile` clean
+  - legal moonshot is now normal program state:
+    - treat AU legal-follow, GWB legal-linkage/follow, and later
+      international-law union surfaces as standard compiler-shaped lanes, not
+      speculative side work
+    - next bounded AU cross-jurisdiction requirement:
+      - permit one explicit AU -> UK/British follow hop where current
+        authority receipts, refs, or citation detail already point there
+      - keep it provenance-backed, derived-only, and review-first
+      - do not widen into general common-law ancestry crawl
+    - next bounded GWB expansion candidates:
+      - previous US presidents with strong executive-action / litigation /
+        institutional-response legal pressure
+      - controversial UK Brexit-era politicians where UK/EU legal interaction
+        creates strong legal-linkage and supporting-instrument follow pressure
+    - named proving-ground rule:
+      - treat Brexit as a first-class bounded legal-union proving ground, not
+        only as a subject-cohort example
+      - use it to test UK domestic law / EU-law interaction surfaces through
+        bounded reviewable products
+      - keep it anti-panopticon-safe and explicitly non-surveillance
+    - DONE bounded cut:
+      - AU legal-follow now derives one explicit UK/British follow target when
+        current receipt/ref/citation evidence already points there
+      - GWB legal-linkage now classifies followed-source legal URLs into
+        bounded cite classes and reports Brexit-related follow counts where
+        source text/URLs already carry that pressure
+      - GWB legal-linkage now also seeds followed-source receipts from the
+        canonical foundation-source catalog when a review row already names a
+        known UK/EU legal source
+    - keep those cohorts bounded and review-first
+  - legal moonshot expansion:
+    - treat AU, GWB, and later international-law surfaces as compiler-shaped
+      legal products too:
+      bounded evidence in -> promoted outcomes out -> derived legal
+      packet/report/graph surfaces after that
+    - keep anti-panopticon doctrine explicit as a load-bearing boundary for
+      legal/global-law work, not an implied one
+    - next bounded AU legal slice:
+      - derive one AU `legal_follow_graph` from existing authority receipts,
+        legal refs, and citation candidates
+      - keep it challengeable and explicitly non-canonical
+    - planning notes:
+      - `docs/planning/legal_moonshot_au_follow_graph_and_panopticon_boundary_20260402.md`
+      - `SensibLaw/docs/red_team_anti_panopticon.md`
+  - legal moonshot expansion:
+    - keep AU legal-follow and later legal graph work under the same
+      compiler-shaped rule:
+      bounded evidence in -> promoted outcomes out -> derived legal-follow /
+      graph products after that
+    - next bounded legal slice:
+      - derive one explicit AU `legal_follow_graph` from authority receipts,
+        legal refs, candidate citations, and follow-needed conjectures
+      - keep it derived, non-predictive, and non-authoritative
+    - anti-panopticon governance is load-bearing here:
+      - no judge/official/person scoring
+      - no silent cross-context identity merge
+      - no graph edge treated as truth just because it exists
+    - planning notes:
+      - `docs/planning/legal_surface_expansion_and_graph_union_20260402.md`
+      - `docs/planning/anti_panopticon_red_team_provisions_20260402.md`
+  - revised legal-moonshot read:
+    - AU/legal expansion is now the next high-signal legal adopter lane
+    - prioritize:
+      - case follow and authority follow
+  - supporting legislation / cited instrument understanding
+  - derived legal-follow graph surfaces
+  - explicit anti-panopticon / red-team hardening
+  - maintain `supporting_legislation_role_counts` so reviewers know which acts are enabling, constraining, procedural, delegated, or amending
+    - keep the same compiler-shaped rule:
+      - evidence bundle in
+      - promoted outcomes or abstentions out
+      - derived packet/report/graph surfaces after that
+    - do not widen into predictive legal decisionmaking, person scoring, or
+      hidden identity stitching
+  - immediate bounded slice:
+    - add one AU derived legal-follow graph from existing authority receipts,
+      legal refs, and citation hints inside the fact-review bundle semantic
+      context
+    - treat it as a derived product only
+    - DONE:
+      - `SensibLaw/src/policy/legal_follow_graph.py`
+      - `semantic_context.legal_follow_graph`
+      - `operator_views.legal_follow_graph.summary`
+      - AU compiler contract now records `legal_follow_graph` as a derived
+        product
+      - AU authority receipts now carry structured:
+        - `legal_ref_details`
+        - `candidate_citation_details`
+        - legal-ref class counts
+      - legal-follow graph now distinguishes:
+        - `case_ref`
+        - `supporting_legislation`
+        - `cited_instrument`
+      - authority-follow operator packets now expose:
+        - reference-class counts
+        - structured legal-ref detail
+        - structured citation detail
+    - validation:
+      - focused gate: `19 passed`
+      - touched modules `py_compile` clean
+  - anti-panopticon hardening:
+    - make anti-panopticon and red-team checks explicit for the legal moonshot
+    - note:
+      `SensibLaw/docs/red_team_anti_panopticon.md`
+    - legal moonshot note:
+      `docs/planning/legal_moonshot_au_follow_graph_and_panopticon_boundary_20260402.md`
+  - next legal-expansion lane:
+    - deepen AU cited-instrument / supporting-legislation attachment surfaces
+      on top of the derived legal-follow graph
+    - DONE bounded provenance cut:
+      - legal-follow graph now merges richer receipt/conjecture metadata into
+        shared nodes rather than keeping only the first sparse version
+      - supporting-legislation and cited-instrument nodes/edges now retain
+        structured ref detail where available
+      - citation and authority-receipt nodes now retain structured citation,
+        paragraph, and linkage provenance where available
+      - attachment-bearing graph nodes now also accumulate bounded
+        supporting event and supporting receipt provenance where available
+    - validation:
+      - focused AU/legal/compiler gate: `21 passed`
+    - only then consider surfacing that graph directly in the operator UI
 
 - [P-1] Cross-lane reusable substrate completion gate:
   - treat the next execution rounds as substrate-first, not lane-local polish
@@ -3319,3 +4047,14 @@
 ## Blockers / constraints
 - No explicit blockers listed in submodule TODO files.
 - reverse-engineered-chatgpt: send-message testing is stalled due to bot detection (noted in the ITIR-suite README), which may block any tasks that require message sending.
+- Product-stack-first next lanes:
+  - business-logic hardening over producer families, not more `itir-svelte`
+  - next likely producer targets after the current landed set:
+    `pyThunderbird` and broader `openrecall` family follow-through
+- Wikidata/Nat live-follow current read:
+  - all six bounded 2026-04-03 campaign categories now execute successfully
+    through `sensiblaw wikidata nat-live-follow-execute`
+  - `named_query_link` and `named_reference_url` are now implemented
+  - next real Nat blocker is local reference coverage for
+    `reconciled_non_business_variance`, where rows still fall back to
+    revision-locked fetch because no concrete local reference URL is pinned

@@ -156,6 +156,96 @@ export interface FactReviewOperatorView {
   available?: boolean;
 }
 
+export interface FactReviewPromotionGate {
+  schema_version?: string;
+  lane?: string;
+  product_ref?: string;
+  decision?: 'promote' | 'abstain' | 'audit' | string;
+  reason?: string;
+  evidence?: {
+    promoted_count?: number;
+    review_count?: number;
+    abstained_count?: number;
+    product_roles?: string[];
+  };
+}
+
+export interface FactReviewLegalFollowGraphSummary {
+  node_count?: number;
+  edge_count?: number;
+  event_count?: number;
+  authority_receipt_count?: number;
+  case_ref_count?: number;
+  supporting_legislation_count?: number;
+  cited_instrument_count?: number;
+  supporting_receipt_count?: number;
+  supporting_authority_kind_counts?: Record<string, number>;
+  source_kind_counts?: Record<string, number>;
+  source_family_label_counts?: Record<string, number>;
+  linkage_kind_counts?: Record<string, number>;
+  review_status_label_counts?: Record<string, number>;
+  support_kind_label_counts?: Record<string, number>;
+}
+
+export interface FactReviewLegalFollowGraphNode {
+  id: string;
+  kind: string;
+  label: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface FactReviewLegalFollowGraphEdge {
+  source: string;
+  target: string;
+  kind: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface FactReviewLegalFollowGraphOperatorHighlightNode {
+  id: string;
+  kind: string;
+  label: string;
+}
+
+export interface FactReviewLegalFollowGraphOperatorSampleEdge {
+  source: string;
+  target: string;
+  kind: string;
+}
+
+export interface FactReviewOperatorLegalFollowGraphView {
+  available: boolean;
+  summary?: Record<string, number>;
+  highlight_nodes?: FactReviewLegalFollowGraphOperatorHighlightNode[];
+  sample_edges?: FactReviewLegalFollowGraphOperatorSampleEdge[];
+}
+
+export interface FactReviewLegalFollowGraph {
+  version?: string;
+  derived_only?: boolean;
+  challengeable?: boolean;
+  summary?: FactReviewLegalFollowGraphSummary;
+  nodes?: FactReviewLegalFollowGraphNode[];
+  edges?: FactReviewLegalFollowGraphEdge[];
+}
+
+export interface FactReviewWorkflowSummary {
+  stage: 'inspect' | 'decide' | 'record' | 'follow_up' | string;
+  title: string;
+  recommended_view: string;
+  recommended_filter?: string | null;
+  focus_fact_id?: string | null;
+  reason: string;
+  counts: {
+    review_queue_count: number;
+    contested_followup_count: number;
+    authority_follow_queue_count: number;
+    undated_event_count: number;
+    no_event_fact_count: number;
+  };
+  promotion_gate?: FactReviewPromotionGate | null;
+}
+
 export interface FactReviewWorkbench {
   run: FactReviewRun;
   summary: Record<string, number>;
@@ -164,6 +254,8 @@ export interface FactReviewWorkbench {
   events: FactReviewEvent[];
   statements: FactReviewStatement[];
   excerpts: FactReviewExcerpt[];
+  semantic_context?: Record<string, unknown>;
+  workflow_summary?: FactReviewWorkflowSummary;
   review_queue: FactReviewViewItem[];
   chronology_summary: Record<string, number>;
   chronology_groups: Record<string, FactReviewChronologyRow[]>;
@@ -193,6 +285,7 @@ export interface FactReviewWorkbench {
     selected_fact_id?: string | null;
     default_view: string;
   };
+  legal_follow_graph?: FactReviewLegalFollowGraph;
 }
 
 export interface FactReviewStoryCheck {
@@ -269,7 +362,14 @@ async function runQuery<T>(commandArgs: string[], field: string): Promise<T> {
 }
 
 export async function loadFactReviewWorkbench(selector: FactReviewSelector): Promise<FactReviewWorkbench> {
-  return await runQuery<FactReviewWorkbench>([...selectorArgs(selector), 'workbench'], 'workbench');
+  const workbench = await runQuery<FactReviewWorkbench>([...selectorArgs(selector), 'workbench'], 'workbench');
+  const semanticContext = workbench.semantic_context ?? {};
+  return {
+    ...workbench,
+    legal_follow_graph: (semanticContext as Record<string, unknown>).legal_follow_graph as
+      | FactReviewLegalFollowGraph
+      | undefined,
+  };
 }
 
 export async function loadFactReviewAcceptance(

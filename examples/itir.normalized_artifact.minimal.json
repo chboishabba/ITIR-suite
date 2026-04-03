@@ -1,0 +1,37 @@
+{
+  "schema_version": "itir.normalized.artifact.v1",
+  "artifact_role": "derived_product",
+  "artifact_id": "fact-review:au:legal-follow-graph:demo",
+  "canonical_identity": {
+    "identity_class": "fact_review_run",
+    "identity_key": "au-demo-run-001"
+  },
+  "provenance_anchor": {
+    "source_system": "SensibLaw",
+    "source_artifact_id": "au-fact-review-bundle-001",
+    "anchor_kind": "bundle_id",
+    "anchor_ref": "semantic_context.legal_follow_graph"
+  },
+  "context_envelope_ref": {
+    "envelope_id": "fact-review-context-001",
+    "envelope_kind": "fact_review_context"
+  },
+  "authority": {
+    "authority_class": "derived_inspection",
+    "derived": true,
+    "promotion_receipt_ref": null
+  },
+  "lineage": {
+    "upstream_artifact_ids": [
+      "au-fact-review-bundle-001",
+      "au-authority-receipt-017"
+    ],
+    "profile_version": "demo/v1"
+  },
+  "follow_obligation": {
+    "trigger": "authority receipt points to supporting legislation not yet resolved",
+    "scope": "one bounded supporting-legislation hop",
+    "stop_condition": "stop after one justified legislation attachment or explicit abstain"
+  },
+  "unresolved_pressure_status": "follow_needed"
+}

@@ -27,6 +27,252 @@ Use the root repo when you want to:
 This root repo is not a single deployable app. It is the shared workspace and
 control surface for multiple related tools.
 
+## Current Moonshot Direction
+
+The current suite-level direction is compiler-shaped.
+
+The current lane plans are stepping stones, not the top-level destination.
+
+The original arc was closer to a smart journal than to a single legal engine:
+
+- capture difficult reality
+- preserve it without losing provenance
+- compile usable state from it
+- review and promote only what earns authority
+- derive packets, graphs, and operator surfaces above that
+- compare and union bounded products across domains
+
+The legal/compiler work is one major proving ground inside that broader arc,
+not the whole thing.
+
+The new P0 read is that the suite should converge on a small normalized set
+of concepts:
+
+- source artifact
+- provenance anchor
+- context envelope
+- canonical identity
+- observed signal
+- compiled state
+- reviewable claim
+- promoted record
+- derived product
+- follow obligation
+- abstention / hold / unresolved pressure
+- operator inspection surface
+- bounded union surface
+
+The current cross-lane direction is:
+
+- bounded evidence bundle in
+- promoted outcomes or abstentions out
+- derived packet, report, and graph products after that
+
+At the suite level that means:
+
+- `tircorder-JOBBIE` and `WhisperX-WebUI` handle capture/transcription intake
+- `SimulStreaming`, `whisper_streaming`, and `doctr` are additional
+  evidence-shaping adapters where they stay bounded and provenance-preserving
+- `chat-export-structurer` and related chat/archive tools handle canonical
+  local memory/archive substrate
+- `reverse-engineered-chatgpt`, `openrecall`, `notebooklm-py`, and
+  `pyThunderbird` are bounded acquisition/retrieval/archive adapters
+- `StatiBaker` handles read-only state compilation and continuity
+- `SensibLaw` currently carries the substantive deterministic review,
+  provenance, canonical reduction, promotion, and bounded graph/report work
+- `SL-reasoner` remains a cordoned optional interpretive layer and stays low
+  priority until the core engine is stable enough that a split is actually
+  useful
+- the current boundary seam is contract-shaped only:
+  producer-owned repos may export read-only `reasoner_input_artifact`
+  payloads, but substantive deterministic logic still stays in the owner repo
+- `itir-mcp`, `itir-ribbon`, and `moltbook-api-client` are integration and
+  operator-adjacent surfaces
+- `itir-svelte` handles operator-facing read-only and review-first surfaces
+
+That same normalization rule is now explicit across the main `SensibLaw` lanes:
+
+- AU legal/hearing material
+- GWB public-source linkage material
+- Wikidata migration/review material
+
+The broader legal moonshot is larger than the current bounded slices. The long
+direction is toward cross-system legal understanding and comparison, but the
+repo only advances that through bounded evidence, explicit promotion, and
+derived challengeable products.
+
+The next control read above the normalized-adapter phase is bounded search and
+uncertainty collapse:
+
+- inspect where the current graph, state, or product surface is weakest
+- prefer local context first
+- derive bounded search or follow only when current unresolved pressure
+  justifies it
+- target the next search toward the highest-authority and highest-yield source
+  class likely to collapse uncertainty fastest
+- reintegrate the result through the same promotion and derived-product rules
+
+That means AU, GWB, Brexit, Wikidata/Nat, and large-corpus archive/retrieval
+surfaces become priority drivers again, not because the normalized stack was
+wrong, but because it is now real enough to pressure-test moonshot capability
+at scale.
+
+## Global Authority Expansion Control
+
+The next widening step is global legal/source coverage, but it must remain
+contract-first and bounded.
+
+Current control read:
+
+- English-first is the operational default for now.
+- English is an adapter, not the ontology.
+- Translation is allowed only as bounded alignment evidence below promotion.
+- Machine translation may propose alignment or flag disagreement, but it does
+  not create truth and it does not normalize canonical structure.
+
+That means the immediate global-source program should prefer:
+
+- sources with authoritative English text already available
+- sources with stable parallel English editions or reliable official
+  translations
+- deterministic identifiers, structured retrieval, and clear provenance
+
+High-value multilingual exceptions are allowed when they are known to be well
+translated or stably parallelized, for example:
+
+- UN documents and related UN library/document systems
+- EUR-Lex and other EU official multilingual legal surfaces
+- comparable treaty or transnational bodies with stable language variants
+
+Lower-confidence multilingual surfaces should stay out of the main proof path
+until they can enter through the same normalized contract with explicit
+translation/alignment uncertainty.
+
+Two named near-term proving grounds now sit inside that broader legal lane:
+
+- AU legal follow, including one bounded AU -> UK/British follow hop when
+  existing evidence already points there
+- GWB legal linkage, including Brexit-era UK/EU legal-interaction cohorts and
+  other bounded public-law cohorts where legal consequences are legible
+
+Those proving grounds are normal program work now, not speculative extras.
+
+Current rough progress read:
+
+- capture / archive / canonical-memory substrate: roughly `55-65%`
+- deterministic review / state / bounded operator surfaces: roughly `45-60%`
+- recent legal/compiler program: roughly `70-80%`
+- broader legal-moonshot preparation: roughly `35-45%`
+- full smart-journal-to-legal-union moonshot: roughly `20-30%`
+
+That means the suite is well past pure scaffolding, but still far from the
+full end-state compiler of difficult reality.
+
+Full-flow read at moonshot:
+
+1. capture or ingest bounded source material
+2. canonicalize identities, anchors, timestamps, envelopes, and lineage
+3. compile read-only state and reviewable observations
+4. follow justified dependencies and references in bounded ways
+5. promote, abstain, or hold under explicit authority rules
+6. derive packets, graphs, comparisons, dashboards, and operator views
+7. union those bounded products across domains, jurisdictions, languages, and
+   time where justified
+8. analyze commonality, disjointness, conflict, and dependency structure
+9. preserve challengeability, replay, and anti-panopticon constraints
+
+Current P0 control read:
+
+- keep the current plans
+- reinterpret them as stepping stones under the normalized concepts above
+- treat the normalized stack as infrastructure and use existing proving-ground
+  lanes plus large corpora to drive bounded search, uncertainty-collapse
+  quality, and authority-sensitive source selection
+- only add implementation work where a submodule clearly violates that shape
+
+That means existing AU, GWB, Wikidata/Nat, Brexit, JOHL, dad, and similar
+domain lanes remain useful adopters and proving grounds, but they do not set
+the suite priority order. The suite priority order is driven by product-stack
+gaps in the correct repos:
+
+- capture and archive producers in capture/archive repos
+- compiled state in `StatiBaker`
+- review and promotion in `SensibLaw`
+- optional interpretive overlays in `SL-reasoner` only after the engine is
+  sound enough that the boundary helps more than it hurts
+- approved future-facing seam:
+  contract-shaped read-only `reasoner_input_artifact` inputs from producer
+  repos, with `SL-reasoner` limited to derived reasoning artifacts
+- operator and integration surfaces in `itir-svelte`, `itir-mcp`,
+  `itir-ribbon`, and related integration repos
+- retrieval and bounded follow adapters in retrieval/archive repos
+
+## Suite Constraints And Invariants
+
+Hard constraints:
+
+- no hidden rewrite of source reality
+- no authority crossing without explicit promotion receipts
+- no silent conversion of derived overlays into canonical truth
+- no context-free rendering of consequential outputs
+- no accidental second canonical reducer in side systems
+- no follow expansion without an explicit bounded trigger
+- no panopticon drift
+
+Suite-wide invariants:
+
+- provenance invariant
+- normalization invariant
+- expansion invariant
+- context invariant
+- authority invariant
+- replay invariant
+- derived-only invariant
+- append-only state invariant
+- anti-panopticon invariant
+
+Preconditions:
+
+- source artifacts are addressable
+- provenance and identity fields are sufficient to anchor the flow
+- context envelope is present when the output would otherwise be context-free
+- authority class of the write path is known
+
+Postconditions:
+
+- artifacts are replayable and inspectable
+- canonical writes are backed by promotion receipts
+- derived products are explicitly marked as derived
+- unresolved pressure remains visible as abstain / hold / follow-needed
+- downstream handoff preserves IDs, lineage, and versioned assumptions
+
+See:
+
+- [docs/planning/moonshot_compiler_normalization_reconsideration_20260402.md](docs/planning/moonshot_compiler_normalization_reconsideration_20260402.md)
+- [docs/planning/suite_bounded_search_uncertainty_collapse_20260403.md](docs/planning/suite_bounded_search_uncertainty_collapse_20260403.md)
+- [docs/planning/legal_moonshot_au_follow_graph_and_panopticon_boundary_20260402.md](docs/planning/legal_moonshot_au_follow_graph_and_panopticon_boundary_20260402.md)
+- [docs/planning/suite_smart_journal_moonshot_and_invariants_20260402.md](docs/planning/suite_smart_journal_moonshot_and_invariants_20260402.md)
+- [docs/planning/suite_p0_moonshot_normalized_concepts_20260402.md](docs/planning/suite_p0_moonshot_normalized_concepts_20260402.md)
+
+## Anti-Panopticon Boundary
+
+The repo does not treat “understanding more” as permission to build
+surveillance, prediction, or hidden interpretive authority.
+
+Hard boundaries:
+
+- no person-scoring or predictive judgment
+- no hidden cross-context identity resolution
+- no silent promotion of derived graphs into truth
+- no replacement of primary legal authority with support summaries
+
+See:
+
+- [SensibLaw/docs/panopticon_refusal.md](SensibLaw/docs/panopticon_refusal.md)
+- [SensibLaw/docs/red_team_anti_panopticon.md](SensibLaw/docs/red_team_anti_panopticon.md)
+- [SensibLaw/docs/judicial_decision_behavior_contract.md](SensibLaw/docs/judicial_decision_behavior_contract.md)
+- [SensibLaw/docs/official_decision_behavior_contract.md](SensibLaw/docs/official_decision_behavior_contract.md)
+
 ## What You Can Do Today
 
 ### 1. Capture and transcribe real-world material

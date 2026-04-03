@@ -1,5 +1,25 @@
 # Compactified Context (ITIR-suite)
 
+## 2026-04-03
+- Resolved archived thread:
+  - title: `ZKP Multilingual Strategy`
+  - online UUID: `69cf5eeb-479c-8399-adad-2256f71d0710`
+  - canonical thread ID: `1f17312b9fb402bee47c720801e9232dad5f98e3`
+  - source: `db` after direct UUID pull into `~/chat_archive.sqlite`
+  - main topics:
+    - English-first operational stance for the next global-source round
+    - translation/alignment lane below promotion only
+    - translation as bounded disagreement/alignment signal, not truth
+    - ontology-explosion control through fixed shared IR and governance gates
+- Current decision pulled into repo-facing context:
+  - global authority-source widening should prefer authoritative English or
+    stable official parallel-English sources first
+  - English must remain an adapter rather than the semantic center
+  - translation may help flag disagreement or alignment candidates but cannot
+    normalize canonical structure or create promoted truth
+  - UN and similarly well-translated transnational corpora are early
+    high-value exceptions under that rule
+
 ## 2026-03-27
 - Added the workspace coordination boundary note:
   - `docs/planning/workspace_coordination_boundary_20260327.md`
@@ -544,3 +564,18 @@
     plane level
   - no chat-archive thread was used as a material design source for this pass;
     this decision was derived from current repo surfaces and local code/docs
+- 2026-04-03 robust-context-fetch refresh:
+  - title: `New Source Family Recommendation`
+  - online UUID: `69cf52d4-0dd8-839e-b1e2-d9884e9ff034`
+  - canonical thread ID: `93df7a220b99b2c89e1e76807887d1a559313164`
+  - source used: `db` after direct online UUID pull into `/home/c/chat_archive.sqlite`
+  - main topics:
+    - Brexit/GWB authority-family expansion should center on
+      `legislation.gov.uk`, `EUR-Lex`, and UK National Archives
+    - broader normalized/ingest surfaces with programmatic access include
+      `Congress.gov`, `GovInfo`, `CourtListener`, UN document systems,
+      `HUDOC`, `BAILII`, and World Bank documents
+    - preferred integration shape is a unified adapter/search contract feeding
+      a SINO-style follow operator:
+      `Search -> Identify -> Normalize -> Operate`, then
+      `statute -> provision -> expansion`

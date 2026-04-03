@@ -155,6 +155,68 @@ Route family:
 This is meant to make it easy to inspect what has actually been ingested before
 dropping into more specialized workbenches.
 
+## Normalized Artifact Surface
+
+`/graphs/normalized-artifacts` is the first suite-level read-only consumer for
+the root normalized artifact contract.
+
+Current bounded scope:
+
+- one review/promotion artifact from `SensibLaw`
+- one compiled-state artifact from `StatiBaker`
+- optionally one producer-owned archive artifact from
+  `chat-export-structurer` when an explicit normalized-artifact path is
+  provided
+- optionally one producer-owned source artifact from `tircorder-JOBBIE` when
+  an explicit normalized sidecar path is provided
+- optionally one producer-owned retrieval/follow artifact from
+  `notebooklm-py` when an explicit normalized-artifact path is provided
+
+The route reads producer-owned normalized artifacts directly. It does not turn
+`StatiBaker` into a review engine and it does not turn `SensibLaw` into a
+state reducer. It also does not invent archive semantics locally for
+chat/archive producers.
+
+Additional behavior:
+
+- Contract-conformance visibility is explicit:
+  - root schema-version match
+  - required-field coverage
+  - authority/derived consistency hints
+  - follow-obligation consistency hints
+  - flat contract issues when the payload drifts from the root shape
+- `tircorder-JOBBIE` source sidecars stay source-shaped and do not get a local
+  state drill-in.
+- `notebooklm-py` retrieval/follow artifacts stay derived-only and
+  non-authoritative.
+
+The current operator questions are explicit on the page:
+
+- what this artifact is
+- why it exists
+- what supports it
+- what remains unresolved
+
+For review-backed artifacts, the route also surfaces the existing fact-review
+workflow context already emitted by the producer path:
+
+- promotion-gate decision and reason
+- recommended next review view/filter
+- direct drill-in to the persisted fact-review workbench
+
+For compiled-state artifacts, the route stays state-shaped and offers a bounded
+drill-in to the timeline ribbon instead of inventing a local review workflow.
+
+For archive artifacts, the route is explicit-path only for now and offers a
+bounded drill-in to `/corpora/chat-archive`.
+
+For `tircorder-JOBBIE` source sidecars, the route keeps the artifact
+source-shaped and does not invent a local state or review drill-in.
+
+For `notebooklm-py` retrieval/follow artifacts, the route keeps them explicitly
+derived and non-authoritative rather than treating them as archive, state, or
+promoted truth.
+
 `/corpora/processed` is the matching browse layer for extracted outputs such as
 semantic relation counts, abstentions, semantic basis counts, and top
 predicates per corpus, with links through to the full semantic-report
