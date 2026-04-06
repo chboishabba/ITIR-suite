@@ -1,5 +1,44 @@
 # Compactified Context
 
+- 2026-04-06 observation-substrate clarification from resolved chat archive:
+  - resolved threads:
+    - `Enshittification Failure Model`
+      - online UUID:
+        `69d1d8da-5c44-83a0-a69a-48b2336866be`
+      - canonical thread ID:
+        `a8d28b4c2a5caf03a05cb5ab357da933083782fc`
+      - source:
+        `db`
+    - `Bilawal Sidhu Projects`
+      - online UUID:
+        `69d3972d-e824-83a1-b9d9-fbbdb90e702c`
+      - canonical thread ID:
+        `97a99d7fcfe7fc65b523c679b4ef565c62d333b6`
+      - source:
+        `db`
+    - `Interpreting Politico Dynamics`
+      - online UUID:
+        `69d303ba-4d00-8398-bf6d-3c128d6e5509`
+      - canonical thread ID:
+        `34e976292a728c965c4a128387e3b1965e870410`
+      - source:
+        `db`
+  - main decision:
+    - `WorldMonitor` and `OpenRecall` should be treated as external and
+      internal observation sources in the same substrate, not as separate
+      semantic planes
+    - the next honest seam is shared observation-ingestion normalization into
+      the existing `SensibLaw` relation/equivalence path
+    - explicitly hold:
+      - cognitive-join machinery
+      - attention invariants
+      - perception-vs-truth divergence / Delta-cone work
+      - broader slice-state regime work
+    - docs updated:
+      - `SensibLaw/README.md`
+      - `SensibLaw/todo.md`
+      - `SensibLaw/docs/external_ingestion.md`
+
 - 2026-04-03 Wikidata/Nat live-follow receipt feedback:
   - landed:
     - `SensibLaw/src/ontology/wikidata_grounding_depth.py` now accepts
