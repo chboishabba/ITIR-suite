@@ -1,5 +1,70 @@
 # Compactified Context
 
+- 2026-04-07 guarded MCP and Windows-compliance planning from resolved chat archive:
+  - resolved thread:
+    - `LiteLLM hack analysis`
+      - online UUID:
+        `69ce0ac6-dd2c-839f-8b84-a0d397285f90`
+      - canonical thread ID:
+        `130c635a73d780dfb0552107cc0a77a77d4cfea9`
+      - source:
+        `db` after direct UUID pull into the canonical archive
+  - main decisions:
+    - MCP should be treated as the canonical integration and contract layer,
+      not as one transport option among several
+    - guarded invocation is the real system seam:
+      - tool outputs are proposals until verified
+      - policy, explanation, and enforcement should share one reason-code
+        vocabulary
+      - `SB` receipts are the authoritative audit surface for consequential
+        decisions
+    - the next systems-facing expansion is a planned Windows endpoint lane
+      under the same doctrine:
+      - observe
+      - evaluate
+      - plan
+      - act
+    - Windows tooling should stay evidence-first:
+      - normalized endpoint evidence in
+      - executable control evaluation
+      - remediation plan before any action
+      - action remains harder than collection or evaluation
+  - docs aligned:
+    - `itir-mcp/README.md`
+    - `itir-mcp/docs/interfaces.md`
+    - `docs/planning/project_interfaces.md`
+    - `docs/planning/itir_windows_compliance_mcp_contract_20260407.md`
+    - `TODO.md`
+
+- 2026-04-07 managed-host vs public-discovery trust split:
+  - main decisions:
+    - full-stack managers, remote access, rollout, patching, and fleet
+      configuration fit the same internal higher-trust control loop:
+      observe -> evaluate -> plan -> approve/gate -> apply -> verify -> receipt
+    - Linux should be treated as the same managed-host class as Windows, but
+      over a distributed configuration substrate:
+      - files
+      - services
+      - kernel/sysctl state
+      - firewall/network state
+      - package/runtime state
+    - public repo/social discovery is a separate lower-trust lane for:
+      - candidate risk findings
+      - repo surface extraction
+      - workflow/auth/update-path inspection
+      - follow obligations and internal exposure checks
+    - the governing doctrine is:
+      - public discovery proposes risk
+      - internal evidence authorizes action
+  - docs aligned:
+    - `docs/planning/itir_windows_compliance_mcp_contract_20260407.md`
+    - `docs/planning/itir_linux_compliance_mcp_contract_20260407.md`
+    - `docs/planning/itir_public_repo_security_discovery_contract_20260407.md`
+    - `README.md`
+    - `TODO.md`
+    - `itir-mcp/README.md`
+    - `itir-mcp/docs/interfaces.md`
+
 - 2026-04-06 observation-substrate clarification from resolved chat archive:
   - resolved threads:
     - `Enshittification Failure Model`

@@ -90,6 +90,20 @@ At the suite level that means:
   operator-adjacent surfaces
 - `itir-svelte` handles operator-facing read-only and review-first surfaces
 
+The current suite-level integration doctrine is now MCP-first and guarded:
+
+- MCP is the canonical contract layer for cross-project tool consumption
+- bridge or HTTP shells are transport details, not alternate semantics
+- consequential tool use should flow through guarded evaluation surfaces
+  rather than raw direct calls
+- policy, explanation, and receipts are intended to stay normalized rather
+  than split across separate ad hoc client behaviors
+- managed-host evidence and rollout lanes are higher-trust internal surfaces
+- that managed-host class now explicitly includes both Windows and Linux
+  evidence/evaluate/plan/apply lanes
+- public repo/social discovery lanes are lower-trust candidate-risk surfaces
+  that may propose follow obligations but do not authorize action on their own
+
 That same normalization rule is now explicit across the main `SensibLaw` lanes:
 
 - AU legal/hearing material

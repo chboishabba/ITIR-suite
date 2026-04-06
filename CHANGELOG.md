@@ -1,6 +1,47 @@
 # Changelog
 
 ## Unreleased
+- Added [docs/planning/itir_linux_compliance_mcp_contract_20260407.md](/home/c/Documents/code/ITIR-suite/docs/planning/itir_linux_compliance_mcp_contract_20260407.md)
+  and updated
+  [README.md](/home/c/Documents/code/ITIR-suite/README.md),
+  [TODO.md](/home/c/Documents/code/ITIR-suite/TODO.md),
+  [COMPACTIFIED_CONTEXT.md](/home/c/Documents/code/ITIR-suite/COMPACTIFIED_CONTEXT.md),
+  [itir-mcp/README.md](/home/c/Documents/code/ITIR-suite/itir-mcp/README.md),
+  [itir-mcp/docs/interfaces.md](/home/c/Documents/code/ITIR-suite/itir-mcp/docs/interfaces.md),
+  and [docs/planning/project_interfaces.md](/home/c/Documents/code/ITIR-suite/docs/planning/project_interfaces.md)
+  to extend the planned managed-host MCP lane from Windows-only wording to a
+  cross-platform internal trust model that explicitly includes Linux host
+  evidence/evaluate/plan/apply posture.
+  This was a docs-only update; no implementation changed.
+- Added [docs/planning/itir_public_repo_security_discovery_contract_20260407.md](/home/c/Documents/code/ITIR-suite/docs/planning/itir_public_repo_security_discovery_contract_20260407.md)
+  and extended
+  [docs/planning/itir_windows_compliance_mcp_contract_20260407.md](/home/c/Documents/code/ITIR-suite/docs/planning/itir_windows_compliance_mcp_contract_20260407.md),
+  [README.md](/home/c/Documents/code/ITIR-suite/README.md),
+  [TODO.md](/home/c/Documents/code/ITIR-suite/TODO.md),
+  [COMPACTIFIED_CONTEXT.md](/home/c/Documents/code/ITIR-suite/COMPACTIFIED_CONTEXT.md),
+  [itir-mcp/README.md](/home/c/Documents/code/ITIR-suite/itir-mcp/README.md),
+  [itir-mcp/docs/interfaces.md](/home/c/Documents/code/ITIR-suite/itir-mcp/docs/interfaces.md),
+  and [docs/planning/project_interfaces.md](/home/c/Documents/code/ITIR-suite/docs/planning/project_interfaces.md)
+  to split the planned MCP expansion into two trust models:
+  - higher-trust managed-host evidence/evaluate/plan/apply lanes
+  - lower-trust public repo/social discovery lanes
+  The documented doctrine is now explicit:
+  public discovery proposes risk, internal evidence authorizes action.
+  This was a docs-only update; no implementation changed.
+- Updated [COMPACTIFIED_CONTEXT.md](/home/c/Documents/code/ITIR-suite/COMPACTIFIED_CONTEXT.md),
+  [README.md](/home/c/Documents/code/ITIR-suite/README.md),
+  [TODO.md](/home/c/Documents/code/ITIR-suite/TODO.md),
+  [itir-mcp/README.md](/home/c/Documents/code/ITIR-suite/itir-mcp/README.md),
+  [itir-mcp/docs/interfaces.md](/home/c/Documents/code/ITIR-suite/itir-mcp/docs/interfaces.md),
+  [docs/planning/project_interfaces.md](/home/c/Documents/code/ITIR-suite/docs/planning/project_interfaces.md),
+  and added
+  [docs/planning/itir_windows_compliance_mcp_contract_20260407.md](/home/c/Documents/code/ITIR-suite/docs/planning/itir_windows_compliance_mcp_contract_20260407.md)
+  to align the suite docs with the resolved `LiteLLM hack analysis` thread.
+  The documented control read is now:
+  - MCP is the canonical guarded contract layer
+  - policy, explanation, and receipts should share one normalized surface
+  - the next planned systems-facing family is a Windows evidence/evaluate/plan/apply lane
+  This was a docs/TODO/context alignment pass only; no implementation changed.
 - Added [SensibLaw/src/sources/worldbank_adapter.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/worldbank_adapter.py),
   [SensibLaw/src/sources/worldbank/worldbank_follow_contract.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/worldbank/worldbank_follow_contract.py),
   and extended

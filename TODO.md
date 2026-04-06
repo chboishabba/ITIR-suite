@@ -1,7 +1,7 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-04-02
+- 2026-04-07
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
@@ -1738,15 +1738,55 @@
     contract
   - create and keep `itir-mcp/` as a root-owned suite adapter project rather
     than embedding MCP transport into producer repos by default
-  - first implementation scope:
-    - deterministic, read-only tool registry
-    - SensibLaw-backed obligation tools only
-    - local tests for registry/spec behavior
+  - current implemented scope:
+    - deterministic read-only registry
+    - SensibLaw-backed obligation tools
+    - ITIR-owned observation comparison tools
+    - guarded `safe_call` bridge path with:
+      - pre-call classification
+      - post-call verification
+      - normalized `status_explanation`
+      - normalized `policy_outcomes`
+      - governance receipt payloads
+    - local registry/bridge test coverage
+  - current contract doctrine:
+    - MCP is the canonical integration layer
+    - bridge/API shells are transport details only
+    - policy, explanation, and enforcement must share one reason-code
+      vocabulary
+    - client helpers should prefer guarded invocation over raw tool calls
   - next integration scope:
-    - stdio/server transport wiring
-    - one Dioxus backend/native client seam
-    - reuse existing Dioxus MCP-like playground as a debug/operator surface,
-      not the canonical suite transport layer
+    - refactor remaining external consumers, especially `WorldMonitor`, onto
+      the guarded MCP seam instead of local duplicated logic
+    - pin cross-client parity tests so the same malicious input yields the
+      same guarded decision through each client path
+    - keep one Dioxus backend/native client seam and treat existing Dioxus
+      MCP-like playground surfaces as debug/operator layers only
+  - planned next family:
+    - Windows evidence/evaluate/plan/apply lane under
+      `docs/planning/itir_windows_compliance_mcp_contract_20260407.md`
+    - Linux evidence/evaluate/plan/apply lane under
+      `docs/planning/itir_linux_compliance_mcp_contract_20260407.md`
+    - first bounded Windows target remains:
+      - registry/policy/service/security/eventlog evidence collection
+      - profile evaluation
+      - remediation planning only
+    - first bounded Linux target remains:
+      - normalized file/service/kernel/firewall/package/runtime state
+        collection
+      - profile evaluation
+      - remediation planning only
+    - hold guarded `apply_remediation` until receipts, rollback, and approval
+      posture are fully pinned
+  - adjacent lower-trust family:
+    - public repo/security discovery lane under
+      `docs/planning/itir_public_repo_security_discovery_contract_20260407.md`
+    - first bounded public-discovery target remains:
+      - candidate repo/workflow surface collection
+      - structured risk hypotheses
+      - internal exposure-check planning only
+    - do not let tweets, READMEs, or public repo metadata authorize internal
+      enforcement without recollected internal evidence
   - do not:
     - expose broad mutable actions first
     - treat browser `dioxus/web` as a direct stdio MCP host
