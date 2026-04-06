@@ -1,6 +1,880 @@
 # Changelog
 
 ## Unreleased
+- Added [SensibLaw/src/sources/worldbank_adapter.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/worldbank_adapter.py),
+  [SensibLaw/src/sources/worldbank/worldbank_follow_contract.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/worldbank/worldbank_follow_contract.py),
+  and extended
+  [SensibLaw/src/search_selection/search_union.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/search_selection/search_union.py)
+  plus
+  [SensibLaw/src/metrics/source_normalization.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/metrics/source_normalization.py)
+  so World Bank is now the second bounded global adopter on the normalized
+  source contract. The new slice adds:
+  - a normalized World Bank source adapter with deterministic doc ids,
+    provenance, language/translation flags, and live/fallback status
+  - a bounded live probe over one known World Bank document URL
+  - a declarative follow contract for World Bank documents
+  - World Bank readiness metrics layered onto the existing normalization gate
+  Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_worldbank_source.py SensibLaw/tests/test_worldbank_follow_contract.py SensibLaw/tests/test_search_union.py SensibLaw/tests/metrics/test_source_normalization.py`
+    -> `19 passed`
+  - compile sanity:
+    `.venv/bin/python -m py_compile SensibLaw/src/sources/worldbank_adapter.py SensibLaw/src/sources/worldbank/worldbank_follow_contract.py SensibLaw/src/sources/worldbank/__init__.py SensibLaw/src/search_selection/search_union.py SensibLaw/src/metrics/source_normalization.py`
+  - direct live probe:
+    `fetch_live_worldbank_report(doc_id=\"WDR2021\", url=\"https://documents.worldbank.org/en/publication/documents-reports/documentdetail/401781609909355252/world-development-report-2021\")`
+    now returns a normalized live World Bank source unit.
+- Extended [SensibLaw/src/sources/undocs.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/undocs.py)
+  and [SensibLaw/tests/test_undocs_source.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_undocs_source.py)
+  so the bounded live UNDOCS slice now resolves past the language selector and
+  normalizes the actual English document asset endpoint from the embedded UN
+  viewer. Live probes for `A/RES/77/1` now return:
+  - title: `UN document A/RES/77/1`
+  - url:
+    `https://documents.un.org/api/symbol/access?s=A/RES/77/1&l=en&t=pdf`
+  Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_undocs_source.py`
+    -> `3 passed`
+  - compile sanity:
+    `.venv/bin/python -m py_compile SensibLaw/src/sources/undocs.py`
+- Added [SensibLaw/src/sources/undocs.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/undocs.py),
+  [SensibLaw/src/sources/un/un_follow_contract.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/un/un_follow_contract.py),
+  and extended
+  [SensibLaw/src/search_selection/search_union.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/search_selection/search_union.py),
+  [SensibLaw/src/search_selection/search_selection.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/search_selection/search_selection.py),
+  and [SensibLaw/src/metrics/source_normalization.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/metrics/source_normalization.py)
+  so the first real non-UK/EU adopter now exists on the normalized global
+  source contract. The new UNDOCS slice adds:
+  - deterministic UN document normalization around symbol/id, title, URL,
+    authority/source type, provenance, primary language, translation status,
+    and live/fallback fields
+  - English-first search/rank plumbing that admits a bounded UN authority slot
+    without pretending broader global coverage already exists
+  - a declarative UN follow contract that keeps translation-derived links
+    evidentiary and non-promotive
+  - UN-specific readiness checks layered on top of source-normalization metrics
+  Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_undocs_source.py SensibLaw/tests/test_un_follow_contract.py SensibLaw/tests/test_search_union.py SensibLaw/tests/metrics/test_source_normalization.py`
+    -> `12 passed`
+  - compile sanity:
+    `.venv/bin/python -m py_compile SensibLaw/src/sources/undocs.py SensibLaw/src/sources/un/un_follow_contract.py SensibLaw/src/search_selection/search_union.py SensibLaw/src/search_selection/search_selection.py SensibLaw/src/metrics/source_normalization.py`
+  - no-regression builder:
+    `PYTHONPATH=. SENSIBLAW_EUR_LEX_LIVE=1 .venv/bin/python SensibLaw/scripts/build_gwb_broader_review.py --output-dir /tmp/gwb_undocs_round1`
+    with queue stability preserved at `12` items, `12/12` non-null priority
+    coverage, and `0` raw URL titles.
+- Added [docs/planning/global_authority_source_normalization_20260403.md](/home/c/Documents/code/ITIR-suite/docs/planning/global_authority_source_normalization_20260403.md),
+  updated [README.md](/home/c/Documents/code/ITIR-suite/README.md),
+  [TODO.md](/home/c/Documents/code/ITIR-suite/TODO.md), and
+  [__CONTEXT/COMPACTIFIED_CONTEXT.md](/home/c/Documents/code/ITIR-suite/__CONTEXT/COMPACTIFIED_CONTEXT.md)
+  to lock the next global-source widening rule:
+  English-first operationally, English as an adapter rather than ontology, and
+  translation/alignment below promotion as bounded evidence only. The docs now
+  also flag UN-style and other stable parallel-English corpora as early
+  high-value exceptions rather than pretending to support broad multilingual
+  normalization already.
+- Added
+  [SensibLaw/src/sources/normalized_source.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/normalized_source.py),
+  [SensibLaw/src/search_selection/search_union.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/search_selection/search_union.py),
+  [SensibLaw/src/search_selection/search_selection.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/search_selection/search_selection.py),
+  [SensibLaw/src/metrics/source_normalization.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/metrics/source_normalization.py),
+  and extended
+  [SensibLaw/src/sources/uk_legislation.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/uk_legislation.py)
+  plus
+  [SensibLaw/src/sources/national_archives/brexit_national_archives_lane.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/national_archives/brexit_national_archives_lane.py)
+  so the suite now has its first bounded global-source normalization slice:
+  - canonical normalized source units with language and translation-status
+    fields
+  - English-first search/ref union and authority-aware ranking helpers
+  - explicit translation-bounded follow constraints for archive/legal follows
+  - source-normalization readiness metrics covering contract completeness,
+    authority lattice clarity, provenance, live/fallback visibility, and
+    translation/alignment boundedness
+  Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_normalized_source.py SensibLaw/tests/test_uk_legislation_follow.py SensibLaw/tests/test_search_union.py SensibLaw/tests/test_national_archives_follow_contract.py SensibLaw/tests/metrics/test_source_normalization.py`
+    -> `15 passed`
+  - compile sanity:
+    `.venv/bin/python -m py_compile SensibLaw/src/sources/normalized_source.py SensibLaw/src/sources/uk_legislation.py SensibLaw/src/search_selection/search_union.py SensibLaw/src/search_selection/search_selection.py SensibLaw/src/sources/national_archives/brexit_national_archives_lane.py SensibLaw/src/metrics/source_normalization.py`
+  - no-regression builder:
+    `PYTHONPATH=. SENSIBLAW_EUR_LEX_LIVE=1 .venv/bin/python SensibLaw/scripts/build_gwb_broader_review.py --output-dir /tmp/gwb_global_norm_round1`
+    with queue stability preserved at `12` items, `12/12` non-null priority
+    coverage, and `0` raw URL titles.
+- Extended [SensibLaw/src/ontology/wikidata_grounding_depth.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/ontology/wikidata_grounding_depth.py)
+  and [SensibLaw/tests/test_wikidata_nat_grounding_depth.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_wikidata_nat_grounding_depth.py)
+  so Nat grounding summary/report/priority surfaces can consume bounded live-follow
+  result rows. When a packet already has fetched live receipts, the priority
+  surface now marks it as `live_receipts_ready_for_review` and points the next
+  bounded action at reviewing that evidence instead of requesting another
+  follow. Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_nat_grounding_depth.py`
+    -> `16 passed`
+  - root governance:
+    `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py`
+    -> `5 passed`
+- Extended [SensibLaw/src/ontology/wikidata_nat_live_follow_executor.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/ontology/wikidata_nat_live_follow_executor.py),
+  [SensibLaw/tests/test_wikidata_nat_live_follow_executor.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_wikidata_nat_live_follow_executor.py),
+  and [SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_b_operator_packet_input_20260402.json](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/fixtures/wikidata/wikidata_nat_cohort_b_operator_packet_input_20260402.json)
+  so Nat live-follow now reads concrete local Cohort B row reference URLs for
+  reconciled non-business variance instead of falling back immediately to
+  revision-locked fetches. Live reruns now show:
+  - `split_heavy_business_family` resolves both rows through
+    `named_query_link`
+  - `policy_risk_population_preview` resolves both rows through
+    `named_reference_url`
+  - `reconciled_non_business_variance` now also resolves both rows through
+    `named_reference_url`
+  Validation:
+  - from `SensibLaw`:
+    `../.venv/bin/python -m pytest -q tests/test_wikidata_nat_live_follow_executor.py tests/test_wikidata_cli.py -k 'live_follow_execute or live_follow_campaign'`
+    -> `9 passed`
+- Extended [SensibLaw/src/ontology/wikidata_nat_live_follow_executor.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/ontology/wikidata_nat_live_follow_executor.py)
+  and [SensibLaw/tests/test_wikidata_nat_live_follow_executor.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_wikidata_nat_live_follow_executor.py)
+  so Nat live-follow now implements `named_reference_url` from locally pinned
+  reference surfaces. Live reruns show:
+  - `policy_risk_population_preview` now resolves both rows through
+    `named_reference_url`
+  - `reconciled_non_business_variance` initially still fell back to
+    `named_revision_locked_source` before the later Cohort B packet-input
+    reference-url pinning completed
+- Added [SensibLaw/src/ontology/wikidata_nat_live_follow_executor.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/ontology/wikidata_nat_live_follow_executor.py)
+  and extended [SensibLaw/cli/__main__.py](/home/c/Documents/code/ITIR-suite/SensibLaw/cli/__main__.py),
+  [SensibLaw/tests/test_wikidata_nat_live_follow_executor.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_wikidata_nat_live_follow_executor.py),
+  and [SensibLaw/tests/test_wikidata_cli.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_wikidata_cli.py)
+  so the pinned Nat live-follow campaign can now be executed as a bounded
+  live fetch run through `sensiblaw wikidata nat-live-follow-execute`. The
+  executor currently supports revision-locked Wikidata fetches, preserves
+  real fetch errors over unsupported fallback source classes, and has already
+  been exercised live on:
+  - `hard_grounding_packet:1` -> `Q10403939`
+  - `split_heavy_business_family:1` -> `Q738421`
+  Validation:
+  - from `SensibLaw`:
+    `../.venv/bin/python -m pytest -q tests/test_wikidata_nat_live_follow_campaign.py tests/test_wikidata_nat_live_follow_campaign_plan.py tests/test_wikidata_nat_live_follow_executor.py tests/test_wikidata_cli.py -k 'live_follow_campaign or live_follow_execute'`
+    -> `9 passed`
+- Added [SensibLaw/src/ontology/wikidata_nat_live_follow_campaign.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/ontology/wikidata_nat_live_follow_campaign.py)
+  and extended [SensibLaw/cli/__main__.py](/home/c/Documents/code/ITIR-suite/SensibLaw/cli/__main__.py),
+  [SensibLaw/tests/test_wikidata_nat_live_follow_campaign_plan.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_wikidata_nat_live_follow_campaign_plan.py),
+  and [SensibLaw/tests/test_wikidata_cli.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_wikidata_cli.py)
+  so the pinned Nat live-follow campaign can now be emitted as one bounded
+  per-target execution plan through `sensiblaw wikidata nat-live-follow-campaign`.
+  Validation:
+  - from `SensibLaw`:
+    `../.venv/bin/python -m pytest -q tests/test_wikidata_nat_live_follow_campaign.py tests/test_wikidata_nat_live_follow_campaign_plan.py tests/test_wikidata_cli.py -k 'live_follow_campaign'`
+    -> `5 passed`
+- Added [SensibLaw/docs/planning/wikidata_nat_live_follow_campaign_20260403.md](/home/c/Documents/code/ITIR-suite/SensibLaw/docs/planning/wikidata_nat_live_follow_campaign_20260403.md),
+  [SensibLaw/tests/fixtures/wikidata/wikidata_nat_live_follow_campaign_20260403.json](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/fixtures/wikidata/wikidata_nat_live_follow_campaign_20260403.json),
+  and [SensibLaw/tests/test_wikidata_nat_live_follow_campaign.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_wikidata_nat_live_follow_campaign.py)
+  to pin the first bounded multi-category Nat live-follow campaign. The
+  campaign explicitly spans hard grounding, split-heavy business-family rows,
+  reconciled non-business variance, policy-risk live preview, missing
+  instance-of typing deficits, and unreconciled instance-of split-axis cases,
+  while keeping source order local-first and hop limits capped at two.
+  Validation:
+  - from `SensibLaw`:
+    `../.venv/bin/python -m pytest -q tests/test_wikidata_nat_live_follow_campaign.py`
+    -> `2 passed`
+- Extended [SensibLaw/src/ontology/wikidata_nat_cohort_d_review.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/ontology/wikidata_nat_cohort_d_review.py),
+  [SensibLaw/tests/test_wikidata_nat_cohort_d_operator_report.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_wikidata_nat_cohort_d_operator_report.py),
+  and [SensibLaw/tests/test_wikidata_nat_cohort_d_review_control_index.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_wikidata_nat_cohort_d_review_control_index.py)
+  so the Wikidata/Nat cohort-D operator report and review control index now
+  expose a read-only `workflow_summary` with the next bounded review mode.
+  Nat packet consumers can now see whether the next move is unresolved packet
+  reference cleanup, queued typing review, or simple record-state capture
+  without reconstructing that from queue counts alone. Validation:
+  - from `SensibLaw`:
+    `../.venv/bin/python -m pytest -q tests/test_wikidata_nat_cohort_d_operator_report.py tests/test_wikidata_nat_cohort_d_review_control_index.py tests/test_wikidata_nat_cohort_d_operator_review_surface.py tests/test_wikidata_nat_cohort_d_review_lane.py`
+    -> `8 passed`
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py`
+    -> `5 passed`
+- Extended [SensibLaw/scripts/build_gwb_public_review.py](/home/c/Documents/code/ITIR-suite/SensibLaw/scripts/build_gwb_public_review.py),
+  [SensibLaw/scripts/build_gwb_broader_review.py](/home/c/Documents/code/ITIR-suite/SensibLaw/scripts/build_gwb_broader_review.py),
+  [SensibLaw/tests/test_gwb_public_review.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_gwb_public_review.py),
+  and [SensibLaw/tests/test_gwb_broader_review.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_gwb_broader_review.py)
+  so GWB review payloads now expose a read-only `workflow_summary` with the
+  next recommended operator view. Public and broader GWB review slices can now
+  tell downstream consumers whether the next move is legal-follow, source-row
+  review, or simple record-state capture. Validation:
+  - from `SensibLaw`:
+    `../.venv/bin/python -m pytest -q tests/test_gwb_public_review.py tests/test_gwb_broader_review.py`
+    -> `8 passed`
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py`
+    -> `5 passed`
+- Extended [SensibLaw/src/fact_intake/review_bundle.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/fact_intake/review_bundle.py),
+  [SensibLaw/src/fact_intake/au_review_bundle.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/fact_intake/au_review_bundle.py),
+  [SensibLaw/schemas/fact.review.bundle.v1.schema.yaml](/home/c/Documents/code/ITIR-suite/SensibLaw/schemas/fact.review.bundle.v1.schema.yaml),
+  [SensibLaw/tests/test_fact_review_bundle_component.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_fact_review_bundle_component.py),
+  and [SensibLaw/tests/test_au_fact_review_bundle.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_au_fact_review_bundle.py)
+  so shared fact-review bundles can now carry a read-only `workflow_summary`
+  directly on the bundle envelope. AU bundles now expose the same
+  recommended-view / stage guidance that previously only existed in the full
+  workbench. Validation:
+  - from `SensibLaw`:
+    `../.venv/bin/python -m pytest -q tests/test_fact_review_bundle_component.py tests/test_au_fact_review_bundle.py tests/test_legal_follow_graph.py`
+    -> `17 passed`
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py`
+    -> `5 passed`
+- Extended [tests/test_cross_adopter_governance.py](/home/c/Documents/code/ITIR-suite/tests/test_cross_adopter_governance.py)
+  so the root suite gate now also asserts cross-lane uncertainty and
+  prioritization surfaces for:
+  - AU authority-follow
+  - GWB legal-follow
+  - Wikidata/Nat grounding depth
+  - `chat-export-structurer` archive search
+  This keeps ranked follow queues, grounding-gap triage, and archive
+  bounded-search signals suite-governed instead of repo-local only. Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py`
+    -> `5 passed`
+- Extended [chat-export-structurer/src/archive_search_follow.py](/home/c/Documents/code/ITIR-suite/chat-export-structurer/src/archive_search_follow.py)
+  and [chat-export-structurer/tests/test_archive_search_follow.py](/home/c/Documents/code/ITIR-suite/chat-export-structurer/tests/test_archive_search_follow.py)
+  so archive-search derived products now expose bounded-search pressure
+  signals instead of only result counts. The raw and normalized artifacts now
+  report `search_bounds_status`, and the normalized product also reports an
+  `uncertainty_surface` with `local_archive_sufficient` and a bounded
+  `recommended_next_bound`. Validation:
+  - from repo root:
+    `PYTHONPATH=chat-export-structurer/src .venv/bin/python -m pytest -q chat-export-structurer/tests/test_archive_search_follow.py`
+    -> `3 passed`
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py`
+    -> `4 passed`
+- Extended [SensibLaw/src/ontology/wikidata_grounding_depth.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/ontology/wikidata_grounding_depth.py)
+  and [SensibLaw/tests/test_wikidata_nat_grounding_depth.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_wikidata_nat_grounding_depth.py)
+  so the Wikidata/Nat grounding priority surface now distinguishes
+  `grounding_gap_class` and `recommended_follow_scope` instead of only
+  exposing row order. The top-level priority surface now also reports
+  `gap_class_counts`, `missing_field_counts`, `recommended_follow_scope_counts`,
+  and `highest_priority_score` for bounded grounding-breadth triage. Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_nat_grounding_depth.py`
+    -> `15 passed`
+- Extended [SensibLaw/src/fact_intake/au_review_bundle.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/fact_intake/au_review_bundle.py)
+  and [SensibLaw/tests/test_au_fact_review_bundle.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_au_fact_review_bundle.py)
+  so AU authority-follow no longer exposes a descriptive queue only. Queue
+  items now carry `priority_score`, `priority_rank`, and `authority_yield`,
+  and the authority-follow summary now reports `priority_band_counts`,
+  `highest_priority_score`, and `highest_authority_yield` for bounded
+  uncertainty-collapse triage. Validation:
+  - from `SensibLaw`:
+    `../.venv/bin/python -m pytest -q tests/test_au_fact_review_bundle.py tests/test_legal_follow_graph.py`
+    -> `13 passed`
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py`
+    -> `4 passed`
+- Extended [SensibLaw/src/policy/gwb_legal_follow_graph.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/policy/gwb_legal_follow_graph.py),
+  [SensibLaw/tests/test_gwb_public_review.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_gwb_public_review.py),
+  and [SensibLaw/tests/test_gwb_broader_review.py](/home/c/Documents/code/ITIR-suite/SensibLaw/tests/test_gwb_broader_review.py)
+  so the GWB/Brexit legal-follow control plane no longer exposes a flat queue
+  only. Queue items now carry `priority_score`, `priority_rank`, and
+  `authority_yield`, and the operator summary now reports
+  `priority_band_counts`, `highest_priority_score`, and
+  `highest_authority_yield` for bounded uncertainty-collapse triage. Validation:
+  - from `SensibLaw`:
+    `../.venv/bin/python -m pytest -q tests/test_gwb_public_review.py tests/test_gwb_broader_review.py`
+    -> `8 passed`
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py`
+    -> `4 passed`
+- Extended [tests/test_cross_adopter_governance.py](/home/c/Documents/code/ITIR-suite/tests/test_cross_adopter_governance.py) so the root suite gate now also asserts bounded legal-follow control-plane behavior for:
+  - AU legal-follow operator view
+  - GWB legal-follow operator view
+  This keeps the new `follow.control.v1` surfaces from silently regressing back
+  to graph-only summaries. Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py`
+    -> `4 passed`
+- Extended `SensibLaw/src/policy/legal_follow_graph.py`,
+  `SensibLaw/src/fact_intake/au_review_bundle.py`,
+  `SensibLaw/tests/test_legal_follow_graph.py`, and
+  `SensibLaw/tests/test_au_fact_review_bundle.py` so AU legal-follow no
+  longer stops at graph summary only. The AU bundle now emits a bounded
+  `follow.control.v1` operator view plus queue items over derived legal follow
+  targets such as the UK/British follow target. Validation:
+  - from `SensibLaw`:
+    `../.venv/bin/python -m pytest -q tests/test_legal_follow_graph.py tests/test_au_fact_review_bundle.py`
+    -> `13 passed`
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py`
+    -> `4 passed`
+- Extended `SensibLaw/src/ontology/wikidata_grounding_depth.py` and
+  `SensibLaw/tests/test_wikidata_nat_grounding_depth.py` so the Wikidata/Nat
+  grounding-depth lane now emits a ranked
+  `sl.wikidata_review_packet.grounding_depth_priority_surface.v0_1`. The new
+  surface highlights which packets still need revision-locked evidence,
+  exposes missing fields and priority score, and recommends bounded follow
+  against `revision_locked_evidence` instead of leaving incomplete grounding as
+  a flat summary only. Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q SensibLaw/tests/test_wikidata_nat_grounding_depth.py`
+    -> `15 passed`
+- Extended `SensibLaw/src/policy/gwb_legal_follow_graph.py`,
+  `SensibLaw/tests/test_gwb_public_review.py`, and
+  `SensibLaw/tests/test_gwb_broader_review.py` so the GWB/Brexit legal-follow
+  operator view now emits a bounded `follow.control.v1` plane plus queue items
+  over followed legal sources instead of remaining graph-only. Brexit-related
+  legal URLs now route through explicit bounded targets such as
+  `uk_legislation_follow` and `eur_lex_follow`. Validation:
+  - from `SensibLaw`:
+    `../.venv/bin/python -m pytest -q tests/test_gwb_public_review.py tests/test_gwb_broader_review.py`
+    -> `8 passed`
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py`
+    -> `4 passed`
+- Refined `normalized_artifact_join.py`,
+  `schemas/itir.normalized.artifact.join.v1.schema.json`, and
+  `tests/test_normalized_artifact_join.py` so the root join now emits a small
+  `compatibility.uncertainty_surface` summary with dominant unresolved
+  pressure, priority rank, and a bounded-search recommendation. Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact_schema.py tests/test_cross_adopter_governance.py tests/test_normalized_artifact_join.py`
+    -> `7 passed`
+- Extended `tests/test_cross_adopter_governance.py` with a bounded
+  local-first follow helper/assertion so retrieval/follow artifacts are
+  explicitly checked for:
+  - `derived_inspection` authority
+  - visible trigger/scope/stop fields
+  - bounded local-first follow posture
+  Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact_schema.py tests/test_cross_adopter_governance.py tests/test_normalized_artifact_join.py`
+    -> `7 passed`
+- Extended `StatiBaker/sb/drift.py`, `StatiBaker/tests/test_drift.py`, and
+  `StatiBaker/DRIFT_SIGNALS.md` so `StatiBaker` now emits a read-only
+  `context_dominance` drift signal with `dominant_thread_fraction` and
+  `dominant_thread_id` counters when one thread dominates large-corpus state.
+  Validation:
+  - from `StatiBaker`:
+    `../.venv/bin/python -m pytest -q tests/test_drift.py tests/test_time_hygiene.py`
+    -> `4 passed`
+- Added `docs/planning/suite_bounded_search_uncertainty_collapse_20260403.md`
+  and updated the root control docs so the next suite-level driver is now
+  explicitly bounded search and uncertainty collapse over existing
+  proving-ground lanes and large corpora, rather than further adapter
+  proliferation for its own sake.
+- Refined `normalized_artifact_join.py`,
+  `schemas/itir.normalized.artifact.join.v1.schema.json`, and
+  `tests/test_normalized_artifact_join.py` so the root join now also emits a
+  `severity_summary` map and `highest_severity` rollup above the existing
+  incompatibility policy surfaces. Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact_schema.py tests/test_cross_adopter_governance.py tests/test_normalized_artifact_join.py`
+    -> `7 passed`
+- Refined `normalized_artifact_join.py`,
+  `schemas/itir.normalized.artifact.join.v1.schema.json`, and
+  `tests/test_normalized_artifact_join.py` so the root join now also emits a
+  small `dominant_disposition` summary above the existing named
+  incompatibility policy surfaces. Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact_schema.py tests/test_cross_adopter_governance.py tests/test_normalized_artifact_join.py`
+    -> `7 passed`
+- Refined `normalized_artifact_join.py`,
+  `schemas/itir.normalized.artifact.join.v1.schema.json`, and
+  `tests/test_normalized_artifact_join.py` so the root join now emits
+  per-code `policy_guidance` strings above named incompatibility records and
+  disposition counts. Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact_schema.py tests/test_cross_adopter_governance.py tests/test_normalized_artifact_join.py`
+    -> `7 passed`
+- Added `tircorder-JOBBIE/integrations/chat_history_follow.py` and
+  `tircorder-JOBBIE/tests/test_chat_history_follow.py` so `tircorder-JOBBIE`
+  now has a producer-owned chat-history follow helper plus a
+  suite-normalized `derived_product` wrapper over bounded conversation
+  discovery results. Validation:
+  - from repo root:
+    `PYTHONPATH=tircorder-JOBBIE .venv/bin/python -m pytest -q tircorder-JOBBIE/tests/test_chat_history_follow.py`
+    -> `4 passed`
+- Refined `normalized_artifact_join.py`,
+  `schemas/itir.normalized.artifact.join.v1.schema.json`, and
+  `tests/test_normalized_artifact_join.py` again so the root join now emits a
+  `policy_summary` over named incompatibility dispositions in addition to the
+  named incompatibility records themselves. Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact_schema.py tests/test_cross_adopter_governance.py tests/test_normalized_artifact_join.py`
+    -> `7 passed`
+- Added `chat-export-structurer/src/archive_search_follow.py` and
+  `chat-export-structurer/tests/test_archive_search_follow.py` so
+  `chat-export-structurer` now has a producer-owned bounded archive-search
+  follow helper plus a suite-normalized `derived_product` wrapper over FTS
+  search results. Validation:
+  - from repo root:
+    `PYTHONPATH=chat-export-structurer/src .venv/bin/python -m pytest -q chat-export-structurer/tests/test_archive_search_follow.py`
+    -> `3 passed`
+- Refined `normalized_artifact_join.py`,
+  `schemas/itir.normalized.artifact.join.v1.schema.json`, and
+  `tests/test_normalized_artifact_join.py` so the root join now emits
+  structured `named_incompatibilities` records with explicit `code`,
+  `severity`, `artifacts`, `reason`, and `disposition` fields in addition to
+  the existing compatibility summary. Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact_schema.py tests/test_cross_adopter_governance.py tests/test_normalized_artifact_join.py`
+    -> `7 passed`
+- Added `reverse-engineered-chatgpt/re_gpt/retrieval_follow.py`,
+  extended `reverse-engineered-chatgpt/re_gpt/cli.py`, and added
+  `reverse-engineered-chatgpt/tests/test_retrieval_follow.py` so
+  `reverse-engineered-chatgpt` now has a producer-owned bounded
+  conversation-list follow helper plus a suite-normalized `derived_product`
+  wrapper for opt-in `--list` retrieval flows. Validation:
+  - from repo root:
+    `PYTHONPATH=reverse-engineered-chatgpt .venv/bin/python -m pytest -q reverse-engineered-chatgpt/tests/test_retrieval_follow.py`
+    -> `4 passed`
+- Refined `normalized_artifact_join.py`,
+  `schemas/itir.normalized.artifact.join.v1.schema.json`, and
+  `tests/test_normalized_artifact_join.py` so the root bounded join now emits
+  clearer compatibility and incompatibility signals instead of only raw role
+  mixing. Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact_schema.py tests/test_cross_adopter_governance.py tests/test_normalized_artifact_join.py`
+    -> `7 passed`
+- Refined `StatiBaker/sb/suite_normalized_artifact.py` and
+  `StatiBaker/tests/test_suite_normalized_artifact.py` so compiled-state
+  exports enforce the exported `context_envelope_ref` path more strictly while
+  keeping the canonical compiled-state artifact first in lineage. Validation:
+  - from `StatiBaker`:
+    `../.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact.py`
+    -> `3 passed`
+- Added `openrecall/openrecall/retrieval_follow.py` and
+  `openrecall/tests/test_retrieval_follow.py` so OpenRecall now has a
+  dedicated producer-owned retrieval/follow helper that reuses the existing
+  normalized search-follow contract rather than inventing a parallel derived
+  shape. Validation:
+  - from `openrecall`:
+    `../.venv/bin/python -m pytest -q tests/test_normalized_artifact.py tests/test_retrieval_follow.py`
+    -> `6 passed`
+- Added `normalized_artifact_join.py`,
+  `schemas/itir.normalized.artifact.join.v1.schema.json`, and
+  `tests/test_normalized_artifact_join.py` so the root repo now has a
+  bounded read-only join/composition seam for normalized artifacts that
+  preserves lineage, unresolved-pressure counts, and compatibility flags
+  rather than collapsing producer roles. Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact_schema.py tests/test_cross_adopter_governance.py tests/test_normalized_artifact_join.py`
+    -> `7 passed`
+- Added `chat-export-structurer/src/context_envelope.py`,
+  `chat-export-structurer/src/__init__.py`, and
+  `chat-export-structurer/tests/test_context_envelope.py` so archive exports
+  now share one producer-owned context-envelope helper instead of hardcoded
+  envelope IDs/kinds. Validation:
+  - from `chat-export-structurer`:
+    `../.venv/bin/python -m pytest -q tests/test_context_envelope.py`
+    -> `3 passed`
+- Extended `StatiBaker/sb/suite_normalized_artifact.py` and
+  `StatiBaker/tests/test_suite_normalized_artifact.py` so compiled-state
+  exports retain the canonical compiled-state artifact ID in lineage and
+  accept explicit context-envelope refs more cleanly. Validation:
+  - from `StatiBaker`:
+    `../.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact.py`
+    -> `3 passed`
+- Added `pyThunderbird/thunderbird/follow.py`,
+  extended `pyThunderbird/thunderbird/mail_cmd.py`, and added
+  `pyThunderbird/tests/test_follow.py` so `pyThunderbird` now emits bounded
+  retrieval-follow artifacts for `--mailid-like` searches plus a normalized
+  `derived_product` wrapper via `--normalized-artifact-out`. Validation:
+  - from repo root:
+    `PYTHONPATH=pyThunderbird .venv/bin/python -m pytest -q pyThunderbird/tests/test_follow.py`
+    -> `2 passed`
+- Extended `tests/test_cross_adopter_governance.py` so the root governance
+  gate now covers join semantics and `pyThunderbird` retrieval-follow
+  normalization in addition to the existing legal/archive families.
+- Added `tircorder-JOBBIE/tircorder/normalized_source_sidecar.py` so
+  TiRCorder can emit one producer-owned normalized `source_artifact` sidecar
+  aligned to the root `itir.normalized.artifact.v1` schema without replacing
+  canonical capture storage. Validation:
+  - manual smoke:
+    `python tircorder/normalized_source_sidecar.py --artifact-id smoke.capture.1 --source-path README.md --output /tmp/tircorder-normalized-sidecar.json`
+    -> emitted normalized sidecar JSON
+- Added `notebooklm-py` bounded retrieval posture via
+  `notebooklm research follow`, which emits one non-authoritative derived
+  follow artifact over completed NotebookLM research output. Validation:
+  - from `notebooklm-py`:
+    `PYTHONPATH=src ../.venv/bin/python -m pytest -q tests/unit/cli/test_helpers.py`
+    -> `66 passed`
+  - `../.venv/bin/python -m py_compile src/notebooklm/cli/helpers.py src/notebooklm/cli/research.py`
+    -> passed
+- Added `tests/test_cross_adopter_governance.py` so the root suite now pins
+  derived-graph, promotion-gate, and unique-derived-role invariants across AU
+  and GWB normalized artifacts. Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact_schema.py tests/test_cross_adopter_governance.py`
+    -> `4 passed`
+- Tightened `StatiBaker/sb/suite_normalized_artifact.py` so the compiled-state
+  writer can carry an explicit `context_envelope_ref` through the
+  normalized-artifact export path without changing the underlying reducer.
+- Widened `itir-svelte` normalized-artifacts inspection so it now consumes
+  explicit-path `chat-export-structurer` archive artifacts and explicit-path
+  `tircorder-JOBBIE` capture/source artifacts through the same read-only
+  normalized contract surface. Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py tests/test_suite_normalized_artifact_schema.py`
+    -> `4 passed`
+  - from `itir-svelte`:
+    `npm run check`
+    -> still fails only on unrelated pre-existing
+       `graphs/wiki-timeline-aoo-all/+page.svelte` errors
+- Added a producer-owned root normalized wrapper for `notebooklm-py`
+  research-follow output and widened `itir-svelte` normalized-artifacts
+  inspection to consume explicit-path retrieval/research artifacts through the
+  same read-only normalized contract surface. Validation:
+  - from `notebooklm-py`:
+    `PYTHONPATH=src ../.venv/bin/python -m pytest -q tests/unit/cli/test_helpers.py`
+    -> `67 passed`
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py tests/test_suite_normalized_artifact_schema.py`
+    -> `4 passed`
+  - from `itir-svelte`:
+    `npm run check`
+    -> still fails only on unrelated pre-existing
+       `graphs/wiki-timeline-aoo-all/+page.svelte` errors
+- Added a producer-owned root normalized conversation/source wrapper for
+  `reverse-engineered-chatgpt` single-target downloads and widened
+  `itir-svelte` normalized-artifacts inspection to consume explicit-path
+  live-conversation/source artifacts through the same read-only contract
+  surface. Validation:
+  - from `reverse-engineered-chatgpt`:
+    `python -m pytest -q tests/test_storage.py tests/test_cli.py`
+    -> `23 passed`
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_cross_adopter_governance.py tests/test_suite_normalized_artifact_schema.py`
+    -> `4 passed`
+  - from `itir-svelte`:
+    `npm run check`
+    -> still fails only on unrelated pre-existing
+       `graphs/wiki-timeline-aoo-all/+page.svelte` errors
+- Added a bounded `SL-reasoner` contract+adapter seam without extracting any
+  substantive deterministic logic out of `SensibLaw`. `SensibLaw` AU
+  fact-review now emits `semantic_context.reasoner_input_artifact`,
+  `SL-reasoner` now validates read-only reasoner input artifacts and can emit
+  derived reasoning artifacts, and the boundary docs now explicitly say this
+  is a deferred seam rather than a refactor mandate.
+- Clarified the suite-level `SL-reasoner` posture in
+  `SL-reasoner/README.md`, `SL-reasoner/docs/interfaces.md`, and the root
+  roadmap/readme/TODO/context docs: it remains an optional
+  interpretive/non-authoritative scaffold, while substantive deterministic
+  engine work continues in `SensibLaw` for now. The repo should stay low
+  priority until core complexity grows enough that extraction into
+  `SL-reasoner` becomes materially useful.
+- Updated the suite-level roadmap/readme/context docs so older
+  domain-specific proving grounds no longer control the top-level priority
+  order. The suite is now explicitly product-stack-first: capture/archive,
+  state, review/promotion, operator/integration, retrieval/bounded-follow,
+  then additional domain adopters in the correct owning repos.
+- Added
+  `docs/planning/suite_p0_completion_roadmap_20260402.md`,
+  `schemas/itir.normalized.artifact.v1.schema.json`,
+  `examples/itir.normalized_artifact.minimal.json`, and
+  `tests/test_suite_normalized_artifact_schema.py` so the new suite-level P0
+  moonshot now has one machine-readable normalized artifact contract, one
+  focused validation gate, and one explicit worker-lane completion roadmap.
+  Validation:
+  - `.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact_schema.py`
+    -> `3 passed`
+- Updated `SensibLaw/src/fact_intake/au_review_bundle.py`,
+  `SensibLaw/src/policy/suite_normalized_artifact.py`,
+  `SensibLaw/schemas/fact.review.bundle.v1.schema.yaml`, and
+  `SensibLaw/tests/test_au_fact_review_bundle.py` so the AU fact-review
+  bundle now emits one `semantic_context.suite_normalized_artifact` payload
+  aligned to the root `itir.normalized.artifact.v1` schema.
+  Validation:
+  - from `SensibLaw`:
+    `../.venv/bin/python -m pytest -q tests/test_au_fact_review_bundle.py`
+    -> `6 passed`
+- Added `StatiBaker/sb/suite_normalized_artifact.py`,
+  `StatiBaker/tests/test_suite_normalized_artifact.py`, and updated
+  `StatiBaker/scripts/bundle_export.py` plus `StatiBaker/BUNDLE_SPEC.md` so
+  StatiBaker bundle exports now emit `suite_normalized_artifact.json` as a
+  first real `compiled_state` adopter aligned to the root
+  `itir.normalized.artifact.v1` schema.
+  Validation:
+  - from repo root:
+    `.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact_schema.py`
+    -> `3 passed`
+  - from `StatiBaker`:
+    `../.venv/bin/python -m pytest -q tests/test_suite_normalized_artifact.py tests/test_bundle.py`
+    -> `4 passed`
+- Added `itir-svelte/src/lib/server/normalizedArtifacts.ts` and
+  `/graphs/normalized-artifacts` so the operator layer now reads normalized
+  artifacts from `SensibLaw` and `StatiBaker` directly without local
+  reinterpretation.
+  Validation:
+  - from `itir-svelte`:
+    `npm run check`
+    -> still fails only on unrelated pre-existing
+       `graphs/wiki-timeline-aoo-all/+page.svelte` errors
+- Added `chat-export-structurer/src/suite_normalized_artifact.py` and updated
+  `chat-export-structurer/src/ingest.py` so archive ingestion can emit one
+  producer-owned suite normalized archive sidecar via
+  `--normalized-artifact-out`.
+  Validation:
+  - from `chat-export-structurer`:
+    `../.venv/bin/python -m pytest -q tests/test_ingest.py tests/test_cli.py tests/test_suite_normalized_artifact.py`
+    -> `5 passed`
+- Added
+  `docs/planning/suite_p0_moonshot_normalized_concepts_20260402.md`
+  and updated the root README/TODO/context so the current capture, archive,
+  state, legal, retrieval, and operator plans are now explicitly treated as
+  stepping stones under a new suite-level P0 moonshot with shared normalized
+  concepts, stronger suite-wide control language, and explicit
+  no-unbounded-follow governance.
+- Added
+  `docs/planning/suite_smart_journal_moonshot_and_invariants_20260402.md`
+  and updated root README/TODO/context so the moonshot is now framed at the
+  whole-suite level again: capture, archive, canonicalization, state
+  compilation, review/promotion, derived products, and bounded union, with
+  explicit constraints, invariants, preconditions, and postconditions.
+- AU legal-follow graph slice:
+  - Added
+    `docs/planning/legal_moonshot_au_follow_graph_and_panopticon_boundary_20260402.md`
+    to freeze the legal-moonshot read around AU case follow, supporting
+    legislation / cited instrument understanding, derived legal-follow graph
+    surfaces, and explicit anti-panopticon boundaries.
+  - Added `SensibLaw/docs/red_team_anti_panopticon.md` and linked it from
+    `SensibLaw/docs/panopticon_refusal.md` so anti-panopticon red-team checks
+    are now explicit for the legal-expansion lane.
+  - Updated `README.md` and
+    `docs/planning/itir_sensiblaw_service_architecture_plantuml_20260328.puml`
+    so the root repo now points directly at the compiler-shaped moonshot,
+    the anti-panopticon boundary, and the promotion-core / derived-graph
+    separation.
+  - Added `SensibLaw/src/policy/legal_follow_graph.py` as the first bounded AU
+    derived legal-follow graph builder.
+  - Updated `SensibLaw/src/au_semantic/semantic.py` so AU authority-receipt
+    context now emits structured `legal_ref_details`,
+    `candidate_citation_details`, and legal-ref class counts for downstream
+    legal-follow consumers.
+  - Updated `SensibLaw/src/fact_intake/au_review_bundle.py` so AU
+    fact-review bundles now emit `semantic_context.legal_follow_graph`,
+    `operator_views.legal_follow_graph.summary`, and richer
+    `authority_follow` packet detail rows for reference-class inspection.
+  - Refined `SensibLaw/src/policy/legal_follow_graph.py` so the derived graph
+    now distinguishes `case_ref`, `supporting_legislation`, and
+    `cited_instrument` surfaces while staying derived-only and challengeable.
+  - Updated `SensibLaw/src/policy/compiler_contract.py` so AU
+    fact-review bundles now declare `legal_follow_graph` as an explicit
+    derived product.
+  - Extended
+    `SensibLaw/tests/test_legal_follow_graph.py`,
+    `SensibLaw/tests/test_compiler_contract.py` and
+    `SensibLaw/tests/test_au_fact_review_bundle.py`.
+  - Refined `SensibLaw/src/policy/legal_follow_graph.py` again so shared
+    nodes merge richer receipt/conjecture metadata instead of keeping the
+    first sparse version, and supporting-legislation / cited-instrument /
+    citation / authority-receipt surfaces now retain more inspectable
+    provenance.
+  - Refined `SensibLaw/src/policy/legal_follow_graph.py` again so
+    attachment-bearing graph nodes accumulate bounded supporting event and
+    supporting receipt provenance where available.
+  - Extended `SensibLaw/tests/test_legal_follow_graph.py` to pin merged
+    receipt/citation metadata on the derived graph surface.
+  - Extended `SensibLaw/tests/test_legal_follow_graph.py` again to pin
+    supporting event / supporting receipt provenance on shared graph nodes.
+  - Froze the next bounded AU legal round as a dual slice:
+    deeper attachment provenance plus read-only legal-follow graph exposure in
+    the fact-review workbench, with no change to the derived-only /
+    anti-panopticon posture.
+  - Extended `SensibLaw/src/policy/legal_follow_graph.py` so the derived
+    graph summary now reports supporting receipt counts and supporting
+    authority-kind counts for downstream inspection.
+  - Updated `SensibLaw/src/policy/legal_follow_graph.py` so supporting
+    legislation nodes now expose `supporting_legislation_roles` plus
+    `supporting_legislation_role_counts` for enabling/constraining/procedural/amending context.
+  - Updated `itir-svelte/src/lib/server/factReview.ts` and
+    `itir-svelte/src/routes/graphs/fact-review/+page.svelte` so the
+    fact-review workbench now surfaces one read-only derived legal-follow
+    graph inspection pane from `semantic_context.legal_follow_graph`, with
+    summary, authority/receipt, ref/citation, and typed-link sections.
+  - Added `SensibLaw/src/policy/gwb_legal_follow_graph.py` as the first
+    bounded derived GWB legal-linkage graph helper.
+  - Updated `SensibLaw/scripts/build_gwb_public_review.py` and
+    `SensibLaw/scripts/build_gwb_broader_review.py` so those review products
+    now emit `legal_follow_graph`.
+  - Updated the existing GWB review summaries so they now expose a bounded
+    "Derived Legal-Linkage Graph" section without inventing a separate UI
+    lane.
+  - Updated `SensibLaw/src/policy/compiler_contract.py` so GWB public-review
+    and broader-review contracts now list `legal_linkage_graph` as an
+    explicit derived product.
+  - Extended `SensibLaw/tests/test_gwb_public_review.py` and
+    `SensibLaw/tests/test_gwb_broader_review.py` to pin the new graph surface
+    and derived-product roles.
+  - Extended `SensibLaw/tests/test_au_fact_review_bundle.py` to pin the new
+    graph summary counts at the AU bundle boundary.
+  - Updated `SensibLaw/src/au_semantic/semantic.py` again so AU legal-ref
+    details now also carry bounded `jurisdiction_hint` and
+    `instrument_kind` semantics.
+  - Updated `SensibLaw/src/fact_intake/au_review_bundle.py` so
+    `authority_follow` now exposes jurisdiction and instrument-kind counts in
+    both queue items and summary payloads.
+  - Updated `SensibLaw/src/fact_intake/au_review_bundle.py` again so
+    `authority_follow` now also exposes bounded `ref_kind_counts` in queue
+    items and summary payloads.
+  - Updated `SensibLaw/src/fact_intake/au_review_bundle.py` again so
+    `authority_follow` now also exposes bounded `citation_court_hint_counts`
+    and `citation_year_counts` in queue items and summary payloads.
+  - Updated `SensibLaw/src/policy/legal_follow_graph.py` so supporting
+    legislation and cited instrument nodes/edges now preserve those
+    jurisdiction/instrument hints and report bounded summary counts for them.
+  - Updated `SensibLaw/src/policy/legal_follow_graph.py` again so the AU
+    legal-follow summary now also reports bounded `reference_kind_counts`,
+    `reference_class_counts`, `ref_kind_counts`, `edge_kind_counts`,
+    `edge_reference_class_counts`, and `edge_ref_kind_counts`.
+  - Updated `SensibLaw/src/policy/legal_follow_graph.py` again so the AU
+    legal-follow summary now also reports bounded
+    `citation_court_hint_counts` and `citation_year_counts`.
+  - Extended `SensibLaw/tests/test_legal_follow_graph.py`,
+    `SensibLaw/tests/test_au_fact_review_bundle.py`, and
+    `SensibLaw/tests/test_au_fact_review_script.py` to pin the richer AU
+    legal-ref semantics.
+  - The fact-review legal-follow pane is now typed to render bounded
+    distribution grids when a derived legal-follow graph exposes them, which
+    keeps the AU and GWB read-only operator posture aligned.
+  - Updated `SensibLaw/scripts/build_gwb_public_review.py` and
+    `SensibLaw/scripts/build_gwb_broader_review.py` again so their markdown
+    summaries now expose bounded `Graph inspection` and `Sample typed links`
+    sections for read-only legal-linkage inspection.
+  - Updated `SensibLaw/src/policy/gwb_legal_follow_graph.py`,
+    `SensibLaw/scripts/build_gwb_public_review.py`, and
+    `SensibLaw/scripts/build_gwb_broader_review.py` so GWB review payloads
+    now also expose one bounded JSON `operator_views.legal_follow_graph`
+    surface with summary, highlight-node, and sample-edge inspection data.
+  - Extended `SensibLaw/tests/test_gwb_public_review.py` and
+    `SensibLaw/tests/test_gwb_broader_review.py` to pin those richer GWB
+    summary surfaces.
+  - Validation:
+    - focused AU+GWB/compiler gate: `25 passed`
+    - touched modules `py_compile` clean
+    - `itir-svelte` `npm run check` still fails only on the pre-existing
+      `wiki-timeline-aoo-all/+page.svelte` errors
+- fact-review operator workflow slice:
+  - Added `docs/planning/fact_review_operator_workflow_slice_20260402.md`.
+  - Updated `SensibLaw/src/fact_intake/read_model.py` so the persisted
+    fact-review workbench now emits `semantic_context` and one derived
+    `workflow_summary` block.
+  - Updated `itir-svelte/src/routes/graphs/fact-review/+page.svelte` and
+    `itir-svelte/src/lib/server/factReview.ts` so the fact-review route now
+    shows the current workflow stage, recommended next view, suggested fact
+    focus, and compact pressure counts.
+  - Updated focused backend tests in
+    `SensibLaw/tests/test_fact_intake_read_model.py` and
+    `SensibLaw/tests/test_query_fact_review_script.py`.
+  - Validation:
+    - backend focused gate: `30 passed`
+    - `read_model.py` `py_compile` clean
+    - repo-wide `npm run check` still fails on unrelated pre-existing
+      `itir-svelte/src/routes/graphs/wiki-timeline-aoo-all/+page.svelte`
+      errors
+- moonshot compiler gate slice:
+  - Added `SensibLaw/src/policy/product_gate.py` as the first reusable
+    `promote | abstain | audit` decision layer above normalized
+    `compiler_contract` payloads.
+  - Adopted the gate in AU public handoff, AU fact-review bundle, GWB public
+    handoff, GWB public review, GWB broader review, and the Wikidata migration
+    pack so each now emits a common decision record without rewriting lane
+    semantics.
+  - Updated `SensibLaw/schemas/fact.review.bundle.v1.schema.yaml` and the
+    focused adopter tests to pin the gate at the payload boundary.
+  - Added outcome/validation status to
+    `docs/planning/promote_abstain_audit_gate_slice_20260402.md`, `TODO.md`,
+    `SensibLaw/todo.md`, and `COMPACTIFIED_CONTEXT.md`.
+  - Validation:
+    - `28 passed`
+    - touched modules `py_compile` clean
+- moonshot compiler normalization reconsideration:
+  - Added
+    `docs/planning/moonshot_compiler_normalization_reconsideration_20260402.md`
+    to restate the moonshot read in compiler/product terms across AU, GWB,
+    and Wikidata/Nat.
+  - Updated `docs/planning/judgment_architecture_lane_split_20260402.md`,
+    `TODO.md`, and `COMPACTIFIED_CONTEXT.md` so the next orchestration phase
+    centers on bounded evidence-group -> promoted-outcome contracts and
+    lane-normalized product surfaces, with graph remaining derived rather than
+    the organizing truth layer.
+  - Reaffirmed the one-worker-per-lane split and current promotion order:
+    `Ramanujan`, `Erdos`, `Lorentz`, `Euler`, `Ohm`, `Huygens`.
+  - Re-read the checkpoint and kept the same split and order with no reshuffle.
+  - Added an explicit note that no further allocation change is justified at
+    this checkpoint and the next valid move is implementation promotion.
+  - Rechecked the same moonshot orchestration checkpoint again with no change
+    in lane ownership or promotion order.
+  - Added one more explicit repeated-checkpoint note: still no lane or order
+    change, still no new evidence requiring a reshuffle.
+  - Added an explicit endpoint note: further docs-only reaffirmation would now
+    be repetition rather than new governance signal.
+  - Recorded the convergence point explicitly: the lane-order conflict is
+    resolved, the controlling note is stable, and the only honest next move is
+    implementation promotion under the same worker ownership.
+  - Resolved the remaining doc-order ambiguity by making the compiler/product
+    normalization note the controlling lane-order source and aligning the
+    judgment-support note behind `Ramanujan`, `Erdos`, `Lorentz`, `Euler`,
+    `Ohm`, `Huygens`.
+  - Added an explicit docs-freeze note for this checkpoint: no more docs-only
+    orchestration updates unless new lane evidence materially changes the
+    worker ownership, promotion order, or contract scope.
+  - Added an explicit user-override note: a user-requested reaffirmation may
+    append a no-change checkpoint without reopening the frozen worker split or
+    promotion order.
+- Wikidata moonshot gap lane split:
+  - Added `SensibLaw/docs/planning/wikidata_nat_grounding_depth_evidence_20260402.md`,
+    `SensibLaw/docs/planning/wikidata_nat_cohort_b_review_bucket_20260402.md`,
+    `SensibLaw/docs/planning/wikidata_nat_cohort_c_live_preview_extension_20260402.md`,
+    `SensibLaw/docs/planning/wikidata_nat_cohort_d_review_lane_20260402.md`,
+    `SensibLaw/docs/planning/wikidata_nat_cohort_e_reconciliation_scan_plan_20260403.md`,
+    and `SensibLaw/docs/planning/wikidata_nat_automation_graduation_criteria_20260402.md`
+    so the current gap-to-moonshot program now resolves into explicit lane-local
+    artifacts rather than only roadmap language.
+  - Added the first bounded runtime/test surfaces for the new non-company axis:
+    `SensibLaw/src/ontology/wikidata_nat_cohort_b_review_bucket.py`,
+    `SensibLaw/tests/test_wikidata_nat_cohort_b_review_bucket.py`,
+    `SensibLaw/tests/test_wikidata_cohort_c_live_preview_extension.py`,
+    `SensibLaw/tests/test_wikidata_nat_cohort_d_review_lane.py`, and
+    `SensibLaw/tests/test_wikidata_nat_grounding_depth.py`.
+- Wikidata moonshot helper tranche:
+  - Added executable bounded helpers for the current moonshot-gap lanes:
+    `SensibLaw/src/ontology/wikidata_grounding_depth.py`,
+    `SensibLaw/src/ontology/wikidata_nat_cohort_b_operator_packet.py`,
+    `SensibLaw/src/ontology/wikidata_nat_cohort_d_review.py`,
+    `SensibLaw/src/ontology/wikidata_cohort_e_diagnostics.py`, and
+    `SensibLaw/src/ontology/wikidata_nat_automation_graduation.py`.
+  - Added matching docs/fixtures/tests for the richer Cohort C operator
+    evidence packet, Cohort D type-probing surface, Cohort E diagnostics
+    helper, and fail-closed graduation evaluator.
+- Wikidata moonshot operator-surface tranche:
+  - Added a grounding-depth attachment surface, a pinned Cohort B operator
+    packet surface, a Cohort D operator review queue surface, and the report
+    builder above the automation graduation evaluator.
+  - Validated the operator-facing Nat moonshot helper suite at `21 passed`.
+- Wikidata moonshot reproducible artifact tranche:
+  - Added the grounding-depth batch artifact, a deterministic Cohort C
+    operator report, a Cohort E diagnostics CLI/report lane, and the
+    automation-graduation operator CLI.
+  - Validated the focused report/artifact tranche at `15 passed, 24 deselected`.
+- Wikidata moonshot reproducible batch/report tranche:
+  - Added a grounding-depth CLI plus batch review-packet report,
+    a Cohort B operator report, a Cohort C operator-report batch surface,
+    a Cohort D operator report plus CLI, a Cohort E diagnostics batch report,
+    and automation-graduation batch proposal evaluation.
+  - Updated the moonshot roadmap/status/TODO/context surfaces so the current
+    gap now points at measured operator evidence rather than more packet-shape
+    expansion.
+- Wikidata moonshot broader measured-evidence tranche:
+  - Added a grounding-depth evidence report, a Cohort B deterministic
+    operator batch report, a broader Cohort C measured-evidence sample, a
+    Cohort D operator report batch plus CLI, a Cohort E grouped diagnostics
+    summary, and an automation-graduation repeated-run evidence report.
+  - Updated the moonshot roadmap/status/TODO/context surfaces so the next
+    gap-closing step is explicitly broader measured evidence over multiple
+    cases rather than more one-off examples.
+- Wikidata moonshot broader operator/governance tranche:
+  - Added a grounding-depth comparison/index report, a Cohort B operator
+    evidence index, a Cohort C operator index, a Cohort D review-control
+    index, a Cohort E summary index, and an automation-graduation governance
+    index over repeated evidence snapshots.
+  - Updated the moonshot roadmap/status/TODO/context surfaces so the next
+    gap-closing step is explicitly broader operator/governance evidence over
+    repeated runs rather than only more batch outputs.
 - Wikidata Shixiong handoff:
   - Added
     `SensibLaw/docs/planning/wikidata_shixiong_handoff_20260402.md`
@@ -9,6 +883,27 @@
   - Updated `SensibLaw/docs/wikidata_working_group_status.md`, `TODO.md`, and
     `COMPACTIFIED_CONTEXT.md` so the handoff is discoverable from the main
     Wikidata status surfaces.
+- Wikidata blind-migration moonshot framing:
+  - Updated `SensibLaw/docs/planning/wikidata_nat_end_product_and_tiered_automation_20260401.md`
+    and the matching status/TODO/context surfaces so the repo now says
+    explicitly that a blind migration bot is the P0 moonshot for the Nat lane.
+  - Kept the current operating posture honest: review-first, split-first, and
+    fail-closed until the smaller automation tiers prove stable enough to earn
+    that moonshot.
+- Wikidata reviewer-packet variant comparison:
+  - Added a bounded variant-comparison lane to the Nat reviewer-packet plan
+    and contract so targeted cross-variant inspection can reduce uncertainty
+    without becoming a hidden truth engine.
+  - Added a grounded sibling-variant comparison path so the Nat packet can
+    compare real cohort peers from the same split-plan family, not just
+    abstract examples, and derive that bounded comparison automatically when
+    sibling plans are present in the split payload.
+- Wikidata reviewer-packet helper lanes:
+  - Added standalone helper modules and tests for follow depth,
+    claim-boundary mapping, cross-source alignment, reviewer actions, and
+    bounded variant comparison so the reviewer-packet lane now has explicit
+    bounded sub-lanes, and wired those helpers into the optional semantic
+    sidecar.
 - major user-story alignment and reprioritization pass:
   - Added
     `docs/planning/user_story_alignment_and_reprioritization_20260402.md`
@@ -91,11 +986,30 @@
     updated the packet docs so the repo now says explicitly that the new layer
     is a separate sidecar above/beside `parsed_page`, not a replacement for
     it.
+  - The sidecar now publishes anchor-derived reviewer units plus explicit
+    bounded follow-receipt units, explicit missing-evidence gap units, plus
+    explicit split-review context units (merged split axes + recommended
+    actions), so reviewers can rely on the layer without assuming
+    `parsed_page` is already full semantic decomposition.
 - Nat reviewer-packet coverage expansion:
   - Expanded `SensibLaw/tests/fixtures/wikidata/wikidata_nat_review_packet_attachment_coverage_20260401.json`
-    and the matching planning note to `13 / 53` packetized rows after adding
-    `Q10416948` and `Q56404383` as additional sidecar-backed pilot-pack
-    packets on top of `Q731938` as a third packetized held row.
+    and the matching planning note to `15 / 53` packetized rows after adding
+    `Q1785637` and `Q738421` as additional wider-online reviewed rows on top of
+    `Q10416948` and `Q56404383` as sidecar-backed pilot-pack packets and
+    `Q731938` as a third packetized held row.
+  - Clarified that the packet coverage lane is now near diminishing returns and
+    only genuinely new split shapes should justify another attachment record.
+- Cohort C scan normalizer:
+  - Added a bounded runtime normalizer for the pinned non-GHG / missing `P459`
+    Cohort C sample fixture so the branch now has a review-first runtime
+    surface without implying that a live population scan has already run.
+  - Added a bounded live scan preview helper using the same selection rule, so
+    Cohort C now has a live-query-backed review-first runtime surface without a
+    blanket execution lane.
+  - Added an operator packet wrapper over the Cohort C preview so the decision
+    state, triage prompts, and fail-closed behavior are explicit.
+  - Added a CLI entrypoint for the Cohort C operator packet so reviewers can
+    export a saved-scan packet or request a bounded live preview in one call.
 - revision-monitor provenance boundary clarification:
   - Added
     `docs/planning/wiki_revision_monitor_provenance_path_boundary_20260401.md`
@@ -1596,7 +2510,152 @@
       `Conceded Fact (+ Technical Qualification)`
     - next highest-signal refinement:
       strict echo masking for quoted allegation headers / pasted affidavit text
+- 2026-04-02: Added
+  `docs/planning/judgment_architecture_lane_split_20260402.md` and synced
+  `TODO.md`, `SensibLaw/todo.md`, and `COMPACTIFIED_CONTEXT.md` so the next
+  execution split is explicitly grounded in reusable judgment architecture
+  rather than more default substrate cleanup. The current order is now:
+  text bridge first, legal doctrinal primitives second, common
+  primitive/comparison architecture third, then Nat grounding depth,
+  disciplined graph challengeability, and stronger promotion/audit gates.
+- 2026-04-02: Synced the returned judgment-architecture worker briefs into the
+  planning/status docs. The confirmed promotion order remains:
+  `Ramanujan`, `Erdos`, `Euler`, `Lorentz`, `Ohm`, `Huygens`. The briefs also
+  froze the safe boundaries:
+  Ramanujan as a pinned additive climate text bridge,
+  Erdos as a doctrinal projection layer rather than a semantic-core rewrite,
+  and Euler as a very small shared primitive/comparison surface that should be
+  derived from those two concrete lanes.
+- 2026-04-02: Added the immediate execution checkpoint to the
+  judgment-architecture note and synced root/SensibLaw status files:
+  promote `Ramanujan` next, keep the remaining lanes assigned in ranked order,
+  and only reshuffle if the first implementation slice reveals hidden coupling
+  or a stronger bounded promotion.
+- 2026-04-02: Reaffirmed the unchanged judgment-architecture orchestration
+  state in the planning/status docs:
+  same one-lane-per-worker split, same ranked order, and no new selection
+  round before the first implementation promotion.
 - 2026-04-02: Tightened the Shixiong Wikidata handoff note so it reflects his
   actual fit better: bounded validation, correction-worthiness criteria,
   reviewer-inspectable packet surfaces, and provenance strictness, rather than
   generic migration onboarding.
+- Wikidata Nat gap-to-moonshot program is now pinned at
+  `SensibLaw/docs/planning/wikidata_nat_gap_to_moonshot_program_20260402.md`,
+  making the staged gap from the current review-first lane to the blind
+  migration-bot moonshot explicit in ZKP, ITIL, ISO 9000, ISO 42001, ISO
+  27001, ISO 27701, ISO 23894, NIST AI RMF, Six Sigma, C4, and PlantUML terms.
+- The Nat end-product, working-group status, combined roadmap, and TODO now
+  say the same thing about current priorities:
+  grounding depth first, non-company structural breadth second, promotion
+  gates third, and only then stronger moonshot-readiness claims.
+# 2026-04-02
+
+- docs: aligned the moonshot/compiler normalization docs with the current
+  completion roadmap and progress read
+- docs: recorded the remaining top-priority sequence explicitly:
+  shared contract -> AU normalization -> GWB normalization -> reusable
+  promote/abstain/audit gate -> operator-grade workflow layer
+- docs: removed stale compacted-context ordering residue that conflicted with
+  the controlling compiler-shaped frame
+- 2026-04-02: Added `docs/planning/shared_evidence_bundle_promoted_outcome_contract_20260402.md`
+  and synced root/SensibLaw TODO plus compacted context so the first real
+  compiler-contract implementation slice is explicit: one tiny shared
+  `compiler_contract` payload, adopted first by AU public handoff, GWB public
+  handoff, and Wikidata migration pack, with product-shape normalization only.
+- 2026-04-02: Landed the first real shared compiler-contract slice in
+  `SensibLaw/src/policy/compiler_contract.py` and adopted it in AU public
+  handoff, GWB public handoff, and Wikidata migration pack outputs. Added
+  regression coverage in `SensibLaw/tests/test_compiler_contract.py` plus the
+  relevant AU/GWB/Wikidata adopter tests.
+- 2026-04-02: Added `docs/planning/au_product_normalization_slice_20260402.md`
+  and synced TODO plus compacted context so the next bounded lane is explicit:
+  emit the shared `compiler_contract` from the AU fact-review bundle via
+  `semantic_context.compiler_contract`.
+- 2026-04-02: Landed the AU product-normalization slice by adding an AU
+  fact-review bundle adapter to `SensibLaw/src/policy/compiler_contract.py`
+  and emitting `semantic_context.compiler_contract` from
+  `SensibLaw/src/fact_intake/au_review_bundle.py`. Added regression coverage in
+  `SensibLaw/tests/test_compiler_contract.py` and
+  `SensibLaw/tests/test_au_fact_review_bundle.py`.
+# 2026-04-03
+
+- Wikidata/Nat live-follow now implements `named_query_link` in
+  `SensibLaw/src/ontology/wikidata_nat_live_follow_executor.py`, resolving
+  locally pinned packet query-link surfaces before revision-locked fallback.
+  Focused regression coverage landed in
+  `SensibLaw/tests/test_wikidata_nat_live_follow_executor.py`, and the
+  split-heavy live campaign rerun now resolves both rows through
+  `named_query_link` rather than falling back immediately to
+  `named_revision_locked_source`.
+
+- 2026-04-02: Added `docs/planning/gwb_product_normalization_slice_20260402.md`
+  and synced TODO plus compacted context so the next bounded lane is explicit:
+  emit the shared `compiler_contract` from GWB public review and GWB broader
+  review.
+- 2026-04-02: Landed the GWB product-normalization slice by adding GWB public
+  review and broader-review adapters to
+  `SensibLaw/src/policy/compiler_contract.py` and emitting `compiler_contract`
+  from `SensibLaw/scripts/build_gwb_public_review.py` and
+  `SensibLaw/scripts/build_gwb_broader_review.py`. Added regression coverage in
+  `SensibLaw/tests/test_compiler_contract.py`,
+  `SensibLaw/tests/test_gwb_public_review.py`, and
+  `SensibLaw/tests/test_gwb_broader_review.py`.
+- 2026-04-02: Added `docs/planning/promote_abstain_audit_gate_slice_20260402.md`
+  and synced TODO plus compacted context so the next bounded lane is explicit:
+  add one shared gate record above the normalized AU, GWB, and Wikidata
+  products.
+# 2026-04-02
+
+- Suite product-stack-first business-logic follow-through:
+  - `openrecall` now emits a producer-owned normalized `source_artifact`
+    sidecar for captured screenshots via
+    `openrecall/openrecall/normalized_artifact.py`
+  - `openrecall` now also emits a bounded non-authoritative search-follow
+    artifact plus a normalized `derived_product` wrapper for local search
+    results, keeping retrieval/follow posture explicit and non-canonical
+  - focused OpenRecall coverage landed in
+    `openrecall/tests/test_normalized_artifact.py`
+  - root cross-family governance now includes the OpenRecall capture artifact
+  - `StatiBaker` compiled-state normalization now guarantees retention of the
+    canonical compiled-state artifact ID in lineage and supports explicit
+    `context_envelope_ref` export without changing reducer ownership
+- README, legal moonshot planning, TODO, SensibLaw TODO, compacted context,
+  and changelog now carry an explicit legal-moonshot progress read and a
+  stable end-state operational flow, so “progress vs total” and “what the
+  moonshot actually does” are no longer only chat-local.
+- GWB legal-linkage graph summaries now expose bounded source-kind,
+  source-family, linkage-kind, review-status, and support-kind distributions
+  in both public-review and broader-review artifacts so the derived legal
+  surface is more inspectable without adding a separate UI lane.
+- AU legal-follow graphs now recover bounded supporting-legislation roles
+  (`enabling`, `constraining`, `procedural`, delegated-instrument parent,
+  `amending`) and report `supporting_legislation_role_counts` without widening
+  the truth boundary.
+- GWB legal-linkage graphs now add bounded followed-source nodes when
+  source-review receipts already carry HTTP links, keeping the surface
+  derived-only and review-first rather than introducing open-ended crawling.
+- The fact-review workbench now renders the bounded GWB
+  `operator_views.legal_follow_graph` surface directly, so GWB legal-linkage
+  inspection has real operator-view parity with the existing AU read-only
+  graph posture.
+- Docs/TODO/context now treat the legal moonshot as normal program state and
+  pin the next bounded GWB cohort candidates as previous US presidents and
+  UK Brexit-era politicians, still under the anti-panopticon boundary.
+- Docs/TODO/context now also pin the next bounded AU cross-jurisdiction step:
+  allow one explicit AU -> UK/British follow hop when current evidence already
+  points there, while keeping it provenance-backed, derived-only, review-first,
+  and explicitly not a general common-law ancestry crawl.
+- README, planning, TODO, context, and anti-panopticon red-team docs now also
+  elevate Brexit from a mere cohort hint to a named bounded legal-union
+  proving ground, while keeping it explicitly non-surveillance and
+  review-first.
+- AU legal-follow now emits one derived UK/British follow target when current
+  receipt/ref/citation evidence already points there, keeping the hop
+  provenance-backed, review-first, and non-recursive.
+- GWB legal-linkage now classifies followed-source legal URLs into bounded
+  cite classes and reports Brexit-related follow counts where the existing
+  source text/URLs already carry that pressure.
+- GWB legal-linkage can now also seed followed-source receipts from the
+  canonical foundation-source catalog when a review row already names a known
+  UK/EU legal source, which gives the Brexit proving ground a bounded
+  non-crawling legal-cite follow path.

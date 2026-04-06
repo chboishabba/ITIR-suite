@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ITIR normalized artifact join v1",
+  "description": "Read-only composition of multiple suite normalized artifacts without reinterpretation.",
+  "type": "object",
+  "properties": {
+    "schema_version": { "const": "itir.normalized.artifact.join.v1" },
+    "artifact_role": { "const": "normalized_artifact_join" },
+    "artifact_id": { "type": "string" },
+    "artifact_ids": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "roles": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "role_counts": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "authority_classes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "lineage": {
+      "type": "object",
+      "properties": {
+        "upstream_artifact_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["upstream_artifact_ids"]
+    },
+    "unresolved_pressure_counts": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "compatibility": {
+      "type": "object",
+      "properties": {
+        "distinct_roles": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "distinct_authority_classes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "contains_promoted_truth": { "type": "boolean" },
+        "contains_derived_artifacts": { "type": "boolean" },
+        "incompatibility_flags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "named_incompatibilities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "string" },
+              "severity": {
+                "type": "string",
+                "enum": ["info", "warn", "block"]
+              },
+              "artifacts": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "reason": { "type": "string" },
+              "disposition": {
+                "type": "string",
+                "enum": ["inspect", "hold", "abstain", "allow"]
+              }
+            },
+            "required": ["code", "severity", "artifacts", "reason", "disposition"]
+          }
+        },
+        "policy_summary": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "severity_summary": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "policy_guidance": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+        ,
+        "dominant_disposition": { "type": "string" },
+        "highest_severity": {
+          "type": "string",
+          "enum": ["info", "warn", "block"]
+        }
+      },
+      "required": [
+        "distinct_roles",
+        "distinct_authority_classes",
+        "contains_promoted_truth",
+        "contains_derived_artifacts",
+        "incompatibility_flags",
+        "named_incompatibilities",
+        "policy_summary",
+        "severity_summary",
+        "policy_guidance",
+        "dominant_disposition",
+        "highest_severity"
+      ]
+    },
+    "artifacts": {
+      "type": "array",
+      "items": { "type": "object" }
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_role",
+    "artifact_id",
+    "artifact_ids",
+    "roles",
+    "role_counts",
+    "authority_classes",
+    "lineage",
+    "unresolved_pressure_counts",
+    "compatibility",
+    "artifacts"
+  ]
+}

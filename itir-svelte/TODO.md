@@ -8,10 +8,46 @@ Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_R
 ## Direction
 
 - `itir-svelte/` is the sole intended web interface for ITIR-suite.
+- product-stack adoption should prefer producer-owned normalized artifacts over
+  route-local reinterpretation
 - Treat legacy `Pelican/` and `Zola/` web generators in other projects as
   reference-only migration material, not active runtime targets.
 - When legacy behavior is still useful, port or restate the contract here
   rather than extending those older web stacks.
+
+## Suite Normalized Artifact Adoption
+
+- DONE (2026-04-02): add `/graphs/normalized-artifacts` as the first bounded
+  suite-level operator consumer for the root normalized artifact contract.
+  - reads current `SensibLaw` and `StatiBaker` normalized artifacts directly
+  - stays read-only
+  - does not reinterpret compiled state as review output or vice versa
+- DONE (2026-04-02): upgrade `/graphs/normalized-artifacts` from a proof card
+  into a clearer operator inspection surface.
+  - makes the four operator questions explicit:
+    what this artifact is, why it exists, what supports it, and what remains
+    unresolved
+  - surfaces review-side promotion gate and recommended next action from the
+    existing fact-review workflow summary
+  - adds bounded drill-ins to the fact-review workbench and timeline ribbon
+- DONE (2026-04-02): widen `/graphs/normalized-artifacts` to one explicit
+  capture/archive adopter path.
+  - accepts one producer-owned `chat-export-structurer` normalized artifact
+    path via the route query
+  - keeps archive inspection bounded to `/corpora/chat-archive`
+- DONE (2026-04-02): keep `/graphs/normalized-artifacts` aligned with the
+  normalized-artifact contract by making conformance visibility explicit,
+  honoring explicit `tircorder` capture/source paths when the route copy
+  already carries them, surfacing `notebooklm-py` retrieval paths that travel
+  alongside those copies, and leaving source artifacts source-shaped instead
+  of rerouting them into a state drill-in.
+- next:
+  - widen the route only to additional producer-owned adopters with real
+    normalized artifact lanes
+  - add richer contract diagnostics only if they stay read-only and
+    root-contract-shaped
+  - keep broader domain-specific proving grounds subordinate to this shared
+    product-stack view
 
 ## Near-Term (Parity)
 

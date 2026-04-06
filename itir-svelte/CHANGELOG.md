@@ -3,6 +3,41 @@
 This changelog records user-visible behavior changes in the Svelte SB dashboard port.
 
 ## Unreleased
+- Added `/graphs/normalized-artifacts` plus
+  `src/lib/server/normalizedArtifacts.ts` as the first suite-level read-only
+  consumer for the root normalized artifact contract across producer-owned
+  outputs from `SensibLaw` and `StatiBaker`.
+- Expanded `/graphs/normalized-artifacts` into a clearer operator inspection
+  surface without changing authority boundaries.
+  - The route now makes the four operator questions explicit:
+    what this artifact is, why it exists, what supports it, and what remains
+    unresolved.
+  - Review-backed artifacts now surface existing fact-review workflow context:
+    promotion-gate status, recommended next view/filter, and a direct drill-in
+    link to the persisted fact-review workbench.
+  - Compiled-state artifacts now expose a bounded drill-in to the timeline
+    ribbon rather than inventing a local review workflow.
+- Added focused route regression coverage in
+  `tests/graph_ui_regressions.test.js`.
+- `/graphs/normalized-artifacts` now surfaces the normalized-artifact contract
+  conformance metadata, honors explicit `tircorder` capture/source paths when
+  they travel with the route copy, surfaces `notebooklm-py` retrieval paths
+  that already accompany those copies, and keeps source artifacts source-
+  shaped instead of rerouting them into a state drill-in.
+- Widened `/graphs/normalized-artifacts` to one explicit capture/archive
+  adopter path.
+  - The route now accepts one producer-owned
+    `chat-export-structurer` normalized artifact path via the page query.
+  - It reads that archive artifact directly and keeps the drill-in bounded to
+    `/corpora/chat-archive` rather than inventing local archive semantics.
+- Extended `/graphs/normalized-artifacts` with explicit conformance visibility
+  and bounded producer-owned source/retrieval adopters.
+  - Each artifact card now shows root schema match, required-field coverage,
+    and authority/follow consistency hints from the shared contract helper.
+  - `tircorder-JOBBIE` source sidecars stay source-shaped and do not get a
+    synthetic timeline/state drill-in.
+  - `notebooklm-py` retrieval/follow artifacts remain explicitly derived and
+    non-authoritative.
 - Graphs/fact review: shared follow/review control-plane rendering
   - `/graphs/fact-review` now renders control-plane-backed queues generically
     from shared `control_plane` / `queue` metadata.

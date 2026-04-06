@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://itir-suite.local/schema/itir.normalized.artifact.v1.schema.json",
+  "title": "ITIRNormalizedArtifactV1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "artifact_role",
+    "artifact_id",
+    "canonical_identity",
+    "provenance_anchor",
+    "context_envelope_ref",
+    "authority",
+    "lineage",
+    "unresolved_pressure_status"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "itir.normalized.artifact.v1"
+    },
+    "artifact_role": {
+      "type": "string",
+      "enum": [
+        "source_artifact",
+        "observed_signal",
+        "compiled_state",
+        "reviewable_claim",
+        "promoted_record",
+        "derived_product",
+        "bounded_union_surface"
+      ]
+    },
+    "artifact_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "canonical_identity": {
+      "type": "object",
+      "required": ["identity_class", "identity_key"],
+      "properties": {
+        "identity_class": { "type": "string", "minLength": 1 },
+        "identity_key": { "type": "string", "minLength": 1 },
+        "aliases": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      },
+      "additionalProperties": true
+    },
+    "provenance_anchor": {
+      "type": "object",
+      "required": ["source_system", "source_artifact_id", "anchor_kind"],
+      "properties": {
+        "source_system": { "type": "string", "minLength": 1 },
+        "source_artifact_id": { "type": "string", "minLength": 1 },
+        "anchor_kind": { "type": "string", "minLength": 1 },
+        "anchor_ref": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "context_envelope_ref": {
+      "type": "object",
+      "required": ["envelope_id", "envelope_kind"],
+      "properties": {
+        "envelope_id": { "type": "string", "minLength": 1 },
+        "envelope_kind": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": true
+    },
+    "authority": {
+      "type": "object",
+      "required": ["authority_class", "derived"],
+      "properties": {
+        "authority_class": {
+          "type": "string",
+          "enum": [
+            "capture",
+            "archive",
+            "state",
+            "review",
+            "promoted_truth",
+            "derived_inspection",
+            "bounded_union"
+          ]
+        },
+        "derived": { "type": "boolean" },
+        "promotion_receipt_ref": {
+          "type": ["object", "null"],
+          "required": ["receipt_id"],
+          "properties": {
+            "receipt_id": { "type": "string", "minLength": 1 },
+            "receipt_kind": { "type": "string" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "lineage": {
+      "type": "object",
+      "required": ["upstream_artifact_ids"],
+      "properties": {
+        "upstream_artifact_ids": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "profile_version": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "follow_obligation": {
+      "type": ["object", "null"],
+      "required": ["trigger", "scope", "stop_condition"],
+      "properties": {
+        "trigger": { "type": "string", "minLength": 1 },
+        "scope": { "type": "string", "minLength": 1 },
+        "stop_condition": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": true
+    },
+    "unresolved_pressure_status": {
+      "type": "string",
+      "enum": ["none", "follow_needed", "hold", "abstain"]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "artifact_role": { "const": "promoted_record" }
+        }
+      },
+      "then": {
+        "properties": {
+          "authority": {
+            "properties": {
+              "authority_class": { "const": "promoted_truth" },
+              "derived": { "const": false }
+            },
+            "required": ["promotion_receipt_ref"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "artifact_role": { "enum": ["derived_product", "bounded_union_surface"] }
+        }
+      },
+      "then": {
+        "properties": {
+          "authority": {
+            "properties": {
+              "derived": { "const": true }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "follow_obligation": { "type": "object" }
+        },
+        "required": ["follow_obligation"]
+      },
+      "then": {
+        "properties": {
+          "unresolved_pressure_status": {
+            "enum": ["follow_needed", "hold", "abstain"]
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": true
+}

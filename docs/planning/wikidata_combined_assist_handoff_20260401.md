@@ -17,6 +17,8 @@ Peter/Ege/Rosario assist lane.
 - split-plan-first review is now the correct continuation
 - next missing layer: generic reviewer packets with bounded wiki parsing and
   followed-source receipts
+- non-company axis integration only: the current company tranche is calibration
+  rather than a new expansion, so downstream docs should treat it as such
 
 ### Assist Lane
 

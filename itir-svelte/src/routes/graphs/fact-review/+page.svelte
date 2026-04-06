@@ -6,10 +6,15 @@
     FactReviewExcerpt,
     FactReviewFact,
     FactReviewInspectorClassification,
+    FactReviewLegalFollowGraphEdge,
+    FactReviewLegalFollowGraphNode,
     FactReviewRecentSource,
     FactReviewSource,
     FactReviewStatement,
-    FactReviewViewItem
+    FactReviewViewItem,
+    FactReviewLegalFollowGraphOperatorHighlightNode,
+    FactReviewLegalFollowGraphOperatorSampleEdge,
+    FactReviewOperatorLegalFollowGraphView
   } from '$lib/server/factReview';
   import {
     buildFactReviewCurrentHref,
@@ -24,6 +29,11 @@
   } from '$lib/workbench/factReview.js';
 
   type FactReviewSourceRow = FactReviewSource | FactReviewRecentSource;
+
+  type LegalFollowGraphDistribution = {
+    label: string;
+    entries?: Record<string, number>;
+  };
 
   export let data: PageData;
 
@@ -54,6 +64,38 @@
     data.view === 'authority_follow'
       ? []
       : (resolveFactReviewFilteredItems(data.workbench, data.view, selectedIssueFilter) as FactReviewViewItem[]);
+  $: legalFollowGraph = data.workbench?.legal_follow_graph ?? null;
+  $: legalFollowGraphSummary = legalFollowGraph?.summary ?? null;
+  $: legalFollowGraphNodes = (legalFollowGraph?.nodes ?? []) as FactReviewLegalFollowGraphNode[];
+  $: legalFollowGraphEdges = (legalFollowGraph?.edges ?? []) as FactReviewLegalFollowGraphEdge[];
+  $: legalFollowGraphNodeMap = new Map(legalFollowGraphNodes.map((node) => [node.id, node]));
+  $: legalFollowReferenceNodes = legalFollowGraphNodes
+    .filter((node) => ['case_ref', 'supporting_legislation', 'cited_instrument', 'legal_ref', 'citation'].includes(node.kind))
+    .slice(0, 8);
+  $: legalFollowAuthorityNodes = legalFollowGraphNodes
+    .filter((node) => ['authority_title', 'authority_receipt'].includes(node.kind))
+    .slice(0, 8);
+  $: legalFollowEdges = legalFollowGraphEdges.slice(0, 10);
+  $: legalFollowGraphDistributions = legalFollowGraphSummary
+    ? [
+        { label: 'Source kinds', entries: legalFollowGraphSummary.source_kind_counts },
+        { label: 'Source families', entries: legalFollowGraphSummary.source_family_label_counts },
+        { label: 'Linkage kinds', entries: legalFollowGraphSummary.linkage_kind_counts },
+        { label: 'Review statuses', entries: legalFollowGraphSummary.review_status_label_counts },
+        { label: 'Support kinds', entries: legalFollowGraphSummary.support_kind_label_counts }
+      ].filter((distribution) => distribution.entries && Object.keys(distribution.entries).length > 0)
+    : [];
+  $: isGwbWorkflow = data.workflowKind?.startsWith('gwb');
+  $: gwbLegalFollowGraphOperatorView = (
+    data.workbench?.operator_views?.legal_follow_graph as FactReviewOperatorLegalFollowGraphView | undefined
+  ) ?? null;
+  $: gwbLegalFollowGraphSummaryEntries = gwbLegalFollowGraphOperatorView?.summary
+    ? Object.entries(gwbLegalFollowGraphOperatorView.summary).filter(
+        ([, count]) => typeof count === 'number' && count > 0
+      )
+    : [];
+  $: gwbHighlightNodes = (gwbLegalFollowGraphOperatorView?.highlight_nodes ?? []) as FactReviewLegalFollowGraphOperatorHighlightNode[];
+  $: gwbSampleEdges = (gwbLegalFollowGraphOperatorView?.sample_edges ?? []) as FactReviewLegalFollowGraphOperatorSampleEdge[];
   $: controlPlaneQueueRaw =
     selectedView?.control_plane?.version && Array.isArray(selectedView?.queue)
       ? (selectedView.queue as FactReviewControlPlaneQueueItem[])
@@ -79,6 +121,7 @@
     wave: data.wave,
     view: data.view
   });
+  $: workflowSummary = data.workbench?.workflow_summary ?? null;
   $: chronologyBuckets = resolveChronologyBuckets(data.workbench);
   $: selectedFact = resolveSelectedFact(data.workbench, selectedFactId) as FactReviewFact | null;
   $: selectedClassification = resolveInspectorClassification(
@@ -95,6 +138,16 @@
   $: selectedEvents = (data.workbench?.events ?? []).filter((row) =>
     selectedFact?.event_ids?.includes(row.event_id)
   ) as FactReviewEvent[];
+  $: if (
+    workflowSummary &&
+    data.view === workflowSummary.recommended_view &&
+    selectedIssueFilter === 'all' &&
+    workflowSummary.recommended_filter &&
+    workflowSummary.recommended_filter !== 'all' &&
+    availableIssueFilters.includes(workflowSummary.recommended_filter)
+  ) {
+    selectedIssueFilter = workflowSummary.recommended_filter;
+  }
 
   function hrefForView(key: string): string {
     const params = new URLSearchParams();
@@ -134,6 +187,58 @@
     if (family === 'mary') return 'border-amber-200 bg-amber-50 text-amber-900';
     if (family === 'itir') return 'border-sky-200 bg-sky-50 text-sky-900';
     return 'border-zinc-200 bg-zinc-50 text-zinc-700';
+  }
+
+  function workflowStageLabel(stage: string | null | undefined): string {
+    if (stage === 'follow_up') return 'Follow-up';
+    if (stage === 'decide') return 'Decide';
+    if (stage === 'record') return 'Record';
+    return 'Inspect';
+  }
+
+  function workflowStageTone(stage: string | null | undefined): string {
+    if (stage === 'follow_up') return 'border-rose-200 bg-rose-50 text-rose-900';
+    if (stage === 'decide') return 'border-amber-200 bg-amber-50 text-amber-900';
+    if (stage === 'record') return 'border-emerald-200 bg-emerald-50 text-emerald-900';
+    return 'border-sky-200 bg-sky-50 text-sky-900';
+  }
+
+  function legalNodeKindLabel(kind: string | null | undefined): string {
+    if (kind === 'supporting_legislation') return 'Supporting legislation';
+    if (kind === 'cited_instrument') return 'Cited instrument';
+    if (kind === 'case_ref') return 'Case ref';
+    if (kind === 'authority_title') return 'Authority title';
+    if (kind === 'authority_receipt') return 'Authority receipt';
+    if (kind === 'citation') return 'Citation';
+    if (kind === 'event') return 'Event';
+    return 'Legal node';
+  }
+
+  function legalNodeMetaLine(node: FactReviewLegalFollowGraphNode): string {
+    const metadata = (node.metadata ?? {}) as Record<string, unknown>;
+    const parts: string[] = [];
+    if (typeof metadata.source_title === 'string' && metadata.source_title) parts.push(metadata.source_title);
+    if (typeof metadata.neutral_citation === 'string' && metadata.neutral_citation) parts.push(metadata.neutral_citation);
+    if (typeof metadata.reference_class === 'string' && metadata.reference_class) parts.push(metadata.reference_class);
+    if (typeof metadata.authority_kind === 'string' && metadata.authority_kind) parts.push(metadata.authority_kind);
+    if (Array.isArray(metadata.selected_paragraph_numbers) && metadata.selected_paragraph_numbers.length > 0) {
+      parts.push(`paras ${metadata.selected_paragraph_numbers.join(', ')}`);
+    }
+    if (Array.isArray(metadata.supporting_receipt_ids) && metadata.supporting_receipt_ids.length > 0) {
+      parts.push(`${metadata.supporting_receipt_ids.length} receipt${metadata.supporting_receipt_ids.length === 1 ? '' : 's'}`);
+    }
+    if (Array.isArray(metadata.supporting_event_sections) && metadata.supporting_event_sections.length > 0) {
+      parts.push(metadata.supporting_event_sections.join(', '));
+    }
+    return parts.join(' · ');
+  }
+
+  function legalEdgeSummary(edge: FactReviewLegalFollowGraphEdge): string {
+    const sourceNode = legalFollowGraphNodeMap.get(edge.source);
+    const targetNode = legalFollowGraphNodeMap.get(edge.target);
+    const sourceLabel = sourceNode?.label ?? edge.source;
+    const targetLabel = targetNode?.label ?? edge.target;
+    return `${sourceLabel} -> ${targetLabel}`;
   }
 </script>
 
@@ -191,6 +296,246 @@
         </div>
       </div>
     </div>
+
+    {#if workflowSummary}
+      <section class="mb-6 rounded border border-zinc-200 bg-white p-4">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div class={`inline-flex rounded border px-2 py-1 text-[11px] uppercase tracking-[0.2em] ${workflowStageTone(workflowSummary.stage)}`}>
+              {workflowStageLabel(workflowSummary.stage)}
+            </div>
+            <h2 class="mt-3 text-lg font-semibold text-zinc-950">{workflowSummary.title}</h2>
+            <p class="mt-1 max-w-3xl text-sm text-zinc-700">{workflowSummary.reason}</p>
+          </div>
+          {#if workflowSummary.promotion_gate?.decision}
+            <div class="rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-700">
+              <div class="text-[11px] uppercase tracking-[0.2em] text-zinc-500">Promotion gate</div>
+              <div class="mt-1 font-medium text-zinc-900">{workflowSummary.promotion_gate.decision}</div>
+              <div class="text-xs text-zinc-600">{workflowSummary.promotion_gate.reason}</div>
+            </div>
+          {/if}
+        </div>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <a
+            class={`rounded border px-3 py-2 text-sm ${data.view === workflowSummary.recommended_view ? 'border-amber-300 bg-amber-50 text-amber-950' : 'border-zinc-200 bg-zinc-50 text-zinc-700'}`}
+            href={hrefForView(workflowSummary.recommended_view)}
+          >
+            Open {views.find((row) => row.key === workflowSummary.recommended_view)?.label ?? workflowSummary.recommended_view}
+          </a>
+          {#if workflowSummary.focus_fact_id}
+            <button
+              class="rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-700"
+              on:click={() => {
+                if (workflowSummary.focus_fact_id) clickFact(workflowSummary.focus_fact_id);
+              }}
+            >
+              Focus suggested fact
+            </button>
+          {/if}
+        </div>
+        <div class="mt-4 grid gap-3 md:grid-cols-5">
+          <div class="rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm">
+            <div class="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Review queue</div>
+            <div class="mt-1 font-medium text-zinc-900">{workflowSummary.counts.review_queue_count}</div>
+          </div>
+          <div class="rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm">
+            <div class="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Contested follow-up</div>
+            <div class="mt-1 font-medium text-zinc-900">{workflowSummary.counts.contested_followup_count}</div>
+          </div>
+          <div class="rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm">
+            <div class="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Authority follow-up</div>
+            <div class="mt-1 font-medium text-zinc-900">{workflowSummary.counts.authority_follow_queue_count}</div>
+          </div>
+          <div class="rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm">
+            <div class="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Undated events</div>
+            <div class="mt-1 font-medium text-zinc-900">{workflowSummary.counts.undated_event_count}</div>
+          </div>
+          <div class="rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm">
+            <div class="text-[11px] uppercase tracking-[0.18em] text-zinc-500">No-event facts</div>
+            <div class="mt-1 font-medium text-zinc-900">{workflowSummary.counts.no_event_fact_count}</div>
+          </div>
+        </div>
+      </section>
+      {#if legalFollowGraphSummary}
+        <section class="mb-6 rounded border border-zinc-200 bg-white p-4">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <div class="text-xs uppercase tracking-[0.24em] text-zinc-500">Derived legal follow graph</div>
+              <p class="mt-1 text-sm text-zinc-700">Counts below are derived from AU receipts, legal refs, and cited instruments; they stay descriptive.</p>
+            </div>
+            <div class="text-xs text-zinc-500">Derived-only · Challengeable</div>
+          </div>
+          <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm">
+              <div class="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Nodes</div>
+              <div class="mt-1 font-semibold text-zinc-900">{legalFollowGraphSummary.node_count ?? 0}</div>
+              <div class="text-xs text-zinc-600">Events, refs, citations, receipts</div>
+            </div>
+            <div class="rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm">
+              <div class="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Edges</div>
+              <div class="mt-1 font-semibold text-zinc-900">{legalFollowGraphSummary.edge_count ?? 0}</div>
+              <div class="text-xs text-zinc-600">Mentions · supports · resolves</div>
+            </div>
+            <div class="rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm">
+              <div class="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Authority receipts</div>
+              <div class="mt-1 font-semibold text-zinc-900">{legalFollowGraphSummary.authority_receipt_count ?? 0}</div>
+              <div class="text-xs text-zinc-600">
+                {legalFollowGraphSummary.supporting_receipt_count ?? legalFollowGraphSummary.authority_receipt_count ?? 0}
+                supporting receipts in attached provenance
+              </div>
+            </div>
+            <div class="rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm">
+              <div class="text-[11px] uppercase tracking-[0.18em] text-zinc-500">Case refs & statutes</div>
+              <div class="mt-1 text-sm text-zinc-900 flex flex-wrap items-center gap-1">
+                <span>{legalFollowGraphSummary.case_ref_count ?? 0}<span class="text-xs text-zinc-500">cases</span></span>
+                <span class="text-zinc-300">·</span>
+                <span>{legalFollowGraphSummary.supporting_legislation_count ?? 0}<span class="text-xs text-zinc-500">acts</span></span>
+                <span class="text-zinc-300">·</span>
+                <span>{legalFollowGraphSummary.cited_instrument_count ?? 0}<span class="text-xs text-zinc-500">instruments</span></span>
+              </div>
+              {#if legalFollowGraphSummary.supporting_authority_kind_counts}
+                <div class="mt-2 text-xs text-zinc-600">
+                  {Object.entries(legalFollowGraphSummary.supporting_authority_kind_counts)
+                    .map(([kind, count]) => `${kind}: ${count}`)
+                    .join(' · ')}
+                </div>
+              {/if}
+            </div>
+          </div>
+          {#if legalFollowGraphDistributions.length > 0}
+            <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {#each legalFollowGraphDistributions as distribution (distribution.label)}
+                <div class="rounded border border-zinc-200 bg-zinc-50 p-3 text-sm">
+                  <div class="text-[11px] uppercase tracking-[0.18em] text-zinc-500">{distribution.label}</div>
+                  <div class="mt-2 flex flex-wrap gap-2">
+                    {#each Object.entries(distribution.entries ?? {}) as [key, count]}
+                      <span class="rounded border border-zinc-200 bg-white px-2 py-1 text-[11px] font-semibold text-zinc-900">
+                        {key}: {count}
+                      </span>
+                    {/each}
+                  </div>
+                </div>
+              {/each}
+            </div>
+          {/if}
+          <div class="mt-4 grid gap-4 lg:grid-cols-3">
+            <div class="rounded border border-zinc-200 bg-zinc-50 p-3">
+              <div class="text-xs uppercase tracking-[0.18em] text-zinc-500">Authorities and receipts</div>
+              {#if legalFollowAuthorityNodes.length > 0}
+                {#each legalFollowAuthorityNodes as node}
+                  <div class="mt-2 rounded border border-zinc-200 bg-white px-3 py-2 text-sm">
+                    <div class="font-medium text-zinc-900">{node.label}</div>
+                    <div class="mt-1 text-xs text-zinc-500">{legalNodeKindLabel(node.kind)}</div>
+                    {#if legalNodeMetaLine(node)}
+                      <div class="mt-1 text-xs text-zinc-600">{legalNodeMetaLine(node)}</div>
+                    {/if}
+                  </div>
+                {/each}
+              {:else}
+                <div class="mt-2 rounded border border-dashed border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-600">
+                  No authority nodes are available for this run.
+                </div>
+              {/if}
+            </div>
+            <div class="rounded border border-zinc-200 bg-zinc-50 p-3">
+              <div class="text-xs uppercase tracking-[0.18em] text-zinc-500">Refs and citations</div>
+              {#if legalFollowReferenceNodes.length > 0}
+                {#each legalFollowReferenceNodes as node}
+                  <div class="mt-2 rounded border border-zinc-200 bg-white px-3 py-2 text-sm">
+                    <div class="font-medium text-zinc-900">{node.label}</div>
+                    <div class="mt-1 text-xs text-zinc-500">{legalNodeKindLabel(node.kind)}</div>
+                    {#if legalNodeMetaLine(node)}
+                      <div class="mt-1 text-xs text-zinc-600">{legalNodeMetaLine(node)}</div>
+                    {/if}
+                  </div>
+                {/each}
+              {:else}
+                <div class="mt-2 rounded border border-dashed border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-600">
+                  No reference or citation nodes are available for this run.
+                </div>
+              {/if}
+            </div>
+            <div class="rounded border border-zinc-200 bg-zinc-50 p-3">
+              <div class="text-xs uppercase tracking-[0.18em] text-zinc-500">Typed links</div>
+              {#if legalFollowEdges.length > 0}
+                {#each legalFollowEdges as edge}
+                  <div class="mt-2 rounded border border-zinc-200 bg-white px-3 py-2 text-sm">
+                    <div class="font-medium text-zinc-900">{edge.kind.replaceAll('_', ' ')}</div>
+                    <div class="mt-1 text-xs text-zinc-600">{legalEdgeSummary(edge)}</div>
+                  </div>
+                {/each}
+              {:else}
+                <div class="mt-2 rounded border border-dashed border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-600">
+                  No typed graph links are available for this run.
+                </div>
+              {/if}
+            </div>
+          </div>
+        </section>
+      {/if}
+      {#if isGwbWorkflow && gwbLegalFollowGraphOperatorView?.available}
+        <section class="mb-6 rounded border border-zinc-200 bg-white p-4">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <div class="text-xs uppercase tracking-[0.24em] text-zinc-500">GWB legal-linkage operator view</div>
+              <p class="mt-1 text-sm text-zinc-700">Readable derived counts, highlight nodes, and sample links from the GWB legal-follow graph helper.</p>
+            </div>
+            <div class="text-xs text-zinc-500">Derived-only · Challengeable</div>
+          </div>
+          {#if gwbLegalFollowGraphSummaryEntries.length > 0}
+            <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {#each gwbLegalFollowGraphSummaryEntries.slice(0, 4) as [key, value]}
+                <div class="rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm">
+                  <div class="text-[11px] uppercase tracking-[0.18em] text-zinc-500">{key.replaceAll('_', ' ')}</div>
+                  <div class="mt-2 font-semibold text-zinc-900">{value}</div>
+                </div>
+              {/each}
+            </div>
+          {/if}
+          <div class="mt-4 grid gap-4 lg:grid-cols-3">
+            <div class="rounded border border-zinc-200 bg-zinc-50 p-3">
+              <div class="text-xs uppercase tracking-[0.18em] text-zinc-500">Highlight nodes</div>
+              {#if gwbHighlightNodes.length > 0}
+                {#each gwbHighlightNodes as node}
+                  <div class="mt-2 rounded border border-zinc-200 bg-white px-3 py-2 text-sm">
+                    <div class="font-medium text-zinc-900">{node.label || 'Unnamed node'}</div>
+                    <div class="mt-1 text-xs text-zinc-500">{node.kind.replaceAll('_', ' ')}</div>
+                    <div class="mt-1 text-xs text-zinc-600">ID: {node.id}</div>
+                  </div>
+                {/each}
+              {:else}
+                <div class="mt-2 rounded border border-dashed border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-600">
+                  No highlight nodes are available for this lane.
+                </div>
+              {/if}
+            </div>
+            <div class="rounded border border-zinc-200 bg-zinc-50 p-3">
+              <div class="text-xs uppercase tracking-[0.18em] text-zinc-500">Sample typed links</div>
+              {#if gwbSampleEdges.length > 0}
+                {#each gwbSampleEdges as edge}
+                  <div class="mt-2 rounded border border-zinc-200 bg-white px-3 py-2 text-sm">
+                    <div class="font-medium text-zinc-900">{edge.kind.replaceAll('_', ' ')}</div>
+                    <div class="mt-1 text-xs text-zinc-600">{edge.source} → {edge.target}</div>
+                  </div>
+                {/each}
+              {:else}
+                <div class="mt-2 rounded border border-dashed border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-600">
+                  No sample links are available for this lane.
+                </div>
+              {/if}
+            </div>
+            <div class="rounded border border-zinc-200 bg-zinc-50 p-3">
+              <div class="text-xs uppercase tracking-[0.18em] text-zinc-500">Inspectable detail</div>
+              <div class="mt-2 space-y-2 text-xs text-zinc-600">
+                <div>Derived from the GWB linkage helper, not a new reasoning layer.</div>
+                <div>Operator view surfaces remain read-only and provenance-first.</div>
+                <div>Sample links highlight where linkage pressure is concentrated.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      {/if}
+    {/if}
 
     <section class="mb-6 rounded border border-zinc-200 bg-white p-4">
       <div class="mb-4">

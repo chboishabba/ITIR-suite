@@ -71,12 +71,15 @@ actor Reviewer
 rectangle "ITIR / SensibLaw" {
   component "Input Interface" as IN
   component "Processing Engine" as PE
+  component "Promotion Core" as PC
   component "Identity Engine" as IE
   component "Graph Engine" as GE
+  component "Derived Legal Follow Graph" as LG
   component "Alignment Engine" as AE
   component "Obligation Layer" as OL
   component "Output Engine" as OE
   component "Governance Layer" as GL
+  component "Anti-Panopticon / Red-Team Guard" as AP
 }
 
 database "Evidence Store" as ES
@@ -86,7 +89,10 @@ database "Audit Store" as AS
 User --> IN : uploads narrative,\ndocuments, audio, goals
 IN --> PE : normalized inputs
 PE --> ES : structured evidence
-PE --> GE : facts, rules, atoms
+PE --> PC : extracted candidates
+PC --> GE : promoted facts, rules, atoms
+GE --> LG : derived legal / claim graph
+LG --> OE : graph products
 IN --> IE : context, trust, friction, goals
 IE --> GE : identity atoms
 GE --> GS : legal graph + identity graph
@@ -96,10 +102,14 @@ OL --> OE : actor, deadline,\nfallback, status
 OE --> User : reports, next actions,\ncase views
 
 GL --> PE : policy controls
+GL --> PC : anti-panopticon + promotion rules
 GL --> IE : trust constraints
-GL --> GE : promotion rules
+GL --> GE : derived graph constraints
 GL --> OL : escalation policy
 GL --> AS : audit trail
+AP --> GL : refusal constraints,\nred-team checks
+AP --> GE : anti-overclaim guard
+AP --> OE : descriptive-only limits
 
 Reviewer --> GL : review, correction,\nexception handling
 @enduml

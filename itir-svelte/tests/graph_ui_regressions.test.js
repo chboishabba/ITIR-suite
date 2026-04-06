@@ -439,3 +439,39 @@ test('fact review workbench route loads persisted workbench and acceptance paylo
   assert.ok(page.includes('No items are available for this operator view and filter yet.'));
   assert.ok(home.includes('Mary-parity fact review workbench'));
 });
+
+test('normalized artifacts route surfaces operator questions and review-specific next actions without local reinterpretation', () => {
+  const server = read('src/routes/graphs/normalized-artifacts/+page.server.ts');
+  const loader = read('src/lib/server/normalizedArtifacts.ts');
+  const conformance = read('src/lib/server/normalizedArtifactConformance.ts');
+  const tircorder = read('src/lib/server/tircorderSourceArtifact.ts');
+  const page = read('src/routes/graphs/normalized-artifacts/+page.svelte');
+
+  assert.ok(server.includes('loadFactReviewNormalizedArtifact'));
+  assert.ok(server.includes('loadSbNormalizedArtifact'));
+  assert.ok(server.includes('loadArchiveNormalizedArtifact'));
+  assert.ok(server.includes('summarizeNormalizedArtifactConformance'));
+  assert.ok(server.includes("url.searchParams.get('archiveArtifact')"));
+  assert.ok(server.includes("url.searchParams.get('captureArtifact')"));
+  assert.ok(loader.includes('buildFactReviewInspectHref'));
+  assert.ok(loader.includes("producer: 'chat-export-structurer'"));
+  assert.ok(loader.includes("inspect_href: '/corpora/chat-archive'"));
+  assert.ok(loader.includes("inspect_label: workflowSummary?.recommended_view ? 'Open recommended review view' : 'Open fact review workbench'"));
+  assert.ok(loader.includes("inspect_href: '/graphs/timeline-ribbon'"));
+  assert.ok(loader.includes('return loadTircorderSourceArtifact(artifactPath);'));
+  assert.ok(tircorder.includes("producer: 'tircorder-JOBBIE'"));
+  assert.ok(!tircorder.includes("inspect_href: '/graphs/timeline-ribbon'"));
+  assert.ok(conformance.includes("const SCHEMA_VERSION = 'itir.normalized.artifact.v1'"));
+  assert.ok(conformance.includes('promoted_record requires authority.promotion_receipt_ref.receipt_id'));
+  assert.ok(page.includes('what this artifact is, why it exists, what supports it, and what remains unresolved'));
+  assert.ok(page.includes('Contract conformance'));
+  assert.ok(page.includes('Promotion gate'));
+  assert.ok(page.includes('Recommended next action'));
+  assert.ok(loader.includes('Open recommended review view'));
+  assert.ok(page.includes('Upstream artifacts'));
+  assert.ok(page.includes('The operator questions are explicit here'));
+  assert.ok(page.includes('Archive artifact'));
+  assert.ok(page.includes('Capture artifact'));
+  assert.ok(page.includes('No contract issues detected in the loaded payload.'));
+  assert.ok(page.includes('Capture/archive adoption is explicit-path only for now.'));
+});
