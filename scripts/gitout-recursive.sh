@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Recursive "git add/commit/push" for the superproject + all submodules.
-# Intended to match: git add . && git commit -m "auto" && git push
-# but uses add -A and skips clean/detached repos.
+# Recursive "git pull/add/commit/push" for the superproject + all submodules.
+# Intended to keep submodules and the superproject moving together by:
+# 1. fast-forwarding each repo to its upstream branch when possible
+# 2. committing/pushing submodule changes first
+# 3. committing/pushing the superproject last so gitlink bumps are captured
+# Uses add -A and skips clean/detached repos.
 
 MSG="auto"
 NO_VERIFY=0
@@ -13,6 +16,7 @@ print_help() {
 Usage: scripts/gitout-recursive.sh [--message MSG] [--no-verify]
 
 Runs, for the superproject and every (initialized) submodule recursively:
+  git pull --ff-only
   git add -A
   git commit -m MSG
   git push
@@ -23,6 +27,7 @@ Skips:
 
 Notes:
 - Uses `git -c safe.directory=...` per repo to avoid "dubious ownership" blocks.
+- Uses `git pull --ff-only` when the current branch has an upstream.
 - If push fails (non-ff, auth, etc.), the script continues to the next repo.
 EOF
 }
@@ -65,13 +70,12 @@ if ! git_root rev-parse --is-inside-work-tree >/dev/null 2>&1; then
 fi
 
 collect_repos() {
-  local -a repos=()
-  repos+=("$ROOT_DIR")
-
   # If submodules aren't initialized, `git submodule status --recursive` won't list them.
   # That's fine; we only operate on actual worktrees on disk.
   local -a subs=()
   mapfile -t subs < <(git_root submodule status --recursive 2>/dev/null | awk '{print $2}' || true)
+
+  local -a repos=()
   for p in "${subs[@]}"; do
     [[ -n "$p" ]] || continue
     if [[ -e "$ROOT_DIR/$p/.git" ]]; then
@@ -79,7 +83,29 @@ collect_repos() {
     fi
   done
 
+  repos+=("$ROOT_DIR")
+
   printf '%s\n' "${repos[@]}" | awk '!seen[$0]++'
+}
+
+maybe_pull_ff_only() {
+  local repo="$1"
+  local abs
+  abs="$(cd "$repo" && pwd)"
+
+  g() { git -c "safe.directory=$abs" -C "$repo" "$@"; }
+
+  if ! g rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' >/dev/null 2>&1; then
+    echo "INFO: no upstream configured"
+    return 0
+  fi
+
+  if ! g pull --ff-only; then
+    echo "FAIL: pull --ff-only failed"
+    return 1
+  fi
+
+  return 0
 }
 
 gitout_one() {
@@ -102,6 +128,11 @@ gitout_one() {
   fi
 
   echo "==> $repo ($branch)"
+
+  if ! maybe_pull_ff_only "$repo"; then
+    echo
+    return 1
+  fi
 
   g add -A
   if g diff --cached --quiet; then
@@ -141,4 +172,3 @@ while IFS= read -r repo; do
 done < <(collect_repos)
 
 exit "$fail"
-
