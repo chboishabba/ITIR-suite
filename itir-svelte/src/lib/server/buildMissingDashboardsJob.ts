@@ -3,6 +3,7 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import crypto from 'node:crypto';
 import { resolveChatArchivePath } from '$lib/server/chatArchive';
+import { fileExists, resolveRepoRoot } from '$lib/server/dashboard-home';
 
 type Stage = 'idle' | 'ingest_codex' | 'build_dashboards' | 'done' | 'error';
 
@@ -40,24 +41,10 @@ function mkJobId(): string {
   return crypto.randomBytes(12).toString('hex');
 }
 
-async function fileExists(p: string): Promise<boolean> {
-  try {
-    const st = await fs.stat(p);
-    return st.isFile();
-  } catch {
-    return false;
-  }
-}
-
 async function loadExistsForDate(runsRoot: string, date: string): Promise<boolean> {
   const pAll = path.join(runsRoot, date, 'outputs', 'dashboard_all.json');
   const p = path.join(runsRoot, date, 'outputs', 'dashboard.json');
   return (await fileExists(pAll)) || (await fileExists(p));
-}
-
-function resolveRepoRoot(): string {
-  // itir-svelte is a sibling of StatiBaker in ITIR-suite.
-  return path.resolve('..');
 }
 
 function resolvePython(repoRoot: string): string {

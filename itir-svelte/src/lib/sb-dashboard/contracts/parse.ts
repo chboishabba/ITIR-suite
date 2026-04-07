@@ -1,4 +1,4 @@
-import { DashboardPayloadSchema, type DashboardPayload } from './dashboard';
+import { DashboardPayloadSchema, type DashboardPayload } from './dashboard.ts';
 
 export function parseDashboardPayload(raw: unknown): DashboardPayload {
   const parsed = DashboardPayloadSchema.safeParse(raw);

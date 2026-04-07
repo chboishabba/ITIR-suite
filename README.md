@@ -155,6 +155,20 @@ That means the immediate global-source program should prefer:
   translations
 - deterministic identifiers, structured retrieval, and clear provenance
 
+For document-like evidence, "structured retrieval" is now read more strictly
+than `vector + file path`.
+
+The intended substrate is:
+
+- raw document retained
+- canonical text retained
+- text revision identity retained
+- derived chunk refs anchored by exact span/offset into canonical text
+
+That stronger shape is what allows the suite to reconstruct exact evidence,
+re-run evaluation deterministically, and emit compliance/legal receipts that
+are replayable and challengeable.
+
 High-value multilingual exceptions are allowed when they are known to be well
 translated or stably parallelized, for example:
 
@@ -198,6 +212,10 @@ Full-flow read at moonshot:
    time where justified
 8. analyze commonality, disjointness, conflict, and dependency structure
 9. preserve challengeability, replay, and anti-panopticon constraints
+
+The bounded planning note for that document-evidence rule is:
+
+- [docs/planning/canonical_text_span_evidence_contract_20260407.md](docs/planning/canonical_text_span_evidence_contract_20260407.md)
 
 Current P0 control read:
 

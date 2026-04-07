@@ -117,6 +117,10 @@ channels for each core project directory in this workspace.
   planned Linux evidence/evaluate/plan/apply MCP lane for deterministic
   host compliance checks, receipts, and guarded remediation posture across
   files, services, kernel, and runtime state.
+- `docs/planning/canonical_text_span_evidence_contract_20260407.md`:
+  canonical document-evidence substrate for compliance, standards, legal, and
+  audit lanes; retrieval helpers must resolve back to exact canonical
+  revision/span refs before stronger evaluation or receipt claims.
 - `docs/planning/itir_public_repo_security_discovery_contract_20260407.md`:
   planned lower-trust public repo/security-surface discovery lane for
   candidate risk findings, follow obligations, and internal exposure checks

@@ -37,32 +37,45 @@ used by `ITIR-suite`.
 This is workable today, but it is still a convention rather than a governed
 runtime architecture.
 
-## Missing first-class support
+## First-class hierarchy support
 
-- no explicit parent/child orchestrator registry
-- no `parent_orchestrator_id` contract
-- no first-class lane or claim ownership file
-- no sub-orchestrator lifecycle management
-- no completion/escalation path back to a parent orchestrator
+- shared Codex runtime now emits `parent_orchestrator_id` metadata for each
+  orchestrator, binding sub-orchestrator state and lane ownership to the
+  coordinating parent
+- lane and lane-claim ownership metadata now live under
+  `.autonomous-orchestrator/lane_claims/<orchestrator>.json`, giving each runner
+  a persistent lease plus ownership footprint for its current lane
+- an active registry with heartbeats appears at
+  `.autonomous-orchestrator/registry.json`, keeping `parent_orchestrator_id`,
+  lane, heartbeat, and claim references for every live orchestrator instance
+- parent-facing completion and escalation history is persisted underneath
+  `.autonomous-orchestrator/parent_reports/<parent>.json` so the next tier can
+  observe when children finish or escalate
+- even the idle-complete path writes metadata, registry, and parent completion
+  surfaces so the documented control-plane state stays accurate across both
+  busy and idle transitions
 
 ## Decision
 
-Treat master/sub-orchestrator support as a next control-plane capability rather
-than as already-shipped infrastructure.
+Treat master/sub-orchestrator support as shipped shared-runtime infrastructure
+for bounded hierarchy metadata, ownership, and reporting.
 
-Near-term rule:
+Current rule:
 
 - it is correct to use one top-level allocator/orchestrator plus multiple
   namespaced `autonomous-orchestrator` runners in the same repo
-- it is not correct to claim that first-class hierarchical orchestrator support
-  already exists
+- it is correct to rely on the runtime-owned `parent_orchestrator_id`,
+  lane-claim, registry, and parent-report surfaces rather than treating them as
+  convention-only behavior
 
 ## Next implementation target
 
-Add a small governed registry/ownership layer for orchestrator hierarchies:
+Keep the newly-deployed registry and ownership surfaces healthy and transparent:
 
-- `parent_orchestrator_id`
-- `lane`
-- shared registry of active orchestrators
-- claim/heartbeat metadata
-- parent-facing completion/escalation reporting
+- monitor `.autonomous-orchestrator/registry.json` and `.autonomous-orchestrator/lane_claims/*.json`
+  to ensure heartbeats, lane ownership, and claim metadata remain current
+- keep `.autonomous-orchestrator/parent_reports/<parent>.json` aligned with
+  completion and escalation outcomes so the next rung can observe each leaf
+  orchestration decision
+- document any further control-plane behavior changes so the described
+  canonical state stays accurate for future coordinators

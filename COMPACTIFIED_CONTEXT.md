@@ -1858,11 +1858,17 @@
       - a compact model-allocation block with scorecard and escalation rules
     - a master orchestrator coordinating multiple namespaced
       `autonomous-orchestrator` runners is supported by convention
-    - first-class master/sub-orchestrator support is not yet implemented:
-      no parent registry, no lane claims, no lifecycle/reporting contract
+    - first-class master/sub-orchestrator support is now implemented:
+      parent metadata, lane/claim ownership, registry, and parent-report
+      workflow data all live in the shared runtime
   - repo state note:
-    - the next control-plane step is hierarchical orchestrator support via a
-      bounded registry/ownership layer rather than more implicit convention
+    - hierarchical orchestrator support now materializes as:
+      - `.autonomous-orchestrator/registry.json` with heartbeats and lane claims
+      - `.autonomous-orchestrator/lane_claims/<orchestrator>.json`
+      - `.autonomous-orchestrator/parent_reports/<parent>.json` for completion
+      histories
+    - idle-complete transitions still write the metadata/registry/parent
+      completion surfaces documented above so the documented state stays valid
 
 - 2026-03-28 largest-file refactor / normalization audit:
   - source: current working turn

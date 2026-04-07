@@ -28,6 +28,14 @@
   The documented doctrine is now explicit:
   public discovery proposes risk, internal evidence authorizes action.
   This was a docs-only update; no implementation changed.
+- Documented the newly shipped hierarchical autonomous-orchestrator control-plane
+  metadata surfaces so the canonical state now covers:
+  [docs/planning/orchestrator_control_plane_20260328.md](/home/c/Documents/code/ITIR-suite/docs/planning/orchestrator_control_plane_20260328.md),
+  [TODO.md](/home/c/Documents/code/ITIR-suite/TODO.md), and
+  [COMPACTIFIED_CONTEXT.md](/home/c/Documents/code/ITIR-suite/COMPACTIFIED_CONTEXT.md).
+  Validation:
+  - `.venv/bin/python -m pytest -q /home/c/.codex/skills/autonomous-orchestrator/tests/test_control_plane_metadata.py`
+    -> `pass`
 - Updated [COMPACTIFIED_CONTEXT.md](/home/c/Documents/code/ITIR-suite/COMPACTIFIED_CONTEXT.md),
   [README.md](/home/c/Documents/code/ITIR-suite/README.md),
   [TODO.md](/home/c/Documents/code/ITIR-suite/TODO.md),

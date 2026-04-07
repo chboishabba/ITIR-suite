@@ -53,9 +53,11 @@ test('corpus browser routes exist and are linked from the home page', () => {
 
 test('corpus server helpers expose dedicated Messenger and OpenRecall query paths', () => {
   const corporaServer = read('src/lib/server/corpora.ts');
+  const corporaTransport = read('src/lib/server/corpora/transport.ts');
+  const corporaNavigation = read('src/lib/server/corpora/navigation.ts');
 
-  assert.ok(corporaServer.includes('query_messenger_test_db.py'));
-  assert.ok(corporaServer.includes('query_openrecall_import.py'));
+  assert.ok(corporaTransport.includes('query_messenger_test_db.py'));
+  assert.ok(corporaTransport.includes('query_openrecall_import.py'));
   assert.ok(corporaServer.includes('loadProcessedCorpusSummaries'));
   assert.ok(corporaServer.includes('loadPersonalProcessedOverview'));
   assert.ok(corporaServer.includes('loadBroaderDiagnosticsSummaries'));
@@ -65,14 +67,14 @@ test('corpus server helpers expose dedicated Messenger and OpenRecall query path
   assert.ok(corporaServer.includes('loadFeedbackReceipts'));
   assert.ok(corporaServer.includes('addFeedbackReceipt'));
   assert.ok(corporaServer.includes('importFeedbackReceiptsFromJsonlText'));
-  assert.ok(corporaServer.includes('deriveFeedbackDrillIn'));
-  assert.ok(corporaServer.includes('provenanceSourceRef'));
+  assert.ok(corporaNavigation.includes('deriveFeedbackDrillIn'));
+  assert.ok(corporaNavigation.includes('provenanceSourceRef'));
   assert.ok(corporaServer.includes('--provenance-json'));
-  assert.ok(corporaServer.includes('source_ref'));
-  assert.ok(corporaServer.includes('workflow_kind'));
-  assert.ok(corporaServer.includes('/thread/${provenanceSourceRef}'));
-  assert.ok(corporaServer.includes('/graphs/fact-review'));
-  assert.ok(corporaServer.includes('/corpora/processed/personal'));
+  assert.ok(corporaNavigation.includes('source_ref'));
+  assert.ok(corporaNavigation.includes('workflow_kind'));
+  assert.ok(corporaNavigation.includes('/thread/${provenanceSourceRef}'));
+  assert.ok(corporaNavigation.includes('/graphs/fact-review'));
+  assert.ok(corporaNavigation.includes('/corpora/processed/personal'));
   assert.ok(corporaServer.includes("'contested-runs'"));
   assert.ok(corporaServer.includes("'contested-summary'"));
   assert.ok(corporaServer.includes("'feedback-receipts'"));

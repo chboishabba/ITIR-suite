@@ -1,5 +1,16 @@
 # Devlog
 
+## 2026-04-07
+- Documented that the shared autonomous-orchestrator runtime now publishes
+  `parent_orchestrator_id`, lane/lane-claim metadata, the `.autonomous-orchestrator`
+  registry, and parent-report history so hierarchical master/sub coordination is
+  first-class, and noted that idle-complete transitions keep those surfaces
+  current.
+- Synced `docs/planning/orchestrator_control_plane_20260328.md`, `TODO.md`,
+  `COMPACTIFIED_CONTEXT.md`, and the Unreleased `CHANGELOG.md` entry so the new
+  state is the canonical repo story rather than a future target.
+- Validated via `.venv/bin/python -m pytest -q /home/c/.codex/skills/autonomous-orchestrator/tests/test_control_plane_metadata.py`.
+
 ## 2026-03-29
 - Recorded that the AAO runtime helpers now live under `itir-svelte/src/lib/server/wiki_timeline/`, `wikiTimelineAoo.ts` is a thin adapter, and the AAO-all route now uses the shared helper modules plus extracted `ControlsPanel` and `ContextPanel` components.
 - Triaged the AAO runtime/route slice alongside the first Priority 1 brief set, leaving the remaining graph/evidence assembly as the next explicit follow-up.

@@ -971,12 +971,24 @@
     model-allocation block in the shared control-plane skills
   - keep the current state explicit:
     - multi-runner coordination in one repo is supported
-    - master-orchestrator -> sub-orchestrator hierarchy is not yet first-class
+    - master-orchestrator -> sub-orchestrator hierarchy is now a first-class
+      runtime: parent/child metadata, claims, and reporting all exist
+  - completed registry/ownership work:
+    - shared runtime emits `parent_orchestrator_id` plus lane identity in the
+      per-orchestrator metadata bundle
+    - `.autonomous-orchestrator/lane_claims/<orchestrator>.json` records each
+      runner's lane and claim lease; `.autonomous-orchestrator/registry.json`
+      exposes heartbeats for every live orchestrator
+    - `.autonomous-orchestrator/parent_reports/<parent>.json` keeps a
+      completion/escalation history for the next-tier orchestrators
+    - the idle-complete path continues to write metadata/registry/parent
+      completion surfaces so the canonical state stays accurate even when
+      orchestrators end on their own
   - next:
-    - add `parent_orchestrator_id` contract
-    - add lane/claim ownership metadata
-    - add an active orchestrator registry with heartbeats
-    - add parent-facing completion/escalation reporting
+    - keep registry, lane claim, and parent-report surfaces monitored so
+      heartbeats, ownership, and completion histories stay current
+    - document any future control-plane behavior shifts before treating them
+      as part of the canonical state
 
 - [P1] Cross-repo user-story + feedback receipt lane:
   - use `docs/planning/repo_user_story_state_and_feedback_20260327.md` as the
@@ -1767,6 +1779,16 @@
       same guarded decision through each client path
     - keep one Dioxus backend/native client seam and treat existing Dioxus
       MCP-like playground surfaces as debug/operator layers only
+    - pin the document-evidence substrate for compliance and standards lanes
+      around:
+      - raw document retention
+      - canonical text retention
+      - text revision identity
+      - deterministic chunk ids plus exact span/offset refs
+      - retrieval/index layers as helpers only, not authority surfaces
+      - use
+        `docs/planning/canonical_text_span_evidence_contract_20260407.md`
+        as the canonical planning note
   - planned next family:
     - Windows evidence/evaluate/plan/apply lane under
       `docs/planning/itir_windows_compliance_mcp_contract_20260407.md`
@@ -1781,6 +1803,11 @@
         collection
       - profile evaluation
       - remediation planning only
+    - standards/document-side compliance posture:
+      - compliance evidence should resolve to exact canonical revision/span
+        refs when the source is document-like
+      - `vector + file path` is retrieval-only and is not strong enough for
+        auditable control outcomes or receipts on its own
     - hold guarded `apply_remediation` until receipts, rollback, and approval
       posture are fully pinned
   - adjacent lower-trust family:
