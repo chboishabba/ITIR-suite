@@ -171,6 +171,7 @@ options and recommended hybrid model (shared runtime, SL-governed semantics).
 
 Document:
 - `docs/planning/reducer_ownership_contract_20260208.md`
+- `docs/planning/shared_reducer_relational_bundle_contract_20260407.md`
 
 ## ITIR Consumption Matrix (2026-02-08)
 
