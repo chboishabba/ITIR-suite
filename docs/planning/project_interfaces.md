@@ -123,5 +123,8 @@ channels for each core project directory in this workspace.
   without public-source promotion to action authority.
 - WorldMonitor native MCP seam:
   `../worldmonitor/api/mcp.ts` is the correct plugin/integration boundary for
-  external ITIR tool consumption; ITIR logic should cross there via MCP/API,
-  not by copying suite semantics into WorldMonitor internals.
+  external ITIR tool consumption. `WorldMonitor` now consumes ITIR comparison
+  and coherence semantics via MCP adapter wrappers and posts bounded envelopes
+  back to its local read model.
+  ITIR logic should cross there via MCP/API, not by copying suite semantics into
+  WorldMonitor internals.

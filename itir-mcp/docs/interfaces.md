@@ -87,6 +87,11 @@ Expected clients:
 - OpenRecall via a thin Python bridge/API client
 - other suite consumers through the same stable envelopes
 
+For clients that need bounded policy visibility (for example, operator-facing
+risk flags), use `safe_call` and consume the normalized `status_explanation`
+object as `policy_hint`. This keeps ITIR output explicit, non-authoritative by
+default, and suitable for presentation-only workflow guidance.
+
 ## Planned Windows compliance lane
 
 The next planned systems-facing family is a Windows endpoint compliance lane.

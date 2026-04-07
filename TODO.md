@@ -1755,9 +1755,14 @@
     - policy, explanation, and enforcement must share one reason-code
       vocabulary
     - client helpers should prefer guarded invocation over raw tool calls
+  - implementation status (external consumer lanes):
+    - OpenRecall now has a dedicated ITIR MCP bridge for comparison
+      normalization and bounded output wiring.
+      - openrecall PR: https://github.com/openrecall/openrecall/pull/126
+    - WorldMonitor now routes relation-style event comparison through
+      ITIR/MCP-backed `compareNewsItemsWithItir` adapter.
+      - worldmonitor PR: https://github.com/koala73/worldmonitor/pull/2772
   - next integration scope:
-    - refactor remaining external consumers, especially `WorldMonitor`, onto
-      the guarded MCP seam instead of local duplicated logic
     - pin cross-client parity tests so the same malicious input yields the
       same guarded decision through each client path
     - keep one Dioxus backend/native client seam and treat existing Dioxus

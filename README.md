@@ -103,6 +103,10 @@ The current suite-level integration doctrine is now MCP-first and guarded:
   evidence/evaluate/plan/apply lanes
 - public repo/social discovery lanes are lower-trust candidate-risk surfaces
   that may propose follow obligations but do not authorize action on their own
+- `WorldMonitor` and `OpenRecall` integrations now consume `itir.*` tools through
+  the MCP seam only, with no duplicated core comparison or policy logic in
+  either client. The consumer-side contract is adapter-only: normalize inputs,
+  call ITIR/MCP, then expose bounded outputs plus receipts.
 
 That same normalization rule is now explicit across the main `SensibLaw` lanes:
 
