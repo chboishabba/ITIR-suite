@@ -100,7 +100,20 @@ maybe_pull_ff_only() {
     return 0
   fi
 
+  local ahead behind counts
+  counts="$(g rev-list --left-right --count HEAD...@{upstream} 2>/dev/null || true)"
+  ahead="${counts%%$'\t'*}"
+  behind="${counts##*$'\t'}"
+
   if ! g pull --ff-only; then
+    if [[ -n "${ahead:-}" && -n "${behind:-}" && "$ahead" =~ ^[0-9]+$ && "$behind" =~ ^[0-9]+$ ]]; then
+      if [[ "$ahead" -gt 0 && "$behind" -gt 0 ]]; then
+        echo "FAIL: pull --ff-only failed"
+        echo "INFO: branch has diverged from upstream (ahead=$ahead behind=$behind)"
+        echo "INFO: resolve with an explicit rebase or merge in '$repo', then rerun."
+        return 1
+      fi
+    fi
     echo "FAIL: pull --ff-only failed"
     return 1
   fi

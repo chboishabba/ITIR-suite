@@ -620,6 +620,11 @@ updated pointer in this root repo.
 
 - `./setup.sh`: initialize and update submodules
 - `./env_init.sh`: build an optional root compatibility venv
+- `./scripts/gitin-recursive.sh`: fast-forward pull the root repo, then sync
+  and update submodules to the pinned commits recorded by the root repo while
+  reporting any branch-attached submodule drift
+- `./scripts/gitout-recursive.sh`: pull, commit, and push dirty repos
+  recursively, with submodules first and explicit diverged-branch reporting
 - `./scripts/sync_chat_context.sh`: sync conversation context into
   `__CONTEXT/last_sync/`
 - `python scripts/build_docs_site.py`: build a lightweight local index of the
