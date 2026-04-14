@@ -90,11 +90,23 @@ At the suite level that means:
   operator-adjacent surfaces
 - `itir-svelte` handles operator-facing read-only and review-first surfaces
 
+Web-surface control note:
+
+- `itir-svelte` is the sole intended product-facing web replacement lane
+- legacy Pelican and Zola surfaces under `tircorder-JOBBIE` remain
+  reference-only during migration
+- root follow-up and sequencing live in [TODO.md](TODO.md) and
+  [itir-svelte/README.md](itir-svelte/README.md)
+
 That same normalization rule is now explicit across the main `SensibLaw` lanes:
 
 - AU legal/hearing material
 - GWB public-source linkage material
 - Wikidata migration/review material
+
+The Wikidata/Nat lane is still review-first overall, but its handoff docs now
+separately track candidate-level promotion gates and post-write verification
+surfaces so the remaining automation gap is explicit instead of implied.
 
 The broader legal moonshot is larger than the current bounded slices. The long
 direction is toward cross-system legal understanding and comparison, but the

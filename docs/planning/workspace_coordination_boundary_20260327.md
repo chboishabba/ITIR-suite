@@ -79,6 +79,9 @@ Do not create a new top-level project directory now.
 - Put suite-level planning, cross-repo TODOs, and coordination notes in
   `ITIR-suite`.
 - Put upstream formal/perf source work in `dashi_agda`.
+- Treat references such as `../dashi_agda/...` as sibling-relative pointers
+  to the authoritative upstream formal source, not as vendored files inside
+  `ITIR-suite`.
 - Put executable bridge/compression runtime work in `FRACDASH`.
 - Create a new project directory only when it is a genuine product/adapter
   with its own runtime boundary, similar to `ITIR-suite/itir-mcp/`, rather

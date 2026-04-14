@@ -33,5 +33,11 @@
     "scope": "one bounded supporting-legislation hop",
     "stop_condition": "stop after one justified legislation attachment or explicit abstain"
   },
+  "join_semantics": {
+    "modality": "assert",
+    "priority_rank": 1,
+    "exception_active": false,
+    "override_active": false
+  },
   "unresolved_pressure_status": "follow_needed"
 }

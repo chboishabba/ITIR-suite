@@ -46,3 +46,15 @@ def test_follow_obligation_requires_non_none_pressure_state() -> None:
 
     with pytest.raises(jsonschema.ValidationError):
         _validator().validate(payload)
+
+
+def test_join_semantics_surface_is_admissible() -> None:
+    payload = json.loads(EXAMPLE_PATH.read_text(encoding="utf-8"))
+    payload["join_semantics"] = {
+        "modality": "must not",
+        "priority_rank": 7,
+        "exception_active": False,
+        "override_active": True,
+    }
+
+    _validator().validate(payload)
