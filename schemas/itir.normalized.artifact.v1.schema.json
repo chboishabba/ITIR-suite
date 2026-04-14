@@ -118,6 +118,16 @@
       },
       "additionalProperties": true
     },
+    "join_semantics": {
+      "type": "object",
+      "properties": {
+        "modality": { "type": "string", "minLength": 1 },
+        "priority_rank": { "type": "integer" },
+        "exception_active": { "type": "boolean" },
+        "override_active": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
     "unresolved_pressure_status": {
       "type": "string",
       "enum": ["none", "follow_needed", "hold", "abstain"]

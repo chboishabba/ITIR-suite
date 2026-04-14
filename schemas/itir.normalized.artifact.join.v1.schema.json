@@ -3,6 +3,36 @@
   "title": "ITIR normalized artifact join v1",
   "description": "Read-only composition of multiple suite normalized artifacts without reinterpretation.",
   "type": "object",
+  "$defs": {
+    "join_relation": {
+      "type": "string",
+      "enum": [
+        "MATCH",
+        "LEFT_ONLY",
+        "RIGHT_ONLY",
+        "CONFLICT",
+        "OVERRIDE",
+        "EXCEPTION",
+        "SUBSUMES",
+        "OVERLAP",
+        "GAP",
+        "UNRESOLVED"
+      ]
+    },
+    "join_edge": {
+      "type": "object",
+      "properties": {
+        "left_artifact_id": { "type": "string" },
+        "right_artifact_id": { "type": "string" },
+        "relation": { "$ref": "#/$defs/join_relation" },
+        "evidence_ids": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["left_artifact_id", "right_artifact_id", "relation"]
+    }
+  },
   "properties": {
     "schema_version": { "const": "itir.normalized.artifact.join.v1" },
     "artifact_role": { "const": "normalized_artifact_join" },
@@ -88,8 +118,11 @@
         "policy_guidance": {
           "type": "object",
           "additionalProperties": { "type": "string" }
-        }
-        ,
+        },
+        "edge_relations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/join_edge" }
+        },
         "dominant_disposition": { "type": "string" },
         "highest_severity": {
           "type": "string",
