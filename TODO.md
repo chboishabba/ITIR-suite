@@ -2071,6 +2071,9 @@
   - use `docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md`
     as the current control note for the legal-IR boundary above minimal
     `Phi` emissions
+  - use `docs/planning/legal_graph_relation_taxonomy_20260417.md` as the
+    current planning/spec note for the first bounded legal relation taxonomy
+    above the graphable edge layer
   - use `docs/planning/motif_candidate_promotion_legal_tree_20260327.md` as
     the current motif/cohomology/legal-tree discipline note
   - use `docs/planning/latent_state_over_promoted_truth_20260327.md` as the
@@ -2114,6 +2117,9 @@
       - keep compression derived and non-promotive
     - lane 5: verification/docs owner
       - keep fixtures, README/TODO/context, and downstream graph notes aligned
+    - lane 8: relation taxonomy owner
+      - define the first bounded structural relation set for graphable edges
+      - keep relation semantics typed, structural, and non-lexical
     - abstention is a first-class control surface, not an accidental absence of
       rows
   - treat motif/meme/cohomology language as research framing only unless it is
