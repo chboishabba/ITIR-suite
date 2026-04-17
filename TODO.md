@@ -2068,6 +2068,9 @@
   - use `docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md`
     as the current boundary clarification from the archived `Zero Trust
     Ontology` thread
+  - use `docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md`
+    as the current control note for the legal-IR boundary above minimal
+    `Phi` emissions
   - use `docs/planning/motif_candidate_promotion_legal_tree_20260327.md` as
     the current motif/cohomology/legal-tree discipline note
   - use `docs/planning/latent_state_over_promoted_truth_20260327.md` as the
@@ -2091,8 +2094,26 @@
       serialization does not
   - keep the admissibility boundary explicit:
     - source anchors are canonical substrate
+    - minimal `Phi` atoms are canonical normalized substrate, not promoted
+      truth
+    - composition above `Phi` creates challengeable candidate nodes, not
+      canonical records
     - candidate and graph overlays are non-authoritative
-    - only promotion creates truth-bearing canonical records
+    - only admissibility plus promotion creates truth-bearing canonical
+      records
+    - MDL/latent compression may name repeated shapes but may not substitute
+      for admissibility
+  - immediate worker lanes for the next bounded round:
+    - lane 1: `Phi` substrate owner
+      - freeze the smallest replayable atom surface with spans and receipts
+    - lane 2: composition owner
+      - centralize proposition/event node composition above `Phi`
+    - lane 3: admissibility owner
+      - formalize node and edge gates as `promote | audit | abstain`
+    - lane 4: MDL / latent owner
+      - keep compression derived and non-promotive
+    - lane 5: verification/docs owner
+      - keep fixtures, README/TODO/context, and downstream graph notes aligned
     - abstention is a first-class control surface, not an accidental absence of
       rows
   - treat motif/meme/cohomology language as research framing only unless it is

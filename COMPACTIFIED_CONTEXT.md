@@ -1,5 +1,50 @@
 # Compactified Context
 
+- 2026-04-17 legal IR `Phi` composition / admissibility boundary:
+  - source:
+    - archived ChatGPT thread `Legal IR Graph Setup`
+    - online UUID: `69e21b0f-5e80-839f-898a-f88f3ee6f28a`
+    - canonical thread ID: `6a431753eb8880e48d3f182c713b22f7a300845f`
+    - source used: `db` after direct online UUID pull into canonical archive
+  - main topics:
+    - minimal canonical `Phi` substrate
+    - composition above `Phi` into challengeable proposition/event candidates
+    - wrapper-aware admissibility as the authority boundary
+    - MDL compression over repeated candidate signatures as a separate
+      derived layer
+  - landed docs:
+    - `docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md`
+    - `docs/architecture/admissibility_lattice.md`
+    - root `README.md`
+    - root `TODO.md`
+  - landed code:
+    - `SensibLaw/src/models/composed_candidate_node.py`
+    - `SensibLaw/src/composed_candidate_admissibility.py`
+    - `SensibLaw/src/policy/review_claim_records.py`
+    - `SensibLaw/schemas/sl.composed_candidate_node.v1.schema.yaml`
+    - `SensibLaw/tests/test_composed_candidate_node.py`
+    - `SensibLaw/tests/test_composed_candidate_admissibility.py`
+    - `SensibLaw/tests/test_review_claim_records.py`
+  - control read:
+    - keep the stack explicit as:
+      `Phi -> composed candidate nodes -> admissibility -> promoted records -> derived graph`
+    - do not let graph density, clustering, or MDL naming behave like hidden
+      admissibility or promotion
+    - keep normalization minimal and canonical:
+      - smallest replayable `Phi` atoms
+      - centralized composition owner
+      - centralized admissibility owner
+      - latent/MDL owner kept derived and non-promotive
+    - first downstream consumer is now the shared review-claim adapter:
+      composed candidate node -> `review_candidate`
+    - keep that adapter-only bridge narrow:
+      - no promoted output path
+      - no fact-intake bundle widening
+      - no truth-bearing reinterpretation of candidate state
+  - validation:
+    - `PYTHONPATH=SensibLaw ./.venv/bin/python -m pytest SensibLaw/tests/test_composed_candidate_node.py SensibLaw/tests/test_composed_candidate_admissibility.py SensibLaw/tests/test_review_claim_records.py -q`
+      -> `30 passed`
+
 - 2026-04-03 Wikidata/Nat live-follow receipt feedback:
   - landed:
     - `SensibLaw/src/ontology/wikidata_grounding_depth.py` now accepts

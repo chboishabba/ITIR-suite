@@ -1,6 +1,39 @@
 # Changelog
 
 ## Unreleased
+- Added
+  [docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md](/mnt/truenas/gem-net/mirror-nix/mirror_community_mgr/ITIR-suite/docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md),
+  updated
+  [docs/architecture/admissibility_lattice.md](/mnt/truenas/gem-net/mirror-nix/mirror_community_mgr/ITIR-suite/docs/architecture/admissibility_lattice.md),
+  [README.md](/mnt/truenas/gem-net/mirror-nix/mirror_community_mgr/ITIR-suite/README.md),
+  [TODO.md](/mnt/truenas/gem-net/mirror-nix/mirror_community_mgr/ITIR-suite/TODO.md),
+  and [COMPACTIFIED_CONTEXT.md](/mnt/truenas/gem-net/mirror-nix/mirror_community_mgr/ITIR-suite/COMPACTIFIED_CONTEXT.md)
+  to pin the legal-IR boundary above minimal `Phi` emissions. The root docs
+  now make the normalization rule explicit:
+  `Phi -> composed candidate nodes -> admissibility -> promoted records -> derived graph`,
+  with MDL / latent compression kept derived and non-promotive, and with the
+  next worker lanes split across substrate, composition, admissibility,
+  latent/MDL, and verification/docs ownership.
+- Added the first bounded `SensibLaw` implementation slice for that boundary:
+  `sl.composed_candidate_node.v1` plus a fail-closed composed-candidate
+  admissibility gate. The new files are:
+  `SensibLaw/src/models/composed_candidate_node.py`,
+  `SensibLaw/src/composed_candidate_admissibility.py`,
+  `SensibLaw/schemas/sl.composed_candidate_node.v1.schema.yaml`,
+  `SensibLaw/examples/composed_candidate_node_minimal.json`,
+  `SensibLaw/tests/test_composed_candidate_node.py`, and
+  `SensibLaw/tests/test_composed_candidate_admissibility.py`.
+  Validation:
+  `PYTHONPATH=SensibLaw ./.venv/bin/python -m pytest SensibLaw/tests/test_composed_candidate_node.py SensibLaw/tests/test_composed_candidate_admissibility.py -q`
+  -> `10 passed`
+- Extended that slice with the first bounded downstream consumer:
+  `SensibLaw/src/policy/review_claim_records.py` now adapts
+  `sl.composed_candidate_node.v1` payloads into the existing
+  `review_candidate` envelope without widening fact-intake or review-bundle
+  contracts and without making candidate state truth-bearing.
+  Validation:
+  `PYTHONPATH=SensibLaw ./.venv/bin/python -m pytest SensibLaw/tests/test_composed_candidate_node.py SensibLaw/tests/test_composed_candidate_admissibility.py SensibLaw/tests/test_review_claim_records.py -q`
+  -> `30 passed`
 - Added [SensibLaw/src/sources/worldbank_adapter.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/worldbank_adapter.py),
   [SensibLaw/src/sources/worldbank/worldbank_follow_contract.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/worldbank/worldbank_follow_contract.py),
   and extended

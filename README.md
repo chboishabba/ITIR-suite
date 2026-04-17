@@ -463,6 +463,8 @@ and [chat-export-structurer/README.md](chat-export-structurer/README.md).
   [docs/planning/itir_orchestrator.md](docs/planning/itir_orchestrator.md)
 - architecture boundary doctrine:
   [docs/architecture/admissibility_lattice.md](docs/architecture/admissibility_lattice.md)
+- `Phi` composition / admissibility / MDL boundary:
+  [docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md](docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md)
 - JMD x SensibLaw truth-construction boundary:
   [docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md](docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md)
 - motif candidate / promotion / legal-tree boundary:
