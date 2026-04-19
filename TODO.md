@@ -2120,6 +2120,37 @@
     - lane 8: relation taxonomy owner
       - define the first bounded structural relation set for graphable edges
       - keep relation semantics typed, structural, and non-lexical
+    - lane 9: legal edge admissibility owner
+      - landed `SensibLaw/src/legal_edge_admissibility.py`
+      - keep edge promotion fail-closed and structural
+      - do not infer contradiction or relation kind from free text
+    - lane 10: promoted graph consumer scouting
+      - landed owner surface in `SensibLaw/src/latent_promoted_graph.py`
+      - first legal consumer is now `SensibLaw/src/policy/legal_follow_graph.py`
+      - promoted `review_relation` rows now emit promoted `legal_claim` nodes
+        with typed role edges
+      - keep graph ids derived from promoted truth, not replacements for source anchors
+      - next immediate slice:
+        keep promoted ownership unchanged, but wire typed
+        `legal_edge_admissibility` output onto derived `asserts_*` edges in
+        `SensibLaw/src/policy/legal_follow_graph.py`
+      - DONE: summarize `asserts_*` edge admissibility in
+        `SensibLaw/src/policy/legal_follow_graph.py` and expose bounded queue
+        details for legal-claim review packets
+      - DONE: expose summary-level legal-follow edge-admissibility counts in
+        `SensibLaw/src/fact_intake/au_review_bundle.py`
+      - next immediate slice:
+        keep the same typed admissibility source, but use it to rank
+        legal-claim review pressure and steer AU workflow guidance
+      - DONE: rank legal-claim review pressure in the derived legal-follow
+        operator queue from structural edge-admissibility output
+      - DONE: let AU workflow guidance switch to `legal_follow_graph` when
+        legal-follow admissibility review pressure dominates promotion pressure
+      - do not widen this into a new graph ontology, semantic inference
+        layer, or alternate promotion owner
+      - do not widen this into lexical relation inference or a new promoted
+        edge owner layer unless a later consumer proves provenance joins are
+        insufficient
     - abstention is a first-class control surface, not an accidental absence of
       rows
   - treat motif/meme/cohomology language as research framing only unless it is

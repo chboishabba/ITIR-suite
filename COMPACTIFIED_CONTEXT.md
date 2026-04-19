@@ -20,10 +20,17 @@
   - landed code:
     - `SensibLaw/src/models/composed_candidate_node.py`
     - `SensibLaw/src/composed_candidate_admissibility.py`
+    - `SensibLaw/src/legal_edge_admissibility.py`
+    - `SensibLaw/src/latent_promoted_graph.py`
     - `SensibLaw/src/policy/review_claim_records.py`
+    - `SensibLaw/src/policy/legal_follow_graph.py`
     - `SensibLaw/schemas/sl.composed_candidate_node.v1.schema.yaml`
+    - `SensibLaw/schemas/sl.latent_promoted_graph.v1.schema.yaml`
     - `SensibLaw/tests/test_composed_candidate_node.py`
     - `SensibLaw/tests/test_composed_candidate_admissibility.py`
+    - `SensibLaw/tests/test_legal_edge_admissibility.py`
+    - `SensibLaw/tests/test_latent_promoted_graph.py`
+    - `SensibLaw/tests/test_legal_follow_graph.py`
     - `SensibLaw/tests/test_review_claim_records.py`
   - control read:
     - keep the stack explicit as:
@@ -41,9 +48,64 @@
       - no promoted output path
       - no fact-intake bundle widening
       - no truth-bearing reinterpretation of candidate state
+    - first graphable legal edge gate is now explicit and structural:
+      - typed `relation_kind`
+      - endpoint admissibility inputs
+      - wrapper/status compatibility
+      - section/genre compatibility
+      - shared linkage / shared content where required
+      - structural status conflict for `contradicts` / `overrules`
+    - contradiction remains structural and typed:
+      never infer it from free-text markers
+    - promoted legal relation ownership is now explicit:
+      - promoted `review_relation` rows emit promoted `legal_claim` nodes
+      - legal claim role edges are typed as `grounds_claim`,
+        `claim_subject`, and `claim_object`
+      - the AU legal-follow graph is now the first derived consumer of that
+        promoted surface
+    - current next bounded step:
+      - keep promoted legal relation ownership in the latent graph unchanged
+      - wire typed `legal_edge_admissibility` output onto derived
+        `asserts_*` edges in `SensibLaw/src/policy/legal_follow_graph.py`
+      - do not introduce lexical relation inference or a separate promoted
+        edge owner layer unless provenance-join reuse proves insufficient
+    - landed worker followthrough:
+      - `SensibLaw/src/policy/legal_follow_graph.py` now summarizes
+        `asserts_*` edge admissibility in graph summary and operator-view
+        surfaces
+      - legal-claim reviewer packets now expose bounded edge-admissibility
+        detail rows and an `edge_admissibility_queue`
+      - `SensibLaw/src/fact_intake/au_review_bundle.py` now exposes summary-
+        level legal-follow edge-admissibility counts downstream in both
+        `semantic_context.legal_follow_graph.summary` and
+        `operator_views.legal_follow_graph.summary`
+    - current next bounded operator step:
+      - keep the same typed edge-admissibility source unchanged
+      - use it to rank legal-claim review pressure in the derived operator
+        queue
+      - allow AU workflow guidance to switch toward legal-follow review when
+        structural admissibility pressure dominates
+      - do not widen this into a new graph owner, semantic inference layer,
+        or alternate promotion path
+    - landed worker followthrough, round 2:
+      - `SensibLaw/src/policy/legal_follow_graph.py` now ranks legal-claim
+        review packets from structural edge-admissibility pressure and exposes
+        bounded priority rollups in the operator summary
+      - `SensibLaw/src/fact_intake/review_bundle.py` now lets AU workflow
+        guidance recommend `legal_follow_graph` when legal-follow
+        admissibility review pressure dominates promotion pressure
   - validation:
-    - `PYTHONPATH=SensibLaw ./.venv/bin/python -m pytest SensibLaw/tests/test_composed_candidate_node.py SensibLaw/tests/test_composed_candidate_admissibility.py SensibLaw/tests/test_review_claim_records.py -q`
-      -> `30 passed`
+    - `PYTHONPATH=SensibLaw ./.venv/bin/python -m pytest SensibLaw/tests/test_composed_candidate_node.py SensibLaw/tests/test_composed_candidate_admissibility.py SensibLaw/tests/test_review_claim_records.py SensibLaw/tests/test_legal_edge_admissibility.py -q`
+      -> `38 passed`
+    - from `SensibLaw/`:
+      `PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_latent_promoted_graph.py tests/test_legal_follow_graph.py tests/test_cross_system_phi_prototype.py -q`
+      -> `15 passed`
+    - from `SensibLaw/` after downstream AU bundle exposure:
+      `PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_legal_follow_graph.py tests/test_au_fact_review_bundle.py tests/test_latent_promoted_graph.py tests/test_cross_system_phi_prototype.py -q`
+      -> `26 passed`
+    - from `SensibLaw/` after legal-follow priority steering:
+      `PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_legal_follow_graph.py tests/test_au_fact_review_bundle.py tests/test_latent_promoted_graph.py tests/test_cross_system_phi_prototype.py -q`
+      -> `29 passed`
 
 - 2026-04-03 Wikidata/Nat live-follow receipt feedback:
   - landed:
