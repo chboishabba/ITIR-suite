@@ -2,10 +2,8 @@
 
 - 2026-04-17 legal IR `Phi` composition / admissibility boundary:
   - source:
-    - archived ChatGPT thread `Legal IR Graph Setup`
-    - online UUID: `69e21b0f-5e80-839f-898a-f88f3ee6f28a`
-    - canonical thread ID: `6a431753eb8880e48d3f182c713b22f7a300845f`
-    - source used: `db` after direct online UUID pull into canonical archive
+    - internal planning/archive note, sanitized for repo-facing context
+    - specific chat/archive identifiers intentionally omitted
   - main topics:
     - minimal canonical `Phi` substrate
     - composition above `Phi` into challengeable proposition/event candidates

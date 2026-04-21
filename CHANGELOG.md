@@ -35,12 +35,12 @@
   `PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_legal_follow_graph.py tests/test_latent_promoted_graph.py tests/test_cross_system_phi_prototype.py -q`
   -> `16 passed`
 - Added
-  [docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md](/mnt/truenas/gem-net/mirror-nix/mirror_community_mgr/ITIR-suite/docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md),
+  `docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md`,
   updated
-  [docs/architecture/admissibility_lattice.md](/mnt/truenas/gem-net/mirror-nix/mirror_community_mgr/ITIR-suite/docs/architecture/admissibility_lattice.md),
-  [README.md](/mnt/truenas/gem-net/mirror-nix/mirror_community_mgr/ITIR-suite/README.md),
-  [TODO.md](/mnt/truenas/gem-net/mirror-nix/mirror_community_mgr/ITIR-suite/TODO.md),
-  and [COMPACTIFIED_CONTEXT.md](/mnt/truenas/gem-net/mirror-nix/mirror_community_mgr/ITIR-suite/COMPACTIFIED_CONTEXT.md)
+  `docs/architecture/admissibility_lattice.md`,
+  `README.md`,
+  `TODO.md`,
+  and `COMPACTIFIED_CONTEXT.md`
   to pin the legal-IR boundary above minimal `Phi` emissions. The root docs
   now make the normalization rule explicit:
   `Phi -> composed candidate nodes -> admissibility -> promoted records -> derived graph`,
