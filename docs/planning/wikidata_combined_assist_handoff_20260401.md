@@ -19,6 +19,9 @@ Peter/Ege/Rosario assist lane.
   followed-source receipts
 - non-company axis integration only: the current company tranche is calibration
   rather than a new expansion, so downstream docs should treat it as such
+- April 12 routing overlay: Family A means `full_auto`, Family B means
+  `split_auto`, Family C means repair plus migrate, Family D means review-only
+  typed hold, and Family E means manual reconstruction
 
 ### Assist Lane
 
@@ -43,6 +46,8 @@ Use Nat as:
 
 - a review-and-split workbench now
 - a direct migration executor only for the repeatedly proven checked-safe tier
+- an evidence pass over Family A/B/C/D/E routing before any broader automation
+  claim
 
 ## Assist-Lane Recommendation
 

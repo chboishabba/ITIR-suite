@@ -57,20 +57,26 @@ Record the current execution-order roadmap across:
 
 ## Recommended Order
 
-1. build the generic Nat reviewer-packet layer:
+1. treat the April 12 Family A-E routing table as the current action taxonomy:
+   - Family A: `full_auto`
+   - Family B: `split_auto`
+   - Family C: repair plus migrate
+   - Family D: review-only typed hold
+   - Family E: manual reconstruction
+2. build the generic Nat reviewer-packet layer:
    - deepen evidence grounding on representative hard packets
    - use the existing helper lanes as promotion evidence rather than as
      packet-shape expansion
-2. use Cohorts B/C/D/E as the next structural breadth axis, with Cohort C as
+3. use Cohorts B/C/D/E as the next structural breadth axis, with Cohort C as
    the highest-yield immediate branch
-3. turn the report helpers into broader measured backlog evidence over real
+4. turn the report helpers into broader measured backlog evidence over real
    candidate slices
-4. turn those repeated runs into higher-level operator/governance indexes
+5. turn those repeated runs into higher-level operator/governance indexes
    before claiming stronger automation readiness
-5. define explicit automation graduation criteria and exercise them with real
+6. define explicit automation graduation criteria and exercise them with real
    proposal batches, repeated-run evidence, and governance indexes before any
    stronger moonshot-readiness claim
-6. advance the assist lane only when broader bounded coverage or better
+7. advance the assist lane only when broader bounded coverage or better
    culprit-oriented reporting is real
 
 ## Why This Order
@@ -83,3 +89,9 @@ Nat already proved:
 
 So the highest-value next layer is closing the automation-readiness gap:
 grounding, structural breadth, and promotion gates.
+
+The key clarification is that source cohorts and action families are separate
+axes. Nat Cohort A does not mean Family A. Family A means a row is clean enough
+for `full_auto`; Family B means it is structured enough for `split_auto`; Family
+C/D/E explain why a row needs repair, review-only hold, or manual
+reconstruction.
