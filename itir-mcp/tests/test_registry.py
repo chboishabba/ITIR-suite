@@ -5,6 +5,7 @@ def test_default_registry_lists_expected_tools() -> None:
     registry = build_default_registry()
     names = {tool.name for tool in registry.list_tools()}
     assert names == {
+        "sensiblaw.itir_job_status",
         "sensiblaw.obligations_query",
         "sensiblaw.obligations_explain",
         "sensiblaw.obligations_alignment",
