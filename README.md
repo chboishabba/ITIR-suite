@@ -1,5 +1,7 @@
 # ITIR-suite
 
+![ITIR-suite banner](docs/assets/itir-suite-banner.png)
+
 ITIR-suite is the top-level workspace for a set of tools that help capture,
 organize, review, and hand off difficult material without losing provenance.
 
