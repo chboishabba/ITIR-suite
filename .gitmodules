@@ -45,7 +45,7 @@
 	url = https://github.com/chboishabba/SeaMeInIt.git
 [submodule "aur/zelph"]
 	path = aur/zelph
-	url = https://github.com/acrion/zelph.git
+	url = https://github.com/chboishabba/zelph.git
 [submodule "JesusCrust"]
 	path = JesusCrust
 	url = https://github.com/chboishabba/JesusCrust.git

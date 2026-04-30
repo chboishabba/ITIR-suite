@@ -122,6 +122,12 @@ Initial suite tool namespace should prefer explicit producer prefixes:
 - `sensiblaw.obligations_projection`
 - `sensiblaw.obligations_activate`
 
+For ITIR-owned cross-project comparison semantics, the next bounded family is:
+
+- `itir.compare_observations`
+- `itir.score_coherence`
+- `itir.build_envelope`
+
 The first phase should avoid broad mutable operations and should not expose raw
 UI control surfaces.
 

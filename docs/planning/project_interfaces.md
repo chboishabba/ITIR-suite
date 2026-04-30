@@ -110,3 +110,25 @@ channels for each core project directory in this workspace.
 - `docs/planning/itir_mcp_dioxus_contract_20260326.md`:
   suite-level MCP adapter contract, first tool namespace, and Dioxus
   backend/native integration posture.
+- `docs/planning/itir_windows_compliance_mcp_contract_20260407.md`:
+  planned Windows evidence/evaluate/plan/apply MCP lane for deterministic
+  endpoint compliance checks, receipts, and guarded remediation posture.
+- `docs/planning/itir_linux_compliance_mcp_contract_20260407.md`:
+  planned Linux evidence/evaluate/plan/apply MCP lane for deterministic
+  host compliance checks, receipts, and guarded remediation posture across
+  files, services, kernel, and runtime state.
+- `docs/planning/canonical_text_span_evidence_contract_20260407.md`:
+  canonical document-evidence substrate for compliance, standards, legal, and
+  audit lanes; retrieval helpers must resolve back to exact canonical
+  revision/span refs before stronger evaluation or receipt claims.
+- `docs/planning/itir_public_repo_security_discovery_contract_20260407.md`:
+  planned lower-trust public repo/security-surface discovery lane for
+  candidate risk findings, follow obligations, and internal exposure checks
+  without public-source promotion to action authority.
+- WorldMonitor native MCP seam:
+  `../worldmonitor/api/mcp.ts` is the correct plugin/integration boundary for
+  external ITIR tool consumption. `WorldMonitor` now consumes ITIR comparison
+  and coherence semantics via MCP adapter wrappers and posts bounded envelopes
+  back to its local read model.
+  ITIR logic should cross there via MCP/API, not by copying suite semantics into
+  WorldMonitor internals.

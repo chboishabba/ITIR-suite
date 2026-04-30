@@ -11,214 +11,24 @@ import type {
   DashboardArtifactLink,
   ChatWaterfallItem
 } from '$lib/sb-dashboard/contracts/dashboard';
+import {
+  addArtifactMtimes,
+  autoBuildMissingEnabled,
+  dateRangeInclusive,
+  listAvailableDates,
+  loadDashboardForDate,
+  loadNotebookMetaRowsForDate,
+  maxIso,
+  minIso,
+  resolveRepoRoot,
+  resolveRunsRoot,
+  resolveSbDbPath,
+  tryReadJson
+} from '$lib/server/dashboard-home';
+import type { NotebookMetaRow } from '$lib/server/dashboard-home';
 
 function isDateText(v: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(v);
-}
-
-function resolveRunsRoot(runsRootEnv: string | undefined): string {
-  // Normalize to an absolute path so loaders and the Python runner agree even when
-  // SB_RUNS_ROOT is set as a relative path.
-  const fallback = path.resolve('..', 'StatiBaker', 'runs');
-  const raw = runsRootEnv && runsRootEnv.trim() ? runsRootEnv.trim() : fallback;
-  return path.resolve(raw);
-}
-
-async function tryReadJson(p: string): Promise<unknown | null> {
-  try {
-    const raw = await fs.readFile(p, 'utf-8');
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
-
-async function fileExists(p: string): Promise<boolean> {
-  try {
-    await fs.stat(p);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function runPythonJson(repoRoot: string, args: string[]): Promise<unknown> {
-  return new Promise((resolve, reject) => {
-    const script = path.join(repoRoot, 'StatiBaker', 'scripts', 'query_dashboard_db.py');
-    const child = spawn('python3', [script, ...args], { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'] });
-    let stdout = '';
-    let stderr = '';
-    child.stdout.on('data', (d) => (stdout += String(d)));
-    child.stderr.on('data', (d) => (stderr += String(d)));
-    child.on('error', (err) => reject(err));
-    child.on('close', (code) => {
-      if (code !== 0) return reject(new Error(`query_dashboard_db.py failed (exit ${code}).\n${stderr || stdout}`));
-      try {
-        resolve(JSON.parse(stdout));
-      } catch (err) {
-        reject(new Error(`query_dashboard_db.py returned non-JSON output.\n${stderr || ''}\n${stdout.slice(0, 2000)}`));
-      }
-    });
-  });
-}
-
-type NotebookMetaRow = {
-  threadId: string;
-  title: string;
-  messageCount: number;
-  origin: string;
-  sources: string[];
-  metaOnly: boolean;
-  firstTs?: string;
-  lastTs?: string;
-};
-
-function shortHash(value: string): string {
-  const clean = value.replace(/^sha256:/i, '').trim();
-  if (!clean) return '';
-  return clean.length > 12 ? `${clean.slice(0, 12)}...` : clean;
-}
-
-function minIso(a?: string, b?: string): string | undefined {
-  if (!a) return b;
-  if (!b) return a;
-  return b < a ? b : a;
-}
-
-function maxIso(a?: string, b?: string): string | undefined {
-  if (!a) return b;
-  if (!b) return a;
-  return b > a ? b : a;
-}
-
-async function loadNotebookMetaRowsForDate(runsRoot: string, date: string): Promise<NotebookMetaRow[]> {
-  const file = path.join(runsRoot, date, 'logs', 'notes', `${date}.jsonl`);
-  let raw = '';
-  try {
-    raw = await fs.readFile(file, 'utf-8');
-  } catch {
-    return [];
-  }
-
-  const byId = new Map<string, NotebookMetaRow>();
-  for (const line of raw.split(/\r?\n/g)) {
-    const text = line.trim();
-    if (!text) continue;
-    let record: any;
-    try {
-      record = JSON.parse(text);
-    } catch {
-      continue;
-    }
-
-    if (String(record?.signal ?? '').trim().toLowerCase() !== 'notes_meta') continue;
-    if (String(record?.app ?? '').trim().toLowerCase() !== 'notebooklm') continue;
-
-    const notebookHash = String(record?.notebook_id_hash ?? '').trim();
-    const isScoped = Boolean(notebookHash);
-    const id = isScoped ? `meta:notebooklm:${notebookHash}` : 'meta:notebooklm:unscoped';
-    const title = isScoped ? `NotebookLM ${shortHash(notebookHash)}` : 'NotebookLM (unscoped metadata)';
-    const ts = String(record?.ts ?? '').trim() || undefined;
-
-    const current = byId.get(id) ?? {
-      threadId: id,
-      title,
-      messageCount: 0,
-      origin: 'notebooklm',
-      sources: ['notebooklm (meta-only)'],
-      metaOnly: true
-    };
-
-    current.messageCount += 1;
-    current.firstTs = minIso(current.firstTs, ts);
-    current.lastTs = maxIso(current.lastTs, ts);
-    byId.set(id, current);
-  }
-
-  return [...byId.values()].sort((a, b) => b.messageCount - a.messageCount || a.title.localeCompare(b.title));
-}
-
-function dateRangeInclusive(start: string, end: string): string[] {
-  const out: string[] = [];
-  // dates are ISO so lexical order matches chronological order.
-  if (start > end) [start, end] = [end, start];
-  const partsA = start.split('-').map((x) => Number(x));
-  const partsB = end.split('-').map((x) => Number(x));
-  if (partsA.length !== 3 || partsB.length !== 3) return [];
-  const [sy, sm, sd] = partsA as [number, number, number];
-  const [ey, em, ed] = partsB as [number, number, number];
-  if (![sy, sm, sd, ey, em, ed].every((n) => Number.isFinite(n))) return [];
-  const startDate = new Date(Date.UTC(sy, sm - 1, sd));
-  const endDate = new Date(Date.UTC(ey, em - 1, ed));
-  for (let d = startDate; d <= endDate; d = new Date(d.getTime() + 86400_000)) {
-    out.push(d.toISOString().slice(0, 10));
-  }
-  return out;
-}
-
-async function listAvailableDates(runsRoot: string): Promise<string[]> {
-  const repoRoot = path.resolve('..');
-  const dbPath = process.env.SB_DASHBOARD_DB ? path.resolve(process.env.SB_DASHBOARD_DB) : path.join(runsRoot, 'dashboard.sqlite');
-  if (await fileExists(dbPath)) {
-    try {
-      const raw = await runPythonJson(repoRoot, ['--db-path', dbPath, '--view', 'daily', '--list-dates']);
-      if (Array.isArray(raw)) return raw.filter((d) => typeof d === 'string' && isDateText(d)).sort();
-    } catch {
-      // fall through to legacy disk scan
-    }
-  }
-
-  // Legacy fallback: scan `runs/<date>/outputs/dashboard*.json` when DB isn't available.
-  try {
-    const entries = await fs.readdir(runsRoot, { withFileTypes: true });
-    const dates = entries
-      .filter((e) => e.isDirectory() && isDateText(e.name))
-      .map((e) => e.name)
-      .sort();
-    const out: string[] = [];
-    for (const d of dates) {
-      const p = path.join(runsRoot, d, 'outputs', 'dashboard.json');
-      const pAll = path.join(runsRoot, d, 'outputs', 'dashboard_all.json');
-      const raw = (await tryReadJson(p)) ?? (await tryReadJson(pAll));
-      if (raw) out.push(d);
-    }
-    return out;
-  } catch {
-    return [];
-  }
-}
-
-async function loadDashboardForDate(
-  repoRoot: string,
-  runsRoot: string,
-  dbPath: string,
-  date: string
-): Promise<{ payload: DashboardPayload; source: string } | null> {
-  if (await fileExists(dbPath)) {
-    try {
-      const raw = await runPythonJson(repoRoot, ['--db-path', dbPath, '--view', 'daily', '--date', date, '--prefer-all']);
-      // Range query returns {date, scope, payload}; single-date returns the same when --prefer-all is set.
-      const tuple = raw as any;
-      const payloadRaw = tuple?.payload ?? null;
-      if (payloadRaw) return { payload: parseDashboardPayload(payloadRaw), source: `${dbPath}#daily:${date}:${String(tuple?.scope ?? '')}` };
-    } catch {
-      // fall through to legacy disk reads
-    }
-  }
-
-  const pAll = path.join(runsRoot, date, 'outputs', 'dashboard_all.json');
-  const p = path.join(runsRoot, date, 'outputs', 'dashboard.json');
-  const rawAll = await tryReadJson(pAll);
-  if (rawAll) return { payload: parseDashboardPayload(rawAll), source: pAll };
-  const raw = await tryReadJson(p);
-  if (raw) return { payload: parseDashboardPayload(raw), source: p };
-  return null;
-}
-
-function autoBuildMissingEnabled(): boolean {
-  const raw = String(process.env.ITIR_AUTO_BUILD_MISSING_DASHBOARDS ?? '').trim().toLowerCase();
-  if (!raw) return true; // default ON
-  return !['0', 'false', 'no', 'off', 'disable', 'disabled'].includes(raw);
 }
 
 async function isWritableDir(dir: string): Promise<boolean> {
@@ -231,25 +41,6 @@ async function isWritableDir(dir: string): Promise<boolean> {
   } catch {
     return false;
   }
-}
-
-async function addArtifactMtimes(links: DashboardArtifactLink[] | undefined): Promise<DashboardArtifactLink[] | undefined> {
-  if (!links || !links.length) return links;
-  const MAX = 200;
-  const slice = links.slice(0, MAX);
-  const out: DashboardArtifactLink[] = await Promise.all(
-    slice.map(async (l) => {
-      try {
-        const st = await fs.stat(l.path);
-        const iso = st.mtime.toISOString();
-        const hour = Number(iso.slice(11, 13));
-        return { ...l, mtime_iso: iso, mtime_hour: Number.isFinite(hour) ? hour : undefined };
-      } catch {
-        return l;
-      }
-    })
-  );
-  return links.length > MAX ? [...out, ...links.slice(MAX)] : out;
 }
 
 function runBuildDashboard(repoRoot: string, runsRoot: string, date: string): Promise<void> {
@@ -716,10 +507,10 @@ export async function load({ url }: { url: URL }) {
 
   // Canonical path: dashboard DB (preferred).
   if (dbEnvPath) {
-    const dbPath = path.resolve(dbEnvPath);
-    const repoRoot = path.resolve('..');
+    const repoRoot = resolveRepoRoot();
     const runsRoot = resolveRunsRoot(runsRootEnv);
-    const availableDates = await listAvailableDates(runsRoot);
+    const dbPath = resolveSbDbPath(dbEnvPath, runsRoot);
+    const availableDates = await listAvailableDates(runsRoot, repoRoot, dbPath);
     const endCandidate = url.searchParams.get('end') ?? dateEnv ?? availableDates[availableDates.length - 1] ?? '2026-02-03';
     const startCandidate = url.searchParams.get('start') ?? endCandidate;
     const explicitSelection = url.searchParams.has('start') || url.searchParams.has('end') || Boolean(dateEnv) || Boolean(runsRootEnv);
@@ -794,7 +585,7 @@ export async function load({ url }: { url: URL }) {
 
     const builtCount = Number(url.searchParams.get('built') ?? 0) || 0;
     const failedCount = Number(url.searchParams.get('failed') ?? 0) || 0;
-    const autoBuildEnabled = explicitSelection && autoBuildMissingEnabled();
+    const autoBuildEnabled = explicitSelection && autoBuildMissingEnabled(process.env.ITIR_AUTO_BUILD_MISSING_DASHBOARDS);
     const runsRootWritable = await isWritableDir(runsRoot);
 
     return {
@@ -838,10 +629,10 @@ export async function load({ url }: { url: URL }) {
     }
   }
 
-  const repoRoot = path.resolve('..');
+  const repoRoot = resolveRepoRoot();
   const runsRoot = resolveRunsRoot(runsRootEnv);
-  const availableDates = await listAvailableDates(runsRoot);
-  const dbPath = dbEnvPath ? path.resolve(dbEnvPath) : path.join(runsRoot, 'dashboard.sqlite');
+  const dbPath = resolveSbDbPath(dbEnvPath, runsRoot);
+  const availableDates = await listAvailableDates(runsRoot, repoRoot, dbPath);
 
   const endCandidate = url.searchParams.get('end') ?? dateEnv ?? availableDates[availableDates.length - 1] ?? '2026-02-03';
   const startCandidate = url.searchParams.get('start') ?? endCandidate;
@@ -961,7 +752,7 @@ export async function load({ url }: { url: URL }) {
 
   const builtCount = Number(url.searchParams.get('built') ?? 0) || 0;
   const failedCount = Number(url.searchParams.get('failed') ?? 0) || 0;
-  const autoBuildEnabled = explicitSelection && autoBuildMissingEnabled();
+  const autoBuildEnabled = explicitSelection && autoBuildMissingEnabled(process.env.ITIR_AUTO_BUILD_MISSING_DASHBOARDS);
   const runsRootWritable = await isWritableDir(runsRoot);
 
   return {
@@ -990,8 +781,8 @@ export const actions = {
     }
 
     const runsRoot = resolveRunsRoot(process.env.SB_RUNS_ROOT);
-    const repoRoot = path.resolve('..');
-    const dbPath = process.env.SB_DASHBOARD_DB ? path.resolve(process.env.SB_DASHBOARD_DB) : path.join(runsRoot, 'dashboard.sqlite');
+    const repoRoot = resolveRepoRoot();
+    const dbPath = resolveSbDbPath(process.env.SB_DASHBOARD_DB, runsRoot);
     if (!(await isWritableDir(runsRoot))) {
       return fail(400, {
         ok: false,

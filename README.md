@@ -98,6 +98,24 @@ Web-surface control note:
 - root follow-up and sequencing live in [TODO.md](TODO.md) and
   [itir-svelte/README.md](itir-svelte/README.md)
 
+The current suite-level integration doctrine is now MCP-first and guarded:
+
+- MCP is the canonical contract layer for cross-project tool consumption
+- bridge or HTTP shells are transport details, not alternate semantics
+- consequential tool use should flow through guarded evaluation surfaces
+  rather than raw direct calls
+- policy, explanation, and receipts are intended to stay normalized rather
+  than split across separate ad hoc client behaviors
+- managed-host evidence and rollout lanes are higher-trust internal surfaces
+- that managed-host class now explicitly includes both Windows and Linux
+  evidence/evaluate/plan/apply lanes
+- public repo/social discovery lanes are lower-trust candidate-risk surfaces
+  that may propose follow obligations but do not authorize action on their own
+- `WorldMonitor` and `OpenRecall` integrations now consume `itir.*` tools through
+  the MCP seam only, with no duplicated core comparison or policy logic in
+  either client. The consumer-side contract is adapter-only: normalize inputs,
+  call ITIR/MCP, then expose bounded outputs plus receipts.
+
 That same normalization rule is now explicit across the main `SensibLaw` lanes:
 
 - AU legal/hearing material
@@ -149,6 +167,20 @@ That means the immediate global-source program should prefer:
   translations
 - deterministic identifiers, structured retrieval, and clear provenance
 
+For document-like evidence, "structured retrieval" is now read more strictly
+than `vector + file path`.
+
+The intended substrate is:
+
+- raw document retained
+- canonical text retained
+- text revision identity retained
+- derived chunk refs anchored by exact span/offset into canonical text
+
+That stronger shape is what allows the suite to reconstruct exact evidence,
+re-run evaluation deterministically, and emit compliance/legal receipts that
+are replayable and challengeable.
+
 High-value multilingual exceptions are allowed when they are known to be well
 translated or stably parallelized, for example:
 
@@ -192,6 +224,10 @@ Full-flow read at moonshot:
    time where justified
 8. analyze commonality, disjointness, conflict, and dependency structure
 9. preserve challengeability, replay, and anti-panopticon constraints
+
+The bounded planning note for that document-evidence rule is:
+
+- [docs/planning/canonical_text_span_evidence_contract_20260407.md](docs/planning/canonical_text_span_evidence_contract_20260407.md)
 
 Current P0 control read:
 
@@ -614,6 +650,11 @@ updated pointer in this root repo.
 
 - `./setup.sh`: initialize and update submodules
 - `./env_init.sh`: build an optional root compatibility venv
+- `./scripts/gitin-recursive.sh`: fast-forward pull the root repo, then sync
+  and update submodules to the pinned commits recorded by the root repo while
+  reporting any branch-attached submodule drift
+- `./scripts/gitout-recursive.sh`: pull, commit, and push dirty repos
+  recursively, with submodules first and explicit diverged-branch reporting
 - `./scripts/sync_chat_context.sh`: sync conversation context into
   `__CONTEXT/last_sync/`
 - `python scripts/build_docs_site.py`: build a lightweight local index of the

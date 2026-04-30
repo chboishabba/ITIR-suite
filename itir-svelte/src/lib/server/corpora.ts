@@ -2,11 +2,30 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import crypto from 'node:crypto';
-import { readStdout, resolveItirDbPath, resolveRepoRoot } from './utils';
+import { resolveItirDbPath, resolveRepoRoot } from './utils';
 import { listThreads, type ThreadIndexRow } from './threadIndex';
 import { resolveChatArchivePath } from './chatArchive';
 import { listSemanticCorpora, loadSemanticReport } from './semanticReport';
 import { loadFactReviewAcceptance, loadFactReviewWorkbench } from './factReview';
+import {
+  messengerQueryScript,
+  openRecallQueryScript,
+  factReviewQueryScript,
+  resolveMessengerDbPath,
+  runJsonQuery,
+  readJsonFile,
+  resolveLatestLiveContestedAffidavitPath
+} from './corpora/transport';
+import {
+  normalizeAffidavitArtifacts,
+  normalizeFeedbackReceipt,
+  normalizeOpenRecallSummary,
+  normalizePersonalRun,
+  type AffidavitArtifact,
+  type OpenRecallSummaryRaw
+} from './corpora/normalizers';
+
+export { resolveMessengerDbPath } from './corpora/transport';
 
 export type CorpusCard = {
   key: string;
@@ -250,134 +269,6 @@ export type FeedbackReceiptSummary = {
   drillInHref: string | null;
   drillInLabel: string | null;
 };
-
-type OpenRecallSummaryRaw = {
-  captureCount?: number;
-  firstCapturedAt?: string | null;
-  lastCapturedAt?: string | null;
-  screenshotCoverage?: {
-    withScreenshot?: number;
-    withoutScreenshot?: number;
-    coveragePercent?: number;
-  };
-  countsByApp?: Array<{ appName?: string; captureCount?: number }>;
-  countsByDate?: Array<{ capturedDate?: string; captureCount?: number }>;
-};
-
-function messengerQueryScript(repoRoot: string): string {
-  return path.join(repoRoot, 'itir-svelte', 'scripts', 'query_messenger_test_db.py');
-}
-
-function openRecallQueryScript(repoRoot: string): string {
-  return path.join(repoRoot, 'SensibLaw', 'scripts', 'query_openrecall_import.py');
-}
-
-function factReviewQueryScript(repoRoot: string): string {
-  return path.join(repoRoot, 'SensibLaw', 'scripts', 'query_fact_review.py');
-}
-
-export function resolveMessengerDbPath(repoRoot: string): string {
-  const raw = process.env.ITIR_MESSENGER_DB_PATH?.trim() || process.env.MESSENGER_TEST_DB_PATH?.trim();
-  return path.resolve(repoRoot, raw || '.cache_local/itir_messenger_test.sqlite');
-}
-
-function normalizeInternalHref(value: string | null | undefined): string | null {
-  const text = String(value ?? '').trim();
-  if (!text || !text.startsWith('/')) return null;
-  return text;
-}
-
-function deriveFeedbackDrillIn(
-  row: {
-    target_product?: string | null;
-    target_surface?: string | null;
-    workflow_label?: string | null;
-    task_label?: string | null;
-    provenance?: Record<string, unknown>;
-  }
-): { href: string | null; label: string | null } {
-  const targetSurface = normalizeInternalHref(row.target_surface);
-  if (targetSurface) {
-    return { href: targetSurface, label: 'Open target surface' };
-  }
-  const provenance = row.provenance && typeof row.provenance === 'object' ? row.provenance : {};
-  const provenanceSourceRef = String((provenance as Record<string, unknown>).source_ref ?? '').trim();
-  const directSourceHref = normalizeInternalHref(provenanceSourceRef);
-  if (directSourceHref) {
-    return { href: directSourceHref, label: 'Open source-linked surface' };
-  }
-  if (/^[0-9a-f]{40}$/i.test(provenanceSourceRef)) {
-    return { href: `/thread/${provenanceSourceRef}`, label: 'Open source thread' };
-  }
-  if (provenanceSourceRef.startsWith('thread:')) {
-    const threadId = provenanceSourceRef.slice('thread:'.length).trim();
-    if (/^[0-9a-f]{40}$/i.test(threadId)) {
-      return { href: `/thread/${threadId}`, label: 'Open source thread' };
-    }
-  }
-  const workflowKind = String((provenance as Record<string, unknown>).workflow_kind ?? '').trim();
-  const workflowRunId = String((provenance as Record<string, unknown>).workflow_run_id ?? '').trim();
-  const sourceLabel = String((provenance as Record<string, unknown>).source_label ?? '').trim();
-  if (workflowKind || workflowRunId || sourceLabel) {
-    return {
-      href: buildFactReviewHref({
-        workflow_kind: workflowKind || null,
-        workflow_run_id: workflowRunId || null,
-        source_label: sourceLabel || null
-      }),
-      label: 'Open linked fact review run'
-    };
-  }
-  const targetProduct = String(row.target_product ?? '').trim().toLowerCase();
-  const workflowLabel = String(row.workflow_label ?? '').trim().toLowerCase();
-  const taskLabel = String(row.task_label ?? '').trim().toLowerCase();
-
-  if (workflowLabel === 'personal_results_review' || targetProduct === 'itir-svelte') {
-    return { href: '/corpora/processed/personal', label: 'Open personal results' };
-  }
-  if (workflowLabel.includes('fact_review') || taskLabel.includes('review')) {
-    return { href: '/graphs/fact-review', label: 'Open fact review workbench' };
-  }
-  if (taskLabel.includes('browse_corpus')) {
-    return { href: '/corpora', label: 'Open corpus browser' };
-  }
-  return { href: null, label: null };
-}
-
-async function runJsonQuery<T>(cmd: string, args: string[], cwd: string): Promise<T> {
-  const raw = await readStdout(cmd, args, cwd);
-  return JSON.parse(raw) as T;
-}
-
-async function readJsonFile<T>(filePath: string): Promise<T> {
-  const raw = await fs.readFile(filePath, 'utf8');
-  return JSON.parse(raw) as T;
-}
-
-function buildFactReviewHref(params: Record<string, string | null | undefined>): string {
-  const search = new URLSearchParams();
-  for (const [key, value] of Object.entries(params)) {
-    if (value) search.set(key, value);
-  }
-  return `/graphs/fact-review?${search.toString()}`;
-}
-
-function buildRawSourceHref(sourceLabel: string, workflowKind: string): string {
-  if (workflowKind === 'au_semantic') {
-    return '/corpora/processed/personal';
-  }
-  if (sourceLabel.includes('transcript')) {
-    return '/corpora/processed/personal';
-  }
-  if (sourceLabel.includes('messenger') || sourceLabel.includes('facebook') || sourceLabel.includes('fb')) {
-    return '/corpora/messenger';
-  }
-  if (sourceLabel.includes('chat')) {
-    return '/corpora/chat-archive';
-  }
-  return '/corpora';
-}
-
 type FactReviewRunsPayload = {
   runs?: Array<{
     run_id?: string;
@@ -461,27 +352,6 @@ type FeedbackReceiptsPayload = {
   }>;
 };
 
-async function resolveLatestLiveContestedAffidavitPath(): Promise<string | null> {
-  try {
-    const entries = await fs.readdir('/tmp', { withFileTypes: true });
-    const candidates: Array<{ filePath: string; mtimeMs: number }> = [];
-    for (const entry of entries) {
-      if (!entry.isDirectory() || !entry.name.startsWith('google_docs_contested')) continue;
-      const candidatePath = path.join('/tmp', entry.name, 'affidavit_coverage_review_v1.json');
-      try {
-        const stat = await fs.stat(candidatePath);
-        candidates.push({ filePath: candidatePath, mtimeMs: stat.mtimeMs });
-      } catch {
-        // optional artifact
-      }
-    }
-    candidates.sort((a, b) => b.mtimeMs - a.mtimeMs);
-    return candidates[0]?.filePath ?? null;
-  } catch {
-    return null;
-  }
-}
-
 export async function loadPersonalProcessedOverview(): Promise<PersonalProcessedOverview> {
   const repoRoot = resolveRepoRoot();
   const dbPath = resolveItirDbPath(repoRoot);
@@ -493,30 +363,14 @@ export async function loadPersonalProcessedOverview(): Promise<PersonalProcessed
   const realRunRows = (runsPayload.runs ?? []).filter((row) => String(row.source_label ?? '').includes(':real_'));
   const runs = await Promise.all(
     realRunRows.map(async (row) => {
-      const sourceLabel = String(row.source_label ?? '');
-      const workflowKind = String(row.workflow_link?.workflow_kind ?? '');
-      const workflowRunId = String(row.workflow_link?.workflow_run_id ?? '');
-      const runId = String(row.run_id ?? '');
+      const base = normalizePersonalRun(row);
+      const { runId, workflowKind, workflowRunId, sourceLabel } = base;
       const [workbench, acceptance] = await Promise.all([
         loadFactReviewWorkbench({ runId }).catch(() => null),
         loadFactReviewAcceptance({ runId }, { fixtureKind: 'real' }).catch(() => null)
       ]);
       return {
-        sourceLabel,
-        runId,
-        workflowKind,
-        workflowRunId,
-        createdAt: String(row.created_at ?? ''),
-        notes: String(row.notes ?? ''),
-        counts: {
-          sourceCount: Number(row.source_count ?? 0) || 0,
-          statementCount: Number(row.statement_count ?? 0) || 0,
-          factCount: Number(row.fact_count ?? 0) || 0,
-          observationCount: Number(row.observation_count ?? 0) || 0,
-          eventCount: Number(row.event_count ?? 0) || 0,
-          reviewCount: Number(row.review_count ?? 0) || 0,
-          contestationCount: Number(row.contestation_count ?? 0) || 0
-        },
+        ...base,
         summary: Object.fromEntries(
           Object.entries(workbench?.summary ?? {}).map(([key, value]) => [key, Number(value ?? 0) || 0])
         ),
@@ -529,18 +383,12 @@ export async function loadPersonalProcessedOverview(): Promise<PersonalProcessed
               failCount: Number(acceptance.summary.fail_count ?? 0) || 0
             }
           : null,
-        rawSourceHref: buildRawSourceHref(sourceLabel, workflowKind),
-        workbenchHref: buildFactReviewHref({
-          source_label: sourceLabel,
-          workflow_kind: workflowKind,
-          workflow_run_id: workflowRunId
-        })
       } satisfies PersonalProcessedRun;
     })
   );
   runs.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
-  const affidavitArtifacts: Array<{ key: string; label: string; artifactPath: string; origin: 'fixture' | 'live' }> = [
+  const affidavitArtifacts: AffidavitArtifact[] = [
     {
       key: 'au_narrow_affidavit',
       label: 'AU affidavit coverage',
@@ -632,38 +480,8 @@ export async function loadPersonalProcessedOverview(): Promise<PersonalProcessed
     });
   }
 
-  for (const artifact of affidavitArtifacts) {
-    try {
-      const payload = await readJsonFile<any>(artifact.artifactPath);
-      const sourceKind = String(payload?.source_input?.source_kind ?? '').trim();
-      const sourceLabel = String(payload?.source_input?.source_label ?? '').trim();
-      const dedupeKey = sourceKind || sourceLabel || artifact.key;
-      if (seenKeys.has(dedupeKey)) continue;
-      const summary = payload?.summary ?? {};
-      affidavits.push({
-        key: artifact.key,
-        label: artifact.label,
-        artifactPath: artifact.artifactPath,
-        origin: artifact.origin,
-        reviewRunId: null,
-        storageBasis: 'artifact',
-        affidavitPath: String(payload?.affidavit_input?.path ?? ''),
-        sourcePath: String(payload?.source_input?.path ?? ''),
-        summary: {
-          affidavitPropositionCount: Number(summary?.affidavit_proposition_count ?? 0) || 0,
-          coveredCount: Number(summary?.covered_count ?? 0) || 0,
-          partialCount: Number(summary?.partial_count ?? 0) || 0,
-          unsupportedAffidavitCount: Number(summary?.unsupported_affidavit_count ?? 0) || 0,
-          missingReviewCount: Number(summary?.missing_review_count ?? 0) || 0,
-          substantiveResponseCount: Number(summary?.substantive_response_count ?? 0) || 0,
-          affidavitSupportedRatio: Number(summary?.affidavit_supported_ratio ?? 0) || 0,
-          substantiveResponseRatio: Number(summary?.substantive_response_ratio ?? 0) || 0
-        }
-      });
-    } catch {
-      // optional artifact
-    }
-  }
+  const artifactAffidavits = await normalizeAffidavitArtifacts(affidavitArtifacts, seenKeys);
+  affidavits.push(...artifactAffidavits);
 
   affidavits.sort((a, b) => {
     const rank = (value: PersonalAffidavitResult['origin']) => (value === 'persisted' ? 0 : value === 'live' ? 1 : 2);
@@ -681,32 +499,7 @@ export async function loadFeedbackReceipts(limit = 20): Promise<FeedbackReceiptS
     [factReviewQueryScript(repoRoot), '--db-path', dbPath, 'feedback-receipts', '--limit', String(limit)],
     repoRoot
   ).catch(() => ({ receipts: [] }));
-  return (payload.receipts ?? []).map((row) => ({
-    ...(() => {
-      const drillIn = deriveFeedbackDrillIn(row);
-      return {
-        drillInHref: drillIn.href,
-        drillInLabel: drillIn.label
-      };
-    })(),
-    receiptId: String(row.receipt_id ?? ''),
-    feedbackClass: String(row.feedback_class ?? ''),
-    roleLabel: String(row.role_label ?? ''),
-    taskLabel: String(row.task_label ?? ''),
-    targetProduct: row.target_product ? String(row.target_product) : null,
-    targetSurface: row.target_surface ? String(row.target_surface) : null,
-    workflowLabel: row.workflow_label ? String(row.workflow_label) : null,
-    sourceKind: String(row.source_kind ?? ''),
-    summary: String(row.summary ?? ''),
-    quoteText: String(row.quote_text ?? ''),
-    severity: String(row.severity ?? ''),
-    desiredOutcome: row.desired_outcome ? String(row.desired_outcome) : null,
-    sentiment: row.sentiment ? String(row.sentiment) : null,
-    capturedAt: String(row.captured_at ?? ''),
-    tags: Array.isArray(row.tags) ? row.tags.map((value) => String(value)) : [],
-    provenance: row.provenance && typeof row.provenance === 'object' ? row.provenance : {},
-    createdAt: String(row.created_at ?? '')
-  }));
+  return (payload.receipts ?? []).map((row) => normalizeFeedbackReceipt(row));
 }
 
 export async function addFeedbackReceipt(
@@ -1202,34 +995,7 @@ export async function loadOpenRecallSummary(opts: {
   if (opts.date) args.push('--date', opts.date);
   if (opts.appName) args.push('--app-name', opts.appName);
   const payload = await runJsonQuery<{ summary: OpenRecallSummaryRaw | null }>('python3', args, repoRoot);
-  const summary = payload.summary;
-  if (!summary) return null;
-  const apps = Array.isArray(summary.countsByApp)
-    ? summary.countsByApp.map((row) => ({
-        appName: String(row.appName ?? ''),
-        count: Number(row.captureCount ?? 0) || 0
-      }))
-    : [];
-  const coverage = {
-    withScreenshot: Number(summary.screenshotCoverage?.withScreenshot ?? 0) || 0,
-    withoutScreenshot: Number(summary.screenshotCoverage?.withoutScreenshot ?? 0) || 0,
-    coveragePercent: Number(summary.screenshotCoverage?.coveragePercent ?? 0) || 0
-  };
-  return {
-    captureCount: Number(summary.captureCount ?? 0) || 0,
-    uniqueAppCount: apps.length,
-    withScreenshotCount: coverage.withScreenshot,
-    withoutScreenshotCount: coverage.withoutScreenshot,
-    coverage,
-    latestCapturedAt: summary.lastCapturedAt ?? null,
-    apps,
-    dates: Array.isArray(summary.countsByDate)
-      ? summary.countsByDate.map((row) => ({
-          capturedDate: String(row.capturedDate ?? ''),
-          count: Number(row.captureCount ?? 0) || 0
-        }))
-      : []
-  };
+  return normalizeOpenRecallSummary(payload.summary ?? null);
 }
 
 export async function loadOpenRecallCaptures(opts: {

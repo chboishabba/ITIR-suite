@@ -190,3 +190,15 @@ Implemented shape:
 - `SensibLaw/scripts/query_openrecall_import.py`
 - mission-lens and later consumers can read the same normalized summaries
   rather than inventing local capture queries
+
+## Current external-consumer alignment (2026-04-07)
+
+OpenRecall now has an ITIR-facing MCP bridge for bounded comparison/policy
+normalization and safe adapter-style invocation, shipped as the closed-loop
+integration work in:
+
+- https://github.com/openrecall/openrecall/pull/126
+
+This keeps OpenRecall's role as a bounded acquisition and evidence source while
+moving cross-source comparison and policy-constrained scoring through the suite
+MCP path.

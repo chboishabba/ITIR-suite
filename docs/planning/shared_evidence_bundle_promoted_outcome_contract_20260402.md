@@ -70,6 +70,10 @@ reviewable outputs that the repo treats as real products.
   - make the handoff contract explicit and testable
 - ISO 42001 / NIST AI RMF:
   - keep evidence bundle, promoted outcome, and derived product distinct
+- provenance / audit addendum:
+  - when evidence is document-like, downstream refs should resolve to exact
+    canonical revision/span anchors rather than only retrieval blobs or file
+    paths
 - ISO 23894:
   - avoid hidden product drift or fake cross-lane sameness
 - Six Sigma:

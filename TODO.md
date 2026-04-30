@@ -1,7 +1,7 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-04-02
+- 2026-04-07
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
@@ -971,12 +971,24 @@
     model-allocation block in the shared control-plane skills
   - keep the current state explicit:
     - multi-runner coordination in one repo is supported
-    - master-orchestrator -> sub-orchestrator hierarchy is not yet first-class
+    - master-orchestrator -> sub-orchestrator hierarchy is now a first-class
+      runtime: parent/child metadata, claims, and reporting all exist
+  - completed registry/ownership work:
+    - shared runtime emits `parent_orchestrator_id` plus lane identity in the
+      per-orchestrator metadata bundle
+    - `.autonomous-orchestrator/lane_claims/<orchestrator>.json` records each
+      runner's lane and claim lease; `.autonomous-orchestrator/registry.json`
+      exposes heartbeats for every live orchestrator
+    - `.autonomous-orchestrator/parent_reports/<parent>.json` keeps a
+      completion/escalation history for the next-tier orchestrators
+    - the idle-complete path continues to write metadata/registry/parent
+      completion surfaces so the canonical state stays accurate even when
+      orchestrators end on their own
   - next:
-    - add `parent_orchestrator_id` contract
-    - add lane/claim ownership metadata
-    - add an active orchestrator registry with heartbeats
-    - add parent-facing completion/escalation reporting
+    - keep registry, lane claim, and parent-report surfaces monitored so
+      heartbeats, ownership, and completion histories stay current
+    - document any future control-plane behavior shifts before treating them
+      as part of the canonical state
 
 - [P1] Cross-repo user-story + feedback receipt lane:
   - use `docs/planning/repo_user_story_state_and_feedback_20260327.md` as the
@@ -1738,15 +1750,75 @@
     contract
   - create and keep `itir-mcp/` as a root-owned suite adapter project rather
     than embedding MCP transport into producer repos by default
-  - first implementation scope:
-    - deterministic, read-only tool registry
-    - SensibLaw-backed obligation tools only
-    - local tests for registry/spec behavior
+  - current implemented scope:
+    - deterministic read-only registry
+    - SensibLaw-backed obligation tools
+    - ITIR-owned observation comparison tools
+    - guarded `safe_call` bridge path with:
+      - pre-call classification
+      - post-call verification
+      - normalized `status_explanation`
+      - normalized `policy_outcomes`
+      - governance receipt payloads
+    - local registry/bridge test coverage
+  - current contract doctrine:
+    - MCP is the canonical integration layer
+    - bridge/API shells are transport details only
+    - policy, explanation, and enforcement must share one reason-code
+      vocabulary
+    - client helpers should prefer guarded invocation over raw tool calls
+  - implementation status (external consumer lanes):
+    - OpenRecall now has a dedicated ITIR MCP bridge for comparison
+      normalization and bounded output wiring.
+      - openrecall PR: https://github.com/openrecall/openrecall/pull/126
+    - WorldMonitor now routes relation-style event comparison through
+      ITIR/MCP-backed `compareNewsItemsWithItir` adapter.
+      - worldmonitor PR: https://github.com/koala73/worldmonitor/pull/2772
   - next integration scope:
-    - stdio/server transport wiring
-    - one Dioxus backend/native client seam
-    - reuse existing Dioxus MCP-like playground as a debug/operator surface,
-      not the canonical suite transport layer
+    - pin cross-client parity tests so the same malicious input yields the
+      same guarded decision through each client path
+    - keep one Dioxus backend/native client seam and treat existing Dioxus
+      MCP-like playground surfaces as debug/operator layers only
+    - pin the document-evidence substrate for compliance and standards lanes
+      around:
+      - raw document retention
+      - canonical text retention
+      - text revision identity
+      - deterministic chunk ids plus exact span/offset refs
+      - retrieval/index layers as helpers only, not authority surfaces
+      - use
+        `docs/planning/canonical_text_span_evidence_contract_20260407.md`
+        as the canonical planning note
+  - planned next family:
+    - Windows evidence/evaluate/plan/apply lane under
+      `docs/planning/itir_windows_compliance_mcp_contract_20260407.md`
+    - Linux evidence/evaluate/plan/apply lane under
+      `docs/planning/itir_linux_compliance_mcp_contract_20260407.md`
+    - first bounded Windows target remains:
+      - registry/policy/service/security/eventlog evidence collection
+      - profile evaluation
+      - remediation planning only
+    - first bounded Linux target remains:
+      - normalized file/service/kernel/firewall/package/runtime state
+        collection
+      - profile evaluation
+      - remediation planning only
+    - standards/document-side compliance posture:
+      - compliance evidence should resolve to exact canonical revision/span
+        refs when the source is document-like
+      - `vector + file path` is retrieval-only and is not strong enough for
+        auditable control outcomes or receipts on its own
+    - hold guarded `apply_remediation` until receipts, rollback, and approval
+      posture are fully pinned
+  - adjacent lower-trust family:
+    - public repo/security discovery lane under
+      `docs/planning/itir_public_repo_security_discovery_contract_20260407.md`
+    - first bounded public-discovery target remains:
+      - candidate repo/workflow surface collection
+      - structured risk hypotheses
+      - internal exposure-check planning only
+    - do not let tweets, READMEs, or public repo metadata authorize internal
+      enforcement without recollected internal evidence
   - do not:
     - expose broad mutable actions first
     - treat browser `dioxus/web` as a direct stdio MCP host

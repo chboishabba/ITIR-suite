@@ -102,6 +102,14 @@ def run() -> int:
             name = request.get("name", "")
             print(_to_json(_call_tool(name, payload)), flush=True)
             continue
+        if op == "safe_call":
+            payload = request.get("payload", {})
+            if not isinstance(payload, dict):
+                payload = {}
+            name = request.get("name", "")
+            registry = build_default_registry()
+            print(_to_json(registry.safe_invoke(name, payload)), flush=True)
+            continue
 
         print(
             _to_json(

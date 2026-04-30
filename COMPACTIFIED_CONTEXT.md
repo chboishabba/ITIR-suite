@@ -1,5 +1,109 @@
 # Compactified Context
 
+- 2026-04-07 guarded MCP and Windows-compliance planning from resolved chat archive:
+  - resolved thread:
+    - `LiteLLM hack analysis`
+      - online UUID:
+        `69ce0ac6-dd2c-839f-8b84-a0d397285f90`
+      - canonical thread ID:
+        `130c635a73d780dfb0552107cc0a77a77d4cfea9`
+      - source:
+        `db` after direct UUID pull into the canonical archive
+  - main decisions:
+    - MCP should be treated as the canonical integration and contract layer,
+      not as one transport option among several
+    - guarded invocation is the real system seam:
+      - tool outputs are proposals until verified
+      - policy, explanation, and enforcement should share one reason-code
+        vocabulary
+      - `SB` receipts are the authoritative audit surface for consequential
+        decisions
+    - the next systems-facing expansion is a planned Windows endpoint lane
+      under the same doctrine:
+      - observe
+      - evaluate
+      - plan
+      - act
+    - Windows tooling should stay evidence-first:
+      - normalized endpoint evidence in
+      - executable control evaluation
+      - remediation plan before any action
+      - action remains harder than collection or evaluation
+  - docs aligned:
+    - `itir-mcp/README.md`
+    - `itir-mcp/docs/interfaces.md`
+    - `docs/planning/project_interfaces.md`
+    - `docs/planning/itir_windows_compliance_mcp_contract_20260407.md`
+    - `TODO.md`
+
+- 2026-04-07 managed-host vs public-discovery trust split:
+  - main decisions:
+    - full-stack managers, remote access, rollout, patching, and fleet
+      configuration fit the same internal higher-trust control loop:
+      observe -> evaluate -> plan -> approve/gate -> apply -> verify -> receipt
+    - Linux should be treated as the same managed-host class as Windows, but
+      over a distributed configuration substrate:
+      - files
+      - services
+      - kernel/sysctl state
+      - firewall/network state
+      - package/runtime state
+    - public repo/social discovery is a separate lower-trust lane for:
+      - candidate risk findings
+      - repo surface extraction
+      - workflow/auth/update-path inspection
+      - follow obligations and internal exposure checks
+    - the governing doctrine is:
+      - public discovery proposes risk
+      - internal evidence authorizes action
+  - docs aligned:
+    - `docs/planning/itir_windows_compliance_mcp_contract_20260407.md`
+    - `docs/planning/itir_linux_compliance_mcp_contract_20260407.md`
+    - `docs/planning/itir_public_repo_security_discovery_contract_20260407.md`
+    - `README.md`
+    - `TODO.md`
+    - `itir-mcp/README.md`
+    - `itir-mcp/docs/interfaces.md`
+
+- 2026-04-06 observation-substrate clarification from resolved chat archive:
+  - resolved threads:
+    - `Enshittification Failure Model`
+      - online UUID:
+        `69d1d8da-5c44-83a0-a69a-48b2336866be`
+      - canonical thread ID:
+        `a8d28b4c2a5caf03a05cb5ab357da933083782fc`
+      - source:
+        `db`
+    - `Bilawal Sidhu Projects`
+      - online UUID:
+        `69d3972d-e824-83a1-b9d9-fbbdb90e702c`
+      - canonical thread ID:
+        `97a99d7fcfe7fc65b523c679b4ef565c62d333b6`
+      - source:
+        `db`
+    - `Interpreting Politico Dynamics`
+      - online UUID:
+        `69d303ba-4d00-8398-bf6d-3c128d6e5509`
+      - canonical thread ID:
+        `34e976292a728c965c4a128387e3b1965e870410`
+      - source:
+        `db`
+  - main decision:
+    - `WorldMonitor` and `OpenRecall` should be treated as external and
+      internal observation sources in the same substrate, not as separate
+      semantic planes
+    - the next honest seam is shared observation-ingestion normalization into
+      the existing `SensibLaw` relation/equivalence path
+    - explicitly hold:
+      - cognitive-join machinery
+      - attention invariants
+      - perception-vs-truth divergence / Delta-cone work
+      - broader slice-state regime work
+    - docs updated:
+      - `SensibLaw/README.md`
+      - `SensibLaw/todo.md`
+      - `SensibLaw/docs/external_ingestion.md`
+
 - 2026-04-03 Wikidata/Nat live-follow receipt feedback:
   - landed:
     - `SensibLaw/src/ontology/wikidata_grounding_depth.py` now accepts
@@ -1754,11 +1858,17 @@
       - a compact model-allocation block with scorecard and escalation rules
     - a master orchestrator coordinating multiple namespaced
       `autonomous-orchestrator` runners is supported by convention
-    - first-class master/sub-orchestrator support is not yet implemented:
-      no parent registry, no lane claims, no lifecycle/reporting contract
+    - first-class master/sub-orchestrator support is now implemented:
+      parent metadata, lane/claim ownership, registry, and parent-report
+      workflow data all live in the shared runtime
   - repo state note:
-    - the next control-plane step is hierarchical orchestrator support via a
-      bounded registry/ownership layer rather than more implicit convention
+    - hierarchical orchestrator support now materializes as:
+      - `.autonomous-orchestrator/registry.json` with heartbeats and lane claims
+      - `.autonomous-orchestrator/lane_claims/<orchestrator>.json`
+      - `.autonomous-orchestrator/parent_reports/<parent>.json` for completion
+      histories
+    - idle-complete transitions still write the metadata/registry/parent
+      completion surfaces documented above so the documented state stays valid
 
 - 2026-03-28 largest-file refactor / normalization audit:
   - source: current working turn
