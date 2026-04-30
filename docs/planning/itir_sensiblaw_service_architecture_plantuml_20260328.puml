@@ -32,6 +32,12 @@ SYS --> Clinician : continuity / contradiction summary
 SYS --> Caseworker : unmet need / obligation map
 
 SYS ..> EXT : references rules, obligations,\nprovider actions, outcomes
+
+note bottom of SYS
+  Plain-language read:
+  case material comes in, gets normalized into evidence and graphs, then
+  turns into obligations, outputs, and audit trails under governance.
+end note
 @enduml
 
 @startuml

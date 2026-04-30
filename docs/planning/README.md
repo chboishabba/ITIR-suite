@@ -96,6 +96,18 @@ Documents:
 - `docs/planning/ui_surface_registry_20260208.md`
 - `docs/planning/ui_surface_manifest.json`
 
+## ITIR / SensibLaw PlantUML Bundle
+
+`docs/planning/itir_sensiblaw_service_architecture_plantuml_20260328.puml` is
+the repo-owned architecture bundle for the current ITIR / SensibLaw surface.
+In plain language, it shows how intake, processing, identity, graph,
+alignment, obligation handling, output, and governance fit together across the
+main system views.
+
+The adjacent `.svg` and `.png` exports are the shipped renderings for that
+bundle. Because the source file contains multiple `@startuml` views, PlantUML
+emits a numbered set of image files for the extra views.
+
 ## UI Integration Strategy (2026-02-08)
 
 Phased policy for linking and optionally federating multiple renderers while

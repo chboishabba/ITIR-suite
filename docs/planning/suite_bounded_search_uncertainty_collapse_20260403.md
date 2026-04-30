@@ -198,4 +198,4 @@ That is the next suite-level moonshot driver.
 The normalized artifact join now publishes a lightweight `compatibility.uncertainty_surface`
 summary that highlights the dominant unresolved-pressure status, its priority rank, and whether
 bounded search is currently recommended. This gives bounded-search planning a direct hook into
-the join semantics without introducing new resolver or crawler behaviors.
+the bounded union / join semantics without introducing new resolver or crawler behaviors.

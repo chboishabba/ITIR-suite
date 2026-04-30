@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased
+- Clarified the root ZKPerf stream section in plain language, and added the
+  missing prose note plus generated diagram renders for the shipped SensibLaw
+  service-architecture PlantUML doc. This is a docs/diagram-only update; no
+  implementation changed.
 - split the zkperf stream lane into staged implementation surfaces:
   - added [itir_jmd_bridge/zkperf_stream_core.py](/home/c/Documents/code/ITIR-suite/itir_jmd_bridge/zkperf_stream_core.py)
     for fixture loading, observation-to-window shaping, bundle building, and
@@ -551,7 +555,7 @@
     `PYTHONPATH=pyThunderbird .venv/bin/python -m pytest -q pyThunderbird/tests/test_follow.py`
     -> `2 passed`
 - Extended `tests/test_cross_adopter_governance.py` so the root governance
-  gate now covers join semantics and `pyThunderbird` retrieval-follow
+  gate now covers bounded union / join semantics and `pyThunderbird` retrieval-follow
   normalization in addition to the existing legal/archive families.
 - Added `tircorder-JOBBIE/tircorder/normalized_source_sidecar.py` so
   TiRCorder can emit one producer-owned normalized `source_artifact` sidecar

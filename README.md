@@ -595,6 +595,10 @@ and [chat-export-structurer/README.md](chat-export-structurer/README.md).
 - one-shot publish plus verify from raw observation rows:
   `scripts/run_zkperf_stream_hf.sh --observations <path-to-zkperf-observation-json-or-ndjson>`
 
+In plain language, this lane is now split so each responsibility stays small:
+build the stream window from observations, keep the latest/indexed retained
+state, and handle remote publish/resolve transport separately.
+
 Current module split for this lane:
 - `itir_jmd_bridge/zkperf_stream_core.py`
 - `itir_jmd_bridge/zkperf_stream_index.py`
