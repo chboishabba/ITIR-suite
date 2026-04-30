@@ -21,15 +21,18 @@ from .providers.pastebin import discover_host_capabilities
 from .providers.hf import fetch_hf_object, probe_hf_resolve_acknowledgement, upload_hf_file_with_ack
 from .providers.ipfs import fetch_ipfs_object, probe_ipfs_gateway_acknowledgement, publish_ipfs_file_with_ack
 from .runtime import build_runtime_bundle, build_runtime_graph, ingest_latest_pastes, inspect_latest_pastes_with_prototype
-from .zkperf_stream import (
+from .zkperf_stream_core import (
     build_zkperf_stream_bundle,
-    get_zkperf_stream_index_record,
+    build_zkperf_stream_fixture_from_observations,
     load_zkperf_stream_fixture,
+    load_zkperf_observations,
+)
+from .zkperf_stream_transport import (
     load_remote_zkperf_stream_index,
     publish_zkperf_stream_to_hf,
-    resolve_zkperf_stream_from_index_hf,
-    resolve_remote_zkperf_stream_windows,
     resolve_remote_zkperf_stream_window,
+    resolve_remote_zkperf_stream_windows,
+    resolve_zkperf_stream_from_index_hf,
 )
 
 
@@ -240,6 +243,17 @@ def main(argv: list[str] | None = None) -> int:
     )
     build_zkperf.add_argument("--fixture", type=Path, required=True)
     build_zkperf.add_argument("--output", type=Path)
+
+    build_zkperf_from_obs = sub.add_parser(
+        "build-zkperf-stream-from-observations",
+        help="Build a zkperf stream fixture from observation JSON or NDJSON input",
+    )
+    build_zkperf_from_obs.add_argument("--input", type=Path, required=True)
+    build_zkperf_from_obs.add_argument("--stream-id")
+    build_zkperf_from_obs.add_argument("--stream-revision")
+    build_zkperf_from_obs.add_argument("--created-at-utc")
+    build_zkperf_from_obs.add_argument("--max-observations-per-window", type=int)
+    build_zkperf_from_obs.add_argument("--output", type=Path)
 
     publish_zkperf = sub.add_parser(
         "publish-zkperf-stream-hf",
@@ -511,6 +525,17 @@ def main(argv: list[str] | None = None) -> int:
             "tarDigest": bundle["tarDigest"],
             "tarSizeBytes": len(bundle["tarBytes"]),
         }
+        _write_json(payload, args.output)
+        return 0
+
+    if args.command == "build-zkperf-stream-from-observations":
+        payload = build_zkperf_stream_fixture_from_observations(
+            load_zkperf_observations(args.input),
+            stream_id=args.stream_id,
+            stream_revision=args.stream_revision,
+            created_at_utc=args.created_at_utc,
+            max_observations_per_window=args.max_observations_per_window,
+        )
         _write_json(payload, args.output)
         return 0
 
