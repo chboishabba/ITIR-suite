@@ -7,6 +7,24 @@ and the now-working HF publish substrate.
 
 This contract is for observational zkperf stream transport only.
 
+## Implementation surface
+
+The current repo implementation now follows this contract through four small
+surfaces instead of one monolithic module:
+
+- `itir_jmd_bridge/zkperf_stream_core.py`
+- `itir_jmd_bridge/zkperf_stream_index.py`
+- `itir_jmd_bridge/zkperf_stream_transport.py`
+- `itir_jmd_bridge/zkperf_stream.py` as a compatibility facade
+
+In plain language:
+
+- `core` turns observation rows into ordered windows and tar-ready bundles
+- `index` tracks which published revision is current and what history is kept
+- `transport` handles HF/IPFS publication and read-back
+- `zkperf_stream.py` stays in place so older callers do not break while the
+  split lands
+
 ## Scope
 
 This contract is:

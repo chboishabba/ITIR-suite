@@ -5,6 +5,7 @@ import json
 import tarfile
 from pathlib import Path
 
+from itir_jmd_bridge.cli import main as cli_main
 from itir_jmd_bridge.zkperf_stream_core import (
     build_zkperf_stream_bundle,
     load_zkperf_stream_fixture,
@@ -190,3 +191,146 @@ def test_write_zkperf_stream_publish_artifacts(tmp_path: Path) -> None:
     assert Path(paths["hfReceipt"]).exists()
     assert Path(paths["streamIndex"]).exists()
     assert Path(paths["streamIndexReceipt"]).exists()
+
+
+def test_cli_build_zkperf_stream(tmp_path: Path) -> None:
+    output_path = tmp_path / "zkperf-stream.json"
+    rc = cli_main(
+        [
+            "build-zkperf-stream",
+            "--fixture",
+            str(FIXTURE),
+            "--output",
+            str(output_path),
+        ]
+    )
+    assert rc == 0
+    payload = json.loads(output_path.read_text(encoding="utf-8"))
+    assert payload["streamManifest"]["streamId"] == "zkperf-stream-demo"
+
+
+def test_cli_publish_zkperf_stream_hf(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(
+        "itir_jmd_bridge.cli.publish_zkperf_stream_to_hf",
+        lambda **kwargs: {
+            "streamManifest": {"streamId": "zkperf-stream-demo"},
+            "streamLatest": {"latestWindowId": "window-0002"},
+            "hfReceipt": {"acknowledgedRevision": "rev-demo", "verified": True},
+            "streamIndex": {"latestRevision": "rev-20260330-a"},
+            "streamIndexReceipt": {"acknowledgedRevision": "rev-index", "verified": True},
+        },
+    )
+    output_path = tmp_path / "zkperf-publish.json"
+    rc = cli_main(
+        [
+            "publish-zkperf-stream-hf",
+            "--fixture",
+            str(FIXTURE),
+            "--hf-uri",
+            "hf://datasets/chbwa/itir-zos-ack-probe/zkperf-stream/zkperf-stream-demo.tar",
+            "--index-hf-uri",
+            "hf://datasets/chbwa/itir-zos-ack-probe/zkperf-stream/zkperf-stream-demo.index.json",
+            "--retain-latest-n",
+            "2",
+            "--output",
+            str(output_path),
+        ]
+    )
+    assert rc == 0
+    payload = json.loads(output_path.read_text(encoding="utf-8"))
+    assert payload["hfReceipt"]["verified"] is True
+
+
+def test_cli_resolve_zkperf_stream_window_hf(monkeypatch, tmp_path: Path) -> None:
+    fixture = load_zkperf_stream_fixture(FIXTURE)
+    bundle = build_zkperf_stream_bundle(fixture)
+    monkeypatch.setattr(
+        "itir_jmd_bridge.zkperf_stream_transport.download_hf_object_bytes",
+        lambda **kwargs: {
+            "bytes": bundle["tarBytes"],
+            "metadata": {
+                "statusCode": 200,
+                "revision": kwargs["revision"],
+                "sha256": bundle["tarDigest"],
+            },
+        },
+    )
+    output_path = tmp_path / "zkperf-window.json"
+    rc = cli_main(
+        [
+            "resolve-zkperf-stream-window-hf",
+            "--fixture",
+            str(FIXTURE),
+            "--hf-uri",
+            "hf://datasets/chbwa/itir-zos-ack-probe/zkperf-stream/zkperf-stream-demo.tar",
+            "--revision",
+            "rev-demo",
+            "--window-id",
+            "window-0002",
+            "--output",
+            str(output_path),
+        ]
+    )
+    assert rc == 0
+    payload = json.loads(output_path.read_text(encoding="utf-8"))
+    assert payload["window"]["windowId"] == "window-0002"
+
+
+def test_cli_resolve_zkperf_stream_range_hf(monkeypatch, tmp_path: Path) -> None:
+    fixture = load_zkperf_stream_fixture(FIXTURE)
+    bundle = build_zkperf_stream_bundle(fixture)
+    monkeypatch.setattr(
+        "itir_jmd_bridge.zkperf_stream_transport.download_hf_object_bytes",
+        lambda **kwargs: {
+            "bytes": bundle["tarBytes"],
+            "metadata": {
+                "statusCode": 200,
+                "revision": kwargs["revision"],
+                "sha256": bundle["tarDigest"],
+            },
+        },
+    )
+    output_path = tmp_path / "zkperf-range.json"
+    rc = cli_main(
+        [
+            "resolve-zkperf-stream-range-hf",
+            "--fixture",
+            str(FIXTURE),
+            "--hf-uri",
+            "hf://datasets/chbwa/itir-zos-ack-probe/zkperf-stream/zkperf-stream-demo.tar",
+            "--revision",
+            "rev-demo",
+            "--latest",
+            "--output",
+            str(output_path),
+        ]
+    )
+    assert rc == 0
+    payload = json.loads(output_path.read_text(encoding="utf-8"))
+    assert payload["selection"]["selectedWindowIds"] == ["window-0002"]
+
+
+def test_cli_resolve_zkperf_stream_from_index_hf(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(
+        "itir_jmd_bridge.cli.resolve_zkperf_stream_from_index_hf",
+        lambda **kwargs: {
+            "streamIndex": {"resolvedStreamRevision": "rev-20260330-b"},
+            "windows": [{"window": {"windowId": "window-0003"}}],
+        },
+    )
+    output_path = tmp_path / "zkperf-from-index.json"
+    rc = cli_main(
+        [
+            "resolve-zkperf-stream-from-index-hf",
+            "--fixture",
+            str(FIXTURE),
+            "--index-hf-uri",
+            "hf://datasets/chbwa/itir-zos-ack-probe/zkperf-stream/zkperf-stream-demo.index.json",
+            "--latest",
+            "--output",
+            str(output_path),
+        ]
+    )
+    assert rc == 0
+    payload = json.loads(output_path.read_text(encoding="utf-8"))
+    assert payload["windows"][0]["window"]["windowId"] == "window-0003"
