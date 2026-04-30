@@ -72,7 +72,6 @@ Every response is wrapped as:
   - deterministic read-only projection over existing progress/checkpoint state
   - intended for execution control decisions such as wait/cancel/resume timing
   - not intended as policy, routing, admissibility, or correctness evidence
-
 For `safe_call`, the wrapped `result` is a stable decision envelope:
 
 - `version`: guarded invocation contract version

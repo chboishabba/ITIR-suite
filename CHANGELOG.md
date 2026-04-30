@@ -78,6 +78,97 @@
   - policy, explanation, and receipts should share one normalized surface
   - the next planned systems-facing family is a Windows evidence/evaluate/plan/apply lane
   This was a docs/TODO/context alignment pass only; no implementation changed.
+
+- Extended the AU legal-follow operator slice again without widening
+  ownership: `SensibLaw/src/policy/legal_follow_graph.py` now ranks derived
+  legal-claim review packets from structural `edge_admissibility` pressure
+  and exposes bounded priority rollups in the operator summary, while
+  `SensibLaw/src/fact_intake/review_bundle.py` can now recommend
+  `legal_follow_graph` when legal-follow admissibility review pressure
+  dominates promotion pressure. Validation:
+  from `SensibLaw/`:
+  `PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_legal_follow_graph.py tests/test_au_fact_review_bundle.py tests/test_latent_promoted_graph.py tests/test_cross_system_phi_prototype.py -q`
+  -> `29 passed`
+- Extended the worker-landed AU legal-follow slice:
+  `SensibLaw/src/policy/legal_follow_graph.py` now summarizes admissibility
+  across derived `asserts_*` edges and exposes a bounded
+  `edge_admissibility_queue` plus legal-claim packet detail rows. Downstream,
+  `SensibLaw/src/fact_intake/au_review_bundle.py` now surfaces summary-level
+  legal-follow edge-admissibility counts in both
+  `semantic_context.legal_follow_graph.summary` and
+  `operator_views.legal_follow_graph.summary`. Validation:
+  from `SensibLaw/`:
+  `PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_legal_follow_graph.py tests/test_au_fact_review_bundle.py tests/test_latent_promoted_graph.py tests/test_cross_system_phi_prototype.py -q`
+  -> `26 passed`
+- Tightened the next AU legal-graph slice without widening ownership:
+  `SensibLaw/src/policy/legal_follow_graph.py` now attaches typed
+  `sl.legal_edge_admissibility.v1` output to derived `asserts_*` edges built
+  from legal-claim relations. Promoted-anchor reuse keeps its existing owner
+  surface in `SensibLaw/src/latent_promoted_graph.py`, while lower-layer
+  relation candidates remain auditable instead of silently becoming promoted
+  truth. Updated `SensibLaw/tests/test_legal_follow_graph.py`,
+  `SensibLaw/README.md`, `TODO.md`, and `COMPACTIFIED_CONTEXT.md`.
+  Validation:
+  from `SensibLaw/`:
+  `PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_legal_follow_graph.py tests/test_latent_promoted_graph.py tests/test_cross_system_phi_prototype.py -q`
+  -> `16 passed`
+- Added
+  `docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md`,
+  updated
+  `docs/architecture/admissibility_lattice.md`,
+  `README.md`,
+  `TODO.md`,
+  and `COMPACTIFIED_CONTEXT.md`
+  to pin the legal-IR boundary above minimal `Phi` emissions. The root docs
+  now make the normalization rule explicit:
+  `Phi -> composed candidate nodes -> admissibility -> promoted records -> derived graph`,
+  with MDL / latent compression kept derived and non-promotive, and with the
+  next worker lanes split across substrate, composition, admissibility,
+  latent/MDL, and verification/docs ownership.
+- Added the first bounded `SensibLaw` implementation slice for that boundary:
+  `sl.composed_candidate_node.v1` plus a fail-closed composed-candidate
+  admissibility gate. The new files are:
+  `SensibLaw/src/models/composed_candidate_node.py`,
+  `SensibLaw/src/composed_candidate_admissibility.py`,
+  `SensibLaw/schemas/sl.composed_candidate_node.v1.schema.yaml`,
+  `SensibLaw/examples/composed_candidate_node_minimal.json`,
+  `SensibLaw/tests/test_composed_candidate_node.py`, and
+  `SensibLaw/tests/test_composed_candidate_admissibility.py`.
+  Validation:
+  `PYTHONPATH=SensibLaw ./.venv/bin/python -m pytest SensibLaw/tests/test_composed_candidate_node.py SensibLaw/tests/test_composed_candidate_admissibility.py -q`
+  -> `10 passed`
+- Extended that slice with the first bounded downstream consumer:
+  `SensibLaw/src/policy/review_claim_records.py` now adapts
+  `sl.composed_candidate_node.v1` payloads into the existing
+  `review_candidate` envelope without widening fact-intake or review-bundle
+  contracts and without making candidate state truth-bearing.
+  Validation:
+  `PYTHONPATH=SensibLaw ./.venv/bin/python -m pytest SensibLaw/tests/test_composed_candidate_node.py SensibLaw/tests/test_composed_candidate_admissibility.py SensibLaw/tests/test_review_claim_records.py -q`
+  -> `30 passed`
+- Added the first bounded legal edge gate on top of that node-level surface:
+  `SensibLaw/src/legal_edge_admissibility.py` now evaluates typed
+  `relation_kind`, endpoint admissibility inputs, wrapper/status
+  compatibility, section/genre compatibility, shared linkage, shared content
+  identity where required, and structural status conflict for
+  `contradicts` / `overrules`. The gate stays fail-closed and returns
+  `promote | audit | abstain` without inferring relation meaning from raw
+  text. Added focused coverage in
+  `SensibLaw/tests/test_legal_edge_admissibility.py`.
+  Validation:
+  `PYTHONPATH=SensibLaw ./.venv/bin/python -m pytest SensibLaw/tests/test_composed_candidate_node.py SensibLaw/tests/test_composed_candidate_admissibility.py SensibLaw/tests/test_review_claim_records.py SensibLaw/tests/test_legal_edge_admissibility.py -q`
+  -> `38 passed`
+- Landed the next promoted-graph ownership slice:
+  `SensibLaw/src/latent_promoted_graph.py` now emits promoted `legal_claim`
+  nodes plus typed `grounds_claim`, `claim_subject`, and `claim_object`
+  edges for promoted `review_relation` rows, with schema coverage in
+  `SensibLaw/schemas/sl.latent_promoted_graph.v1.schema.yaml`. The first
+  derived consumer now exists in
+  `SensibLaw/src/policy/legal_follow_graph.py`, which can reuse that
+  promoted-anchor surface instead of rebuilding legal claims from lower-layer
+  state. Validation:
+  from `SensibLaw/`:
+  `PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_latent_promoted_graph.py tests/test_legal_follow_graph.py tests/test_cross_system_phi_prototype.py -q`
+  -> `15 passed`
 - Added [SensibLaw/src/sources/worldbank_adapter.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/worldbank_adapter.py),
   [SensibLaw/src/sources/worldbank/worldbank_follow_contract.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/worldbank/worldbank_follow_contract.py),
   and extended

@@ -2153,6 +2153,12 @@
   - use `docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md`
     as the current boundary clarification from the archived `Zero Trust
     Ontology` thread
+  - use `docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md`
+    as the current control note for the legal-IR boundary above minimal
+    `Phi` emissions
+  - use `docs/planning/legal_graph_relation_taxonomy_20260417.md` as the
+    current planning/spec note for the first bounded legal relation taxonomy
+    above the graphable edge layer
   - use `docs/planning/motif_candidate_promotion_legal_tree_20260327.md` as
     the current motif/cohomology/legal-tree discipline note
   - use `docs/planning/latent_state_over_promoted_truth_20260327.md` as the
@@ -2176,8 +2182,60 @@
       serialization does not
   - keep the admissibility boundary explicit:
     - source anchors are canonical substrate
+    - minimal `Phi` atoms are canonical normalized substrate, not promoted
+      truth
+    - composition above `Phi` creates challengeable candidate nodes, not
+      canonical records
     - candidate and graph overlays are non-authoritative
-    - only promotion creates truth-bearing canonical records
+    - only admissibility plus promotion creates truth-bearing canonical
+      records
+    - MDL/latent compression may name repeated shapes but may not substitute
+      for admissibility
+  - immediate worker lanes for the next bounded round:
+    - lane 1: `Phi` substrate owner
+      - freeze the smallest replayable atom surface with spans and receipts
+    - lane 2: composition owner
+      - centralize proposition/event node composition above `Phi`
+    - lane 3: admissibility owner
+      - formalize node and edge gates as `promote | audit | abstain`
+    - lane 4: MDL / latent owner
+      - keep compression derived and non-promotive
+    - lane 5: verification/docs owner
+      - keep fixtures, README/TODO/context, and downstream graph notes aligned
+    - lane 8: relation taxonomy owner
+      - define the first bounded structural relation set for graphable edges
+      - keep relation semantics typed, structural, and non-lexical
+    - lane 9: legal edge admissibility owner
+      - landed `SensibLaw/src/legal_edge_admissibility.py`
+      - keep edge promotion fail-closed and structural
+      - do not infer contradiction or relation kind from free text
+    - lane 10: promoted graph consumer scouting
+      - landed owner surface in `SensibLaw/src/latent_promoted_graph.py`
+      - first legal consumer is now `SensibLaw/src/policy/legal_follow_graph.py`
+      - promoted `review_relation` rows now emit promoted `legal_claim` nodes
+        with typed role edges
+      - keep graph ids derived from promoted truth, not replacements for source anchors
+      - next immediate slice:
+        keep promoted ownership unchanged, but wire typed
+        `legal_edge_admissibility` output onto derived `asserts_*` edges in
+        `SensibLaw/src/policy/legal_follow_graph.py`
+      - DONE: summarize `asserts_*` edge admissibility in
+        `SensibLaw/src/policy/legal_follow_graph.py` and expose bounded queue
+        details for legal-claim review packets
+      - DONE: expose summary-level legal-follow edge-admissibility counts in
+        `SensibLaw/src/fact_intake/au_review_bundle.py`
+      - next immediate slice:
+        keep the same typed admissibility source, but use it to rank
+        legal-claim review pressure and steer AU workflow guidance
+      - DONE: rank legal-claim review pressure in the derived legal-follow
+        operator queue from structural edge-admissibility output
+      - DONE: let AU workflow guidance switch to `legal_follow_graph` when
+        legal-follow admissibility review pressure dominates promotion pressure
+      - do not widen this into a new graph ontology, semantic inference
+        layer, or alternate promotion owner
+      - do not widen this into lexical relation inference or a new promoted
+        edge owner layer unless a later consumer proves provenance joins are
+        insufficient
     - abstention is a first-class control surface, not an accidental absence of
       rows
   - treat motif/meme/cohomology language as research framing only unless it is

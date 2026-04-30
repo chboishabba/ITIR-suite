@@ -501,6 +501,10 @@ and [chat-export-structurer/README.md](chat-export-structurer/README.md).
   [docs/planning/itir_orchestrator.md](docs/planning/itir_orchestrator.md)
 - architecture boundary doctrine:
   [docs/architecture/admissibility_lattice.md](docs/architecture/admissibility_lattice.md)
+- `Phi` composition / admissibility / MDL boundary:
+  [docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md](docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md)
+- legal graph relation taxonomy:
+  [docs/planning/legal_graph_relation_taxonomy_20260417.md](docs/planning/legal_graph_relation_taxonomy_20260417.md)
 - JMD x SensibLaw truth-construction boundary:
   [docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md](docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md)
 - motif candidate / promotion / legal-tree boundary:
@@ -673,6 +677,31 @@ updated pointer in this root repo.
   `__CONTEXT/last_sync/`
 - `python scripts/build_docs_site.py`: build a lightweight local index of the
   repo's markdown docs under `docs/_site/`
+
+## Prime Index / Zelph helpers
+
+- `tools/prime_index.py`: SL → prime-exponent index with Hecke signature, Δ-cone admissibility, MDL upper-bound pruning, and Zelph export helpers
+- `tools/prime_index_cli.py`: CLI to build a Zelph bundle from SL-style facts JSON
+- `scripts/export_sl_facts_to_zelph.py`: job-runner friendly exporter for promoted SL facts in JSON or JSONL
+- `SensibLaw/scripts/query_fact_review.py zelph-export`: normalized operator-path export over a persisted fact-review run
+
+Usage:
+```bash
+/home/c/Documents/code/ITIR-suite/.venv/bin/python tools/prime_index_cli.py path/to/facts.json -o out.json
+```
+`facts.json` may be a list of fact objects or `{"facts": [...]}`. Output conforms to `schemas/zelph_input.schema.json`.
+
+For pipeline/job use:
+```bash
+/home/c/Documents/code/ITIR-suite/.venv/bin/python scripts/export_sl_facts_to_zelph.py path/to/promoted_facts.jsonl -o out.json
+```
+
+The exporter also accepts a full SensibLaw fact-review workbench payload and carries a full spaCy parse tree into each emitted Zelph fact.
+
+For a persisted fact-review run:
+```bash
+/home/c/Documents/code/ITIR-suite/.venv/bin/python SensibLaw/scripts/query_fact_review.py --db-path path/to/itir.sqlite zelph-export --run-id <run_id> -o out.json
+```
 
 ## Advanced Environment Note
 
