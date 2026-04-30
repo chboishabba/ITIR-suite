@@ -14,6 +14,7 @@ from chat_context_resolver_lib.analysis import (
     parse_terms,
     top_terms,
 )
+from chat_context_resolver_lib.live_provider import load_session_token
 from chat_context_resolver_lib.transcript import (
     build_stitched_transcript,
     filter_transcript_lines,
@@ -122,3 +123,26 @@ def test_query_recent_turns_uses_shared_truncate_helper(tmp_path):
 
     assert len(turns) == 1
     assert turns[0]["text"] == "abc\n...[truncated 3 chars]"
+
+
+def test_load_session_token_reads_chunked_new_session_file(monkeypatch, tmp_path):
+    monkeypatch.delenv("CHATGPT_SESSION_TOKEN", raising=False)
+    monkeypatch.setenv("HOME", str(tmp_path))
+    (tmp_path / ".chatgpt_session_new").write_text("part-one\npart-two\n", encoding="utf-8")
+
+    token = load_session_token()
+
+    assert token == "part-onepart-two"
+
+
+def test_load_session_token_prefers_config_ini_over_chunked_file(monkeypatch, tmp_path):
+    monkeypatch.delenv("CHATGPT_SESSION_TOKEN", raising=False)
+    monkeypatch.setenv("HOME", str(tmp_path))
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    (tmp_path / ".chatgpt_session_new").write_text("stale-token\n", encoding="utf-8")
+    (repo_root / "config.ini").write_text("[session]\ntoken = fresh-config-token\n", encoding="utf-8")
+
+    token = load_session_token(repo_root=repo_root)
+
+    assert token == "fresh-config-token"

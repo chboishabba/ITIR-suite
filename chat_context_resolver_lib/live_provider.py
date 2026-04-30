@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import configparser
 import os
 import re
 import shutil
@@ -34,16 +35,61 @@ def extract_online_thread_id_from_url(selector: str) -> Optional[str]:
     return None
 
 
-def load_session_token() -> Optional[str]:
+def _read_stitched_session_token_file(path: Path) -> str:
+    if not path.is_file():
+        return ""
+    parts = [line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    if not parts:
+        return ""
+    if len(parts) == 1:
+        return parts[0]
+    return "".join(parts)
+
+
+def _config_candidates(repo_root: Optional[Path]) -> list[Path]:
+    candidates = [Path.cwd() / "config.ini"]
+    if repo_root is not None:
+        candidates.extend(
+            [
+                repo_root / "config.ini",
+                repo_root / "reverse-engineered-chatgpt" / "config.ini",
+            ]
+        )
+    seen: set[Path] = set()
+    unique: list[Path] = []
+    for candidate in candidates:
+        resolved = candidate.resolve()
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+        unique.append(candidate)
+    return unique
+
+
+def load_session_token(repo_root: Optional[Path] = None) -> Optional[str]:
     env_token = os.environ.get("CHATGPT_SESSION_TOKEN", "").strip()
     if env_token:
         return env_token
 
+    parser = configparser.ConfigParser()
+    for config_path in _config_candidates(repo_root):
+        if not config_path.is_file():
+            continue
+        parser.read(config_path)
+        token = parser.get("session", "token", fallback="").strip()
+        if token and token != "YOUR_SESSION_TOKEN":
+            return token
+
+    chunked_session_file = Path.home() / ".chatgpt_session_new"
+    token = _read_stitched_session_token_file(chunked_session_file)
+    if token:
+        return token
+
     session_file = Path.home() / ".chatgpt_session"
-    if session_file.exists():
-        first_line = session_file.read_text(encoding="utf-8", errors="ignore").splitlines()
-        if first_line:
-            token = first_line[0].strip()
+    if session_file.is_file():
+        lines = session_file.read_text(encoding="utf-8", errors="ignore").splitlines()
+        if lines:
+            token = lines[0].strip()
             if token:
                 return token
 
@@ -110,7 +156,7 @@ def run_re_gpt_action(
     venv_python: Path,
     timeout: int,
 ) -> dict:
-    token = load_session_token()
+    token = load_session_token(repo_root=repo_root)
     if not token:
         return {
             "ok": False,
@@ -286,7 +332,7 @@ def fetch_web_recent_turns(
     if limit <= 0:
         return {"ok": True, "recent_turns": []}
 
-    token = load_session_token()
+    token = load_session_token(repo_root=repo_root)
     if not token:
         return {
             "ok": False,

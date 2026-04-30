@@ -5,6 +5,19 @@
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
+  - Wikidata/OCTF follow-on:
+    - DONE docs-first bounded example:
+      `SensibLaw/docs/planning/wikidata_pnf_residual_review_example_20260429.md`
+      now maps the real `Q10403939` climate case through:
+      `candidate-only -> reviewable -> held`
+    - DONE executable bounded runtime demonstrator:
+      `sensiblaw wikidata climate-review-demonstrator` now emits the same
+      `Q10403939` packet that emits:
+      bounded candidate -> text-side predicate carrier -> residual object ->
+      final review disposition
+    - next after that:
+      add one contrasting promotable micro-case so the same surface can show
+      both a held split-review packet and a promotable direct-migration packet
 - SL-reasoner:
   - intentionally parked at scaffold level
   - keep low priority while `SensibLaw` continues to host the substantive

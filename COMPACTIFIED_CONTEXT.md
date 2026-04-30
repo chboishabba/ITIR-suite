@@ -1,5 +1,30 @@
 # Compactified Context
 
+- 2026-04-29 Wikidata/OCTF refreshed thread + Lane C decision:
+  - refreshed canonical chat:
+    - title:
+      `Migration Frameworks Overview`
+    - online UUID:
+      `69da2fc0-91f0-8398-ba99-08ba3de9f00c`
+    - canonical thread id:
+      `04dc7e26af03cd050d18560b2d53db9fb988595b`
+    - source:
+      `db` after successful UUID pull into `~/chat_archive.sqlite`
+  - main pulled decision:
+    - freeze OCTF/Peter wording at the current review-first intermediate-layer
+      claim
+    - treat Lane C as the bottleneck:
+      build the smallest executable `P5991 -> P14143` demonstrator showing:
+      `candidate change -> text-side predicate carrier -> residual/completeness object -> held/promotable disposition`
+    - keep the safe repo claim:
+      non-authoritative signals, bounded review surfaces, no hidden edit
+      authority
+  - immediate repo alignment:
+    - refresh `SensibLaw/docs/wikidata_working_group_status.md`
+    - dedupe repeated `Q10403939` narrative down to links
+    - implement one bounded runtime demonstrator over the existing real
+      Akademiska Hus packet + climate text artifacts
+
 - 2026-04-03 Wikidata/Nat live-follow receipt feedback:
   - landed:
     - `SensibLaw/src/ontology/wikidata_grounding_depth.py` now accepts
