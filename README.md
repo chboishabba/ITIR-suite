@@ -592,6 +592,14 @@ and [chat-export-structurer/README.md](chat-export-structurer/README.md).
 
 - one-shot publish plus verify:
   `scripts/run_zkperf_stream_hf.sh --fixture <path-to-zkperf-stream-json>`
+- one-shot publish plus verify from raw observation rows:
+  `scripts/run_zkperf_stream_hf.sh --observations <path-to-zkperf-observation-json-or-ndjson>`
+
+Current module split for this lane:
+- `itir_jmd_bridge/zkperf_stream_core.py`
+- `itir_jmd_bridge/zkperf_stream_index.py`
+- `itir_jmd_bridge/zkperf_stream_transport.py`
+- `itir_jmd_bridge/zkperf_stream.py` as the compatibility facade
 
 ### Proven example and handoff docs
 

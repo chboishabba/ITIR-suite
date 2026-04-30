@@ -3347,10 +3347,14 @@
       `docs/planning/zkperf_stream_shard_contract_v1_20260330.md`
     - fixture:
       `docs/planning/jmd_fixtures/zkperf_stream_v1.example.json`
-    - bridge/runtime:
-      `itir_jmd_bridge/zkperf_stream.py`
+    - bridge/runtime now split into:
+      - `itir_jmd_bridge/zkperf_stream_core.py`
+      - `itir_jmd_bridge/zkperf_stream_index.py`
+      - `itir_jmd_bridge/zkperf_stream_transport.py`
+      - `itir_jmd_bridge/zkperf_stream.py` as compatibility facade
     - CLI now supports:
       `build-zkperf-stream`,
+      `build-zkperf-stream-from-observations`,
       `publish-zkperf-stream-hf`,
       and `resolve-zkperf-stream-window-hf`
     - live HF publication succeeded for:
@@ -3402,6 +3406,9 @@
   - DONE: add a one-shot operator script for the real SL run:
     - `scripts/run_zkperf_stream_hf.sh`
     - wraps publish, index update, and index-driven verification in one command
+    - now accepts either:
+      - `--fixture <zkperf-stream-json>`
+      - `--observations <zkperf-observation-json-or-ndjson>`
   - DONE: pin one concrete public HF read-side acknowledgement surface:
     - `docs/planning/hf_acknowledgement_probe_20260330.md`
     - provider:

@@ -1,6 +1,30 @@
 # Changelog
 
 ## Unreleased
+- split the zkperf stream lane into staged implementation surfaces:
+  - added [itir_jmd_bridge/zkperf_stream_core.py](/home/c/Documents/code/ITIR-suite/itir_jmd_bridge/zkperf_stream_core.py)
+    for fixture loading, observation-to-window shaping, bundle building, and
+    window selection
+  - added [itir_jmd_bridge/zkperf_stream_index.py](/home/c/Documents/code/ITIR-suite/itir_jmd_bridge/zkperf_stream_index.py)
+    for latest/index/retention/artifact helpers
+  - added [itir_jmd_bridge/zkperf_stream_transport.py](/home/c/Documents/code/ITIR-suite/itir_jmd_bridge/zkperf_stream_transport.py)
+    for HF/IPFS publish and remote resolution
+  - reduced [itir_jmd_bridge/zkperf_stream.py](/home/c/Documents/code/ITIR-suite/itir_jmd_bridge/zkperf_stream.py)
+    to a compatibility facade over the split modules
+  - extended [itir_jmd_bridge/cli.py](/home/c/Documents/code/ITIR-suite/itir_jmd_bridge/cli.py)
+    and [scripts/run_zkperf_stream_hf.sh](/home/c/Documents/code/ITIR-suite/scripts/run_zkperf_stream_hf.sh)
+    so operators can build from either a prepared stream fixture or raw
+    `ZKPerfObservation` JSON/NDJSON input
+  - split regression coverage between:
+    - [tests/test_zkperf_stream.py](/home/c/Documents/code/ITIR-suite/tests/test_zkperf_stream.py)
+      for core/index plus command-level checks
+    - [tests/test_zkperf_stream_transport.py](/home/c/Documents/code/ITIR-suite/tests/test_zkperf_stream_transport.py)
+      for transport-specific behavior
+  - validation:
+    - `PYTHONPATH=. pytest -q tests/test_zkperf_stream.py tests/test_zkperf_stream_transport.py`
+      -> `15 passed`
+    - `bash -n scripts/run_zkperf_stream_hf.sh`
+    - `PYTHONPATH=. python -m itir_jmd_bridge build-zkperf-stream-from-observations --input docs/planning/jmd_fixtures/zkperf_on_sl_observation_v1.example.json --output zkperf-from-observations.json`
 - Added [docs/planning/itir_linux_compliance_mcp_contract_20260407.md](/home/c/Documents/code/ITIR-suite/docs/planning/itir_linux_compliance_mcp_contract_20260407.md)
   and updated
   [README.md](/home/c/Documents/code/ITIR-suite/README.md),
