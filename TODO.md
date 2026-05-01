@@ -4201,6 +4201,9 @@
   - business-logic hardening over producer families, not more `itir-svelte`
   - next likely producer targets after the current landed set:
     `pyThunderbird` and broader `openrecall` family follow-through
+  - raw OpenRecall row staging scaffold now exists in SensibLaw; next work
+    should harden what explicit downstream adapter, if any, is justified
+    without weakening the observer/authority boundary
 - Wikidata/Nat live-follow current read:
   - all six bounded 2026-04-03 campaign categories now execute successfully
     through `sensiblaw wikidata nat-live-follow-execute`
