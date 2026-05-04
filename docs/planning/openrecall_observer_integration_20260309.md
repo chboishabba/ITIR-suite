@@ -155,7 +155,6 @@ This is now also the immediate standard for NotebookLM metadata:
 - live capture stabilization inside vendored OpenRecall
 - direct GUI/workbench route for OpenRecall-specific browsing
 - autonomous mission/topic backpropagation from OCR alone
-- direct SB import of raw OpenRecall rows
 - embedding-native cross-source retrieval as authority logic
 
 ## Initial milestone
@@ -202,3 +201,49 @@ integration work in:
 This keeps OpenRecall's role as a bounded acquisition and evidence source while
 moving cross-source comparison and policy-constrained scoring through the suite
 MCP path.
+
+## Personal federation and deferred processing followthrough (2026-05-01)
+
+The vendored OpenRecall surface now also supports a bounded personal-federation
+workflow for one user operating across multiple machines.
+
+Delivered in this followthrough:
+- configurable OCR backend seams for local or external HTTP processing
+- `--capture-only` so live capture can defer OCR/embedding work
+- offline OCR processing and benchmarking jobs
+- compressed day/session bundle export plus central ingest registry
+- shared central timeline queries scoped by `org_id` and `user_id`
+- OCR write-back into a chosen local `recall.db`
+- optional signed manifests and retention metadata
+- preservation of richer remote vision payloads and optional remote embeddings
+- a bounded SensibLaw raw-row staging scaffold for OpenRecall `entries` rows
+  without changing the normalized observer-import path
+
+Default posture:
+- local capture remains per-user and per-device
+- the central registry can serve many users, but it does not force one merged
+  cross-user history
+- one user can view a unified chronological timeline across their own devices
+- overlapping captures from different devices remain separate observer records
+  with visible provenance
+- enterprise use is secondary to the personal/self-managed story and remains
+  bounded by the anti-panopticon refusal documents
+
+This followthrough does **not** authorize:
+- hidden cross-user identity stitching
+- silent promotion of observer capture into organizational truth
+- person scoring, risk scoring, or predictive behavior judgments
+- forced merged institutional memory as the default surface
+
+Raw-row staging posture:
+- SensibLaw may now copy OpenRecall source rows into bounded staging tables for
+  inspection, migration, or adapter-hardening work
+- that scaffold is additive and review-oriented
+- it is not the default OpenRecall ingest path
+- it does not promote raw OCR rows into authority-bearing mission/semantic
+  state without a later explicit adapter decision
+
+The intended first user story is personal or household memory federation: one
+person can capture activity on several self-managed machines, process OCR/ML on
+a secure central node, and later inspect a single combined timeline without
+losing device-local provenance.

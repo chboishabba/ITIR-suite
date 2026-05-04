@@ -315,6 +315,7 @@ Hard boundaries:
 - no hidden cross-context identity resolution
 - no silent promotion of derived graphs into truth
 - no replacement of primary legal authority with support summaries
+- no forced cross-user merged memory as a default system surface
 
 See:
 
