@@ -36,7 +36,7 @@
 	url = https://github.com/ufal/whisper_streaming.git
 [submodule "openrecall"]
 	path = openrecall
-	url = https://github.com/openrecall/openrecall.git
+	url = https://github.com/chboishabba/openrecall.git
 [submodule "doctr"]
 	path = doctr
 	url = https://github.com/mindee/doctr.git
