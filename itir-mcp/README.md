@@ -11,6 +11,8 @@ Current scope:
 - local tool/spec registry
 - SensibLaw-first read-only tool adapters
 - bounded ITIR-native observation comparison tools for cross-project sensing lanes
+- docstore-wide status, open-question, Obsidian observer, proposal-receipt,
+  Markdown projection, and bounded config-plan tools
 - optional FastMCP transport when the Python MCP SDK is available
 - persistent JSON bridge protocol for `dioxus` via `python -m itir_mcp --bridge`
 
@@ -29,6 +31,13 @@ Not in scope for the first increment:
 - `itir.compare_observations`
 - `itir.score_coherence`
 - `itir.build_envelope`
+- `itir.docstore.status`
+- `itir.docstore.open_questions`
+- `itir.obsidian.vault_scan`
+- `itir.docstore.proposal_receipt`
+- `itir.markdown.render_projection`
+- `itir.markdown.write_projection`
+- `itir.docstore.config_plan`
 
 Planned next family, not yet implemented:
 

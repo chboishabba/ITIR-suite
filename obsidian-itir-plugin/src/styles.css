@@ -1,0 +1,51 @@
+.itir-status-view {
+  --itir-border: var(--background-modifier-border);
+  --itir-muted: var(--text-muted);
+  padding: 12px;
+}
+
+.itir-status-view h2 {
+  margin: 0 0 12px;
+}
+
+.itir-status-view h3 {
+  margin: 18px 0 8px;
+}
+
+.itir-actions {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.itir-actions button {
+  min-width: 0;
+  padding: 4px 6px;
+}
+
+.itir-meta {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-ui-smaller);
+}
+
+.itir-meta th,
+.itir-meta td {
+  border-bottom: 1px solid var(--itir-border);
+  padding: 6px 4px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.itir-meta th {
+  color: var(--itir-muted);
+  font-weight: 600;
+  width: 34%;
+}
+
+.itir-status-view pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: var(--font-smaller);
+}

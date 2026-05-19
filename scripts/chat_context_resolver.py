@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import json
 import re
 import sqlite3
 import subprocess
@@ -37,10 +38,12 @@ from chat_context_resolver_lib.formatters import (
     print_result as _print_result,
 )
 from chat_context_resolver_lib.live_provider import (
-    extract_online_thread_id_from_url as _extract_online_thread_id_from_url,
+    build_provider_selector as _build_provider_selector,
+    detect_provider as _detect_provider,
+    extract_source_thread_id_from_url as _extract_source_thread_id_from_url,
     fetch_web_recent_turns as _fetch_web_recent_turns,
-    run_web_download as _run_web_download,
-    run_web_view as _run_web_view,
+    run_live_download as _run_live_download,
+    run_live_view as _run_live_view,
 )
 from chat_context_resolver_lib.transcript import (
     TranscriptLine,
@@ -354,6 +357,7 @@ def _ingest_exports_to_structurer(
     venv_python: Path,
     repo_root: Path,
     timeout: int,
+    provider: str,
 ) -> dict:
     ingest_script = repo_root / "chat-export-structurer/src/ingest.py"
     if not ingest_script.exists():
@@ -362,7 +366,21 @@ def _ingest_exports_to_structurer(
     if not json_paths:
         return {"ok": False, "error": "No downloaded export JSON paths found to ingest.", "runs": []}
 
-    source_id = f"resolver_auto_{dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+    provider_config = {
+        "chatgpt": {"format": "chatgpt", "account": "main", "source_prefix": "resolver_auto"},
+        "perplexity": {
+            "format": "perplexity",
+            "account": "perplexity",
+            "source_prefix": "resolver_perplexity",
+        },
+    }.get(provider)
+    if provider_config is None:
+        return {"ok": False, "error": f"Unsupported ingest provider: {provider}", "runs": []}
+
+    source_id = (
+        f"{provider_config['source_prefix']}_"
+        f"{dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+    )
     runs = []
     all_ok = True
     for json_path in json_paths:
@@ -386,9 +404,9 @@ def _ingest_exports_to_structurer(
             "--db",
             str(db_path),
             "--format",
-            "chatgpt",
+            provider_config["format"],
             "--account",
-            "main",
+            provider_config["account"],
             "--source-id",
             source_id,
         ]
@@ -451,26 +469,232 @@ def _persist_selector_to_structurer(
     db_path: Path,
     venv_python: Path,
     timeout: int,
+    provider: str,
+    perplexity_scroll_mode: Optional[str] = None,
 ) -> dict:
-    download = _run_web_download(
+    download = _run_live_download(
+        provider,
         selector,
         repo_root=repo_root,
         venv_python=venv_python,
         timeout=timeout,
+        perplexity_scroll_mode=perplexity_scroll_mode,
     )
     json_paths = _extract_downloaded_json_paths(download.get("stdout") or "", repo_root=repo_root)
+    if download.get("output_path"):
+        output_path = Path(str(download["output_path"]))
+        if not output_path.is_absolute():
+            output_path = (repo_root / output_path).resolve()
+        if output_path not in json_paths:
+            json_paths.append(output_path)
+    if not download.get("ok"):
+        return {
+            "ok": False,
+            "download": download,
+            "downloaded_json_paths": [str(path) for path in json_paths],
+            "ingest": {
+                "ok": False,
+                "runs": [],
+                "ingested_count": 0,
+                "error": "Download/export failed or was partial; ingest skipped.",
+            },
+        }
     ingest = _ingest_exports_to_structurer(
         json_paths=json_paths,
         db_path=db_path,
         venv_python=venv_python,
         repo_root=repo_root,
         timeout=timeout,
+        provider=provider,
     )
     return {
         "ok": bool(download.get("ok")) and bool(ingest.get("ok")),
         "download": download,
         "downloaded_json_paths": [str(path) for path in json_paths],
         "ingest": ingest,
+    }
+
+
+def _mca_script_for_mode(mode: str, repo_root: Path) -> Path:
+    script_name = {
+        "semantic": "mca_semantic_search.py",
+        "hybrid": "mca_hybrid_search.py",
+    }[mode]
+    return repo_root / "scripts" / script_name
+
+
+def _mca_candidate_id(candidate: dict) -> str | None:
+    for key in (
+        "canonical_thread_id",
+        "thread_id",
+        "source_thread_id",
+        "online_thread_id",
+    ):
+        value = candidate.get(key)
+        if value is not None and str(value).strip():
+            return str(value).strip()
+    return None
+
+
+def _extract_mca_candidates(payload: object) -> list[dict]:
+    if isinstance(payload, list):
+        source = payload
+    elif isinstance(payload, dict):
+        source = []
+        for key in ("candidates", "results", "matches"):
+            value = payload.get(key)
+            if isinstance(value, list):
+                source = value
+                break
+    else:
+        source = []
+
+    candidates: list[dict] = []
+    for index, item in enumerate(source, start=1):
+        if isinstance(item, dict):
+            candidate = dict(item)
+        else:
+            candidate = {"value": item}
+        candidate.setdefault("rank", index)
+        candidates.append(candidate)
+    return candidates
+
+
+def _resolve_mca_candidates(
+    db_path: Path,
+    candidates: list[dict],
+    *,
+    max_text_chars: int,
+) -> list[dict]:
+    if not db_path.exists():
+        return candidates
+
+    resolved: list[dict] = []
+    for candidate in candidates:
+        candidate = dict(candidate)
+        candidate_id = _mca_candidate_id(candidate)
+        if not candidate_id:
+            resolved.append(candidate)
+            continue
+        try:
+            match = _query_db_match(
+                db_path,
+                candidate_id,
+                allow_canonical_match=_looks_like_canonical_thread_id(candidate_id),
+            )
+        except sqlite3.Error as exc:
+            candidate["canonical_resolution_error"] = str(exc)
+            resolved.append(candidate)
+            continue
+        if match is not None:
+            candidate["canonical_resolution"] = _db_payload(
+                match,
+                max_text_chars=max_text_chars,
+                latest_paragraphs=False,
+                recent_turns=None,
+                truncate_text=truncate_text,
+                split_paragraphs=_split_paragraphs,
+                iso_utc=_iso_utc,
+            )
+        resolved.append(candidate)
+    return resolved
+
+
+def _run_mca_retrieval(
+    *,
+    mode: str,
+    selector: str,
+    repo_root: Path,
+    db_path: Path,
+    mca_db: Optional[Path],
+    limit: int,
+    venv_python: Path,
+    timeout: int,
+    max_text_chars: int,
+) -> dict:
+    script = _mca_script_for_mode(mode, repo_root)
+    requested = {
+        "mode": mode,
+        "script": str(script),
+        "selector": selector,
+        "mca_db": str(mca_db) if mca_db is not None else None,
+        "limit": max(1, limit),
+    }
+    if not script.exists():
+        return {
+            "ok": False,
+            "error": f"MyChatArchive {mode} wrapper is unavailable: {script}",
+            "requested": requested,
+            "candidates": [],
+        }
+
+    cmd = [
+        str(venv_python),
+        str(script),
+        selector,
+        "--canonical-db",
+        str(db_path),
+        "--json",
+        "--limit",
+        str(max(1, limit)),
+    ]
+    if mca_db is not None:
+        cmd.extend(["--mca-db", str(mca_db)])
+
+    try:
+        proc = subprocess.run(
+            cmd,
+            cwd=str(repo_root),
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        return {
+            "ok": False,
+            "error": f"MyChatArchive {mode} retrieval timed out after {timeout}s",
+            "requested": requested,
+            "command": cmd,
+            "candidates": [],
+        }
+    except OSError as exc:
+        return {
+            "ok": False,
+            "error": f"Failed to execute MyChatArchive {mode} retrieval: {exc}",
+            "requested": requested,
+            "command": cmd,
+            "candidates": [],
+        }
+
+    try:
+        parsed = json.loads(proc.stdout) if proc.stdout.strip() else {}
+    except json.JSONDecodeError as exc:
+        return {
+            "ok": False,
+            "error": f"MyChatArchive {mode} wrapper did not emit valid JSON: {exc}",
+            "requested": requested,
+            "command": cmd,
+            "returncode": proc.returncode,
+            "stdout": proc.stdout,
+            "stderr": proc.stderr,
+            "candidates": [],
+        }
+
+    candidates = _extract_mca_candidates(parsed)
+    return {
+        "ok": proc.returncode == 0,
+        "mode": mode,
+        "requested": requested,
+        "command": cmd,
+        "returncode": proc.returncode,
+        "stderr": proc.stderr,
+        "raw": parsed,
+        "candidates": _resolve_mca_candidates(
+            db_path,
+            candidates,
+            max_text_chars=max_text_chars,
+        ),
     }
 
 
@@ -488,6 +712,10 @@ def main() -> int:
         else Path(args.venv_python).expanduser()
     )
     analysis_terms = _parse_terms(args.analyze_term)
+    if args.semantic and args.hybrid:
+        payload = {"source": "error", "error": "Use only one of --semantic or --hybrid."}
+        _print_result(payload, args.json)
+        return 2
     if args.term_file:
         term_file = Path(args.term_file).expanduser()
         if not term_file.is_absolute():
@@ -503,9 +731,21 @@ def main() -> int:
         )
         analysis_terms = _parse_terms(analysis_terms)
     selector_input = (args.selector or "").strip()
-    extracted_online_id = _extract_online_thread_id_from_url(selector_input)
-    selector_for_db = extracted_online_id or selector_input
-    selector_for_web = extracted_online_id or selector_input
+    try:
+        selected_provider = _detect_provider(selector_input, args.provider)
+    except ValueError as exc:
+        payload = {"source": "error", "error": str(exc)}
+        _print_result(payload, args.json)
+        return 2
+    extracted_source_id = _extract_source_thread_id_from_url(
+        selector_input,
+        provider=selected_provider,
+    )
+    selector_for_db = extracted_source_id or selector_input
+    selector_for_web = _build_provider_selector(
+        extracted_source_id or selector_input,
+        selected_provider,
+    )
     thread_range: tuple[int, int] | None = None
     message_range: tuple[int, int] | None = None
     try:
@@ -528,6 +768,16 @@ def main() -> int:
         or args.term_frequency
         or args.mention_density
     )
+    mca_mode: Optional[str] = None
+    if args.semantic:
+        mca_mode = "semantic"
+    elif args.hybrid:
+        mca_mode = "hybrid"
+    mca_db_path: Optional[Path] = None
+    if args.mca_db:
+        mca_db_path = Path(args.mca_db).expanduser()
+        if not mca_db_path.is_absolute():
+            mca_db_path = repo_root / mca_db_path
 
     threshold: Optional[dt.datetime] = None
     if args.if_newer_than:
@@ -616,39 +866,68 @@ def main() -> int:
         and args.check_web_newer
         and not args.no_web
     ):
-        preview_limit = max(1, args.recent_turns)
-        # Prefer online thread id (UUID) or a title for live lookups; canonical ids
-        # are local-only and cannot be resolved by re_gpt.
-        web_selector: Optional[str] = None
-        if db_match.online_thread_id:
-            web_selector = db_match.online_thread_id
-        elif _looks_like_online_thread_id(selector_for_web):
-            web_selector = selector_for_web
-        elif db_match.title and db_match.title != "(no title)":
-            web_selector = db_match.title
-        if web_selector is None:
-            extra = "Web freshness check skipped: no online id or title available"
+        if selected_provider == "perplexity":
+            extra = "Web freshness check skipped: Perplexity provider uses export-and-ingest."
             db_error = f"{db_error}; {extra}" if db_error else extra
         else:
-            preloaded_web_recent = _fetch_web_recent_turns(
-                selector=web_selector,
-                repo_root=repo_root,
-                limit=preview_limit,
-                max_text_chars=args.max_text_chars,
-                parse_message_ts=_parse_message_ts,
-                iso_utc_precise=_iso_utc_precise,
-                truncate_text=truncate_text,
-            )
-            if preloaded_web_recent.get("ok"):
-                web_turns = preloaded_web_recent.get("recent_turns") or []
-                web_latest = latest_turn_datetime(web_turns, parse_message_ts=_parse_message_ts)
-                db_latest = db_match.latest_datetime
-                if web_latest is not None and (db_latest is None or web_latest > db_latest):
-                    needs_web = True
-                    reason = "web_newer_than_db"
-            else:
-                extra = f"Web freshness check failed: {preloaded_web_recent.get('error')}"
+            preview_limit = max(1, args.recent_turns)
+            # Prefer online thread id (UUID) or a title for live lookups; canonical ids
+            # are local-only and cannot be resolved by re_gpt.
+            web_selector: Optional[str] = None
+            if db_match.online_thread_id:
+                web_selector = db_match.online_thread_id
+            elif _looks_like_online_thread_id(selector_for_web):
+                web_selector = selector_for_web
+            elif db_match.title and db_match.title != "(no title)":
+                web_selector = db_match.title
+            if web_selector is None:
+                extra = "Web freshness check skipped: no online id or title available"
                 db_error = f"{db_error}; {extra}" if db_error else extra
+            else:
+                preloaded_web_recent = _fetch_web_recent_turns(
+                    selector=web_selector,
+                    repo_root=repo_root,
+                    limit=preview_limit,
+                    max_text_chars=args.max_text_chars,
+                    parse_message_ts=_parse_message_ts,
+                    iso_utc_precise=_iso_utc_precise,
+                    truncate_text=truncate_text,
+                )
+                if preloaded_web_recent.get("ok"):
+                    web_turns = preloaded_web_recent.get("recent_turns") or []
+                    web_latest = latest_turn_datetime(
+                        web_turns,
+                        parse_message_ts=_parse_message_ts,
+                    )
+                    db_latest = db_match.latest_datetime
+                    if web_latest is not None and (db_latest is None or web_latest > db_latest):
+                        needs_web = True
+                        reason = "web_newer_than_db"
+                else:
+                    extra = f"Web freshness check failed: {preloaded_web_recent.get('error')}"
+                    db_error = f"{db_error}; {extra}" if db_error else extra
+
+    if mca_mode is not None and needs_web and db_match is None and not db_candidates:
+        mca_result = _run_mca_retrieval(
+            mode=mca_mode,
+            selector=selector_for_db,
+            repo_root=repo_root,
+            db_path=db_path,
+            mca_db=mca_db_path,
+            limit=args.mca_limit,
+            venv_python=venv_python_path,
+            timeout=args.web_timeout,
+            max_text_chars=args.max_text_chars,
+        )
+        payload = {
+            "source": "mca",
+            "decision_reason": "mca_candidates_requested_before_web_fallback",
+            "mca_retrieval": mca_result,
+        }
+        if db_error:
+            payload["db_warning"] = db_error
+        _print_result(payload, args.json)
+        return 0 if mca_result.get("ok") else 2
 
     if args.cross_thread and db_path.exists():
         payload = {
@@ -668,6 +947,22 @@ def main() -> int:
         )
         if db_error:
             payload["db_warning"] = db_error
+        if mca_mode is not None:
+            mca_result = _run_mca_retrieval(
+                mode=mca_mode,
+                selector=selector_for_db,
+                repo_root=repo_root,
+                db_path=db_path,
+                mca_db=mca_db_path,
+                limit=args.mca_limit,
+                venv_python=venv_python_path,
+                timeout=args.web_timeout,
+                max_text_chars=args.max_text_chars,
+            )
+            payload["mca_retrieval"] = mca_result
+            if not mca_result.get("ok"):
+                _print_result(payload, args.json)
+                return 2
         _print_result(payload, args.json)
         return 0
 
@@ -683,7 +978,118 @@ def main() -> int:
             _print_result(payload, args.json)
             return 1
 
-        web_result = _run_web_view(
+        live_provider = selected_provider
+        if live_provider is None:
+            if _looks_like_online_thread_id(selector_for_web):
+                payload = {
+                    "source": "error",
+                    "decision_reason": reason,
+                    "error": (
+                        "Bare UUID live fallback is ambiguous. Re-run with "
+                        "--provider chatgpt or --provider perplexity."
+                    ),
+                }
+                if db_error:
+                    payload["db_warning"] = db_error
+                _print_result(payload, args.json)
+                return 2
+            if re.match(r"https?://", selector_for_web, flags=re.IGNORECASE):
+                payload = {
+                    "source": "error",
+                    "decision_reason": reason,
+                    "error": (
+                        "Unable to auto-detect a supported provider for this URL. "
+                        "Use a ChatGPT /c/<uuid> URL, a Perplexity /search/<uuid> URL, "
+                        "or pass --provider explicitly."
+                    ),
+                }
+                if db_error:
+                    payload["db_warning"] = db_error
+                _print_result(payload, args.json)
+                return 2
+            live_provider = "chatgpt"
+
+        if live_provider == "perplexity":
+            persist_result = _persist_selector_to_structurer(
+                selector_for_web,
+                repo_root=repo_root,
+                db_path=db_path,
+                venv_python=venv_python_path,
+                timeout=args.web_timeout,
+                provider=live_provider,
+                perplexity_scroll_mode=args.perplexity_scroll_mode,
+            )
+            if persist_result.get("ok"):
+                try:
+                    db_match = _query_db_match(
+                        db_path,
+                        selector_for_db,
+                        allow_canonical_match=allow_canonical,
+                    )
+                except sqlite3.Error as exc:
+                    db_match = None
+                    extra = f"DB lookup after Perplexity ingest failed: {exc}"
+                    db_error = f"{db_error}; {extra}" if db_error else extra
+
+            if persist_result.get("ok") and db_match is not None:
+                db_recent_turns = []
+                if args.recent_turns > 0:
+                    try:
+                        db_recent_turns = _query_recent_turns(
+                            db_path=db_path,
+                            thread_id=db_match.canonical_thread_id,
+                            limit=args.recent_turns,
+                            max_text_chars=args.max_text_chars,
+                        )
+                    except sqlite3.Error as exc:
+                        extra = f"Unable to load recent turns after ingest: {exc}"
+                        db_error = f"{db_error}; {extra}" if db_error else extra
+                payload = {
+                    "source": "db",
+                    "decision_reason": "perplexity_persisted_to_db",
+                    "persist": persist_result,
+                    "db_match": _db_payload(
+                        db_match,
+                        max_text_chars=args.max_text_chars,
+                        latest_paragraphs=args.latest_paragraphs,
+                        recent_turns=db_recent_turns,
+                        truncate_text=truncate_text,
+                        split_paragraphs=_split_paragraphs,
+                        iso_utc=_iso_utc,
+                    ),
+                }
+                if db_error:
+                    payload["db_warning"] = db_error
+                _print_result(payload, args.json)
+                return 0
+
+            payload = {
+                "source": "error",
+                "decision_reason": reason,
+                "error": (
+                    "Perplexity export/ingest failed."
+                    if not persist_result.get("ok")
+                    else "Perplexity export ingested, but the thread was not found in DB afterward."
+                ),
+                "persist": persist_result,
+            }
+            if db_match is not None:
+                payload["db_match"] = _db_payload(
+                    db_match,
+                    max_text_chars=args.max_text_chars,
+                    latest_paragraphs=args.latest_paragraphs,
+                    recent_turns=db_recent_turns,
+                    truncate_text=truncate_text,
+                    split_paragraphs=_split_paragraphs,
+                    iso_utc=_iso_utc,
+                )
+            if db_error:
+                payload["db_warning"] = db_error
+            _print_result(payload, args.json)
+            return 1
+
+        web_result = _run_live_view(
+            live_provider,
             selector_for_web,
             repo_root=repo_root,
             venv_python=venv_python_path,
@@ -731,6 +1137,8 @@ def main() -> int:
                     db_path=db_path,
                     venv_python=venv_python_path,
                     timeout=args.web_timeout,
+                    provider=live_provider,
+                    perplexity_scroll_mode=args.perplexity_scroll_mode,
                 )
                 if not persist_result.get("ok"):
                     extra = "Persistence pipeline failed (download and/or ingest)."
@@ -800,6 +1208,22 @@ def main() -> int:
         payload["requested_threshold_utc"] = _iso_utc(threshold)
     if db_error:
         payload["db_warning"] = db_error
+    if mca_mode is not None:
+        mca_result = _run_mca_retrieval(
+            mode=mca_mode,
+            selector=selector_for_db,
+            repo_root=repo_root,
+            db_path=db_path,
+            mca_db=mca_db_path,
+            limit=args.mca_limit,
+            venv_python=venv_python_path,
+            timeout=args.web_timeout,
+            max_text_chars=args.max_text_chars,
+        )
+        payload["mca_retrieval"] = mca_result
+        if not mca_result.get("ok"):
+            _print_result(payload, args.json)
+            return 2
     if analysis_requested:
         if db_match is None:
             payload = {

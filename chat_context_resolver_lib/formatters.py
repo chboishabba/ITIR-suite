@@ -51,6 +51,24 @@ def print_result(payload: dict, as_json: bool) -> None:
         ingest = persist.get("ingest") or {}
         if ingest:
             print(f"persist_ingested_count: {ingest.get('ingested_count', 0)}")
+    mca = payload.get("mca_retrieval") or {}
+    if mca:
+        requested = mca.get("requested") or {}
+        print(f"mca_mode: {mca.get('mode') or requested.get('mode')}")
+        print(f"mca_ok: {mca.get('ok')}")
+        if mca.get("error"):
+            print(f"mca_error: {mca.get('error')}")
+        candidates = mca.get("candidates") or []
+        print(f"mca_candidate_count: {len(candidates)}")
+        for idx, candidate in enumerate(candidates, start=1):
+            resolved = candidate.get("canonical_resolution") or {}
+            print(
+                f"mca_candidate[{idx}]: "
+                f"rank={candidate.get('rank')} "
+                f"score={candidate.get('score') or candidate.get('distance')} "
+                f"canonical_thread_id={candidate.get('canonical_thread_id') or resolved.get('canonical_thread_id')} "
+                f"title={candidate.get('title') or resolved.get('title')}"
+            )
 
     if source == "db":
         db = payload.get("db_match") or {}
@@ -118,6 +136,24 @@ def print_result(payload: dict, as_json: bool) -> None:
                     print("top_terms:")
                     for item in analysis["top_terms"]:
                         print(f"  {item.get('term')}: {item.get('count')}")
+                range_excerpt = analysis.get("range_excerpt") or {}
+                if range_excerpt:
+                    print(
+                        "range_excerpt: "
+                        f"thread_range={range_excerpt.get('thread_range')} "
+                        f"message_range={range_excerpt.get('message_range')} "
+                        f"lines={range_excerpt.get('stitched_line_count')}"
+                    )
+                if analysis.get("lines"):
+                    print("lines:")
+                    for line in analysis["lines"]:
+                        print(
+                            f"  L{line.get('thread_line')} "
+                            f"M{line.get('message_index')}:{line.get('message_line')} "
+                            f"{line.get('role')} "
+                            f"{line.get('ts_utc') or line.get('ts')}: "
+                            f"{line.get('text')}"
+                        )
                 if analysis.get("mentions"):
                     print("mentions:")
                     for mention in analysis["mentions"]:
@@ -135,6 +171,9 @@ def print_result(payload: dict, as_json: bool) -> None:
                         f"density={item.get('density_per_100_lines')} "
                         f"id={item.get('canonical_thread_id')} title={item.get('title')}"
                     )
+        return
+
+    if source == "mca":
         return
 
     if source == "web":

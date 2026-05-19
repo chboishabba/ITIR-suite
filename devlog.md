@@ -1,5 +1,111 @@
 # Devlog
 
+## 2026-05-20
+- Closed the StatiBaker Kanboard governance manager lane:
+  - added manager-wave reconciliation query in `StatiBaker/sb/query.py`
+  - added `kanboard-manager-wave` CLI in `StatiBaker/scripts/query_state.py`
+  - added focused coverage in `StatiBaker/tests/test_query_cli.py`
+  - updated `StatiBaker/QUERY_SURFACE.md` with the new reconciliation read
+- Reconciled stale manager status artifacts after stabilization:
+  - `status.statibaker-kanboard-idempotency-manager.json`
+  - `status.statibaker-kanboard-live-sync-manager.json`
+  - `status.statibaker-kanboard-report-dashboard-manager.json`
+  now mark remaining lane-local gaps as historical and superseded by
+  stabilization closeout.
+- Updated governance manager control-plane state:
+  - `status.statibaker-kanboard-promotion-governance-manager.json`
+  - `heartbeat.statibaker-kanboard-promotion-governance-manager.json`
+  now reflect complete runsheet closure (`5/5`) with milestones remaining `0`.
+- Validation and governance checks:
+  - `.venv/bin/python -m pytest -q StatiBaker/tests/test_kanboard_runsheet_adapter.py StatiBaker/tests/test_query_cli.py SensibLaw/tests/test_statibaker_kanban.py`
+  - `python StatiBaker/scripts/query_state.py kanboard-manager-wave --status-root /home/c/Documents/code/ITIR-suite`
+  - secret-pattern scan over Kanboard status/heartbeat/runs artifacts and
+    adapter code found no committed private token values in non-test surfaces.
+- Added the M5-beta machine-assisted preliminary A/B lane:
+  - `scripts/run_m5_beta_preflight.py`
+  - `tests/test_m5_beta_preflight.py`
+  - `runs/m5_beta_preflight_20260520T000000/`
+- The beta preflight materialized a 3-query, 6-answer, 3-judge-pair matrix and
+  score sheet, then correctly blocked because beta retrieval, answer, and PNF
+  machine-judge hooks are not configured.
+- Updated the M5 protocol and M4/M5 scoring formalism to distinguish:
+  - M5-alpha: two-call answer smoke
+  - M5-beta: preliminary AI-judged A/B with human review
+  - M5: full human-scored A/B proof
+- Preserved the governance boundary: M5-beta AI judge output is not final
+  truth, not RFP pass/fail evidence, and not promotion authority.
+- Added and executed the guarded M5-beta OpenAI answer adapter:
+  - `scripts/run_m5_beta_openai_adapter.py`
+  - `tests/test_m5_beta_openai_adapter.py`
+  - `runs/m5_beta_openai_20260520T000000/`
+- The adapter loaded the caller-supplied local env file without
+  printing secret values, generated 3 baseline and 3 treatment answers with
+  `gpt-4.1-mini`, logged model/token/latency metadata, and made 0 API judge
+  calls.
+- Codex preliminary grading was written to:
+  - `runs/m5_beta_openai_20260520T000000/m5_beta_codex_prelim_judgment.md`
+  - `runs/m5_beta_openai_20260520T000000/m5_beta_codex_prelim_judgment.json`
+- Preliminary direction: treatment is better on grounding, completeness, and
+  citation/traceability; governance violations observed: 0. Human review is
+  still required before full M5 spend.
+
+## 2026-05-19
+- Lane 4 Kanboard sync report/dashboard manager made concrete implementation progress on the read-only sync artifact lane:
+  - froze `sb.kanboard_sync_report.v0_1` report contract and builder in `StatiBaker/sb/kanboard_runsheet.py`
+  - extended `StatiBaker/scripts/plan_kanboard_runsheet.py` with optional `--report-output` artifact emission
+  - added read-only query surfaces for report-by-path and latest report discovery in `StatiBaker/sb/query.py`
+  - added `kanboard-sync-report` query CLI command in `StatiBaker/scripts/query_state.py`
+  - added focused regression tests in:
+    - `StatiBaker/tests/test_kanboard_runsheet_adapter.py`
+    - `StatiBaker/tests/test_query_cli.py`
+- Focused validation passed:
+  - `.venv/bin/python -m pytest -q StatiBaker/tests/test_kanboard_runsheet_adapter.py StatiBaker/tests/test_query_cli.py`
+- Remaining Lane 4 gap: dashboard/read-model metrics and rendering for latest sync report.
+- Added a fail-closed M5 A/B execution preflight:
+  - `scripts/run_m5_ab_preflight.py`
+  - `tests/test_m5_ab_preflight.py`
+  - `runs/m5_ab_preflight_20260519T000000/`
+- The preflight materialized the 72-cell run matrix and score sheet, then
+  correctly blocked because live baseline/treatment retrieval and answer
+  commands are not configured.
+- Current M5 execution state: protocol ready, preflight recorded, full live A/B
+  and manual scoring pending.
+- Froze the M4/M5 retrieval-support scoring formalism:
+  - candidate-axis manifold formalism
+  - typed residual algebra
+  - support projection law
+  - admissible basis/search compression laws
+  - query/domain/time-conditioned fibre pressure
+  - M4 structural pass definition
+  - M5/M6 separation law
+- Added the PNF machine-judge output schema and extended the M5 runner so
+  score sheets now separate:
+  - RFP gate fields
+  - claim-level PNF judging fields
+  - ITIR diagnostic fields
+- Kept the scoring governance boundary explicit: high retrieval relevance does
+  not imply support, support does not imply promotion, and answer quality does
+  not imply promotion.
+- Recorded the M4/M5 retrieval evaluation tranche boundary:
+  - M4 structural retrieval: recorded pass
+  - M5-alpha two-call probe: completed
+  - full M5 evaluation protocol: frozen/ready
+- Added the frozen M5 protocol, query suite, answer prompt template, offline
+  runner, and focused tests:
+  - `docs/planning/m5_answer_quality_evaluation_protocol_20260519.md`
+  - `docs/planning/m5_query_suite_v1.json`
+  - `docs/planning/m5_answer_prompt_template_v1.md`
+  - `scripts/run_m5_eval_protocol.py`
+  - `tests/test_m5_eval_protocol.py`
+- Kept the evidence boundary explicit: this phase does not claim full M5 is
+  proven, does not claim answer-quality lift, and does not create promotion
+  authority. Full M5 still requires the frozen A/B matrix, manual scoring, and
+  final report.
+- Validated:
+  - `python scripts/run_m5_eval_protocol.py --check`
+  - `python scripts/run_m5_eval_protocol.py --output-dir /tmp/itir_m5_eval_protocol_check`
+  - `.venv/bin/python -m pytest -q tests/test_m5_eval_protocol.py`
+
 ## 2026-04-07
 - Documented that the shared autonomous-orchestrator runtime now publishes
   `parent_orchestrator_id`, lane/lane-claim metadata, the `.autonomous-orchestrator`

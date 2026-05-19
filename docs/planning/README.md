@@ -11,6 +11,38 @@ ITIR-suite orchestration role and boundaries:
 - `docs/planning/workspace_coordination_boundary_20260327.md`
   (when to keep work multi-repo vs create a new top-level project dir)
 
+## Chat Archive Export
+
+DB-backed export roadmap for canonical chat archive threads, including the
+Perplexity replacement path for broken provider Markdown/PDF exports:
+- `docs/planning/chat_archive_db_exporter_roadmap_20260516.md`
+
+## M5 Answer-Quality Evaluation
+
+Frozen protocol for the retrieval-to-answer quality proof tranche:
+- `docs/planning/m5_answer_quality_evaluation_protocol_20260519.md`
+- `docs/planning/m5_query_suite_v1.json`
+- `docs/planning/m5_answer_prompt_template_v1.md`
+- `docs/planning/m4_m5_retrieval_support_scoring_formalism_20260519.md`
+- `docs/planning/m5_pnf_machine_judge_output_schema_v1.json`
+- `scripts/run_m5_ab_preflight.py`
+- `scripts/run_m5_beta_preflight.py`
+- `scripts/run_m5_beta_openai_adapter.py`
+- `runs/m5_ab_preflight_20260519T000000/`
+- `runs/m5_beta_preflight_20260520T000000/`
+- `runs/m5_beta_openai_20260520T000000/`
+
+Status boundary:
+- M4 structural retrieval: recorded pass
+- M5-alpha two-call probe: completed
+- M5-beta preliminary lane: guarded OpenAI answer mini-run completed; Codex
+  preliminary judgment recorded; human review pending
+- Full M5 protocol: frozen/ready
+- M4/M5 formal scoring algebra: frozen/ready
+- Full M5 execution preflight: blocked until live baseline/treatment hooks are
+  configured
+- Full M5 proof: pending
+
 ## Validation (Stub)
 
 The context envelope validation stub lives at:

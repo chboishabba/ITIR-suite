@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import datetime as dt
+import json
 import sqlite3
+import subprocess
 import sys
 from pathlib import Path
 
@@ -14,6 +16,8 @@ from chat_context_resolver_lib.analysis import (
     parse_terms,
     top_terms,
 )
+from chat_context_resolver_lib import live_provider
+from chat_context_resolver_lib.cli import build_parser
 from chat_context_resolver_lib.live_provider import load_session_token
 from chat_context_resolver_lib.transcript import (
     build_stitched_transcript,
@@ -125,6 +129,106 @@ def test_query_recent_turns_uses_shared_truncate_helper(tmp_path):
     assert turns[0]["text"] == "abc\n...[truncated 3 chars]"
 
 
+def test_resolver_parser_exposes_opt_in_mca_flags():
+    parser = build_parser()
+
+    default_args = parser.parse_args(["needle"])
+    provider_args = parser.parse_args(["needle", "--provider", "perplexity"])
+    semantic_args = parser.parse_args(
+        [
+            "needle",
+            "--semantic",
+            "--mca-db",
+            "/tmp/mca.sqlite",
+            "--mca-limit",
+            "7",
+        ]
+    )
+    hybrid_args = parser.parse_args(["needle", "--hybrid"])
+
+    assert default_args.semantic is False
+    assert default_args.hybrid is False
+    assert default_args.provider == "auto"
+    assert default_args.mca_db is None
+    assert default_args.mca_limit == 10
+    assert provider_args.provider == "perplexity"
+    assert semantic_args.semantic is True
+    assert semantic_args.mca_db == "/tmp/mca.sqlite"
+    assert semantic_args.mca_limit == 7
+    assert hybrid_args.hybrid is True
+
+
+def test_mca_retrieval_reports_missing_wrapper_without_subprocess(tmp_path, monkeypatch):
+    def fail_run(*args, **kwargs):
+        raise AssertionError("subprocess should not run when wrapper script is missing")
+
+    monkeypatch.setattr(resolver.subprocess, "run", fail_run)
+
+    result = resolver._run_mca_retrieval(
+        mode="semantic",
+        selector="database architecture",
+        repo_root=tmp_path,
+        db_path=tmp_path / "chat.sqlite",
+        mca_db=None,
+        limit=5,
+        venv_python=tmp_path / ".venv/bin/python",
+        timeout=1,
+        max_text_chars=120,
+    )
+
+    assert result["ok"] is False
+    assert "mca_semantic_search.py" in result["error"]
+    assert result["requested"]["mode"] == "semantic"
+    assert result["candidates"] == []
+
+
+def test_mca_retrieval_invokes_lane_two_wrapper_contract(tmp_path, monkeypatch):
+    scripts_dir = tmp_path / "scripts"
+    scripts_dir.mkdir()
+    (scripts_dir / "mca_hybrid_search.py").write_text("# placeholder\n", encoding="utf-8")
+    seen = {}
+
+    def fake_run(cmdline, **kwargs):
+        seen["cmdline"] = cmdline
+        return subprocess.CompletedProcess(
+            cmdline,
+            0,
+            stdout='{"candidates": [{"canonical_thread_id": "abc", "score": 0.9}]}',
+            stderr="",
+        )
+
+    monkeypatch.setattr(resolver.subprocess, "run", fake_run)
+
+    result = resolver._run_mca_retrieval(
+        mode="hybrid",
+        selector="database architecture",
+        repo_root=tmp_path,
+        db_path=tmp_path / "chat.sqlite",
+        mca_db=tmp_path / "mca.sqlite",
+        limit=5,
+        venv_python=tmp_path / ".venv/bin/python",
+        timeout=1,
+        max_text_chars=120,
+    )
+
+    assert result["ok"] is True
+    assert "--canonical-db" in seen["cmdline"]
+    assert str(tmp_path / "chat.sqlite") in seen["cmdline"]
+    assert "--mca-db" in seen["cmdline"]
+    assert str(tmp_path / "mca.sqlite") in seen["cmdline"]
+    assert result["candidates"] == [{"canonical_thread_id": "abc", "score": 0.9, "rank": 1}]
+
+
+def test_extract_mca_candidates_accepts_lane_two_result_shapes():
+    assert resolver._extract_mca_candidates(
+        {"results": [{"canonical_thread_id": "abc", "score": 0.9}]}
+    ) == [{"canonical_thread_id": "abc", "score": 0.9, "rank": 1}]
+    assert resolver._extract_mca_candidates(
+        {"candidates": [{"source_thread_id": "online", "distance": 0.1}]}
+    ) == [{"source_thread_id": "online", "distance": 0.1, "rank": 1}]
+    assert resolver._extract_mca_candidates(["raw"]) == [{"value": "raw", "rank": 1}]
+
+
 def test_load_session_token_reads_chunked_new_session_file(monkeypatch, tmp_path):
     monkeypatch.delenv("CHATGPT_SESSION_TOKEN", raising=False)
     monkeypatch.setenv("HOME", str(tmp_path))
@@ -141,8 +245,288 @@ def test_load_session_token_prefers_config_ini_over_chunked_file(monkeypatch, tm
     repo_root = tmp_path / "repo"
     repo_root.mkdir()
     (tmp_path / ".chatgpt_session_new").write_text("stale-token\n", encoding="utf-8")
-    (repo_root / "config.ini").write_text("[session]\ntoken = fresh-config-token\n", encoding="utf-8")
+    (repo_root / "config.ini").write_text(
+        "[session]\ntoken = fresh-config-token\n",
+        encoding="utf-8",
+    )
 
     token = load_session_token(repo_root=repo_root)
 
     assert token == "fresh-config-token"
+
+
+def test_provider_detection_and_source_id_extraction():
+    perplexity_url = (
+        "https://www.perplexity.ai/search/"
+        "8daefbbb-e5e4-4c27-92c2-9cf7e9de0aa3"
+    )
+    chatgpt_url = (
+        "https://chatgpt.com/c/"
+        "69fadea6-bd2c-8399-b430-ae4f29b50293"
+    )
+
+    assert live_provider.detect_provider(perplexity_url) == "perplexity"
+    assert live_provider.detect_provider(chatgpt_url) == "chatgpt"
+    assert live_provider.detect_provider("8daefbbb-e5e4-4c27-92c2-9cf7e9de0aa3") is None
+    assert (
+        live_provider.extract_source_thread_id_from_url(perplexity_url, "perplexity")
+        == "8daefbbb-e5e4-4c27-92c2-9cf7e9de0aa3"
+    )
+    assert (
+        live_provider.build_provider_selector(
+            "8daefbbb-e5e4-4c27-92c2-9cf7e9de0aa3",
+            "perplexity",
+        )
+        == perplexity_url
+    )
+
+
+def test_run_perplexity_export_invokes_single_thread_cli(monkeypatch, tmp_path):
+    export_repo = tmp_path / "perplexity-ai-export"
+    export_repo.mkdir()
+    (export_repo / "package.json").write_text('{"scripts": {}}\n', encoding="utf-8")
+    monkeypatch.setenv("PERPLEXITY_AI_EXPORT_DIR", str(export_repo))
+    seen = {}
+
+    def fake_run(cmdline, **kwargs):
+        seen["cmdline"] = cmdline
+        seen["env"] = kwargs["env"]
+        out_path = Path(cmdline[cmdline.index("--out") + 1])
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text('{"schema":"itir.perplexity.thread.v1"}\n', encoding="utf-8")
+        return subprocess.CompletedProcess(
+            cmdline,
+            0,
+            stdout='{"ok": true}\n',
+            stderr="",
+        )
+
+    monkeypatch.setattr(live_provider.subprocess, "run", fake_run)
+
+    result = live_provider.run_perplexity_export(
+        "8daefbbb-e5e4-4c27-92c2-9cf7e9de0aa3",
+        repo_root=tmp_path / "ITIR-suite",
+        timeout=5,
+        scroll_mode="step",
+    )
+
+    assert result["ok"] is True
+    assert seen["cmdline"][:3] == ["npm", "run", "export:thread"]
+    assert "--url" in seen["cmdline"]
+    assert seen["env"]["HEADLESS"] == "true"
+    assert seen["env"]["PERPLEXITY_SCROLL_MODE"] == "step"
+    assert (
+        "https://www.perplexity.ai/search/8daefbbb-e5e4-4c27-92c2-9cf7e9de0aa3"
+        in seen["cmdline"]
+    )
+    assert result["output_path"].endswith("8daefbbb-e5e4-4c27-92c2-9cf7e9de0aa3.itir.perplexity.json")
+
+
+def test_run_perplexity_export_rejects_partial_app_api_export(monkeypatch, tmp_path):
+    export_repo = tmp_path / "perplexity-ai-export"
+    export_repo.mkdir()
+    (export_repo / "package.json").write_text('{"scripts": {}}\n', encoding="utf-8")
+    monkeypatch.setenv("PERPLEXITY_AI_EXPORT_DIR", str(export_repo))
+
+    def fake_run(cmdline, **kwargs):
+        out_path = Path(cmdline[cmdline.index("--out") + 1])
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(
+            json.dumps(
+                {
+                    "schema": "itir.perplexity.thread.v1",
+                    "source": "perplexity",
+                    "messages": [{"role": "user", "content": "partial"}],
+                    "raw": {
+                        "entries": [{"query_str": "partial"}],
+                        "api_response": {"has_next_page": True},
+                    },
+                }
+            ),
+            encoding="utf-8",
+        )
+        return subprocess.CompletedProcess(cmdline, 0, stdout='{"ok": true}\n', stderr="")
+
+    monkeypatch.setattr(live_provider.subprocess, "run", fake_run)
+
+    result = live_provider.run_perplexity_export(
+        "8daefbbb-e5e4-4c27-92c2-9cf7e9de0aa3",
+        repo_root=tmp_path / "ITIR-suite",
+        timeout=5,
+    )
+
+    assert result["ok"] is False
+    assert result["export_diagnostic"]["partial"] is True
+    assert "appears partial" in result["error"]
+
+
+def test_persist_skips_ingest_when_perplexity_export_is_partial(monkeypatch, tmp_path):
+    def fake_download(*args, **kwargs):
+        return {
+            "ok": False,
+            "error": "partial",
+            "output_path": str(tmp_path / "partial.itir.perplexity.json"),
+        }
+
+    def fail_ingest(*args, **kwargs):
+        raise AssertionError("partial exports must not be ingested")
+
+    monkeypatch.setattr(resolver, "_run_live_download", fake_download)
+    monkeypatch.setattr(resolver, "_ingest_exports_to_structurer", fail_ingest)
+
+    result = resolver._persist_selector_to_structurer(
+        selector="https://www.perplexity.ai/search/8daefbbb-e5e4-4c27-92c2-9cf7e9de0aa3",
+        repo_root=tmp_path,
+        db_path=tmp_path / "chat.sqlite",
+        venv_python=tmp_path / ".venv/bin/python",
+        timeout=5,
+        provider="perplexity",
+    )
+
+    assert result["ok"] is False
+    assert result["ingest"]["ingested_count"] == 0
+    assert "ingest skipped" in result["ingest"]["error"]
+
+
+def test_ingest_exports_uses_provider_specific_format(monkeypatch, tmp_path):
+    ingest_script = tmp_path / "chat-export-structurer/src/ingest.py"
+    ingest_script.parent.mkdir(parents=True)
+    ingest_script.write_text("# placeholder\n", encoding="utf-8")
+    export_json = tmp_path / "thread.itir.perplexity.json"
+    export_json.write_text('{"schema":"itir.perplexity.thread.v1"}\n', encoding="utf-8")
+    seen = {}
+
+    def fake_run(cmdline, **kwargs):
+        seen["cmdline"] = cmdline
+        return subprocess.CompletedProcess(cmdline, 0, stdout="ok\n", stderr="")
+
+    monkeypatch.setattr(resolver.subprocess, "run", fake_run)
+
+    result = resolver._ingest_exports_to_structurer(
+        json_paths=[export_json],
+        db_path=tmp_path / "chat.sqlite",
+        venv_python=tmp_path / ".venv/bin/python",
+        repo_root=tmp_path,
+        timeout=5,
+        provider="perplexity",
+    )
+
+    assert result["ok"] is True
+    assert seen["cmdline"][seen["cmdline"].index("--format") + 1] == "perplexity"
+    assert seen["cmdline"][seen["cmdline"].index("--account") + 1] == "perplexity"
+    assert result["source_id"].startswith("resolver_perplexity_")
+
+
+def test_run_web_view_treats_catalog_miss_as_auth_diagnostic(monkeypatch, tmp_path):
+    monkeypatch.delenv("CHATGPT_SESSION_TOKEN", raising=False)
+    monkeypatch.setenv("HOME", str(tmp_path))
+    (tmp_path / ".chatgpt_session_new").write_text("known-good-token\n", encoding="utf-8")
+
+    def fake_run(cmdline, **kwargs):
+        return subprocess.CompletedProcess(
+            cmdline,
+            0,
+            stdout=(
+                "Storage disabled; conversations will not be saved locally.\n"
+                "Could not fetch by ID, trying to match by title...\n"
+                "Fetching conversation catalog in pages...\n"
+                "No more conversation pages to fetch.\n"
+                "Failed to find conversation matching 'missing-id'.\n"
+            ),
+            stderr="",
+        )
+
+    monkeypatch.setattr(live_provider.subprocess, "run", fake_run)
+
+    result = live_provider.run_web_view(
+        "missing-id",
+        repo_root=tmp_path,
+        venv_python=tmp_path / "missing-python",
+        timeout=1,
+    )
+
+    assert result["ok"] is False
+    assert result["auth_diagnostic"]["reason"] == "catalog_miss_with_known_good_token"
+    assert result["error"].startswith("re_gpt did not fetch the conversation")
+
+
+def test_run_web_view_retries_known_good_token_after_stale_catalog_miss(monkeypatch, tmp_path):
+    monkeypatch.setenv("CHATGPT_SESSION_TOKEN", "stale-token")
+    monkeypatch.setenv("HOME", str(tmp_path))
+    (tmp_path / ".chatgpt_session_new").write_text("known-good-token\n", encoding="utf-8")
+    seen_keys = []
+
+    def fake_run(cmdline, **kwargs):
+        seen_keys.append(cmdline[cmdline.index("--key") + 1])
+        if seen_keys[-1] == "stale-token":
+            return subprocess.CompletedProcess(
+                cmdline,
+                0,
+                stdout=(
+                    "Storage disabled; conversations will not be saved locally.\n"
+                    "Could not fetch by ID, trying to match by title...\n"
+                    "Fetching conversation catalog in pages...\n"
+                    "No more conversation pages to fetch.\n"
+                    "Failed to find conversation matching "
+                    "'69fadea6-bd2c-8399-b430-ae4f29b50293'.\n"
+                ),
+                stderr="",
+            )
+        return subprocess.CompletedProcess(
+            cmdline,
+            0,
+            stdout="Fetched conversation 69fadea6-bd2c-8399-b430-ae4f29b50293\n",
+            stderr="",
+        )
+
+    monkeypatch.setattr(live_provider.subprocess, "run", fake_run)
+
+    result = live_provider.run_web_view(
+        "69fadea6-bd2c-8399-b430-ae4f29b50293",
+        repo_root=tmp_path,
+        venv_python=tmp_path / "missing-python",
+        timeout=1,
+    )
+
+    assert result["ok"] is True
+    assert seen_keys == ["stale-token", "known-good-token"]
+    assert result["retried_with_known_good_token"] == "file:~/.chatgpt_session_new"
+
+
+def test_run_web_view_retries_known_good_token_after_auth_bootstrap_block(monkeypatch, tmp_path):
+    monkeypatch.setenv("CHATGPT_SESSION_TOKEN", "stale-token")
+    monkeypatch.setenv("HOME", str(tmp_path))
+    (tmp_path / ".chatgpt_session_new").write_text("known-good-token\n", encoding="utf-8")
+    seen_keys = []
+
+    def fake_run(cmdline, **kwargs):
+        seen_keys.append(cmdline[cmdline.index("--key") + 1])
+        if seen_keys[-1] == "stale-token":
+            return subprocess.CompletedProcess(
+                cmdline,
+                1,
+                stdout="",
+                stderr=(
+                    "re_gpt.errors.UnexpectedResponseError: Unable to retrieve ChatGPT "
+                    "home page due to Cloudflare blocking the request."
+                ),
+            )
+        return subprocess.CompletedProcess(
+            cmdline,
+            0,
+            stdout="Fetched conversation 69fadea6-bd2c-8399-b430-ae4f29b50293\n",
+            stderr="",
+        )
+
+    monkeypatch.setattr(live_provider.subprocess, "run", fake_run)
+
+    result = live_provider.run_web_view(
+        "69fadea6-bd2c-8399-b430-ae4f29b50293",
+        repo_root=tmp_path,
+        venv_python=tmp_path / "missing-python",
+        timeout=1,
+    )
+
+    assert result["ok"] is True
+    assert seen_keys == ["stale-token", "known-good-token"]
+    assert result["retried_with_known_good_token"] == "file:~/.chatgpt_session_new"

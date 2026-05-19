@@ -1,6 +1,131 @@
 # Changelog
 
 ## Unreleased
+- Added `scripts/run_m5_beta_openai_adapter.py`, a guarded OpenAI answer
+  runner for the M5-beta lane. It loads a caller-supplied local env file,
+  generated 3 baseline and
+  3 treatment answers with `gpt-4.1-mini`, logged tokens/latency/model, wrote
+  answer/context/judge-packet artifacts under
+  `runs/m5_beta_openai_20260520T000000/`, and made zero API judge calls.
+  Codex preliminary grading is recorded in
+  `runs/m5_beta_openai_20260520T000000/m5_beta_codex_prelim_judgment.md` and
+  `.json`; human review remains required before any full M5 spend decision.
+  No full M5 proof, RFP pass/fail status, routing authority, or promotion
+  authority is claimed.
+- Closed the StatiBaker Kanboard governance lane with an executable
+  reconciliation/read-only query surface for manager-wave status artifacts:
+  - added `kanboard_manager_wave_status(...)` in `StatiBaker/sb/query.py`
+  - added `kanboard-manager-wave` in `StatiBaker/scripts/query_state.py`
+  - added focused query coverage in `StatiBaker/tests/test_query_cli.py`
+  - updated `StatiBaker/QUERY_SURFACE.md` to include reconciliation reads
+  Governance closeout now explicitly marks stale manager residuals as
+  historical lanes superseded by stabilization while keeping local JSON as the
+  canonical authority.
+- Added a fail-closed M5-beta preliminary AI-judge preflight in
+  `scripts/run_m5_beta_preflight.py` with regression coverage in
+  `tests/test_m5_beta_preflight.py`. The beta lane materializes a 3-query,
+  6-answer, 3-judge-pair matrix and human review score sheet, then blocks
+  unless explicit beta baseline/treatment retrieval, answer, and PNF
+  machine-judge commands are configured. Recorded the current blocked beta
+  boundary at `runs/m5_beta_preflight_20260520T000000/`; beta remains
+  preliminary and does not claim full M5 proof, RFP pass/fail status, routing
+  authority, or promotion authority.
+- Added a fail-closed full M5 A/B execution preflight in
+  `scripts/run_m5_ab_preflight.py` with regression coverage in
+  `tests/test_m5_ab_preflight.py`. The preflight materializes the frozen
+  72-cell run matrix and manual score sheet, then blocks unless explicit live
+  baseline/treatment retrieval and answer commands are configured. Recorded the
+  current blocked execution boundary at
+  `runs/m5_ab_preflight_20260519T000000/`; no full M5 proof, answer-quality
+  lift, routing authority, or promotion authority is claimed.
+- Froze the M4/M5 retrieval-support scoring formalism and PNF machine-judge
+  output schema. Added
+  `docs/planning/m4_m5_retrieval_support_scoring_formalism_20260519.md` and
+  `docs/planning/m5_pnf_machine_judge_output_schema_v1.json`, and extended
+  `scripts/run_m5_eval_protocol.py` plus `tests/test_m5_eval_protocol.py` so
+  generated M5 score sheets separate the RFP gate metrics from claim-level PNF
+  judging fields and ITIR structural diagnostics. Governance boundary remains
+  unchanged: retrieval relevance, support, and answer quality do not imply
+  truth, routing, or promotion authority.
+- Froze the M5 answer-quality evaluation protocol and recorded the tranche
+  boundary: M4 structural retrieval is a recorded pass, M5-alpha two-call probe
+  is completed, and the full M5 protocol is ready but not yet proven. Added
+  `docs/planning/m5_answer_quality_evaluation_protocol_20260519.md`,
+  `docs/planning/m5_query_suite_v1.json`,
+  `docs/planning/m5_answer_prompt_template_v1.md`,
+  `scripts/run_m5_eval_protocol.py`, and `tests/test_m5_eval_protocol.py`.
+  The runner validates the frozen query matrix and emits JSON/CSV manual
+  scoring skeletons without live model calls by default. Governance boundary:
+  no runtime promotion authority, routing authority, semantic fact emission, or
+  full M5 answer-quality lift claim changed.
+- Added `scripts/export_chat_archive_thread.py`, a DB-backed chat archive
+  exporter that writes deterministic Markdown/JSON/printable-HTML thread
+  exports plus an optional checksum manifest bundle. This gives Perplexity
+  threads a proper archive-derived export path instead of relying on
+  Perplexity's broken Markdown/PDF output. Markdown now defaults to a
+  Perplexity-like document layout with user prompts as `#` sections and `---`
+  turn separators, while `--markdown-style transcript` keeps explicit
+  role-by-role audit output. Perplexity exports also clean repeated DOM/export
+  text blocks by default, with `--no-clean-perplexity-duplicates` available for
+  raw audit exports. HTML now defaults to a rendered document view with local
+  static KaTeX pre-rendering when available, display-only long-link compaction
+  for PDF readability, optional `--pdf` rendering via `--pdf-engine auto`
+  (`weasyprint` first when installed, then Chrome/Chromium), browser KaTeX as a
+  fallback mode, and lightweight diagnostics for malformed math delimiters or
+  likely truncated Markdown links. Long HTML/PDF exports can now be split with
+  `--chunk-messages` and `--chunk-target-bytes`; chunked PDF rendering uses
+  bounded parallel workers via `--pdf-workers`, and `--chunk-plan-only`
+  provides a fast JSON planning surface for tuning split sizes before rendering.
+  Added `scripts/benchmark_chat_archive_export_chunks.py` to run repeatable
+  split/worker timing matrices; the current Perplexity long-thread benchmark
+  found `--chunk-messages 80 --chunk-target-bytes 1200000 --pdf-workers 3` as
+  the fastest tested profile on this host, with `--pdf-workers 2` retained as
+  the conservative fallback. HTML/PDF rendering also has a documented
+  `--whitespace-repair` display policy for conservative repair of fragmented
+  terminal/file listings from Perplexity exports; canonical JSON and Markdown
+  remain unchanged, and repairs are surfaced through diagnostics plus the bundle
+  manifest display policy.
+- Added opt-in MyChatArchive semantic and hybrid retrieval integration for the
+  chat context resolver. The resolver remains DB-first by default, but now
+  supports `--semantic`, `--hybrid`, `--mca-db`, and `--mca-limit`; new
+  `scripts/mca_*.py` wrappers provide stable JSON boundaries for canonical
+  archive sync, embedding, semantic search, hybrid search, and result
+  resolution. Missing MCA DBs return structured JSON errors rather than
+  tracebacks.
+- Clarified the SensibLaw Wikidata docs to separate the latest global-latent
+  formalism from the current bounded runtime. The practical README, OCTF
+  entrypoint, and migration-pack contract now state that the formal endstate is
+  monotone structural coherence over a snapshot-derived global ontology index,
+  while today's executable surfaces remain bounded migration packs,
+  PNF/residual review packets, hotspot packs, disjointness diagnostics, and
+  review/grounding lanes. This is docs-only; no global index, QID-only repair
+  bot, runtime behavior, promotion gate, or edit authority changed.
+- Clarified the SensibLaw Wikidata migration-pack docs for Peter's orientation
+  questions. The practical README and migration-pack contract now explain how
+  bounded proposals become row-level review dispositions, what windows and
+  schemas mean in this lane, why `sensiblaw` exists only after package
+  installation, and how `manifest.json`, `slice.json`, `migration_pack.json`,
+  `schemas/sl.wikidata_migration_pack.v1.schema.yaml`,
+  `src/ontology/wikidata.py`, and `cli/__main__.py` fit together. This is
+  docs-only; no runtime behavior, promotion gate, or edit authority changed.
+- Refined the SensibLaw Wikidata OCTF entrypoint and practical README for the
+  four named reader paths: Dave/general OCTF, Peter, Ege, and Rosario. The
+  docs now include an audience matrix near the top, move the worked climate
+  example before the technical PNF/body material, gate the CLI section for
+  technical contributors, and add plain-language leads for hotspot and
+  disjointness review lanes. This is docs-only; no runtime behavior, promotion
+  gate, or edit authority changed.
+- Added a practical Wikidata README and refreshed the April 21 OCTF entrypoint
+  in SensibLaw. This docs-only update gives start-to-finish reviewer paths for
+  climate migration, climate PNF/residual review, structural hotspot packs, and
+  `P2738` disjointness diagnostics while preserving the review-first boundary:
+  candidate findings are not edit authority, bounded reports are the review
+  surface, and only locally complete checked-safe rows are staged.
+- Added the SensibLaw Wikidata temporal-PNF constraint contract and aligned
+  root context/TODO state. This docs-only update records the shared
+  climate/mereology residual skeleton around `TempFam(P, I)`,
+  `INCOMPLETE_tau`, and `CONTRADICTION_mu`; it does not change runtime
+  behavior or promotion gates.
 - Clarified the root ZKPerf stream section in plain language, and added the
   missing prose note plus generated diagram renders for the shipped SensibLaw
   service-architecture PlantUML doc. This is a docs/diagram-only update; no

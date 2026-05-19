@@ -51,6 +51,9 @@ def test_bridge_protocol_smoke() -> None:
         tool_names = [tool["name"] for tool in listed["tools"]]
         assert "sensiblaw.obligations_query" in tool_names
         assert "itir.compare_observations" in tool_names
+        assert "itir.docstore.open_questions" in tool_names
+        assert "itir.docstore.proposal_receipt" in tool_names
+        assert "itir.markdown.render_projection" in tool_names
 
         payload = {
             "op": "call",
