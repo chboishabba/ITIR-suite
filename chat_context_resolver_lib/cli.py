@@ -32,6 +32,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Python interpreter for module fallback to re_gpt.cli (default: %(default)s)",
     )
     parser.add_argument(
+        "--provider",
+        choices=("auto", "chatgpt", "perplexity"),
+        default="auto",
+        help=(
+            "Live provider for URL/export fallback. auto detects supported provider URLs; "
+            "bare UUID live fallback requires an explicit provider."
+        ),
+    )
+    parser.add_argument(
+        "--perplexity-scroll-mode",
+        choices=("step", "end", "hybrid"),
+        default=None,
+        help=(
+            "Perplexity loader scroll strategy. step is safest for full-history loads; "
+            "end is a fast tail probe; hybrid alternates stepped loading with end probes."
+        ),
+    )
+    parser.add_argument(
         "--web-timeout",
         type=int,
         default=120,
@@ -146,6 +164,32 @@ def build_parser() -> argparse.ArgumentParser:
         "--cross-thread",
         action="store_true",
         help="Run archive-wide ranking for the analysis terms instead of a single resolved thread.",
+    )
+    parser.add_argument(
+        "--semantic",
+        action="store_true",
+        help=(
+            "Opt in to MyChatArchive semantic candidate retrieval. "
+            "Default DB/web resolver behavior is unchanged unless this flag is set."
+        ),
+    )
+    parser.add_argument(
+        "--hybrid",
+        action="store_true",
+        help=(
+            "Opt in to MyChatArchive hybrid FTS + vector candidate retrieval. "
+            "Default DB/web resolver behavior is unchanged unless this flag is set."
+        ),
+    )
+    parser.add_argument(
+        "--mca-db",
+        help="Path to the MyChatArchive SQLite DB for --semantic/--hybrid retrieval.",
+    )
+    parser.add_argument(
+        "--mca-limit",
+        type=int,
+        default=10,
+        help="Max MyChatArchive candidates for --semantic/--hybrid retrieval (default: %(default)s).",
     )
     parser.add_argument(
         "--limit",

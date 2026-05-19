@@ -1,5 +1,74 @@
 # Implementation Plan
 
+## Milestone Y: M4/M5 Retrieval Evaluation Boundary (protocol ready)
+1. DONE: Record M4 structural retrieval as a pass:
+   - structural candidate-axis retrieval is auditable
+   - spans, receipts, surfaces, and typed residuals are evaluation inputs
+   - retrieval support does not imply truth, routing, or promotion
+2. DONE: Record M5-alpha as a completed two-call probe:
+   - call 1 retrieves structured candidate context
+   - call 2 answers under grounding and residual-honesty constraints
+   - probe completion does not prove treatment lift
+3. DONE: Freeze the full M5 evaluation protocol:
+   - protocol:
+     `docs/planning/m5_answer_quality_evaluation_protocol_20260519.md`
+   - query suite:
+     `docs/planning/m5_query_suite_v1.json`
+   - answer prompt template:
+     `docs/planning/m5_answer_prompt_template_v1.md`
+   - runner:
+     `scripts/run_m5_eval_protocol.py`
+   - tests:
+     `tests/test_m5_eval_protocol.py`
+4. DONE: Freeze the M4/M5 formalism and scoring algebra:
+   - canonical formal note:
+     `docs/planning/m4_m5_retrieval_support_scoring_formalism_20260519.md`
+   - machine-judge output schema:
+     `docs/planning/m5_pnf_machine_judge_output_schema_v1.json`
+   - RFP gate metrics stay separated from ITIR structural diagnostics
+   - PNF claim judging preserves residuals and does not promote truth
+5. DONE: Record the full M5 execution preflight:
+   - preflight runner:
+     `scripts/run_m5_ab_preflight.py`
+   - artifact directory:
+     `runs/m5_ab_preflight_20260519T000000/`
+   - 72-cell A/B matrix and manual score sheet materialized
+   - live execution blocked until baseline/treatment retrieval and answer
+     commands are configured
+6. DONE: Add the M5-beta preliminary AI-judge lane:
+   - beta preflight runner:
+     `scripts/run_m5_beta_preflight.py`
+   - artifact directory:
+     `runs/m5_beta_preflight_20260520T000000/`
+   - 3-query, 6-answer, 3-judge-pair matrix materialized
+   - live execution blocked until beta baseline/treatment retrieval, answer,
+     and machine-judge commands are configured
+   - beta remains preliminary and does not claim RFP pass/fail status
+7. DONE: Execute the guarded M5-beta OpenAI answer mini-run:
+   - answer adapter:
+     `scripts/run_m5_beta_openai_adapter.py`
+   - artifact directory:
+     `runs/m5_beta_openai_20260520T000000/`
+   - 3 baseline answers and 3 treatment answers generated with
+     `gpt-4.1-mini`
+   - API judge calls: 0
+   - Codex preliminary judgment written for human review:
+     `runs/m5_beta_openai_20260520T000000/m5_beta_codex_prelim_judgment.md`
+   - result: treatment directionally better on grounding, completeness, and
+     citation/traceability; governance violations observed: 0
+   - full M5 proof and RFP pass/fail status remain unclaimed
+8. PENDING: Human review of the M5-beta Codex preliminary judgment:
+   - decide whether the judge output is directionally useful and not
+     misleading
+   - decide whether to authorize full M5 spend
+9. PENDING: Execute full M5 A/B and manually score:
+   - 10-20 frozen queries
+   - 3 baseline runs/query
+   - 3 treatment runs/query
+   - fixed model, prompt, `k`, and temperature
+   - JSON + CSV + score sheet
+10. PENDING: Produce final M5 report proving or rejecting answer-quality lift.
+
 ## Milestone X: Latent-State and Cross-System Mapping Contract (completed)
 1. Normalize the canonical planning state around the current doctrine:
    - `spec.md`

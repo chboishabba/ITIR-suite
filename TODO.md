@@ -1,11 +1,72 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-04-07
+- 2026-05-20
+
+## Current M5 execution boundary
+- DONE: M5 protocol, formal scoring algebra, PNF judge schema, and 72-cell A/B
+  score sheet are frozen.
+- DONE: full M5 execution preflight recorded at
+  `runs/m5_ab_preflight_20260519T000000/`.
+- DONE: M5-beta preliminary AI-judge preflight recorded at
+  `runs/m5_beta_preflight_20260520T000000/`.
+- DONE: guarded M5-beta OpenAI answer mini-run recorded at
+  `runs/m5_beta_openai_20260520T000000/` using
+  `scripts/run_m5_beta_openai_adapter.py`.
+- DONE: Codex preliminary judgment recorded at
+  `runs/m5_beta_openai_20260520T000000/m5_beta_codex_prelim_judgment.md`.
+  It used no API judge calls and observed 0 governance violations.
+- PENDING: human review of the M5-beta Codex preliminary judgment before
+  authorizing full M5 spend.
+- BLOCKED: full live M5 A/B execution requires configured commands for:
+  `M5_BASELINE_RETRIEVAL_COMMAND`, `M5_BASELINE_ANSWER_COMMAND`,
+  `M5_TREATMENT_RETRIEVAL_COMMAND`, and `M5_TREATMENT_ANSWER_COMMAND`.
+- PENDING: run live A/B, complete manual scoring, and produce the final M5
+  pass/fail report before claiming answer-quality lift.
 
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
   - Wikidata/OCTF follow-on:
+    - DONE external Wikibase/Wikidata reference alignment:
+      `docs/planning/wikidata_combined_roadmap_nat_and_assist_20260401.md`
+      and
+      `SensibLaw/docs/planning/wikidata_octf_entrypoint_20260421.md`
+      now mention Claire/Superraptor's `Wikibase-Wikidata-Pipeline` and
+      `wikiodk` as adjacent transport/sandbox references. The documented
+      boundary is: external tools may emit mapped candidate deltas or provide
+      local Wikibase setup, while ITIR/SensibLaw converts deltas into bounded
+      review packets and emits review-only dispositions before any staged
+      export or upload handoff.
+    - DONE global-latent formalism clarification:
+      `SensibLaw/docs/wikidata/README.md`,
+      `SensibLaw/docs/planning/wikidata_octf_entrypoint_20260421.md`, and
+      `SensibLaw/docs/planning/wikidata_migration_pack_contract_20260328.md`
+      now distinguish the latest formalism from the current runtime. The
+      formalism is a monotone structural-coherence framework over a
+      snapshot-derived global ontology index; bounded review packets are local
+      projections of that framework. The current runtime remains bounded
+      migration/PNF/hotspot/disjointness/review lanes and does not yet implement
+      a full global index or QID-only repair bot.
+    - DONE Peter orientation Q&A:
+      `SensibLaw/docs/wikidata/README.md` and
+      `SensibLaw/docs/planning/wikidata_migration_pack_contract_20260328.md`
+      now explain how bounded proposals become row-level review dispositions,
+      what windows and schemas mean in the migration-pack context, why
+      `sensiblaw` may be absent until package installation, and how
+      `manifest.json`, `slice.json`, `migration_pack.json`, the migration-pack
+      schema, `src/ontology/wikidata.py`, and `cli/__main__.py` fit together.
+    - DONE audience-routed OCTF entrypoint:
+      `SensibLaw/docs/planning/wikidata_octf_entrypoint_20260421.md` now names
+      Dave/general OCTF, Peter, Ege, and Rosario near the top and routes each
+      reader to the relevant worked example, disjointness diagnostics, hotspot
+      packs, or CLI section. The practical Wikidata README mirrors the same
+      reader map.
+    - DONE practical Wikidata README and OCTF entrypoint refresh:
+      `SensibLaw/docs/wikidata/README.md` now gives start-to-finish command
+      paths for climate migration, climate PNF/residual review, structural
+      hotspot packs, and `P2738` disjointness diagnostics. The April 21 OCTF
+      entrypoint now leads with the reader problem, the review/execution
+      boundary, plain-language state labels, and one worked climate example.
     - DONE docs-first bounded example:
       `SensibLaw/docs/planning/wikidata_pnf_residual_review_example_20260429.md`
       now maps the real `Q10403939` climate case through:
@@ -64,6 +125,28 @@
 
 ## Current P0 control
 - [P0] Business-logic-first suite completion:
+  - DONE M4/M5 retrieval evaluation tranche boundary:
+    - M4 structural retrieval is recorded as a pass, limited to auditable
+      structural retrieval context over candidate axes, spans, receipts,
+      surfaces, and typed residuals
+    - M5-alpha two-call probe is recorded as completed, proving only that the
+      retrieve-then-answer control flow is executable
+    - full M5 evaluation protocol is frozen/ready in
+      `docs/planning/m5_answer_quality_evaluation_protocol_20260519.md`,
+      `docs/planning/m5_query_suite_v1.json`,
+      `docs/planning/m5_answer_prompt_template_v1.md`, and
+      `scripts/run_m5_eval_protocol.py`
+    - M4/M5 formal scoring algebra is frozen/ready in
+      `docs/planning/m4_m5_retrieval_support_scoring_formalism_20260519.md`
+      with the PNF machine-judge output schema in
+      `docs/planning/m5_pnf_machine_judge_output_schema_v1.json`
+    - the RFP gate table is explicitly separated from ITIR structural
+      diagnostics so retrieval/support/residual metrics explain answer quality
+      but do not replace the RFP composite score
+    - PENDING: run the full M5 A/B matrix, manually score it, and produce the
+      final M5 report before claiming answer-quality lift
+    - governance boundary: M4/M5 retrieval or answer quality does not create
+      promotion authority; M6 alone can prove promotion authority
   - DONE control read revision:
     - normalized adapters are now sufficiently real that the next suite
       driver is bounded search and uncertainty collapse over existing
@@ -1348,6 +1431,16 @@
     - DONE: add the fail-closed automation graduation evaluator:
       - `SensibLaw/src/ontology/wikidata_nat_automation_graduation.py`
       - `SensibLaw/tests/test_wikidata_nat_automation_graduation.py`
+    - DONE: add the formal temporal-PNF constraint contract that unifies the
+      climate `P14143`/`P5991` and mereology `P361`/`P527` lanes through:
+      - `TempFam(P, I)` computed from bounded slices
+      - `INCOMPLETE_tau` for missing temporal qualifiers after a family is
+        locally temporally bounded
+      - `CONTRADICTION_mu` for exclusive temporal overlap
+      - docs-only surface:
+        `SensibLaw/docs/planning/wikidata_temporal_pnf_constraint_contract_20260502.md`
+      - current boundary:
+        no runtime behavior or promotion gate change yet
     - DONE: add the automation graduation report builder:
       - `build_nat_automation_graduation_report(...)`
       - `sensiblaw wikidata automation-graduation-eval`

@@ -1,6 +1,6 @@
 {
-  "active_checklist": "DONE: Explain future Phi v2 / richer latent semantics relative to the current bounded v1 transport contracts",
-  "active_milestone": "Milestone X",
+  "active_checklist": "DONE: M4 structural retrieval recorded pass; DONE: M5-alpha two-call probe completed; DONE: full M5 protocol frozen/ready; DONE: M4/M5 formal scoring algebra and PNF judge schema frozen/ready; DONE: full M5 execution preflight materialized the 72-cell matrix and score sheet; DONE: M5-beta preliminary preflight materialized the 3-query matrix and score sheet; DONE: guarded M5-beta OpenAI answer mini-run generated 3 baseline and 3 treatment answers with 0 API judge calls; DONE: Codex preliminary judgment recorded with treatment directionally better and governance violations observed = 0; PENDING: human review of the Codex judge output before full M5 spend; full M5 proof remains explicitly not claimed",
+  "active_milestone": "Milestone Y",
   "allocation_scorecard": {
     "ambiguity": "medium",
     "context_width": "medium",
@@ -17,9 +17,9 @@
   "docs": "ready",
   "external_reasoning": "off",
   "fallback_model": "gpt-5.3-codex",
-  "last_action": "long-running-development",
-  "last_cycle_finished_at": "2026-03-28T15:38:54Z",
-  "last_cycle_started_at": "2026-03-28T15:36:27Z",
+  "last_action": "m5-beta-openai-mini-run-and-codex-prelim-judge-completed",
+  "last_cycle_finished_at": "2026-05-20T00:00:00Z",
+  "last_cycle_started_at": "2026-05-20T00:00:00Z",
   "last_deescalation_rule": "De-escalate once ambiguity collapses and the work reduces to a narrow bounded edit set.",
   "last_escalation_rule": "Escalate one tier if constraints are missed twice, ambiguity grows, or the task proves more coupled than the current frame indicates.",
   "last_exit_code": 0,
@@ -49,7 +49,7 @@
     "skill": "long-running-development",
     "timed_out": false
   },
-  "milestones_remaining": 0,
+  "milestones_remaining": 1,
   "model_allocation": {
     "deescalation_rule": "De-escalate once ambiguity collapses and the work reduces to a narrow bounded edit set.",
     "escalation_rule": "Escalate one tier if constraints are missed twice, ambiguity grows, or the task proves more coupled than the current frame indicates.",
@@ -57,7 +57,7 @@
     "reason": "Coding task is coupled or has already shown lower-tier trouble, so deep coding reasoning is warranted.",
     "selected_model": "gpt-5.1-codex-max"
   },
-  "next_milestone": null,
-  "phase": "complete",
+  "next_milestone": "Human-review the M5-beta Codex preliminary judgment; if accepted as directionally useful, configure full M5 hooks, run full A/B, score manually, and produce final M5 report before claiming answer-quality lift",
+  "phase": "m5_beta_codex_prelim_judge_pending_human_review",
   "tests": "passing"
 }

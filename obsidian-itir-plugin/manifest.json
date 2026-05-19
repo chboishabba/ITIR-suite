@@ -1,0 +1,10 @@
+{
+  "id": "itir-observer",
+  "name": "ITIR Observer",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Read-only Obsidian observer UI for ITIR MCP docstore status and open-question projections.",
+  "author": "ITIR",
+  "authorUrl": "https://github.com/local/itir",
+  "isDesktopOnly": false
+}

@@ -1,5 +1,267 @@
 # Compactified Context
 
+- 2026-05-19 StatiBaker Kanboard governance closeout:
+  - source:
+    - active governance lane in
+      `status.statibaker-kanboard-promotion-governance-manager.json`
+    - stabilization already complete in
+      `status.statibaker-kanboard-stabilization-manager.json`
+    - residual note required reconciling older ~80% manager status artifacts
+  - main decision:
+    - add an executable read-only reconciliation surface instead of manual
+      status inspection, then close stale manager lanes as historical partials
+      superseded by stabilization
+  - landed code/state:
+    - `StatiBaker/sb/query.py`:
+      `kanboard_manager_wave_status(...)`
+    - `StatiBaker/scripts/query_state.py`:
+      `kanboard-manager-wave`
+    - `StatiBaker/tests/test_query_cli.py`:
+      reconciliation query coverage
+    - `StatiBaker/QUERY_SURFACE.md` updated for the new query
+    - reconciled status artifacts:
+      - `status.statibaker-kanboard-idempotency-manager.json`
+      - `status.statibaker-kanboard-live-sync-manager.json`
+      - `status.statibaker-kanboard-report-dashboard-manager.json`
+    - closed governance control-plane state:
+      - `status.statibaker-kanboard-promotion-governance-manager.json`
+      - `heartbeat.statibaker-kanboard-promotion-governance-manager.json`
+  - validation:
+    - `.venv/bin/python -m pytest -q StatiBaker/tests/test_kanboard_runsheet_adapter.py StatiBaker/tests/test_query_cli.py SensibLaw/tests/test_statibaker_kanban.py`
+    - `python StatiBaker/scripts/query_state.py kanboard-manager-wave --status-root /home/c/Documents/code/ITIR-suite`
+      -> `pending_managers=0`, `reconcile_candidates=0`
+  - governance boundary:
+    - Kanboard remains a one-way external projection
+    - local JSON remains canonical authority
+    - no private token values were found in non-test Kanboard status/heartbeat/runs/code surfaces
+- 2026-05-19 StatiBaker Lane 4 sync-report/query surface slice:
+  - source:
+    - active lane brief in `status.statibaker-kanboard-report-dashboard-manager.json`
+      requiring first-class read-only Kanboard sync artifact + query/dashboard
+      surface
+  - main decision:
+    - implement the report schema/persistence/query path first as the concrete
+      next move, while leaving dashboard metric/render integration as the
+      explicit remaining gap
+  - landed code:
+    - `StatiBaker/sb/kanboard_runsheet.py`
+      - added `sb.kanboard_sync_report.v0_1` report contract builder:
+        `build_sync_report(...)`
+    - `StatiBaker/scripts/plan_kanboard_runsheet.py`
+      - added optional `--report-output` report artifact emission
+    - `StatiBaker/sb/query.py`
+      - added read-only report query functions:
+        `kanboard_sync_report(...)`,
+        `latest_kanboard_sync_report(...)`
+    - `StatiBaker/scripts/query_state.py`
+      - added `kanboard-sync-report` query command
+    - tests:
+      - `StatiBaker/tests/test_kanboard_runsheet_adapter.py`
+      - `StatiBaker/tests/test_query_cli.py`
+  - validation:
+    - `.venv/bin/python -m pytest -q StatiBaker/tests/test_kanboard_runsheet_adapter.py StatiBaker/tests/test_query_cli.py`
+  - governance boundary:
+    - local JSON remains canonical
+    - new report/query surfaces are read-only and do not promote Kanboard to
+      authority
+    - dashboard/read-model integration remains pending
+- 2026-05-19 M4/M5 retrieval evaluation tranche boundary:
+  - source:
+    - user-provided tranche definition requiring:
+      `M4 structural retrieval: recorded pass`,
+      `M5-alpha two-call probe: completed`, and
+      `Full M5 evaluation protocol: frozen/ready`
+    - explicit correction that the phase must not claim full M5 is already
+      proven
+  - main decision:
+    - record M4 as a structural retrieval pass only
+    - record M5-alpha as an executable two-call probe only
+    - freeze the full M5 answer-quality evaluation protocol around retrieval
+      context quality, answer grounding, facet coverage, residual honesty,
+      citation quality, unsupported inference, usefulness, latency/cost,
+      repeatability, and governance invariants
+    - require a later full A/B matrix and manual score sheet before any
+      answer-quality lift claim
+  - landed planning/status surfaces:
+    - `docs/planning/m5_answer_quality_evaluation_protocol_20260519.md`
+    - `docs/planning/m5_query_suite_v1.json`
+    - `docs/planning/m5_answer_prompt_template_v1.md`
+    - `scripts/run_m5_eval_protocol.py`
+    - `tests/test_m5_eval_protocol.py`
+    - `plan.md`
+    - `TODO.md`
+    - `CHANGELOG.md`
+    - `devlog.md`
+    - `COMPACTIFIED_CONTEXT.md`
+  - governance boundary:
+    - M4 proved structural retrieval
+    - M5 must prove answer-quality lift
+    - M6 alone can prove promotion authority
+    - no runtime routing, semantic fact emission, promotion authority, or full
+      M5 proof was implemented or claimed
+- 2026-05-19 M4/M5 formal scoring closure:
+  - source:
+    - user-provided request to write down the remaining formal objects before
+      calling the tranche mathematically closed
+  - main decision:
+    - freeze candidate-axis manifolds, typed residual algebra, support
+      projection, admissible basis/search compression, fibre pressure, M4
+      structural pass, and M5/M6 separation as one canonical note
+    - freeze the typed retrieval/support/authority scoring algebra with RFP
+      gate metrics separated from ITIR structural diagnostics
+    - define the PNF machine-judge substrate as claim-level comparison against
+      retrieved source/span/receipt/surface support with residuals preserved
+  - landed planning/status surfaces:
+    - `docs/planning/m4_m5_retrieval_support_scoring_formalism_20260519.md`
+    - `docs/planning/m5_pnf_machine_judge_output_schema_v1.json`
+    - `scripts/run_m5_eval_protocol.py`
+    - `tests/test_m5_eval_protocol.py`
+    - `docs/planning/README.md`
+    - `plan.md`
+    - `TODO.md`
+    - `CHANGELOG.md`
+    - `devlog.md`
+  - governance boundary:
+    - retrieval relevance does not imply support
+    - support does not imply promotion
+    - answer quality does not imply promotion
+    - full M5 proof still requires live repeated A/B runs, scoring, and final
+      report
+- 2026-05-15 Wikidata external-reference alignment for Claire/Superraptor repos:
+  - source:
+    - user request to compare current ITIR/SensibLaw Wikidata capabilities
+      against:
+      `https://github.com/Superraptor/Wikibase-Wikidata-Pipeline`
+      and `https://github.com/Superraptor/wikiodk`
+  - main decision:
+    - treat `Wikibase-Wikidata-Pipeline` as an adjacent transport/edit
+      reference for local Wikibase to Wikidata mapping, missing
+      statement/reference detection, and possible reviewed upload handoff
+    - treat `wikiodk` as a local Wikibase/ODK/TTL sandbox reference, not as
+      the main Wikidata review lane
+    - keep the ITIR/SensibLaw claim distinct: external deltas become bounded
+      review packet inputs; structural/provenance/admissibility checks emit
+      review-only dispositions before any staging/export path is trusted
+  - landed docs:
+    - `docs/planning/wikidata_combined_roadmap_nat_and_assist_20260401.md`
+    - `SensibLaw/docs/planning/wikidata_octf_entrypoint_20260421.md`
+    - `TODO.md`
+    - `COMPACTIFIED_CONTEXT.md`
+  - governance boundary:
+    - docs-only update
+    - no runtime behavior, edit authority, upload path, promotion gate, or
+      external repo integration was implemented
+- 2026-05-05 Wikidata global-latent formalism clarification:
+  - source:
+    - user-provided correction distinguishing the latest ITIR/SensibLaw
+      formalism from the current Wikidata runtime implementation state
+  - main decision:
+    - document that the formalism is broader than bounded local repair
+      comparison: given a snapshot-derived global ontology index, typed
+      carriers, finite residual lattice, and filter-respecting edit stream,
+      aggregate structural incoherence is non-increasing
+    - keep the current runtime claim narrower: today the executable Wikidata
+      surfaces are bounded migration packs, PNF/residual climate review
+      packets, hotspot packs, disjointness reports, and grounding/live-follow
+      review surfaces
+    - frame bounded review packets as local projections of the future global
+      latent coherence field, not as the whole formalism
+    - preserve the governance boundary: the system may certify structural
+      coherence improvement; Wikidata community review still certifies edit
+      desirability
+  - landed docs:
+    - `SensibLaw/docs/wikidata/README.md`
+    - `SensibLaw/docs/planning/wikidata_octf_entrypoint_20260421.md`
+    - `SensibLaw/docs/planning/wikidata_migration_pack_contract_20260328.md`
+  - governance boundary:
+    - docs-only update
+    - no runtime behavior, edit authority, promotion gate, global index, or
+      QID-only repair bot was implemented
+- 2026-05-05 Wikidata Peter orientation Q&A:
+  - source:
+    - Peter Patel-Schneider questions from 2026-05-05 about how recommendations
+      are produced, what windows/schemas/Python programs do, why `sensiblaw`
+      is not found in the download, and how `manifest.json`,
+      `migration_pack.json`, `schemas/sl.wikidata_migration_pack.v1.schema.yaml`,
+      and `src/ontology/wikidata.py` relate
+  - main decision:
+    - document that the migration lane produces bounded row-level review
+      dispositions, not global Wikidata ontology policy or edit authority
+    - explain that `sensiblaw` is an installed console script from
+      `SensibLaw/pyproject.toml`, while the checkout-safe fallback is
+      `../.venv/bin/python -m cli.__main__ wikidata ...`
+    - define windows in the migration-pack context as named bounded snapshots
+      inside `slice.json`, with current-window rows classified and previous
+      windows used for drift comparison
+    - state explicitly that the migration-pack schema and
+      `src/ontology/wikidata.py` are authored repo artifacts, not generated
+  - landed docs:
+    - `SensibLaw/docs/wikidata/README.md`
+    - `SensibLaw/docs/planning/wikidata_migration_pack_contract_20260328.md`
+  - governance boundary:
+    - docs-only update
+    - no runtime behavior, edit authority, promotion gate, or automation claim
+      changed
+- 2026-05-04 Wikidata OCTF audience-routing refresh:
+  - source:
+    - user-provided audit of `wikidata_octf_entrypoint_20260421.md` against
+      Dave, Peter, Ege, and Rosario reader needs
+  - main decision:
+    - add an explicit reader matrix near the top of the OCTF entrypoint and
+      mirror it in the practical Wikidata README
+    - move the worked climate example before the technical PNF/body section
+    - rewrite the progress/PNF wording so the reviewer-facing consequence
+      appears before internal architecture vocabulary
+    - gate CLI commands for technical contributors and add plain-language leads
+      for hotspot and disjointness lanes
+  - landed docs:
+    - `SensibLaw/docs/planning/wikidata_octf_entrypoint_20260421.md`
+    - `SensibLaw/docs/wikidata/README.md`
+  - governance boundary:
+    - docs-only update
+    - no runtime behavior, edit authority, promotion gate, or automation claim
+      changed
+- 2026-05-04 Wikidata practical README + OCTF entrypoint refresh:
+  - source:
+    - user-provided critique of the April 21 Wikidata OCTF entrypoint and the
+      missing README-style start-to-finish path
+  - main decision:
+    - keep the current repo claim narrower than a new Wikidata engine but
+      stronger than no change:
+      candidate findings are non-authoritative, bounded packs/reports are the
+      review surface, and only locally complete checked-safe rows are staged
+    - make the operational states explicit:
+      `candidate-only`, `reviewable`, `held`, `promotable`
+    - lead the entrypoint from the reader problem and one worked climate
+      example before the CLI material
+  - landed docs:
+    - `SensibLaw/docs/wikidata/README.md`
+    - `SensibLaw/docs/planning/wikidata_octf_entrypoint_20260421.md`
+    - `SensibLaw/docs/wikidata_working_group_status.md`
+  - governance boundary:
+    - docs-only update
+    - no runtime behavior, edit authority, promotion gate, or automation claim
+      changed
+- 2026-05-02 Wikidata temporal-PNF constraint contract:
+  - source:
+    - user-provided formalism in current Codex session
+  - main decision:
+    - climate temporal/multi-value checks and mereology/parthood interval
+      checks share one PNF/residual skeleton:
+      `delta = add(P, v, Q)` over bounded item slice `S(I)`
+    - compute `TempFam(P, I)` from existing statements in the bounded slice
+    - route missing temporal qualifiers to `INCOMPLETE_tau` with reason
+      `missing_temporal_qualifier`
+    - route exclusive temporal overlaps to `CONTRADICTION_mu` with reason
+      `temporal_exclusive_overlap`
+  - governance boundary:
+    - this is a docs/planning contract only
+    - no runtime behavior, promotion gate, edit authority, revert, or
+      automation claim changed
+  - landed docs:
+    - `SensibLaw/docs/planning/wikidata_temporal_pnf_constraint_contract_20260502.md`
+    - `SensibLaw/docs/wikidata_working_group_status.md`
+    - `TODO.md`
 - 2026-04-29 Wikidata/OCTF refreshed thread + Lane C decision:
   - refreshed canonical chat:
     - title:

@@ -14,4 +14,11 @@ def test_default_registry_lists_expected_tools() -> None:
         "sensiblaw.obligations_alignment",
         "sensiblaw.obligations_projection",
         "sensiblaw.obligations_activate",
+        "itir.docstore.status",
+        "itir.docstore.open_questions",
+        "itir.obsidian.vault_scan",
+        "itir.docstore.proposal_receipt",
+        "itir.markdown.render_projection",
+        "itir.markdown.write_projection",
+        "itir.docstore.config_plan",
     }
