@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased
+- Added a canonical public PNF / ITIR typed predicate carrier primer in
+  SensibLaw and linked it from the root planning index. The doc explains the
+  implemented carrier fields, residual lattice, current public use sites, and
+  authority boundaries without changing runtime behavior.
 - Closed the StatiBaker Kanboard governance lane with an executable
   reconciliation/read-only query surface for manager-wave status artifacts:
   - added `kanboard_manager_wave_status(...)` in `StatiBaker/sb/query.py`

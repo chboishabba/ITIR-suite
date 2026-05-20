@@ -11,6 +11,15 @@ ITIR-suite orchestration role and boundaries:
 - `docs/planning/workspace_coordination_boundary_20260327.md`
   (when to keep work multi-repo vs create a new top-level project dir)
 
+## PNF / ITIR Typed Predicate Carrier
+
+Canonical public primer:
+- `SensibLaw/docs/pnf_itir_primer.md`
+
+The primer explains Predicate Normal Form as the ITIR typed predicate carrier,
+including implemented carrier fields, residual comparison, current public use
+sites, and authority boundaries.
+
 ## Chat Archive Export
 
 DB-backed export roadmap for canonical chat archive threads, including the
