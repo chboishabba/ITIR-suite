@@ -3,27 +3,6 @@
 ## Last assessed
 - 2026-05-20
 
-## Current M5 execution boundary
-- DONE: M5 protocol, formal scoring algebra, PNF judge schema, and 72-cell A/B
-  score sheet are frozen.
-- DONE: full M5 execution preflight recorded at
-  `runs/m5_ab_preflight_20260519T000000/`.
-- DONE: M5-beta preliminary AI-judge preflight recorded at
-  `runs/m5_beta_preflight_20260520T000000/`.
-- DONE: guarded M5-beta OpenAI answer mini-run recorded at
-  `runs/m5_beta_openai_20260520T000000/` using
-  `scripts/run_m5_beta_openai_adapter.py`.
-- DONE: Codex preliminary judgment recorded at
-  `runs/m5_beta_openai_20260520T000000/m5_beta_codex_prelim_judgment.md`.
-  It used no API judge calls and observed 0 governance violations.
-- PENDING: human review of the M5-beta Codex preliminary judgment before
-  authorizing full M5 spend.
-- BLOCKED: full live M5 A/B execution requires configured commands for:
-  `M5_BASELINE_RETRIEVAL_COMMAND`, `M5_BASELINE_ANSWER_COMMAND`,
-  `M5_TREATMENT_RETRIEVAL_COMMAND`, and `M5_TREATMENT_ANSWER_COMMAND`.
-- PENDING: run live A/B, complete manual scoring, and produce the final M5
-  pass/fail report before claiming answer-quality lift.
-
 ## Submodule TODO snapshot
 - SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
   - Wikidata/OCTF follow-on:
@@ -125,28 +104,6 @@
 
 ## Current P0 control
 - [P0] Business-logic-first suite completion:
-  - DONE M4/M5 retrieval evaluation tranche boundary:
-    - M4 structural retrieval is recorded as a pass, limited to auditable
-      structural retrieval context over candidate axes, spans, receipts,
-      surfaces, and typed residuals
-    - M5-alpha two-call probe is recorded as completed, proving only that the
-      retrieve-then-answer control flow is executable
-    - full M5 evaluation protocol is frozen/ready in
-      `docs/planning/m5_answer_quality_evaluation_protocol_20260519.md`,
-      `docs/planning/m5_query_suite_v1.json`,
-      `docs/planning/m5_answer_prompt_template_v1.md`, and
-      `scripts/run_m5_eval_protocol.py`
-    - M4/M5 formal scoring algebra is frozen/ready in
-      `docs/planning/m4_m5_retrieval_support_scoring_formalism_20260519.md`
-      with the PNF machine-judge output schema in
-      `docs/planning/m5_pnf_machine_judge_output_schema_v1.json`
-    - the RFP gate table is explicitly separated from ITIR structural
-      diagnostics so retrieval/support/residual metrics explain answer quality
-      but do not replace the RFP composite score
-    - PENDING: run the full M5 A/B matrix, manually score it, and produce the
-      final M5 report before claiming answer-quality lift
-    - governance boundary: M4/M5 retrieval or answer quality does not create
-      promotion authority; M6 alone can prove promotion authority
   - DONE control read revision:
     - normalized adapters are now sufficiently real that the next suite
       driver is bounded search and uncertainty collapse over existing

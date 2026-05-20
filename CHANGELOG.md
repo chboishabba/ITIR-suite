@@ -1,17 +1,6 @@
 # Changelog
 
 ## Unreleased
-- Added `scripts/run_m5_beta_openai_adapter.py`, a guarded OpenAI answer
-  runner for the M5-beta lane. It loads a caller-supplied local env file,
-  generated 3 baseline and
-  3 treatment answers with `gpt-4.1-mini`, logged tokens/latency/model, wrote
-  answer/context/judge-packet artifacts under
-  `runs/m5_beta_openai_20260520T000000/`, and made zero API judge calls.
-  Codex preliminary grading is recorded in
-  `runs/m5_beta_openai_20260520T000000/m5_beta_codex_prelim_judgment.md` and
-  `.json`; human review remains required before any full M5 spend decision.
-  No full M5 proof, RFP pass/fail status, routing authority, or promotion
-  authority is claimed.
 - Closed the StatiBaker Kanboard governance lane with an executable
   reconciliation/read-only query surface for manager-wave status artifacts:
   - added `kanboard_manager_wave_status(...)` in `StatiBaker/sb/query.py`
@@ -21,43 +10,6 @@
   Governance closeout now explicitly marks stale manager residuals as
   historical lanes superseded by stabilization while keeping local JSON as the
   canonical authority.
-- Added a fail-closed M5-beta preliminary AI-judge preflight in
-  `scripts/run_m5_beta_preflight.py` with regression coverage in
-  `tests/test_m5_beta_preflight.py`. The beta lane materializes a 3-query,
-  6-answer, 3-judge-pair matrix and human review score sheet, then blocks
-  unless explicit beta baseline/treatment retrieval, answer, and PNF
-  machine-judge commands are configured. Recorded the current blocked beta
-  boundary at `runs/m5_beta_preflight_20260520T000000/`; beta remains
-  preliminary and does not claim full M5 proof, RFP pass/fail status, routing
-  authority, or promotion authority.
-- Added a fail-closed full M5 A/B execution preflight in
-  `scripts/run_m5_ab_preflight.py` with regression coverage in
-  `tests/test_m5_ab_preflight.py`. The preflight materializes the frozen
-  72-cell run matrix and manual score sheet, then blocks unless explicit live
-  baseline/treatment retrieval and answer commands are configured. Recorded the
-  current blocked execution boundary at
-  `runs/m5_ab_preflight_20260519T000000/`; no full M5 proof, answer-quality
-  lift, routing authority, or promotion authority is claimed.
-- Froze the M4/M5 retrieval-support scoring formalism and PNF machine-judge
-  output schema. Added
-  `docs/planning/m4_m5_retrieval_support_scoring_formalism_20260519.md` and
-  `docs/planning/m5_pnf_machine_judge_output_schema_v1.json`, and extended
-  `scripts/run_m5_eval_protocol.py` plus `tests/test_m5_eval_protocol.py` so
-  generated M5 score sheets separate the RFP gate metrics from claim-level PNF
-  judging fields and ITIR structural diagnostics. Governance boundary remains
-  unchanged: retrieval relevance, support, and answer quality do not imply
-  truth, routing, or promotion authority.
-- Froze the M5 answer-quality evaluation protocol and recorded the tranche
-  boundary: M4 structural retrieval is a recorded pass, M5-alpha two-call probe
-  is completed, and the full M5 protocol is ready but not yet proven. Added
-  `docs/planning/m5_answer_quality_evaluation_protocol_20260519.md`,
-  `docs/planning/m5_query_suite_v1.json`,
-  `docs/planning/m5_answer_prompt_template_v1.md`,
-  `scripts/run_m5_eval_protocol.py`, and `tests/test_m5_eval_protocol.py`.
-  The runner validates the frozen query matrix and emits JSON/CSV manual
-  scoring skeletons without live model calls by default. Governance boundary:
-  no runtime promotion authority, routing authority, semantic fact emission, or
-  full M5 answer-quality lift claim changed.
 - Added `scripts/export_chat_archive_thread.py`, a DB-backed chat archive
   exporter that writes deterministic Markdown/JSON/printable-HTML thread
   exports plus an optional checksum manifest bundle. This gives Perplexity
