@@ -1,0 +1,44 @@
+{
+  "defaults": {
+    "timeout_seconds": 3600,
+    "heartbeat_seconds": 30,
+    "max_log_lines": 2400,
+    "once": true
+  },
+  "runners": {
+    "itir-statibaker-supermanager": {
+      "lane": "statibaker-kanboard-root",
+      "claim": "Supermanager monitor for StatiBaker local runsheet plus Kanboard projection roadmap; no direct file ownership beyond orchestration state."
+    },
+    "statibaker-bridge-contract-manager": {
+      "parent": "itir-statibaker-supermanager",
+      "lane": "statibaker-runsheet-bridge-contract",
+      "claim": "Manager: harden the canonical local runsheet bridge contract and fixture expectations; may spawn up to six leaf workers."
+    },
+    "statibaker-kanboard-adapter-manager": {
+      "parent": "itir-statibaker-supermanager",
+      "lane": "statibaker-kanboard-jsonrpc-adapter",
+      "claim": "Manager: implement the first Kanboard JSON-RPC dry-run/adapter surface under StatiBaker; may spawn up to six leaf workers."
+    },
+    "statibaker-kanboard-local-manager": {
+      "parent": "itir-statibaker-supermanager",
+      "lane": "statibaker-system-kanboard-discovery",
+      "claim": "Manager: discover the locally installed system Kanboard configuration safely and document/apply only non-secret integration assumptions; may spawn up to six leaf workers."
+    },
+    "statibaker-sensiblaw-extraction-manager": {
+      "parent": "itir-statibaker-supermanager",
+      "lane": "sensiblaw-statibaker-task-extraction",
+      "claim": "Manager: align SensibLaw StatiBaker task extraction/timeline probes with the local runsheet bridge shape; may spawn up to six leaf workers."
+    },
+    "statibaker-runsheet-dashboard-manager": {
+      "parent": "itir-statibaker-supermanager",
+      "lane": "statibaker-runsheet-dashboard",
+      "claim": "Manager: surface runsheet/progress state in StatiBaker local dashboard/query views without making Kanboard canonical; may spawn up to six leaf workers."
+    },
+    "statibaker-verification-governance-manager": {
+      "parent": "itir-statibaker-supermanager",
+      "lane": "statibaker-kanboard-verification-governance",
+      "claim": "Manager: enforce docs/TODO/changelog/test governance, authority boundaries, and promotion gates for the Kanboard roadmap; may spawn up to six leaf workers."
+    }
+  }
+}

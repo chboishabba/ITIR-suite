@@ -1,6 +1,14 @@
 # Changelog
 
 ## Unreleased
+- Added the chat artifact resolver/index lane for Perplexity-backed archive
+  exports. The suite now documents the June 3 Perplexity refresh decision,
+  keeps binary assets outside `/home/c/chat_archive.sqlite`, indexes artifact
+  refs/hashes in `chat-export-structurer.thread_artifacts`, and teaches
+  `scripts/export_chat_archive_thread.py` to render DB-backed artifact links in
+  JSON/Markdown/HTML exports with source-JSON fallback for older archives.
+  StatiBaker/console output remains a bounded artifact/provenance lane rather
+  than raw canonical message text.
 - Added a canonical public PNF / ITIR typed predicate carrier primer in
   SensibLaw and linked it from the root planning index. The doc explains the
   implemented carrier fields, residual lattice, current public use sites, and

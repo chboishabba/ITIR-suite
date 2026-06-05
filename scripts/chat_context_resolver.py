@@ -10,6 +10,7 @@ import re
 import sqlite3
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -28,6 +29,7 @@ from chat_context_resolver_lib.cli import build_parser as _build_parser
 from chat_context_resolver_lib.db_lookup import (
     DbMatch,
     connect_sqlite_ro as _connect_sqlite_ro,
+    fts_query as _fts_query,
     looks_like_canonical_thread_id as _looks_like_canonical_thread_id,
     looks_like_online_thread_id as _looks_like_online_thread_id,
     query_db_fts_candidates as _query_db_fts_candidates,
@@ -52,6 +54,52 @@ from chat_context_resolver_lib.transcript import (
     latest_turn_datetime,
     truncate_text,
 )
+
+
+class _ProgressReporter:
+    def __init__(self, enabled: bool, *, interval: float = 2.0) -> None:
+        self.enabled = enabled
+        self.interval = max(0.0, interval)
+        self.started = time.monotonic()
+        self._last_by_stage: dict[str, float] = {}
+
+    def emit(
+        self,
+        stage: str,
+        *,
+        done: int | None = None,
+        total: int | None = None,
+        message: str | None = None,
+        force: bool = False,
+        **extra: object,
+    ) -> None:
+        if not self.enabled:
+            return
+        now = time.monotonic()
+        if not force:
+            last = self._last_by_stage.get(stage)
+            if last is not None and now - last < self.interval:
+                return
+        self._last_by_stage[stage] = now
+        elapsed = now - self.started
+        payload: dict[str, object] = {
+            "type": "progress",
+            "stage": stage,
+            "elapsed_s": round(elapsed, 3),
+        }
+        if done is not None:
+            payload["done"] = done
+        if total is not None:
+            payload["total"] = total
+        if done is not None and done > 0:
+            rate = done / elapsed if elapsed > 0 else 0.0
+            payload["rate_per_s"] = round(rate, 3)
+            if total is not None and total >= done and rate > 0:
+                payload["eta_s"] = round((total - done) / rate, 3)
+        if message:
+            payload["message"] = message
+        payload.update(extra)
+        print(json.dumps(payload, sort_keys=True), file=sys.stderr, flush=True)
 
 
 def _parse_datetime(value: str) -> dt.datetime:
@@ -170,6 +218,24 @@ def _query_thread_messages(
     return [dict(row) for row in rows]
 
 
+def _query_thread_messages_with_cursor(
+    cur: sqlite3.Cursor,
+    thread_id: str,
+) -> list[dict]:
+    cur.execute(
+        """
+        SELECT message_id, ts, role, text
+        FROM messages
+        WHERE LOWER(canonical_thread_id) = LOWER(?)
+          AND text IS NOT NULL
+          AND TRIM(text) <> ''
+        ORDER BY ts ASC, rowid ASC
+        """,
+        (thread_id,),
+    )
+    return [dict(row) for row in cur.fetchall()]
+
+
 def _thread_analysis_payload(
     db_path: Path,
     thread_id: str,
@@ -232,6 +298,207 @@ def _thread_analysis_payload(
     return payload
 
 
+def _fts_tables_ready(cur: sqlite3.Cursor) -> bool:
+    cur.execute(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'messages_fts'"
+    )
+    if cur.fetchone() is None:
+        return False
+    cur.execute(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'messages_fts_docids'"
+    )
+    return cur.fetchone() is not None
+
+
+def _exact_line_stats(text: str, pattern: re.Pattern[str]) -> tuple[int, int, list[tuple[int, re.Match[str], str]]]:
+    raw_count = 0
+    line_hits = 0
+    first_matches: list[tuple[int, re.Match[str], str]] = []
+    for line_no, line_text in enumerate(text.splitlines() or [text], start=1):
+        matches = list(pattern.finditer(line_text))
+        if not matches:
+            continue
+        raw_count += len(matches)
+        line_hits += 1
+        for match in matches[: max(0, 3 - len(first_matches))]:
+            first_matches.append((line_no, match, line_text))
+    return raw_count, line_hits, first_matches
+
+
+def _cross_thread_analysis_payload_fts(
+    db_path: Path,
+    selector: str,
+    *,
+    terms: list[str],
+    case_sensitive: bool,
+    limit: int,
+    max_text_chars: int,
+    progress: _ProgressReporter,
+) -> dict | None:
+    query_terms = terms or [selector]
+    query_seed = " ".join(query_terms)
+    fts = _fts_query(query_seed)
+    if not fts:
+        return None
+
+    patterns = [
+        (term, re.compile(re.escape(term), 0 if case_sensitive else re.IGNORECASE))
+        for term in query_terms
+    ]
+    con = _connect_sqlite_ro(db_path)
+    cur = con.cursor()
+    if not _fts_tables_ready(cur):
+        con.close()
+        return None
+
+    progress.emit("fts_candidate_scan", message="running FTS hit scan", force=True)
+    started = time.monotonic()
+    rows = cur.execute(
+        """
+        SELECT
+            m.canonical_thread_id AS canonical_thread_id,
+            COALESCE(NULLIF(m.title, ''), '(no title)') AS title,
+            m.ts AS ts,
+            m.role AS role,
+            m.text AS text,
+            m.message_id AS message_id
+        FROM messages_fts
+        JOIN messages_fts_docids d ON d.rowid = messages_fts.rowid
+        JOIN messages m ON m.message_id = d.message_id
+        WHERE messages_fts MATCH ?
+          AND m.text IS NOT NULL
+          AND TRIM(m.text) <> ''
+        ORDER BY m.ts ASC, m.rowid ASC
+        """,
+        (fts,),
+    ).fetchall()
+    progress.emit(
+        "fts_candidate_scan",
+        done=len(rows),
+        message="FTS hit rows loaded",
+        fts_query=fts,
+        force=True,
+    )
+
+    by_thread: dict[tuple[str, str], dict] = {}
+    processed = 0
+    for row in rows:
+        processed += 1
+        text = str(row["text"] or "")
+        term_stats = []
+        raw_total = 0
+        line_total = 0
+        message_hit_terms = 0
+        first_matches: list[dict] = []
+        for term, pattern in patterns:
+            raw_count, line_hits, matches = _exact_line_stats(text, pattern)
+            if raw_count <= 0:
+                continue
+            raw_total += raw_count
+            line_total += line_hits
+            message_hit_terms += 1
+            term_stats.append((term, raw_count, line_hits))
+            for line_no, match, line_text in matches:
+                first_matches.append(
+                    {
+                        "term": term,
+                        "thread_line_start": None,
+                        "thread_line_end": None,
+                        "message_index": None,
+                        "message_id": row["message_id"],
+                        "message_line_start": line_no,
+                        "message_line_end": line_no,
+                        "role": row["role"],
+                        "ts": row["ts"],
+                        "ts_utc": _iso_utc_precise(_parse_message_ts(row["ts"])),
+                        "matched_text": match.group(0),
+                        "line_text": truncate_text(line_text, max_text_chars),
+                    }
+                )
+        if raw_total <= 0:
+            progress.emit("hit_aggregation", done=processed, total=len(rows))
+            continue
+
+        key = (str(row["canonical_thread_id"]), str(row["title"]))
+        item = by_thread.get(key)
+        if item is None:
+            item = {
+                "canonical_thread_id": row["canonical_thread_id"],
+                "title": row["title"],
+                "latest_ts": row["ts"],
+                "hit_message_count": 0,
+                "message_count": 0,
+                "stitched_line_count": 0,
+                "character_count": 0,
+                "raw_count": 0,
+                "line_hit_count": 0,
+                "message_hit_count": 0,
+                "term_counts": {term: {"raw_count": 0, "line_hit_count": 0, "message_hit_count": 0} for term in query_terms},
+                "first_hits": [],
+            }
+            by_thread[key] = item
+        item["latest_ts"] = max(str(item["latest_ts"] or ""), str(row["ts"] or ""))
+        item["hit_message_count"] += 1
+        item["message_count"] += 1
+        item["stitched_line_count"] += len(text.splitlines() or [text])
+        item["character_count"] += len(text)
+        item["raw_count"] += raw_total
+        item["line_hit_count"] += line_total
+        item["message_hit_count"] += 1 if message_hit_terms else 0
+        for term, raw_count, line_hits in term_stats:
+            stats = item["term_counts"][term]
+            stats["raw_count"] += raw_count
+            stats["line_hit_count"] += line_hits
+            stats["message_hit_count"] += 1
+        if len(item["first_hits"]) < 3:
+            item["first_hits"].extend(first_matches[: 3 - len(item["first_hits"])])
+        progress.emit("hit_aggregation", done=processed, total=len(rows))
+
+    con.close()
+    progress.emit(
+        "hit_aggregation",
+        done=processed,
+        total=len(rows),
+        message="FTS hit aggregation complete",
+        force=True,
+    )
+    results = []
+    for item in by_thread.values():
+        chars = int(item.pop("character_count"))
+        lines = int(item["stitched_line_count"])
+        raw = int(item["raw_count"])
+        item["density_per_100_lines"] = round((raw / lines) * 100, 3) if lines else 0.0
+        item["density_per_1000_chars"] = round((raw / chars) * 1000, 3) if chars else 0.0
+        item["term_stats"] = [
+            {"term": term, **stats}
+            for term, stats in item.pop("term_counts").items()
+            if int(stats["raw_count"]) > 0
+        ]
+        results.append(item)
+    results.sort(
+        key=lambda row: (
+            -int(row["raw_count"]),
+            -int(row["line_hit_count"]),
+            -float(row["density_per_100_lines"]),
+            str(row["latest_ts"]),
+        )
+    )
+    elapsed = time.monotonic() - started
+    return {
+        "analysis_scope": "cross_thread",
+        "mode": "fts_hit_aggregation",
+        "query_terms": query_terms,
+        "results": results[:limit],
+        "best_match": results[0] if results else None,
+        "performance": {
+            "fts_query": fts,
+            "fts_hit_rows": len(rows),
+            "ranked_thread_count": len(results),
+            "elapsed_s": round(elapsed, 3),
+        },
+    }
+
+
 def _cross_thread_analysis_payload(
     db_path: Path,
     selector: str,
@@ -241,7 +508,22 @@ def _cross_thread_analysis_payload(
     case_sensitive: bool,
     limit: int,
     max_text_chars: int,
+    progress: _ProgressReporter | None = None,
 ) -> dict:
+    progress = progress or _ProgressReporter(False)
+    if not regex:
+        fast_payload = _cross_thread_analysis_payload_fts(
+            db_path,
+            selector,
+            terms=terms,
+            case_sensitive=case_sensitive,
+            limit=limit,
+            max_text_chars=max_text_chars,
+            progress=progress,
+        )
+        if fast_payload is not None:
+            return fast_payload
+
     con = _connect_sqlite_ro(db_path)
     cur = con.cursor()
     query_seed = " ".join(terms) if terms else selector
@@ -272,13 +554,18 @@ def _cross_thread_analysis_payload(
     if not candidates:
         return {
             "analysis_scope": "cross_thread",
+            "mode": "thread_scan_fallback",
             "query_terms": terms,
             "results": [],
         }
     results: list[dict] = []
-    for candidate in candidates:
+    total = len(candidates)
+    con = _connect_sqlite_ro(db_path)
+    cur = con.cursor()
+    for idx, candidate in enumerate(candidates, start=1):
+        progress.emit("fallback_thread_scan", done=idx - 1, total=total)
         transcript = _build_stitched_transcript(
-            _query_thread_messages(db_path, str(candidate["canonical_thread_id"])),
+            _query_thread_messages_with_cursor(cur, str(candidate["canonical_thread_id"])),
             max_text_chars=max_text_chars,
         )
         if not transcript:
@@ -312,6 +599,8 @@ def _cross_thread_analysis_payload(
                 "first_hits": analysis["mentions"][:3],
             }
         )
+        progress.emit("fallback_thread_scan", done=idx, total=total)
+    con.close()
     results.sort(
         key=lambda row: (
             -int(row["raw_count"]),
@@ -322,6 +611,7 @@ def _cross_thread_analysis_payload(
     )
     return {
         "analysis_scope": "cross_thread",
+        "mode": "thread_scan_fallback",
         "query_terms": terms or [selector],
         "results": results[:limit],
         "best_match": results[0] if results else None,
@@ -701,6 +991,11 @@ def _run_mca_retrieval(
 def main() -> int:
     parser = _build_parser()
     args = parser.parse_args()
+    progress = _ProgressReporter(
+        bool(getattr(args, "progress", False)),
+        interval=float(getattr(args, "progress_interval", 2.0)),
+    )
+    progress.emit("start", message="resolver started", force=True)
 
     repo_root = Path(__file__).resolve().parents[1]
     db_path = Path(args.db).expanduser()
@@ -795,13 +1090,18 @@ def main() -> int:
     if not db_path.exists():
         extra = f"DB path does not exist: {db_path}"
         db_error = f"{db_error}; {extra}" if db_error else extra
+    elif args.cross_thread:
+        reason = "cross_thread_analysis"
+        progress.emit("db_open", message="single-thread DB lookup skipped for cross-thread analysis", force=True)
     else:
         try:
+            progress.emit("db_open", message="running DB match lookup", force=True)
             db_match = _query_db_match(
                 db_path,
                 selector_for_db,
                 allow_canonical_match=allow_canonical,
             )
+            progress.emit("db_open", message="DB match lookup complete", force=True)
         except sqlite3.Error as exc:
             extra = f"DB lookup failed: {exc}"
             db_error = f"{db_error}; {extra}" if db_error else extra
@@ -840,7 +1140,10 @@ def main() -> int:
     needs_web = False
     reason = ""
     if db_match is None:
-        if db_candidates:
+        if args.cross_thread:
+            needs_web = False
+            reason = "cross_thread_analysis"
+        elif db_candidates:
             needs_web = False
             reason = "db_fts_candidates"
         else:
@@ -908,6 +1211,7 @@ def main() -> int:
                     db_error = f"{db_error}; {extra}" if db_error else extra
 
     if mca_mode is not None and needs_web and db_match is None and not db_candidates:
+        progress.emit("mca_retrieval", message=f"running MyChatArchive {mca_mode} retrieval", force=True)
         mca_result = _run_mca_retrieval(
             mode=mca_mode,
             selector=selector_for_db,
@@ -919,6 +1223,7 @@ def main() -> int:
             timeout=args.web_timeout,
             max_text_chars=args.max_text_chars,
         )
+        progress.emit("mca_retrieval", message=f"MyChatArchive {mca_mode} retrieval complete", force=True)
         payload = {
             "source": "mca",
             "decision_reason": "mca_candidates_requested_before_web_fallback",
@@ -944,10 +1249,12 @@ def main() -> int:
             case_sensitive=args.case_sensitive,
             limit=max(1, args.limit),
             max_text_chars=args.max_text_chars,
+            progress=progress,
         )
         if db_error:
             payload["db_warning"] = db_error
         if mca_mode is not None:
+            progress.emit("mca_retrieval", message=f"running MyChatArchive {mca_mode} retrieval", force=True)
             mca_result = _run_mca_retrieval(
                 mode=mca_mode,
                 selector=selector_for_db,
@@ -959,10 +1266,13 @@ def main() -> int:
                 timeout=args.web_timeout,
                 max_text_chars=args.max_text_chars,
             )
+            progress.emit("mca_retrieval", message=f"MyChatArchive {mca_mode} retrieval complete", force=True)
             payload["mca_retrieval"] = mca_result
             if not mca_result.get("ok"):
+                progress.emit("emit", message="emitting resolver payload", force=True)
                 _print_result(payload, args.json)
                 return 2
+        progress.emit("emit", message="emitting resolver payload", force=True)
         _print_result(payload, args.json)
         return 0
 
@@ -1209,6 +1519,7 @@ def main() -> int:
     if db_error:
         payload["db_warning"] = db_error
     if mca_mode is not None:
+        progress.emit("mca_retrieval", message=f"running MyChatArchive {mca_mode} retrieval", force=True)
         mca_result = _run_mca_retrieval(
             mode=mca_mode,
             selector=selector_for_db,
@@ -1220,8 +1531,10 @@ def main() -> int:
             timeout=args.web_timeout,
             max_text_chars=args.max_text_chars,
         )
+        progress.emit("mca_retrieval", message=f"MyChatArchive {mca_mode} retrieval complete", force=True)
         payload["mca_retrieval"] = mca_result
         if not mca_result.get("ok"):
+            progress.emit("emit", message="emitting resolver payload", force=True)
             _print_result(payload, args.json)
             return 2
     if analysis_requested:
@@ -1250,6 +1563,7 @@ def main() -> int:
             top_terms_limit=max(0, args.top_terms),
             max_text_chars=args.max_text_chars,
         )
+    progress.emit("emit", message="emitting resolver payload", force=True)
     _print_result(payload, args.json)
     return 0
 

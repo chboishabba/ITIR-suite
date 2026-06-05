@@ -13,6 +13,8 @@ Current scope:
 - bounded ITIR-native observation comparison tools for cross-project sensing lanes
 - docstore-wide status, open-question, Obsidian observer, proposal-receipt,
   Markdown projection, and bounded config-plan tools
+- read-only PNF task/context projection tools over SensibLaw/StatiBaker
+  producer schemas
 - optional FastMCP transport when the Python MCP SDK is available
 - persistent JSON bridge protocol for `dioxus` via `python -m itir_mcp --bridge`
 
@@ -35,6 +37,9 @@ Not in scope for the first increment:
 - `itir.docstore.open_questions`
 - `itir.obsidian.vault_scan`
 - `itir.docstore.proposal_receipt`
+- `itir.pnf.context_index`
+- `itir.pnf.task_memory_preview`
+- `itir.pnf.observer_evidence`
 - `itir.markdown.render_projection`
 - `itir.markdown.write_projection`
 - `itir.docstore.config_plan`

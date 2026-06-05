@@ -1,0 +1,9 @@
+{
+  "heartbeat_file": "heartbeat.statibaker-kanboard-stabilization-manager.json",
+  "lane": "statibaker-kanboard-coupled-stabilization",
+  "lane_claim": "Coupled stabilization manager: close live apply validation, column-map/report/query gaps, apply-dependent idempotency tests, and pending dashboard surface. Do not spawn workers because the residuals share write surfaces and are sequential.",
+  "orchestrator_id": "statibaker-kanboard-stabilization-manager",
+  "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+  "status_file": "status.statibaker-kanboard-stabilization-manager.json",
+  "timestamp": "2026-05-19T14:31:41Z"
+}

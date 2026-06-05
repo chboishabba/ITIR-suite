@@ -1,0 +1,12 @@
+{
+  "agent_name": "docs-implement",
+  "blocker": null,
+  "child_pid": 1638078,
+  "current_step": "- Residual gap: live sync/apply path and failure-handling/report artifacts for real Kanboard calls.",
+  "exit_code": 0,
+  "last_heartbeat": "2026-05-19T13:03:00Z",
+  "phase": "done",
+  "progress": null,
+  "skill": "long-running-development",
+  "state": 0
+}

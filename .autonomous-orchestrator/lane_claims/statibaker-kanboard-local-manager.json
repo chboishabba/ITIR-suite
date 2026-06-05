@@ -1,0 +1,9 @@
+{
+  "heartbeat_file": "heartbeat.statibaker-kanboard-local-manager.json",
+  "lane": "statibaker-system-kanboard-discovery",
+  "lane_claim": "Manager: discover the locally installed system Kanboard configuration safely and document/apply only non-secret integration assumptions; may spawn up to six leaf workers.",
+  "orchestrator_id": "statibaker-kanboard-local-manager",
+  "parent_orchestrator_id": "itir-statibaker-supermanager",
+  "status_file": "status.statibaker-kanboard-local-manager.json",
+  "timestamp": "2026-05-19T12:57:09Z"
+}

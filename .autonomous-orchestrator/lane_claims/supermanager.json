@@ -1,0 +1,9 @@
+{
+  "heartbeat_file": "heartbeat.supermanager.json",
+  "lane": "default",
+  "lane_claim": "root coordination",
+  "orchestrator_id": "supermanager",
+  "parent_orchestrator_id": null,
+  "status_file": "status.supermanager.json",
+  "timestamp": "2026-05-19T12:59:39Z"
+}

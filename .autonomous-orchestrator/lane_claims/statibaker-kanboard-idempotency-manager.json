@@ -1,0 +1,9 @@
+{
+  "heartbeat_file": "heartbeat.statibaker-kanboard-idempotency-manager.json",
+  "lane": "statibaker-kanboard-idempotency-failure",
+  "lane_claim": "Manager lane 3: prove repeated syncs are stable and local state is not corrupted by Kanboard failures. Workers are optional only for independent sidecars with disjoint write sets.",
+  "orchestrator_id": "statibaker-kanboard-idempotency-manager",
+  "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+  "status_file": "status.statibaker-kanboard-idempotency-manager.json",
+  "timestamp": "2026-05-19T14:17:07Z"
+}

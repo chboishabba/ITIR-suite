@@ -1,5 +1,36 @@
 # Compactified Context
 
+- 2026-06-03 Perplexity/ChatGPT chat artifact resolver lane:
+  - source:
+    - Perplexity thread title:
+      `check/confirm the formalism... (attached)`
+    - online UUID:
+      `6b8e55b6-ace3-4380-b7b9-9665c7ce142b`
+    - canonical thread ID:
+      `beb01b1e573989aaa177bac5c3d8d87c7427cc60`
+    - source used:
+      `db` first, then live Perplexity export after the DB copy proved stale
+  - main findings:
+    - stale archive had 148 messages ending `2026-05-21T06:33:45Z`
+    - refreshed Perplexity export ingested 576 messages with latest message
+      `2026-06-02T17:32:42Z`
+    - generated-image/media markers were visible in raw Perplexity blocks, but
+      the original text-only ingest did not materialize binaries
+  - main decision:
+    - keep text messages canonical in `/home/c/chat_archive.sqlite`
+    - store downloaded binaries near the DB under
+      `/home/c/chat_archive_artifacts/<platform>/<source_thread_id>/`
+    - add DB artifact references/hashes so pretty exports can hyperlink local
+      assets without embedding binary blobs in `messages.text`
+    - keep StatiBaker/console logs as bounded artifacts or refs; do not roll raw
+      console streams into canonical chat message text
+  - immediate implementation lane:
+    - Perplexity exporter emits top-level `artifacts`
+    - chat archive ingest indexes those artifacts in a separate table
+    - `--artifacts-only` is the operational path for attaching new assets to an
+      already-ingested thread without replaying message upserts
+    - pretty thread exports prefer DB artifact refs and fall back to source JSON
+    - ChatGPT file/image placeholders remain the next resolver parity target
 - 2026-05-19 StatiBaker Kanboard governance closeout:
   - source:
     - active governance lane in

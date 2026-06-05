@@ -1,0 +1,107 @@
+{
+  "active_checklist": "Close Kanboard integration governance after active manager wave plus stabilization. Own docs/changelog/query-surface updates, status reconciliation, focused final tests, secret scan, and promotion report. Avoid implementation churn unless a governance check exposes a narrow defect.",
+  "allocation_scorecard": {
+    "ambiguity": "medium",
+    "context_width": "medium",
+    "coupling_risk": "high",
+    "failure_cost": "high",
+    "latency_pressure": "low",
+    "lower_tier_failures": "0",
+    "reversibility": "medium"
+  },
+  "architecture": "complete",
+  "audit": "complete",
+  "child_heartbeat": {
+    "agent_name": "wave-regime",
+    "blocker": null,
+    "child_pid": 1861649,
+    "current_step": "- Remaining gap is operational ownership conflict on `heartbeat.statibaker-kanboard-promotion-governance-manager.json` (external runner writes over manual cl...",
+    "exit_code": 0,
+    "last_heartbeat": "2026-05-19T14:45:30Z",
+    "phase": "done",
+    "progress": null,
+    "skill": "long-running-development",
+    "state": 0
+  },
+  "context": "ready",
+  "current_agent": null,
+  "docs": "ready",
+  "external_reasoning": "off",
+  "fallback_model": "gpt-5.3-codex",
+  "lane": "statibaker-kanboard-final-governance-promotion",
+  "lane_claim": "Final governance manager: reconcile manager statuses after stabilization, update docs/changelog/query surface if needed, run final tests/secret checks, and produce promotion state. Workers are not needed unless a read-only sidecar can run independently.",
+  "last_action": "long-running-development",
+  "last_cycle_finished_at": "2026-05-19T14:45:30Z",
+  "last_cycle_started_at": "2026-05-19T14:37:39Z",
+  "last_deescalation_rule": "De-escalate once ambiguity collapses and the work reduces to a narrow bounded edit set.",
+  "last_escalation_rule": "Escalate one tier if constraints are missed twice, ambiguity grows, or the task proves more coupled than the current frame indicates.",
+  "last_exit_code": 0,
+  "last_selected_model": "gpt-5.1-codex-max",
+  "last_task_stats": {
+    "agent_name": "wave-regime",
+    "allocation_scorecard": {
+      "ambiguity": "medium",
+      "context_width": "medium",
+      "coupling_risk": "high",
+      "failure_cost": "high",
+      "latency_pressure": "low",
+      "lower_tier_failures": "0",
+      "reversibility": "medium"
+    },
+    "dry_run": false,
+    "elapsed_seconds": 470.56,
+    "exit_code": 0,
+    "model_allocation": {
+      "deescalation_rule": "De-escalate once ambiguity collapses and the work reduces to a narrow bounded edit set.",
+      "escalation_rule": "Escalate one tier if constraints are missed twice, ambiguity grows, or the task proves more coupled than the current frame indicates.",
+      "fallback_model": "gpt-5.3-codex",
+      "reason": "Coding task is coupled or has already shown lower-tier trouble, so deep coding reasoning is warranted.",
+      "selected_model": "gpt-5.1-codex-max"
+    },
+    "output_lines": 10862,
+    "skill": "long-running-development",
+    "timed_out": false
+  },
+  "milestones_remaining": 0,
+  "model_allocation": {
+    "deescalation_rule": "De-escalate once ambiguity collapses and the work reduces to a narrow bounded edit set.",
+    "escalation_rule": "Escalate one tier if constraints are missed twice, ambiguity grows, or the task proves more coupled than the current frame indicates.",
+    "fallback_model": "gpt-5.3-codex",
+    "reason": "Coding task is coupled or has already shown lower-tier trouble, so deep coding reasoning is warranted.",
+    "selected_model": "gpt-5.1-codex-max"
+  },
+  "notes": "Governance closeout complete on 2026-05-19: added Kanboard manager-wave reconciliation query surface, validated focused tests, scanned for secret/token leakage patterns, and reconciled three stale manager lanes as historical partials superseded by stabilization. Kanboard remains one-way external projection; local JSON remains canonical.",
+  "orchestrator_id": "statibaker-kanboard-promotion-governance-manager",
+  "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+  "phase": "complete",
+  "runsheet": {
+    "items": [
+      {
+        "id": "status-reconciliation",
+        "status": "done",
+        "title": "Reconcile manager/stabilization statuses and residual gaps"
+      },
+      {
+        "id": "docs-changelog",
+        "status": "done",
+        "title": "Update roadmap, docs index, QUERY_SURFACE, and CHANGELOG where needed"
+      },
+      {
+        "id": "secret-scan",
+        "status": "done",
+        "title": "Verify no private Kanboard token or secret is committed/emitted"
+      },
+      {
+        "id": "final-tests",
+        "status": "done",
+        "title": "Run focused StatiBaker and SensibLaw Kanboard bridge test gates"
+      },
+      {
+        "id": "promotion-report",
+        "status": "done",
+        "title": "Produce final promotion state with residual risks and ZKP summary"
+      }
+    ]
+  },
+  "tests": "passing"
+}

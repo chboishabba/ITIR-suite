@@ -53,6 +53,9 @@ def test_bridge_protocol_smoke() -> None:
         assert "itir.compare_observations" in tool_names
         assert "itir.docstore.open_questions" in tool_names
         assert "itir.docstore.proposal_receipt" in tool_names
+        assert "itir.pnf.context_index" in tool_names
+        assert "itir.pnf.task_memory_preview" in tool_names
+        assert "itir.pnf.observer_evidence" in tool_names
         assert "itir.markdown.render_projection" in tool_names
 
         payload = {
@@ -95,6 +98,26 @@ def test_bridge_protocol_smoke() -> None:
         compared = _read_json_line(process.stdout)
         assert compared["ok"] is True
         assert compared["result"]["version"] == "itir.compare_observations.v1"
+
+        pnf_payload = {
+            "op": "call",
+            "name": "itir.pnf.observer_evidence",
+            "payload": {
+                "openrecall_activity_rows": [
+                    {
+                        "source_ref": "openrecall.entry:7",
+                        "signal": "openrecall_activity",
+                        "ocr_preview": "Kent MoveWare transition screen",
+                    }
+                ]
+            },
+        }
+        process.stdin.write(json.dumps(pnf_payload) + "\n")
+        process.stdin.flush()
+        pnf_called = _read_json_line(process.stdout)
+        assert pnf_called["ok"] is True
+        assert pnf_called["result"]["version"] == "itir.pnf.observer_evidence.v1"
+        assert pnf_called["result"]["authority_boundary"]["observer_evidence_does_not_create_tasks"] is True
 
         safe_compare_payload = {
             "op": "safe_call",

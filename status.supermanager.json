@@ -1,0 +1,28 @@
+{
+  "architecture": "missing",
+  "audit": "unknown",
+  "child_heartbeat": {
+    "agent_name": "context-fetch",
+    "blocker": null,
+    "child_pid": 1650648,
+    "current_step": "starting robust-context-fetch",
+    "exit_code": null,
+    "last_heartbeat": "2026-05-19T12:59:39Z",
+    "phase": "implementing",
+    "progress": null,
+    "skill": "robust-context-fetch",
+    "state": 2
+  },
+  "context": "required",
+  "current_agent": "context-fetch",
+  "docs": "pending",
+  "external_reasoning": "off",
+  "lane": "default",
+  "lane_claim": "root coordination",
+  "last_action": "robust-context-fetch",
+  "last_cycle_started_at": "2026-05-19T12:59:39Z",
+  "milestones_remaining": 1,
+  "orchestrator_id": "supermanager",
+  "parent_orchestrator_id": null,
+  "tests": "unknown"
+}

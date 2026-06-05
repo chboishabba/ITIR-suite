@@ -3094,9 +3094,18 @@
   before context ratification).
 - Execute chat artifact capture followthrough from
   `docs/planning/chat_artifact_capture_contract_20260208.md`:
+  - DONE: Perplexity live capture now has an artifact sidecar lane for generated
+    images/assets, stored outside SQLite near the canonical DB and referenced by
+    local path/hash
+  - DONE: add canonical `thread_artifacts` indexing so pretty exports
+    hyperlink artifacts from the DB rather than only rescanning source JSON
+  - keep StatiBaker/console output as bounded source artifacts or provenance
+    refs, not raw message-text imports
   - add deterministic extractor for assistant-generated artifact classes
     (`download_link_artifact`, `inline_file_artifact`,
     `execution_claim_artifact`)
+  - add ChatGPT/GPT parity resolver for `image_asset_pointer`, file IDs, and
+    generated downloadable artifacts using the same `thread_artifacts` contract
   - emit canonical artifact JSONL records with idempotency/provenance fields
   - add fixture tests for `sandbox:/mnt/data/*`, file-emission text patterns,
     and execution-claim co-occurrence

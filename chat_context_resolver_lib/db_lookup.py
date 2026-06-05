@@ -201,21 +201,40 @@ def query_db_fts_candidates(
         return []
 
     cur.execute(
-        """
-        SELECT
-            m.canonical_thread_id AS canonical_thread_id,
-            COALESCE(NULLIF(m.title, ''), '(no title)') AS title,
-            MAX(m.ts) AS latest_ts,
-            COUNT(*) AS hit_count
-        FROM messages_fts
-        JOIN messages m ON m.rowid = messages_fts.rowid
-        WHERE messages_fts MATCH ?
-        GROUP BY m.canonical_thread_id, title
-        ORDER BY hit_count DESC, latest_ts DESC
-        LIMIT ?
-        """,
-        (query, limit),
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'messages_fts_docids'"
     )
+    has_docids = cur.fetchone() is not None
+    if has_docids:
+        sql = """
+            SELECT
+                m.canonical_thread_id AS canonical_thread_id,
+                COALESCE(NULLIF(m.title, ''), '(no title)') AS title,
+                MAX(m.ts) AS latest_ts,
+                COUNT(*) AS hit_count
+            FROM messages_fts
+            JOIN messages_fts_docids d ON d.rowid = messages_fts.rowid
+            JOIN messages m ON m.message_id = d.message_id
+            WHERE messages_fts MATCH ?
+            GROUP BY m.canonical_thread_id, title
+            ORDER BY hit_count DESC, latest_ts DESC
+            LIMIT ?
+            """
+    else:
+        sql = """
+            SELECT
+                m.canonical_thread_id AS canonical_thread_id,
+                COALESCE(NULLIF(m.title, ''), '(no title)') AS title,
+                MAX(m.ts) AS latest_ts,
+                COUNT(*) AS hit_count
+            FROM messages_fts
+            JOIN messages m ON m.rowid = messages_fts.rowid
+            WHERE messages_fts MATCH ?
+            GROUP BY m.canonical_thread_id, title
+            ORDER BY hit_count DESC, latest_ts DESC
+            LIMIT ?
+            """
+
+    cur.execute(sql, (query, limit))
     rows = cur.fetchall()
     candidates: list[dict] = []
     for row in rows:

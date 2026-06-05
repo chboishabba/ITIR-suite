@@ -44,6 +44,8 @@ artifacts.
 - `SensibLaw` remains the first producer-backed provider lane
 - `ITIR` also exposes a small read-only comparison family for bounded external
   observation lanes
+- `ITIR` exposes a read-only PNF family over SensibLaw/StatiBaker producer
+  schemas for task/context projection previews
 - tool families remain read-only and deterministic
 - wider mutable timeline/capture surfaces are still deferred until the
   transport and client seams are verified
@@ -72,6 +74,11 @@ Every response is wrapped as:
   - deterministic read-only projection over existing progress/checkpoint state
   - intended for execution control decisions such as wait/cancel/resume timing
   - not intended as policy, routing, admissibility, or correctness evidence
+- ITIR PNF:
+  - deterministic read-only context, task-memory, and observer-evidence
+    projection over supplied PNF/task atoms and observer rows
+  - intended for task-identity meet, Kanban preview, and evidence handoff
+  - not intended to extract tasks from raw text or mutate Kanboard/runsheets
 For `safe_call`, the wrapped `result` is a stable decision envelope:
 
 - `version`: guarded invocation contract version
@@ -122,6 +129,27 @@ For clients that need bounded policy visibility (for example, operator-facing
 risk flags), use `safe_call` and consume the normalized `status_explanation`
 object as `policy_hint`. This keeps ITIR output explicit, non-authoritative by
 default, and suitable for presentation-only workflow guidance.
+
+## PNF tool lane
+
+The PNF family exposes existing SensibLaw/StatiBaker PNF surfaces over MCP:
+
+- `itir.pnf.context_index`
+- `itir.pnf.task_memory_preview`
+- `itir.pnf.observer_evidence`
+
+The canonical flow is:
+
+- supplied project context -> `sl.project_context_pnf_index.v0_1`
+- supplied documents with task PNF atoms -> `sl.statibaker_task_memory.v0_1`
+- optional preview only -> `sl.statibaker_kanban_projection.v0_1`
+- OpenRecall/browser-assist rows -> observer-only evidence packet
+
+For Kent/MoveWare transition work, OpenRecall and browser-assist evidence may
+carry bounded previews, hashes, deep links, `pnf_candidates`,
+`task_identity_residual`, and `lifecycle_residual`. Those rows are observer
+evidence only. They may support a later task-identity meet, but they do not
+create Kanboard cards, mutate local runsheet JSON, or promote importer truth.
 
 ## Planned Windows compliance lane
 

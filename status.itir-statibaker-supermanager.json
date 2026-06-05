@@ -1,0 +1,58 @@
+{
+  "active_checklist": "Watch the six StatiBaker/Kanboard managers and promote only after tests and docs gates close.",
+  "architecture": "complete",
+  "audit": "complete",
+  "child_heartbeat": {
+    "agent_name": "orchestrator",
+    "blocker": null,
+    "child_pid": null,
+        "current_step": "all six manager lanes closed; promotion gated with focused tests and recorded residuals",
+    "exit_code": 0,
+        "last_heartbeat": "2026-05-19T13:33:00Z",
+    "phase": "done",
+        "progress": {
+            "completed": 4,
+            "total": 4
+        },
+    "skill": null,
+    "state": 0
+  },
+  "context": "ready",
+  "current_agent": null,
+  "docs": "ready",
+  "external_reasoning": "off",
+  "lane": "statibaker-kanboard-root",
+  "lane_claim": "Supermanager monitor for StatiBaker local runsheet plus Kanboard projection roadmap; no direct file ownership beyond orchestration state.",
+  "last_action": null,
+  "last_cycle_finished_at": "2026-05-19T12:57:08Z",
+  "milestones_remaining": 0,
+  "notes": "FORMAL MODEL: O/R/C/S/L/P/G/F. O: user owns workflow; this runner is the supermanager state surface. R: coordinate managers for StatiBaker local runsheet JSON, Kanboard projection, and SensibLaw task extraction without making external UI canonical. C: StatiBaker/docs/kanboard_runsheet_roadmap.md, StatiBaker docs/TODO/CHANGELOG, SensibLaw/src/statibaker_kanban.py, local Kanboard installation, orchestrator status/runsheet JSON. S: broad cross-project integration with existing dirty worktree; do not revert user changes. L/P: prefer gpt-5.1-codex-mini for narrow workers and gpt-5.1-codex-max for coupled implementation. G: local JSON remains canonical; Kanboard is one-way projection until conflict policy exists. F: local Kanboard credentials/API details and exact bridge schema gaps must be discovered by managers.",
+  "orchestrator_id": "itir-statibaker-supermanager",
+  "parent_orchestrator_id": null,
+    "phase": "complete",
+  "runsheet": {
+    "items": [
+      {
+        "id": "frame",
+        "status": "done",
+        "title": "Frame StatiBaker/Kanboard roadmap into lane topology"
+      },
+      {
+        "id": "issue",
+        "status": "done",
+        "title": "Issue six bounded lane managers"
+      },
+      {
+        "id": "monitor",
+                "status": "done",
+        "title": "Monitor manager heartbeats, logs, and runsheets in tmux"
+      },
+      {
+        "id": "promote",
+                "status": "done",
+        "title": "Promote only after verification/governance lane closes residual gaps"
+      }
+    ]
+  },
+  "tests": "passing"
+}

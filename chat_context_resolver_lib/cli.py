@@ -166,6 +166,17 @@ def build_parser() -> argparse.ArgumentParser:
         help="Run archive-wide ranking for the analysis terms instead of a single resolved thread.",
     )
     parser.add_argument(
+        "--progress",
+        action="store_true",
+        help="Emit JSONL progress events to stderr for long-running resolver stages.",
+    )
+    parser.add_argument(
+        "--progress-interval",
+        type=float,
+        default=2.0,
+        help="Minimum seconds between progress events for repeated stages (default: %(default)s).",
+    )
+    parser.add_argument(
         "--semantic",
         action="store_true",
         help=(

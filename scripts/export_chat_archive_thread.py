@@ -1020,6 +1020,101 @@ def _load_blocks(con: sqlite3.Connection, message_ids: list[str]) -> dict[str, l
     return blocks
 
 
+def _load_artifacts_from_source_paths(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    artifacts: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    source_paths = sorted(
+        {
+            str(message.get("source_path") or "")
+            for message in messages
+            if str(message.get("source_path") or "").endswith(".itir.perplexity.json")
+        }
+    )
+    for source_path in source_paths:
+        path = Path(source_path).expanduser()
+        if not path.exists() or not path.is_file():
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        raw_artifacts = payload.get("artifacts")
+        if not isinstance(raw_artifacts, list):
+            continue
+        for raw in raw_artifacts:
+            if not isinstance(raw, dict):
+                continue
+            local_path = str(raw.get("local_path") or "")
+            source_url = str(raw.get("source_url") or "")
+            artifact_id = str(raw.get("artifact_id") or "")
+            key = (local_path, source_url or artifact_id)
+            if not local_path or key in seen:
+                continue
+            seen.add(key)
+            item = {
+                "artifact_id": artifact_id,
+                "kind": str(raw.get("kind") or ""),
+                "mime_type": str(raw.get("mime_type") or ""),
+                "source_url": source_url,
+                "local_path": local_path,
+                "size_bytes": int(raw.get("size_bytes") or 0),
+                "sha256": str(raw.get("sha256") or ""),
+                "source_path": str(path),
+            }
+            item["exists"] = Path(local_path).expanduser().exists()
+            artifacts.append(item)
+    artifacts.sort(key=lambda item: (item.get("local_path") or "", item.get("artifact_id") or ""))
+    return artifacts
+
+
+def _load_thread_artifacts(con: sqlite3.Connection, canonical_thread_id: str) -> list[dict[str, Any]]:
+    if not _has_table(con, "thread_artifacts"):
+        return []
+    rows = con.execute(
+        """
+        SELECT
+          artifact_row_id,
+          artifact_id,
+          kind,
+          mime_type,
+          local_path,
+          source_url,
+          source_path,
+          size_bytes,
+          sha256,
+          metadata_json
+        FROM thread_artifacts
+        WHERE canonical_thread_id = ?
+        ORDER BY local_path, artifact_id, artifact_row_id
+        """,
+        (canonical_thread_id,),
+    ).fetchall()
+    artifacts: list[dict[str, Any]] = []
+    for row in rows:
+        metadata: Any = None
+        if row["metadata_json"]:
+            try:
+                metadata = json.loads(row["metadata_json"])
+            except json.JSONDecodeError:
+                metadata = row["metadata_json"]
+        local_path = str(row["local_path"] or "")
+        item = {
+            "artifact_row_id": row["artifact_row_id"],
+            "artifact_id": row["artifact_id"],
+            "kind": row["kind"],
+            "mime_type": row["mime_type"],
+            "local_path": local_path,
+            "source_url": row["source_url"],
+            "source_path": row["source_path"],
+            "size_bytes": int(row["size_bytes"] or 0),
+            "sha256": row["sha256"],
+            "metadata": metadata,
+            "exists": bool(local_path and Path(local_path).expanduser().exists()),
+        }
+        artifacts.append(item)
+    return artifacts
+
+
 def build_payload(db_path: Path, args: argparse.Namespace) -> dict[str, Any]:
     con = _connect_ro(db_path)
     try:
@@ -1035,6 +1130,9 @@ def build_payload(db_path: Path, args: argparse.Namespace) -> dict[str, Any]:
             blocks = _load_blocks(con, [item["message_id"] for item in messages])
             for item in messages:
                 item["blocks"] = blocks.get(item["message_id"], [])
+        artifacts = _load_thread_artifacts(con, thread["canonical_thread_id"])
+        if not artifacts:
+            artifacts = _load_artifacts_from_source_paths(messages)
     finally:
         con.close()
 
@@ -1044,6 +1142,7 @@ def build_payload(db_path: Path, args: argparse.Namespace) -> dict[str, Any]:
         "source_db": str(db_path.expanduser().resolve()),
         "thread": thread,
         "messages": messages,
+        "artifacts": artifacts,
     }
 
 
@@ -1110,6 +1209,7 @@ def _chunk_payload(payload: dict[str, Any], plan_item: dict[str, Any]) -> dict[s
         "source_db": payload["source_db"],
         "thread": thread,
         "messages": messages,
+        "artifacts": payload.get("artifacts", []),
     }
 
 
@@ -1125,6 +1225,7 @@ def _frontmatter(payload: dict[str, Any]) -> str:
         "account_id": thread.get("account_id"),
         "title": thread.get("title"),
         "message_count": len(payload["messages"]),
+        "artifact_count": len(payload.get("artifacts", [])),
         "earliest_ts": thread.get("earliest_ts"),
         "latest_ts": thread.get("latest_ts"),
     }
@@ -1134,6 +1235,42 @@ def _frontmatter(payload: dict[str, Any]) -> str:
         lines.append(f"{key}: {escaped}")
     lines.append("---")
     return "\n".join(lines)
+
+
+def _artifact_link_target(local_path: str) -> str:
+    return local_path.replace(" ", "%20")
+
+
+def _format_bytes(size: object) -> str:
+    try:
+        value = int(size)
+    except (TypeError, ValueError):
+        value = 0
+    if value >= 1024 * 1024:
+        return f"{value / (1024 * 1024):.1f} MiB"
+    if value >= 1024:
+        return f"{value / 1024:.1f} KiB"
+    return f"{value} B"
+
+
+def render_markdown_artifacts(payload: dict[str, Any]) -> str:
+    artifacts = [item for item in payload.get("artifacts", []) if isinstance(item, dict)]
+    if not artifacts:
+        return ""
+    out = ["## Artifacts", ""]
+    for item in artifacts:
+        artifact_id = str(item.get("artifact_id") or "artifact")
+        kind = str(item.get("kind") or "artifact")
+        mime_type = str(item.get("mime_type") or "application/octet-stream")
+        local_path = str(item.get("local_path") or "")
+        exists = "present" if item.get("exists") else "missing"
+        size = _format_bytes(item.get("size_bytes"))
+        label = f"{artifact_id} ({kind}, {mime_type}, {size}, {exists})"
+        if local_path:
+            out.append(f"- [{label}]({_artifact_link_target(local_path)})")
+        else:
+            out.append(f"- {label}")
+    return "\n".join(out).rstrip() + "\n"
 
 
 def render_markdown_transcript(payload: dict[str, Any]) -> str:
@@ -1154,6 +1291,9 @@ def render_markdown_transcript(payload: dict[str, Any]) -> str:
         text = str(message.get("text") or "").rstrip()
         out.append(text)
         out.append("")
+    artifact_section = render_markdown_artifacts(payload)
+    if artifact_section:
+        out.extend(["---", "", artifact_section.rstrip(), ""])
     return "\n".join(out).rstrip() + "\n"
 
 
@@ -1214,6 +1354,9 @@ def render_markdown_perplexity_doc(payload: dict[str, Any], *, include_logo: boo
 
     if not payload["messages"]:
         out.extend([f"# {title}", ""])
+    artifact_section = render_markdown_artifacts(payload)
+    if artifact_section:
+        out.extend(["---", "", artifact_section.rstrip(), ""])
     return "\n".join(out).rstrip() + "\n"
 
 
@@ -1232,6 +1375,7 @@ def render_html(payload: dict[str, Any]) -> str:
         "platform": thread.get("platform"),
         "account_id": thread.get("account_id"),
         "message_count": len(payload["messages"]),
+        "artifact_count": len(payload.get("artifacts", [])),
         "earliest_ts": thread.get("earliest_ts"),
         "latest_ts": thread.get("latest_ts"),
         "source_db": payload.get("source_db"),
@@ -1259,6 +1403,24 @@ def render_html(payload: dict[str, Any]) -> str:
                 ]
             )
         )
+    artifacts_html = ""
+    artifacts = [item for item in payload.get("artifacts", []) if isinstance(item, dict)]
+    if artifacts:
+        rows = []
+        for item in artifacts:
+            local_path = str(item.get("local_path") or "")
+            label = html.escape(str(item.get("artifact_id") or "artifact"))
+            href = html.escape(_artifact_link_target(local_path))
+            rows.append(
+                "<li>"
+                f'<a href="{href}">{label}</a> '
+                f"({html.escape(str(item.get('kind') or 'artifact'))}, "
+                f"{html.escape(str(item.get('mime_type') or 'application/octet-stream'))}, "
+                f"{html.escape(_format_bytes(item.get('size_bytes')))}, "
+                f"{'present' if item.get('exists') else 'missing'})"
+                "</li>"
+            )
+        artifacts_html = "<section class=\"artifacts\"><h2>Artifacts</h2><ul>" + "\n".join(rows) + "</ul></section>"
     return (
         "<!doctype html>\n"
         '<html lang="en">\n'
@@ -1285,6 +1447,7 @@ def render_html(payload: dict[str, Any]) -> str:
         f"    <h1>{html.escape(title)}</h1>\n"
         f"    <table>{meta_rows}</table>\n"
         f"    {''.join(message_html)}\n"
+        f"    {artifacts_html}\n"
         "  </main>\n"
         "</body>\n"
         "</html>\n"

@@ -1,0 +1,55 @@
+{
+  "active_checklist": "Monitor the active Kanboard completion wave through AO status, heartbeat, runsheet, and tmux panes; do not perform implementation in the supermanager lane.",
+  "architecture": "complete",
+  "audit": "complete",
+  "child_heartbeat": {
+    "agent_name": "orchestrator",
+    "blocker": null,
+    "child_pid": null,
+    "current_step": "project complete",
+    "exit_code": 0,
+    "last_heartbeat": "2026-05-19T14:17:07Z",
+    "phase": "done",
+    "progress": null,
+    "skill": null,
+    "state": 0
+  },
+  "context": "ready",
+  "current_agent": null,
+  "docs": "ready",
+  "external_reasoning": "off",
+  "lane": "statibaker-kanboard-completion-root",
+  "lane_claim": "Supermanager monitor for the live Kanboard completion wave. Governance promotion is intentionally held until implementation/data manager lanes report.",
+  "last_action": null,
+  "last_cycle_finished_at": "2026-05-19T14:17:07Z",
+  "milestones_remaining": 0,
+  "notes": "User directive: use autonomous-orchestrator only for delegation; do not use built-in Codex agent methods. Governance lane is intentionally pending until active manager lanes report.",
+  "orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+  "parent_orchestrator_id": null,
+  "phase": "monitoring",
+  "runsheet": {
+    "items": [
+      {
+        "id": "define-topology",
+        "status": "done",
+        "title": "Define active manager topology with workers as optional parallel sidecars only"
+      },
+      {
+        "id": "spawn-active-managers",
+        "status": "in_progress",
+        "title": "Spawn independent implementation/data manager lanes in tmux"
+      },
+      {
+        "id": "monitor-heartbeats",
+        "status": "todo",
+        "title": "Monitor manager progress, runsheets, logs, and blockers"
+      },
+      {
+        "id": "spawn-governance-after-reports",
+        "status": "todo",
+        "title": "Spawn governance/promotion manager only after active lanes report"
+      }
+    ]
+  },
+  "tests": "passing"
+}

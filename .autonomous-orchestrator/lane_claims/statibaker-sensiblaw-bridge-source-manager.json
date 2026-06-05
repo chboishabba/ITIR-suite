@@ -1,0 +1,9 @@
+{
+  "heartbeat_file": "heartbeat.statibaker-sensiblaw-bridge-source-manager.json",
+  "lane": "sensiblaw-statibaker-kanboard-source",
+  "lane_claim": "Manager lane 5: ensure SensibLaw task memory/timeline bridge artifacts feed the same Kanboard plan/sync shape. Workers are optional only for independent sidecars with disjoint write sets.",
+  "orchestrator_id": "statibaker-sensiblaw-bridge-source-manager",
+  "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+  "status_file": "status.statibaker-sensiblaw-bridge-source-manager.json",
+  "timestamp": "2026-05-19T14:17:07Z"
+}

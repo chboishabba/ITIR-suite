@@ -1,0 +1,112 @@
+{
+  "active_checklist": "Continue the coupled stabilization lane from the remaining todo items only. You must either complete or explicitly block: live-apply-check, apply-idempotency-tests, and report-query-dashboard. Do not stop after status-file inspection. Own StatiBaker/sb/kanboard_runsheet.py, StatiBaker/scripts/sync_kanboard_runsheet.py, StatiBaker/scripts/plan_kanboard_runsheet.py if needed, StatiBaker/sb/query.py, dashboard/query tests, and Kanboard adapter tests. Avoid broad docs churn.",
+  "allocation_scorecard": {
+    "ambiguity": "medium",
+    "context_width": "medium",
+    "coupling_risk": "high",
+    "failure_cost": "high",
+    "latency_pressure": "low",
+    "lower_tier_failures": "0",
+    "reversibility": "low"
+  },
+  "architecture": "complete",
+  "audit": "complete",
+  "child_heartbeat": {
+    "agent_name": "docs-implement",
+    "blocker": null,
+    "child_pid": 1847375,
+    "current_step": "- No escalation needed from `gpt-5.1-codex-max`; coupling was real but contained with a narrow patch and focused validation.",
+    "exit_code": 0,
+    "last_heartbeat": "2026-05-19T14:37:00Z",
+    "phase": "done",
+    "progress": null,
+    "skill": "long-running-development",
+    "state": 0
+  },
+  "context": "ready",
+  "current_agent": null,
+  "docs": "ready",
+  "external_reasoning": "off",
+  "fallback_model": "gpt-5.3-codex",
+  "lane": "statibaker-kanboard-coupled-stabilization",
+  "lane_claim": "Coupled stabilization manager: close live apply validation, column-map/report/query gaps, apply-dependent idempotency tests, and pending dashboard surface. Do not spawn workers because the residuals share write surfaces and are sequential.",
+  "last_action": "long-running-development",
+  "last_cycle_finished_at": "2026-05-19T14:37:00Z",
+  "last_cycle_started_at": "2026-05-19T14:31:41Z",
+  "last_deescalation_rule": "De-escalate once ambiguity collapses and the work reduces to a narrow bounded edit set.",
+  "last_escalation_rule": "Escalate one tier if constraints are missed twice, ambiguity grows, or the task proves more coupled than the current frame indicates.",
+  "last_exit_code": 0,
+  "last_selected_model": "gpt-5.1-codex-max",
+  "last_task_stats": {
+    "agent_name": "docs-implement",
+    "allocation_scorecard": {
+      "ambiguity": "medium",
+      "context_width": "medium",
+      "coupling_risk": "high",
+      "failure_cost": "high",
+      "latency_pressure": "low",
+      "lower_tier_failures": "0",
+      "reversibility": "low"
+    },
+    "dry_run": false,
+    "elapsed_seconds": 318.57,
+    "exit_code": 0,
+    "model_allocation": {
+      "deescalation_rule": "De-escalate once ambiguity collapses and the work reduces to a narrow bounded edit set.",
+      "escalation_rule": "Escalate one tier if constraints are missed twice, ambiguity grows, or the task proves more coupled than the current frame indicates.",
+      "fallback_model": "gpt-5.3-codex",
+      "reason": "Coding task is coupled or has already shown lower-tier trouble, so deep coding reasoning is warranted.",
+      "selected_model": "gpt-5.1-codex-max"
+    },
+    "output_lines": 9728,
+    "skill": "long-running-development",
+    "timed_out": false
+  },
+  "milestones_remaining": 0,
+  "model_allocation": {
+    "deescalation_rule": "De-escalate once ambiguity collapses and the work reduces to a narrow bounded edit set.",
+    "escalation_rule": "Escalate one tier if constraints are missed twice, ambiguity grows, or the task proves more coupled than the current frame indicates.",
+    "fallback_model": "gpt-5.3-codex",
+    "reason": "Coding task is coupled or has already shown lower-tier trouble, so deep coding reasoning is warranted.",
+    "selected_model": "gpt-5.1-codex-max"
+  },
+  "notes": "Use AO only; do not use built-in Codex subagents. Do not spawn workers because the remaining gaps are coupled and sequential. The user authorized completing local Kanboard integration; a controlled local --apply check against http://127.0.0.1:8089 is allowed using /home/c/.local/state/kanboard-local/statibaker-kanboard.env, but never print the private token. Required live check command shape: python StatiBaker/scripts/sync_kanboard_runsheet.py --input status.statibaker-kanboard-live-sync-manager.json --column-map StatiBaker/runs_local/kanboard/column_map.json --apply --report-out StatiBaker/runs_local/kanboard/sync_report.apply.json --output StatiBaker/runs_local/kanboard/sync_result.apply.json . Then run the same command again to prove idempotent no duplicate creates or explain exact blocker. Preserve local JSON as canonical. Known completed item: bootstrap column_map wrapper normalization has landed.",
+  "orchestrator_id": "statibaker-kanboard-stabilization-manager",
+  "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+  "phase": "stabilization",
+  "runsheet": {
+    "items": [
+      {
+        "id": "review-residuals",
+        "status": "done",
+        "title": "Review manager wave status files and residual gates"
+      },
+      {
+        "id": "column-map-wrapper",
+        "status": "done",
+        "title": "Make sync CLI accept bootstrap column_map artifact wrapper and raw status maps"
+      },
+      {
+        "id": "live-apply-check",
+        "status": "done",
+        "title": "Run controlled local --apply check against 127.0.0.1:8089 using private env without printing secrets"
+      },
+      {
+        "id": "apply-idempotency-tests",
+        "status": "done",
+        "title": "Add/repair apply-dependent idempotency and failure tests"
+      },
+      {
+        "id": "report-query-dashboard",
+        "status": "done",
+        "title": "Reconcile sync report query/dashboard surface and focused tests"
+      },
+      {
+        "id": "status-closeout",
+        "status": "done",
+        "title": "Update relevant AO status runsheets with validation and remaining gaps"
+      }
+    ]
+  },
+  "tests": "passing"
+}

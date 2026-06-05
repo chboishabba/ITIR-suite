@@ -1,0 +1,12 @@
+{
+  "agent_name": "docs-implement",
+  "blocker": null,
+  "child_pid": 1799388,
+  "current_step": "2. Preserve external `child_heartbeat` values and only keep `runsheet.items`/milestone updates.",
+  "exit_code": 0,
+  "last_heartbeat": "2026-05-19T14:24:24Z",
+  "phase": "done",
+  "progress": null,
+  "skill": "long-running-development",
+  "state": 0
+}

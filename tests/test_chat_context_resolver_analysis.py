@@ -156,6 +156,115 @@ def test_resolver_parser_exposes_opt_in_mca_flags():
     assert semantic_args.mca_db == "/tmp/mca.sqlite"
     assert semantic_args.mca_limit == 7
     assert hybrid_args.hybrid is True
+    assert default_args.progress is False
+    assert default_args.progress_interval == 2.0
+
+
+def _make_fts_db(db_path: Path) -> None:
+    con = sqlite3.connect(db_path)
+    con.executescript(
+        """
+        CREATE TABLE messages (
+          message_id TEXT PRIMARY KEY,
+          canonical_thread_id TEXT NOT NULL,
+          ts TEXT NOT NULL,
+          role TEXT NOT NULL,
+          text TEXT NOT NULL,
+          title TEXT
+        );
+        CREATE VIRTUAL TABLE messages_fts USING fts5(text, content='');
+        CREATE TABLE messages_fts_docids (
+          rowid INTEGER PRIMARY KEY,
+          message_id TEXT NOT NULL
+        );
+        """
+    )
+    con.execute(
+        """
+        INSERT INTO messages (message_id, canonical_thread_id, ts, role, text, title)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        ("dummy", "dummy-thread", "2026-01-01T00:00:00Z", "user", "wrong dart", "dummy"),
+    )
+    con.execute(
+        """
+        INSERT INTO messages (message_id, canonical_thread_id, ts, role, text, title)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        ("real-1", "real-thread", "2026-01-02T00:00:00Z", "assistant", "Dart dart\nother", "real"),
+    )
+    con.execute("INSERT INTO messages_fts (text) VALUES (?)", ("Dart dart\nother",))
+    fts_rowid = con.execute("SELECT max(rowid) FROM messages_fts").fetchone()[0]
+    con.execute(
+        "INSERT INTO messages_fts_docids (rowid, message_id) VALUES (?, ?)",
+        (fts_rowid, "real-1"),
+    )
+    con.commit()
+    con.close()
+
+
+def test_fts_candidates_use_docid_mapping_not_message_rowid(tmp_path):
+    from chat_context_resolver_lib.db_lookup import connect_sqlite_ro, query_db_fts_candidates
+
+    db_path = tmp_path / "chat.sqlite"
+    _make_fts_db(db_path)
+    con = connect_sqlite_ro(db_path)
+    rows = query_db_fts_candidates(con.cursor(), "dart", limit=5)
+    con.close()
+
+    assert rows[0]["canonical_thread_id"] == "real-thread"
+    assert rows[0]["title"] == "real"
+
+
+def test_cross_thread_analysis_uses_fast_fts_hit_aggregation(tmp_path):
+    db_path = tmp_path / "chat.sqlite"
+    _make_fts_db(db_path)
+
+    payload = resolver._cross_thread_analysis_payload(
+        db_path,
+        "dart",
+        terms=["dart"],
+        regex=False,
+        case_sensitive=False,
+        limit=5,
+        max_text_chars=120,
+    )
+
+    assert payload["mode"] == "fts_hit_aggregation"
+    assert payload["performance"]["fts_hit_rows"] == 1
+    assert payload["results"][0]["canonical_thread_id"] == "real-thread"
+    assert payload["results"][0]["raw_count"] == 2
+    assert payload["results"][0]["line_hit_count"] == 1
+    assert payload["results"][0]["first_hits"][0]["message_id"] == "real-1"
+
+
+def test_resolver_progress_goes_to_stderr_and_json_to_stdout(tmp_path, capsys, monkeypatch):
+    db_path = tmp_path / "chat.sqlite"
+    _make_fts_db(db_path)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "chat_context_resolver.py",
+            "dart",
+            "--db",
+            str(db_path),
+            "--analyze-term",
+            "dart",
+            "--cross-thread",
+            "--progress",
+            "--json",
+        ],
+    )
+
+    assert resolver.main() == 0
+    captured = capsys.readouterr()
+    stdout_payload = json.loads(captured.out)
+    stderr_events = [json.loads(line) for line in captured.err.splitlines()]
+
+    assert stdout_payload["analysis"]["mode"] == "fts_hit_aggregation"
+    assert all(event["type"] == "progress" for event in stderr_events)
+    assert any(event["stage"] == "hit_aggregation" for event in stderr_events)
 
 
 def test_mca_retrieval_reports_missing_wrapper_without_subprocess(tmp_path, monkeypatch):

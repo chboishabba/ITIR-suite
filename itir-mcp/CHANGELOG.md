@@ -1,6 +1,12 @@
 # Changelog
 
 ## Unreleased
+- Added the read-only PNF MCP family:
+  - `itir.pnf.context_index`
+  - `itir.pnf.task_memory_preview`
+  - `itir.pnf.observer_evidence`
+- Added OpenRecall/browser-assist observer evidence handling for PNF residuals
+  without task, runsheet, or Kanboard mutation.
 - Added the docstore/Obsidian MCP family:
   - `itir.docstore.status`
   - `itir.docstore.open_questions`

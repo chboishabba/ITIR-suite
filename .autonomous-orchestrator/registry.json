@@ -1,0 +1,337 @@
+{
+  "active_orchestrators": [
+    "itir-statibaker-kanboard-completion-supermanager",
+    "itir-statibaker-supermanager",
+    "statibaker-bridge-contract-manager",
+    "statibaker-kanboard-adapter-manager",
+    "statibaker-kanboard-bootstrap-manager",
+    "statibaker-kanboard-idempotency-manager",
+    "statibaker-kanboard-live-sync-manager",
+    "statibaker-kanboard-local-manager",
+    "statibaker-kanboard-promotion-governance-manager",
+    "statibaker-kanboard-report-dashboard-manager",
+    "statibaker-kanboard-stabilization-manager",
+    "statibaker-runsheet-dashboard-manager",
+    "statibaker-sensiblaw-bridge-source-manager",
+    "statibaker-sensiblaw-extraction-manager",
+    "statibaker-verification-governance-manager"
+  ],
+  "orchestrators": {
+    "itir-statibaker-kanboard-completion-supermanager": {
+      "agent_name": "orchestrator",
+      "blocker": null,
+      "child_pid": null,
+      "lane": "statibaker-kanboard-completion-root",
+      "lane_claim": "Supermanager monitor for the live Kanboard completion wave. Governance promotion is intentionally held until implementation/data manager lanes report.",
+      "last_heartbeat": "2026-05-19T14:17:07Z",
+      "orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+      "parent_orchestrator_id": null,
+      "paths": {
+        "child_log": "orchestrator.itir-statibaker-kanboard-completion-supermanager.child.log",
+        "heartbeat": "heartbeat.itir-statibaker-kanboard-completion-supermanager.json",
+        "log": "orchestrator.itir-statibaker-kanboard-completion-supermanager.log",
+        "status": "status.itir-statibaker-kanboard-completion-supermanager.json"
+      },
+      "phase": "done",
+      "progress": null,
+      "skill": null,
+      "state": 0,
+      "updated_at": "2026-05-19T14:17:07Z"
+    },
+    "itir-statibaker-supermanager": {
+      "agent_name": "orchestrator",
+      "blocker": null,
+      "child_pid": null,
+      "lane": "statibaker-kanboard-root",
+      "lane_claim": "Supermanager monitor for StatiBaker local runsheet plus Kanboard projection roadmap; no direct file ownership beyond orchestration state.",
+      "last_heartbeat": "2026-05-19T12:57:08Z",
+      "orchestrator_id": "itir-statibaker-supermanager",
+      "parent_orchestrator_id": null,
+      "paths": {
+        "child_log": "orchestrator.itir-statibaker-supermanager.child.log",
+        "heartbeat": "heartbeat.itir-statibaker-supermanager.json",
+        "log": "orchestrator.itir-statibaker-supermanager.log",
+        "status": "status.itir-statibaker-supermanager.json"
+      },
+      "phase": "done",
+      "progress": null,
+      "skill": null,
+      "state": 0,
+      "updated_at": "2026-05-19T12:57:08Z"
+    },
+    "statibaker-bridge-contract-manager": {
+      "agent_name": "docs-implement",
+      "blocker": null,
+      "child_pid": 1638306,
+      "lane": "statibaker-runsheet-bridge-contract",
+      "lane_claim": "Manager: harden the canonical local runsheet bridge contract and fixture expectations; may spawn up to six leaf workers.",
+      "last_heartbeat": "2026-05-19T13:03:39Z",
+      "orchestrator_id": "statibaker-bridge-contract-manager",
+      "parent_orchestrator_id": "itir-statibaker-supermanager",
+      "paths": {
+        "child_log": "orchestrator.statibaker-bridge-contract-manager.child.log",
+        "heartbeat": "heartbeat.statibaker-bridge-contract-manager.json",
+        "log": "orchestrator.statibaker-bridge-contract-manager.log",
+        "status": "status.statibaker-bridge-contract-manager.json"
+      },
+      "phase": "done",
+      "progress": null,
+      "skill": "long-running-development",
+      "state": 0,
+      "updated_at": "2026-05-19T13:03:39Z"
+    },
+    "statibaker-kanboard-adapter-manager": {
+      "agent_name": "docs-implement",
+      "blocker": null,
+      "child_pid": 1638078,
+      "lane": "statibaker-kanboard-jsonrpc-adapter",
+      "lane_claim": "Manager: implement the first Kanboard JSON-RPC dry-run/adapter surface under StatiBaker; may spawn up to six leaf workers.",
+      "last_heartbeat": "2026-05-19T13:03:00Z",
+      "orchestrator_id": "statibaker-kanboard-adapter-manager",
+      "parent_orchestrator_id": "itir-statibaker-supermanager",
+      "paths": {
+        "child_log": "orchestrator.statibaker-kanboard-adapter-manager.child.log",
+        "heartbeat": "heartbeat.statibaker-kanboard-adapter-manager.json",
+        "log": "orchestrator.statibaker-kanboard-adapter-manager.log",
+        "status": "status.statibaker-kanboard-adapter-manager.json"
+      },
+      "phase": "done",
+      "progress": null,
+      "skill": "long-running-development",
+      "state": 0,
+      "updated_at": "2026-05-19T13:03:00Z"
+    },
+    "statibaker-kanboard-bootstrap-manager": {
+      "agent_name": "docs-implement",
+      "blocker": null,
+      "child_pid": 1799386,
+      "lane": "statibaker-kanboard-board-bootstrap",
+      "lane_claim": "Manager lane 1: bootstrap/verify Kanboard project, columns, swimlane assumptions, and local column-map artifact. Workers are optional only for independent sidecars with disjoint write sets.",
+      "last_heartbeat": "2026-05-19T14:24:34Z",
+      "orchestrator_id": "statibaker-kanboard-bootstrap-manager",
+      "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+      "paths": {
+        "child_log": "orchestrator.statibaker-kanboard-bootstrap-manager.child.log",
+        "heartbeat": "heartbeat.statibaker-kanboard-bootstrap-manager.json",
+        "log": "orchestrator.statibaker-kanboard-bootstrap-manager.log",
+        "status": "status.statibaker-kanboard-bootstrap-manager.json"
+      },
+      "phase": "done",
+      "progress": null,
+      "skill": "long-running-development",
+      "state": 0,
+      "updated_at": "2026-05-19T14:24:34Z"
+    },
+    "statibaker-kanboard-idempotency-manager": {
+      "agent_name": "docs-implement",
+      "blocker": null,
+      "child_pid": 1799450,
+      "lane": "statibaker-kanboard-idempotency-failure",
+      "lane_claim": "Manager lane 3: prove repeated syncs are stable and local state is not corrupted by Kanboard failures. Workers are optional only for independent sidecars with disjoint write sets.",
+      "last_heartbeat": "2026-05-19T14:21:09Z",
+      "orchestrator_id": "statibaker-kanboard-idempotency-manager",
+      "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+      "paths": {
+        "child_log": "orchestrator.statibaker-kanboard-idempotency-manager.child.log",
+        "heartbeat": "heartbeat.statibaker-kanboard-idempotency-manager.json",
+        "log": "orchestrator.statibaker-kanboard-idempotency-manager.log",
+        "status": "status.statibaker-kanboard-idempotency-manager.json"
+      },
+      "phase": "done",
+      "progress": null,
+      "skill": "long-running-development",
+      "state": 0,
+      "updated_at": "2026-05-19T14:21:09Z"
+    },
+    "statibaker-kanboard-live-sync-manager": {
+      "agent_name": "docs-implement",
+      "blocker": null,
+      "child_pid": 1799388,
+      "lane": "statibaker-kanboard-live-sync-apply",
+      "lane_claim": "Manager lane 2: implement explicit one-way --apply sync from local runsheet JSON to Kanboard JSON-RPC. Workers are optional only for independent sidecars with disjoint write sets.",
+      "last_heartbeat": "2026-05-19T14:24:24Z",
+      "orchestrator_id": "statibaker-kanboard-live-sync-manager",
+      "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+      "paths": {
+        "child_log": "orchestrator.statibaker-kanboard-live-sync-manager.child.log",
+        "heartbeat": "heartbeat.statibaker-kanboard-live-sync-manager.json",
+        "log": "orchestrator.statibaker-kanboard-live-sync-manager.log",
+        "status": "status.statibaker-kanboard-live-sync-manager.json"
+      },
+      "phase": "done",
+      "progress": null,
+      "skill": "long-running-development",
+      "state": 0,
+      "updated_at": "2026-05-19T14:24:24Z"
+    },
+    "statibaker-kanboard-local-manager": {
+      "agent_name": "implement",
+      "blocker": null,
+      "child_pid": 1638109,
+      "lane": "statibaker-system-kanboard-discovery",
+      "lane_claim": "Manager: discover the locally installed system Kanboard configuration safely and document/apply only non-secret integration assumptions; may spawn up to six leaf workers.",
+      "last_heartbeat": "2026-05-19T13:02:00Z",
+      "orchestrator_id": "statibaker-kanboard-local-manager",
+      "parent_orchestrator_id": "itir-statibaker-supermanager",
+      "paths": {
+        "child_log": "orchestrator.statibaker-kanboard-local-manager.child.log",
+        "heartbeat": "heartbeat.statibaker-kanboard-local-manager.json",
+        "log": "orchestrator.statibaker-kanboard-local-manager.log",
+        "status": "status.statibaker-kanboard-local-manager.json"
+      },
+      "phase": "done",
+      "progress": null,
+      "skill": "long-running-development",
+      "state": 0,
+      "updated_at": "2026-05-19T13:02:00Z"
+    },
+    "statibaker-kanboard-promotion-governance-manager": {
+      "agent_name": "wave-regime",
+      "blocker": null,
+      "child_pid": 1861649,
+      "lane": "statibaker-kanboard-final-governance-promotion",
+      "lane_claim": "Final governance manager: reconcile manager statuses after stabilization, update docs/changelog/query surface if needed, run final tests/secret checks, and produce promotion state. Workers are not needed unless a read-only sidecar can run independently.",
+      "last_heartbeat": "2026-05-19T14:45:30Z",
+      "orchestrator_id": "statibaker-kanboard-promotion-governance-manager",
+      "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+      "paths": {
+        "child_log": "orchestrator.statibaker-kanboard-promotion-governance-manager.child.log",
+        "heartbeat": "heartbeat.statibaker-kanboard-promotion-governance-manager.json",
+        "log": "orchestrator.statibaker-kanboard-promotion-governance-manager.log",
+        "status": "status.statibaker-kanboard-promotion-governance-manager.json"
+      },
+      "phase": "done",
+      "progress": null,
+      "skill": "long-running-development",
+      "state": 0,
+      "updated_at": "2026-05-19T14:45:30Z"
+    },
+    "statibaker-kanboard-report-dashboard-manager": {
+      "agent_name": "docs-implement",
+      "blocker": null,
+      "child_pid": 1799390,
+      "lane": "statibaker-kanboard-sync-report-dashboard",
+      "lane_claim": "Manager lane 4: expose sync outcome as a read-only StatiBaker artifact and query/dashboard surface. Workers are optional only for independent sidecars with disjoint write sets.",
+      "last_heartbeat": "2026-05-19T14:23:19Z",
+      "orchestrator_id": "statibaker-kanboard-report-dashboard-manager",
+      "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+      "paths": {
+        "child_log": "orchestrator.statibaker-kanboard-report-dashboard-manager.child.log",
+        "heartbeat": "heartbeat.statibaker-kanboard-report-dashboard-manager.json",
+        "log": "orchestrator.statibaker-kanboard-report-dashboard-manager.log",
+        "status": "status.statibaker-kanboard-report-dashboard-manager.json"
+      },
+      "phase": "done",
+      "progress": null,
+      "skill": "long-running-development",
+      "state": 0,
+      "updated_at": "2026-05-19T14:23:19Z"
+    },
+    "statibaker-kanboard-stabilization-manager": {
+      "agent_name": "docs-implement",
+      "blocker": null,
+      "child_pid": 1847375,
+      "lane": "statibaker-kanboard-coupled-stabilization",
+      "lane_claim": "Coupled stabilization manager: close live apply validation, column-map/report/query gaps, apply-dependent idempotency tests, and pending dashboard surface. Do not spawn workers because the residuals share write surfaces and are sequential.",
+      "last_heartbeat": "2026-05-19T14:37:00Z",
+      "orchestrator_id": "statibaker-kanboard-stabilization-manager",
+      "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+      "paths": {
+        "child_log": "orchestrator.statibaker-kanboard-stabilization-manager.child.log",
+        "heartbeat": "heartbeat.statibaker-kanboard-stabilization-manager.json",
+        "log": "orchestrator.statibaker-kanboard-stabilization-manager.log",
+        "status": "status.statibaker-kanboard-stabilization-manager.json"
+      },
+      "phase": "done",
+      "progress": null,
+      "skill": "long-running-development",
+      "state": 0,
+      "updated_at": "2026-05-19T14:37:00Z"
+    },
+    "statibaker-runsheet-dashboard-manager": {
+      "agent_name": "docs-implement",
+      "blocker": null,
+      "child_pid": 1637865,
+      "lane": "statibaker-runsheet-dashboard",
+      "lane_claim": "Manager: surface runsheet/progress state in StatiBaker local dashboard/query views without making Kanboard canonical; may spawn up to six leaf workers.",
+      "last_heartbeat": "2026-05-19T13:04:18Z",
+      "orchestrator_id": "statibaker-runsheet-dashboard-manager",
+      "parent_orchestrator_id": "itir-statibaker-supermanager",
+      "paths": {
+        "child_log": "orchestrator.statibaker-runsheet-dashboard-manager.child.log",
+        "heartbeat": "heartbeat.statibaker-runsheet-dashboard-manager.json",
+        "log": "orchestrator.statibaker-runsheet-dashboard-manager.log",
+        "status": "status.statibaker-runsheet-dashboard-manager.json"
+      },
+      "phase": "done",
+      "progress": null,
+      "skill": "long-running-development",
+      "state": 0,
+      "updated_at": "2026-05-19T13:04:18Z"
+    },
+    "statibaker-sensiblaw-bridge-source-manager": {
+      "agent_name": "docs-implement",
+      "blocker": null,
+      "child_pid": 1799497,
+      "lane": "sensiblaw-statibaker-kanboard-source",
+      "lane_claim": "Manager lane 5: ensure SensibLaw task memory/timeline bridge artifacts feed the same Kanboard plan/sync shape. Workers are optional only for independent sidecars with disjoint write sets.",
+      "last_heartbeat": "2026-05-19T14:21:25Z",
+      "orchestrator_id": "statibaker-sensiblaw-bridge-source-manager",
+      "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+      "paths": {
+        "child_log": "orchestrator.statibaker-sensiblaw-bridge-source-manager.child.log",
+        "heartbeat": "heartbeat.statibaker-sensiblaw-bridge-source-manager.json",
+        "log": "orchestrator.statibaker-sensiblaw-bridge-source-manager.log",
+        "status": "status.statibaker-sensiblaw-bridge-source-manager.json"
+      },
+      "phase": "done",
+      "progress": null,
+      "skill": "long-running-development",
+      "state": 0,
+      "updated_at": "2026-05-19T14:21:25Z"
+    },
+    "statibaker-sensiblaw-extraction-manager": {
+      "agent_name": "tests-implement",
+      "blocker": null,
+      "child_pid": 1701349,
+      "lane": "sensiblaw-statibaker-task-extraction",
+      "lane_claim": "Manager repair rerun: close stale SensibLaw StatiBaker extraction lane, update runsheet/status explicitly, preserve authority rules, and run focused tests; may spawn up to six leaf workers.",
+      "last_heartbeat": "2026-05-19T13:31:46Z",
+      "orchestrator_id": "statibaker-sensiblaw-extraction-manager",
+      "parent_orchestrator_id": "itir-statibaker-supermanager",
+      "paths": {
+        "child_log": "orchestrator.statibaker-sensiblaw-extraction-manager.child.log",
+        "heartbeat": "heartbeat.statibaker-sensiblaw-extraction-manager.json",
+        "log": "orchestrator.statibaker-sensiblaw-extraction-manager.log",
+        "status": "status.statibaker-sensiblaw-extraction-manager.json"
+      },
+      "phase": "done",
+      "progress": null,
+      "skill": "long-running-development",
+      "state": 0,
+      "updated_at": "2026-05-19T13:31:46Z"
+    },
+    "statibaker-verification-governance-manager": {
+      "agent_name": "docs-implement",
+      "blocker": null,
+      "child_pid": 1638132,
+      "lane": "statibaker-kanboard-verification-governance",
+      "lane_claim": "Manager: enforce docs/TODO/changelog/test governance, authority boundaries, and promotion gates for the Kanboard roadmap; may spawn up to six leaf workers.",
+      "last_heartbeat": "2026-05-19T13:01:07Z",
+      "orchestrator_id": "statibaker-verification-governance-manager",
+      "parent_orchestrator_id": "itir-statibaker-supermanager",
+      "paths": {
+        "child_log": "orchestrator.statibaker-verification-governance-manager.child.log",
+        "heartbeat": "heartbeat.statibaker-verification-governance-manager.json",
+        "log": "orchestrator.statibaker-verification-governance-manager.log",
+        "status": "status.statibaker-verification-governance-manager.json"
+      },
+      "phase": "done",
+      "progress": null,
+      "skill": "long-running-development",
+      "state": 0,
+      "updated_at": "2026-05-19T13:01:07Z"
+    }
+  },
+  "updated_at": "2026-05-19T14:45:30Z"
+}

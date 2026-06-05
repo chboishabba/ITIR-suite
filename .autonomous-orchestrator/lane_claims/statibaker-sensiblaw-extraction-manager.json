@@ -1,0 +1,9 @@
+{
+  "heartbeat_file": "heartbeat.statibaker-sensiblaw-extraction-manager.json",
+  "lane": "sensiblaw-statibaker-task-extraction",
+  "lane_claim": "Manager repair rerun: close stale SensibLaw StatiBaker extraction lane, update runsheet/status explicitly, preserve authority rules, and run focused tests; may spawn up to six leaf workers.",
+  "orchestrator_id": "statibaker-sensiblaw-extraction-manager",
+  "parent_orchestrator_id": "itir-statibaker-supermanager",
+  "status_file": "status.statibaker-sensiblaw-extraction-manager.json",
+  "timestamp": "2026-05-19T13:27:57Z"
+}

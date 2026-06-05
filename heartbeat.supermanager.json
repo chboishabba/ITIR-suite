@@ -1,0 +1,12 @@
+{
+  "agent_name": "context-fetch",
+  "blocker": null,
+  "child_pid": 1650648,
+  "current_step": "starting robust-context-fetch",
+  "exit_code": null,
+  "last_heartbeat": "2026-05-19T12:59:39Z",
+  "phase": "implementing",
+  "progress": null,
+  "skill": "robust-context-fetch",
+  "state": 2
+}

@@ -9,6 +9,7 @@ from .docstore_tools import get_docstore_tools
 from .export_tools import get_export_tools
 from .guardrails import safe_tool_call
 from .promotion_tools import get_promotion_tools
+from .pnf_tools import get_pnf_tools
 from .sensiblaw_tools import get_sensiblaw_tools
 
 
@@ -54,6 +55,8 @@ def build_default_registry() -> ToolRegistry:
     for spec, handler in get_docstore_tools():
         registry.register(spec, handler)
     for spec, handler in get_promotion_tools():
+        registry.register(spec, handler)
+    for spec, handler in get_pnf_tools():
         registry.register(spec, handler)
     for spec, handler in get_export_tools():
         registry.register(spec, handler)

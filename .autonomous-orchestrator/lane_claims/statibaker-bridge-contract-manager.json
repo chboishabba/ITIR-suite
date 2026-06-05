@@ -1,0 +1,9 @@
+{
+  "heartbeat_file": "heartbeat.statibaker-bridge-contract-manager.json",
+  "lane": "statibaker-runsheet-bridge-contract",
+  "lane_claim": "Manager: harden the canonical local runsheet bridge contract and fixture expectations; may spawn up to six leaf workers.",
+  "orchestrator_id": "statibaker-bridge-contract-manager",
+  "parent_orchestrator_id": "itir-statibaker-supermanager",
+  "status_file": "status.statibaker-bridge-contract-manager.json",
+  "timestamp": "2026-05-19T12:57:09Z"
+}

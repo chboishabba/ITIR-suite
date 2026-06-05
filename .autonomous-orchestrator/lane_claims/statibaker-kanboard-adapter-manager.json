@@ -1,0 +1,9 @@
+{
+  "heartbeat_file": "heartbeat.statibaker-kanboard-adapter-manager.json",
+  "lane": "statibaker-kanboard-jsonrpc-adapter",
+  "lane_claim": "Manager: implement the first Kanboard JSON-RPC dry-run/adapter surface under StatiBaker; may spawn up to six leaf workers.",
+  "orchestrator_id": "statibaker-kanboard-adapter-manager",
+  "parent_orchestrator_id": "itir-statibaker-supermanager",
+  "status_file": "status.statibaker-kanboard-adapter-manager.json",
+  "timestamp": "2026-05-19T12:57:09Z"
+}

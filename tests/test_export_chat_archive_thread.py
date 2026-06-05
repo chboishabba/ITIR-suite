@@ -44,6 +44,22 @@ def _make_archive(path: Path) -> None:
           metadata_json TEXT,
           PRIMARY KEY (message_id, block_index)
         );
+        CREATE TABLE thread_artifacts (
+          artifact_row_id TEXT PRIMARY KEY,
+          canonical_thread_id TEXT NOT NULL,
+          source_thread_id TEXT,
+          platform TEXT NOT NULL,
+          account_id TEXT NOT NULL,
+          artifact_id TEXT NOT NULL,
+          kind TEXT,
+          mime_type TEXT,
+          local_path TEXT,
+          source_url TEXT,
+          source_path TEXT,
+          size_bytes INTEGER,
+          sha256 TEXT,
+          metadata_json TEXT
+        );
         """
     )
     rows = [
@@ -116,6 +132,59 @@ def _make_archive(path: Path) -> None:
     )
     con.commit()
     con.close()
+
+
+def test_export_uses_db_thread_artifacts(tmp_path: Path) -> None:
+    db = tmp_path / "chat_archive.sqlite"
+    _make_archive(db)
+    artifact = tmp_path / "artifact.png"
+    artifact.write_bytes(b"png")
+    con = sqlite3.connect(db)
+    con.execute(
+        """
+        INSERT INTO thread_artifacts (
+          artifact_row_id, canonical_thread_id, source_thread_id, platform,
+          account_id, artifact_id, kind, mime_type, local_path, source_url,
+          source_path, size_bytes, sha256, metadata_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            "artifact-row-1",
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "11111111-1111-1111-1111-111111111111",
+            "perplexity",
+            "acct",
+            "image-1",
+            "image",
+            "image/png",
+            str(artifact),
+            "https://example.test/image.png",
+            "/tmp/source.itir.perplexity.json",
+            3,
+            "abc123",
+            '{"capture_reason":"response"}',
+        ),
+    )
+    con.commit()
+    con.close()
+
+    args = exporter.parse_args(
+        [
+            "--db",
+            str(db),
+            "--source-thread-id",
+            "11111111-1111-1111-1111-111111111111",
+            "--out",
+            str(tmp_path / "out"),
+        ]
+    )
+    payload = exporter.build_payload(db, args)
+    rendered = exporter.render_markdown_transcript(payload)
+
+    assert payload["artifacts"][0]["artifact_id"] == "image-1"
+    assert payload["artifacts"][0]["exists"] is True
+    assert "## Artifacts" in rendered
+    assert "image-1 (image, image/png, 3 B, present)" in rendered
 
 
 def test_exports_markdown_json_bundle_from_source_thread_id(tmp_path: Path) -> None:

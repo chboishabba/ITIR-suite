@@ -114,6 +114,12 @@ This resolver remains DB-first and lexical by default. MyChatArchive vector
 integration is optional and downstream of canonical
 archive resolution, not a replacement selector path.
 
+Performance runbook:
+[`docs/planning/chat_context_resolver_performance_runbook_20260605.md`](/home/c/Documents/code/ITIR-suite/docs/planning/chat_context_resolver_performance_runbook_20260605.md)
+captures the 2026-06-04 benchmark matrix and current operator guidance:
+prefer exact `--analyze-term --cross-thread` for archive-wide term ranking,
+use `--progress` for broad terms, and avoid regex/vector lanes as defaults.
+
 Implemented opt-in behavior:
 
 - `--semantic` asks MCA for semantic candidates, then resolves returned

@@ -1,0 +1,15 @@
+{
+  "defaults": {
+    "timeout_seconds": 3600,
+    "heartbeat_seconds": 30,
+    "max_log_lines": 2600,
+    "once": true
+  },
+  "runners": {
+    "statibaker-kanboard-promotion-governance-manager": {
+      "parent": "itir-statibaker-kanboard-completion-supermanager",
+      "lane": "statibaker-kanboard-final-governance-promotion",
+      "claim": "Final governance manager: reconcile manager statuses after stabilization, update docs/changelog/query surface if needed, run final tests/secret checks, and produce promotion state. Workers are not needed unless a read-only sidecar can run independently."
+    }
+  }
+}
