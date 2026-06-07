@@ -1,4 +1,5 @@
 # ITIR-suite
+## Intergenerational Trauma-Informed Identity Rebuilder
 
 ![ITIR-suite banner](docs/assets/itir-suite-banner.png)
 
