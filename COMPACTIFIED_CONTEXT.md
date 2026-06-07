@@ -1687,30 +1687,30 @@
   - documentation artifact:
     - `docs/planning/wiki_revision_monitor_provenance_path_boundary_20260401.md`
 
-- 2026-04-01 Mirror Telegram support-layer boundary:
-  - source: current working turn plus sibling Mirror docs and local archive
+- 2026-04-01 partner-client support-layer boundary:
+  - source: current working turn plus partner-client docs and local archive
     checks via `robust-context-fetch`
-  - sibling docs checked:
-    - `/home/c/Documents/code/mirror_community_mgr/docs/MIRROR_AI_ITIR_INTEGRATION_CONTRACT.md`
-    - `/home/c/Documents/code/mirror_community_mgr/docs/MIRROR_AI_ITIR_PHASE1_TOOL_MAP.md`
-    - `/home/c/Documents/code/mirror_community_mgr/docs/MIRROR_AI_CORE_AI_API_CONTRACT.md`
+  - partner-client docs checked:
+    - partner integration contract
+    - partner phase-1 tool map
+    - partner core execution API contract
   - ITIR doctrine checked:
     - `docs/planning/hca_case_s942025_ingest_followups_20260211.md`
     - `docs/planning/priority_execution_sequence_20260306.md`
     - `docs/planning/wiki_timeline_extraction_gwb_20260211.md`
     - `docs/planning/assumption_stress_test_20260208.md`
   - archive note:
-    - Telegram-related chats are now present in `~/chat_archive.sqlite`
     - local resolver checks on `2026-04-01` returned DB-side FTS candidates
-      for Telegram queries, so follow-up analysis can now stay local-first
-    - this pass did not pin one single canonical Mirror Telegram thread title;
-      the archive result is still sufficient to justify recording the repo
-      stance and using the DB for future sharper retrieval
+      for channel-routing queries, so follow-up analysis can stay local-first
+    - this pass did not pin one single canonical partner thread title; the
+      archive result is still sufficient to justify recording the repo stance
+      and using the DB for future sharper retrieval
   - main decision:
-    - ITIR should not be the top-level Telegram routing authority for Mirror
+    - ITIR should not be the top-level channel-routing authority for the
+      partner client
     - ITIR should instead act as the support layer that de-brittles the
-      routing substrate under Mirror's locally owned router
-    - Mirror keeps route ownership and user-facing policy
+      routing substrate under the partner client's locally owned router
+    - the partner client keeps route ownership and user-facing policy
     - Core AI remains downstream execution, not route selection
   - intended support-lane split:
     - ingest normalization
@@ -1719,15 +1719,14 @@
     - labeled regex or keyword fallback hygiene
     - typed logic-model outputs with confidence or conflict markers
     - provenance and policy-profile attachment
-    - Mirror-local router consumption
+    - partner-local router consumption
   - missing gap now made explicit:
     - canonical token or lexeme layer for Telegram text
     - typed semantic observations instead of raw keyword gates
     - fallback labeling and provenance on classifier outcomes
     - lexical-noise and collision fixture suites as merge gates
     - reviewed protected-disclosure policy profile
-  - artifact:
-    - `docs/planning/mirror_telegram_support_layer_boundary_20260401.md`
+  - artifact moved to the partner-client documentation surface
 
 - 2026-04-01 substrate status / roadmap reconciliation checkpoint:
   - source: current working turn

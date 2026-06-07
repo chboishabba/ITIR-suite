@@ -1657,19 +1657,17 @@
   - if a future text-graph layer is added on the SL side, mark it explicitly
     as `derived_only` and keep it outside the canonical reducer contract; add a
     per-adapter toggle/field so overlays cannot be consumed without opt-in
-- [P2] SensibLaw x Glasslane / Mirror packaging slice:
+- [P2] SensibLaw partner-client packaging slice:
   - use chat thread `Aptos cryptocurrency overview`
     (`691ac8a3-4a30-8320-bd5f-f66efc3145e7`,
     canonical `dff5b29b89818300e7e352c0247c4cef3823bcfd`) as the current
     product-positioning source
-  - use `docs/planning/mirror_telegram_support_layer_boundary_20260401.md` as
-    the current control note for Telegram integration posture
   - keep the authority boundary explicit:
-    - Mirror owns top-level Telegram routing and user-facing policy
+    - the partner client owns top-level channel routing and user-facing policy
     - ITIR provides support-layer normalization, semantic disambiguation,
       provenance, and reviewable typed observations
     - Core AI remains downstream execution, not route ownership
-  - near-term next step for the sibling Mirror repo:
+  - near-term next step for the partner client:
     write the classifier-hardening spec that replaces brittle lexical routing
     with an ITIR-shaped support envelope over:
     - tokenizer lane
@@ -1677,15 +1675,14 @@
     - labeled fallback lane
     - provenance lane
     - router consumption contract
-  - keep Telegram archive analysis local-first:
-    Telegram chats are now present in `~/chat_archive.sqlite`; use
-    `chat_context_resolver` against the canonical archive before relying on
-    paraphrased recollection in future Mirror packaging or routing notes
-  - package SensibLaw/TiRC for Mirror as the missing `human risk layer` rather
-    than as a competing crypto research assistant
+  - keep source analysis local-first: use canonical archive retrieval before
+    relying on paraphrased recollection in future partner-client packaging or
+    routing notes
+  - package SensibLaw/TiRC as the missing `human risk layer` rather than as a
+    competing crypto research assistant
   - keep the stage/market read explicit in any packaging draft:
-    - Mirror / Glasslane currently reads as tiny, founder-led, pre-PMF, and
-      Discord/chatbot-first rather than as a mature institutional product
+    - the partner client currently reads as tiny, founder-led, pre-PMF, and
+      chat/community-first rather than as a mature institutional product
     - claimed professional buyers should be treated separately from the visible
       retail/KOL-style community mix
     - NFT/token monetization ideas in the source thread increase the value of a

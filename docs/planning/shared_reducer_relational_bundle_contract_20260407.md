@@ -36,14 +36,12 @@ heuristics, which is the wrong owner and the wrong boundary.
 ## Ownership
 
 - `SensibLaw` owns deterministic parser and reducer contracts.
-- downstream consumers such as Mirror consume emitted evidence and map it
-  locally, but should not recreate missing reducer structure through keyword
-  lists.
+- downstream consumers consume emitted evidence and map it locally, but should
+  not recreate missing reducer structure through keyword lists.
 
 This aligns with:
 
 - `docs/planning/reducer_ownership_contract_20260208.md`
-- `docs/planning/mirror_telegram_support_layer_boundary_20260401.md`
 - `SensibLaw/docs/planning/event_assembly_portability_20260315.md`
 
 ## Request
@@ -174,20 +172,6 @@ CREATE TABLE relational_provenance (
 6. The bundle may add structure, but it may not mutate or reinterpret the
    canonical text itself.
 
-## Golden Test Surface
-
-The first lock for this contract is a golden fixture at:
-
-- `service_telegram/test/fixtures/relational_bundle_v1_fx_public_hedging_volatility.json`
-
-That fixture exists to pin the intended emitted boundary for the known failing
-Telegram case:
-
-- `fx_public_hedging_volatility`
-
-The fixture is illustrative of the contract surface, not evidence that the
-upstream reducer already emits it today.
-
 ## Example Structural Bundle
 
 For:
@@ -210,11 +194,9 @@ It does not classify the text as a finance, market, or risk question.
 The contract is successful only if it enables downstream consumers to respond
 to structural bindings without reintroducing local keyword heuristics.
 
-For the Mirror Telegram support layer, the measurable downstream signal is:
-
-- `fx_public_hedging_volatility` should no longer remain at
-  `structural_gain=0` once the upstream bundle is actually emitted and
-  consumed.
+Downstream validation should use consumer-owned fixtures that demonstrate
+structural gain without coupling this contract to a specific product, channel,
+or router.
 
 ## Non-Goals
 

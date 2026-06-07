@@ -1454,20 +1454,12 @@
   - Updated Nat-facing status and handoff notes to reflect current reality:
     bounded mainline complete, wider proof lane complete, wider online lane
     held, and reviewer-packet support as the next missing layer.
-- Mirror Telegram support-layer boundary:
-  - Added `docs/planning/mirror_telegram_support_layer_boundary_20260401.md`
-    to freeze the current ITIR posture for the sibling Mirror Telegram work:
-    ITIR should not own top-level Telegram routing, but it should own the
-    support-layer normalization, disambiguation, parser/model lanes,
-    provenance, and labeled fallback discipline that de-brittle routing.
-  - Updated `README.md`, `TODO.md`, and `COMPACTIFIED_CONTEXT.md` so the suite
-    now records:
-    - Mirror route ownership stays local
-    - Core AI remains downstream execution rather than route authority
-    - Telegram chats are now present in `~/chat_archive.sqlite` for local-first
-      follow-up analysis
-    - the next bounded followthrough is a classifier-hardening spec in the
-      sibling Mirror repo
+- Partner support-layer boundary:
+  - Moved partner-specific Telegram routing posture into the partner client
+    documentation surface.
+  - Kept the ITIR-side record scoped to generic support-layer normalization,
+    disambiguation, parser/model lanes, provenance, and labeled fallback
+    discipline.
 - roadmap/state reconciliation checkpoint:
   - Updated `TODO.md`, `COMPACTIFIED_CONTEXT.md`, and `SensibLaw/todo.md` to
     reflect the actual substrate state as of `2026-04-01` rather than the
