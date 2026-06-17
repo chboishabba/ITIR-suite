@@ -1,0 +1,159 @@
+{
+  "schema": "itir.pnf.spectral_numeric_abi.v0_2",
+  "graph_version": "graph:test:spectral:v1",
+  "operator_profile": "spectral-symbolic-minimal",
+  "object_registry": {
+    "o0": {
+      "kind": "claim",
+      "label": "source"
+    },
+    "o1": {
+      "kind": "claim",
+      "label": "target"
+    }
+  },
+  "row_map": [
+    {
+      "row": 0,
+      "object_id": "o0",
+      "receipt_ids": [
+        "r0"
+      ]
+    },
+    {
+      "row": 1,
+      "object_id": "o1",
+      "receipt_ids": [
+        "r1"
+      ]
+    }
+  ],
+  "residual_edge_table": [
+    {
+      "source_row": 0,
+      "target_row": 1,
+      "weight": 3.0,
+      "undirected": true,
+      "kind": "noTypedMeetEdge",
+      "residual_level": "noTypedMeet"
+    }
+  ],
+  "adjacency": [
+    [
+      0.0,
+      3.0
+    ],
+    [
+      3.0,
+      0.0
+    ]
+  ],
+  "degree": [
+    3.0,
+    3.0
+  ],
+  "laplacian": [
+    [
+      3.0,
+      -3.0
+    ],
+    [
+      -3.0,
+      3.0
+    ]
+  ],
+  "spectral_coordinates": {
+    "phi": [
+      {
+        "row": 0,
+        "object_id": "o0",
+        "coordinates": [
+          0.0,
+          1.0
+        ]
+      },
+      {
+        "row": 1,
+        "object_id": "o1",
+        "coordinates": [
+          1.0,
+          0.0
+        ]
+      }
+    ],
+    "psi": {
+      "probes": [
+        {
+          "probe_id": "p0",
+          "row": 0,
+          "object_id": "o0",
+          "coordinates": [
+            0.0,
+            1.0
+          ],
+          "score": 0.75
+        }
+      ]
+    }
+  },
+  "gemv": {
+    "z": [
+      1.0,
+      2.0
+    ],
+    "A": [
+      [
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "b": [
+      0.0,
+      0.0
+    ],
+    "row_map": [
+      {
+        "row": 0,
+        "object_id": "o0",
+        "receipt_ids": [
+          "r0"
+        ]
+      },
+      {
+        "row": 1,
+        "object_id": "o1",
+        "receipt_ids": [
+          "r1"
+        ]
+      }
+    ]
+  },
+  "receipts": [
+    {
+      "receipt_id": "r0",
+      "source": "fixture"
+    },
+    {
+      "receipt_id": "r1",
+      "source": "fixture"
+    }
+  ],
+  "rebuild_witness": {
+    "deterministic_replay": true
+  },
+  "authority": {
+    "candidate_only": true,
+    "truth": false,
+    "support": false,
+    "admissibility": false,
+    "runtime": false,
+    "promoted": false,
+    "routing": false,
+    "vector": false
+  },
+  "parity_hash": "0b3bb671b6c45e5f0ff5c47cbad8a277d4ecbe59efb60327c6617f5862e03354"
+}

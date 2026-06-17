@@ -1,0 +1,263 @@
+{
+  "schema": "itir.pnf.spectral_numeric_abi.v0_2",
+  "graph_version": "sensiblaw-predicate-pnf-fixture:v0.2",
+  "operator_profile": "pnf-spectral-signed-residual-laplacian-v1",
+  "object_registry": {
+    "fact:lease-notice": {
+      "kind": "PredicatePNF.normal_form",
+      "normal_form": "notice_required(lessor, tenant, termination)",
+      "rendered_fact": "A lessor must give a tenant notice before termination.",
+      "fibre_id": "fibre:tenancy-notice",
+      "authority_label": "candidate-only"
+    },
+    "fact:written-notice": {
+      "kind": "PredicatePNF.normal_form",
+      "normal_form": "notice_required(lessor, tenant, termination)",
+      "rendered_fact": "Termination notice must be in writing.",
+      "fibre_id": "fibre:tenancy-notice",
+      "authority_label": "candidate-only"
+    },
+    "fact:repair-duty": {
+      "kind": "PredicatePNF.normal_form",
+      "normal_form": "duty(repair, lessor, premises)",
+      "rendered_fact": "The lessor has a repair duty for the premises.",
+      "fibre_id": "fibre:repair-duty",
+      "authority_label": "candidate-only"
+    },
+    "fact:no-repair-duty": {
+      "kind": "PredicatePNF.normal_form",
+      "normal_form": "not(duty(repair, lessor, premises))",
+      "rendered_fact": "The lessor has no repair duty for the premises.",
+      "fibre_id": "fibre:repair-duty",
+      "authority_label": "candidate-only"
+    }
+  },
+  "row_map": [
+    {
+      "row": 0,
+      "object_id": "fact:lease-notice",
+      "receipt_ids": ["receipt:sensiblaw:lease-notice"]
+    },
+    {
+      "row": 1,
+      "object_id": "fact:written-notice",
+      "receipt_ids": ["receipt:sensiblaw:written-notice"]
+    },
+    {
+      "row": 2,
+      "object_id": "fact:repair-duty",
+      "receipt_ids": ["receipt:sensiblaw:repair-duty"]
+    },
+    {
+      "row": 3,
+      "object_id": "fact:no-repair-duty",
+      "receipt_ids": ["receipt:sensiblaw:no-repair-duty"]
+    }
+  ],
+  "residual_edge_table": [
+    {
+      "edge_id": "edge:exact-notice",
+      "kind": "exactResidualEdge",
+      "edge_kind": "exactResidualEdge",
+      "weight_class": "exactResidualWeight",
+      "origin_class": "structuralFibreOrigin",
+      "source_class": "structuralFibreSource",
+      "residual_level": "exact",
+      "signed_weight": {
+        "sign": "positiveWeight",
+        "magnitude": 0
+      },
+      "source_row": 0,
+      "target_row": 1,
+      "undirected": true,
+      "receipt_ids": ["receipt:sensiblaw:lease-notice", "receipt:sensiblaw:written-notice"]
+    },
+    {
+      "edge_id": "edge:partial-notice-repair",
+      "kind": "partialResidualEdge",
+      "edge_kind": "partialResidualEdge",
+      "weight_class": "partialResidualWeight",
+      "origin_class": "structuralFibreOrigin",
+      "source_class": "structuralFibreSource",
+      "residual_level": "partial",
+      "signed_weight": {
+        "sign": "positiveWeight",
+        "magnitude": 1
+      },
+      "source_row": 1,
+      "target_row": 2,
+      "undirected": true,
+      "receipt_ids": ["receipt:sensiblaw:written-notice", "receipt:sensiblaw:repair-duty"]
+    },
+    {
+      "edge_id": "edge:no-typed-meet-repair",
+      "kind": "noTypedMeetEdge",
+      "edge_kind": "noTypedMeetEdge",
+      "weight_class": "noTypedMeetWeight",
+      "origin_class": "structuralFibreOrigin",
+      "source_class": "structuralFibreSource",
+      "residual_level": "noTypedMeet",
+      "signed_weight": {
+        "sign": "positiveWeight",
+        "magnitude": 3
+      },
+      "source_row": 2,
+      "target_row": 3,
+      "undirected": true,
+      "receipt_ids": ["receipt:sensiblaw:repair-duty", "receipt:sensiblaw:no-repair-duty"]
+    },
+    {
+      "edge_id": "edge:contradiction-repair",
+      "kind": "contradictionEdge",
+      "edge_kind": "contradictionEdge",
+      "weight_class": "contradictionSignedWeight",
+      "origin_class": "contradictionOrigin",
+      "source_class": "contradictionSource",
+      "residual_level": "contradiction",
+      "signed_weight": {
+        "sign": "negativeResidualWeight",
+        "magnitude": 9
+      },
+      "source_row": 0,
+      "target_row": 3,
+      "undirected": true,
+      "receipt_ids": ["receipt:sensiblaw:lease-notice", "receipt:sensiblaw:no-repair-duty"]
+    }
+  ],
+  "adjacency": [
+    [0, 0, 0, -9],
+    [0, 0, 1, 0],
+    [0, 1, 0, 3],
+    [-9, 0, 3, 0]
+  ],
+  "degree": [-9, 1, 4, -6],
+  "laplacian": [
+    [-9, 0, 0, 9],
+    [0, 1, -1, 0],
+    [0, -1, 4, -3],
+    [9, 0, -3, -6]
+  ],
+  "spectral_coordinates": {
+    "phi": [
+      {
+        "row": 0,
+        "object_id": "fact:lease-notice",
+        "coordinates": [0.0, 1.0]
+      },
+      {
+        "row": 1,
+        "object_id": "fact:written-notice",
+        "coordinates": [0.1, 0.9]
+      },
+      {
+        "row": 2,
+        "object_id": "fact:repair-duty",
+        "coordinates": [0.8, 0.2]
+      },
+      {
+        "row": 3,
+        "object_id": "fact:no-repair-duty",
+        "coordinates": [-0.8, -0.2]
+      }
+    ],
+    "psi": {
+      "probes": [
+        {
+          "probe_id": "probe:repair-duty",
+          "row": 2,
+          "object_id": "fact:repair-duty",
+          "coordinates": [0.8, 0.2],
+          "score": 0.88,
+          "candidate_refs": [
+            {
+              "candidate_ref": "candidate:repair-duty:0",
+              "row": 2,
+              "object_id": "fact:repair-duty",
+              "rank": 0
+            },
+            {
+              "candidate_ref": "candidate:no-repair-duty:1",
+              "row": 3,
+              "object_id": "fact:no-repair-duty",
+              "rank": 1
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "gemv": {
+    "z": [1, 0, 0, 0],
+    "A": [
+      [0, 0, 0, -9],
+      [0, 0, 1, 0],
+      [0, 1, 0, 3],
+      [-9, 0, 3, 0]
+    ],
+    "b": [0, 0, 0, 0],
+    "row_map": [
+      {
+        "row": 0,
+        "object_id": "fact:lease-notice",
+        "receipt_ids": ["receipt:sensiblaw:lease-notice"]
+      },
+      {
+        "row": 1,
+        "object_id": "fact:written-notice",
+        "receipt_ids": ["receipt:sensiblaw:written-notice"]
+      },
+      {
+        "row": 2,
+        "object_id": "fact:repair-duty",
+        "receipt_ids": ["receipt:sensiblaw:repair-duty"]
+      },
+      {
+        "row": 3,
+        "object_id": "fact:no-repair-duty",
+        "receipt_ids": ["receipt:sensiblaw:no-repair-duty"]
+      }
+    ]
+  },
+  "receipts": [
+    {
+      "receipt_id": "receipt:sensiblaw:lease-notice",
+      "source": "SensibLaw.fixture",
+      "predicate_pnf_receipt": "pnf:notice-required"
+    },
+    {
+      "receipt_id": "receipt:sensiblaw:written-notice",
+      "source": "SensibLaw.fixture",
+      "predicate_pnf_receipt": "pnf:written-notice"
+    },
+    {
+      "receipt_id": "receipt:sensiblaw:repair-duty",
+      "source": "SensibLaw.fixture",
+      "predicate_pnf_receipt": "pnf:repair-duty"
+    },
+    {
+      "receipt_id": "receipt:sensiblaw:no-repair-duty",
+      "source": "SensibLaw.fixture",
+      "predicate_pnf_receipt": "pnf:no-repair-duty"
+    }
+  ],
+  "rebuild_witness": {
+    "deterministic_replay": true,
+    "method": "signed residual adjacency; degree is row-sum; laplacian is D - W",
+    "agda_references": [
+      "DASHI.Interop.PNFSpectralFieldGraph",
+      "DASHI.Interop.PNFSpectralCoordinateRebuildability",
+      "DASHI.Interop.PNFSpectralVectorIndex"
+    ]
+  },
+  "authority": {
+    "candidate_only": true,
+    "truth": false,
+    "support": false,
+    "admissibility": false,
+    "runtime": false,
+    "promoted": false,
+    "routing": false,
+    "vector": false
+  },
+  "parity_hash": "c203cb5b6a4f8c3bb156afbd296341616434954d887f8ea9a335ce29c39c225c"
+}
