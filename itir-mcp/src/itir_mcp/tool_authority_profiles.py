@@ -430,6 +430,23 @@ REGISTRY_TOOL_AUTHORITY_PROFILE_SPECS: tuple[ToolAuthorityProfile, ...] = (
         },
     ),
     ToolAuthorityProfile(
+        tool_id="itir.wikidata.object_review_bundle",
+        kind=ToolKind.VALIDATION.value,
+        inputs=(AuthorityStatus.OBSERVED.value, AuthorityStatus.CANDIDATE.value, AuthorityStatus.RECEIPT.value),
+        outputs=(AuthorityStatus.RECEIPT.value,),
+        mutates=False,
+        validation_mode="strict",
+        repair_mode="none",
+        max_authority=AuthorityStatus.RECEIPT.value,
+        promotion_requires_gate=False,
+        authority_notes={
+            "authority_class": "domain_object_review_bundle",
+            "candidate_only": True,
+            "non_authoritative": True,
+            "note": "Wikidata object review bundles normalize supplied objects and run candidate review lanes without promotion.",
+        },
+    ),
+    ToolAuthorityProfile(
         tool_id="itir.wikidata.migration_candidate",
         kind=ToolKind.VALIDATION.value,
         inputs=(AuthorityStatus.OBSERVED.value, AuthorityStatus.CANDIDATE.value, AuthorityStatus.RECEIPT.value),

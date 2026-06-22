@@ -30,6 +30,7 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.gwb.follow_graph",
         "itir.wikidata.tooling_profile",
         "itir.wikidata.migration_candidate",
+        "itir.wikidata.object_review_bundle",
         "itir.spectral.candidate_packet",
         "itir.wikidata.review_packet",
         "itir.wikiproject.tooling_profile",
@@ -44,6 +45,25 @@ def test_default_registry_lists_expected_tools() -> None:
     }
 
 
+def test_default_registry_registers_wikidata_object_review_bundle_as_read_only() -> None:
+    registry = build_default_registry()
+
+    assert "itir.wikidata.object_review_bundle" in {tool.name for tool in registry.list_tools()}
+
+    spec = registry.get_tool_spec("itir.wikidata.object_review_bundle")
+    assert spec is not None
+    assert spec.read_only is True
+
+    profile_key = registry.get_tool_authority_profile_key("itir.wikidata.object_review_bundle")
+    profile = registry.get_tool_authority_profile("itir.wikidata.object_review_bundle")
+
+    assert profile_key == "itir.wikidata.object_review_bundle"
+    assert profile is not None
+    assert profile["tool_id"] == "itir.wikidata.object_review_bundle"
+    assert profile["authority_notes"]["candidate_only"] is True
+    assert profile["authority_notes"]["non_authoritative"] is True
+
+
 def test_default_registry_exposes_stable_authority_profiles_for_governance_and_shards() -> None:
     registry = build_default_registry()
     expected_tools = {
@@ -53,6 +73,7 @@ def test_default_registry_exposes_stable_authority_profiles_for_governance_and_s
         "itir.gwb.follow_graph",
         "itir.wikidata.tooling_profile",
         "itir.wikidata.migration_candidate",
+        "itir.wikidata.object_review_bundle",
         "itir.spectral.candidate_packet",
         "itir.wikidata.review_packet",
         "itir.wikiproject.tooling_profile",

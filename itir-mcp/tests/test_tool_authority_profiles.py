@@ -48,6 +48,20 @@ def test_spectral_candidate_packet_profile_stays_candidate_only() -> None:
     assert AuthorityStatus.PROMOTED.value not in profile["outputs"]
 
 
+def test_wikidata_object_review_bundle_profile_stays_candidate_only_and_non_authoritative() -> None:
+    profile = validate_tool_authority_profile(
+        DEFAULT_REGISTRY_TOOL_AUTHORITY_PROFILES["itir.wikidata.object_review_bundle"]
+    )
+
+    assert profile["tool_id"] == "itir.wikidata.object_review_bundle"
+    assert profile["mutates"] is False
+    assert profile["max_authority"] == AuthorityStatus.RECEIPT.value
+    assert profile["promotion_requires_gate"] is False
+    assert profile["authority_notes"]["candidate_only"] is True
+    assert profile["authority_notes"]["non_authoritative"] is True
+    assert AuthorityStatus.PROMOTED.value not in profile["outputs"]
+
+
 @pytest.mark.parametrize(
     "tool_id",
     [

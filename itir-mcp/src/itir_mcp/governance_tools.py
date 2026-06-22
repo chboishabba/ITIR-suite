@@ -31,6 +31,7 @@ from .wikiproject_tooling_profile import (
     WIKIPROJECT_TOOLING_PROFILE_VERSION,
     build_default_wikiproject_tooling_profile,
 )
+from .wikidata_object_review import VERSION as WIKIDATA_OBJECT_REVIEW_BUNDLE_VERSION, wikidata_object_review_bundle
 from .zelph_pack_loader import PACK_LOADER_VERSION, load_zelph_pack_source_descriptor
 
 
@@ -258,6 +259,30 @@ def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
                 read_only=True,
             ),
             wikidata_review_packet,
+        ),
+        (
+            ToolSpec(
+                name="itir.wikidata.object_review_bundle",
+                title="ITIR Wikidata object review bundle",
+                description="Normalize one or more Wikidata objects and run candidate-only Wikidata/NAT/GWB review lanes.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "object": {"type": "object"},
+                        "objects": {},
+                        "entity": {"type": "object"},
+                        "entities": {},
+                        "lanes": {},
+                        "domain": {"type": "string"},
+                        "tooling_profile": {"type": "object"},
+                    },
+                    "required": [],
+                    "additionalProperties": True,
+                },
+                response_version=WIKIDATA_OBJECT_REVIEW_BUNDLE_VERSION,
+                read_only=True,
+            ),
+            wikidata_object_review_bundle,
         ),
         (
             ToolSpec(
