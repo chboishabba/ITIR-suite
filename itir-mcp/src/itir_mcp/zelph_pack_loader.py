@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any, Mapping, Sequence
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import quote, urlsplit, urlunsplit
+from urllib.request import urlopen
 
 
 PACK_LOADER_VERSION = "itir.zelph.pack_loader.v1"
@@ -42,6 +43,7 @@ def load_zelph_pack_source_descriptor(
     repo_root: Path | str | None = None,
     *,
     manifest_paths: Sequence[Path | str] | None = None,
+    hf_dataset_urls: Sequence[str] | None = None,
 ) -> dict[str, Any]:
     """Load Zelph pack manifests into a candidate-only shared-shard source descriptor."""
 
@@ -52,11 +54,13 @@ def load_zelph_pack_source_descriptor(
         else discover_zelph_pack_manifest_paths(root)
     )
     if not selected_manifests:
-        raise FileNotFoundError("no Zelph real-world pack manifests were found")
+        if not hf_dataset_urls:
+            raise FileNotFoundError("no Zelph real-world pack manifests were found")
 
     manifest_summaries: list[dict[str, Any]] = []
     entries: list[dict[str, Any]] = []
     references: list[dict[str, Any]] = []
+    remote_datasets: list[dict[str, Any]] = []
     for manifest_path in selected_manifests:
         manifest = _load_json_object(manifest_path)
         manifest_version = _required_str(manifest, "version", label=str(manifest_path))
@@ -104,6 +108,15 @@ def load_zelph_pack_source_descriptor(
             }
         )
 
+    if hf_dataset_urls:
+        for dataset_url in hf_dataset_urls:
+            remote = _load_hf_dataset_descriptor(dataset_url)
+            remote_datasets.append(remote)
+            for ref in remote["references"]:
+                references.append(ref)
+            for entry in remote["entries"]:
+                entries.append(entry)
+
     normalized_references = _dedupe_references(references)
     return {
         "version": PACK_LOADER_VERSION,
@@ -112,13 +125,135 @@ def load_zelph_pack_source_descriptor(
         "candidate_only": True,
         "non_authoritative": True,
         "network_fetch": False,
+        "metadata_fetch": bool(hf_dataset_urls),
         "manifest_count": len(manifest_summaries),
+        "remote_dataset_count": len(remote_datasets),
         "entry_count": len(entries),
         "reference_count": len(normalized_references),
         "manifests": manifest_summaries,
+        "remote_datasets": remote_datasets,
         "entries": entries,
         "references": normalized_references,
     }
+
+
+def _load_hf_dataset_descriptor(dataset_url: str) -> dict[str, Any]:
+    dataset_id = _hf_dataset_id(dataset_url)
+    encoded_id = quote(dataset_id, safe="/")
+    api_url = f"https://huggingface.co/api/datasets/{encoded_id}"
+    tree_url = f"https://huggingface.co/api/datasets/{encoded_id}/tree/main?recursive=true"
+    metadata = _load_json_object_from_url(api_url)
+    tree = _load_json_array_from_url(tree_url)
+
+    files = [_mapping(item, f"{tree_url}:item") for item in tree if isinstance(item, Mapping) and item.get("type") == "file"]
+    manifest_files = [file for file in files if str(file.get("path", "")).endswith(("manifest.json", "manifest-v3.json"))]
+    route_files = [file for file in files if str(file.get("path", "")).endswith(".route.json")]
+    shard_files = [
+        file
+        for file in files
+        if "/shards/" in str(file.get("path", "")) and str(file.get("path", "")).endswith(".capnp-packed")
+    ]
+
+    references = [
+        _reference("dataset_url", _sanitize_reference_uri(dataset_url)),
+        _reference("api_url", api_url),
+        _reference("tree_url", tree_url),
+    ]
+    entries: list[dict[str, Any]] = []
+    for index, file in enumerate(manifest_files + route_files + shard_files):
+        path = _required_str(file, "path", label=tree_url)
+        hf_uri = f"hf://datasets/{dataset_id}/{path}"
+        references.append(_reference("hf_uri", hf_uri))
+        entries.append(
+            {
+                "descriptor_version": PACK_LOADER_VERSION,
+                "manifest_path": None,
+                "manifest_version": None,
+                "entry_index": index,
+                "path": hf_uri,
+                "resolved_path": hf_uri,
+                "exists": True,
+                "source_kind": "hf_dataset_file",
+                "candidate_only": True,
+                "non_authoritative": True,
+                "network_fetch": False,
+                "metadata_fetch": True,
+                "sizeBytes": int(file["size"]) if isinstance(file.get("size"), int) else None,
+                "references": [_reference("hf_uri", hf_uri)],
+            }
+        )
+
+    return {
+        "dataset_id": dataset_id,
+        "sha": metadata.get("sha"),
+        "lastModified": metadata.get("lastModified"),
+        "private": bool(metadata.get("private", False)),
+        "gated": bool(metadata.get("gated", False)),
+        "file_count": len(files),
+        "manifest_file_count": len(manifest_files),
+        "route_file_count": len(route_files),
+        "shard_file_count": len(shard_files),
+        "usedStorage": metadata.get("usedStorage"),
+        "network_fetch": False,
+        "metadata_fetch": True,
+        "candidate_only": True,
+        "non_authoritative": True,
+        "manifest_paths": [str(file["path"]) for file in manifest_files],
+        "route_paths": [str(file["path"]) for file in route_files],
+        "shard_prefixes": _unique_sorted_shard_prefixes(shard_files),
+        "entries": entries,
+        "references": _dedupe_references(references),
+    }
+
+
+def _hf_dataset_id(dataset_url: str) -> str:
+    parsed = urlsplit(dataset_url.strip())
+    if parsed.scheme in {"http", "https"}:
+        parts = [part for part in parsed.path.split("/") if part]
+        if len(parts) >= 3 and parts[0] == "datasets":
+            return f"{parts[1]}/{parts[2]}"
+    if dataset_url.startswith("hf://datasets/"):
+        parts = dataset_url.removeprefix("hf://datasets/").split("/")
+        if len(parts) >= 2:
+            return f"{parts[0]}/{parts[1]}"
+    if "/" in dataset_url and not parsed.scheme:
+        owner, name, *_ = dataset_url.split("/")
+        if owner and name:
+            return f"{owner}/{name}"
+    raise ValueError(f"unsupported Hugging Face dataset reference: {dataset_url}")
+
+
+def _load_json_object_from_url(url: str) -> dict[str, Any]:
+    with urlopen(url, timeout=30) as response:
+        data = json.loads(response.read().decode("utf-8"))
+    return _mapping(data, url)
+
+
+def _load_json_array_from_url(url: str) -> list[Any]:
+    with urlopen(url, timeout=30) as response:
+        data = json.loads(response.read().decode("utf-8"))
+    if not isinstance(data, list):
+        raise ValueError(f"{url} must return an array")
+    return data
+
+
+def _reference(field: str, uri: str) -> dict[str, Any]:
+    return {
+        "field": field,
+        "uri": uri,
+        "reference_only": True,
+        "non_authoritative": True,
+    }
+
+
+def _unique_sorted_shard_prefixes(shard_files: Sequence[Mapping[str, Any]]) -> list[str]:
+    prefixes: set[str] = set()
+    for file in shard_files:
+        path = str(file.get("path") or "")
+        if "/shards/" not in path:
+            continue
+        prefixes.add(path.split("/shards/", 1)[0] + "/shards")
+    return sorted(prefixes)
 
 
 def _collect_entry_references(value: Any) -> list[dict[str, Any]]:

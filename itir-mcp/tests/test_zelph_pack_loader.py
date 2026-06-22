@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from itir_mcp import build_default_registry
+import itir_mcp.zelph_pack_loader as pack_loader
 from itir_mcp.zelph_pack_loader import (
     discover_zelph_pack_manifest_paths,
     load_zelph_pack_source_descriptor,
@@ -163,3 +164,130 @@ def test_zelph_pack_sources_safe_invoke_abstains_on_candidate_profile() -> None:
     assert payload["authority_profile"]["candidate_only"] is True
     assert payload["authority_profile"]["non_authoritative"] is True
     assert "profile_candidate_only" in payload["receipt"]["reason_codes"]
+
+
+def test_load_zelph_pack_source_descriptor_summarizes_explicit_hf_dataset_without_shard_download(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    class _Response:
+        def __init__(self, payload: object) -> None:
+            self._payload = payload
+
+        def __enter__(self) -> "_Response":
+            return self
+
+        def __exit__(self, *args: object) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return json.dumps(self._payload).encode("utf-8")
+
+    calls: list[str] = []
+
+    def _urlopen(url: str, timeout: int = 30) -> _Response:
+        calls.append(url)
+        if url.endswith("/api/datasets/chbwa/zelph-sharded"):
+            return _Response(
+                {
+                    "id": "chbwa/zelph-sharded",
+                    "sha": "059c578f2bd0f068e46a73b61205d39190e7dc92",
+                    "lastModified": "2026-03-26T15:08:29.000Z",
+                    "private": False,
+                    "gated": False,
+                    "usedStorage": 244217169,
+                }
+            )
+        if url.endswith("/api/datasets/chbwa/zelph-sharded/tree/main?recursive=true"):
+            return _Response(
+                [
+                    {"type": "file", "path": ".gitattributes", "size": 3823},
+                    {"type": "file", "path": "minimal-proof/manifest.json", "size": 2428},
+                    {"type": "file", "path": "minimal-proof/artifact.route.json", "size": 824},
+                    {
+                        "type": "file",
+                        "path": "minimal-proof/shards/left/chunk-000000.capnp-packed",
+                        "size": 75535779,
+                    },
+                    {
+                        "type": "file",
+                        "path": "minimal-proof/shards/nodeOfName/chunk-000000-wikidata.capnp-packed",
+                        "size": 1234,
+                    },
+                ]
+            )
+        raise AssertionError(f"unexpected URL or attempted object download: {url}")
+
+    monkeypatch.setattr(pack_loader, "urlopen", _urlopen)
+
+    descriptor = load_zelph_pack_source_descriptor(
+        tmp_path,
+        manifest_paths=[],
+        hf_dataset_urls=["https://huggingface.co/datasets/chbwa/zelph-sharded"],
+    )
+
+    assert calls == [
+        "https://huggingface.co/api/datasets/chbwa/zelph-sharded",
+        "https://huggingface.co/api/datasets/chbwa/zelph-sharded/tree/main?recursive=true",
+    ]
+    assert descriptor["manifest_count"] == 0
+    assert descriptor["remote_dataset_count"] == 1
+    assert descriptor["metadata_fetch"] is True
+    assert descriptor["network_fetch"] is False
+    assert descriptor["entry_count"] == 4
+
+    remote = descriptor["remote_datasets"][0]
+    assert remote["dataset_id"] == "chbwa/zelph-sharded"
+    assert remote["manifest_file_count"] == 1
+    assert remote["route_file_count"] == 1
+    assert remote["shard_file_count"] == 2
+    assert remote["manifest_paths"] == ["minimal-proof/manifest.json"]
+    assert remote["route_paths"] == ["minimal-proof/artifact.route.json"]
+    assert remote["shard_prefixes"] == ["minimal-proof/shards"]
+    assert remote["candidate_only"] is True
+    assert remote["non_authoritative"] is True
+
+    assert any(ref["uri"] == "hf://datasets/chbwa/zelph-sharded/minimal-proof/manifest.json" for ref in descriptor["references"])
+    assert all(ref["reference_only"] is True for ref in descriptor["references"])
+    assert all(entry["source_kind"] == "hf_dataset_file" for entry in descriptor["entries"])
+    assert all(entry["network_fetch"] is False for entry in descriptor["entries"])
+
+
+def test_zelph_pack_sources_registry_tool_accepts_explicit_hf_dataset_urls(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    class _Response:
+        def __init__(self, payload: object) -> None:
+            self._payload = payload
+
+        def __enter__(self) -> "_Response":
+            return self
+
+        def __exit__(self, *args: object) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return json.dumps(self._payload).encode("utf-8")
+
+    def _urlopen(url: str, timeout: int = 30) -> _Response:
+        if url.endswith("/api/datasets/chbwa/zelph-sharded"):
+            return _Response({"id": "chbwa/zelph-sharded", "sha": "abc", "private": False, "gated": False})
+        if url.endswith("/api/datasets/chbwa/zelph-sharded/tree/main?recursive=true"):
+            return _Response([{"type": "file", "path": "minimal-proof/manifest.json", "size": 2428}])
+        raise AssertionError(url)
+
+    monkeypatch.setattr(pack_loader, "urlopen", _urlopen)
+
+    registry = build_default_registry()
+    result = registry.invoke(
+        "itir.zelph.pack_sources",
+        {
+            "repo_root": str(tmp_path),
+            "manifest_paths": [],
+            "hf_dataset_urls": ["chbwa/zelph-sharded"],
+        },
+    )
+
+    assert result["ok"] is True
+    descriptor = result["result"]
+    assert descriptor["remote_dataset_count"] == 1
+    assert descriptor["remote_datasets"][0]["manifest_paths"] == ["minimal-proof/manifest.json"]

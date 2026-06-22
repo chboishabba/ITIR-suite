@@ -300,6 +300,7 @@ def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
                     "properties": {
                         "repo_root": {"type": "string"},
                         "manifest_paths": {"type": "array", "items": {"type": "string"}},
+                        "hf_dataset_urls": {"type": "array", "items": {"type": "string"}},
                     },
                     "required": [],
                     "additionalProperties": True,
@@ -472,10 +473,16 @@ def zelph_pack_sources_tool(payload: Mapping[str, Any]) -> JsonDict:
         manifest_path_list = _require_string_sequence(payload, "manifest_paths")
     else:
         manifest_path_list = None
+    hf_dataset_urls = payload.get("hf_dataset_urls")
+    if hf_dataset_urls is not None:
+        hf_dataset_url_list = _require_string_sequence(payload, "hf_dataset_urls")
+    else:
+        hf_dataset_url_list = None
     return _wrap_value_error(
         load_zelph_pack_source_descriptor,
         repo_root,
         manifest_paths=manifest_path_list,
+        hf_dataset_urls=hf_dataset_url_list,
     )
 
 
