@@ -4,11 +4,18 @@ from typing import Any, Mapping, Sequence
 
 from .contracts import JsonDict, ToolHandler, ToolInputError, ToolSpec
 from .domain_tools import (
+    CLIMATE_CLAIM_REVIEW_VERSION,
+    GWB_FOLLOW_GRAPH_VERSION,
+    WIKIDATA_MIGRATION_CANDIDATE_VERSION,
     WIKIDATA_REVIEW_PACKET_VERSION,
     ZELPH_PARTIAL_CLOSURE_VERSION,
+    climate_claim_review,
+    gwb_follow_graph,
+    wikidata_migration_candidate,
     wikidata_review_packet,
     zelph_partial_closure,
 )
+from .pnf_spectral_packet import VERSION as SPECTRAL_CANDIDATE_PACKET_VERSION, build_candidate_spectral_packet
 from .shard_transport import (
     build_partial_graph_view,
     route_selector as _route_selector,
@@ -19,6 +26,7 @@ from .wikiproject_tooling_profile import (
     WIKIPROJECT_TOOLING_PROFILE_VERSION,
     build_default_wikiproject_tooling_profile,
 )
+from .zelph_pack_loader import PACK_LOADER_VERSION, load_zelph_pack_source_descriptor
 
 
 GOVERNANCE_TOOL_PROFILES_VERSION = "itir.governance.tool_profiles.v1"
@@ -200,6 +208,109 @@ def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
         ),
         (
             ToolSpec(
+                name="itir.wikidata.migration_candidate",
+                title="ITIR Wikidata migration candidate",
+                description="Compile a candidate-only Wikidata migration packet from structural refs and hints.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "statement_refs": {"type": "array", "items": {"type": "string"}},
+                        "property_hints": {"type": "array", "items": {"type": "string"}},
+                        "class_hints": {"type": "array", "items": {"type": "string"}},
+                        "expected_fields": {"type": "array", "items": {"type": "string"}},
+                        "characteristic_fields": {"type": "array", "items": {"type": "string"}},
+                        "authority_label": {"type": "string"},
+                    },
+                    "required": ["authority_label"],
+                    "additionalProperties": True,
+                },
+                response_version=WIKIDATA_MIGRATION_CANDIDATE_VERSION,
+                read_only=True,
+            ),
+            wikidata_migration_candidate,
+        ),
+        (
+            ToolSpec(
+                name="itir.climate.claim_review",
+                title="ITIR Climate claim review",
+                description="Compile a candidate-only Climate NAT claim review packet without promotion authority.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "claims": {"type": "array", "items": {"type": "object"}},
+                        "authority_label": {"type": "string"},
+                        "gate_requirements": {"type": "object"},
+                    },
+                    "required": ["claims"],
+                    "additionalProperties": True,
+                },
+                response_version=CLIMATE_CLAIM_REVIEW_VERSION,
+                read_only=True,
+            ),
+            climate_claim_review,
+        ),
+        (
+            ToolSpec(
+                name="itir.gwb.follow_graph",
+                title="ITIR GWB follow graph",
+                description="Compile a candidate-only GWB/Brexit external authority follow graph.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "source_refs": {"type": "array", "items": {"type": "string"}},
+                        "authority_refs": {"type": "array", "items": {"type": "string"}},
+                        "follow_edges": {"type": "array", "items": {"type": "object"}},
+                        "unresolved_obligations": {"type": "array", "items": {"type": "object"}},
+                        "authority_label": {"type": "string"},
+                    },
+                    "required": ["follow_edges", "authority_label"],
+                    "additionalProperties": True,
+                },
+                response_version=GWB_FOLLOW_GRAPH_VERSION,
+                read_only=True,
+            ),
+            gwb_follow_graph,
+        ),
+        (
+            ToolSpec(
+                name="itir.spectral.candidate_packet",
+                title="ITIR spectral candidate packet",
+                description="Compile a candidate-only spectral packet projection from a partial view and spectral payload.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "partial_view": {"type": "object"},
+                        "spectral_payload_summary_or_payload": {"type": "object"},
+                    },
+                    "required": ["partial_view", "spectral_payload_summary_or_payload"],
+                    "additionalProperties": True,
+                },
+                response_version=SPECTRAL_CANDIDATE_PACKET_VERSION,
+                read_only=True,
+            ),
+            spectral_candidate_packet_tool,
+        ),
+        (
+            ToolSpec(
+                name="itir.zelph.pack_sources",
+                title="ITIR Zelph pack sources",
+                description="Load local Zelph real-world pack manifests into a candidate-only source descriptor without network fetches.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "repo_root": {"type": "string"},
+                        "manifest_paths": {"type": "array", "items": {"type": "string"}},
+                    },
+                    "required": [],
+                    "additionalProperties": True,
+                },
+                response_version=PACK_LOADER_VERSION,
+                read_only=True,
+            ),
+            zelph_pack_sources_tool,
+        ),
+        (
+            ToolSpec(
                 name="itir.zelph.partial_closure",
                 title="ITIR Zelph partial closure",
                 description="Compile a candidate-only partial closure summary from a shard view without authority claims.",
@@ -346,6 +457,26 @@ def partial_graph_view_tool(payload: Mapping[str, Any]) -> JsonDict:
         "diagnostic_only": view["diagnostic_only"],
         "authority_boundary": dict(_AUTHORITY_BOUNDARY),
     }
+
+
+def spectral_candidate_packet_tool(payload: Mapping[str, Any]) -> JsonDict:
+    partial_view = _require_mapping(payload, "partial_view")
+    spectral_payload_summary_or_payload = _require_mapping(payload, "spectral_payload_summary_or_payload")
+    return build_candidate_spectral_packet(partial_view, spectral_payload_summary_or_payload)
+
+
+def zelph_pack_sources_tool(payload: Mapping[str, Any]) -> JsonDict:
+    repo_root = _optional_str(payload, "repo_root")
+    manifest_paths = payload.get("manifest_paths")
+    if manifest_paths is not None:
+        manifest_path_list = _require_string_sequence(payload, "manifest_paths")
+    else:
+        manifest_path_list = None
+    return _wrap_value_error(
+        load_zelph_pack_source_descriptor,
+        repo_root,
+        manifest_paths=manifest_path_list,
+    )
 
 
 def _artifact_identity(artifact: Mapping[str, Any]) -> JsonDict:

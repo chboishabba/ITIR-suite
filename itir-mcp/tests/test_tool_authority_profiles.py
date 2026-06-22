@@ -8,6 +8,7 @@ from itir_mcp.tool_authority_profiles import (
     ToolAuthorityProfile,
     ToolKind,
     DEFAULT_TOOL_AUTHORITY_PROFILES,
+    DEFAULT_REGISTRY_TOOL_AUTHORITY_PROFILES,
     validate_tool_authority_profile,
 )
 
@@ -31,6 +32,40 @@ def test_quickstatements_mutates_without_truth_promotion() -> None:
 
     assert profile["mutates"] is True
     assert profile["max_authority"] != AuthorityStatus.PROMOTED.value
+    assert AuthorityStatus.PROMOTED.value not in profile["outputs"]
+
+
+def test_spectral_candidate_packet_profile_stays_candidate_only() -> None:
+    profile = validate_tool_authority_profile(DEFAULT_REGISTRY_TOOL_AUTHORITY_PROFILES["itir.spectral.candidate_packet"])
+
+    assert profile["tool_id"] == "itir.spectral.candidate_packet"
+    assert profile["kind"] == ToolKind.CANDIDATE_CLOSURE.value
+    assert profile["mutates"] is False
+    assert profile["max_authority"] == AuthorityStatus.RECEIPT.value
+    assert profile["promotion_requires_gate"] is False
+    assert profile["authority_notes"]["candidate_only"] is True
+    assert profile["authority_notes"]["non_authoritative"] is True
+    assert AuthorityStatus.PROMOTED.value not in profile["outputs"]
+
+
+@pytest.mark.parametrize(
+    "tool_id",
+    [
+        "itir.wikidata.migration_candidate",
+        "itir.climate.claim_review",
+        "itir.gwb.follow_graph",
+        "itir.zelph.pack_sources",
+    ],
+)
+def test_new_candidate_domain_profiles_stay_receipt_only(tool_id: str) -> None:
+    profile = validate_tool_authority_profile(DEFAULT_REGISTRY_TOOL_AUTHORITY_PROFILES[tool_id])
+
+    assert profile["tool_id"] == tool_id
+    assert profile["mutates"] is False
+    assert profile["max_authority"] == AuthorityStatus.RECEIPT.value
+    assert profile["promotion_requires_gate"] is False
+    assert profile["authority_notes"]["candidate_only"] is True
+    assert profile["authority_notes"]["non_authoritative"] is True
     assert AuthorityStatus.PROMOTED.value not in profile["outputs"]
 
 
