@@ -611,6 +611,40 @@ REGISTRY_TOOL_AUTHORITY_PROFILE_SPECS: tuple[ToolAuthorityProfile, ...] = (
             "note": "Shard partial graph views remain non-authoritative.",
         },
     ),
+    ToolAuthorityProfile(
+        tool_id="itir.shard.payload_probe",
+        kind=ToolKind.ARTIFACT_TRANSPORT.value,
+        inputs=(AuthorityStatus.OBSERVED.value, AuthorityStatus.RECEIPT.value),
+        outputs=(AuthorityStatus.RECEIPT.value,),
+        mutates=False,
+        validation_mode="strict",
+        repair_mode="none",
+        max_authority=AuthorityStatus.RECEIPT.value,
+        promotion_requires_gate=False,
+        authority_notes={
+            "authority_class": "bounded_payload_probe",
+            "candidate_only": True,
+            "non_authoritative": True,
+            "note": "Bounded shard payload probes expose capped transport bytes and cannot claim closure, truth, or promotion.",
+        },
+    ),
+    ToolAuthorityProfile(
+        tool_id="itir.zelph.hf_manifest_contract",
+        kind=ToolKind.ARTIFACT_TRANSPORT.value,
+        inputs=(AuthorityStatus.OBSERVED.value, AuthorityStatus.RECEIPT.value),
+        outputs=(AuthorityStatus.RECEIPT.value,),
+        mutates=False,
+        validation_mode="strict",
+        repair_mode="none",
+        max_authority=AuthorityStatus.RECEIPT.value,
+        promotion_requires_gate=False,
+        authority_notes={
+            "authority_class": "hf_manifest_contract",
+            "candidate_only": True,
+            "non_authoritative": True,
+            "note": "HF manifests are lifted into shared shard contracts as candidate transport receipts only.",
+        },
+    ),
 )
 
 

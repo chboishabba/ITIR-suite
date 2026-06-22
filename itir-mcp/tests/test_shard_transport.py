@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
 import pytest
 
+import itir_mcp.shard_transport as shard_transport
 from itir_mcp.shard_transport import (
     build_partial_graph_view,
     route_selector,
@@ -17,6 +19,12 @@ FIXTURE_PATH = Path(__file__).resolve().parent / "fixtures" / "shard_transport" 
 
 def _fixture_manifest() -> dict[str, object]:
     return json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
+
+
+def _build_payload_probe(*args, **kwargs):
+    probe_builder = getattr(shard_transport, "build_payload_probe", None)
+    assert probe_builder is not None, "itir_mcp.shard_transport.build_payload_probe is not implemented"
+    return probe_builder(*args, **kwargs)
 
 
 def test_validate_shared_shard_artifact_accepts_tiny_manifest() -> None:
@@ -67,3 +75,57 @@ def test_validate_shared_shard_artifact_rejects_invalid_sink() -> None:
     payload["shards"][0]["objectRefs"][0]["sink"] = "s3"
     with pytest.raises(ValueError, match="sink must be one of hf, ipfs, file"):
         validate_shared_shard_artifact(payload)
+
+
+def test_build_payload_probe_returns_metadata_digest_and_sample_only() -> None:
+    manifest = _fixture_manifest()
+    selected_shard = build_partial_graph_view(manifest, ["direct-shard=left-0001"])["selected_shards"][0]
+    payload_text = "probe-body-left-0001"
+
+    probe = _build_payload_probe(
+        selected_shard,
+        payload_text,
+        byte_cap=64,
+        non_authority=dict(manifest["nonAuthority"]),
+    )
+
+    assert probe["version"] == "itir.shard.payload_probe.v1"
+    assert probe["selected_shard_id"] == "left-0001"
+    assert probe["byte_cap"] == 64
+    assert probe["nonAuthority"] == manifest["nonAuthority"]
+    assert probe["payload_metadata"] == {
+        "byte_length": len(payload_text.encode("utf-8")),
+        "truncated": False,
+    }
+    assert probe["payload_digest"] == "sha256:" + hashlib.sha256(payload_text.encode("utf-8")).hexdigest()
+    assert probe["payload_sample"] == payload_text
+    assert "payload" not in probe
+    assert "objectRefs" not in json.dumps(probe, sort_keys=True)
+
+
+def test_build_payload_probe_rejects_over_cap_unless_explicitly_truncated() -> None:
+    manifest = _fixture_manifest()
+    selected_shard = build_partial_graph_view(manifest, ["direct-shard=left-0001"])["selected_shards"][0]
+    payload_text = "payload-body-that-exceeds-the-cap"
+
+    with pytest.raises(ValueError, match="cap|truncate"):
+        _build_payload_probe(
+            selected_shard,
+            payload_text,
+            byte_cap=8,
+            non_authority=dict(manifest["nonAuthority"]),
+        )
+
+    truncated = _build_payload_probe(
+        selected_shard,
+        payload_text,
+        byte_cap=8,
+        truncate=True,
+        non_authority=dict(manifest["nonAuthority"]),
+    )
+
+    assert truncated["payload_metadata"] == {
+        "byte_length": len(payload_text.encode("utf-8")),
+        "truncated": True,
+    }
+    assert truncated["payload_sample"] == payload_text[:8]

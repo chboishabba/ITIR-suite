@@ -17,7 +17,12 @@ from .domain_tools import (
 )
 from .pnf_spectral_packet import VERSION as SPECTRAL_CANDIDATE_PACKET_VERSION, build_candidate_spectral_packet
 from .shard_transport import (
+    SHARD_PAYLOAD_PROBE_VERSION,
+    ZELPH_HF_MANIFEST_CONTRACT_VERSION,
+    build_bounded_payload_probe,
+    build_payload_probe,
     build_partial_graph_view,
+    fetch_zelph_hf_manifest_contract,
     route_selector as _route_selector,
     validate_shared_shard_artifact,
 )
@@ -184,6 +189,54 @@ def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
                 read_only=True,
             ),
             partial_graph_view_tool,
+        ),
+        (
+            ToolSpec(
+                name="itir.shard.payload_probe",
+                title="ITIR shard payload probe",
+                description="Build an explicit bounded payload probe for a selected shard without promotion authority.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "selector": {"type": "string"},
+                        "shard_id": {"type": "string"},
+                        "max_bytes": {"type": "integer"},
+                        "byte_cap": {"type": "integer"},
+                        "allow_truncate": {"type": "boolean"},
+                        "truncate": {"type": "boolean"},
+                        "fetch_remote": {"type": "boolean"},
+                        "payload_text": {"type": "string"},
+                    },
+                    "required": [],
+                    "additionalProperties": True,
+                },
+                response_version=SHARD_PAYLOAD_PROBE_VERSION,
+                read_only=True,
+            ),
+            payload_probe_tool,
+        ),
+        (
+            ToolSpec(
+                name="itir.zelph.hf_manifest_contract",
+                title="ITIR Zelph HF manifest contract",
+                description="Fetch or parse a Zelph HF manifest and lift it into the shared shard contract.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "hf_manifest_uri": {"type": "string"},
+                        "manifest": {"type": "object"},
+                        "max_bytes": {"type": "integer"},
+                        "artifact_id": {"type": "string"},
+                        "artifact_revision": {"type": "string"},
+                        "artifact_class": {"type": "string"},
+                    },
+                    "required": [],
+                    "additionalProperties": True,
+                },
+                response_version=ZELPH_HF_MANIFEST_CONTRACT_VERSION,
+                read_only=True,
+            ),
+            hf_manifest_contract_tool,
         ),
         (
             ToolSpec(
@@ -460,6 +513,123 @@ def partial_graph_view_tool(payload: Mapping[str, Any]) -> JsonDict:
     }
 
 
+def payload_probe_tool(payload: Mapping[str, Any]) -> JsonDict:
+    byte_cap = _optional_positive_int(payload, "byte_cap") or _optional_positive_int(payload, "max_bytes") or 4096
+    selector = _optional_str(payload, "selector")
+    shard_id = _optional_str(payload, "shard_id")
+    truncate = _optional_bool(payload, "truncate") or _optional_bool(payload, "allow_truncate")
+    fetch_remote = _optional_bool(payload, "fetch_remote")
+
+    contract_payload = _contract_payload(payload)
+    artifact = _wrap_value_error(validate_shared_shard_artifact, contract_payload)
+    selected_shard_id = shard_id
+    if selected_shard_id is None:
+        if selector is not None:
+            selected_ids = _wrap_value_error(_route_selector, artifact, selector)
+            if not selected_ids:
+                raise ToolInputError("selector did not match any shard")
+            selected_shard_id = selected_ids[0]
+        else:
+            selected_shard_id = artifact["shards"][0]["shardId"]
+    selected_shard = next(shard for shard in artifact["shards"] if shard["shardId"] == selected_shard_id)
+
+    payload_text = payload.get("payload_text")
+    if isinstance(payload_text, str):
+        probe = _wrap_value_error(
+            build_payload_probe,
+            _logical_shard_view(selected_shard),
+            payload_text,
+            byte_cap=byte_cap,
+            truncate=truncate,
+            non_authority=artifact.get("nonAuthority") if isinstance(artifact.get("nonAuthority"), Mapping) else None,
+        )
+    elif fetch_remote:
+        probe = _wrap_value_error(
+            build_bounded_payload_probe,
+            artifact,
+            selector=selector,
+            shard_id=selected_shard_id,
+            max_bytes=byte_cap,
+            allow_truncate=truncate,
+        )
+    else:
+        probe = {
+            "version": SHARD_PAYLOAD_PROBE_VERSION,
+            "artifact_identity": _artifact_identity(artifact),
+            "selected_shard_id": selected_shard_id,
+            "section": selected_shard["section"],
+            "logicalKind": selected_shard["logicalKind"],
+            "encoding": selected_shard["encoding"],
+            "byte_cap": byte_cap,
+            "payload_metadata": {
+                "byte_length": None,
+                "truncated": None,
+                "fetch_performed": False,
+            },
+            "payload_digest": None,
+            "payload_sample": None,
+            "candidate_only": True,
+            "non_authoritative": True,
+            "diagnostic_only": True,
+            "complete_closure": False,
+            "truth_authority": False,
+            "support_authority": False,
+            "admissibility_authority": False,
+            "promotion_authority": False,
+            "authority_boundary": {
+                **dict(_AUTHORITY_BOUNDARY),
+                "candidate_only": True,
+            },
+        }
+
+    return {
+        **probe,
+        "candidate_only": True,
+        "non_authoritative": True,
+        "authority_boundary": {
+            **dict(_AUTHORITY_BOUNDARY),
+            "candidate_only": True,
+        },
+    }
+
+
+def hf_manifest_contract_tool(payload: Mapping[str, Any]) -> JsonDict:
+    manifest = payload.get("manifest")
+    artifact_id = _optional_str(payload, "artifact_id")
+    artifact_revision = _optional_str(payload, "artifact_revision")
+    artifact_class = _optional_str(payload, "artifact_class") or "zelph-graph"
+    if isinstance(manifest, Mapping):
+        from .shard_transport import build_shared_shard_contract_from_zelph_manifest
+
+        contract = _wrap_value_error(
+            build_shared_shard_contract_from_zelph_manifest,
+            manifest,
+            artifact_id=artifact_id,
+            artifact_revision=artifact_revision,
+            artifact_class=artifact_class,
+        )
+        return {
+            "version": ZELPH_HF_MANIFEST_CONTRACT_VERSION,
+            "source": {"manifest_supplied": True},
+            "contract": contract,
+            "authority_boundary": {
+                **dict(_AUTHORITY_BOUNDARY),
+                "candidate_only": True,
+            },
+        }
+
+    hf_manifest_uri = _require_str(payload, "hf_manifest_uri")
+    max_bytes = _optional_positive_int(payload, "max_bytes") or 2 * 1024 * 1024
+    return _wrap_value_error(
+        fetch_zelph_hf_manifest_contract,
+        hf_manifest_uri=hf_manifest_uri,
+        max_bytes=max_bytes,
+        artifact_id=artifact_id,
+        artifact_revision=artifact_revision,
+        artifact_class=artifact_class,
+    )
+
+
 def spectral_candidate_packet_tool(payload: Mapping[str, Any]) -> JsonDict:
     partial_view = _require_mapping(payload, "partial_view")
     spectral_payload_summary_or_payload = _require_mapping(payload, "spectral_payload_summary_or_payload")
@@ -522,6 +692,13 @@ def _selector_families(artifact: Mapping[str, Any]) -> list[str]:
     return families
 
 
+def _contract_payload(payload: Mapping[str, Any]) -> Mapping[str, Any]:
+    contract = payload.get("contract")
+    if isinstance(contract, Mapping):
+        return contract
+    return payload
+
+
 def _require_mapping(payload: Mapping[str, Any], key: str) -> Mapping[str, Any]:
     value = payload.get(key)
     if not isinstance(value, Mapping):
@@ -544,6 +721,24 @@ def _optional_str(payload: Mapping[str, Any], key: str) -> str | None:
         stripped = value.strip()
         return stripped or None
     raise ToolInputError(f"Expected string field: {key}")
+
+
+def _optional_bool(payload: Mapping[str, Any], key: str) -> bool:
+    value = payload.get(key)
+    if value is None:
+        return False
+    if isinstance(value, bool):
+        return value
+    raise ToolInputError(f"Expected boolean field: {key}")
+
+
+def _optional_positive_int(payload: Mapping[str, Any], key: str) -> int | None:
+    value = payload.get(key)
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+        raise ToolInputError(f"Expected positive integer field: {key}")
+    return value
 
 
 def _require_string_sequence(payload: Mapping[str, Any], key: str) -> list[str]:

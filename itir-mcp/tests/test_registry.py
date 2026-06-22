@@ -34,11 +34,13 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.wikidata.review_packet",
         "itir.wikiproject.tooling_profile",
         "itir.zelph.transport_boundary",
+        "itir.zelph.hf_manifest_contract",
         "itir.zelph.pack_sources",
         "itir.zelph.partial_closure",
         "itir.shard.validate_artifact",
         "itir.shard.route_selector",
         "itir.shard.partial_graph_view",
+        "itir.shard.payload_probe",
     }
 
 
@@ -55,11 +57,13 @@ def test_default_registry_exposes_stable_authority_profiles_for_governance_and_s
         "itir.wikidata.review_packet",
         "itir.wikiproject.tooling_profile",
         "itir.zelph.transport_boundary",
+        "itir.zelph.hf_manifest_contract",
         "itir.zelph.pack_sources",
         "itir.zelph.partial_closure",
         "itir.shard.validate_artifact",
         "itir.shard.route_selector",
         "itir.shard.partial_graph_view",
+        "itir.shard.payload_probe",
     }
 
     assert set(registry.list_tool_authority_profiles()) == expected_tools

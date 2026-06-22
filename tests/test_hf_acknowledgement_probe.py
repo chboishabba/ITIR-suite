@@ -9,6 +9,7 @@ import pytest
 
 from itir_jmd_bridge.cli import main as cli_main
 from itir_jmd_bridge.providers.hf import (
+    download_hf_object_bytes,
     fetch_hf_object,
     parse_hf_uri,
     probe_hf_resolve_acknowledgement,
@@ -17,11 +18,20 @@ from itir_jmd_bridge.providers.hf import (
 
 
 class _FakeResponse:
-    def __init__(self, *, status_code: int, url: str, headers: dict[str, str], history: list["_FakeResponse"] | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        status_code: int,
+        url: str,
+        headers: dict[str, str],
+        history: list["_FakeResponse"] | None = None,
+        content: bytes = b"",
+    ) -> None:
         self.status_code = status_code
         self.url = url
         self.headers = headers
         self.history = history or []
+        self.content = content
 
     def raise_for_status(self) -> None:
         if self.status_code >= 400:
@@ -114,6 +124,71 @@ def test_fetch_hf_object_collects_digest() -> None:
     assert payload["revision"] == "rev"
     assert payload["xRepoCommit"] == "rev"
     assert payload["etag"] == '"etag1"'
+
+
+def test_fetch_hf_object_supports_bounded_range_requests() -> None:
+    observed: dict[str, object] = {}
+
+    def _get(url: str, **kwargs):
+        observed["url"] = url
+        observed["kwargs"] = kwargs
+        return _FakeResponse(
+            status_code=206,
+            url="https://huggingface.co/api/resolve-cache/datasets/chbwa/zelph-sharded/rev/minimal-proof%2Fmanifest.json",
+            headers={
+                "etag": '"etag-partial"',
+                "x-repo-commit": "rev",
+                "content-length": "4",
+                "content-range": "bytes 1-4/10",
+                "accept-ranges": "bytes",
+            },
+            content=b"bcde",
+        )
+
+    payload = fetch_hf_object(
+        hf_uri="hf://datasets/chbwa/zelph-sharded/minimal-proof/manifest.json",
+        revision="rev",
+        range_header="bytes=1-4",
+        get=_get,
+    )
+
+    assert observed["kwargs"]["headers"] == {"Range": "bytes=1-4"}
+    assert observed["kwargs"]["allow_redirects"] is True
+    assert payload["statusCode"] == 206
+    assert payload["contentRange"] == "bytes 1-4/10"
+    assert payload["acceptRanges"] == "bytes"
+    assert payload["sizeBytes"] == 4
+    assert payload["text"] == "bcde"
+
+
+def test_download_hf_object_bytes_supports_bounded_range_requests() -> None:
+    observed: dict[str, object] = {}
+
+    def _get(url: str, **kwargs):
+        observed["url"] = url
+        observed["kwargs"] = kwargs
+        return _FakeResponse(
+            status_code=206,
+            url="https://huggingface.co/api/resolve-cache/datasets/chbwa/zelph-sharded/rev/minimal-proof%2Fmanifest.json",
+            headers={
+                "etag": '"etag-partial"',
+                "x-repo-commit": "rev",
+                "content-length": "4",
+                "content-range": "bytes 1-4/10",
+            },
+            content=b"bcde",
+        )
+
+    payload = download_hf_object_bytes(
+        hf_uri="hf://datasets/chbwa/zelph-sharded/minimal-proof/manifest.json",
+        revision="rev",
+        range_header="bytes=1-4",
+        get=_get,
+    )
+
+    assert observed["kwargs"]["headers"] == {"Range": "bytes=1-4"}
+    assert payload["bytes"] == b"bcde"
+    assert payload["metadata"]["contentRange"] == "bytes 1-4/10"
 
 
 def test_cli_fetch_hf_object(tmp_path) -> None:
