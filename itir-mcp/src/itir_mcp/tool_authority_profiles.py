@@ -361,3 +361,140 @@ DEFAULT_TOOL_AUTHORITY_PROFILE_SPECS: tuple[ToolAuthorityProfile, ...] = (
 
 
 DEFAULT_TOOL_AUTHORITY_PROFILES = get_default_tool_authority_profiles()
+
+
+REGISTRY_TOOL_AUTHORITY_PROFILE_SPECS: tuple[ToolAuthorityProfile, ...] = (
+    ToolAuthorityProfile(
+        tool_id="itir.governance.tool_profiles",
+        kind=ToolKind.GOVERNANCE.value,
+        inputs=(AuthorityStatus.RECEIPT.value,),
+        outputs=(AuthorityStatus.RECEIPT.value,),
+        mutates=False,
+        validation_mode="strict",
+        repair_mode="none",
+        max_authority=AuthorityStatus.RECEIPT.value,
+        promotion_requires_gate=False,
+        authority_notes={
+            "authority_class": "registry_governance",
+            "non_authoritative": True,
+            "note": "Registry governance surfaces are read-only profile views.",
+        },
+    ),
+    ToolAuthorityProfile(
+        tool_id="itir.governance.validate_tool_profile",
+        kind=ToolKind.GOVERNANCE.value,
+        inputs=(AuthorityStatus.RECEIPT.value,),
+        outputs=(AuthorityStatus.RECEIPT.value,),
+        mutates=False,
+        validation_mode="strict",
+        repair_mode="none",
+        max_authority=AuthorityStatus.RECEIPT.value,
+        promotion_requires_gate=False,
+        authority_notes={
+            "authority_class": "registry_governance",
+            "non_authoritative": True,
+            "note": "Registry validation surfaces are read-only profile checks.",
+        },
+    ),
+    ToolAuthorityProfile(
+        tool_id="itir.wikidata.tooling_profile",
+        kind=ToolKind.GOVERNANCE.value,
+        inputs=(AuthorityStatus.OBSERVED.value, AuthorityStatus.RECEIPT.value),
+        outputs=(AuthorityStatus.RECEIPT.value,),
+        mutates=False,
+        validation_mode="strict",
+        repair_mode="none",
+        max_authority=AuthorityStatus.RECEIPT.value,
+        promotion_requires_gate=False,
+        authority_notes={
+            "authority_class": "domain_governance",
+            "non_authoritative": True,
+            "note": "Wikidata tooling profiles classify candidate/review surfaces without promotion.",
+        },
+    ),
+    ToolAuthorityProfile(
+        tool_id="itir.wikiproject.tooling_profile",
+        kind=ToolKind.GOVERNANCE.value,
+        inputs=(AuthorityStatus.OBSERVED.value, AuthorityStatus.RECEIPT.value),
+        outputs=(AuthorityStatus.RECEIPT.value,),
+        mutates=False,
+        validation_mode="strict",
+        repair_mode="none",
+        max_authority=AuthorityStatus.RECEIPT.value,
+        promotion_requires_gate=False,
+        authority_notes={
+            "authority_class": "domain_governance",
+            "non_authoritative": True,
+            "note": "WikiProject tooling objects are diagnostic ontology-governance maps only.",
+        },
+    ),
+    ToolAuthorityProfile(
+        tool_id="itir.zelph.transport_boundary",
+        kind=ToolKind.ARTIFACT_TRANSPORT.value,
+        inputs=(AuthorityStatus.OBSERVED.value, AuthorityStatus.RECEIPT.value),
+        outputs=(AuthorityStatus.RECEIPT.value,),
+        mutates=False,
+        validation_mode="strict",
+        repair_mode="none",
+        max_authority=AuthorityStatus.RECEIPT.value,
+        promotion_requires_gate=False,
+        authority_notes={
+            "authority_class": "transport_boundary",
+            "non_authoritative": True,
+            "note": "Zelph transport boundary tools expose artifact logistics, not reasoning authority.",
+        },
+    ),
+    ToolAuthorityProfile(
+        tool_id="itir.shard.validate_artifact",
+        kind=ToolKind.RESIDUAL_GEOMETRY.value,
+        inputs=(AuthorityStatus.OBSERVED.value, AuthorityStatus.RECEIPT.value),
+        outputs=(AuthorityStatus.RECEIPT.value,),
+        mutates=False,
+        validation_mode="strict",
+        repair_mode="none",
+        max_authority=AuthorityStatus.RECEIPT.value,
+        promotion_requires_gate=False,
+        authority_notes={
+            "authority_class": "registry_shard",
+            "non_authoritative": True,
+            "note": "Shard validation surfaces only produce logical receipt views.",
+        },
+    ),
+    ToolAuthorityProfile(
+        tool_id="itir.shard.route_selector",
+        kind=ToolKind.RESIDUAL_GEOMETRY.value,
+        inputs=(AuthorityStatus.OBSERVED.value, AuthorityStatus.RECEIPT.value),
+        outputs=(AuthorityStatus.RECEIPT.value,),
+        mutates=False,
+        validation_mode="strict",
+        repair_mode="none",
+        max_authority=AuthorityStatus.RECEIPT.value,
+        promotion_requires_gate=False,
+        authority_notes={
+            "authority_class": "registry_shard",
+            "non_authoritative": True,
+            "note": "Shard route selectors resolve logical ids only.",
+        },
+    ),
+    ToolAuthorityProfile(
+        tool_id="itir.shard.partial_graph_view",
+        kind=ToolKind.RESIDUAL_GEOMETRY.value,
+        inputs=(AuthorityStatus.OBSERVED.value, AuthorityStatus.RECEIPT.value),
+        outputs=(AuthorityStatus.RECEIPT.value,),
+        mutates=False,
+        validation_mode="strict",
+        repair_mode="none",
+        max_authority=AuthorityStatus.RECEIPT.value,
+        promotion_requires_gate=False,
+        authority_notes={
+            "authority_class": "registry_shard",
+            "non_authoritative": True,
+            "note": "Shard partial graph views remain non-authoritative.",
+        },
+    ),
+)
+
+
+DEFAULT_REGISTRY_TOOL_AUTHORITY_PROFILES = {
+    profile.tool_id: validate_tool_authority_profile(profile) for profile in REGISTRY_TOOL_AUTHORITY_PROFILE_SPECS
+}

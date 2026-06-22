@@ -9,10 +9,16 @@ from .shard_transport import (
     validate_shared_shard_artifact,
 )
 from .tool_authority_profiles import DEFAULT_TOOL_AUTHORITY_PROFILES, validate_tool_authority_profile
+from .wikiproject_tooling_profile import (
+    WIKIPROJECT_TOOLING_PROFILE_VERSION,
+    build_default_wikiproject_tooling_profile,
+)
 
 
 GOVERNANCE_TOOL_PROFILES_VERSION = "itir.governance.tool_profiles.v1"
 GOVERNANCE_VALIDATE_TOOL_PROFILE_VERSION = "itir.governance.validate_tool_profile.v1"
+WIKIDATA_TOOLING_PROFILE_VERSION = "itir.wikidata.tooling_profile.v1"
+ZELPH_TRANSPORT_BOUNDARY_VERSION = "itir.zelph.transport_boundary.v1"
 SHARD_VALIDATE_ARTIFACT_VERSION = "itir.shard.validate_artifact.v1"
 SHARD_ROUTE_SELECTOR_VERSION = "itir.shard.route_selector.v1"
 SHARD_PARTIAL_GRAPH_VIEW_VERSION = "itir.shard.partial_graph_view.v1"
@@ -22,6 +28,17 @@ _AUTHORITY_BOUNDARY: JsonDict = {
     "non_authoritative": True,
     "canonical_truth_mutated": False,
 }
+
+_WIKIDATA_TOOLING_PROFILE_IDS: tuple[str, ...] = (
+    "sensiblaw_review_packets",
+    "entityschema",
+    "listeria",
+)
+
+_ZELPH_TRANSPORT_PROFILE_IDS: tuple[str, ...] = (
+    "zelph",
+    "zelph_hf_shared_shards",
+)
 
 
 def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
@@ -61,6 +78,48 @@ def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
                 read_only=True,
             ),
             validate_tool_profile_tool,
+        ),
+        (
+            ToolSpec(
+                name="itir.wikidata.tooling_profile",
+                title="ITIR Wikidata tooling profile",
+                description="Summarize the candidate-only Wikidata tooling boundary from default authority profiles.",
+                input_schema={
+                    "type": "object",
+                    "additionalProperties": True,
+                },
+                response_version=WIKIDATA_TOOLING_PROFILE_VERSION,
+                read_only=True,
+            ),
+            wikidata_tooling_profile_tool,
+        ),
+        (
+            ToolSpec(
+                name="itir.wikiproject.tooling_profile",
+                title="ITIR WikiProject tooling profile",
+                description="Materialize the candidate-only WikiProject tooling object W=(T,K,O,Sigma,Kappa,B,Pr,Rpt,Gv).",
+                input_schema={
+                    "type": "object",
+                    "additionalProperties": True,
+                },
+                response_version=WIKIPROJECT_TOOLING_PROFILE_VERSION,
+                read_only=True,
+            ),
+            wikiproject_tooling_profile_tool,
+        ),
+        (
+            ToolSpec(
+                name="itir.zelph.transport_boundary",
+                title="ITIR Zelph transport boundary",
+                description="Summarize the read-only Zelph transport boundary from default authority profiles.",
+                input_schema={
+                    "type": "object",
+                    "additionalProperties": True,
+                },
+                response_version=ZELPH_TRANSPORT_BOUNDARY_VERSION,
+                read_only=True,
+            ),
+            zelph_transport_boundary_tool,
         ),
         (
             ToolSpec(
@@ -137,6 +196,66 @@ def validate_tool_profile_tool(payload: Mapping[str, Any]) -> JsonDict:
         "profile": validated,
         "profile_valid": True,
         "authority_boundary": dict(_AUTHORITY_BOUNDARY),
+    }
+
+
+def wikidata_tooling_profile_tool(payload: Mapping[str, Any]) -> JsonDict:
+    _ = payload
+    profiles = _default_profiles_for_ids(_WIKIDATA_TOOLING_PROFILE_IDS)
+    authority_boundary = dict(_AUTHORITY_BOUNDARY)
+    authority_boundary["candidate_only"] = True
+    return {
+        "version": WIKIDATA_TOOLING_PROFILE_VERSION,
+        "domain": "wikidata",
+        "profile_ids": list(_WIKIDATA_TOOLING_PROFILE_IDS),
+        "profile_count": len(profiles),
+        "candidate_only": True,
+        "non_authoritative": True,
+        "tooling_profile": _profile_summary(
+            profiles,
+            authority_class="review_surface",
+            summary_kind="tooling_profile",
+        ),
+        "authority_boundary": authority_boundary,
+    }
+
+
+def wikiproject_tooling_profile_tool(payload: Mapping[str, Any]) -> JsonDict:
+    _ = payload
+    profile = build_default_wikiproject_tooling_profile()
+    return {
+        "version": WIKIPROJECT_TOOLING_PROFILE_VERSION,
+        "domain": "wikiproject",
+        "candidate_only": profile["candidate_only"],
+        "non_authoritative": profile["non_authoritative"],
+        "promotion_enabled": profile["promotion_enabled"],
+        "profile": profile,
+        "authority_boundary": {
+            **_AUTHORITY_BOUNDARY,
+            "candidate_only": True,
+            "promotion_enabled": False,
+        },
+    }
+
+
+def zelph_transport_boundary_tool(payload: Mapping[str, Any]) -> JsonDict:
+    _ = payload
+    profiles = _default_profiles_for_ids(_ZELPH_TRANSPORT_PROFILE_IDS)
+    authority_boundary = dict(_AUTHORITY_BOUNDARY)
+    authority_boundary["candidate_only"] = True
+    return {
+        "version": ZELPH_TRANSPORT_BOUNDARY_VERSION,
+        "domain": "zelph",
+        "profile_ids": list(_ZELPH_TRANSPORT_PROFILE_IDS),
+        "profile_count": len(profiles),
+        "candidate_only": True,
+        "non_authoritative": True,
+        "transport_boundary": _profile_summary(
+            profiles,
+            authority_class="transport_boundary",
+            summary_kind="transport_boundary",
+        ),
+        "authority_boundary": authority_boundary,
     }
 
 
@@ -262,3 +381,65 @@ def _wrap_value_error(func, *args, field: str | None = None, **kwargs):
         if field is None:
             raise ToolInputError(str(exc)) from exc
         raise ToolInputError(f"Invalid {field}: {exc}") from exc
+
+
+def _default_profiles_for_ids(profile_ids: Sequence[str]) -> list[JsonDict]:
+    profiles: list[JsonDict] = []
+    for profile_id in profile_ids:
+        try:
+            profile = DEFAULT_TOOL_AUTHORITY_PROFILES[profile_id]
+        except KeyError as exc:
+            raise ToolInputError(f"Unknown default authority profile: {profile_id}") from exc
+        profiles.append(profile)
+    return profiles
+
+
+def _profile_summary(
+    profiles: Sequence[Mapping[str, Any]],
+    *,
+    authority_class: str,
+    summary_kind: str,
+) -> JsonDict:
+    profile_list = [dict(profile) for profile in profiles]
+    mutates = any(bool(profile["mutates"]) for profile in profile_list)
+    max_authority = _least_authoritative(profile["max_authority"] for profile in profile_list)
+    return {
+        "kind": summary_kind,
+        "authority_class": authority_class,
+        "read_only": True,
+        "non_authoritative": True,
+        "canonical_truth_mutated": False,
+        "candidate_only": True,
+        "mutates": mutates,
+        "max_authority": max_authority,
+        "profiles": profile_list,
+    }
+
+
+def _least_authoritative(statuses: Sequence[str] | Any) -> str:
+    lowest: str | None = None
+    for status in statuses:
+        status_text = str(status)
+        if lowest is None or _authority_rank(status_text) > _authority_rank(lowest):
+            lowest = status_text
+    if lowest is None:
+        raise ToolInputError("Expected at least one profile to summarize")
+    return lowest
+
+
+def _authority_rank(status: str) -> int:
+    ordering = {
+        "bottom": 0,
+        "observed": 1,
+        "candidate": 2,
+        "diagnostic": 3,
+        "proposal": 4,
+        "receipt": 5,
+        "reviewed": 6,
+        "delegated": 7,
+        "promoted": 8,
+    }
+    try:
+        return ordering[status]
+    except KeyError as exc:
+        raise ToolInputError(f"Unknown authority status: {status}") from exc

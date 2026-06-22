@@ -26,7 +26,39 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.docstore.config_plan",
         "itir.governance.tool_profiles",
         "itir.governance.validate_tool_profile",
+        "itir.wikidata.tooling_profile",
+        "itir.wikiproject.tooling_profile",
+        "itir.zelph.transport_boundary",
         "itir.shard.validate_artifact",
         "itir.shard.route_selector",
         "itir.shard.partial_graph_view",
     }
+
+
+def test_default_registry_exposes_stable_authority_profiles_for_governance_and_shards() -> None:
+    registry = build_default_registry()
+    expected_tools = {
+        "itir.governance.tool_profiles",
+        "itir.governance.validate_tool_profile",
+        "itir.wikidata.tooling_profile",
+        "itir.wikiproject.tooling_profile",
+        "itir.zelph.transport_boundary",
+        "itir.shard.validate_artifact",
+        "itir.shard.route_selector",
+        "itir.shard.partial_graph_view",
+    }
+
+    assert set(registry.list_tool_authority_profiles()) == expected_tools
+
+    for tool_name in expected_tools:
+        spec = registry.get_tool_spec(tool_name)
+        assert spec is not None
+        assert getattr(spec, "authority_profile_key", None) == tool_name
+
+        profile_key = registry.get_tool_authority_profile_key(tool_name)
+        profile = registry.get_tool_authority_profile(tool_name)
+
+        assert profile_key == tool_name
+        assert profile is not None
+        assert profile["tool_id"] == tool_name
+        assert getattr(spec, "authority_profile", None) == profile
