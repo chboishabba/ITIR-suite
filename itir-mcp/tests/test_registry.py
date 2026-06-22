@@ -24,4 +24,9 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.markdown.render_projection",
         "itir.markdown.write_projection",
         "itir.docstore.config_plan",
+        "itir.governance.tool_profiles",
+        "itir.governance.validate_tool_profile",
+        "itir.shard.validate_artifact",
+        "itir.shard.route_selector",
+        "itir.shard.partial_graph_view",
     }

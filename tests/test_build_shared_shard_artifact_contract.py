@@ -1,9 +1,8 @@
 import json
+import importlib.util
 import subprocess
 import sys
 from pathlib import Path
-
-import cbor2
 
 
 def test_build_shared_shard_artifact_contract_dual_projection(tmp_path: Path) -> None:
@@ -106,8 +105,6 @@ def test_build_shared_shard_artifact_contract_dual_projection(tmp_path: Path) ->
             str(manifest_path),
             "--output-json",
             str(output_json),
-            "--output-cbor",
-            str(output_cbor),
             "--artifact-id",
             "demo-shared-artifact",
             "--ipfs-map",
@@ -122,25 +119,58 @@ def test_build_shared_shard_artifact_contract_dual_projection(tmp_path: Path) ->
     assert contract["selectorModel"]["unit"] == "bucket"
     assert contract["transportHints"]["preferredReadSink"] == "hf"
     assert contract["transportHints"]["preferredPublishSink"] == "ipfs"
+    assert contract["nonAuthority"] == {
+        "artifact_transport_only": True,
+        "candidate_graph_logistics": True,
+        "truth_authority": False,
+        "support_authority": False,
+        "admissibility_authority": False,
+        "promotion_authority": False,
+        "complete_closure_authority": False,
+    }
     assert len(contract["shards"]) == 4
 
     left = next(shard for shard in contract["shards"] if shard["shardId"] == "left-bucket-000000")
     assert left["logicalKind"] == "adjacency-bucket"
+    assert left["routingKeys"] == ["section:left", "route-left-node"]
     assert left["objectRefs"][0]["sink"] == "hf"
+    assert left["objectRefs"][0]["contentDigest"] == left["contentDigest"]
     assert left["objectRefs"][1]["sink"] == "ipfs"
     assert left["objectRefs"][1]["uri"] == "ipfs://bafy-left"
+    assert left["objectRefs"][1]["contentDigest"] == left["contentDigest"]
     assert left["contentDigest"].startswith("sha256:")
 
     node_of_name = next(shard for shard in contract["shards"] if shard["section"] == "nodeOfName")
+    assert node_of_name["logicalKind"] == "name-bucket"
     assert "route-name" in node_of_name["routingKeys"]
     assert "lang:en" in node_of_name["routingKeys"]
+    assert node_of_name["objectRefs"][0]["contentDigest"] == node_of_name["contentDigest"]
     assert contract["routingIndex"]["objectRefs"][0]["sink"] == "hf"
     assert contract["routingIndex"]["objectRefs"][1]["sink"] == "ipfs"
     assert contract["routingIndex"]["objectRefs"][1]["uri"] == "ipfs://bafy-route"
+    assert contract["routingIndex"]["objectRefs"][0]["contentDigest"].startswith("identity-sha256:")
 
+    if importlib.util.find_spec("cbor2") is None:
+        return
+    import cbor2
+
+    subprocess.run(
+        [
+            sys.executable,
+            str(script_path),
+            "--manifest",
+            str(manifest_path),
+            "--output-json",
+            str(output_json),
+            "--output-cbor",
+            str(output_cbor),
+            "--artifact-id",
+            "demo-shared-artifact",
+            "--ipfs-map",
+            str(ipfs_map),
+        ],
+        check=True,
+    )
     with output_cbor.open("rb") as handle:
         cbor_contract = cbor2.load(handle)
-    assert cbor_contract["artifactId"] == contract["artifactId"]
-    assert [shard["shardId"] for shard in cbor_contract["shards"]] == [
-        shard["shardId"] for shard in contract["shards"]
-    ]
+    assert json.loads(output_json.read_text(encoding="utf-8")) == cbor_contract
