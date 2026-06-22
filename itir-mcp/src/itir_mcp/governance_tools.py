@@ -3,6 +3,12 @@ from __future__ import annotations
 from typing import Any, Mapping, Sequence
 
 from .contracts import JsonDict, ToolHandler, ToolInputError, ToolSpec
+from .domain_tools import (
+    WIKIDATA_REVIEW_PACKET_VERSION,
+    ZELPH_PARTIAL_CLOSURE_VERSION,
+    wikidata_review_packet,
+    zelph_partial_closure,
+)
 from .shard_transport import (
     build_partial_graph_view,
     route_selector as _route_selector,
@@ -170,6 +176,46 @@ def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
                 read_only=True,
             ),
             partial_graph_view_tool,
+        ),
+        (
+            ToolSpec(
+                name="itir.wikidata.review_packet",
+                title="ITIR Wikidata review packet",
+                description="Compile a candidate-only review packet from statements, constraints, and tooling metadata.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "statements": {"type": "array", "items": {"type": "object"}},
+                        "constraints": {"type": "array", "items": {"type": "object"}},
+                        "tooling_profile": {"type": "object"},
+                        "provenance_refs": {"type": "array", "items": {"type": "string"}},
+                    },
+                    "required": ["statements", "constraints", "tooling_profile"],
+                    "additionalProperties": True,
+                },
+                response_version=WIKIDATA_REVIEW_PACKET_VERSION,
+                read_only=True,
+            ),
+            wikidata_review_packet,
+        ),
+        (
+            ToolSpec(
+                name="itir.zelph.partial_closure",
+                title="ITIR Zelph partial closure",
+                description="Compile a candidate-only partial closure summary from a shard view without authority claims.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "partial_graph_view": {"type": "object"},
+                        "candidate_refs": {"type": "array", "items": {"type": "string"}},
+                    },
+                    "required": ["partial_graph_view"],
+                    "additionalProperties": True,
+                },
+                response_version=ZELPH_PARTIAL_CLOSURE_VERSION,
+                read_only=True,
+            ),
+            zelph_partial_closure,
         ),
     ]
 

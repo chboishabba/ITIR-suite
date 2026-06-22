@@ -92,6 +92,24 @@ _POLICY_REASON_META: dict[str, JsonDict] = {
         "why": "Tool output omitted the geo proximity verification signal.",
         "next_action": "abstain_and_audit",
     },
+    "profile_candidate_only": {
+        "control_id": "itir.guard.authority",
+        "rule_id": "profile_candidate_only",
+        "why": "Registered authority profile limits the tool to candidate-only output.",
+        "next_action": "record_state",
+    },
+    "profile_non_authoritative": {
+        "control_id": "itir.guard.authority",
+        "rule_id": "profile_non_authoritative",
+        "why": "Registered authority profile marks the tool as non-authoritative.",
+        "next_action": "record_state",
+    },
+    "profile_authority_conflict": {
+        "control_id": "itir.guard.authority",
+        "rule_id": "profile_authority_conflict",
+        "why": "Tool output claimed authority promotion contrary to the registered profile.",
+        "next_action": "block_and_report",
+    },
 }
 
 _REASON_PRIORITY = {
@@ -183,11 +201,17 @@ def build_governance_receipt(
     classification: Mapping[str, Any],
     decision: str,
     verification: Mapping[str, Any] | None = None,
+    authority_profile: Mapping[str, Any] | None = None,
 ) -> JsonDict:
     reason_codes = _merged_reason_codes(classification, verification)
+    if authority_profile is not None:
+        reason_codes = _merged_reason_codes(
+            {"reason_codes": reason_codes},
+            {"reason_codes": _authority_profile_reason_codes(authority_profile)},
+        )
     primary_reason_code = _primary_reason_code(reason_codes)
     policy_meta = _policy_meta(primary_reason_code)
-    return {
+    receipt: JsonDict = {
         "version": "itir.tool_guard.receipt.v1",
         "event": _receipt_event(decision),
         "tool": name,
@@ -201,6 +225,9 @@ def build_governance_receipt(
         "verification_reason_codes": list((verification or {}).get("reason_codes") or []),
         "decision": decision,
     }
+    if authority_profile is not None:
+        receipt["authority_profile"] = authority_profile
+    return receipt
 
 
 def safe_tool_call(registry, name: str, payload: Mapping[str, Any]) -> JsonDict:
@@ -224,6 +251,7 @@ def safe_tool_call(registry, name: str, payload: Mapping[str, Any]) -> JsonDict:
             "result": None,
         }
 
+    authority_profile = _get_authority_profile(registry, name)
     invoked = registry.invoke(name, payload)
     if invoked.get("ok") is False:
         raise ToolPolicyError(
@@ -236,13 +264,30 @@ def safe_tool_call(registry, name: str, payload: Mapping[str, Any]) -> JsonDict:
         raise ToolPolicyError("tool result must be an object", details={"tool": name})
 
     verification = verify_tool_result(name, payload, result)
+    authority_profile_summary = _summarize_authority_profile(authority_profile)
+    authority_profile_reason_codes = _authority_profile_reason_codes(authority_profile_summary)
+    profile_conflicts = _authority_profile_conflicts(authority_profile_summary, result)
+    if profile_conflicts:
+        raise ToolPolicyError(
+            "tool output claims authority promotion contrary to its registered profile",
+            details={
+                "tool": name,
+                "authority_profile": authority_profile_summary,
+                "profile_conflicts": profile_conflicts,
+                "result": dict(result),
+            },
+        )
+
     decision = "verified" if verification["decision"] == "verified" and classification["decision"] == "allow" else "abstained"
+    if authority_profile_reason_codes:
+        decision = "abstained"
     receipt = build_governance_receipt(
         name=name,
         payload=payload,
         classification=classification,
         verification=verification,
         decision=decision,
+        authority_profile=authority_profile_summary,
     )
     return {
         "version": "itir.safe_tool_call.v1",
@@ -250,15 +295,18 @@ def safe_tool_call(registry, name: str, payload: Mapping[str, Any]) -> JsonDict:
         "decision": decision,
         "classification": classification,
         "verification": verification,
+        "authority_profile": authority_profile_summary,
         "policy_outcomes": _build_policy_outcomes(
             classification=classification,
             verification=verification,
             decision=decision,
+            authority_profile=authority_profile_summary,
         ),
         "status_explanation": _build_status_explanation(
             classification=classification,
             verification=verification,
             decision=decision,
+            authority_profile=authority_profile_summary,
         ),
         "receipt": receipt,
         "result": dict(result),
@@ -310,6 +358,59 @@ def _primary_reason_code(reason_codes: Iterable[Any]) -> str | None:
     return max(normalized, key=lambda code: (_REASON_PRIORITY.get(code, 0), -normalized.index(code)))
 
 
+def _get_authority_profile(registry, name: str) -> JsonDict | None:
+    getter = getattr(registry, "get_tool_authority_profile", None)
+    if not callable(getter):
+        return None
+    profile = getter(name)
+    if not isinstance(profile, Mapping):
+        return None
+    return dict(profile)
+
+
+def _summarize_authority_profile(profile: Mapping[str, Any] | None) -> JsonDict | None:
+    if profile is None:
+        return None
+    notes = profile.get("authority_notes")
+    authority_notes = dict(notes) if isinstance(notes, Mapping) else {}
+    return {
+        "tool_id": profile.get("tool_id"),
+        "kind": profile.get("kind"),
+        "max_authority": profile.get("max_authority"),
+        "promotion_requires_gate": profile.get("promotion_requires_gate"),
+        "candidate_only": bool(authority_notes.get("candidate_only")),
+        "non_authoritative": bool(authority_notes.get("non_authoritative")),
+        "authority_notes": authority_notes,
+    }
+
+
+def _authority_profile_reason_codes(profile: Mapping[str, Any] | None) -> list[str]:
+    if profile is None:
+        return []
+    reason_codes: list[str] = []
+    if profile.get("candidate_only") is True:
+        reason_codes.append("profile_candidate_only")
+    if profile.get("non_authoritative") is True:
+        reason_codes.append("profile_non_authoritative")
+    return reason_codes
+
+
+def _authority_profile_conflicts(profile: Mapping[str, Any] | None, result: Mapping[str, Any]) -> list[str]:
+    if profile is None:
+        return []
+    conflicts: list[str] = []
+    result_authority_class = str(result.get("authority_class") or "").strip().lower()
+    if result.get("promoted") is True or result.get("promotion_enabled") is True or result.get("self_promotes") is True:
+        conflicts.append("profile_authority_conflict")
+    if profile.get("candidate_only") is True and result.get("candidate_only") is False:
+        conflicts.append("profile_authority_conflict")
+    if profile.get("non_authoritative") is True and result.get("non_authoritative") is False:
+        conflicts.append("profile_authority_conflict")
+    if result_authority_class in {"promoted", "authoritative", "canonical_truth"}:
+        conflicts.append("profile_authority_conflict")
+    return conflicts
+
+
 def _policy_meta(reason_code: str | None) -> JsonDict:
     if reason_code and reason_code in _POLICY_REASON_META:
         return dict(_POLICY_REASON_META[reason_code])
@@ -326,9 +427,12 @@ def _build_policy_outcomes(
     classification: Mapping[str, Any],
     verification: Mapping[str, Any] | None,
     decision: str,
+    authority_profile: Mapping[str, Any] | None = None,
 ) -> list[JsonDict]:
     outcomes: list[JsonDict] = []
-    for code in _merged_reason_codes(classification, verification):
+    reason_codes = _merged_reason_codes(classification, verification)
+    reason_codes.extend(code for code in _authority_profile_reason_codes(authority_profile) if code not in reason_codes)
+    for code in reason_codes:
         meta = _policy_meta(code)
         status = "deny" if decision == "rejected" else ("deny" if decision == "abstained" else "allow")
         outcomes.append(
@@ -357,8 +461,10 @@ def _build_status_explanation(
     classification: Mapping[str, Any],
     verification: Mapping[str, Any] | None,
     decision: str,
+    authority_profile: Mapping[str, Any] | None = None,
 ) -> JsonDict:
     reason_codes = _merged_reason_codes(classification, verification)
+    reason_codes.extend(code for code in _authority_profile_reason_codes(authority_profile) if code not in reason_codes)
     primary_reason_code = _primary_reason_code(reason_codes)
     meta = _policy_meta(primary_reason_code)
     if decision == "rejected":
@@ -381,5 +487,6 @@ def _build_status_explanation(
         "details": {
             "classification_decision": classification.get("decision"),
             "verification_decision": None if verification is None else verification.get("decision"),
+            "authority_profile": authority_profile,
         },
     }

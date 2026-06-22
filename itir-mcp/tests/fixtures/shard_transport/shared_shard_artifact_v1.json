@@ -9,21 +9,45 @@
     "builderVersion": "0.0.0",
     "sourceInputs": [
       "fixture.json"
-    ]
+    ],
+    "sourceSystem": "Wikidata-Zelph"
+  },
+  "nonAuthority": {
+    "truth": false,
+    "support": false,
+    "admissibility": false,
+    "promotion": false,
+    "candidate_only": true,
+    "diagnostic_only": true
+  },
+  "wikidata": {
+    "statementClass": "Q1",
+    "statementProperty": "P31",
+    "statementObject": "Q5",
+    "labelProperty": "P1476",
+    "labelLanguage": "en"
   },
   "shards": [
     {
       "shardId": "left-0001",
       "section": "left",
-      "logicalKind": "adjacency-bucket",
+      "logicalKind": "wikidata-statement-bucket",
       "encoding": "json",
       "sizeBytes": 12,
       "contentDigest": "sha256:aaa",
       "routingKeys": [
         "direct-shard=left-0001",
         "route-left-node=Q1",
-        "route-node=Q1"
+        "route-node=Q1",
+        "route-property=P31",
+        "route-class=Q5"
       ],
+      "wikidata": {
+        "subject": "Q1",
+        "property": "P31",
+        "object": "Q5",
+        "rank": "preferred"
+      },
       "objectRefs": [
         {
           "sink": "hf",
@@ -42,14 +66,21 @@
     {
       "shardId": "name-0001",
       "section": "nameOfNode",
-      "logicalKind": "name-bucket",
+      "logicalKind": "wikidata-label-bucket",
       "encoding": "cbor",
       "sizeBytes": 14,
       "contentDigest": "sha256:bbb",
       "routingKeys": [
         "route-name=Alice",
-        "route-lang=en"
+        "route-lang=en",
+        "route-class=Q5"
       ],
+      "wikidata": {
+        "subject": "Q1",
+        "property": "P1476",
+        "object": "Alice",
+        "language": "en"
+      },
       "objectRefs": [
         {
           "sink": "hf",
@@ -59,5 +90,95 @@
         }
       ]
     }
-  ]
+  ],
+  "transportView": {
+    "schema_version": "itir.normalized.artifact.v1",
+    "artifact_role": "transport_view",
+    "artifact_id": "demo-artifact",
+    "canonical_identity": {
+      "identity_class": "zelph_shard_transport",
+      "identity_key": "zelph-graph:demo-artifact:2026-03-27T12:00:00Z+build-1",
+      "aliases": [
+        "demo-artifact",
+        "2026-03-27T12:00:00Z+build-1",
+        "zelph-graph"
+      ]
+    },
+    "provenance_anchor": {
+      "source_system": "Wikidata-Zelph",
+      "source_artifact_id": "demo-artifact",
+      "anchor_kind": "zelph_shard_transport",
+      "anchor_ref": "semantic_context.suite_normalized_artifact"
+    },
+    "context_envelope_ref": {
+      "envelope_id": "demo-artifact",
+      "envelope_kind": "zelph_shard_transport"
+    },
+    "authority": {
+      "authority_class": "transport_view",
+      "candidate": true,
+      "derived": true,
+      "transport_only": true,
+      "promotion_receipt_ref": null
+    },
+    "nonAuthority": {
+      "truth": false,
+      "support": false,
+      "admissibility": false,
+      "promotion": false,
+      "candidate_only": true,
+      "diagnostic_only": true
+    },
+    "lineage": {
+      "upstream_artifact_ids": [
+        "wikidata:Q1",
+        "wikidata:P31"
+      ],
+      "build_provenance": {
+        "builder": "tests",
+        "builderVersion": "0.0.0",
+        "sourceInputs": [
+          "fixture.json"
+        ],
+        "sourceSystem": "Wikidata-Zelph"
+      },
+      "artifact_revision": "2026-03-27T12:00:00Z+build-1",
+      "artifact_class": "zelph-graph"
+    },
+    "invariants": {
+      "partial_view": true,
+      "subset_of_artifact": true,
+      "complete_closure": false,
+      "truth_authority": false,
+      "promotion_authority": false
+    },
+    "selectors": [
+      "route-node=Q1",
+      "route-name=Alice"
+    ],
+    "route_selectors": [
+      "route-node=Q1",
+      "route-name=Alice"
+    ],
+    "selected_shard_ids": [
+      "left-0001",
+      "name-0001"
+    ],
+    "selected_sections": [
+      "left",
+      "nameOfNode"
+    ],
+    "summary": {
+      "artifact_class": "zelph-graph",
+      "artifact_revision": "2026-03-27T12:00:00Z+build-1",
+      "source_system": "Wikidata-Zelph",
+      "partial_view": true,
+      "partial_load": true,
+      "candidate_only": true,
+      "selector_count": 2,
+      "route_selector_count": 2,
+      "selected_shard_count": 2,
+      "selected_section_count": 2
+    }
+  }
 }

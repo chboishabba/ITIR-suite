@@ -1,5 +1,8 @@
+import pytest
+
 from itir_mcp.registry import ToolRegistry
-from itir_mcp.contracts import ToolSpec
+from itir_mcp.contracts import ToolPolicyError, ToolSpec
+from itir_mcp.guardrails import safe_tool_call
 
 
 def _sample_observation(text: str) -> dict:
@@ -32,6 +35,93 @@ def test_safe_call_rejects_social_engineering_exfiltration_request() -> None:
     assert payload["status_explanation"]["status_value"] == "rejected"
     assert payload["receipt"]["event"] == "tool_call_rejected"
     assert payload["receipt"]["control_id"] == "iso27001.A.5.23"
+
+
+def test_safe_call_uses_authority_profile_metadata_and_keeps_candidate_only_tools_non_promoting() -> None:
+    registry = ToolRegistry()
+    registry.register(
+        ToolSpec(
+            name="itir.profiled_summary",
+            title="Profiled summary",
+            description="Fixture-only profiled summary tool",
+            input_schema={"type": "object", "properties": {}, "required": []},
+        ),
+        lambda payload: {
+            "version": "itir.profiled_summary.v1",
+            "candidate_only": True,
+            "non_authoritative": True,
+            "authority_class": "review_surface",
+            "echo": dict(payload),
+        },
+        authority_profile={
+            "tool_id": "itir.profiled_summary",
+            "kind": "governance",
+            "inputs": ["receipt"],
+            "outputs": ["receipt"],
+            "mutates": False,
+            "validation_mode": "strict",
+            "repair_mode": "none",
+            "max_authority": "receipt",
+            "promotion_requires_gate": False,
+            "authority_notes": {
+                "candidate_only": True,
+                "non_authoritative": True,
+                "note": "Fixture profile remains below promotion.",
+            },
+        },
+    )
+
+    result = registry.safe_invoke("itir.profiled_summary", {})
+
+    assert result["ok"] is True
+    payload = result["result"]
+    assert payload["decision"] == "abstained"
+    assert payload["authority_profile"]["tool_id"] == "itir.profiled_summary"
+    assert payload["authority_profile"]["candidate_only"] is True
+    assert payload["authority_profile"]["non_authoritative"] is True
+    assert payload["receipt"]["authority_profile"]["tool_id"] == "itir.profiled_summary"
+    assert payload["receipt"]["event"] == "tool_output_abstained"
+    assert "profile_candidate_only" in payload["receipt"]["reason_codes"]
+    assert "profile_non_authoritative" in payload["receipt"]["reason_codes"]
+    assert payload["policy_outcomes"][-1]["reason_code"] in {"profile_candidate_only", "profile_non_authoritative"}
+    assert payload["status_explanation"]["primary_reason_code"] in {"profile_candidate_only", "profile_non_authoritative"}
+    assert payload["status_explanation"]["status_value"] == "abstained"
+
+
+def test_safe_call_fails_closed_when_profiled_tool_self_promotes() -> None:
+    registry = ToolRegistry()
+    registry.register(
+        ToolSpec(
+            name="itir.profiled_promotion_claim",
+            title="Profiled promotion claim",
+            description="Fixture-only profiled promotion claim tool",
+            input_schema={"type": "object", "properties": {}, "required": []},
+        ),
+        lambda payload: {
+            "version": "itir.profiled_promotion_claim.v1",
+            "promoted": True,
+            "authority_class": "promoted",
+            "echo": dict(payload),
+        },
+        authority_profile={
+            "tool_id": "itir.profiled_promotion_claim",
+            "kind": "governance",
+            "inputs": ["receipt"],
+            "outputs": ["receipt"],
+            "mutates": False,
+            "validation_mode": "strict",
+            "repair_mode": "none",
+            "max_authority": "receipt",
+            "promotion_requires_gate": False,
+            "authority_notes": {
+                "non_authoritative": True,
+                "note": "Fixture profile must not self-promote.",
+            },
+        },
+    )
+
+    with pytest.raises(ToolPolicyError, match="authority promotion"):
+        safe_tool_call(registry, "itir.profiled_promotion_claim", {})
 
 
 def test_safe_call_abstains_on_malformed_tool_result() -> None:
@@ -70,6 +160,7 @@ def test_safe_call_verifies_valid_comparison_tool() -> None:
     assert result["ok"] is True
     payload = result["result"]
     assert payload["decision"] == "verified"
+    assert payload["authority_profile"] is None
     assert payload["verification"]["decision"] == "verified"
     assert payload["status_explanation"]["primary_reason_code"] == "verified"
     assert payload["status_explanation"]["status_value"] == "verified"
