@@ -25,6 +25,7 @@ from chat_context_resolver_lib.transcript import (
     latest_turn_datetime,
     truncate_text,
 )
+from chat_context_resolver_lib.turn_paging import validate_cursor_token
 
 
 def _parse_message_ts(value: object):
@@ -158,6 +159,395 @@ def test_resolver_parser_exposes_opt_in_mca_flags():
     assert hybrid_args.hybrid is True
     assert default_args.progress is False
     assert default_args.progress_interval == 2.0
+    paged_args = parser.parse_args(
+        [
+            "needle",
+            "--turn-page-size",
+            "4",
+            "--turn-cursor",
+            "AB12cd",
+            "--turn-cursor-store",
+            "/tmp/context-cursors.sqlite",
+        ]
+    )
+    assert paged_args.turn_page_size == 4
+    assert paged_args.turn_cursor == "AB12cd"
+    assert paged_args.turn_cursor_store == "/tmp/context-cursors.sqlite"
+    source_args = parser.parse_args(["needle", "--turn-source-id", "snapshot-a"])
+    assert source_args.turn_source_id == "snapshot-a"
+
+
+def _make_paged_db(db_path: Path) -> None:
+    con = sqlite3.connect(db_path)
+    con.executescript(
+        """
+        CREATE TABLE messages (
+          message_id TEXT PRIMARY KEY,
+          canonical_thread_id TEXT NOT NULL,
+          platform TEXT,
+          account_id TEXT,
+          ts TEXT NOT NULL,
+          role TEXT NOT NULL,
+          text TEXT NOT NULL,
+          title TEXT,
+          source_id TEXT,
+          source_thread_id TEXT,
+          source_message_id TEXT
+        );
+        """
+    )
+    for idx, role in enumerate(["user", "assistant", "user", "assistant", "user"], start=1):
+        con.execute(
+            """
+            INSERT INTO messages (
+              message_id, canonical_thread_id, platform, account_id, ts, role,
+              text, title, source_id, source_thread_id, source_message_id
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                f"m{idx}",
+                "paged-thread",
+                "chatgpt",
+                "main",
+                f"2026-03-28T01:0{idx}:00Z",
+                role,
+                f"turn {idx} body",
+                "Paged Thread",
+                "test-source",
+                "11111111-1111-4111-8111-111111111111",
+                f"source-m{idx}",
+            ),
+        )
+    con.commit()
+    con.close()
+
+
+def _make_snapshot_db(db_path: Path) -> None:
+    con = sqlite3.connect(db_path)
+    con.executescript(
+        """
+        CREATE TABLE messages (
+          message_id TEXT PRIMARY KEY,
+          canonical_thread_id TEXT NOT NULL,
+          platform TEXT,
+          account_id TEXT,
+          ts TEXT NOT NULL,
+          role TEXT NOT NULL,
+          text TEXT NOT NULL,
+          title TEXT,
+          source_id TEXT,
+          source_thread_id TEXT,
+          source_message_id TEXT
+        );
+        """
+    )
+    source_thread_id = "22222222-2222-4222-8222-222222222222"
+    rows = [
+        ("old-1", "2026-03-28T01:01:00Z", "user", "older turn 1", "older-snapshot", "old-src-1"),
+        ("old-2", "2026-03-28T01:02:00Z", "assistant", "older turn 2", "older-snapshot", "old-src-2"),
+        ("new-1", "2026-03-28T02:01:00Z", "user", "latest turn 1", "latest-snapshot", "new-src-1"),
+        ("new-2", "2026-03-28T02:02:00Z", "assistant", "latest turn 2", "latest-snapshot", "new-src-2"),
+        ("new-3", "2026-03-28T02:03:00Z", "user", "latest turn 3", "latest-snapshot", "new-src-3"),
+    ]
+    for message_id, ts, role, text, source_id, source_message_id in rows:
+        con.execute(
+            """
+            INSERT INTO messages (
+              message_id, canonical_thread_id, platform, account_id, ts, role,
+              text, title, source_id, source_thread_id, source_message_id
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                message_id,
+                "snapshot-thread",
+                "chatgpt",
+                "main",
+                ts,
+                role,
+                text,
+                "Snapshot Thread",
+                source_id,
+                source_thread_id,
+                source_message_id,
+            ),
+        )
+    con.commit()
+    con.close()
+
+
+def _run_resolver_json(monkeypatch, capsys, argv: list[str]) -> dict:
+    monkeypatch.setattr(sys, "argv", ["chat_context_resolver.py", *argv])
+    assert resolver.main() == 0
+    out = capsys.readouterr().out
+    return json.loads(out)
+
+
+def test_turn_page_tokens_are_strictly_short_alphanumeric():
+    assert validate_cursor_token("AB12cd") == "AB12cd"
+    for bad in ["abc", "abcdefghi", "abc-def", "abc_def", "abc def"]:
+        try:
+            validate_cursor_token(bad)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"accepted invalid cursor token: {bad}")
+
+
+def test_turn_page_walks_oldest_to_newest_with_short_cursor(tmp_path, monkeypatch, capsys):
+    db_path = tmp_path / "chat.sqlite"
+    cursor_store = tmp_path / "cursors.sqlite"
+    _make_paged_db(db_path)
+
+    first = _run_resolver_json(
+        monkeypatch,
+        capsys,
+        [
+            "Paged Thread",
+            "--db",
+            str(db_path),
+            "--no-web",
+            "--json",
+            "--turn-page-size",
+            "2",
+            "--turn-cursor-store",
+            str(cursor_store),
+        ],
+    )
+
+    page = first["db_match"]["turn_page"]
+    assert [item["message_id"] for item in page["items"]] == ["m1", "m2"]
+    assert page["start_index"] == 1
+    assert page["end_index"] == 2
+    assert page["total_count"] == 5
+    assert page["exhausted"] is False
+    assert page["next_cursor"] is not None
+    assert 4 <= len(page["next_cursor"]) <= 8
+
+    second = _run_resolver_json(
+        monkeypatch,
+        capsys,
+        [
+            "Paged Thread",
+            "--db",
+            str(db_path),
+            "--no-web",
+            "--json",
+            "--turn-page-size",
+            "2",
+            "--turn-cursor",
+            page["next_cursor"],
+            "--turn-cursor-store",
+            str(cursor_store),
+        ],
+    )
+
+    page = second["db_match"]["turn_page"]
+    assert [item["message_id"] for item in page["items"]] == ["m3", "m4"]
+    assert page["start_index"] == 3
+    assert page["next_cursor"] is not None
+
+    final = _run_resolver_json(
+        monkeypatch,
+        capsys,
+        [
+            "Paged Thread",
+            "--db",
+            str(db_path),
+            "--no-web",
+            "--json",
+            "--turn-page-size",
+            "2",
+            "--turn-cursor",
+            page["next_cursor"],
+            "--turn-cursor-store",
+            str(cursor_store),
+        ],
+    )
+
+    page = final["db_match"]["turn_page"]
+    assert [item["message_id"] for item in page["items"]] == ["m5"]
+    assert page["exhausted"] is True
+    assert page["next_cursor"] is None
+
+
+def test_turn_page_defaults_to_latest_source_snapshot(tmp_path, monkeypatch, capsys):
+    db_path = tmp_path / "chat.sqlite"
+    cursor_store = tmp_path / "cursors.sqlite"
+    _make_snapshot_db(db_path)
+
+    payload = _run_resolver_json(
+        monkeypatch,
+        capsys,
+        [
+            "22222222-2222-4222-8222-222222222222",
+            "--db",
+            str(db_path),
+            "--no-web",
+            "--json",
+            "--turn-page-size",
+            "10",
+            "--turn-cursor-store",
+            str(cursor_store),
+        ],
+    )
+
+    match = payload["db_match"]
+    page = match["turn_page"]
+    assert match["selected_source_id"] == "latest-snapshot"
+    assert match["source_snapshot_count"] == 2
+    assert "multiple source_id snapshots" in match["source_snapshot_diagnostics"]["warning"]
+    assert match["source_snapshot_diagnostics"]["disjoint_source_message_sets"] is True
+    assert page["source_id"] == "latest-snapshot"
+    assert page["total_count"] == 3
+    assert [item["message_id"] for item in page["items"]] == ["new-1", "new-2", "new-3"]
+
+
+def test_turn_source_id_selects_older_snapshot(tmp_path, monkeypatch, capsys):
+    db_path = tmp_path / "chat.sqlite"
+    cursor_store = tmp_path / "cursors.sqlite"
+    _make_snapshot_db(db_path)
+
+    payload = _run_resolver_json(
+        monkeypatch,
+        capsys,
+        [
+            "22222222-2222-4222-8222-222222222222",
+            "--db",
+            str(db_path),
+            "--no-web",
+            "--json",
+            "--turn-page-size",
+            "10",
+            "--turn-source-id",
+            "older-snapshot",
+            "--turn-cursor-store",
+            str(cursor_store),
+        ],
+    )
+
+    page = payload["db_match"]["turn_page"]
+    assert payload["db_match"]["selected_source_id"] == "older-snapshot"
+    assert page["source_id"] == "older-snapshot"
+    assert page["total_count"] == 2
+    assert [item["message_id"] for item in page["items"]] == ["old-1", "old-2"]
+
+
+def test_turn_cursor_fails_closed_for_different_source_snapshot(tmp_path, monkeypatch, capsys):
+    db_path = tmp_path / "chat.sqlite"
+    cursor_store = tmp_path / "cursors.sqlite"
+    _make_snapshot_db(db_path)
+
+    first = _run_resolver_json(
+        monkeypatch,
+        capsys,
+        [
+            "22222222-2222-4222-8222-222222222222",
+            "--db",
+            str(db_path),
+            "--no-web",
+            "--json",
+            "--turn-page-size",
+            "2",
+            "--turn-cursor-store",
+            str(cursor_store),
+        ],
+    )
+    cursor = first["db_match"]["turn_page"]["next_cursor"]
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "chat_context_resolver.py",
+            "22222222-2222-4222-8222-222222222222",
+            "--db",
+            str(db_path),
+            "--no-web",
+            "--json",
+            "--turn-page-size",
+            "2",
+            "--turn-source-id",
+            "older-snapshot",
+            "--turn-cursor",
+            cursor,
+            "--turn-cursor-store",
+            str(cursor_store),
+        ],
+    )
+    assert resolver.main() == 2
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["decision_reason"] == "turn_page_cursor_error"
+    assert "different source snapshot" in payload["error"]
+
+
+def test_turn_cursor_fails_closed_for_mismatched_page_size(tmp_path, monkeypatch, capsys):
+    db_path = tmp_path / "chat.sqlite"
+    cursor_store = tmp_path / "cursors.sqlite"
+    _make_paged_db(db_path)
+
+    first = _run_resolver_json(
+        monkeypatch,
+        capsys,
+        [
+            "Paged Thread",
+            "--db",
+            str(db_path),
+            "--no-web",
+            "--json",
+            "--turn-page-size",
+            "2",
+            "--turn-cursor-store",
+            str(cursor_store),
+        ],
+    )
+    cursor = first["db_match"]["turn_page"]["next_cursor"]
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "chat_context_resolver.py",
+            "Paged Thread",
+            "--db",
+            str(db_path),
+            "--no-web",
+            "--json",
+            "--turn-page-size",
+            "3",
+            "--turn-cursor",
+            cursor,
+            "--turn-cursor-store",
+            str(cursor_store),
+        ],
+    )
+    assert resolver.main() == 2
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["source"] == "error"
+    assert payload["decision_reason"] == "turn_page_cursor_error"
+    assert "different page size" in payload["error"]
+
+
+def test_turn_cursor_longer_than_eight_chars_is_rejected(monkeypatch, capsys):
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "chat_context_resolver.py",
+            "Paged Thread",
+            "--json",
+            "--turn-page-size",
+            "2",
+            "--turn-cursor",
+            "ABCDEFGHI",
+        ],
+    )
+
+    assert resolver.main() == 2
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["source"] == "error"
+    assert "4-8 ASCII alphanumeric" in payload["error"]
 
 
 def _make_fts_db(db_path: Path) -> None:

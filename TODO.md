@@ -4,7 +4,20 @@
 - 2026-05-20
 
 ## Submodule TODO snapshot
-- SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
+- SensibLaw: sprint posture needs to stay architecture-first.
+  - Current P0s:
+    - finish the cross-lane compiler normalization push before more UI-first
+      widening
+    - extract shared cross-lane semantic surfaces so affidavit/AU/GWB/Wikidata
+      stop treating lane-local facades as the organizing truth layer
+  - UI/`itir-svelte` work is now explicitly subordinate:
+    - keep Sprint 9 / read-only interface hardening behind those P0 lanes
+    - only take UI slices that are required to validate or consume the
+      normalized products/contracts already emitted
+  - sprint docs to treat as canonical:
+    - `SensibLaw/docs/roadmaps/SPRINT.md`
+    - `SensibLaw/docs/roadmaps/sprint_s7.md`
+    - `SensibLaw/docs/roadmaps/sprint_s9.md`
   - Wikidata/OCTF follow-on:
     - DONE external Wikibase/Wikidata reference alignment:
       `docs/planning/wikidata_combined_roadmap_nat_and_assist_20260401.md`
@@ -1175,7 +1188,7 @@
     - capture/transcription setup friction
     - cross-product handoff clarity
 
-- [P0] Guided workflow / next-action surfaces:
+- [P1] Guided workflow / next-action surfaces:
   - use `docs/planning/user_story_alignment_and_reprioritization_20260402.md`
     as the current post-substrate priority note
   - strongest gap after the substrate pass:
@@ -1187,7 +1200,7 @@
     - keep this grounded in canonical receipts, operator views, and current
       read models rather than inventing a parallel action backend
 
-- [P0] Annotation / QA workbench slice:
+- [P1] Annotation / QA workbench slice:
   - the current repo has lower-level review geometry, workbench payloads,
     operator views, and queue/control-plane posture, but still lacks the
     stronger human review/annotation execution loop implied by the user stories

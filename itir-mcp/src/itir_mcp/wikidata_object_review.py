@@ -4,10 +4,10 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 from .contracts import JsonDict, ToolInputError
-from .domain_tools import climate_claim_review, gwb_follow_graph, wikidata_migration_candidate, wikidata_review_packet
+from .domain_tools import wikidata_migration_candidate, wikidata_review_packet
 
 
-VERSION = "itir.wikidata.object_review_bundle.v1"
+VERSION = "itir.wikidata.object_review_bundle.v2"
 
 _AUTHORITY_BOUNDARY: JsonDict = {
     "read_only": True,
@@ -16,10 +16,6 @@ _AUTHORITY_BOUNDARY: JsonDict = {
     "candidate_only": True,
     "promotion_authority": False,
 }
-
-_CLIMATE_PROPERTIES = frozenset({"P5991", "P14143"})
-_GWB_TERMS = ("gwb", "brexit", "withdrawal", "government white paper")
-
 
 def normalize_wikidata_objects(value: Any) -> JsonDict:
     objects = _object_items(value)
@@ -82,7 +78,6 @@ def normalize_wikidata_objects(value: Any) -> JsonDict:
 def wikidata_object_review_bundle(payload: Mapping[str, Any]) -> JsonDict:
     objects_value = _objects_value(payload)
     normalized = normalize_wikidata_objects(objects_value)
-    lanes = _resolve_lanes(payload, normalized)
     tooling_profile = _tooling_profile(payload)
 
     constraints = _constraints_for(normalized)
@@ -94,64 +89,37 @@ def wikidata_object_review_bundle(payload: Mapping[str, Any]) -> JsonDict:
             "provenance_refs": normalized["citations"],
         }
     )
-
-    outputs: JsonDict = {
-        "wikidata_review_packet": review_packet,
-    }
-    if "migration" in lanes:
-        outputs["migration_candidate"] = wikidata_migration_candidate(
-            {
-                "statement_refs": [statement["statement_id"] for statement in normalized["statements"]],
-                "property_hints": normalized["property_hints"],
-                "class_hints": normalized["class_hints"],
-                "expected_fields": _expected_fields(normalized),
-                "characteristic_fields": ["label", "description"],
-                "constraint_refs": [constraint["constraint_id"] for constraint in constraints],
-                "report_refs": ["itir.wikidata.object_review_bundle"],
-                "citations": normalized["citations"],
-                "provenance_refs": normalized["citations"],
-                "authority_label": "candidate-only",
-            }
-        )
-    if "climate" in lanes:
-        outputs["climate_claim_review"] = climate_claim_review(
-            {
-                "authority_label": "candidate-only",
-                "gate_requirements": {
-                    "promotion_requires_gate": True,
-                    "review_gate": "climate_nat_review",
-                },
-                "claims": _climate_claims(normalized),
-                "citations": normalized["citations"],
-                "provenance_refs": normalized["citations"],
-            }
-        )
-    if "gwb" in lanes:
-        outputs["gwb_follow_graph"] = gwb_follow_graph(_gwb_payload(normalized))
+    migration_candidate = wikidata_migration_candidate(
+        {
+            "statement_refs": [statement["statement_id"] for statement in normalized["statements"]],
+            "property_hints": normalized["property_hints"],
+            "class_hints": normalized["class_hints"],
+            "expected_fields": _expected_fields(normalized),
+            "characteristic_fields": ["label", "description"],
+            "constraint_refs": [constraint["constraint_id"] for constraint in constraints],
+            "report_refs": ["itir.wikidata.object_review_bundle"],
+            "citations": normalized["citations"],
+            "provenance_refs": normalized["citations"],
+            "authority_label": "candidate-only",
+        }
+    )
 
     return {
         "version": VERSION,
-        "domain": "wikidata",
-        "bundle_kind": "candidate_object_review_bundle",
-        "candidate_only": True,
-        "non_authoritative": True,
-        "promoted_claims": False,
-        "truth_claims": False,
-        "input_shape": _input_shape(objects_value),
-        "requested_lanes": lanes,
-        "object_count": normalized["object_count"],
-        "statement_count": normalized["statement_count"],
-        "objects": normalized["objects"],
-        "statement_refs": [statement["statement_id"] for statement in normalized["statements"]],
-        "property_hints": normalized["property_hints"],
-        "class_hints": normalized["class_hints"],
-        "citations": normalized["citations"],
-        "outputs": outputs,
+        "normalized_objects": normalized["objects"],
+        "candidate_statements": normalized["statements"],
+        "provenance_refs": normalized["citations"],
+        "constraint_diagnostics": review_packet["constraint_diagnostics"],
+        "shape_hints": {
+            "input_shape": _input_shape(objects_value),
+            "object_count": normalized["object_count"],
+            "statement_count": normalized["statement_count"],
+            "property_hints": normalized["property_hints"],
+            "class_hints": normalized["class_hints"],
+        },
+        "migration_candidates": [migration_candidate],
+        "review_packet": review_packet,
         "authority_boundary": dict(_AUTHORITY_BOUNDARY),
-        "summary": (
-            "Candidate-only Wikidata object review bundle "
-            f"(objects={normalized['object_count']}, statements={normalized['statement_count']}, lanes={','.join(lanes)})"
-        ),
     }
 
 
@@ -283,6 +251,8 @@ def _simple_value(value: Any) -> tuple[str, str | None]:
             return (value["amount"] + suffix, None)
         if isinstance(value.get("time"), str):
             return (value["time"], None)
+        if isinstance(value.get("value"), str):
+            return (_compact(value["value"]), None)
         if isinstance(value.get("text"), str):
             return (_compact(value["text"]), None)
     if isinstance(value, str):
@@ -356,132 +326,11 @@ def _tooling_profile(payload: Mapping[str, Any]) -> JsonDict:
     }
 
 
-def _resolve_lanes(payload: Mapping[str, Any], normalized: Mapping[str, Any]) -> list[str]:
-    requested = payload.get("lanes", "auto")
-    if requested == "auto" or requested is None:
-        lanes = ["wikidata", "migration"]
-        if _has_climate_hint(payload, normalized):
-            lanes.append("climate")
-        if _has_gwb_hint(payload, normalized):
-            lanes.append("gwb")
-        return lanes
-    if isinstance(requested, str):
-        items = [requested]
-    elif isinstance(requested, Sequence) and not isinstance(requested, (bytes, bytearray)):
-        items = list(requested)
-    else:
-        raise ToolInputError("lanes must be auto, a string, or an array of strings")
-    lanes = []
-    aliases = {"nat": "climate", "climate_nat": "climate", "review": "wikidata"}
-    for item in items:
-        if not isinstance(item, str) or not item.strip():
-            raise ToolInputError("lanes entries must be strings")
-        lane = aliases.get(item.strip(), item.strip())
-        if lane not in {"wikidata", "migration", "climate", "gwb"}:
-            raise ToolInputError(f"unknown lane: {lane}")
-        if lane not in lanes:
-            lanes.append(lane)
-    if "wikidata" not in lanes:
-        lanes.insert(0, "wikidata")
-    return lanes
-
-
-def _has_climate_hint(payload: Mapping[str, Any], normalized: Mapping[str, Any]) -> bool:
-    if payload.get("domain") in {"climate", "climate_nat", "nat"}:
-        return True
-    return any(prop in _CLIMATE_PROPERTIES for prop in normalized.get("property_hints", []))
-
-
-def _has_gwb_hint(payload: Mapping[str, Any], normalized: Mapping[str, Any]) -> bool:
-    if payload.get("domain") in {"gwb", "brexit"}:
-        return True
-    blob = " ".join(
-        str(part).lower()
-        for part in list(normalized.get("property_hints", []))
-        + list(normalized.get("class_hints", []))
-        + [obj.get("label") for obj in normalized.get("objects", []) if isinstance(obj, Mapping) and obj.get("label")]
-    )
-    return any(term in blob for term in _GWB_TERMS)
-
-
 def _expected_fields(normalized: Mapping[str, Any]) -> list[str]:
     fields = ["entity_id", "property", "value"]
     if normalized.get("class_hints"):
         fields.append("class")
     return fields
-
-
-def _climate_claims(normalized: Mapping[str, Any]) -> list[JsonDict]:
-    statements = normalized.get("statements", [])
-    claims: list[JsonDict] = []
-    for index, statement in enumerate(statements, start=1):
-        if not isinstance(statement, Mapping):
-            continue
-        text = str(statement.get("fact") or "")
-        if any(prop in text for prop in _CLIMATE_PROPERTIES):
-            claims.append(
-                {
-                    "claim_id": f"climate:{statement['statement_id']}",
-                    "normal_form": f"wikidata_climate:{statement['statement_id']}",
-                    "rendered_claim": text,
-                    "candidate_status": "candidate",
-                    "support_count": 0,
-                    "contradiction_count": 0,
-                    "citations": list(statement.get("provenance_refs") or []),
-                    "provenance_refs": list(statement.get("provenance_refs") or []),
-                    "authority_label": "candidate-only",
-                }
-            )
-    if claims:
-        return claims
-    return [
-        {
-            "claim_id": "climate:wikidata-object-review",
-            "normal_form": "wikidata_climate:object_review(candidate)",
-            "rendered_claim": "Wikidata object review requested Climate NAT candidate assessment.",
-            "candidate_status": "candidate",
-            "support_count": 0,
-            "contradiction_count": 0,
-            "citations": list(normalized.get("citations", [])),
-            "provenance_refs": list(normalized.get("citations", [])),
-            "authority_label": "candidate-only",
-        }
-    ]
-
-
-def _gwb_payload(normalized: Mapping[str, Any]) -> JsonDict:
-    statement_refs = [str(statement["statement_id"]) for statement in normalized.get("statements", []) if isinstance(statement, Mapping)]
-    if not statement_refs:
-        statement_refs = ["wikidata:object-review"]
-    authority_ref = "authority:gwb_external_review"
-    return {
-        "authority_label": "external authority follow graph",
-        "source_refs": statement_refs,
-        "authority_refs": [authority_ref],
-        "follow_edges": [
-            {
-                "edge_ref": f"gwb-follow:{index}",
-                "source_ref": ref,
-                "authority_ref": authority_ref,
-                "relation": "requires_external_authority_review",
-                "citations": list(normalized.get("citations", [])),
-                "provenance_refs": [ref],
-            }
-            for index, ref in enumerate(statement_refs, start=1)
-        ],
-        "unresolved_obligations": [
-            {
-                "obligation_id": "gwb:external-authority-review",
-                "status": "open",
-                "source_refs": statement_refs,
-                "authority_refs": [authority_ref],
-                "citations": list(normalized.get("citations", [])),
-                "provenance_refs": statement_refs,
-            }
-        ],
-        "citations": list(normalized.get("citations", [])),
-        "provenance_refs": statement_refs,
-    }
 
 
 def _input_shape(value: Any) -> str:

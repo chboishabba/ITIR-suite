@@ -46,7 +46,16 @@
 ## Chunk naming
 - Shard object path pattern:
   - `shards/<section>/chunk-<chunkIndex>.capnp-packed`
-- `chunkIndex` is file-local to the section/chunk family.
+- Historical note: this contract originally treated `chunkIndex` as file-local
+  to the section/chunk family.
+- Current post-fix expectation for WD name sections:
+  - `nameOfNode` chunk indices are section-global
+  - `nodeOfName` chunk indices are section-global
+  - ITIR tooling must not assume a per-language restart for name-section chunk
+    identity
+- Adjacency sections (`left`, `right`) still use section-scoped chunk selectors
+  for manifest selection. Regenerated artifacts may still change chunk
+  identity, so manifests/indexes remain the runtime source of truth.
 
 ## Capabilities
 - Both layouts expose:
@@ -72,7 +81,8 @@
 - v1:
   - still monolithic `.bin`
   - patcher for direct seeks is still landing
-  - file-local chunk identity
+  - historical file-local chunk identity assumptions are not authoritative for
+    post-fix WD name sections
 - v2:
   - hosted remote routed consumption now works against a real HF dataset repo
     after fixing:
@@ -116,3 +126,12 @@
   not re-proving hosted fetch.
 - concrete next-contract draft now lives in:
   - `docs/planning/zelph_hf_v3_shard_contract_20260326.md`
+
+## 2026-07-02 addendum
+
+Stefan's post-fix WD sharding changed name-section identity enough that older
+file-local/per-language chunkIndex wording must be treated as superseded for
+`nameOfNode` and `nodeOfName`. Current ITIR readiness is tracked in:
+
+- `docs/planning/zelph_develop_sparql_partial_load_readiness_20260702.md`
+- `docs/planning/itir_wd_zelph_sensiblaw_flatness_optimisation_roadmap_20260702.md`

@@ -44,6 +44,18 @@ Not in scope for the first increment:
 - `itir.markdown.write_projection`
 - `itir.docstore.config_plan`
 
+## Numeric ABI
+
+`itir_mcp.pnf_numeric_abi` is a narrow receipt-bearing numeric ABI for
+diagnostic GEMV parity. It validates `itir.pnf.numeric_abi.v0_1` payloads with
+`float32` vectors, a square row-major `A`, optional `b`, and a receipt-bearing
+`row_map`, then exposes a deterministic CPU GEMV and parity hash.
+
+This is plumbing, not spectral materialization. Callers such as Mirror's
+daily-summary `numeric-abi-smoke` lane may map selected support rows into this
+ABI to prove adapter parity, but the result does not create PNF eigenvectors,
+support authority, answer authority, routing authority, or promotion.
+
 Planned next family, not yet implemented:
 
 - `itir.windows.collect_registry`

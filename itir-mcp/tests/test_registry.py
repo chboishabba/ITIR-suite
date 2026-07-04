@@ -53,6 +53,11 @@ def test_default_registry_registers_wikidata_object_review_bundle_as_read_only()
     spec = registry.get_tool_spec("itir.wikidata.object_review_bundle")
     assert spec is not None
     assert spec.read_only is True
+    assert "lanes" not in spec.input_schema["properties"]
+    assert "domain" not in spec.input_schema["properties"]
+    assert {"object", "objects", "entity", "entities", "wikidata_object", "wikidata_objects"} <= set(
+        spec.input_schema["properties"]
+    )
 
     profile_key = registry.get_tool_authority_profile_key("itir.wikidata.object_review_bundle")
     profile = registry.get_tool_authority_profile("itir.wikidata.object_review_bundle")

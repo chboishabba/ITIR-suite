@@ -15,6 +15,8 @@ ITIR-suite orchestration role and boundaries:
 
 Canonical public primer:
 - `SensibLaw/docs/pnf_itir_primer.md`
+- `docs/planning/itir_flatness_doctrine_20260703.md`
+- `docs/planning/pnf_zelph_wd_linkage_depth_contract_20260703.md`
 
 The primer explains Predicate Normal Form as the ITIR typed predicate carrier,
 including implemented carrier fields, residual comparison, current public use
@@ -82,6 +84,21 @@ Background-agent routing and validation:
 Shareable technical framing for external collaborators:
 - `docs/planning/zelph_handoff_index_20260324.md`
 - `docs/planning/zelph_external_handoff_20260320.md`
+- `docs/planning/zelph_develop_sparql_partial_load_readiness_20260702.md`
+- `docs/planning/itir_flatness_doctrine_20260703.md`
+- `docs/planning/itir_wd_zelph_sensiblaw_flatness_optimisation_roadmap_20260702.md`
+- `docs/planning/pnf_zelph_wd_linkage_depth_contract_20260703.md`
+
+Current WD/Zelph follow-through:
+- treat visible HF shards as data-present, not acceptance-ready, until the
+  blessed `develop` binary, manifest, and route-sidecar contract are confirmed
+- diagnose graph flatness as a cross-ontology linkage-depth problem before
+  renderer work
+- distinguish `linkage flatness` from `render flatness`
+- use PNF x Zelph/WD as the first external bridge contract, without letting WD
+  redefine flatness
+- keep WD/reconciliation optimisation behind direct partial-load and graph
+  diagnostic baselines
 
 ## Wikidata Hotspot Benchmark Lane (2026-03-25)
 

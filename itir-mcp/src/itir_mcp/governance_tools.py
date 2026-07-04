@@ -264,7 +264,7 @@ def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
             ToolSpec(
                 name="itir.wikidata.object_review_bundle",
                 title="ITIR Wikidata object review bundle",
-                description="Normalize one or more Wikidata objects and run candidate-only Wikidata/NAT/GWB review lanes.",
+                description="Normalize one or more Wikidata objects into a candidate-only object review bundle.",
                 input_schema={
                     "type": "object",
                     "properties": {
@@ -272,8 +272,8 @@ def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
                         "objects": {},
                         "entity": {"type": "object"},
                         "entities": {},
-                        "lanes": {},
-                        "domain": {"type": "string"},
+                        "wikidata_object": {"type": "object"},
+                        "wikidata_objects": {},
                         "tooling_profile": {"type": "object"},
                     },
                     "required": [],

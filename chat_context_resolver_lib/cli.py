@@ -97,6 +97,27 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--turn-page-size",
+        type=int,
+        default=0,
+        help=(
+            "Return only the next N DB turns in oldest-to-newest order. "
+            "Use --turn-cursor with the returned token to continue."
+        ),
+    )
+    parser.add_argument(
+        "--turn-cursor",
+        help="4-8 character cursor token returned by a previous --turn-page-size call.",
+    )
+    parser.add_argument(
+        "--turn-cursor-store",
+        help="Override cursor store path (default: /tmp/robust-context-fetch-cursors-$UID.sqlite).",
+    )
+    parser.add_argument(
+        "--turn-source-id",
+        help="Page a specific ingest snapshot source_id instead of the latest source_thread_id snapshot.",
+    )
+    parser.add_argument(
         "--check-web-newer",
         action="store_true",
         help=(

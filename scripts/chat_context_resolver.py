@@ -54,6 +54,11 @@ from chat_context_resolver_lib.transcript import (
     latest_turn_datetime,
     truncate_text,
 )
+from chat_context_resolver_lib.turn_paging import (
+    build_turn_page,
+    default_cursor_store_path,
+    validate_cursor_token,
+)
 
 
 class _ProgressReporter:
@@ -1073,6 +1078,29 @@ def main() -> int:
         mca_db_path = Path(args.mca_db).expanduser()
         if not mca_db_path.is_absolute():
             mca_db_path = repo_root / mca_db_path
+    turn_page_size = int(getattr(args, "turn_page_size", 0) or 0)
+    if getattr(args, "turn_cursor", None) and turn_page_size <= 0:
+        payload = {"source": "error", "error": "--turn-cursor requires --turn-page-size."}
+        _print_result(payload, args.json)
+        return 2
+    if turn_page_size < 0:
+        payload = {"source": "error", "error": "--turn-page-size must be greater than zero."}
+        _print_result(payload, args.json)
+        return 2
+    if args.turn_cursor:
+        try:
+            validate_cursor_token(args.turn_cursor)
+        except ValueError as exc:
+            payload = {"source": "error", "error": str(exc)}
+            _print_result(payload, args.json)
+            return 2
+    turn_cursor_store_path = (
+        Path(args.turn_cursor_store).expanduser()
+        if args.turn_cursor_store
+        else default_cursor_store_path()
+    )
+    if not turn_cursor_store_path.is_absolute():
+        turn_cursor_store_path = repo_root / turn_cursor_store_path
 
     threshold: Optional[dt.datetime] = None
     if args.if_newer_than:
@@ -1100,6 +1128,7 @@ def main() -> int:
                 db_path,
                 selector_for_db,
                 allow_canonical_match=allow_canonical,
+                selected_source_id=args.turn_source_id,
             )
             progress.emit("db_open", message="DB match lookup complete", force=True)
         except sqlite3.Error as exc:
@@ -1136,6 +1165,27 @@ def main() -> int:
         except sqlite3.Error as exc:
             extra = f"Unable to load recent turns: {exc}"
             db_error = f"{db_error}; {extra}" if db_error else extra
+    db_turn_page: Optional[dict] = None
+    if db_match is not None and turn_page_size > 0:
+        try:
+            db_turn_page = build_turn_page(
+                db_path,
+                db_match.canonical_thread_id,
+                page_size=turn_page_size,
+                cursor_token=args.turn_cursor,
+                cursor_store_path=turn_cursor_store_path,
+                source_id=args.turn_source_id or db_match.selected_source_id,
+                max_text_chars=args.max_text_chars,
+                parse_message_ts=_parse_message_ts,
+                iso_utc_precise=_iso_utc_precise,
+                truncate_text=truncate_text,
+            )
+        except (sqlite3.Error, ValueError, RuntimeError) as exc:
+            payload = {"source": "error", "decision_reason": "turn_page_cursor_error", "error": str(exc)}
+            if db_error:
+                payload["db_warning"] = db_error
+            _print_result(payload, args.json)
+            return 2
 
     needs_web = False
     reason = ""
@@ -1335,6 +1385,7 @@ def main() -> int:
                         db_path,
                         selector_for_db,
                         allow_canonical_match=allow_canonical,
+                        selected_source_id=args.turn_source_id,
                     )
                 except sqlite3.Error as exc:
                     db_match = None
@@ -1354,6 +1405,31 @@ def main() -> int:
                     except sqlite3.Error as exc:
                         extra = f"Unable to load recent turns after ingest: {exc}"
                         db_error = f"{db_error}; {extra}" if db_error else extra
+                db_turn_page = None
+                if turn_page_size > 0:
+                    try:
+                        db_turn_page = build_turn_page(
+                            db_path,
+                            db_match.canonical_thread_id,
+                            page_size=turn_page_size,
+                            cursor_token=args.turn_cursor,
+                            cursor_store_path=turn_cursor_store_path,
+                            source_id=args.turn_source_id or db_match.selected_source_id,
+                            max_text_chars=args.max_text_chars,
+                            parse_message_ts=_parse_message_ts,
+                            iso_utc_precise=_iso_utc_precise,
+                            truncate_text=truncate_text,
+                        )
+                    except (sqlite3.Error, ValueError, RuntimeError) as exc:
+                        payload = {
+                            "source": "error",
+                            "decision_reason": "turn_page_cursor_error",
+                            "error": str(exc),
+                        }
+                        if db_error:
+                            payload["db_warning"] = db_error
+                        _print_result(payload, args.json)
+                        return 2
                 payload = {
                     "source": "db",
                     "decision_reason": "perplexity_persisted_to_db",
@@ -1363,6 +1439,7 @@ def main() -> int:
                         max_text_chars=args.max_text_chars,
                         latest_paragraphs=args.latest_paragraphs,
                         recent_turns=db_recent_turns,
+                        turn_page=db_turn_page,
                         truncate_text=truncate_text,
                         split_paragraphs=_split_paragraphs,
                         iso_utc=_iso_utc,
@@ -1389,6 +1466,7 @@ def main() -> int:
                     max_text_chars=args.max_text_chars,
                     latest_paragraphs=args.latest_paragraphs,
                     recent_turns=db_recent_turns,
+                    turn_page=db_turn_page,
                     truncate_text=truncate_text,
                     split_paragraphs=_split_paragraphs,
                     iso_utc=_iso_utc,
@@ -1468,6 +1546,7 @@ def main() -> int:
                     max_text_chars=args.max_text_chars,
                     latest_paragraphs=args.latest_paragraphs,
                     recent_turns=db_recent_turns,
+                    turn_page=db_turn_page,
                     truncate_text=truncate_text,
                     split_paragraphs=_split_paragraphs,
                     iso_utc=_iso_utc,
@@ -1489,6 +1568,7 @@ def main() -> int:
                 max_text_chars=args.max_text_chars,
                 latest_paragraphs=args.latest_paragraphs,
                 recent_turns=db_recent_turns,
+                turn_page=db_turn_page,
                 truncate_text=truncate_text,
                 split_paragraphs=_split_paragraphs,
                 iso_utc=_iso_utc,
@@ -1508,6 +1588,7 @@ def main() -> int:
             max_text_chars=args.max_text_chars,
             latest_paragraphs=args.latest_paragraphs,
             recent_turns=db_recent_turns,
+            turn_page=db_turn_page,
             truncate_text=truncate_text,
             split_paragraphs=_split_paragraphs,
             iso_utc=_iso_utc,

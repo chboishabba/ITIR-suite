@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased
+- Added `itir_mcp.pnf_numeric_abi`, a narrow receipt-bearing
+  `itir.pnf.numeric_abi.v0_1` GEMV validation/parity helper. This is diagnostic
+  adapter plumbing only and does not materialize spectral PNF state,
+  eigenvectors, support authority, routing, or promotion.
 - Added the read-only PNF MCP family:
   - `itir.pnf.context_index`
   - `itir.pnf.task_memory_preview`

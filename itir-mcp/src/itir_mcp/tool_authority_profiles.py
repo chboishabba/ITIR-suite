@@ -440,10 +440,10 @@ REGISTRY_TOOL_AUTHORITY_PROFILE_SPECS: tuple[ToolAuthorityProfile, ...] = (
         max_authority=AuthorityStatus.RECEIPT.value,
         promotion_requires_gate=False,
         authority_notes={
-            "authority_class": "domain_object_review_bundle",
+            "authority_class": "platform_object_review_bundle",
             "candidate_only": True,
             "non_authoritative": True,
-            "note": "Wikidata object review bundles normalize supplied objects and run candidate review lanes without promotion.",
+            "note": "Wikidata object review bundles normalize supplied objects into generic candidate review state without promotion.",
         },
     ),
     ToolAuthorityProfile(

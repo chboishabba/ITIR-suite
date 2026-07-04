@@ -11,6 +11,7 @@ def db_payload(
     max_text_chars: int,
     latest_paragraphs: bool = False,
     recent_turns: Optional[list[dict]] = None,
+    turn_page: Optional[dict] = None,
     truncate_text,
     split_paragraphs,
     iso_utc,
@@ -29,6 +30,8 @@ def db_payload(
         ]
     if recent_turns:
         payload["recent_turns"] = recent_turns
+    if turn_page:
+        payload["turn_page"] = turn_page
     return payload
 
 
@@ -80,6 +83,13 @@ def print_result(payload: dict, as_json: bool) -> None:
             print(f"title: {db.get('title')}")
             print(f"online_thread_id: {db.get('online_thread_id')}")
             print(f"canonical_thread_id: {db.get('canonical_thread_id')}")
+            if db.get("selected_source_id"):
+                print(f"selected_source_id: {db.get('selected_source_id')}")
+            if db.get("source_snapshot_count"):
+                print(f"source_snapshot_count: {db.get('source_snapshot_count')}")
+            snapshot_diag = db.get("source_snapshot_diagnostics") or {}
+            if snapshot_diag.get("warning"):
+                print(f"source_snapshot_warning: {snapshot_diag.get('warning')}")
             print(f"earliest_ts_utc: {db.get('earliest_ts_utc')}")
             print(f"latest_ts_utc: {db.get('latest_ts_utc')}")
             print(f"latest_role: {db.get('latest_role')}")
@@ -102,6 +112,25 @@ def print_result(payload: dict, as_json: bool) -> None:
                         f"ts_utc={turn.get('ts_utc')} role={turn.get('role')}:"
                     )
                     print(turn.get("text", ""))
+            turn_page = db.get("turn_page") or {}
+            if turn_page:
+                print(
+                    "turn_page: "
+                    f"start={turn_page.get('start_index')} "
+                    f"end={turn_page.get('end_index')} "
+                    f"returned={turn_page.get('returned_count')} "
+                    f"total={turn_page.get('total_count')} "
+                    f"exhausted={turn_page.get('exhausted')}"
+                )
+                next_cursor = turn_page.get("next_cursor")
+                if next_cursor:
+                    print(f"next_cursor: {next_cursor}")
+                for item in turn_page.get("items") or []:
+                    print(
+                        f"[{item.get('message_index')}] ts={item.get('ts')} "
+                        f"ts_utc={item.get('ts_utc')} role={item.get('role')}:"
+                    )
+                    print(item.get("text", ""))
         else:
             print("db_match: (none)")
 

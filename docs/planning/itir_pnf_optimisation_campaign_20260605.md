@@ -385,3 +385,40 @@ and JSONL emitter that can wrap the archive PNF runner and Conversation VM
 without changing PNF semantics. That creates the measurement surface needed to
 decide whether the next concrete patch should target SQLite write amplification,
 compile cost, reducer state growth, or Wikidata projection loops.
+
+## 2026-07-02 WD/Zelph Addendum
+
+WD linking and SensibLaw graph flatness now become a concrete Stage 0/Stage 4
+pressure test rather than a separate optimisation lane.
+
+Current external observation:
+
+- `acrion/zelph` exposes `wikidata-20260309-all-shards` and
+  `wikidata-20260309-all-pruned-shards` on HF.
+- The public dataset listing did not expose manifest, route-sidecar, JSON index,
+  or JSON manifest filenames, so the shard upload is not yet sufficient for
+  ITIR acceptance by itself.
+
+Add WD/Zelph rows to the target matrix before optimising reconciliation/DB size:
+
+- HF dataset commit SHA
+- manifest version and storage mode
+- selected section count
+- selected shard count
+- selected bytes
+- route-sidecar presence
+- direct vs fallback status
+- cache hits and misses
+- DB rows and bytes written
+- graph diagnostic deltas
+
+For the SensibLaw "too flat" concern, measure graph structure before changing
+rendering:
+
+- node-kind and edge-kind distributions
+- branching factor
+- component count and giant-component ratio
+- cone width, selectivity, and leakage
+
+If those diagnostics are sparse, fix extraction/projection. If they are rich
+but the UI still looks flat, then change the Graphviz/Streamlit rendering layer.

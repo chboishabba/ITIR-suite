@@ -41,11 +41,9 @@ def _realish_object() -> dict:
 
 
 def _assert_non_authority(payload: dict) -> None:
-    assert payload["candidate_only"] is True
-    assert payload["non_authoritative"] is True
-    assert payload["promoted_claims"] is False
-    assert payload["truth_claims"] is False
     assert payload["authority_boundary"]["promotion_authority"] is False
+    assert payload["authority_boundary"]["candidate_only"] is True
+    assert payload["authority_boundary"]["non_authoritative"] is True
 
 
 def test_normalize_wikidata_objects_accepts_single_list_and_dict_inputs() -> None:
@@ -79,41 +77,39 @@ def test_normalize_wikidata_objects_compacts_real_wikidata_claim_shape() -> None
     assert "datavalue" not in serialized
 
 
-def test_wikidata_object_review_bundle_runs_requested_domain_lanes() -> None:
+def test_wikidata_object_review_bundle_emits_generic_candidate_packet_only() -> None:
     bundle = wikidata_object_review_bundle(
         {
             "objects": [_realish_object()],
-            "lanes": ["wikidata", "migration", "climate", "gwb"],
-            "domain": "climate_nat",
         }
     )
 
     _assert_non_authority(bundle)
-    assert bundle["version"] == "itir.wikidata.object_review_bundle.v1"
-    assert bundle["object_count"] == 1
-    assert bundle["statement_count"] == 1
-    assert bundle["requested_lanes"] == ["wikidata", "migration", "climate", "gwb"]
-    assert set(bundle["outputs"]) == {
-        "wikidata_review_packet",
-        "migration_candidate",
-        "climate_claim_review",
-        "gwb_follow_graph",
+    assert bundle["version"] == "itir.wikidata.object_review_bundle.v2"
+    assert set(bundle) == {
+        "version",
+        "normalized_objects",
+        "candidate_statements",
+        "provenance_refs",
+        "constraint_diagnostics",
+        "shape_hints",
+        "migration_candidates",
+        "review_packet",
+        "authority_boundary",
     }
-    _assert_non_authority(bundle["outputs"]["wikidata_review_packet"])
-    _assert_non_authority(bundle["outputs"]["migration_candidate"])
-    _assert_non_authority(bundle["outputs"]["climate_claim_review"])
-    _assert_non_authority(bundle["outputs"]["gwb_follow_graph"])
-    assert bundle["outputs"]["climate_claim_review"]["claim_count"] == 1
-    assert bundle["outputs"]["gwb_follow_graph"]["graph_kind"] == "candidate_follow_graph"
+    assert bundle["shape_hints"]["object_count"] == 1
+    assert bundle["shape_hints"]["statement_count"] == 1
+    assert bundle["review_packet"]["fact_count"] == 1
+    assert bundle["migration_candidates"][0]["candidate_only"] is True
+    assert bundle["migration_candidates"][0]["promoted_claims"] is False
+    assert bundle["migration_candidates"][0]["truth_claims"] is False
+    assert bundle["migration_candidates"][0]["authority_boundary"]["promotion_authority"] is False
     assert "raw_text" not in json.dumps(bundle, sort_keys=True)
-
-
-def test_wikidata_object_review_bundle_auto_selects_climate_lane_from_property_hint() -> None:
-    bundle = wikidata_object_review_bundle({"object": _realish_object(), "lanes": "auto"})
-
-    assert bundle["requested_lanes"] == ["wikidata", "migration", "climate"]
-    assert "climate_claim_review" in bundle["outputs"]
-    assert "gwb_follow_graph" not in bundle["outputs"]
+    serialized = json.dumps(bundle, sort_keys=True)
+    assert "requested_lanes" not in serialized
+    assert "outputs" not in serialized
+    assert "climate_claim_review" not in serialized
+    assert "gwb_follow_graph" not in serialized
 
 
 def test_wikidata_object_review_bundle_registers_and_invokes_through_mcp_registry() -> None:
@@ -123,7 +119,7 @@ def test_wikidata_object_review_bundle_registers_and_invokes_through_mcp_registr
     assert result["ok"] is True
     bundle = result["result"]
     _assert_non_authority(bundle)
-    assert bundle["outputs"]["wikidata_review_packet"]["fact_count"] == 2
+    assert bundle["review_packet"]["fact_count"] == 2
 
     guarded = registry.safe_invoke("itir.wikidata.object_review_bundle", {"object": _simple_object()})
     assert guarded["ok"] is True
