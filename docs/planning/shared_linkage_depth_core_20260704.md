@@ -30,12 +30,22 @@ Shared core owns:
 Lane modules own:
 
 - typed geometry
-- lane-specific node/edge construction
+- lane-local composition over generic linkage adapters
 - receipt attachment at the lane boundary
 - CLI/domain compatibility wrappers
 
 The core inherits contracts. It does not import climate, disjointness, GWB,
 Brexit, AU, or affidavit geometry.
+
+Invariant:
+
+- the core audits
+- the adapters emit
+- the lane composes
+- the wrapper attaches
+
+That is how lanes become arbitrarily deep or rich without widening
+`policy/linkage_depth.py`.
 
 ## First Three Families
 
@@ -65,6 +75,28 @@ source follow anchor
 
 WD stays optional enrichment here, not the native spine.
 
+Phase G.2 now adds the first generic adapter-composition proof under:
+
+- `SensibLaw/src/policy/linkage_adapters.py`
+- `SensibLaw/src/policy/gwb_narrative_linkage.py`
+
+Current narrative/timeline contract path:
+
+```text
+source anchor
+-> source document container
+-> timeline/event parse
+-> relation/event candidate
+-> narrative/timeline coalescence surface
+-> authority/review surface
+-> workflow/tranche anchor
+```
+
+The point is not a second bespoke GWB spine. The point is that the lane now
+imports generic source/document/parse/claim/coalescence/authority/tranche
+adapters and composes them into a deeper receipt. Optional Wikipedia/Wikidata
+source enrichment stays additive rather than native.
+
 Brexit belongs to this bounded proving-ground family rather than the richer AU
 authority family.
 
@@ -72,20 +104,30 @@ authority family.
 
 AU is the first semantically richer legal inheritor after the GWB smoke proof.
 
-Planned contract path:
+Phase G.1 now lands the first AU adopter under:
+
+- `SensibLaw/src/policy/au_linkage_depth.py`
+- `SensibLaw/src/policy/au_lane_receipts.py`
+
+Current contract path:
 
 ```text
 source anchor
--> sentence/provision or event/legal-ref container
+-> legal text or event anchor
+-> provision/legal-ref container
 -> parsed legal/support surface
 -> legal claim candidate
 -> authority surface
--> legal-follow graph or review bundle surface
+-> fact-review bundle surface
 -> workflow/tranche anchor
 ```
 
 The point is to prove instrument, jurisdiction, and authority depth, not just
-queue depth.
+queue depth. The AU receipt now carries open-string metadata diagnostics for:
+
+- `authority_boundary_visibility`
+- `instrument_or_jurisdiction_visible`
+- `candidate_vs_promoted_visibility`
 
 ### Affidavit
 

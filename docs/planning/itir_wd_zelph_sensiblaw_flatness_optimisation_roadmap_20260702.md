@@ -238,6 +238,21 @@ As of 2026-07-04, item 5 is now live for the first bounded real-text bridge:
 
 - `SensibLaw/src/ontology/wikidata.py` remains the normalized generic climate
   demonstrator surface
+- `SensibLaw/src/policy/linkage_depth.py` is now the shared control-plane
+  engine rather than a WD-owned runtime
+- `SensibLaw/src/policy/gwb_linkage_depth.py` proves the first non-WD bounded
+  legal-follow adopter
+- `SensibLaw/src/policy/au_linkage_depth.py` is now the first richer legal
+  authority adopter, proving source -> legal context -> claim candidate ->
+  authority -> review bundle -> tranche depth without requiring a WD bridge
+- `SensibLaw/src/policy/linkage_adapters.py` now adds the first generic
+  emission/composition layer so lanes can become arbitrarily deep without new
+  audit-core work
+- `SensibLaw/src/policy/gwb_narrative_linkage.py` is now the first
+  adapter-composition proof, preserving multi-source
+  source -> document -> parse -> candidate -> narrative coalescence ->
+  authority -> tranche depth while keeping `build_gwb_semantic_report(...)`
+  receipt-free
 - `SensibLaw/src/ontology/wikidata_lane_receipts.py` now emits the
   contract-bearing `linkage_depth_receipt` for the climate lane as a lane-level
   enrichment surface
