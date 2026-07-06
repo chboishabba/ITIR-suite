@@ -205,6 +205,21 @@ Current result:
 - current executable audit is still only a first-order structural screen; it
   does not yet prove the richer cross-ontology linkage ladder above
 
+As of 2026-07-04, the linkage-depth follow-on has also moved beyond the first
+GWB proof:
+
+- `SensibLaw/src/policy/linkage_adapters.py` now exposes generic
+  projection/collection fragments that accept lane-local layer names rather
+  than freezing a narrow helper ontology
+- `SensibLaw/src/ontology/wikidata_superclass_linkage.py` uses that kit for the
+  `Q43229` superclass-pressure lane
+- `SensibLaw/src/policy/brexit_linkage.py` uses the same kit for the bounded
+  Brexit archive/policy-intent lane
+- both adopters keep their underlying report builders receipt-free and attach
+  receipts only at the lane wrapper boundary
+- no new shared audit concept was added for either lane; the same
+  `policy/linkage_depth.py` core continues to audit all lane families
+
 ## Next Highest-Alpha Step
 
 The next tranche after the shared doctrine note is:

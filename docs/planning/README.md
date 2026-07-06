@@ -100,6 +100,18 @@ Current WD/Zelph follow-through:
 - keep WD/reconciliation optimisation behind direct partial-load and graph
   diagnostic baselines
 
+## Cross-Source Event Braid (2026-07-05)
+
+Current GWB proving-ground notes for multi-document event extraction,
+reconciliation, and partial-order timeline stitching:
+- `docs/planning/gwb_linkage_artifact_audit_20260705.md`
+- `docs/planning/gwb_cross_document_event_braid_20260705.md`
+
+Current rule:
+- preserve `source -> event -> relation -> review` lineage first
+- then build cross-document event reconciliation and ordering
+- only then treat renderer or presentation issues as the next layer
+
 ## Wikidata Hotspot Benchmark Lane (2026-03-25)
 
 Planning/spec artifacts for the bounded benchmark lane that turns Wikidata

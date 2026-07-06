@@ -100,6 +100,39 @@ source enrichment stays additive rather than native.
 Brexit belongs to this bounded proving-ground family rather than the richer AU
 authority family.
 
+Phase G.2 follow-ons now prove that the same adapter kit can carry different
+lane-local ladders without widening the audit core:
+
+- `SensibLaw/src/ontology/wikidata_superclass_linkage.py`
+- `SensibLaw/src/policy/brexit_linkage.py`
+
+Q43229 path:
+
+```text
+source discussion anchor
+-> statement-edge candidate
+-> counterexample cone
+-> class-lattice pressure surface
+-> repair candidate
+-> community review surface
+-> workflow/tranche anchor
+```
+
+Brexit archive/policy-intent path:
+
+```text
+archive source anchor
+-> archive document container
+-> parsed policy-intent surface
+-> policy-intent claim candidate
+-> review surface
+-> archive authority surface
+-> workflow/tranche anchor
+```
+
+Those are intentionally different ladders. The shared result is the audit
+discipline, not a forced common lane geometry.
+
 ### AU
 
 AU is the first semantically richer legal inheritor after the GWB smoke proof.
