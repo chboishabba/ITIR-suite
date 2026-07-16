@@ -17,8 +17,10 @@ from .domain_tools import (
 )
 from .pnf_spectral_packet import VERSION as SPECTRAL_CANDIDATE_PACKET_VERSION, build_candidate_spectral_packet
 from .shard_transport import (
+    BOUNDED_GRAPH_SLICE_VIEW_VERSION,
     SHARD_PAYLOAD_PROBE_VERSION,
     ZELPH_HF_MANIFEST_CONTRACT_VERSION,
+    build_bounded_graph_slice_view,
     build_bounded_payload_probe,
     build_payload_probe,
     build_partial_graph_view,
@@ -190,6 +192,25 @@ def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
                 read_only=True,
             ),
             partial_graph_view_tool,
+        ),
+        (
+            ToolSpec(
+                name="itir.shard.bounded_graph_slice_plan",
+                title="ITIR bounded graph slice plan",
+                description="Plan a selected logical graph slice and disclose its declared payload cost without fetching shard bytes.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "selectors": {"type": "array", "items": {"type": "string"}},
+                        "graph_view_id": {"type": "string"},
+                    },
+                    "required": ["selectors"],
+                    "additionalProperties": True,
+                },
+                response_version=BOUNDED_GRAPH_SLICE_VIEW_VERSION,
+                read_only=True,
+            ),
+            bounded_graph_slice_plan_tool,
         ),
         (
             ToolSpec(
@@ -538,6 +559,32 @@ def partial_graph_view_tool(payload: Mapping[str, Any]) -> JsonDict:
     }
 
 
+def bounded_graph_slice_plan_tool(payload: Mapping[str, Any]) -> JsonDict:
+    """Disclose a logical slice's selected payload cost before any fetch."""
+
+    selectors = _require_string_sequence(payload, "selectors")
+    graph_view_id = _optional_str(payload, "graph_view_id")
+    view = _wrap_value_error(
+        build_bounded_graph_slice_view,
+        payload,
+        selectors,
+        graph_view_id=graph_view_id,
+    )
+    selected_bytes = int(view["selected_bytes"])
+    return {
+        **view,
+        "selected_payload_cost": {
+            "declared_bytes": selected_bytes,
+            "display": _format_byte_size(selected_bytes),
+            "payload_fetch": False,
+        },
+        "authority_boundary": {
+            **dict(_AUTHORITY_BOUNDARY),
+            "candidate_only": True,
+        },
+    }
+
+
 def payload_probe_tool(payload: Mapping[str, Any]) -> JsonDict:
     byte_cap = _optional_positive_int(payload, "byte_cap") or _optional_positive_int(payload, "max_bytes") or 4096
     selector = _optional_str(payload, "selector")
@@ -764,6 +811,18 @@ def _optional_positive_int(payload: Mapping[str, Any], key: str) -> int | None:
     if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
         raise ToolInputError(f"Expected positive integer field: {key}")
     return value
+
+
+def _format_byte_size(value: int) -> str:
+    """Return a stable binary-unit display value for a declared payload size."""
+
+    if value < 1024:
+        return f"{value} B"
+    if value < 1024 * 1024:
+        return f"{value / 1024:.1f} KiB"
+    if value < 1024 * 1024 * 1024:
+        return f"{value / (1024 * 1024):.1f} MiB"
+    return f"{value / (1024 * 1024 * 1024):.2f} GiB"
 
 
 def _require_string_sequence(payload: Mapping[str, Any], key: str) -> list[str]:

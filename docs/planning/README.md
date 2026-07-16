@@ -99,6 +99,21 @@ Current WD/Zelph follow-through:
   redefine flatness
 - keep WD/reconciliation optimisation behind direct partial-load and graph
   diagnostic baselines
+- the 2026-07-15 prioritised implementation tranche is recorded in
+  `itir_wd_zelph_sensiblaw_flatness_optimisation_roadmap_20260702.md` under
+  `Phase H`: remote manifests, bounded slices, completeness states, generic
+  world-model/receipt integration, entity/event linking, then domain pressure
+  checks
+
+Generic compiler-convergence plan (2026-07-16):
+- `docs/planning/generic_world_model_compiler_convergence_20260716.md`
+  - treats Nat, Peter/Ege/Rosario, GWB, AU, Brexit, and Affidavit as proving
+    tranches for one generic world-model compiler;
+  - sequences replay symmetry, supplied observations, bounded closure,
+    cohort-derived DSP, governed ontology diagnostics, multi-view pressure,
+    and routed Zelph transport;
+  - separates runtime graph obligations from DASHI's formal fail-closed and
+    non-authority laws.
 
 ## Cross-Source Event Braid (2026-07-05)
 

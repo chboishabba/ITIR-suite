@@ -914,24 +914,21 @@ def _load_messages(
     *,
     clean_perplexity_duplicates: bool,
 ) -> list[dict[str, Any]]:
+    columns = {row[1] for row in con.execute("PRAGMA table_info(messages)").fetchall()}
+    optional = [
+        "node_id", "parent_node_id", "branch_membership", "tool_kind",
+        "citation_token", "filename", "mime_type", "asset_pointer",
+        "body_storage_ref", "source_scope", "visibility",
+    ]
+    selected_optional = ",\n            ".join(
+        f"{column}" if column in columns else f"'' AS {column}" for column in optional
+    )
     rows = con.execute(
-        """
-        SELECT
-            message_id,
-            canonical_thread_id,
-            platform,
-            account_id,
-            ts,
-            role,
-            text,
-            title,
-            source_id,
-            source_thread_id,
-            source_message_id,
-            source_path,
-            source_bucket,
-            provenance_json,
-            rowid AS archive_rowid
+        f"""
+        SELECT message_id, canonical_thread_id, platform, account_id, ts, role,
+            text, title, source_id, source_thread_id, source_message_id,
+            source_path, source_bucket, provenance_json,
+            {selected_optional}, rowid AS archive_rowid
         FROM messages
         WHERE LOWER(canonical_thread_id) = LOWER(?)
         ORDER BY ts ASC, rowid ASC
@@ -967,10 +964,44 @@ def _load_messages(
                 "source_path": row["source_path"],
                 "source_bucket": row["source_bucket"],
                 "provenance": provenance,
+                **{column: row[column] for column in optional},
                 "archive_rowid": row["archive_rowid"],
             }
         )
     return messages
+
+
+def _tool_label(message: dict[str, Any]) -> str:
+    kind, filename = _effective_tool_metadata(message)
+    if kind == "file_context":
+        return f"[Tool: Cite file context: {filename}]" if filename else "[Tool: Cite file context]"
+    if kind == "artifact_output":
+        return "[Tool: generated/programmatic artifact]"
+    return f"[Tool: {kind}]"
+
+
+def _is_suppressible_tool(message: dict[str, Any]) -> bool:
+    kind, _ = _effective_tool_metadata(message)
+    return kind in {"file_context", "tool", "artifact_output"}
+
+
+def _effective_tool_metadata(message: dict[str, Any]) -> tuple[str, str]:
+    kind = str(message.get("tool_kind") or "").strip()
+    filename = str(message.get("filename") or "").strip()
+    if kind:
+        return kind, filename
+    role = str(message.get("role") or "").lower()
+    text = str(message.get("text") or "")
+    if role not in {"tool", "system"}:
+        return "", filename
+    kind = "tool"
+    return kind, filename
+
+
+def _render_tool_body(message: dict[str, Any]) -> list[str]:
+    label = _tool_label(message)
+    text = str(message.get("text") or "").rstrip()
+    return ["<details>", f"<summary>{html.escape(label)}</summary>", "", text, "", "</details>"]
 
 
 def _load_blocks(con: sqlite3.Connection, message_ids: list[str]) -> dict[str, list[dict[str, Any]]]:
@@ -1267,16 +1298,33 @@ def render_markdown_artifacts(payload: dict[str, Any]) -> str:
         size = _format_bytes(item.get("size_bytes"))
         label = f"{artifact_id} ({kind}, {mime_type}, {size}, {exists})"
         if local_path:
-            out.append(f"- [{label}]({_artifact_link_target(local_path)})")
+            if mime_type.startswith("image/") and item.get("exists"):
+                target = _artifact_link_target(local_path)
+                out.extend([
+                    f"- [{label}]({target})",
+                    f'<img src="{html.escape(target, quote=True)}" alt="{html.escape(label, quote=True)}" style="max-width:100%;height:auto;">',
+                ])
+            else:
+                out.append(f"- [{label}]({_artifact_link_target(local_path)})")
         else:
             out.append(f"- {label}")
     return "\n".join(out).rstrip() + "\n"
 
 
-def render_markdown_transcript(payload: dict[str, Any]) -> str:
+def _messages_for_mode(payload: dict[str, Any], export_mode: str) -> list[dict[str, Any]]:
+    messages = payload.get("messages", [])
+    if export_mode == "forensic":
+        return list(messages)
+    return [
+        message for message in messages
+        if str(message.get("branch_membership") or "active") != "inactive"
+    ]
+
+
+def render_markdown_transcript(payload: dict[str, Any], *, export_mode: str = "transcript") -> str:
     title = str(payload["thread"].get("title") or "(no title)")
     out = [_frontmatter(payload), "", f"# {title}", ""]
-    for message in payload["messages"]:
+    for message in _messages_for_mode(payload, export_mode):
         role = str(message.get("role") or "unknown").strip() or "unknown"
         role_title = role[:1].upper() + role[1:]
         ts = message.get("ts_utc") or message.get("ts") or ""
@@ -1285,11 +1333,18 @@ def render_markdown_transcript(payload: dict[str, Any]) -> str:
                 f"## {message['index']}. {role_title}",
                 "",
                 f"<!-- message_id={message.get('message_id')} source_message_id={message.get('source_message_id')} ts={ts} -->",
+                f"<!-- node_id={message.get('node_id')} parent_node_id={message.get('parent_node_id')} branch={message.get('branch_membership') or 'active'} -->",
                 "",
             ]
         )
-        text = str(message.get("text") or "").rstrip()
-        out.append(text)
+        is_tool = str(message.get("role") or "").lower() in {"tool", "system"} and _is_suppressible_tool(message)
+        if is_tool and export_mode == "retained":
+            text_lines = _render_tool_body(message)
+        elif is_tool and export_mode in {"document", "transcript"}:
+            text_lines = [_tool_label(message)]
+        else:
+            text_lines = [str(message.get("text") or "").rstrip()]
+        out.extend(text_lines)
         out.append("")
     artifact_section = render_markdown_artifacts(payload)
     if artifact_section:
@@ -1297,7 +1352,9 @@ def render_markdown_transcript(payload: dict[str, Any]) -> str:
     return "\n".join(out).rstrip() + "\n"
 
 
-def render_markdown_perplexity_doc(payload: dict[str, Any], *, include_logo: bool = False) -> str:
+def render_markdown_perplexity_doc(
+    payload: dict[str, Any], *, include_logo: bool = False, export_mode: str = "document"
+) -> str:
     thread = payload["thread"]
     title = str(thread.get("title") or "(no title)")
     out: list[str] = []
@@ -1318,9 +1375,10 @@ def render_markdown_perplexity_doc(payload: dict[str, Any], *, include_logo: boo
 
     wrote_section = False
     pending_assistant_heading = title
-    for message in payload["messages"]:
+    for message in _messages_for_mode(payload, export_mode):
         role = str(message.get("role") or "unknown").lower()
-        text = str(message.get("text") or "").rstrip()
+        is_tool = role in {"tool", "system"} and _is_suppressible_tool(message)
+        text = _tool_label(message) if is_tool and export_mode in {"document", "transcript"} else str(message.get("text") or "").rstrip()
         if role == "user":
             if wrote_section:
                 out.extend(["", "---", ""])
@@ -1350,9 +1408,12 @@ def render_markdown_perplexity_doc(payload: dict[str, Any], *, include_logo: boo
         )
         if role not in {"assistant", "bot"}:
             out.extend([f"**{role[:1].upper() + role[1:]}**", ""])
-        out.extend([text, ""])
+        if is_tool and export_mode == "retained":
+            out.extend(_render_tool_body(message))
+        else:
+            out.extend([text, ""])
 
-    if not payload["messages"]:
+    if not _messages_for_mode(payload, export_mode):
         out.extend([f"# {title}", ""])
     artifact_section = render_markdown_artifacts(payload)
     if artifact_section:
@@ -1360,10 +1421,13 @@ def render_markdown_perplexity_doc(payload: dict[str, Any], *, include_logo: boo
     return "\n".join(out).rstrip() + "\n"
 
 
-def render_markdown(payload: dict[str, Any], *, style: str, include_logo: bool = False) -> str:
+def render_markdown(
+    payload: dict[str, Any], *, style: str, include_logo: bool = False,
+    export_mode: str = "document",
+) -> str:
     if style == "transcript":
-        return render_markdown_transcript(payload)
-    return render_markdown_perplexity_doc(payload, include_logo=include_logo)
+        return render_markdown_transcript(payload, export_mode=export_mode)
+    return render_markdown_perplexity_doc(payload, include_logo=include_logo, export_mode=export_mode)
 
 
 def render_html(payload: dict[str, Any]) -> str:
@@ -1600,10 +1664,11 @@ def render_html_document(
     whitespace_repair: str = "conservative",
     math_render: str = "static",
     math_timeout_seconds: int = 30,
+    export_mode: str = "document",
 ) -> str:
     thread = payload["thread"]
     title = str(thread.get("title") or "(no title)")
-    markdown = render_markdown(payload, style=markdown_style, include_logo=include_logo)
+    markdown = render_markdown(payload, style=markdown_style, include_logo=include_logo, export_mode=export_mode)
     diagnostics = _diagnose_markdown(markdown)
     display_markdown = _normalize_math_delimiters(markdown)
     display_markdown, repair_diagnostics = _repair_fragmented_listing_markdown(
@@ -1883,6 +1948,7 @@ def write_export(
     math_timeout_seconds: int,
     chunk_messages: int | None,
     chunk_target_bytes: int,
+    export_mode: str,
 ) -> dict[str, Any]:
     thread = payload["thread"]
     base = _slug(str(thread.get("title") or ""), str(thread["canonical_thread_id"])[:12])
@@ -1904,7 +1970,7 @@ def write_export(
     if "markdown" in formats:
         md_path = target_dir / f"{stem}.md"
         md_path.write_text(
-            render_markdown(payload, style=markdown_style, include_logo=include_logo),
+            render_markdown(payload, style=markdown_style, include_logo=include_logo, export_mode=export_mode),
             encoding="utf-8",
         )
         written.append(md_path)
@@ -1922,6 +1988,7 @@ def write_export(
                 whitespace_repair=whitespace_repair,
                 math_render=math_render,
                 math_timeout_seconds=math_timeout_seconds,
+                export_mode=export_mode,
             )
         html_path.write_text(rendered, encoding="utf-8")
         written.append(html_path)
@@ -1972,6 +2039,7 @@ def write_export(
                     whitespace_repair=whitespace_repair,
                     math_render=math_render,
                     math_timeout_seconds=math_timeout_seconds,
+                    export_mode=export_mode,
                 )
             html_path.write_text(rendered, encoding="utf-8")
             written.append(html_path)
@@ -2028,6 +2096,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         choices=["perplexity-doc", "transcript"],
         default="perplexity-doc",
         help="Markdown layout: Perplexity-like document turns or explicit role transcript.",
+    )
+    parser.add_argument(
+        "--export-mode",
+        choices=["document", "transcript", "retained", "forensic"],
+        default="document",
+        help="Content retention policy for Markdown exports.",
     )
     parser.add_argument(
         "--include-logo",
@@ -2159,6 +2233,7 @@ def main(argv: list[str] | None = None) -> int:
         formats,
         args.bundle,
         markdown_style=args.markdown_style,
+        export_mode=args.export_mode,
         html_style=args.html_style,
         include_logo=args.include_logo,
         katex_dir=args.katex_dir,

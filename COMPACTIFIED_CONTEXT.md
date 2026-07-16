@@ -5825,3 +5825,23 @@
       reference URL being pinned for those rows
   - next Nat blocker is now local reference-url coverage for the reconciled
     non-business variance lane
+
+## 2026-07-16 generic compiler-convergence decision
+
+- Governing plan:
+  `docs/planning/generic_world_model_compiler_convergence_20260716.md`.
+- Nat, Peter/Ege/Rosario, GWB, AU, Brexit, and Affidavit are proving tranches
+  for one generic world-model compiler, not separate semantic products.
+- Immediate sequence: isolate the revision-pinned Apoteket slice; replay one
+  generic external context through GWB/AU/Brexit/Affidavit; normalize supplied
+  observations; add bounded closure/frontier; then induce cohort-derived domain
+  structural pressure.
+- Runtime owns graph traversal, coverage, cohort induction, and pressure
+  evidence. DASHI owns only the formal candidate-only/non-authority,
+  inspection-relative no-typed-meet, and admitted finite pressure-join laws;
+  it does not prove live WD performance or traversal.
+- Nat's `P5991 -> P14143` work is the first policy-anchored DSP tranche:
+  documented climate-model/migration expectations and subject/statement
+  structure generate pressure before cohort frequency does. The existing
+  five-item climate pack is a migration proving pack, not a generic company
+  cohort; cohort-derived DSP is a second, separately receipted evidence source.

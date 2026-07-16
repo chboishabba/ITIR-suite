@@ -71,6 +71,7 @@ def test_default_registry_exposes_governance_and_shard_tools() -> None:
         "itir.shard.validate_artifact",
         "itir.shard.route_selector",
         "itir.shard.partial_graph_view",
+        "itir.shard.bounded_graph_slice_plan",
     }.issubset(names)
 
 
@@ -115,6 +116,22 @@ def test_governance_and_shard_tools_return_non_authoritative_logical_views() -> 
     assert partial["authority_boundary"]["non_authoritative"] is True
     assert partial["selected_shard_ids"] == ["logical:left", "logical:right"]
     assert all("objectRefs" not in shard for shard in partial["selected_shards"])
+
+    plan_result = registry.invoke(
+        "itir.shard.bounded_graph_slice_plan",
+        {**artifact, "selectors": ["route-node=node-a", "route-name=right-name"]},
+    )
+    assert plan_result["ok"] is True
+    plan = plan_result["result"]
+    assert plan["selected_shard_ids"] == ["logical:left", "logical:right"]
+    assert plan["selected_bytes"] == 36
+    assert plan["selected_payload_cost"] == {
+        "declared_bytes": 36,
+        "display": "36 B",
+        "payload_fetch": False,
+    }
+    assert plan["payload_fetch"] is False
+    assert plan["authority_boundary"]["candidate_only"] is True
 
 
 def test_domain_governance_tools_return_candidate_only_read_only_summaries() -> None:

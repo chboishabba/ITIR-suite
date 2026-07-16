@@ -41,6 +41,7 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.shard.validate_artifact",
         "itir.shard.route_selector",
         "itir.shard.partial_graph_view",
+        "itir.shard.bounded_graph_slice_plan",
         "itir.shard.payload_probe",
     }
 
@@ -89,6 +90,7 @@ def test_default_registry_exposes_stable_authority_profiles_for_governance_and_s
         "itir.shard.validate_artifact",
         "itir.shard.route_selector",
         "itir.shard.partial_graph_view",
+        "itir.shard.bounded_graph_slice_plan",
         "itir.shard.payload_probe",
     }
 

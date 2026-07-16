@@ -1,6 +1,13 @@
 # Changelog
 
 ## Unreleased
+- Added `itir.shard.bounded_graph_slice_plan`, a generic non-fetching plan
+  surface that reports selected logical coverage and declared payload cost
+  before a consumer decides to retrieve graph shard bytes.
+- add a generic bounded graph-slice transport view over revision-bound HF/Zelph
+  manifest contracts. It records the selected logical shard plan and declared
+  byte cost without fetching graph payloads, and remains explicitly incomplete,
+  candidate-only, and non-authoritative.
 - Added `itir_mcp.pnf_numeric_abi`, a narrow receipt-bearing
   `itir.pnf.numeric_abi.v0_1` GEMV validation/parity helper. This is diagnostic
   adapter plumbing only and does not materialize spectral PNF state,

@@ -180,3 +180,15 @@ Profiles configure.
 Lanes prefill.
 Wrappers attach.
 Authority remains external.
+
+## Regex & Parsing Guideline
+Avoid using raw regex or importing raw spaCy, `src.text.*`, or `src.nlp.*` modules directly for text segmentation, sentence splitting, tokenization, or entity parsing unless absolutely necessary. Downstream policy and integration code must utilize the public `sensiblaw.interfaces` wrapper layer (specifically `parser_adapter` for parsing/segmentation and `shared_reducer` for token/span/reducer work).
+
+Available interface functions:
+- `parse_canonical_text`
+- `tokenize_presemantic_text`
+- `split_presemantic_text_segments`
+- `tokenize_canonical_with_spans`
+- `collect_canonical_relational_bundle`
+
+Standard Python string methods (such as `.split()`, `.replace()`, `.strip()`) are preferred for simple layout/separator checks.

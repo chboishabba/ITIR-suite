@@ -1,6 +1,19 @@
 # Changelog
 
 ## Unreleased
+- Added the generic world-model compiler-convergence plan for the WD bridge.
+  It records Nat, Peter/Ege/Rosario, GWB, AU, Brexit, and Affidavit as proving
+  tranches over one generic carrier/projection/receipt programme; sequences
+  generic replay, supplied observations, bounded closure, policy-anchored then
+  cohort-derived structural pressure, and routed Zelph transport; and
+  distinguishes those runtime obligations from DASHI's formal non-authority
+  boundary. The Nat climate pack is now explicitly described as a
+  policy-anchored `P5991 -> P14143` DSP/migration pack rather than a generic
+  organisation cohort. Related
+  bridge, roadmap, TODO, and planning-index docs now distinguish the live
+  revision-pinned Apoteket slice from the historical incomplete Q1785637
+  abstention fixture. This is documentation/planning only: no runtime API,
+  promotion rule, or authority boundary changed.
 - Added the chat artifact resolver/index lane for Perplexity-backed archive
   exports. The suite now documents the June 3 Perplexity refresh decision,
   keeps binary assets outside `/home/c/chat_archive.sqlite`, indexes artifact

@@ -14,6 +14,7 @@ from urllib.request import Request, urlopen
 CONTRACT_VERSION = "shared-shard-artifact/v1"
 ZELPH_HF_MANIFEST_CONTRACT_VERSION = "itir.zelph.hf_manifest_contract.v1"
 SHARD_PAYLOAD_PROBE_VERSION = "itir.shard.payload_probe.v1"
+BOUNDED_GRAPH_SLICE_VIEW_VERSION = "itir.bounded_graph_slice_view.v1"
 ALLOWED_SINKS = frozenset({"hf", "ipfs", "file"})
 SELECTOR_FAMILIES = frozenset(
     {
@@ -77,7 +78,9 @@ def validate_shared_shard_artifact(payload: Mapping[str, Any]) -> dict[str, Any]
         routing_keys_raw = shard.get("routingKeys")
         if not isinstance(routing_keys_raw, list):
             raise ValueError(f"shards[{index}].routingKeys must be an array")
-        routing_keys = [_required_str({"value": item}, "value") for item in routing_keys_raw]
+        routing_keys = [
+            _required_str({"value": item}, "value") for item in routing_keys_raw
+        ]
 
         object_refs_raw = shard.get("objectRefs")
         if not isinstance(object_refs_raw, list):
@@ -88,7 +91,9 @@ def validate_shared_shard_artifact(payload: Mapping[str, Any]) -> dict[str, Any]
             ref = _mapping(ref_raw, f"shards[{index}].objectRefs[{ref_index}]")
             sink = _required_str(ref, "sink")
             if sink not in ALLOWED_SINKS:
-                raise ValueError(f"shards[{index}].objectRefs[{ref_index}].sink must be one of hf, ipfs, file")
+                raise ValueError(
+                    f"shards[{index}].objectRefs[{ref_index}].sink must be one of hf, ipfs, file"
+                )
             uri = _required_str(ref, "uri")
             ref_size_bytes = _required_int(ref, "sizeBytes")
             ref_content_digest = _required_str(ref, "contentDigest")
@@ -131,7 +136,11 @@ def validate_shared_shard_artifact(payload: Mapping[str, Any]) -> dict[str, Any]
     return normalized
 
 
-def route_selector(payload: Mapping[str, Any], selector: str, route_index: Mapping[str, Any] | None = None) -> list[str]:
+def route_selector(
+    payload: Mapping[str, Any],
+    selector: str,
+    route_index: Mapping[str, Any] | None = None,
+) -> list[str]:
     artifact = validate_shared_shard_artifact(payload)
     selector_text = _required_str({"value": selector}, "value")
     family, value = _split_selector(selector_text)
@@ -139,7 +148,11 @@ def route_selector(payload: Mapping[str, Any], selector: str, route_index: Mappi
         return []
 
     if family == "direct-shard":
-        return [shard["shardId"] for shard in artifact["shards"] if shard["shardId"] == value]
+        return [
+            shard["shardId"]
+            for shard in artifact["shards"]
+            if shard["shardId"] == value
+        ]
 
     if family not in SELECTOR_FAMILIES:
         return []
@@ -151,12 +164,16 @@ def route_selector(payload: Mapping[str, Any], selector: str, route_index: Mappi
     matched: list[str] = []
     for shard in artifact["shards"]:
         routing_keys = shard["routingKeys"]
-        if (selector_text in routing_keys or family in routing_keys) and shard["shardId"] not in matched:
+        if (selector_text in routing_keys or family in routing_keys) and shard[
+            "shardId"
+        ] not in matched:
             matched.append(shard["shardId"])
     return matched
 
 
-def build_partial_graph_view(payload: Mapping[str, Any], selectors: Sequence[str]) -> dict[str, Any]:
+def build_partial_graph_view(
+    payload: Mapping[str, Any], selectors: Sequence[str]
+) -> dict[str, Any]:
     artifact = validate_shared_shard_artifact(payload)
     selector_list: list[str] = []
     for selector in selectors:
@@ -168,7 +185,11 @@ def build_partial_graph_view(payload: Mapping[str, Any], selectors: Sequence[str
                 selected_ids.append(shard_id)
 
     shard_index = {shard["shardId"]: shard for shard in artifact["shards"]}
-    selected_shards = [_logical_shard_view(shard_index[shard_id]) for shard_id in selected_ids if shard_id in shard_index]
+    selected_shards = [
+        _logical_shard_view(shard_index[shard_id])
+        for shard_id in selected_ids
+        if shard_id in shard_index
+    ]
     selected_sections: list[str] = []
     for shard in selected_shards:
         section = shard["section"]
@@ -215,7 +236,9 @@ def build_shared_shard_contract_from_zelph_manifest(
     hf_objects = dict(data.get("hfObjects") or {})
     source_bin_path = _optional_string(source.get("binPath"))
     created_at_utc = _optional_string(data.get("createdAtUtc")) or "unknown-created-at"
-    resolved_artifact_id = artifact_id or _artifact_id_from_manifest(data, source_bin_path)
+    resolved_artifact_id = artifact_id or _artifact_id_from_manifest(
+        data, source_bin_path
+    )
     resolved_revision = artifact_revision or created_at_utc
 
     shards: list[dict[str, Any]] = []
@@ -226,10 +249,14 @@ def build_shared_shard_contract_from_zelph_manifest(
         if not isinstance(chunks, list):
             raise ValueError(f"sections.{section_name}.chunks must be an array")
         for chunk_index, chunk_value in enumerate(chunks):
-            chunk = _mapping(chunk_value, f"sections.{section_name}.chunks[{chunk_index}]")
+            chunk = _mapping(
+                chunk_value, f"sections.{section_name}.chunks[{chunk_index}]"
+            )
             enriched = dict(chunk)
             enriched["section"] = str(section_name)
-            object_uri = _optional_string(enriched.get("objectPath")) or _optional_string(enriched.get("futureObjectPath"))
+            object_uri = _optional_string(
+                enriched.get("objectPath")
+            ) or _optional_string(enriched.get("futureObjectPath"))
             if object_uri is None:
                 object_uri = f"local-range://{section_name}/{_required_int(enriched, 'chunkIndex'):06d}"
             size_bytes = _required_int(enriched, "length")
@@ -261,14 +288,18 @@ def build_shared_shard_contract_from_zelph_manifest(
         "createdAtUtc": created_at_utc,
         "buildProvenance": {
             "sourceManifestVersion": manifest_version,
-            "sourceManifestPath": str((hf_objects.get("manifest") or {}).get("path") or ""),
+            "sourceManifestPath": str(
+                (hf_objects.get("manifest") or {}).get("path") or ""
+            ),
             "sourceBinPath": source_bin_path,
             "sourceSystem": "Zelph-HF",
             "builder": "itir_mcp.shard_transport.build_shared_shard_contract_from_zelph_manifest",
         },
         "selectorModel": {
             "unit": selector_unit,
-            "supportedOperations": list(selector_model.get("supportedOperations") or []),
+            "supportedOperations": list(
+                selector_model.get("supportedOperations") or []
+            ),
             "supportedSections": list(selector_model.get("supportedSections") or []),
         },
         "transportHints": {
@@ -279,11 +310,16 @@ def build_shared_shard_contract_from_zelph_manifest(
         "shards": shards,
     }
     node_route_obj = hf_objects.get("nodeRouteIndex")
-    if isinstance(node_route_obj, Mapping) and isinstance(node_route_obj.get("path"), str):
+    if isinstance(node_route_obj, Mapping) and isinstance(
+        node_route_obj.get("path"), str
+    ):
         route_uri = str(node_route_obj["path"])
-        route_digest = "identity-sha256:" + sha256(
-            json.dumps(dict(node_route_obj), sort_keys=True).encode("utf-8")
-        ).hexdigest()
+        route_digest = (
+            "identity-sha256:"
+            + sha256(
+                json.dumps(dict(node_route_obj), sort_keys=True).encode("utf-8")
+            ).hexdigest()
+        )
         contract["routingIndex"] = {
             "logicalKind": "routing-index",
             "format": "zelph-node-route/v1",
@@ -309,7 +345,9 @@ def fetch_zelph_hf_manifest_contract(
     artifact_class: str = "zelph-graph",
     opener: Any | None = None,
 ) -> dict[str, Any]:
-    blob = _fetch_hf_bytes(hf_manifest_uri, revision=revision, max_bytes=max_bytes, opener=opener)
+    blob = _fetch_hf_bytes(
+        hf_manifest_uri, revision=revision, max_bytes=max_bytes, opener=opener
+    )
     try:
         manifest = json.loads(blob["bytes"].decode("utf-8"))
     except json.JSONDecodeError as exc:
@@ -337,6 +375,83 @@ def fetch_zelph_hf_manifest_contract(
     }
 
 
+def build_bounded_graph_slice_view(
+    payload: Mapping[str, Any],
+    selectors: Sequence[str],
+    *,
+    graph_view_id: str | None = None,
+) -> dict[str, Any]:
+    """Plan a bounded graph read from a normalized shard contract.
+
+    This function intentionally does not fetch shard objects.  It makes the
+    selected transport cost and incomplete coverage explicit so downstream
+    adapters can distinguish a graph plan from a complete graph result.
+    """
+
+    partial = build_partial_graph_view(payload, selectors)
+    selected_shards = list(partial["selected_shards"])
+    selected_bytes = sum(int(shard.get("sizeBytes") or 0) for shard in selected_shards)
+    artifact = partial["artifact_identity"]
+    total_shard_count = len(validate_shared_shard_artifact(payload)["shards"])
+    selected_shard_count = len(selected_shards)
+    return {
+        "version": BOUNDED_GRAPH_SLICE_VIEW_VERSION,
+        "graph_view_id": graph_view_id
+        or f"{artifact['artifactId']}:{artifact['artifactRevision']}:bounded",
+        "artifact_identity": artifact,
+        "selectors": list(partial["selectors"]),
+        "selected_sections": list(partial["selected_sections"]),
+        "selected_shard_ids": list(partial["selected_shard_ids"]),
+        "selected_shards": selected_shards,
+        "selected_bytes": selected_bytes,
+        "coverage_state": "incomplete",
+        "unresolved_coverage": {
+            "total_shard_count": total_shard_count,
+            "selected_shard_count": selected_shard_count,
+            "remaining_shard_count": total_shard_count - selected_shard_count,
+        },
+        "network_fetch": False,
+        "payload_fetch": False,
+        "candidate_only": True,
+        "diagnostic_only": True,
+        "complete_closure": False,
+        "truth_authority": False,
+        "support_authority": False,
+        "admissibility_authority": False,
+        "promotion_authority": False,
+    }
+
+
+def fetch_bounded_graph_slice_view(
+    *,
+    hf_manifest_uri: str,
+    selectors: Sequence[str],
+    revision: str | None = None,
+    max_bytes: int = _DEFAULT_MANIFEST_BYTE_CAP,
+    graph_view_id: str | None = None,
+    opener: Any | None = None,
+) -> dict[str, Any]:
+    """Fetch only a manifest, then return its bounded logical graph-slice plan."""
+
+    manifest_result = fetch_zelph_hf_manifest_contract(
+        hf_manifest_uri=hf_manifest_uri,
+        revision=revision,
+        max_bytes=max_bytes,
+        opener=opener,
+    )
+    view = build_bounded_graph_slice_view(
+        manifest_result["contract"],
+        selectors,
+        graph_view_id=graph_view_id,
+    )
+    return {
+        "version": BOUNDED_GRAPH_SLICE_VIEW_VERSION,
+        "manifest_source": manifest_result["source"],
+        "authority_boundary": manifest_result["authority_boundary"],
+        "graph_view": view,
+    }
+
+
 def build_bounded_payload_probe(
     payload: Mapping[str, Any],
     *,
@@ -351,14 +466,20 @@ def build_bounded_payload_probe(
     if max_bytes <= 0:
         raise ValueError("max_bytes must be positive")
     artifact = validate_shared_shard_artifact(payload)
-    selected_id = _select_probe_shard_id(artifact, selector=selector, shard_id=shard_id, route_index=route_index)
+    selected_id = _select_probe_shard_id(
+        artifact, selector=selector, shard_id=shard_id, route_index=route_index
+    )
     shard = _shard_by_id(artifact, selected_id)
     object_ref = _preferred_object_ref(shard)
     declared_size = int(object_ref.get("sizeBytes") or shard["sizeBytes"])
     if declared_size > max_bytes and not allow_truncate:
-        raise ValueError("selected shard exceeds max_bytes; set allow_truncate=true for a bounded prefix probe")
+        raise ValueError(
+            "selected shard exceeds max_bytes; set allow_truncate=true for a bounded prefix probe"
+        )
 
-    probe_bytes = _read_probe_bytes(object_ref, max_bytes=max_bytes, revision=revision, opener=opener)
+    probe_bytes = _read_probe_bytes(
+        object_ref, max_bytes=max_bytes, revision=revision, opener=opener
+    )
     data = probe_bytes["bytes"]
     read_truncated = bool(probe_bytes["truncated"] or declared_size > len(data))
     return {
@@ -387,7 +508,9 @@ def build_bounded_payload_probe(
         "sample_sha256": sha256(data).hexdigest(),
         "sample_preview_hex": data[:_PROBE_PREVIEW_BYTES].hex(),
         "sample_preview_base64": b64encode(data[:_PROBE_PREVIEW_BYTES]).decode("ascii"),
-        "payload_access": "bounded_prefix" if read_truncated else "bounded_complete_object",
+        "payload_access": "bounded_prefix"
+        if read_truncated
+        else "bounded_complete_object",
         "candidate_only": True,
         "non_authoritative": True,
         "diagnostic_only": True,
@@ -414,7 +537,9 @@ def build_payload_probe(
     shard_id = _required_str(shard, "shardId")
     raw = payload.encode("utf-8") if isinstance(payload, str) else bytes(payload)
     if len(raw) > byte_cap and not truncate:
-        raise ValueError("payload exceeds byte_cap; set truncate=true to retain a bounded sample")
+        raise ValueError(
+            "payload exceeds byte_cap; set truncate=true to retain a bounded sample"
+        )
     sample = raw[:byte_cap]
     try:
         sample_text = sample.decode("utf-8")
@@ -470,7 +595,11 @@ def _route_selector_from_sidecar(
                 route_index = candidate
     if route_index is None:
         return []
-    route_payload = route_index.get("routing") if isinstance(route_index.get("routing"), Mapping) else route_index
+    route_payload = (
+        route_index.get("routing")
+        if isinstance(route_index.get("routing"), Mapping)
+        else route_index
+    )
     if not isinstance(route_payload, Mapping):
         return []
     chunk_keys = _matching_route_chunks(route_payload, family, value)
@@ -485,7 +614,9 @@ def _route_selector_from_sidecar(
     return matched
 
 
-def _matching_route_chunks(route_payload: Mapping[str, Any], family: str, value: str) -> list[tuple[str, int, str | None]]:
+def _matching_route_chunks(
+    route_payload: Mapping[str, Any], family: str, value: str
+) -> list[tuple[str, int, str | None]]:
     sections: tuple[str, ...]
     entry_key: str
     if family == "route-left-node":
@@ -516,11 +647,19 @@ def _matching_route_chunks(route_payload: Mapping[str, Any], family: str, value:
                 continue
             if value not in {str(item) for item in values}:
                 continue
-            matched.append((section, _required_int(entry, "chunkIndex"), _optional_string(entry.get("lang"))))
+            matched.append(
+                (
+                    section,
+                    _required_int(entry, "chunkIndex"),
+                    _optional_string(entry.get("lang")),
+                )
+            )
     return matched
 
 
-def _shards_by_section_chunk(artifact: Mapping[str, Any]) -> dict[tuple[str, int, str | None], str]:
+def _shards_by_section_chunk(
+    artifact: Mapping[str, Any],
+) -> dict[tuple[str, int, str | None], str]:
     index: dict[tuple[str, int, str | None], str] = {}
     for shard in artifact["shards"]:
         section = str(shard["section"])
@@ -565,11 +704,15 @@ def _logical_shard_id(chunk: Mapping[str, Any], selector_unit: str) -> str:
 
 
 def _sanitize_token(value: str) -> str:
-    token = "".join(ch if (ch.isalnum() or ch in ("_", "-", ".")) else "_" for ch in value)
+    token = "".join(
+        ch if (ch.isalnum() or ch in ("_", "-", ".")) else "_" for ch in value
+    )
     return token or "token"
 
 
-def _artifact_id_from_manifest(manifest: Mapping[str, Any], source_bin_path: str | None) -> str:
+def _artifact_id_from_manifest(
+    manifest: Mapping[str, Any], source_bin_path: str | None
+) -> str:
     source = manifest.get("source")
     if isinstance(source, Mapping):
         artifact_name = source.get("artifactName")
@@ -596,7 +739,10 @@ def _identity_digest(chunk: Mapping[str, Any]) -> str:
         "lang": chunk.get("lang"),
         "objectPath": chunk.get("objectPath") or chunk.get("futureObjectPath"),
     }
-    return "identity-sha256:" + sha256(json.dumps(stable_bits, sort_keys=True).encode("utf-8")).hexdigest()
+    return (
+        "identity-sha256:"
+        + sha256(json.dumps(stable_bits, sort_keys=True).encode("utf-8")).hexdigest()
+    )
 
 
 def _infer_logical_kind(section: str, selector_unit: str) -> str:
@@ -723,7 +869,9 @@ def _read_probe_bytes(
             data = handle.read(max_bytes + 1)
         return {"bytes": data[:max_bytes], "truncated": len(data) > max_bytes}
     if sink == "hf":
-        return _fetch_hf_bytes(uri, revision=revision, max_bytes=max_bytes, opener=opener)
+        return _fetch_hf_bytes(
+            uri, revision=revision, max_bytes=max_bytes, opener=opener
+        )
     raise ValueError(f"payload probe does not support sink: {sink}")
 
 
@@ -742,7 +890,9 @@ def _fetch_hf_bytes(
         with response:
             data = response.read(max_bytes + 1)
             headers = getattr(response, "headers", {}) or {}
-            resolved_revision = headers.get("x-repo-commit") if hasattr(headers, "get") else None
+            resolved_revision = (
+                headers.get("x-repo-commit") if hasattr(headers, "get") else None
+            )
     except URLError as exc:
         raise ValueError(f"failed to fetch HF object: {exc}") from exc
     return {
@@ -763,7 +913,11 @@ def _parse_hf_uri(uri: str) -> _HfRef:
     repo_type = parts[0]
     if repo_type not in {"datasets", "models", "spaces"}:
         raise ValueError(f"unsupported HF repo type: {repo_type}")
-    return _HfRef(repo_type=repo_type, repo_id=f"{parts[1]}/{parts[2]}", object_path="/".join(parts[3:]))
+    return _HfRef(
+        repo_type=repo_type,
+        repo_id=f"{parts[1]}/{parts[2]}",
+        object_path="/".join(parts[3:]),
+    )
 
 
 def _mapping(value: Any, label: str) -> dict[str, Any]:

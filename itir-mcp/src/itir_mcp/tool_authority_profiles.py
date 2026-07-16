@@ -629,6 +629,23 @@ REGISTRY_TOOL_AUTHORITY_PROFILE_SPECS: tuple[ToolAuthorityProfile, ...] = (
         },
     ),
     ToolAuthorityProfile(
+        tool_id="itir.shard.bounded_graph_slice_plan",
+        kind=ToolKind.ARTIFACT_TRANSPORT.value,
+        inputs=(AuthorityStatus.OBSERVED.value, AuthorityStatus.RECEIPT.value),
+        outputs=(AuthorityStatus.RECEIPT.value,),
+        mutates=False,
+        validation_mode="strict",
+        repair_mode="none",
+        max_authority=AuthorityStatus.RECEIPT.value,
+        promotion_requires_gate=False,
+        authority_notes={
+            "authority_class": "bounded_graph_slice_plan",
+            "candidate_only": True,
+            "non_authoritative": True,
+            "note": "Bounded graph-slice plans disclose selected logical coverage and declared payload cost without fetching or promoting graph content.",
+        },
+    ),
+    ToolAuthorityProfile(
         tool_id="itir.shard.payload_probe",
         kind=ToolKind.ARTIFACT_TRANSPORT.value,
         inputs=(AuthorityStatus.OBSERVED.value, AuthorityStatus.RECEIPT.value),

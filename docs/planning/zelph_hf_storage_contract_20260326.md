@@ -77,6 +77,27 @@
   - manifest identity fields (`createdAtUtc`, `path`, checksums when available)
 - For `v1`, chunk-level cache keys should include `(offset,length)` in the local range fetch layer.
 
+### Manifest revalidation note (2026-07-14)
+
+Manifests and payload ranges must not share the same cache policy. A manifest
+fetch with an open-ended length (`length=0`) can otherwise remain indefinitely
+stale after an in-place manifest patch. This caused a consumer to continue
+reading the superseded local `source.binPath` even though the Hub manifest had
+already been changed to an `hf://` URI.
+
+Required follow-up for the loader/cache implementation:
+
+- revalidate manifest objects before reusing an open-ended manifest cache entry;
+- include the Hub revision or ETag in the manifest cache identity;
+- retain shard/header range caches as immutable only when bound to the same
+  manifest/object revision;
+- preserve explicit `source-bin` as an override for controlled offline or
+  alternate-source loads.
+
+Immediate operational recovery for a stale manifest cache is to remove the
+generated manifest cache entry and refetch it; shard payload caches do not need
+to be discarded solely because the manifest metadata changed.
+
 ## Limitations
 - v1:
   - still monolithic `.bin`

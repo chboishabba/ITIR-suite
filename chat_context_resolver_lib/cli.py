@@ -12,7 +12,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "selector",
-        help="Conversation selector: online_thread_id, canonical_thread_id, or title",
+        help=(
+            "Conversation selector: provider thread UUID, archive_thread_id "
+            "(legacy canonical_thread_id), or title"
+        ),
     )
     parser.add_argument(
         "--db",

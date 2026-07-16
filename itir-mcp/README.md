@@ -18,6 +18,26 @@ Current scope:
 - optional FastMCP transport when the Python MCP SDK is available
 - persistent JSON bridge protocol for `dioxus` via `python -m itir_mcp --bridge`
 
+### External graph transport
+
+The shard transport module can fetch a published HF/Zelph manifest and produce
+a generic bounded graph-slice view from explicit logical selectors. This is a
+transport/provenance result: it records manifest revision, selected sections,
+selected chunks, and declared bytes without fetching the shard payloads. The
+caller must receive that declared selected-payload cost before it chooses to
+fetch graph payloads; logical selection is not a promise that the currently
+coarse physical shards are small.
+
+A bounded slice defaults to `incomplete`, candidate-only, and non-authoritative.
+It must not be described as exhaustive merely because its manifest was fetched
+or its selectors resolved. SensibLaw consumes this normalized result as an
+external graph view; it owns the later local bridge/decision/pressure carrier.
+
+The registry exposes that non-fetching decision point as
+`itir.shard.bounded_graph_slice_plan`. It accepts a normalized shard contract
+and logical selectors, then returns the selected sections/shards, exact
+declared bytes, a binary-unit display value, and `payload_fetch: false`.
+
 Not in scope for the first increment:
 - broad mutable actions
 - direct browser-WASM transport for Dioxus web

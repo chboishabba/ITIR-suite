@@ -22,6 +22,11 @@ def db_payload(
         "earliest_ts_utc": iso_utc(match.earliest_datetime),
         "latest_ts_utc": iso_utc(match.latest_datetime),
     }
+    # The provider UUID is the external identity.  The hash-like ID is only
+    # the archive's deterministic local key; keep legacy names above for API
+    # compatibility while exposing the distinction explicitly.
+    payload["provider_thread_id"] = match.online_thread_id
+    payload["archive_thread_id"] = match.canonical_thread_id
     payload["latest_text"] = truncate_text(latest_text_full, max_text_chars)
     if latest_paragraphs:
         payload["latest_paragraphs"] = [
@@ -81,8 +86,8 @@ def print_result(payload: dict, as_json: bool) -> None:
         if db:
             print(f"match_type: {db.get('match_type')}")
             print(f"title: {db.get('title')}")
-            print(f"online_thread_id: {db.get('online_thread_id')}")
-            print(f"canonical_thread_id: {db.get('canonical_thread_id')}")
+            print(f"provider_thread_id: {db.get('provider_thread_id') or db.get('online_thread_id')}")
+            print(f"archive_thread_id: {db.get('archive_thread_id') or db.get('canonical_thread_id')}")
             if db.get("selected_source_id"):
                 print(f"selected_source_id: {db.get('selected_source_id')}")
             if db.get("source_snapshot_count"):
