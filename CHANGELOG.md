@@ -1,6 +1,122 @@
 # Changelog
 
 ## Unreleased
+
+- SensibLaw's revision-pinned Nat dry-run now reports profile-fed family
+  geometry through a generic dependency-group inventory, keeping overlapping
+  row-level failure reasons from being misread as independent migration cases.
+
+## Unreleased
+
+- Start the Nat contract-discovery/coverage sprint with generic explainable
+  rule-detector and cumulative-coverage surfaces. Candidate A1/A2/A3 climate
+  profiles now preserve predicate evidence and dependency groups; live pages
+  use bounded rate-limit handling and lossless composite cursors. The first
+  contiguous 400-statement dry run has 4 candidate-rule matches, 115 no-rule
+  rows, and 281 explicit coverage abstentions, with no approved rule or edit.
+
+- Add generic family-member evidence hydration and coverage-reason aggregation
+  to the Nat dry-run path. The same revision-pinned 400-statement population
+  now assesses every sibling from its existing entity export: the former 281
+  family-hydration abstentions become 396 complete no-rule/hold outcomes, while
+  the four candidate matches remain one dependency group. This improves
+  evidence accounting only; it authorizes no rule, edit, or execution.
+
+- Refine the generic governed-invariant carrier with context-witnessed,
+  dependency-grouped contributions. A selected atomic candidate can now retain
+  the complete evidence context that made it reviewable, while empirical
+  snapshots distinguish raw statement contributions from independent
+  family/entity observations. This supports future dry-run migration-rule
+  coverage without authorizing edits or automation.
+
+- Add generic, dry-run transformation-rule coverage: profiles may supply
+  deterministic rule matches for a bounded source snapshot, while the shared
+  carrier distinguishes exact approved matches from review/repair, conflict,
+  no-rule, and incomplete-coverage outcomes. It deliberately cannot emit an
+  execution manifest or an edit.
+
+- Record the first explicit review-only invariant contribution in the Nat
+  climate proving tranche: `reviewer:GPTofJohl` confirmed the pinned
+  Q101416961 annual 2024 explicitly scoped component target shape within a
+  reconciled four-statement family. The resulting trusted
+  member, contribution receipt, I1 snapshot, and immutable replay remain
+  diagnostic/governed artifacts and authorize no Wikidata edit, promotion, or
+  migration execution.
+
+- Extend the generic review intake used by the Nat climate proving tranche:
+  every reconciled candidate now receives a compact packet, with separate
+  conformance, decomposition, and family-conflict interaction shapes. The
+  corrected live 25-statement page produces 9 conformance packets and 16 typed
+  conflict holds, preserving scope/total/period evidence without treating a
+  hold as a split or a trusted invariant contribution.
+
+- Correct the Nat/Wikidata statement-family classifier boundary. Selected
+  statement GUIDs are now assessed atomically against complete pinned sibling
+  context, so separated scope components and an exactly reconciling total do
+  not generate a false split plan. The generic family carrier is reusable by
+  other statement-based adapters; the initial Q101416961 packet remains a
+  preserved rejected-classifier artifact.
+
+- Document the first governed invariant-replay loop: reviewer-approved
+  conforming split outputs can create a later snapshot and a receipt-backed
+  replay without mutating the original assessment or graph.
+
+- Extend the compiler-convergence plan with conservative ontology-class merge
+  safety. Merge now sits beside split and disjointness as a review-only
+  residual-topology proposal family: geometry convergence is insufficient by
+  itself, while a direct merge requires normative compatibility, no typed or
+  conditional obstruction, relation substitutability, bounded impact, and
+  provenance transfer. The documented DASHI governed-residual boundary now
+  covers candidate, impact, gate, and non-mutating checked-receipt semantics;
+  runtime proposal generation remains pending.
+
+- Add generic residual-profile, review-packet, and typed residual-graph
+  building blocks to the SensibLaw Nat proving tranche. Reconciled Family-B
+  rows can now project review-only split packets from the same carrier used by
+  topology, while the graph retains similarity, incompatibility, masked
+  analogies, and coverage unknown separately. A bounded live three-row WDQS
+  page produced three packets and an all-coverage-unknown graph without
+  granting confirmation, invariant, promotion, or edit authority.
+
+- Add the generic SensibLaw review-confirmation boundary for governed
+  invariant learning. Explicit reviewer authority and a confirmed disposition
+  are now required before an approved candidate can become a trusted cohort
+  member; no confirmation can promote or edit anything.
+
+- Add the generic SensibLaw governed invariant carrier for policy-anchored
+  domain pressure. It admits only independently reviewed, revision-pinned,
+  fully observed conforming members and preserves deterministic contribution
+  and revision receipts without granting promotion or edit authority.
+
+- Extend the SensibLaw Nat climate migration proving tranche with bounded live
+  statement discovery and revision-pinned reconciliation. The new path is a
+  review-intake artifact for `P5991 -> P14143`, not a property-renaming or
+  edit mechanism.
+- SensibLaw now emits a generic, diagnostic-only `DomainPressureAssessment`
+  for each Nat `P5991 -> P14143` candidate. It exposes the policy-model,
+  subject, qualifier, reference, temporal, split, and pending-cohort residuals
+  behind the existing A--E review disposition; this does not change promotion
+  or edit authority.
+- Refined the WD/compiler planning docs with governed domain-invariant learning
+  and context-gated residual topology. Policy-anchored DSP now distinguishes
+  normative target requirements from revisioned, independently confirmed cohort
+  regularities and conditional variation; only governed conformant cases may
+  refine an invariant. The plan now also specifies bounded typed residual graphs
+  for review-only class, split, disjointness, bridge-class, exception, and
+  abstraction candidates, while preserving the existing no-authority/no-edit
+  boundary. This is documentation/TODO planning only; no runtime algorithm,
+  ontology edit path, or promotion policy changed.
+- Reordered the documented WD/compiler runtime plan around Nat's governed
+  policy-DSP loop: explicit residuals, trusted cohort admission, typed residual
+  graphs, review-only ontology proposals, then residual-topology analysis now
+  precede generic wrapper replay. Replay remains the later proof that the
+  mature surface is common to GWB, AU, Brexit, and Affidavit. This remains
+  documentation/TODO planning only; no runtime or authority behavior changed.
+- Recorded the third uncommitted DASHI interop boundary,
+  `GovernedResidualOntologyLearning`, alongside the existing spectral and
+  external-context modules. It formalizes reviewed-only empirical-invariant
+  contribution and review-only residual-topology proposals; runtime retrieval,
+  cohort induction, and topology analysis remain unimplemented.
 - Added the generic world-model compiler-convergence plan for the WD bridge.
   It records Nat, Peter/Ege/Rosario, GWB, AU, Brexit, and Affidavit as proving
   tranches over one generic carrier/projection/receipt programme; sequences

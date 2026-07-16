@@ -5832,10 +5832,13 @@
   `docs/planning/generic_world_model_compiler_convergence_20260716.md`.
 - Nat, Peter/Ege/Rosario, GWB, AU, Brexit, and Affidavit are proving tranches
   for one generic world-model compiler, not separate semantic products.
-- Immediate sequence: isolate the revision-pinned Apoteket slice; replay one
-  generic external context through GWB/AU/Brexit/Affidavit; normalize supplied
-  observations; add bounded closure/frontier; then induce cohort-derived domain
-  structural pressure.
+- Immediate sequence: isolate the revision-pinned Apoteket slice; make Nat
+  emit explicit policy-DSP residuals; admit governed conforming members into
+  versioned invariants; construct the typed residual graph; emit review-only
+  split/disjoint/bridge/abstraction proposals; then run residual-topology
+  analysis. Generic GWB/AU/Brexit/Affidavit replay follows as the proof that
+  this mature surface is shared; supplied observations/closure, broader proving
+  packs, multi-view input, and routed Zelph transport follow.
 - Runtime owns graph traversal, coverage, cohort induction, and pressure
   evidence. DASHI owns only the formal candidate-only/non-authority,
   inspection-relative no-typed-meet, and admitted finite pressure-join laws;
@@ -5845,3 +5848,243 @@
   structure generate pressure before cohort frequency does. The existing
   five-item climate pack is a migration proving pack, not a generic company
   cohort; cohort-derived DSP is a second, separately receipted evidence source.
+- 2026-07-16 implemented first runtime seam: generic
+  `src/policy/domain_pressure.py::build_pressure_assessment(...)` and Nat's
+  migration-pack adapter now emit a `DomainPressureAssessment` for every
+  candidate. It separates target-model, subject-type, qualifier, reference,
+  temporal, split, and pending peer-cohort residuals; the legacy A--E bucket is
+  only `review_disposition`, while authority stays `diagnostic_only` and
+  promotion remains `not_evaluated`. The migration-pack schema declares the
+  carrier. Focused tests: 79 passed across the carrier, materializer, and
+  projection suites.
+
+## 2026-07-16 governed invariant and residual-topology refinement
+
+- Live Nat discovery is the immediate input seam before invariant learning:
+  bounded statement-level `company_direct` WDQS pages record query hash,
+  ordering/cursor, source claim GUID, rank, direct `P31`, and target-property
+  coexistence; each row is reconciled against a current pinned entity export.
+  Only `statement_reconciled` rows reach the existing A--E classifier. The
+  first three-row smoke page reconciled `Q101416961@2419927005` and produced
+  three review-only Family-B split rows, not a migration or cohort admission.
+- The generic `domain_invariants` carrier now implements the admission gate:
+  only independently confirmed, pinned, observed members with reviewer
+  authority and explicit feature contributions produce trusted-member,
+  contribution, snapshot, and revision records. A Family A/B/C classifier
+  disposition is not itself an admission decision; all records remain
+  non-promoting and non-editing.
+- `review_confirmation` now supplies that missing explicit decision boundary:
+  it references a candidate/packet and pinned source, names review authority
+  and a confirmed disposition, requires an approved split plan for split
+  confirmations, and is the only implemented conversion to a trusted member.
+
+- The current DSP target is not static. For a policy-anchored domain it is the
+  intersection of the documented policy model and a revisioned cohort of
+  independently reviewed conforming members. Normative requirements, empirical
+  regularities, conditional variation, and legacy/noise must remain distinct.
+- Only governed conformant dispositions may update that cohort; held,
+  unresolved, ambiguous, manual-reconstruction, and coverage-incomplete cases
+  cannot train it. Required artifacts: `DomainInvariantSnapshot`,
+  `TrustedConformingMember`, `InvariantContributionReceipt`, and
+  `InvariantRevisionReceipt`.
+- The next generic DSP stage retains rich residual vectors and builds a bounded
+  context-gated typed residual graph. It distinguishes compatible similarity,
+  incompatibility/disjointness, inadmissible analogy, and insufficient
+  coverage; it may propose nearby classes, splits, disjointness, bridge
+  classes, exception clusters, or new abstractions, but never edits ontology or
+  promotes claims automatically.
+- The first executable profile/packet/graph seam now exists: generic
+  `TypedResidualProfile` projects the same reconciled evidence into compact
+  Family-B review packets and a typed residual graph. The live three-row
+  `Q101416961@2419927005` page emitted three packets and three
+  `unknown_due_to_coverage` edges; unresolved peer-cohort pressure cannot be
+  converted into similarity before explicit review confirmation/trusted
+  admission. Next is a real reviewed split confirmation followed by
+  graph-backed, review-only split/merge/disjoint/bridge/abstraction proposals.
+
+## 2026-07-16 ontology-class merge safety decision
+
+- Ontology merge is now a first-class residual-topology proposal family,
+  balanced with split and disjointness. It corrects a proliferation bias:
+  unsupported boundaries between two classes may warrant a merge review rather
+  than a new subclass/class.
+- `DASHI.Interop.GovernedResidualOntologyLearning` (uncommitted in
+  `../dashi_agda`) now formalizes `OntologyMergeCandidate`, geometry-only
+  non-reviewability, `MergeImpactReport`, `ConservativeMergeGate`, and a
+  review-only checked merge receipt. Focused Agda validation and diff checks
+  were reported as passing; no full `Everything.agda` run was claimed.
+- Geometry convergence alone never permits a merge. A direct merge requires
+  adequate coverage, normative compatibility, no typed or conditional
+  obstruction, relation substitutability, bounded downstream impact, and
+  complete provenance transfer. Even a checked receipt cannot redirect a class
+  or mutate ontology.
+- Runtime work remains pending: proposal generation must emit merge candidates
+  and alternatives (new abstraction, shared superclass, bridge class,
+  conditional distinction, historical alias, held/blocked/incomplete) from the
+  typed residual graph. No automatic ontology merge is authorized.
+
+## 2026-07-16 immutable invariant-replay decision
+
+- The first real governed learning event is a reviewer-approved Family-B split
+  whose contribution contains the conforming target-statement shapes, never
+  the malformed P5991 source bundle. It creates `I1` through a trusted member
+  and contribution receipt.
+- Earlier `I0` assessments, packets, profiles, and graph artifacts remain
+  immutable. A replay names the source graph/snapshot, the revised snapshot,
+  and preserves candidate plus pinned source revision. It explicitly records
+  which residual/comparison states changed or remained unknown.
+- The generic replay carrier validates supplied reassessments and projects the
+  later graph; it never derives climate semantics from cohort counts. The Nat
+  profile decides whether a trusted target statement grounds peer-cohort
+  pressure. The same replay carrier is intended for every future tranche.
+
+## 2026-07-16 rejected live Family-B packet and statement-family correction
+
+- The saved live `Q101416961@2419927005` export contains four separate `P5991`
+  GUIDs: three scoped components (`394`, `66755`, `4024`) and an unscoped total
+  (`71173`); components sum exactly to the total. Review rejected the emitted
+  three packets before confirmation as `rejected_classifier_error`.
+- Root cause: `_detect_independent_axes` treated value/qualifier diversity
+  across a `subject|property` family as an independent axis of every atomic
+  statement. Discovery filtering also supplied only three selected GUIDs to
+  the classifier and hid the fourth sibling.
+- Correct contract: GUIDs are atomic candidates. Complete family context may
+  record partitioning, duplicate/overlap and total/component reconciliation,
+  but sibling diversity never alone creates a split requirement. Selected
+  discovery rows must hydrate all pinned source-property siblings. The rejected
+  artifacts remain negative regression evidence and cannot train `I1`.
+- Implementation result: `src/policy/statement_family_context.py` now owns the
+  generic carrier; the Wikidata wrapper supplies scope properties only.
+  Q101416961's same-year `P580`/`P582` interval is accepted as one annual
+  statement. A rerun of the same selected three GUIDs produced three Family-A
+  `safe_with_reference_transfer` candidates with four-member complete context,
+  `already_partitioned` scope state and `exact_reconciliation`; zero packets,
+  zero graph nodes, and no invariant contribution.
+- A corrected live 25-GUID page (four entities) found no genuine Family-B
+  source: 9 `safe_with_reference_transfer` candidates, 9 scope-overlap holds,
+  and 7 total-component-contradiction/multi-year holds. The next review packet
+  projection must cover those family-conflict holds explicitly; none is a
+  split candidate merely because it has multiple sibling statements.
+
+## 2026-07-16 all-row live review packets
+
+- Generic compact packet projection now covers every reconciled page candidate:
+  model-conformance, decomposition, and family-conflict hold are distinct
+  interaction shapes over the same `TypedResidualProfile`.
+- Live rerun of the 25-statement `P5991 -> P14143` company-direct page emitted
+  25 packets: 9 model-conformance and 16 family-conflict holds. The hold
+  evidence records 9 `scope_overlap`, 7 `component_total_contradiction`, 7
+  `period_mismatch`, and 12 `unknown_scope_partition` residual occurrences.
+  Its 300 graph edges remain `unknown_due_to_coverage`; there is no trusted
+  empirical cohort yet.
+- First suitable confirmation candidate is
+  `Q101416961|P5991|1 @ 2419927005`: +4024, explicit scope, GHG Protocol,
+  2024 interval, cited source, complete four-statement family, and exact
+  component/total reconciliation. It remains only a review packet until a
+  reviewer explicitly confirms it.
+
+## 2026-07-16 first approved invariant contribution
+
+- `reviewer:GPTofJohl` explicitly confirmed
+  `Q101416961|P5991|1` at `Q101416961@2419927005` as
+  `confirmed_model_conformant`. The decision covers only the target `P14143`
+  statement shape represented by
+  `Q101416961$FA70FC6A-B0CD-4838-8475-375506C8B6FB`: annual 2024,
+  GHG Protocol, cited source, complete sibling-family coverage, and exact
+  component/total reconciliation.
+- The materialization at `/tmp/nat-packets-live-25/invariant_i1/` produced a
+  review confirmation, trusted member, contribution receipt, I1 snapshot, and
+  immutable replay of the remaining 24 candidates. It explicitly authorizes
+  no Wikidata edit, automatic promotion, or migration execution.
+- I1 has one trusted explicitly scoped component member within the reconciled
+  four-statement family. The 24 replayed profiles retain
+  `unknown_due_to_coverage` peer relations (276 edges): one confirmed shape
+  does not establish comparability for differently scoped or conflicted rows.
+  I0 assessments and the original 25-node/300-edge graph remain immutable.
+
+## 2026-07-16 family-witnessed contribution and bounded migration-rule decision
+
+- The Q101416961 approval is one atomic candidate statement whose conformance
+  depends on a complete, exactly reconciled four-statement family. Generic
+  trusted-member/contribution records must carry a conformance-context witness,
+  selected-candidate-only contribution scope, and dependency group; sibling
+  statements in one report are not independent empirical observations.
+- Bulk `P5991 -> P14143` migration is contract/rule driven, not exemplar
+  similarity or global predicate renaming. Reviewed structural families lead
+  to versioned transformation rules with exact applicability detectors; only
+  after complete dry-run coverage, stratified validation, rule approval, and a
+  revision-pinned manifest may bounded canary execution be considered. Current
+  authorization remains review/invariant/replay only, with no edits.
+- The first I1 artifact was reissued at
+  `/tmp/nat-packets-live-25/invariant_i1_family_witness/` with a concrete
+  family-conformance witness and dependency group. Its new snapshot is
+  `domain-invariant:df866ca204c0d6e9f69f6b25f633be8981522fa196f55abfebbef62ecc3c61f6`;
+  replayed 24 profiles had zero changed residual transitions.
+- A 100-statement revision-pinned online `company_direct` dry run reconciled
+  every discovered GUID across seven entities. It emitted 78 conformance and
+  22 family-conflict packets; all 4,950 graph edges remain
+  `unknown_due_to_coverage`, so it grants no migration or cohort authority.
+## 2026-07-17 Nat contract-discovery sprint
+
+- The first governed live loop is closed through a family-witnessed trusted
+  contribution and immutable `I0 -> I1` replay, but no migration rule is
+  approved and no execution manifest exists.
+- Nat rule calibration and whole-population dry-run coverage are one iterative
+  sprint: bounded page -> independent positives/near-misses -> exact detector
+  refinement -> cumulative coverage rerun.
+- Initial candidate contracts are A1 atomic annual total, A2 atomic scoped
+  component in a coherent complete family, A3 already-separated annual
+  series, followed by B1 true overload, C1 repairable incompleteness, and
+  explicit D/E exclusions.
+- A legacy A-E classifier result is not a rule match. Generic detector results
+  must preserve predicate states, reason codes, coverage, and dependency
+  groups. Incomplete/conflicting family evidence abstains.
+- Similarity may nominate a contract but cannot authorize migration. Candidate
+  rules and coverage reports remain non-executing and non-authoritative.
+- Implemented candidate A1/A2/A3 profile detectors over the generic
+  transformation-rule carrier, with predicate-level reason codes and
+  dependency grouping. A3 currently abstains unless whole-family period
+  partition and member conformance are supplied.
+- Live discovery now uses bounded rate-limit retry/pacing and a lossless
+  composite `(QID, statement GUID)` cursor. QID-only pages are samples, not
+  cumulative coverage.
+- The first contiguous two-page report covers 400 statements / 28 dependency
+  groups: 4 candidate-rule matches (all Q101416961), 115 no-rule, 281
+  incomplete, 0 approved-rule matches. `population_exhausted=false`; no edit or
+  execution manifest exists.
+- The immediate Sprint 1 priority is coverage reduction, not premature B1/C1
+  proliferation: 281/400 rows abstained because A3 lacked whole-family period
+  partition and independently assessed member evidence. Add generic
+  incomplete-evidence histograms and generic family-member evidence hydration;
+  the climate profile supplies normalized WD periods/conformance only. Then
+  distinguish recoverable retrieval/inspection gaps from genuine source data
+  and policy gaps, and add explicit target-domain exclusions before modelling
+  remaining complete negative rows as new semantic rules.
+- The generic family-member hydration pass closed the recoverable frontier on
+  the same two 200-row composite pages: 400 statements / 28 dependency groups
+  now yield 4 candidate-rule matches (one Q101416961 family), 396 complete
+  no-rule/hold rows, and zero abstentions. This is not extra eligibility: all
+  sibling data was already in the pinned exports but had not been assessed.
+  Generic reports now aggregate incomplete evidence kinds, explicit-exclusion
+  reasons, and deduplicated no-rule reasons; next is a typed partition of that
+  396-row residual population before B1/C1, while lossless pagination proceeds
+  to an exhaustion-proving short page.
+- The next Nat Sprint 1 output is family/dependency-group geometry, not more
+  row-level rule counts: 400 coverage-complete statements collapse to 28
+  dependency groups. Build a generic inventory of profile-provided primary
+  obstruction, secondary evidence, affected statement subset and non-executing
+  family action. Climate owns the typed F1--F8 period/scope/total/semantic
+  labels; shared coverage owns grouping and preservation. `family_conflict`
+  and `annual_period_partition_unresolved` are gates/reason aggregates, not
+  final diagnoses. Retain normalized period shapes and explicitly distinguish
+  a member independently safe from one blocked by sibling overlap,
+  contradiction, exclusion handling, or reconstruction.
+- Implemented and live-replayed the generic family inventory. The first two
+  composite pages remain a non-exhausted 400-statement / 28-family prefix with
+  four candidate matches from one F1 control family and 396 complete
+  no-rule/hold rows. Primary family geometry is F1 coherent partitioned
+  component/total = 1, F4 scope partition/overload = 16, F5 total
+  reconciliation conflict = 11. Q101416961 is correctly F1 with
+  `same_annual_period_component_partition`; equal 2024 component periods do
+  not imply a period conflict. Next: inspect F4 then encode F5 total conflicts
+  as typed residual evidence before B1/C1 or partial-family-migration policy.

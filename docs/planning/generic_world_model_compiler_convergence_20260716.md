@@ -68,10 +68,47 @@ Implemented now:
 - a real `Q1785637@2443793937` Apoteket observation with bounded
   organisation-compatible pressure via `Q4830453 -> Q43229`;
 - remote manifest planning and an explicit four-section 57.9 MiB Zelph slice.
+- generic `DomainPressureAssessment` output from Nat's `P5991 -> P14143`
+  profile, preserving target-model, subject-type, qualifier, reference,
+  temporal, split, and explicitly unresolved peer-cohort residuals while the
+  existing A--E result remains a review-disposition projection;
+- bounded live Nat `company_direct` statement discovery: deterministic WDQS
+  query metadata, direct-P31 strata, source claim GUIDs, pinned current entity
+  exports, and exact-statement reconciliation before classification. The first
+  three-row smoke page reconciled at `Q101416961@2419927005` first exposed a
+  family-classification defect: page selection omitted a fourth sibling claim
+  and sibling multiplicity was mistaken for per-claim overload. The repaired
+  generic carrier hydrates all four claims; the selected three are Family-A
+  `safe_with_reference_transfer` statements in an exactly reconciling,
+  already-partitioned family. Neither run migrated, promoted, or trained a
+  cohort;
+- generic governed `DomainInvariantSnapshot`, trusted-member admission,
+  contribution receipts, and revision receipts. The carrier rejects a bare
+  classifier disposition, incomplete coverage, and unreviewed evidence;
+- generic review confirmations as the only implemented bridge from a reviewed
+  candidate/packet to a trusted cohort member; confirmed splits require an
+  approved split-plan reference and remain non-promoting/non-editing;
 - DASHI formal boundary modules (currently uncommitted in `dashi_agda`) for
-  partial finite spectral pressure and external-context safety. They prove
-  candidate-only identity, coverage abstention, no pressure consequence without
-  explicit policy authority, and no automatic truth/repair/edit authority.
+  partial finite spectral pressure, external-context safety, and governed
+  residual ontology learning. They prove candidate-only identity, coverage
+  abstention, no pressure consequence without explicit policy authority,
+  reviewed-only empirical-invariant contribution, and no automatic
+  truth/repair/edit/ontology-mutation authority.  The governed residual module
+  now also models ontology-class merge candidates: geometry convergence alone
+  is non-reviewable; a direct merge needs normative compatibility, no typed or
+  conditional obstruction, relation substitutability, bounded downstream
+  impact, and complete provenance transfer; even a checked merge remains a
+  human review receipt rather than a redirect or ontology mutation.
+- generic `TypedResidualProfile`, compact review-packet projection, and a
+  deterministic typed residual graph.  The profile is the common input to the
+  packet and graph; graph edges retain positive similarity, negative
+  incompatibility, masked analogy, and coverage/context unknown separately.
+  The initial bounded packet page at `Q101416961@2419927005` was rejected as a
+  classifier-error artifact. The repaired run produces no packet because the
+  selected atomic candidates are already model-aligned; its empty graph is a
+  valid diagnostic result, not a failure. No run created a confirmation,
+  invariant contribution, promotion, or edit. The next live packet must be a
+  genuine overloaded Family-B source statement.
 
 This proves external evidence can travel safely through the generic carrier.
 It does **not** yet provide a pharmacy-chain signature, query-shaped QID
@@ -81,7 +118,37 @@ The historical synthetic/incomplete `Q1785637` missing-`P31` fixture remains a
 regression test for abstention.  It is distinct from the current live pinned
 observation, which positively observes `P31`.
 
-## Sequenced delivery
+## Delivery contracts and execution order
+
+The numbered contracts below describe the target surfaces.  Their implementation
+order is intentionally not their historical discovery order.  The immediate
+runtime sequence is:
+
+```text
+1. isolate and land the existing Apoteket/formal/documentation work
+2. make Nat emit explicit policy-anchored DSP residuals and bounded live
+   discovery/reconciliation
+3. add governed invariant snapshots and trusted-cohort admission
+4. repair generic statement-family context, then project the same typed
+   residual profile into valid live Family-B reviewer packets and construct the
+   typed residual graph
+5. after an explicit reviewer-approved genuine split, admit only conforming target
+   shapes, create `I1`, and immutably replay remaining profiles/graph edges
+   against that named snapshot
+6. emit review-only split/merge/disjoint/bridge/abstraction proposals
+7. add residual-topology spectral analysis
+8. prove generic GWB/AU/Brexit/Affidavit external-context replay parity
+9. stabilise supplied observations and bounded closure/frontier contracts
+10. generalise through city/capital, Peter/Ege, and Rosario proving packs
+11. feed mature outputs into ChangeReviewPacket candidate comparison
+12. add multi-view pressure
+13. replace supplied-export transport with routed Zelph views
+```
+
+The replay proof remains required, but follows Nat's first full learning loop:
+Nat is the real governed problem that proves invariant refinement and residual
+topology have operational value; replay then proves that the same mature
+generic surface belongs to every tranche rather than to Nat.
 
 ### 1. Stabilise the real WD slice
 
@@ -91,7 +158,7 @@ revisions, commands, focused test counts, and lint/format results.  Reconcile
 only directly stale docs: entity-export status, the synthetic/live Q1785637
 distinction, and obsolete chunk-0 examples.
 
-### 2. Prove generic replay symmetry
+### 2. Prove generic replay symmetry (execution step 7)
 
 Add one shared `apply_external_graph_context(...)`-style operation.  It owns
 external observation validation, bridge creation, pressure execution,
@@ -105,7 +172,7 @@ workflow/tranche metadata, and outward receipt context.  A normalized parity
 test must agree after removing only local IDs, anchors, workflow labels, and
 wrapper receipt metadata.  Every wrapper remains valid without WD input.
 
-### 3. Productise supplied observations and bounded closure
+### 3. Productise supplied observations (execution step 8)
 
 Adopt provider-neutral request/observation contracts:
 
@@ -122,6 +189,48 @@ WikibaseEntityObservation
 The semantic adapter validates caller-supplied evidence and never silently
 refetches.  Local exports, captured API responses, checked fixtures, routed
 Zelph graph views, and other Wikibase exports must normalize to this contract.
+
+### 4. Make Nat's climate comparison explicit policy-anchored DSP (execution step 2)
+
+Nat is the first operational DSP proving tranche.  Its `P5991 -> P14143`
+comparison must emit separately receipted policy-model, subject-type,
+qualifier/reference, temporal/split, and peer-cohort pressure rather than a
+single opaque classifier result.  It remains review-first: pressure informs the
+A--E migration disposition but never performs an edit.
+
+The initial invariant is normative:
+
+```text
+documented target climate model + migration policy + admissible subject type
+-> initial expected statement shape
+```
+
+It is then progressively refined by independently reviewed, conforming,
+revision-pinned cases.  The active comparison target is therefore:
+
+```text
+I_domain(n) = I_policy intersect I_confirmed_cohort(n)
+```
+
+with conditional branches retained for scope, year, methodology, jurisdiction,
+and subject subtype.  This explicitly distinguishes normative requirements,
+empirical regularities, legitimate conditional variation, and legacy/noise.
+
+Only governed dispositions such as `confirmed_model_conformant`,
+`confirmed_conformant_after_split`, and
+`confirmed_conformant_after_repair` may train the empirical side. Held,
+ambiguous, unresolved, manually reconstructed, or coverage-incomplete cases do
+not.  This breaks the circular inference that a candidate is conformant merely
+because it resembles a cohort that was itself trained from unreviewed cases.
+
+Runtime artifacts must include `DomainInvariantSnapshot`,
+`TrustedConformingMember`, `InvariantContributionReceipt`, and
+`InvariantRevisionReceipt`. They record the policy model, admitted/excluded
+members, invariant and conditional features, exception classes, distributions,
+coverage requirements, reviewer authority, and exactly what a new confirmed
+case strengthened, weakened, or split.
+
+### 5. Add bounded closure and an inspection frontier (execution step 8)
 
 Then add `TypeClosureRequest` (seed entities, property families, bounded depth,
 node/edge limits, revision policy, stop conditions, profile) and
@@ -140,7 +249,7 @@ invalid_observation
 A path missing beyond the frontier is `closure_incomplete`, never a global
 negative claim.  `NO_TYPED_MEET` remains inspection-relative.
 
-### 4. Evaluate domain structural pressure, then refine it with cohorts
+### 6. Generalise DSP through cohorts and residual topology (execution steps 3--6 and 9)
 
 Domain-specific pressure (DSP) is the difference between a candidate's
 observed structure and the domain-conditioned admissible region. A cohort is
@@ -207,7 +316,82 @@ and settlement-versus-jurisdiction modelling without treating the climate pilot
 as a generic ontology sample. Pharmacy chain remains one possible later
 cohort/member outcome, not a hand-authored semantic definition.
 
-### 5. Keep pressure, policy, and formal interpretation separate
+The operational goal goes beyond fixed-schema missing-field checks. Retain a
+rich `ResidualFeatureVector` for each sufficiently covered comparison:
+
+```text
+typed missingness/excess; relation and qualifier shape; cardinality and time
+deviations; type ancestry; disjointness evidence; source/context restrictions;
+contextual-admissibility masks
+```
+
+Construct a bounded, typed residual graph only after admissibility gates pass:
+compatible entity kind, relation domain/range, temporal ontology, source
+context, local PNF role, superclass neighbourhood, and no disjointness conflict.
+Its edges distinguish compatible structural similarity, incompatible or
+disjoint structure, contextually forbidden analogy, and insufficient coverage.
+Thus a resemblance that fails context remains an interesting analogy, not an
+ontology candidate.
+
+The resulting diagnostic proposals are review-only: nearby-class/retype,
+intermediate superclass, cohort/class split, class merge, disjointness, bridge
+class, exception cluster, or new abstraction. Stable clusters, cuts, bridges,
+and outliers are evidence about missing ontology geometry; they never silently
+rewrite it. In particular, two recurring but incompatible populations should
+produce split pressure rather than each being treated as a malformed member of
+one broad class; conversely, two class populations whose observed boundary is
+not supported may generate merge pressure rather than automatic ontology
+proliferation.
+
+### Merge candidates are a separate conservative proposal family
+
+A class merge is stronger than residual resemblance.  The graph may first
+report that a boundary is unsupported: high cross-class admissible
+connectivity, little negative evidence, no stable cut aligned with the current
+class label, and no remaining explanatory value after context variables are
+accounted for.  That is a `GeometryOnlyMergeSignal`, not a safe merge.
+
+`OntologyMergeCandidate` must retain both source class references and either a
+canonical target or a proposed new abstraction.  Its evidence includes
+normative compatibility, cross-class positive and negative edges, context
+masks, conditional distinctions, relation-substitutability analysis,
+downstream impact, provenance-transfer plan, counterevidence, and coverage.
+The permitted outcomes are deliberately richer than yes/no:
+
+```text
+exact duplicate | subsumption | merge under new abstraction
+| shared superclass only | bridge class preferred
+| conditional distinction preserved | historical alias only
+| blocked | insufficient coverage
+```
+
+A direct `checked_merge_reviewable` outcome requires adequate coverage,
+normative compatibility, no typed incompatibility, no meaningful conditional
+distinction, relation substitutability, bounded downstream impact, and
+complete provenance transfer.  The corresponding `MergeImpactReport` covers
+affected instances, subclass edges, constraints, disjointness statements,
+external IDs, queries/projections, labels/aliases, reconstruction work, and
+provenance.  It remains review-only: neither a spectral solve nor a checked
+merge receipt may redirect a class, rewrite statements, or mutate the
+ontology.  When the direct gate fails, bridge, shared-superclass, conditional,
+held, contradictory, and incomplete outcomes preserve the unresolved geometry
+for review rather than silently forcing a merge.
+
+Proposal generation precedes spectral analysis. Each proposal records its
+supporting residual cluster, current class context, candidate alternative,
+counterevidence, coverage limits, masked/rejected analogies, and
+`authority = review_only`. Nat's organisation-level annual totals versus
+product/intensity/avoided-emissions/mixed-scope structures is the first proving
+boundary: a useful system finds a reviewable split or nearby-class candidate,
+not merely a decorative cluster.
+
+Any future spectral solve operates over this rich, admissibility-gated graph to
+surface low-dimensional clusters, cuts, bridges, and outliers. It is distinct
+from the finite `0/1/3` severity projection below: that scalar formalization
+preserves only admitted residual severity and cannot by itself discover class
+geometry.
+
+### 7. Keep pressure, policy, and formal interpretation separate (execution step 6)
 
 Runtime produces evidence-rich `ComparableResidualReceipt` and
 `DomainPressureResult`: focal candidate, cohort, inherited path, observed and
@@ -215,10 +399,14 @@ expected shapes, anomalies, coverage limits, severity, and
 `authority = diagnostic_only`.  Pressure does not itself decide validity or
 promotion.
 
-The DASHI boundary formalizes only admitted residual interpretation. The new
-`DASHI.Interop.WikidataSpectralPressureBridge` and
-`DASHI.Interop.ExternalContextSafetyBoundary` are formal safety interfaces, not
-runtime graph algorithms:
+The DASHI boundary formalizes admitted residual interpretation and governed
+non-mutation. `DASHI.Interop.WikidataSpectralPressureBridge`,
+`DASHI.Interop.ExternalContextSafetyBoundary`, and
+`DASHI.Interop.GovernedResidualOntologyLearning` are formal safety interfaces,
+not runtime graph algorithms. The latter permits only reviewed conforming cases
+to refine an empirical invariant; makes residual-topology outputs proposals;
+and proves that geometry-only merge evidence cannot be promoted to a class
+merge without the conservative contract and human review:
 
 ```text
 exact -> 0
@@ -235,11 +423,13 @@ uninspected, and invalid observations abstain. Promotion consequences require
 an explicit `PressureConsequencePolicy` with authority, evidence, workflow,
 and allowed-consequence fields.
 
-### 6. Extend governed ontology diagnostics
+### 8. Extend governed ontology diagnostics (execution steps 9--10)
 
-Nat continues as the operational change-review proving tranche.  Its existing
-`ChangeReviewPacket` harness and A--E action taxonomy inform reviewed change
-work; they do not bypass the generic carrier or grant blind automation.
+Nat continues as the operational change-review proving tranche. Its existing
+`ChangeReviewPacket` harness and A--E action taxonomy consume the mature
+invariant, residual, topology, and proposal outputs only after those generic
+surfaces exist; they do not bypass the generic carrier or grant blind
+automation.
 
 Peter/Ege work extends the same machinery with revision-pinned
 `P2738`/`P11260` disjointness extraction, subclass/instance contradiction
@@ -254,7 +444,7 @@ culprit ranking, abstention correctness, coverage honesty, and deterministic
 replay.  It reports exact/partial/non-comparable parity honestly rather than
 claiming method reproduction.
 
-### 7. Add multi-view pressure and scalable transport
+### 9. Add multi-view pressure and scalable transport (execution steps 11--12)
 
 The same candidate may accumulate `ViewProjection`s from WD, Wikipedia, Simple
 Wikipedia, Abstract Wikipedia, translation, local PNF, and domain corpora.
@@ -272,7 +462,7 @@ QID -> route indexes -> exact node/name/adjacency chunks
 Until routes exist, the planner exposes physical shard cost before fetching.
 Every selected object remains revision/receipt addressable.
 
-### 8. Converge the compiler and operator surface
+### 10. Converge the compiler and operator surface
 
 Maintain a machine-readable ownership audit for bridge attachment, identity
 review, closure, cohorts, DSP, contradiction, review/promotion state,
