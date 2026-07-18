@@ -59,7 +59,8 @@
   - DONE: P0c.4 derives semantic demand-equivalence keys and deduplication
     receipts from typed subject, PNF role, local types, constraints, evidence
     facets, and document scope—never surface text alone.
-  - NEXT: define the append-only registry-neutral cache/microbatch scheduler.
+  - NEXT: define the append-only registry-neutral cache/microbatch scheduler;
+    emit execution states only and never select identity or mutate PNF.
 - [P0c] Add the PNF-driven resolution controller:
   `PartialPNF -> ResolutionDemand -> EntityCandidateSet ->
   ResolutionAssessment -> PNFRefinement`, with deterministic budgets,
