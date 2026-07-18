@@ -1,7 +1,87 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-05-20
+- 2026-07-17
+
+## Current shared-compiler P0
+
+- [P0a] Consolidate SensibLaw's canonical parser/span substrate: one section
+  parser implementation, one immutable canonical character-coordinate system,
+  versioned token/annotation views, and span-referenced internal records.
+  - DONE: canonical parser/rule extraction/node construction now resides in
+    `SensibLaw/src/ingestion/section_parser.py`; the historical root parser is
+    a compatibility projection retaining `Provision` and simple JSON outputs.
+  - NEXT: complete immutable span storage, one-pass annotation views, and
+    profile-versioned caching.
+- [P0b] Add the generic lazy mention/entity-candidate layer over a recoverable
+  meaningful-span lattice. Ordinary nouns and phrases may contribute typed
+  candidates; candidate identity is not resolved identity.
+  - DONE: SensibLaw has generic deterministic candidate-only `MentionSpan`,
+    `EntityCandidateSet`, and document-local `CoreferenceCluster` carriers.
+  - NEXT: generate/licence spans lazily through the public parser/reducer
+    interfaces, then attach bounded candidate retrieval.
+  - DONE: baseline licensing emits non-structural lexical tokens,
+    numeric literals, maximal name-shaped phrases, and adapter-identified
+    eventualities while receipting the complete unmaterialized span lattice and
+    structural suppression. It performs no lookup or resolution.
+  - DONE: document-local recurrence groups retain repeated generated surfaces
+    by case-folded whitespace-normalized form. They remain evidence only: no
+    aliasing, coreference, candidate creation, identity decision, or
+    cross-document grouping.
+  - DONE: bounded expansion requests license a source-anchored token interval
+    for alias hints, grammar phrases, or future PNF demand without asserting an
+    alias, identity, or PNF decision.
+  - DONE: caller-supplied, provenance-bearing alias token sequences emit exact
+    `alias_hint` requests only; they cannot select a QID/candidate, query a
+    registry, resolve identity, mutate PNF, or promote a claim.
+  - DONE: public parser/token annotations emit maximal nominal-phrase
+    `grammar_phrase` requests only; structural evidence cannot select an
+    identity/candidate, alter PNF, or promote a claim.
+  - DONE: bounded candidate retrieval matches caller-supplied,
+    provenance-bearing catalogs in canonical token space and preserves explicit
+    zero/one/many alternatives without ranking, resolution, or network access.
+  - DONE: form derivation preserves source-anchored surface, token, numeric,
+    date-shaped, abbreviation, and profile-derived alternatives as explicit
+    relations, before any entity candidate or PNF interpretation; every
+    compatible declared composition path remains explicit.
+  - DONE: generic local typing now derives candidate-only numeric quantity,
+    abbreviation, calendar-expression, parser-eventuality, and profile-defined
+    type alternatives, with independent per-mention coverage pressure.
+  - DONE: P0c.1 factorizes document-bounded `PartialPNF` slots over compatible
+    local type references and receipts one closure state per slot, without
+    combining alternatives, issuing a demand, or selecting an identity.
+  - DONE: P0c.2 projects only unresolved P0c.1 slots into generic,
+    source-anchored, facet-specific, budget-labelled `ResolutionDemand`
+    records; construction remains backend-free and cannot alter PNF or identity.
+  - DONE: P0c.3 defines typed resolution subjects before scheduler work,
+    preserving entity/event-type/event-occurrence/event-artifact/local-cluster/
+    property-relation distinctions and explicit event formal roles.
+  - DONE: P0c.4 derives semantic demand-equivalence keys and deduplication
+    receipts from typed subject, PNF role, local types, constraints, evidence
+    facets, and document scope—never surface text alone.
+  - NEXT: define the append-only registry-neutral cache/microbatch scheduler.
+- [P0c] Add the PNF-driven resolution controller:
+  `PartialPNF -> ResolutionDemand -> EntityCandidateSet ->
+  ResolutionAssessment -> PNFRefinement`, with deterministic budgets,
+  residual-driven widening, provenance, and stopping states.
+  - add the registry-neutral broker and cache-aware scheduler: local/cache
+    first, then deduplicated rate-limited backend microbatches interspersed with
+    local compilation
+  - add shared eventuality, event-observation, external-identity, and typed
+    event-meet carriers
+  - keep event occurrence/observation/cluster/forecast/report/state roles
+    distinct and prohibit scalar-only event identity closure
+  - add Wikidata and WorldMonitor only as optional snapshot adapters after the
+    generic broker contract; inspect the current WorldMonitor schema before
+    implementing its adapter
+- [P0d] Make the shared targeting/promotion layer consume resolved or explicitly
+  ambiguous PNF alternatives. Keep shared emitted alignment held.
+- [P0 proof] Re-express GWB entity ambiguity separately from claim/target
+  ambiguity, then reuse the same resolver in AU. Nat/Wikidata supplies optional
+  pinned external evidence and does not own or mediate the shared resolver.
+
+Canonical implementation note:
+`SensibLaw/docs/planning/pnf_driven_entity_resolution_spine_20260717.md`.
 
 ## Submodule TODO snapshot
 - SensibLaw: sprint posture needs to stay architecture-first.

@@ -125,6 +125,85 @@ That same normalization rule is now explicit across the main `SensibLaw` lanes:
 - GWB public-source linkage material
 - Wikidata migration/review material
 
+The current P0 compiler spine begins before review-target selection. Canonical
+source spans and shared language annotations produce a locally typed candidate
+world fragment and cheap partial PNF. Coverage pressure seeks meaningful
+entities and eventualities; closure pressure prioritizes deeper evidence needed
+to reduce PNF residuals. A registry-neutral broker interleaves local work with
+deduplicated, cache-aware, backend-rate-limited microbatches; typed evidence
+then refines factorized PNF alternatives before targeting or promotion. The
+meaningful span space remains recoverable without eagerly materializing every
+contiguous span. Candidate identity, resolved identity, and promoted fact stay
+separate. Wikidata and WorldMonitor remain optional revisioned evidence
+backends. Event observations, occurrences, clusters, forecasts, reports, and
+rolling states remain distinct and reconcile through typed obligations rather
+than a scalar similarity score.
+The canonical implementation note is
+[SensibLaw/docs/planning/pnf_driven_entity_resolution_spine_20260717.md](SensibLaw/docs/planning/pnf_driven_entity_resolution_spine_20260717.md).
+Its first parser-consolidation slice is now implemented: one canonical
+SensibLaw parser constructs rule/structure nodes, while the historical parser
+module remains a compatibility projection for existing callers.
+The first generic entity-resolution carrier slice now preserves anchored
+mentions, candidate sets, and document-local coreference under a strict
+candidate-only authority boundary; it does not resolve or promote identities.
+P0b.3 adds bounded expansion requests over the recoverable token lattice.
+Alias hints, structural grammar, and future PNF work can request a verified
+canonical token interval without asserting that an alias, interpretation, or
+identity is correct. The resulting mention/license remains candidate-only;
+structural-grammar production, PNF construction, and registry retrieval remain
+separate later stages.
+P0b.4 adds a backend-free alias-index input adapter. Caller-supplied,
+provenance-bearing canonical token sequences produce exact `alias_hint`
+expansion requests only: they carry no QID, selected candidate, registry
+lookup, identity assertion, PNF mutation, or promotion effect. Thus `9 / 11`
+can remain a reviewable surface span without being silently treated as `911`
+or as any particular event.
+P0b.5 adds a parser-interface-only structural-grammar adapter. It emits
+maximal annotated nominal phrases as bounded `grammar_phrase` requests, with
+their profile and context, but makes no entity/role/PNF decision and no
+registry call. Missing annotation produces no invented phrase boundary.
+P0b.6 adds offline bounded candidate retrieval. It compares anchored mention
+surfaces with a caller-supplied, provenance-bearing catalog in the canonical
+token space and preserves explicit zero/one/many candidate alternatives. It
+does not rank or resolve an identity, call a registry, change PNF, or promote a
+claim; in particular, `9 / 11` remains distinct from `911`.
+
+P0b.7 adds generic form derivation before semantic typing and registry
+retrieval. It keeps surface, token, numeric, date-shaped, abbreviation, and
+profile-derived alternatives separate as declared form relations; deterministic
+serialization never encodes a preferred entity, event, or interpretation.
+
+P0b.8 adds candidate-only local typing and coverage pressure above those form
+alternatives. Generic structure supplies numeric quantity, abbreviation,
+calendar-expression, and linguistic-eventuality alternatives; profiles may add
+other local type alternatives with provenance, but cannot resolve identity,
+construct PNF closure, query a registry, or promote a fact.
+
+P0c.1 adds document-bounded factorized `PartialPNF` slots and closure-pressure
+receipts. They bind only compatible local type alternatives, never materialize
+candidate combinations or select identities; a later generic stage may derive
+budgeted demands solely from the recorded closure states.
+
+P0c.2 now derives those demands as source-anchored, facet-specific,
+budget-labelled plans. They remain backend-free and cannot select a candidate,
+mutate PNF, or promote a claim.
+
+P0c now has typed resolution subjects and explicit event roles before
+scheduling. Entity, event type, occurrence, observation/cluster/forecast/
+report/alert/state artifacts, document-local clusters, and properties or
+relations cannot be deduplicated merely because their surface text matches;
+reuse requires an equal semantic demand key. Current grouping is a receipt of
+potential reuse only; no scheduler, cache mutation, or request exists yet.
+The completed P0b.1 follow-on licenses non-structural lexical, numeric,
+name-shaped, and adapter-annotated eventuality spans through the public
+parser/reducer interfaces while retaining a deterministic full-lattice and
+structural-suppression receipt. It remains backend-free and candidate-only.
+
+P0b.2 adds a distinct candidate-safe recurrence receipt: only repeated
+case-folded, whitespace-normalized generated surfaces are grouped, and only
+within one document. Such recurrence is evidence for later work, not an alias,
+coreference, identity decision, PNF mutation, or promotion.
+
 The Wikidata/Nat lane is still review-first overall, but its handoff docs now
 separately track candidate-level promotion gates and post-write verification
 surfaces so the remaining automation gap is explicit instead of implied.
@@ -314,6 +393,9 @@ Hard boundaries:
 
 - no person-scoring or predictive judgment
 - no hidden cross-context identity resolution
+- document-local coreference and bounded entity candidates are permitted when
+  span-anchored, explicit, reversible, and non-promoting; cross-context joins
+  remain opt-in review proposals
 - no silent promotion of derived graphs into truth
 - no replacement of primary legal authority with support summaries
 - no forced cross-user merged memory as a default system surface
