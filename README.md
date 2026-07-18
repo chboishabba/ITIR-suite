@@ -140,6 +140,11 @@ rolling states remain distinct and reconcile through typed obligations rather
 than a scalar similarity score.
 The canonical implementation note is
 [SensibLaw/docs/planning/pnf_driven_entity_resolution_spine_20260717.md](SensibLaw/docs/planning/pnf_driven_entity_resolution_spine_20260717.md).
+The first generic corpus scale-out is now also specified as a directory kernel:
+it inventories a bounded directory, invokes one shared per-document compiler,
+persists content-addressed local artifacts, and emits unresolved-demand groups
+without network resolution, promotion, or silent cross-document identity joins.
+See [SensibLaw/docs/planning/directory_compilation_kernel_20260718.md](SensibLaw/docs/planning/directory_compilation_kernel_20260718.md).
 Its first parser-consolidation slice is now implemented: one canonical
 SensibLaw parser constructs rule/structure nodes, while the historical parser
 module remains a compatibility projection for existing callers.

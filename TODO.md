@@ -5,6 +5,16 @@
 
 ## Current shared-compiler P0
 
+- [P0 corpus] Implement generic directory compilation as orchestration over the
+  shared document compiler, never a corpus/profile semantic branch.
+  - DONE: SensibLaw now has immutable corpus/document manifests, bounded
+    capability-aware inventory, local-only per-document compilation,
+    content-addressed append-only artifacts, document-local meet/refinement
+    receipts, and unresolved-demand grouping.
+  - NEXT: add explicitly declared cross-document candidate proposals, then
+    separately approved evidence-acquisition and reconciliation phases; neither
+    may silently merge identities or turn index membership into evidence.
+
 - [P0a] Consolidate SensibLaw's canonical parser/span substrate: one section
   parser implementation, one immutable canonical character-coordinate system,
   versioned token/annotation views, and span-referenced internal records.
@@ -59,8 +69,8 @@
   - DONE: P0c.4 derives semantic demand-equivalence keys and deduplication
     receipts from typed subject, PNF role, local types, constraints, evidence
     facets, and document scope—never surface text alone.
-  - NEXT: define the append-only registry-neutral cache/microbatch scheduler;
-    emit execution states only and never select identity or mutate PNF.
+  - DONE: append-only registry-neutral cache/microbatch scheduling emits
+    execution states without selecting identity or mutating PNF.
 - [P0c] Add the PNF-driven resolution controller:
   `PartialPNF -> ResolutionDemand -> EntityCandidateSet ->
   ResolutionAssessment -> PNFRefinement`, with deterministic budgets,
@@ -75,6 +85,12 @@
   - add Wikidata and WorldMonitor only as optional snapshot adapters after the
     generic broker contract; inspect the current WorldMonitor schema before
     implementing its adapter
+  - DONE: shared generic algebra now carries branch-preserving alternatives,
+    immutable factors, typed meets, pressure assessments, factor-local
+    refinements, annotation graphs, PNF graphs, document-local evidence, and
+    revisioned Wikidata/WorldMonitor snapshot envelopes. The remaining work is
+    operational: run those declared phases against controlled corpora, not a
+    new lane-specific resolver.
 - [P0d] Make the shared targeting/promotion layer consume resolved or explicitly
   ambiguous PNF alternatives. Keep shared emitted alignment held.
 - [P0 proof] Re-express GWB entity ambiguity separately from claim/target
