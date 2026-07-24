@@ -19,6 +19,34 @@ whose size reflects boundary drift:
 - naming or lane-specific logic that should instead be portable across the
   suite
 
+## Canonical Doctrine
+
+This roadmap is a housekeeping surface, not a free-standing design source.
+
+It inherits the root doctrine from:
+
+- `README.md`:
+  MCP-first cross-project contracts, normalized receipts/policy/explanation,
+  and the current suite-level direction toward bounded evidence, promotion, and
+  derived operator surfaces.
+- `architecture.md`:
+  `SensibLaw` remains the truth-construction layer
+  (`source -> annotation/signal -> candidate -> promoted`), and downstream
+  latent/global layers must not silently replace promotion as the truth gate.
+- `plan.md` and `TODO.md`:
+  the current P0 control read is bounded-search, uncertainty-collapse, and
+  product-stack normalization, not ad hoc lane-local reinvention.
+
+That means this roadmap must preserve the following commitments:
+
+- thin routes and thin CLIs
+- generic helper names over lane-historical naming
+- policy separated from transport and presentation
+- fallback paths that emit provenance rather than silently succeeding
+- strict runtime gates around canonical payload normalization
+- UI and Playwright surfaces that remain UI/test-local rather than absorbing
+  business logic
+
 ## Largest Files Snapshot
 
 Top tracked repo-owned code files by line count at audit time:
@@ -45,6 +73,94 @@ Top tracked repo-owned code files by line count at audit time:
 | 538 | `itir-svelte/src/lib/server/semanticReport.ts` |
 | 533 | `casey-git-clone/src/casey_git_clone/runtime_sqlite.py` |
 | 509 | `itir-svelte/src/routes/graphs/fact-review/+page.svelte` |
+
+## 2026-04-07 TS Housekeeping Addendum
+
+This addendum records the current normalization and convention sweep requested
+after the repo started accumulating business logic in TypeScript again.
+
+Audit coverage in this round:
+
+- `itir-svelte`: 78 tracked TS-family files
+- `SensibLaw`: 11 tracked TS/TSX/playwright files outside vendored paths
+
+The current result is not "all TS is bad". The result is more specific:
+
+- the highest-pressure drift is still concentrated in `itir-svelte`
+  server/runtime and route-shell surfaces
+- `SensibLaw/ui` and `SensibLaw/playwright` are currently low-risk and should
+  stay explicitly presentation/test-local
+- the existing roadmap remains the right canonical document; it needed a
+  current-state addendum and clearer guardrails, not a competing note
+
+### Current State: TS Server/Runtime Drift
+
+Highest-value server/runtime updates now required:
+
+- `itir-svelte/src/lib/server/corpora.ts`
+  currently mixes transport, normalization, navigation policy, live/fixture
+  arbitration, and write-side actions; split into transport adapters,
+  normalization mappers, and presentation-policy resolvers.
+- `itir-svelte/src/lib/server/threadArguments.ts`
+  still embeds claim-family classification and anchor-span derivation inside a
+  loader-facing module; move that logic behind an explicit domain adapter
+  contract and keep the loader assembly-only.
+- `itir-svelte/src/lib/server/wiki_timeline/normalize.ts`
+  remains too permissive for a canonical normalization surface; require a
+  stricter runtime gate with explicit reject/report behavior before coercion and
+  avoid untyped pass-through in canonical payloads.
+- `itir-svelte/src/lib/server/semanticReport.ts`
+  still mixes transport, weak validation, and graph/threshold policy; separate
+  strict payload validation, derived analytics policy, and execution.
+- `itir-svelte/src/lib/server/chatArchive.ts`
+  uses a multi-DB fallback path that does not currently surface enough fallback
+  provenance; fallback success must return source and reason metadata.
+- `itir-svelte/src/lib/server/wikiTimeline.ts`
+  duplicates process/env/runtime helpers already represented elsewhere; shared
+  process, repo-root, and DB-path helpers should come from one adapter surface.
+- `itir-svelte/src/lib/server/normalizedArtifacts.ts`
+  still mixes canonical artifact retrieval with inspect-route and operator-label
+  policy; move inspect routing into a separate presentation mapper.
+- `itir-svelte/src/lib/server/buildMissingDashboardsJob.ts`
+  still couples orchestration state, environment discovery, and execution
+  policy; isolate state store, executor, and environment discovery seams.
+
+### Current State: TS Route/UI Drift
+
+Highest-value route-shell updates now required:
+
+- `itir-svelte/src/routes/+page.server.ts`
+  still owns dashboard aggregation, artifact/thread reducers, direct IO, Python
+  invocation, and build-missing action validation; move heatmap/timeline/summary
+  reducers behind `$lib/sb-dashboard` or dedicated server services so `load()`
+  becomes orchestration only.
+- `itir-svelte/src/routes/graphs/mission-lens/+page.server.ts`
+  still rebuilds Python command arguments and validation inline across actions;
+  centralize the Mission Lens bridge in a typed `$lib/server/missionLens`
+  helper.
+- `itir-svelte/src/routes/graphs/semantic-report/+page.server.ts`
+  still owns correction payload shaping, JSON evidence validation, and Python
+  invocation; extract a `semanticReviewAdmin` helper so the route only maps form
+  fields to a typed operation.
+- `itir-svelte/src/routes/viewers/hca-case/+page.server.ts`
+  currently bundles filesystem enumeration, default selection, transcript/doc
+  parsing, truncation, and path resolution; move these concerns into a viewer
+  file/transcript service so the route is a thin getter.
+
+### Current State: Low-Risk TS Perimeter
+
+These surfaces are currently closer to the desired posture and should be kept
+explicitly bounded:
+
+- `SensibLaw/ui/components/*`
+  presentation components should remain render/fetch/display only.
+- `SensibLaw/playwright/tests/*` and `SensibLaw/playwright.config.ts`
+  should remain interactive verification surfaces, not business-rule owners.
+
+Housekeeping note:
+
+- future TS work in these `SensibLaw` surfaces should default to "UI/test-local
+  only" unless a stronger justification is recorded elsewhere first.
 
 ## High-Priority Refactor Targets
 
@@ -341,6 +457,24 @@ These rules should govern the extraction work:
 5. Remove dead fallback code once the governing path is frozen.
    Unreachable or legacy retention blocks make large files much harder to audit.
 
+6. Keep loader/server shells assembly-only.
+   Domain classification, family assignment, graph thresholds, and inspect-route
+   policy should live behind typed helpers or producer-owned contracts rather
+   than in route or loader glue.
+
+7. Emit fallback provenance.
+   DB, artifact, or path fallback chains must report which source satisfied the
+   read and why fallback occurred; silent fallback success is not contract
+   complete.
+
+8. Require a strict runtime gate before canonical normalization.
+   Canonical payload surfaces should prefer schema-backed parse + explicit
+   reject/report paths rather than permissive `any`-style coercion.
+
+9. Keep UI/test-local TS surfaces explicitly bounded.
+   `SensibLaw/ui` and Playwright surfaces are allowed to orchestrate rendering
+   and interaction checks, but not to absorb backend policy or business logic.
+
 ## Suggested Execution Order
 
 ### Phase 1: High-leverage decomposition
@@ -378,6 +512,53 @@ Rationale:
 - These are self-contained subpackages and can be improved with less risk to the
   main web surface.
 
+### Phase 4: Route-shell and server-runtime convergence
+
+- `itir-svelte/src/routes/graphs/mission-lens/+page.server.ts`
+- `itir-svelte/src/routes/graphs/semantic-report/+page.server.ts`
+- `itir-svelte/src/routes/viewers/hca-case/+page.server.ts`
+- `itir-svelte/src/lib/server/threadArguments.ts`
+- `itir-svelte/src/lib/server/semanticReport.ts`
+- `itir-svelte/src/lib/server/chatArchive.ts`
+- `itir-svelte/src/lib/server/normalizedArtifacts.ts`
+- `itir-svelte/src/lib/server/buildMissingDashboardsJob.ts`
+
+Rationale:
+
+- The repo has already identified the biggest files, but the current drift sweep
+  shows a second-tier queue of route shells and server helpers that still own
+  too much policy, normalization, or fallback behavior.
+- Clearing this queue reduces the chance that business logic reaccumulates in TS
+  under new route/server entrypoints while the older large-file work is still in
+  flight.
+
+## Guardrails And Metrics
+
+Future refinement rounds should keep this as a single canonical housekeeping
+surface and only continue while measurable queue quality improves.
+
+Invariants:
+
+- use this roadmap as the canonical housekeeping reference for this lane
+- avoid spawning competing normalization notes unless this roadmap becomes
+  structurally unusable
+- prefer audit-first and doc-first updates before code churn
+- do not activate UML or commit sidecars unless architecture or publish state
+  materially changes
+
+Metrics for another round:
+
+- number of TS server/runtime files with explicit extraction plans
+- number of route shells with named helper/service targets
+- number of fallback paths with documented provenance requirements
+- number of canonical payload families covered by strict runtime-gate guidance
+- reduction in "miscellaneous" or unowned TS findings between rounds
+
+Promotion rule:
+
+- continue refinement only while the next pass materially increases coverage of
+  these metrics or clarifies ownership for a currently ambiguous hotspot
+
 ## Exit Criteria
 
 The roadmap is satisfied when:
@@ -387,3 +568,28 @@ The roadmap is satisfied when:
 - route/CLI files primarily compose imported logic
 - lane-specific overlays are explicit adapter modules
 - dead legacy fallback blocks are either removed or isolated as fixtures
+- fallback paths emit provenance and reason metadata
+- canonical TS payload surfaces have an explicit runtime-gate plan
+- `SensibLaw/ui` and Playwright remain explicitly presentation/test-local
+
+## Guardrails / Invariants / Metrics
+
+- **Invariant: routes stay orchestration-only.** Nothing in `/src/routes` may
+  regain ownership of graph normalization, normalization helpers, or DB policy;
+  if a route `load()` needs wide adapters again, that TODO must be explicitly
+  recorded with a timeline and owner before landing.
+- **Invariant: runtime policy lives in named helpers.** Files such as
+  `corpora.ts`, `semanticReport.ts`, `wikiTimeline.ts`, and the other audited
+  runtimes must only expose policy-native helpers (e.g., `services/`,
+  `normalization/`), not UI composition. Any policy that cannot be isolated in a
+  helper must be flagged for refactor before the route shell grows again.
+- **Metric: file drift rate.** If any tracked file grows by more than 10% in
+  either line count or cognitive complexity (measured via TODO volume) within a
+  single sprint, trigger a new refinement round for that lane.
+- **Metric: helper ownership clarity.** Before closing this audit, every helper
+  created from an extraction should appear in the README/plan/TODO doctrine with
+  a lane owner and a short description; missing entries signal the need for a
+  follow-up documentation sprint.
+- **Metric: lane handoff signal.** Any addition of business logic to a route
+  or runtime must be justified by a documented guardrail exception; the absence
+  of such a note should be counted as a flag for another refinement pass.

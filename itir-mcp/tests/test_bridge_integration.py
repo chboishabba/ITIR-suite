@@ -50,6 +50,13 @@ def test_bridge_protocol_smoke() -> None:
         assert listed["ok"] is True
         tool_names = [tool["name"] for tool in listed["tools"]]
         assert "sensiblaw.obligations_query" in tool_names
+        assert "itir.compare_observations" in tool_names
+        assert "itir.docstore.open_questions" in tool_names
+        assert "itir.docstore.proposal_receipt" in tool_names
+        assert "itir.pnf.context_index" in tool_names
+        assert "itir.pnf.task_memory_preview" in tool_names
+        assert "itir.pnf.observer_evidence" in tool_names
+        assert "itir.markdown.render_projection" in tool_names
 
         payload = {
             "op": "call",
@@ -63,6 +70,67 @@ def test_bridge_protocol_smoke() -> None:
         called = _read_json_line(process.stdout)
         assert called["ok"] is True
         assert called["result"]["version"] == "obligation.query.v1"
+
+        compare_payload = {
+            "op": "call",
+            "name": "itir.compare_observations",
+            "payload": {
+                "left": {
+                    "obs_id": "wm:1",
+                    "source_system": "worldmonitor",
+                    "source_scope": "external",
+                    "observed_time": "2026-04-06T00:00:00+00:00",
+                    "text": "Explosion reported near Odesa port after overnight drone attack",
+                    "geometry": {"lat": 46.48, "lon": 30.72},
+                },
+                "right": {
+                    "obs_id": "or:1",
+                    "source_system": "openrecall",
+                    "source_scope": "internal",
+                    "observed_time": "2026-04-06T00:30:00+00:00",
+                    "text": "Odesa port explosion noted after overnight drone strike",
+                    "geometry": {"lat": 46.47, "lon": 30.73},
+                },
+            },
+        }
+        process.stdin.write(json.dumps(compare_payload) + "\n")
+        process.stdin.flush()
+        compared = _read_json_line(process.stdout)
+        assert compared["ok"] is True
+        assert compared["result"]["version"] == "itir.compare_observations.v1"
+
+        pnf_payload = {
+            "op": "call",
+            "name": "itir.pnf.observer_evidence",
+            "payload": {
+                "openrecall_activity_rows": [
+                    {
+                        "source_ref": "openrecall.entry:7",
+                        "signal": "openrecall_activity",
+                        "ocr_preview": "Kent MoveWare transition screen",
+                    }
+                ]
+            },
+        }
+        process.stdin.write(json.dumps(pnf_payload) + "\n")
+        process.stdin.flush()
+        pnf_called = _read_json_line(process.stdout)
+        assert pnf_called["ok"] is True
+        assert pnf_called["result"]["version"] == "itir.pnf.observer_evidence.v1"
+        assert pnf_called["result"]["authority_boundary"]["observer_evidence_does_not_create_tasks"] is True
+
+        safe_compare_payload = {
+            "op": "safe_call",
+            "name": "itir.compare_observations",
+            "payload": compare_payload["payload"],
+        }
+        process.stdin.write(json.dumps(safe_compare_payload) + "\n")
+        process.stdin.flush()
+        safe_compared = _read_json_line(process.stdout)
+        assert safe_compared["ok"] is True
+        assert safe_compared["result"]["decision"] == "verified"
+        assert safe_compared["result"]["status_explanation"]["status_value"] == "verified"
+        assert safe_compared["result"]["receipt"]["event"] == "tool_output_verified"
     finally:
         process.terminate()
         process.wait(timeout=5)

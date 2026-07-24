@@ -39,6 +39,8 @@ The substrate is source-anchored, revision-aware, and non-rewritable:
 - revision-locked text or source object identity
 - span and offset anchors
 - source refs and provenance anchors
+- minimal normalized atom layers such as `Phi` when they remain
+  source-anchored, receipt-backed, and below promotion
 
 This layer is canonical substrate, not promoted truth-bearing fact state.
 
@@ -63,7 +65,9 @@ The following are non-authoritative unless and until a lane promotes them:
 
 - tokenization
 - lemma, POS, and dependency output
+- composition above local normalized atoms into proposition/event candidates
 - co-occurrence, clustering, and similarity structures
+- MDL or latent naming over candidate signatures
 - `TextGraphs`-style measurement graphs
 - candidate events
 - candidate relations
@@ -71,6 +75,18 @@ The following are non-authoritative unless and until a lane promotes them:
 
 These layers may be recomputed. They may support review, diagnostics,
 measurement, or candidate generation. They are not canonical truth stores.
+
+If a lane uses `Phi` or similar minimal normalized atoms, the intended stack is:
+
+```text
+canonical substrate (`Phi`, spans, receipts)
+  < composed candidate node
+  < admissibility / promotion
+  < derived graph or export artifact
+```
+
+Composition and latent naming do not create truth-bearing canonical state by
+themselves.
 
 ## TextGraphs Boundary
 `TextGraphs`-style layers are admissible inside the ecosystem only as

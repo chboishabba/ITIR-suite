@@ -343,3 +343,7 @@ The production layer now reads as:
 - mode and obligation control
 - case-library and KPI model
 - production schema/dashboard/deployment reference pack
+
+The linked PlantUML bundle is the visual service map for that stack: one
+context/container pack plus the compact flow and case-library variants that
+show the same architecture from different operator angles.

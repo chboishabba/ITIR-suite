@@ -1,0 +1,9 @@
+{
+  "heartbeat_file": "heartbeat.statibaker-kanboard-report-dashboard-manager.json",
+  "lane": "statibaker-kanboard-sync-report-dashboard",
+  "lane_claim": "Manager lane 4: expose sync outcome as a read-only StatiBaker artifact and query/dashboard surface. Workers are optional only for independent sidecars with disjoint write sets.",
+  "orchestrator_id": "statibaker-kanboard-report-dashboard-manager",
+  "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+  "status_file": "status.statibaker-kanboard-report-dashboard-manager.json",
+  "timestamp": "2026-05-19T14:17:07Z"
+}

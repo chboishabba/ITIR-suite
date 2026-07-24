@@ -1,10 +1,173 @@
 # TODO (ITIR-suite)
 
 ## Last assessed
-- 2026-04-02
+- 2026-07-17
+
+## Current shared-compiler P0
+
+- [P0 corpus] Implement generic directory compilation as orchestration over the
+  shared document compiler, never a corpus/profile semantic branch.
+  - DONE: SensibLaw now has immutable corpus/document manifests, bounded
+    capability-aware inventory, local-only per-document compilation,
+    content-addressed append-only artifacts, document-local meet/refinement
+    receipts, and unresolved-demand grouping.
+  - NEXT: add explicitly declared cross-document candidate proposals, then
+    separately approved evidence-acquisition and reconciliation phases; neither
+    may silently merge identities or turn index membership into evidence.
+
+- [P0a] Consolidate SensibLaw's canonical parser/span substrate: one section
+  parser implementation, one immutable canonical character-coordinate system,
+  versioned token/annotation views, and span-referenced internal records.
+  - DONE: canonical parser/rule extraction/node construction now resides in
+    `SensibLaw/src/ingestion/section_parser.py`; the historical root parser is
+    a compatibility projection retaining `Provision` and simple JSON outputs.
+  - NEXT: complete immutable span storage, one-pass annotation views, and
+    profile-versioned caching.
+- [P0b] Add the generic lazy mention/entity-candidate layer over a recoverable
+  meaningful-span lattice. Ordinary nouns and phrases may contribute typed
+  candidates; candidate identity is not resolved identity.
+  - DONE: SensibLaw has generic deterministic candidate-only `MentionSpan`,
+    `EntityCandidateSet`, and document-local `CoreferenceCluster` carriers.
+  - NEXT: generate/licence spans lazily through the public parser/reducer
+    interfaces, then attach bounded candidate retrieval.
+  - DONE: baseline licensing emits non-structural lexical tokens,
+    numeric literals, maximal name-shaped phrases, and adapter-identified
+    eventualities while receipting the complete unmaterialized span lattice and
+    structural suppression. It performs no lookup or resolution.
+  - DONE: document-local recurrence groups retain repeated generated surfaces
+    by case-folded whitespace-normalized form. They remain evidence only: no
+    aliasing, coreference, candidate creation, identity decision, or
+    cross-document grouping.
+  - DONE: bounded expansion requests license a source-anchored token interval
+    for alias hints, grammar phrases, or future PNF demand without asserting an
+    alias, identity, or PNF decision.
+  - DONE: caller-supplied, provenance-bearing alias token sequences emit exact
+    `alias_hint` requests only; they cannot select a QID/candidate, query a
+    registry, resolve identity, mutate PNF, or promote a claim.
+  - DONE: public parser/token annotations emit maximal nominal-phrase
+    `grammar_phrase` requests only; structural evidence cannot select an
+    identity/candidate, alter PNF, or promote a claim.
+  - DONE: bounded candidate retrieval matches caller-supplied,
+    provenance-bearing catalogs in canonical token space and preserves explicit
+    zero/one/many alternatives without ranking, resolution, or network access.
+  - DONE: form derivation preserves source-anchored surface, token, numeric,
+    date-shaped, abbreviation, and profile-derived alternatives as explicit
+    relations, before any entity candidate or PNF interpretation; every
+    compatible declared composition path remains explicit.
+  - DONE: generic local typing now derives candidate-only numeric quantity,
+    abbreviation, calendar-expression, parser-eventuality, and profile-defined
+    type alternatives, with independent per-mention coverage pressure.
+  - DONE: P0c.1 factorizes document-bounded `PartialPNF` slots over compatible
+    local type references and receipts one closure state per slot, without
+    combining alternatives, issuing a demand, or selecting an identity.
+  - DONE: P0c.2 projects only unresolved P0c.1 slots into generic,
+    source-anchored, facet-specific, budget-labelled `ResolutionDemand`
+    records; construction remains backend-free and cannot alter PNF or identity.
+  - DONE: P0c.3 defines typed resolution subjects before scheduler work,
+    preserving entity/event-type/event-occurrence/event-artifact/local-cluster/
+    property-relation distinctions and explicit event formal roles.
+  - DONE: P0c.4 derives semantic demand-equivalence keys and deduplication
+    receipts from typed subject, PNF role, local types, constraints, evidence
+    facets, and document scope—never surface text alone.
+  - DONE: append-only registry-neutral cache/microbatch scheduling emits
+    execution states without selecting identity or mutating PNF.
+- [P0c] Add the PNF-driven resolution controller:
+  `PartialPNF -> ResolutionDemand -> EntityCandidateSet ->
+  ResolutionAssessment -> PNFRefinement`, with deterministic budgets,
+  residual-driven widening, provenance, and stopping states.
+  - add the registry-neutral broker and cache-aware scheduler: local/cache
+    first, then deduplicated rate-limited backend microbatches interspersed with
+    local compilation
+  - add shared eventuality, event-observation, external-identity, and typed
+    event-meet carriers
+  - keep event occurrence/observation/cluster/forecast/report/state roles
+    distinct and prohibit scalar-only event identity closure
+  - add Wikidata and WorldMonitor only as optional snapshot adapters after the
+    generic broker contract; inspect the current WorldMonitor schema before
+    implementing its adapter
+  - DONE: shared generic algebra now carries branch-preserving alternatives,
+    immutable factors, typed meets, pressure assessments, factor-local
+    refinements, annotation graphs, PNF graphs, document-local evidence, and
+    revisioned Wikidata/WorldMonitor snapshot envelopes. The remaining work is
+    operational: run those declared phases against controlled corpora, not a
+    new lane-specific resolver.
+- [P0d] Make the shared targeting/promotion layer consume resolved or explicitly
+  ambiguous PNF alternatives. Keep shared emitted alignment held.
+- [P0 proof] Re-express GWB entity ambiguity separately from claim/target
+  ambiguity, then reuse the same resolver in AU. Nat/Wikidata supplies optional
+  pinned external evidence and does not own or mediate the shared resolver.
+
+Canonical implementation note:
+`SensibLaw/docs/planning/pnf_driven_entity_resolution_spine_20260717.md`.
 
 ## Submodule TODO snapshot
-- SensibLaw: S6 in progress with S6.5 external consumer contracts stubbed; near-term focus on schema freezes, sprint selection, Sprint 9 UI hardening, ingestion discipline tasks, and bounded citation-follow expansion; Sprint S7 checklist targets API/CLI projections, golden tests, and red-flag guards.
+- SensibLaw: sprint posture needs to stay architecture-first.
+  - Current P0s:
+    - finish the cross-lane compiler normalization push before more UI-first
+      widening
+    - extract shared cross-lane semantic surfaces so affidavit/AU/GWB/Wikidata
+      stop treating lane-local facades as the organizing truth layer
+  - UI/`itir-svelte` work is now explicitly subordinate:
+    - keep Sprint 9 / read-only interface hardening behind those P0 lanes
+    - only take UI slices that are required to validate or consume the
+      normalized products/contracts already emitted
+  - sprint docs to treat as canonical:
+    - `SensibLaw/docs/roadmaps/SPRINT.md`
+    - `SensibLaw/docs/roadmaps/sprint_s7.md`
+    - `SensibLaw/docs/roadmaps/sprint_s9.md`
+  - Wikidata/OCTF follow-on:
+    - DONE external Wikibase/Wikidata reference alignment:
+      `docs/planning/wikidata_combined_roadmap_nat_and_assist_20260401.md`
+      and
+      `SensibLaw/docs/planning/wikidata_octf_entrypoint_20260421.md`
+      now mention Claire/Superraptor's `Wikibase-Wikidata-Pipeline` and
+      `wikiodk` as adjacent transport/sandbox references. The documented
+      boundary is: external tools may emit mapped candidate deltas or provide
+      local Wikibase setup, while ITIR/SensibLaw converts deltas into bounded
+      review packets and emits review-only dispositions before any staged
+      export or upload handoff.
+    - DONE global-latent formalism clarification:
+      `SensibLaw/docs/wikidata/README.md`,
+      `SensibLaw/docs/planning/wikidata_octf_entrypoint_20260421.md`, and
+      `SensibLaw/docs/planning/wikidata_migration_pack_contract_20260328.md`
+      now distinguish the latest formalism from the current runtime. The
+      formalism is a monotone structural-coherence framework over a
+      snapshot-derived global ontology index; bounded review packets are local
+      projections of that framework. The current runtime remains bounded
+      migration/PNF/hotspot/disjointness/review lanes and does not yet implement
+      a full global index or QID-only repair bot.
+    - DONE Peter orientation Q&A:
+      `SensibLaw/docs/wikidata/README.md` and
+      `SensibLaw/docs/planning/wikidata_migration_pack_contract_20260328.md`
+      now explain how bounded proposals become row-level review dispositions,
+      what windows and schemas mean in the migration-pack context, why
+      `sensiblaw` may be absent until package installation, and how
+      `manifest.json`, `slice.json`, `migration_pack.json`, the migration-pack
+      schema, `src/ontology/wikidata.py`, and `cli/__main__.py` fit together.
+    - DONE audience-routed OCTF entrypoint:
+      `SensibLaw/docs/planning/wikidata_octf_entrypoint_20260421.md` now names
+      Dave/general OCTF, Peter, Ege, and Rosario near the top and routes each
+      reader to the relevant worked example, disjointness diagnostics, hotspot
+      packs, or CLI section. The practical Wikidata README mirrors the same
+      reader map.
+    - DONE practical Wikidata README and OCTF entrypoint refresh:
+      `SensibLaw/docs/wikidata/README.md` now gives start-to-finish command
+      paths for climate migration, climate PNF/residual review, structural
+      hotspot packs, and `P2738` disjointness diagnostics. The April 21 OCTF
+      entrypoint now leads with the reader problem, the review/execution
+      boundary, plain-language state labels, and one worked climate example.
+    - DONE docs-first bounded example:
+      `SensibLaw/docs/planning/wikidata_pnf_residual_review_example_20260429.md`
+      now maps the real `Q10403939` climate case through:
+      `candidate-only -> reviewable -> held`
+    - DONE executable bounded runtime demonstrator:
+      `sensiblaw wikidata climate-review-demonstrator` now emits the same
+      `Q10403939` packet that emits:
+      bounded candidate -> text-side predicate carrier -> residual object ->
+      final review disposition
+    - next after that:
+      add one contrasting promotable micro-case so the same surface can show
+      both a held split-review packet and a promotable direct-migration packet
 - SL-reasoner:
   - intentionally parked at scaffold level
   - keep low priority while `SensibLaw` continues to host the substantive
@@ -971,12 +1134,24 @@
     model-allocation block in the shared control-plane skills
   - keep the current state explicit:
     - multi-runner coordination in one repo is supported
-    - master-orchestrator -> sub-orchestrator hierarchy is not yet first-class
+    - master-orchestrator -> sub-orchestrator hierarchy is now a first-class
+      runtime: parent/child metadata, claims, and reporting all exist
+  - completed registry/ownership work:
+    - shared runtime emits `parent_orchestrator_id` plus lane identity in the
+      per-orchestrator metadata bundle
+    - `.autonomous-orchestrator/lane_claims/<orchestrator>.json` records each
+      runner's lane and claim lease; `.autonomous-orchestrator/registry.json`
+      exposes heartbeats for every live orchestrator
+    - `.autonomous-orchestrator/parent_reports/<parent>.json` keeps a
+      completion/escalation history for the next-tier orchestrators
+    - the idle-complete path continues to write metadata/registry/parent
+      completion surfaces so the canonical state stays accurate even when
+      orchestrators end on their own
   - next:
-    - add `parent_orchestrator_id` contract
-    - add lane/claim ownership metadata
-    - add an active orchestrator registry with heartbeats
-    - add parent-facing completion/escalation reporting
+    - keep registry, lane claim, and parent-report surfaces monitored so
+      heartbeats, ownership, and completion histories stay current
+    - document any future control-plane behavior shifts before treating them
+      as part of the canonical state
 
 - [P1] Cross-repo user-story + feedback receipt lane:
   - use `docs/planning/repo_user_story_state_and_feedback_20260327.md` as the
@@ -1110,7 +1285,7 @@
     - capture/transcription setup friction
     - cross-product handoff clarity
 
-- [P0] Guided workflow / next-action surfaces:
+- [P1] Guided workflow / next-action surfaces:
   - use `docs/planning/user_story_alignment_and_reprioritization_20260402.md`
     as the current post-substrate priority note
   - strongest gap after the substrate pass:
@@ -1122,7 +1297,7 @@
     - keep this grounded in canonical receipts, operator views, and current
       read models rather than inventing a parallel action backend
 
-- [P0] Annotation / QA workbench slice:
+- [P1] Annotation / QA workbench slice:
   - the current repo has lower-level review geometry, workbench payloads,
     operator views, and queue/control-plane posture, but still lacks the
     stronger human review/annotation execution loop implied by the user stories
@@ -1323,6 +1498,16 @@
     - DONE: add the fail-closed automation graduation evaluator:
       - `SensibLaw/src/ontology/wikidata_nat_automation_graduation.py`
       - `SensibLaw/tests/test_wikidata_nat_automation_graduation.py`
+    - DONE: add the formal temporal-PNF constraint contract that unifies the
+      climate `P14143`/`P5991` and mereology `P361`/`P527` lanes through:
+      - `TempFam(P, I)` computed from bounded slices
+      - `INCOMPLETE_tau` for missing temporal qualifiers after a family is
+        locally temporally bounded
+      - `CONTRADICTION_mu` for exclusive temporal overlap
+      - docs-only surface:
+        `SensibLaw/docs/planning/wikidata_temporal_pnf_constraint_contract_20260502.md`
+      - current boundary:
+        no runtime behavior or promotion gate change yet
     - DONE: add the automation graduation report builder:
       - `build_nat_automation_graduation_report(...)`
       - `sensiblaw wikidata automation-graduation-eval`
@@ -1582,19 +1767,17 @@
   - if a future text-graph layer is added on the SL side, mark it explicitly
     as `derived_only` and keep it outside the canonical reducer contract; add a
     per-adapter toggle/field so overlays cannot be consumed without opt-in
-- [P2] SensibLaw x Glasslane / Mirror packaging slice:
+- [P2] SensibLaw partner-client packaging slice:
   - use chat thread `Aptos cryptocurrency overview`
     (`691ac8a3-4a30-8320-bd5f-f66efc3145e7`,
     canonical `dff5b29b89818300e7e352c0247c4cef3823bcfd`) as the current
     product-positioning source
-  - use `docs/planning/mirror_telegram_support_layer_boundary_20260401.md` as
-    the current control note for Telegram integration posture
   - keep the authority boundary explicit:
-    - Mirror owns top-level Telegram routing and user-facing policy
+    - the partner client owns top-level channel routing and user-facing policy
     - ITIR provides support-layer normalization, semantic disambiguation,
       provenance, and reviewable typed observations
     - Core AI remains downstream execution, not route ownership
-  - near-term next step for the sibling Mirror repo:
+  - near-term next step for the partner client:
     write the classifier-hardening spec that replaces brittle lexical routing
     with an ITIR-shaped support envelope over:
     - tokenizer lane
@@ -1602,15 +1785,14 @@
     - labeled fallback lane
     - provenance lane
     - router consumption contract
-  - keep Telegram archive analysis local-first:
-    Telegram chats are now present in `~/chat_archive.sqlite`; use
-    `chat_context_resolver` against the canonical archive before relying on
-    paraphrased recollection in future Mirror packaging or routing notes
-  - package SensibLaw/TiRC for Mirror as the missing `human risk layer` rather
-    than as a competing crypto research assistant
+  - keep source analysis local-first: use canonical archive retrieval before
+    relying on paraphrased recollection in future partner-client packaging or
+    routing notes
+  - package SensibLaw/TiRC as the missing `human risk layer` rather than as a
+    competing crypto research assistant
   - keep the stage/market read explicit in any packaging draft:
-    - Mirror / Glasslane currently reads as tiny, founder-led, pre-PMF, and
-      Discord/chatbot-first rather than as a mature institutional product
+    - the partner client currently reads as tiny, founder-led, pre-PMF, and
+      chat/community-first rather than as a mature institutional product
     - claimed professional buyers should be treated separately from the visible
       retail/KOL-style community mix
     - NFT/token monetization ideas in the source thread increase the value of a
@@ -1738,15 +1920,75 @@
     contract
   - create and keep `itir-mcp/` as a root-owned suite adapter project rather
     than embedding MCP transport into producer repos by default
-  - first implementation scope:
-    - deterministic, read-only tool registry
-    - SensibLaw-backed obligation tools only
-    - local tests for registry/spec behavior
+  - current implemented scope:
+    - deterministic read-only registry
+    - SensibLaw-backed obligation tools
+    - ITIR-owned observation comparison tools
+    - guarded `safe_call` bridge path with:
+      - pre-call classification
+      - post-call verification
+      - normalized `status_explanation`
+      - normalized `policy_outcomes`
+      - governance receipt payloads
+    - local registry/bridge test coverage
+  - current contract doctrine:
+    - MCP is the canonical integration layer
+    - bridge/API shells are transport details only
+    - policy, explanation, and enforcement must share one reason-code
+      vocabulary
+    - client helpers should prefer guarded invocation over raw tool calls
+  - implementation status (external consumer lanes):
+    - OpenRecall now has a dedicated ITIR MCP bridge for comparison
+      normalization and bounded output wiring.
+      - openrecall PR: https://github.com/openrecall/openrecall/pull/126
+    - WorldMonitor now routes relation-style event comparison through
+      ITIR/MCP-backed `compareNewsItemsWithItir` adapter.
+      - worldmonitor PR: https://github.com/koala73/worldmonitor/pull/2772
   - next integration scope:
-    - stdio/server transport wiring
-    - one Dioxus backend/native client seam
-    - reuse existing Dioxus MCP-like playground as a debug/operator surface,
-      not the canonical suite transport layer
+    - pin cross-client parity tests so the same malicious input yields the
+      same guarded decision through each client path
+    - keep one Dioxus backend/native client seam and treat existing Dioxus
+      MCP-like playground surfaces as debug/operator layers only
+    - pin the document-evidence substrate for compliance and standards lanes
+      around:
+      - raw document retention
+      - canonical text retention
+      - text revision identity
+      - deterministic chunk ids plus exact span/offset refs
+      - retrieval/index layers as helpers only, not authority surfaces
+      - use
+        `docs/planning/canonical_text_span_evidence_contract_20260407.md`
+        as the canonical planning note
+  - planned next family:
+    - Windows evidence/evaluate/plan/apply lane under
+      `docs/planning/itir_windows_compliance_mcp_contract_20260407.md`
+    - Linux evidence/evaluate/plan/apply lane under
+      `docs/planning/itir_linux_compliance_mcp_contract_20260407.md`
+    - first bounded Windows target remains:
+      - registry/policy/service/security/eventlog evidence collection
+      - profile evaluation
+      - remediation planning only
+    - first bounded Linux target remains:
+      - normalized file/service/kernel/firewall/package/runtime state
+        collection
+      - profile evaluation
+      - remediation planning only
+    - standards/document-side compliance posture:
+      - compliance evidence should resolve to exact canonical revision/span
+        refs when the source is document-like
+      - `vector + file path` is retrieval-only and is not strong enough for
+        auditable control outcomes or receipts on its own
+    - hold guarded `apply_remediation` until receipts, rollback, and approval
+      posture are fully pinned
+  - adjacent lower-trust family:
+    - public repo/security discovery lane under
+      `docs/planning/itir_public_repo_security_discovery_contract_20260407.md`
+    - first bounded public-discovery target remains:
+      - candidate repo/workflow surface collection
+      - structured risk hypotheses
+      - internal exposure-check planning only
+    - do not let tweets, READMEs, or public repo metadata authorize internal
+      enforcement without recollected internal evidence
   - do not:
     - expose broad mutable actions first
     - treat browser `dioxus/web` as a direct stdio MCP host
@@ -2068,6 +2310,12 @@
   - use `docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md`
     as the current boundary clarification from the archived `Zero Trust
     Ontology` thread
+  - use `docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md`
+    as the current control note for the legal-IR boundary above minimal
+    `Phi` emissions
+  - use `docs/planning/legal_graph_relation_taxonomy_20260417.md` as the
+    current planning/spec note for the first bounded legal relation taxonomy
+    above the graphable edge layer
   - use `docs/planning/motif_candidate_promotion_legal_tree_20260327.md` as
     the current motif/cohomology/legal-tree discipline note
   - use `docs/planning/latent_state_over_promoted_truth_20260327.md` as the
@@ -2091,8 +2339,60 @@
       serialization does not
   - keep the admissibility boundary explicit:
     - source anchors are canonical substrate
+    - minimal `Phi` atoms are canonical normalized substrate, not promoted
+      truth
+    - composition above `Phi` creates challengeable candidate nodes, not
+      canonical records
     - candidate and graph overlays are non-authoritative
-    - only promotion creates truth-bearing canonical records
+    - only admissibility plus promotion creates truth-bearing canonical
+      records
+    - MDL/latent compression may name repeated shapes but may not substitute
+      for admissibility
+  - immediate worker lanes for the next bounded round:
+    - lane 1: `Phi` substrate owner
+      - freeze the smallest replayable atom surface with spans and receipts
+    - lane 2: composition owner
+      - centralize proposition/event node composition above `Phi`
+    - lane 3: admissibility owner
+      - formalize node and edge gates as `promote | audit | abstain`
+    - lane 4: MDL / latent owner
+      - keep compression derived and non-promotive
+    - lane 5: verification/docs owner
+      - keep fixtures, README/TODO/context, and downstream graph notes aligned
+    - lane 8: relation taxonomy owner
+      - define the first bounded structural relation set for graphable edges
+      - keep relation semantics typed, structural, and non-lexical
+    - lane 9: legal edge admissibility owner
+      - landed `SensibLaw/src/legal_edge_admissibility.py`
+      - keep edge promotion fail-closed and structural
+      - do not infer contradiction or relation kind from free text
+    - lane 10: promoted graph consumer scouting
+      - landed owner surface in `SensibLaw/src/latent_promoted_graph.py`
+      - first legal consumer is now `SensibLaw/src/policy/legal_follow_graph.py`
+      - promoted `review_relation` rows now emit promoted `legal_claim` nodes
+        with typed role edges
+      - keep graph ids derived from promoted truth, not replacements for source anchors
+      - next immediate slice:
+        keep promoted ownership unchanged, but wire typed
+        `legal_edge_admissibility` output onto derived `asserts_*` edges in
+        `SensibLaw/src/policy/legal_follow_graph.py`
+      - DONE: summarize `asserts_*` edge admissibility in
+        `SensibLaw/src/policy/legal_follow_graph.py` and expose bounded queue
+        details for legal-claim review packets
+      - DONE: expose summary-level legal-follow edge-admissibility counts in
+        `SensibLaw/src/fact_intake/au_review_bundle.py`
+      - next immediate slice:
+        keep the same typed admissibility source, but use it to rank
+        legal-claim review pressure and steer AU workflow guidance
+      - DONE: rank legal-claim review pressure in the derived legal-follow
+        operator queue from structural edge-admissibility output
+      - DONE: let AU workflow guidance switch to `legal_follow_graph` when
+        legal-follow admissibility review pressure dominates promotion pressure
+      - do not widen this into a new graph ontology, semantic inference
+        layer, or alternate promotion owner
+      - do not widen this into lexical relation inference or a new promoted
+        edge owner layer unless a later consumer proves provenance joins are
+        insufficient
     - abstention is a first-class control surface, not an accidental absence of
       rows
   - treat motif/meme/cohomology language as research framing only unless it is
@@ -2901,9 +3201,18 @@
   before context ratification).
 - Execute chat artifact capture followthrough from
   `docs/planning/chat_artifact_capture_contract_20260208.md`:
+  - DONE: Perplexity live capture now has an artifact sidecar lane for generated
+    images/assets, stored outside SQLite near the canonical DB and referenced by
+    local path/hash
+  - DONE: add canonical `thread_artifacts` indexing so pretty exports
+    hyperlink artifacts from the DB rather than only rescanning source JSON
+  - keep StatiBaker/console output as bounded source artifacts or provenance
+    refs, not raw message-text imports
   - add deterministic extractor for assistant-generated artifact classes
     (`download_link_artifact`, `inline_file_artifact`,
     `execution_claim_artifact`)
+  - add ChatGPT/GPT parity resolver for `image_asset_pointer`, file IDs, and
+    generated downloadable artifacts using the same `thread_artifacts` contract
   - emit canonical artifact JSONL records with idempotency/provenance fields
   - add fixture tests for `sandbox:/mnt/data/*`, file-emission text patterns,
     and execution-claim co-occurrence
@@ -3262,10 +3571,14 @@
       `docs/planning/zkperf_stream_shard_contract_v1_20260330.md`
     - fixture:
       `docs/planning/jmd_fixtures/zkperf_stream_v1.example.json`
-    - bridge/runtime:
-      `itir_jmd_bridge/zkperf_stream.py`
+    - bridge/runtime now split into:
+      - `itir_jmd_bridge/zkperf_stream_core.py`
+      - `itir_jmd_bridge/zkperf_stream_index.py`
+      - `itir_jmd_bridge/zkperf_stream_transport.py`
+      - `itir_jmd_bridge/zkperf_stream.py` as compatibility facade
     - CLI now supports:
       `build-zkperf-stream`,
+      `build-zkperf-stream-from-observations`,
       `publish-zkperf-stream-hf`,
       and `resolve-zkperf-stream-window-hf`
     - live HF publication succeeded for:
@@ -3317,6 +3630,9 @@
   - DONE: add a one-shot operator script for the real SL run:
     - `scripts/run_zkperf_stream_hf.sh`
     - wraps publish, index update, and index-driven verification in one command
+    - now accepts either:
+      - `--fixture <zkperf-stream-json>`
+      - `--observations <zkperf-observation-json-or-ndjson>`
   - DONE: pin one concrete public HF read-side acknowledgement surface:
     - `docs/planning/hf_acknowledgement_probe_20260330.md`
     - provider:
@@ -4051,6 +4367,9 @@
   - business-logic hardening over producer families, not more `itir-svelte`
   - next likely producer targets after the current landed set:
     `pyThunderbird` and broader `openrecall` family follow-through
+  - raw OpenRecall row staging scaffold now exists in SensibLaw; next work
+    should harden what explicit downstream adapter, if any, is justified
+    without weakening the observer/authority boundary
 - Wikidata/Nat live-follow current read:
   - all six bounded 2026-04-03 campaign categories now execute successfully
     through `sensiblaw wikidata nat-live-follow-execute`

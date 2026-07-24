@@ -29,6 +29,14 @@
       "reason": "cli_contract_change"
     },
     {
+      "match": "scripts/export_sl_facts_to_zelph.py",
+      "reason": "zelph_bridge_contract_change"
+    },
+    {
+      "match": "tools/prime_index.py",
+      "reason": "zelph_bridge_contract_change"
+    },
+    {
       "match": "scripts/run_fact_semantic_benchmark_matrix.py",
       "reason": "benchmark_orchestration_change"
     },
@@ -62,7 +70,9 @@
         {
           "surface_id": "root_scripts",
           "path_prefixes": [
-            "scripts/"
+            "scripts/",
+            "tools/prime_index.py",
+            "tools/prime_index_cli.py"
           ],
           "surface_kind": "orchestration_script",
           "default_action": "add_or_extend_smoke_test",
@@ -90,7 +100,8 @@
         {
           "surface_id": "root_tests",
           "path_prefixes": [
-            "tests/"
+            "tests/",
+            "schemas/zelph_input.schema.json"
           ],
           "surface_kind": "root_test_surface",
           "default_action": "expand_coverage",

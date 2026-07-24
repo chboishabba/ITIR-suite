@@ -5,9 +5,10 @@
   import ControlsPanel from '$lib/wiki_timeline/components/ControlsPanel.svelte';
   import ContextPanel from '$lib/wiki_timeline/components/ContextPanel.svelte';
   import { defaultFilters, viewportKey } from '$lib/wiki_timeline/filters';
-  import {
-    pad2,
-    canonicalUnitToken,
+	  import {
+	    type NumericMention,
+	    pad2,
+	    canonicalUnitToken,
     collapseWhitespace,
     parseNumericValueToken,
     normalizeNumericMention,
@@ -376,97 +377,13 @@
 
   const followOrder = defaultFollowOrder();
 
-  function eventMatchesNode(e: any, nodeId: string): boolean {
-    if (!nodeId) return false;
-    if (nodeId.startsWith('act:')) return nodeId === `act:${e.event_id}`;
-
-    if (nodeId.startsWith('sub:')) {
-      const key = nodeId.slice('sub:'.length);
-      const stepSubs = Array.isArray((e as any).steps)
-        ? (e as any).steps.flatMap((s: any) => (Array.isArray(s?.subjects) ? s.subjects : []))
-        : [];
-      if (stepSubs.length) return stepSubs.some((x: any) => String(x) === key);
-      return (e.actors ?? []).some((a: any) => (a.role ?? '') !== 'requester' && (a.resolved ?? a.label) === key);
-    }
-    if (nodeId.startsWith('req:')) {
-      const key = nodeId.slice('req:'.length);
-      if (key === 'missing') return missingRequesterEventIdSet.has(String((e as any)?.event_id ?? ''));
-      return (e.actors ?? []).some((a: any) => (a.role ?? '') === 'requester' && (a.resolved ?? a.label) === key);
-    }
-    if (nodeId.startsWith('obj:')) {
-      const key = nodeId.slice('obj:'.length);
-      const stepObjs = Array.isArray((e as any).steps)
-        ? (e as any).steps.flatMap((s: any) => stepEntityObjects(s))
-        : [];
-      if (stepObjs.length) return stepObjs.some((x: any) => String(x) === key);
-      return eventEntityObjects(e).some((x: any) => String(x) === key);
-    }
-    if (nodeId.startsWith('num:')) {
-      const key = nodeId.slice('num:'.length);
-      return numericMentionsForEvent(e).some((m: NumericMention) => m.key === key);
-    }
-    if (nodeId.startsWith('evd:')) {
-      const key = nodeId.slice('evd:'.length);
-      return evidenceLabelsFromEvent(e).includes(key);
-    }
-    if (nodeId.startsWith('src:')) {
-      const key = nodeId.slice('src:'.length);
-      return sourceLabelsForEvent(e).includes(key);
-    }
-    if (nodeId.startsWith('lens:')) {
-      const key = nodeId.slice('lens:'.length);
-      return lensLabelsForEvent(e).includes(key);
-    }
-
-    if (nodeId.startsWith('time:y:')) {
-      const key = nodeId.slice('time:y:'.length);
-      return String(e.anchor?.year ?? 0) === key;
-    }
-    if (nodeId.startsWith('time:m:')) {
-      const key = nodeId.slice('time:m:'.length);
-      const y = String(e.anchor?.year ?? 0);
-      const m = e.anchor?.month ?? null;
-      const ym = m ? `${y}-${pad2(m)}` : y;
-      return ym === key;
-    }
-    if (nodeId.startsWith('time:d:')) {
-      const key = nodeId.slice('time:d:'.length);
-      const ymd = timeKeyForEvent(e, 'day');
-      return ymd === key;
-    }
-
-    if (nodeId.startsWith('pur:')) return nodeId === `pur:${e.event_id}`;
-    return false;
-  }
-
-  function highlightParts(text: string, needle: string): Array<{ s: string; hit: boolean }> {
-    const t = String(text ?? '');
-    const n = String(needle ?? '').trim();
-    if (!n) return [{ s: t, hit: false }];
-    const lower = t.toLowerCase();
-    const nl = n.toLowerCase();
-    const out: Array<{ s: string; hit: boolean }> = [];
-    let i = 0;
-    while (i < t.length) {
-      const j = lower.indexOf(nl, i);
-      if (j < 0) {
-        out.push({ s: t.slice(i), hit: false });
-        break;
-      }
-      if (j > i) out.push({ s: t.slice(i, j), hit: false });
-      out.push({ s: t.slice(j, j + n.length), hit: true });
-      i = j + n.length;
-    }
-    return out.length ? out : [{ s: t, hit: false }];
-  }
-
-  $: contextRows = (() => {
+	  $: contextRows = (() => {
     if (!selectedNodeId) return [] as CtxRow[];
     const { kind, key } = keyFromNodeId(selectedNodeId);
     const rows: CtxRow[] = [];
     const eventIdCounts = new Map<string, number>();
-    for (const e of contextEvents) {
-      if (!eventMatchesNode(e, selectedNodeId)) continue;
+	    for (const e of contextEvents) {
+	      if (!eventMatchesNode(e, selectedNodeId, data.payload, missingRequesterEventIdSet)) continue;
       const eventId = String(e.event_id ?? '');
       const instance = (eventIdCounts.get(eventId) ?? 0) + 1;
       eventIdCounts.set(eventId, instance);

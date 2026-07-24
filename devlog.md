@@ -1,5 +1,51 @@
 # Devlog
 
+## 2026-05-20
+- Closed the StatiBaker Kanboard governance manager lane:
+  - added manager-wave reconciliation query in `StatiBaker/sb/query.py`
+  - added `kanboard-manager-wave` CLI in `StatiBaker/scripts/query_state.py`
+  - added focused coverage in `StatiBaker/tests/test_query_cli.py`
+  - updated `StatiBaker/QUERY_SURFACE.md` with the new reconciliation read
+- Reconciled stale manager status artifacts after stabilization:
+  - `status.statibaker-kanboard-idempotency-manager.json`
+  - `status.statibaker-kanboard-live-sync-manager.json`
+  - `status.statibaker-kanboard-report-dashboard-manager.json`
+  now mark remaining lane-local gaps as historical and superseded by
+  stabilization closeout.
+- Updated governance manager control-plane state:
+  - `status.statibaker-kanboard-promotion-governance-manager.json`
+  - `heartbeat.statibaker-kanboard-promotion-governance-manager.json`
+  now reflect complete runsheet closure (`5/5`) with milestones remaining `0`.
+- Validation and governance checks:
+  - `.venv/bin/python -m pytest -q StatiBaker/tests/test_kanboard_runsheet_adapter.py StatiBaker/tests/test_query_cli.py SensibLaw/tests/test_statibaker_kanban.py`
+  - `python StatiBaker/scripts/query_state.py kanboard-manager-wave --status-root /home/c/Documents/code/ITIR-suite`
+  - secret-pattern scan over Kanboard status/heartbeat/runs artifacts and
+    adapter code found no committed private token values in non-test surfaces.
+
+## 2026-05-19
+- Lane 4 Kanboard sync report/dashboard manager made concrete implementation progress on the read-only sync artifact lane:
+  - froze `sb.kanboard_sync_report.v0_1` report contract and builder in `StatiBaker/sb/kanboard_runsheet.py`
+  - extended `StatiBaker/scripts/plan_kanboard_runsheet.py` with optional `--report-output` artifact emission
+  - added read-only query surfaces for report-by-path and latest report discovery in `StatiBaker/sb/query.py`
+  - added `kanboard-sync-report` query CLI command in `StatiBaker/scripts/query_state.py`
+  - added focused regression tests in:
+    - `StatiBaker/tests/test_kanboard_runsheet_adapter.py`
+    - `StatiBaker/tests/test_query_cli.py`
+- Focused validation passed:
+  - `.venv/bin/python -m pytest -q StatiBaker/tests/test_kanboard_runsheet_adapter.py StatiBaker/tests/test_query_cli.py`
+- Remaining Lane 4 gap: dashboard/read-model metrics and rendering for latest sync report.
+
+## 2026-04-07
+- Documented that the shared autonomous-orchestrator runtime now publishes
+  `parent_orchestrator_id`, lane/lane-claim metadata, the `.autonomous-orchestrator`
+  registry, and parent-report history so hierarchical master/sub coordination is
+  first-class, and noted that idle-complete transitions keep those surfaces
+  current.
+- Synced `docs/planning/orchestrator_control_plane_20260328.md`, `TODO.md`,
+  `COMPACTIFIED_CONTEXT.md`, and the Unreleased `CHANGELOG.md` entry so the new
+  state is the canonical repo story rather than a future target.
+- Validated via `.venv/bin/python -m pytest -q /home/c/.codex/skills/autonomous-orchestrator/tests/test_control_plane_metadata.py`.
+
 ## 2026-03-29
 - Recorded that the AAO runtime helpers now live under `itir-svelte/src/lib/server/wiki_timeline/`, `wikiTimelineAoo.ts` is a thin adapter, and the AAO-all route now uses the shared helper modules plus extracted `ControlsPanel` and `ContextPanel` components.
 - Triaged the AAO runtime/route slice alongside the first Priority 1 brief set, leaving the remaining graph/evidence assembly as the next explicit follow-up.

@@ -11,6 +11,7 @@ def db_payload(
     max_text_chars: int,
     latest_paragraphs: bool = False,
     recent_turns: Optional[list[dict]] = None,
+    turn_page: Optional[dict] = None,
     truncate_text,
     split_paragraphs,
     iso_utc,
@@ -21,6 +22,11 @@ def db_payload(
         "earliest_ts_utc": iso_utc(match.earliest_datetime),
         "latest_ts_utc": iso_utc(match.latest_datetime),
     }
+    # The provider UUID is the external identity.  The hash-like ID is only
+    # the archive's deterministic local key; keep legacy names above for API
+    # compatibility while exposing the distinction explicitly.
+    payload["provider_thread_id"] = match.online_thread_id
+    payload["archive_thread_id"] = match.canonical_thread_id
     payload["latest_text"] = truncate_text(latest_text_full, max_text_chars)
     if latest_paragraphs:
         payload["latest_paragraphs"] = [
@@ -29,6 +35,8 @@ def db_payload(
         ]
     if recent_turns:
         payload["recent_turns"] = recent_turns
+    if turn_page:
+        payload["turn_page"] = turn_page
     return payload
 
 
@@ -51,6 +59,24 @@ def print_result(payload: dict, as_json: bool) -> None:
         ingest = persist.get("ingest") or {}
         if ingest:
             print(f"persist_ingested_count: {ingest.get('ingested_count', 0)}")
+    mca = payload.get("mca_retrieval") or {}
+    if mca:
+        requested = mca.get("requested") or {}
+        print(f"mca_mode: {mca.get('mode') or requested.get('mode')}")
+        print(f"mca_ok: {mca.get('ok')}")
+        if mca.get("error"):
+            print(f"mca_error: {mca.get('error')}")
+        candidates = mca.get("candidates") or []
+        print(f"mca_candidate_count: {len(candidates)}")
+        for idx, candidate in enumerate(candidates, start=1):
+            resolved = candidate.get("canonical_resolution") or {}
+            print(
+                f"mca_candidate[{idx}]: "
+                f"rank={candidate.get('rank')} "
+                f"score={candidate.get('score') or candidate.get('distance')} "
+                f"canonical_thread_id={candidate.get('canonical_thread_id') or resolved.get('canonical_thread_id')} "
+                f"title={candidate.get('title') or resolved.get('title')}"
+            )
 
     if source == "db":
         db = payload.get("db_match") or {}
@@ -60,8 +86,15 @@ def print_result(payload: dict, as_json: bool) -> None:
         if db:
             print(f"match_type: {db.get('match_type')}")
             print(f"title: {db.get('title')}")
-            print(f"online_thread_id: {db.get('online_thread_id')}")
-            print(f"canonical_thread_id: {db.get('canonical_thread_id')}")
+            print(f"provider_thread_id: {db.get('provider_thread_id') or db.get('online_thread_id')}")
+            print(f"archive_thread_id: {db.get('archive_thread_id') or db.get('canonical_thread_id')}")
+            if db.get("selected_source_id"):
+                print(f"selected_source_id: {db.get('selected_source_id')}")
+            if db.get("source_snapshot_count"):
+                print(f"source_snapshot_count: {db.get('source_snapshot_count')}")
+            snapshot_diag = db.get("source_snapshot_diagnostics") or {}
+            if snapshot_diag.get("warning"):
+                print(f"source_snapshot_warning: {snapshot_diag.get('warning')}")
             print(f"earliest_ts_utc: {db.get('earliest_ts_utc')}")
             print(f"latest_ts_utc: {db.get('latest_ts_utc')}")
             print(f"latest_role: {db.get('latest_role')}")
@@ -84,6 +117,25 @@ def print_result(payload: dict, as_json: bool) -> None:
                         f"ts_utc={turn.get('ts_utc')} role={turn.get('role')}:"
                     )
                     print(turn.get("text", ""))
+            turn_page = db.get("turn_page") or {}
+            if turn_page:
+                print(
+                    "turn_page: "
+                    f"start={turn_page.get('start_index')} "
+                    f"end={turn_page.get('end_index')} "
+                    f"returned={turn_page.get('returned_count')} "
+                    f"total={turn_page.get('total_count')} "
+                    f"exhausted={turn_page.get('exhausted')}"
+                )
+                next_cursor = turn_page.get("next_cursor")
+                if next_cursor:
+                    print(f"next_cursor: {next_cursor}")
+                for item in turn_page.get("items") or []:
+                    print(
+                        f"[{item.get('message_index')}] ts={item.get('ts')} "
+                        f"ts_utc={item.get('ts_utc')} role={item.get('role')}:"
+                    )
+                    print(item.get("text", ""))
         else:
             print("db_match: (none)")
 
@@ -118,6 +170,24 @@ def print_result(payload: dict, as_json: bool) -> None:
                     print("top_terms:")
                     for item in analysis["top_terms"]:
                         print(f"  {item.get('term')}: {item.get('count')}")
+                range_excerpt = analysis.get("range_excerpt") or {}
+                if range_excerpt:
+                    print(
+                        "range_excerpt: "
+                        f"thread_range={range_excerpt.get('thread_range')} "
+                        f"message_range={range_excerpt.get('message_range')} "
+                        f"lines={range_excerpt.get('stitched_line_count')}"
+                    )
+                if analysis.get("lines"):
+                    print("lines:")
+                    for line in analysis["lines"]:
+                        print(
+                            f"  L{line.get('thread_line')} "
+                            f"M{line.get('message_index')}:{line.get('message_line')} "
+                            f"{line.get('role')} "
+                            f"{line.get('ts_utc') or line.get('ts')}: "
+                            f"{line.get('text')}"
+                        )
                 if analysis.get("mentions"):
                     print("mentions:")
                     for mention in analysis["mentions"]:
@@ -135,6 +205,9 @@ def print_result(payload: dict, as_json: bool) -> None:
                         f"density={item.get('density_per_100_lines')} "
                         f"id={item.get('canonical_thread_id')} title={item.get('title')}"
                     )
+        return
+
+    if source == "mca":
         return
 
     if source == "web":

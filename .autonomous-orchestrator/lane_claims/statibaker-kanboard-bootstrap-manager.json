@@ -1,0 +1,9 @@
+{
+  "heartbeat_file": "heartbeat.statibaker-kanboard-bootstrap-manager.json",
+  "lane": "statibaker-kanboard-board-bootstrap",
+  "lane_claim": "Manager lane 1: bootstrap/verify Kanboard project, columns, swimlane assumptions, and local column-map artifact. Workers are optional only for independent sidecars with disjoint write sets.",
+  "orchestrator_id": "statibaker-kanboard-bootstrap-manager",
+  "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+  "status_file": "status.statibaker-kanboard-bootstrap-manager.json",
+  "timestamp": "2026-05-19T14:17:07Z"
+}

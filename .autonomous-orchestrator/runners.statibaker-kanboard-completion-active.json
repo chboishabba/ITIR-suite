@@ -1,0 +1,39 @@
+{
+  "defaults": {
+    "timeout_seconds": 3600,
+    "heartbeat_seconds": 30,
+    "max_log_lines": 2600,
+    "once": true
+  },
+  "runners": {
+    "itir-statibaker-kanboard-completion-supermanager": {
+      "lane": "statibaker-kanboard-completion-root",
+      "claim": "Supermanager monitor for the live Kanboard completion wave. Governance promotion is intentionally held until implementation/data manager lanes report."
+    },
+    "statibaker-kanboard-bootstrap-manager": {
+      "parent": "itir-statibaker-kanboard-completion-supermanager",
+      "lane": "statibaker-kanboard-board-bootstrap",
+      "claim": "Manager lane 1: bootstrap/verify Kanboard project, columns, swimlane assumptions, and local column-map artifact. Workers are optional only for independent sidecars with disjoint write sets."
+    },
+    "statibaker-kanboard-live-sync-manager": {
+      "parent": "itir-statibaker-kanboard-completion-supermanager",
+      "lane": "statibaker-kanboard-live-sync-apply",
+      "claim": "Manager lane 2: implement explicit one-way --apply sync from local runsheet JSON to Kanboard JSON-RPC. Workers are optional only for independent sidecars with disjoint write sets."
+    },
+    "statibaker-kanboard-idempotency-manager": {
+      "parent": "itir-statibaker-kanboard-completion-supermanager",
+      "lane": "statibaker-kanboard-idempotency-failure",
+      "claim": "Manager lane 3: prove repeated syncs are stable and local state is not corrupted by Kanboard failures. Workers are optional only for independent sidecars with disjoint write sets."
+    },
+    "statibaker-kanboard-report-dashboard-manager": {
+      "parent": "itir-statibaker-kanboard-completion-supermanager",
+      "lane": "statibaker-kanboard-sync-report-dashboard",
+      "claim": "Manager lane 4: expose sync outcome as a read-only StatiBaker artifact and query/dashboard surface. Workers are optional only for independent sidecars with disjoint write sets."
+    },
+    "statibaker-sensiblaw-bridge-source-manager": {
+      "parent": "itir-statibaker-kanboard-completion-supermanager",
+      "lane": "sensiblaw-statibaker-kanboard-source",
+      "claim": "Manager lane 5: ensure SensibLaw task memory/timeline bridge artifacts feed the same Kanboard plan/sync shape. Workers are optional only for independent sidecars with disjoint write sets."
+    }
+  }
+}

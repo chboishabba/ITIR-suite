@@ -1,0 +1,15 @@
+{
+  "defaults": {
+    "timeout_seconds": 3600,
+    "heartbeat_seconds": 30,
+    "max_log_lines": 2600,
+    "once": true
+  },
+  "runners": {
+    "statibaker-kanboard-stabilization-manager": {
+      "parent": "itir-statibaker-kanboard-completion-supermanager",
+      "lane": "statibaker-kanboard-coupled-stabilization",
+      "claim": "Coupled stabilization manager: close live apply validation, column-map/report/query gaps, apply-dependent idempotency tests, and pending dashboard surface. Do not spawn workers because the residuals share write surfaces and are sequential."
+    }
+  }
+}

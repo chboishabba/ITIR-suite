@@ -1,103 +1,17 @@
-import path from 'node:path';
-import type { ChatArchiveMessage } from '$lib/server/chatArchive';
 import { fetchThreadTail, fetchThreadTailBySourceThreadId } from '$lib/server/chatArchive';
-import { loadNarrativeComparison, type NarrativeComparisonReport, type NarrativeValidationReport } from '$lib/server/narrativeCompare';
-import type { ArgumentAnchor, ArgumentBadge, ArgumentClaim, ArgumentEdge, ArgumentFamily, ThreadArgumentsWorkbench } from '$lib/arguments/workbench';
+import { loadNarrativeComparison } from '$lib/server/narrativeCompare';
+import type { ChatArchiveMessage } from '$lib/server/chatArchive';
+import type { ThreadArgumentsWorkbench, ArgumentClaim, ArgumentEdge } from '$lib/arguments/workbench';
+import { addClaimCounterpoints, buildBadgeMap, buildEdges, buildFamilies, collectClaims } from '$lib/server/thread-arguments/claimGraph';
+import { buildAnchors, claimCandidates as computeClaimCandidates, findFamilySentenceSpan as computeFindFamilySentenceSpan } from '$lib/server/thread-arguments/spans';
 
-const THEME_ORDER = [
-  'cprs_blocking',
-  'woolworths_price',
-  'government_capacity',
-  'ets_delay_authority',
-  'fallacies'
-] as const;
-
-const FAMILY_META: Record<string, { label: string; color: string; keywords: string[] }> = {
-  cprs_blocking: {
-    label: 'CPRS blocking',
-    color: '#b54747',
-    keywords: ['cprs', 'greens', 'blocked', 'instability', 'momentum']
-  },
-  woolworths_price: {
-    label: 'Woolworths / price effects',
-    color: '#8d6a1a',
-    keywords: ['woolworths', 'grocery', 'direct cost pass-through', 'direct grocery impacts', 'cpi']
-  },
-  government_capacity: {
-    label: 'Majority vs minority government',
-    color: '#2e6f53',
-    keywords: ['majority government', 'minority government', 'germany', 'green parties']
-  },
-  ets_delay_authority: {
-    label: 'ETS authority wrappers',
-    color: '#4f46e5',
-    keywords: ['ross garnaut', 'imperfect ets', 'better than delay', 'kevin rudd']
-  },
-  fallacies: {
-    label: 'Fallacies / framing',
-    color: '#0f5b99',
-    keywords: ['logical fallacies', 'post hoc', 'false dilemma', 'counterfactual']
-  },
-  other: {
-    label: 'Other argument family',
-    color: '#6b7280',
-    keywords: []
-  }
-};
-
-function familyMeta(familyId: string): { label: string; color: string; keywords: string[] } {
-  if (Object.prototype.hasOwnProperty.call(FAMILY_META, familyId)) {
-    return FAMILY_META[familyId] as { label: string; color: string; keywords: string[] };
-  }
-  return FAMILY_META.other as { label: string; color: string; keywords: string[] };
-}
-
-type LoadedThread = {
-  canonicalThreadId: string;
-  sourceThreadId: string | null;
-  title: string | null;
-  total: number;
-  messages: ChatArchiveMessage[];
-};
+const COMPARISON_IDS = ['friendlyjordies_thread_extract', 'friendlyjordies_chat_arguments', 'friendlyjordies_authority_wrappers'] as const;
 
 function looksLikeOnlineConversationId(v: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
 }
 
-function normalizeText(value: string | null | undefined): string {
-  return String(value ?? '').replace(/\s+/g, ' ').trim();
-}
-
-function compactLower(value: string | null | undefined): string {
-  return normalizeText(value).toLowerCase();
-}
-
-function deriveFamilyId(predicateKey: string, surfaceText: string): string {
-  const normalized = compactLower(`${predicateKey} ${surfaceText}`);
-  if (normalized.includes('ross garnaut') || normalized.includes('imperfect ets') || normalized.includes('better than delay') || normalized.includes('kevin rudd')) {
-    return 'ets_delay_authority';
-  }
-  if (normalized.includes('woolworths') || normalized.includes('grocery') || normalized.includes('pass-through') || normalized.includes('cpi')) {
-    return 'woolworths_price';
-  }
-  if (normalized.includes('majority government') || normalized.includes('minority government') || normalized.includes('germany')) {
-    return 'government_capacity';
-  }
-  if (normalized.includes('fallacies') || normalized.includes('post hoc') || normalized.includes('false dilemma')) {
-    return 'fallacies';
-  }
-  if (
-    normalized.includes('cprs') ||
-    normalized.includes('greens blocked') ||
-    normalized.includes('climate policy instability') ||
-    normalized.includes('climate policy momentum')
-  ) {
-    return 'cprs_blocking';
-  }
-  return 'other';
-}
-
-async function loadThread(repoRoot: string, threadId: string): Promise<LoadedThread> {
+async function loadThread(repoRoot: string, threadId: string) {
   if (looksLikeOnlineConversationId(threadId)) {
     const mapped = await fetchThreadTailBySourceThreadId(repoRoot, threadId, { tail: 500 });
     return {
@@ -119,202 +33,6 @@ async function loadThread(repoRoot: string, threadId: string): Promise<LoadedThr
   };
 }
 
-function buildBadgeMap(messages: ChatArchiveMessage[], anchors: ArgumentAnchor[], claimsById: Map<string, ArgumentClaim>): ArgumentBadge[] {
-  return messages.map((message) => {
-    const messageAnchors = anchors.filter((row) => row.messageId === message.message_id);
-    const familyIds = Array.from(new Set(messageAnchors.map((row) => row.familyId)));
-    const claimIds = Array.from(new Set(messageAnchors.map((row) => row.claimId)));
-    const counterpointCount = claimIds.reduce((acc, id) => acc + (claimsById.get(id)?.counterpointIds.length ?? 0), 0);
-    return {
-      messageId: message.message_id,
-      claimCount: claimIds.length,
-      counterpointCount,
-      refCount: claimIds.reduce((acc, id) => acc + ((claimsById.get(id)?.receipts.length ?? 0) > 0 ? 1 : 0), 0),
-      abstentionCount: 0,
-      familyIds
-    };
-  });
-}
-
-function buildFamilies(claims: ArgumentClaim[], anchors: ArgumentAnchor[]): ArgumentFamily[] {
-  const map = new Map<string, ArgumentFamily>();
-  for (const claim of claims) {
-    const meta = familyMeta(claim.familyId);
-    const family = map.get(claim.familyId) ?? {
-      id: claim.familyId,
-      label: meta.label,
-      color: meta.color,
-      messageIds: [],
-      claimIds: []
-    };
-    family.claimIds.push(claim.id);
-    for (const anchor of anchors) {
-      if (anchor.claimId === claim.id && !family.messageIds.includes(anchor.messageId)) {
-        family.messageIds.push(anchor.messageId);
-      }
-    }
-    map.set(claim.familyId, family);
-  }
-  return Array.from(map.values()).sort((a, b) => {
-    const ai = THEME_ORDER.indexOf(a.id as (typeof THEME_ORDER)[number]);
-    const bi = THEME_ORDER.indexOf(b.id as (typeof THEME_ORDER)[number]);
-    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
-  });
-}
-
-function buildEdges(report: NarrativeComparisonReport, claimsByPropId: Map<string, string>): ArgumentEdge[] {
-  const edges: ArgumentEdge[] = [];
-  for (const row of report.comparison_links ?? []) {
-    const fromClaimId = claimsByPropId.get(row.left_proposition_id);
-    const toClaimId = claimsByPropId.get(row.right_proposition_id);
-    if (!fromClaimId || !toClaimId) continue;
-    edges.push({
-      id: row.link_id,
-      fromClaimId,
-      toClaimId,
-      kind: row.link_kind,
-      label: row.link_kind
-    });
-  }
-  return edges;
-}
-
-function claimCandidates(claim: ArgumentClaim): string[] {
-  const values = [
-    claim.surfaceText,
-    claim.normalizedText,
-    ...claim.receipts.filter((row) => row.kind === 'claim_text').map((row) => row.value),
-    ...claim.arguments.filter((row) => row.role === 'content').map((row) => row.value)
-  ]
-    .map((value) => normalizeText(value))
-    .filter((value) => value.length >= 12);
-  return Array.from(new Set(values)).sort((a, b) => b.length - a.length);
-}
-
-function sentenceChunks(text: string): Array<{ text: string; start: number; end: number }> {
-  const chunks: Array<{ text: string; start: number; end: number }> = [];
-  const pattern = /[^\n.!?]+(?:[.!?]+|\n+|$)/g;
-  let match: RegExpExecArray | null;
-  while ((match = pattern.exec(text)) !== null) {
-    const raw = match[0];
-    const trimmed = raw.trim();
-    if (!trimmed) continue;
-    const startOffset = raw.indexOf(trimmed);
-    const start = match.index + Math.max(0, startOffset);
-    const end = start + trimmed.length;
-    chunks.push({ text: trimmed, start, end });
-  }
-  return chunks.length ? chunks : [{ text, start: 0, end: text.length }];
-}
-
-function findFamilySentenceSpan(message: ChatArchiveMessage, claim: ArgumentClaim): { start: number; end: number; exact: boolean; preview: string } | null {
-  const haystack = message.text ?? '';
-  const meta = familyMeta(claim.familyId);
-  if (!meta.keywords.length) return null;
-  const chunks = sentenceChunks(haystack);
-  let best:
-    | { start: number; end: number; exact: boolean; preview: string; score: number; length: number }
-    | null = null;
-  for (const chunk of chunks) {
-    const lowered = chunk.text.toLowerCase();
-    const matched = meta.keywords.filter((keyword) => lowered.includes(keyword.toLowerCase()));
-    if (matched.length < 2) continue;
-    const candidate = {
-      start: chunk.start,
-      end: chunk.end,
-      exact: false,
-      preview: chunk.text,
-      score: matched.length,
-      length: chunk.text.length
-    };
-    if (!best || candidate.score > best.score || (candidate.score === best.score && candidate.length < best.length)) {
-      best = candidate;
-    }
-  }
-  return best ? { start: best.start, end: best.end, exact: false, preview: best.preview } : null;
-}
-
-function findLiteralSpan(message: ChatArchiveMessage, claim: ArgumentClaim): { start: number; end: number; exact: boolean; preview: string } | null {
-  const haystack = message.text ?? '';
-  const candidates = claimCandidates(claim);
-  for (const candidate of candidates) {
-    const idx = haystack.toLowerCase().indexOf(candidate.toLowerCase());
-    if (idx >= 0) {
-      return {
-        start: idx,
-        end: Math.min(haystack.length, idx + candidate.length),
-        exact: candidate === normalizeText(claim.surfaceText) || candidate === normalizeText(claim.normalizedText),
-        preview: candidate
-      };
-    }
-  }
-  return findFamilySentenceSpan(message, claim);
-}
-
-function buildAnchors(messages: ChatArchiveMessage[], claims: ArgumentClaim[]): ArgumentAnchor[] {
-  const anchors: ArgumentAnchor[] = [];
-  for (const claim of claims) {
-    for (const message of messages) {
-      const span = findLiteralSpan(message, claim);
-      if (!span) continue;
-      anchors.push({
-        id: `${claim.id}:${message.message_id}`,
-        claimId: claim.id,
-        familyId: claim.familyId,
-        messageId: message.message_id,
-        charStart: span.start,
-        charEnd: span.end,
-        exact: span.exact,
-        preview: span.preview
-      });
-      if (!claim.messageIds.includes(message.message_id)) claim.messageIds.push(message.message_id);
-    }
-  }
-  return anchors;
-}
-
-function addClaimCounterpoints(claims: ArgumentClaim[], edges: ArgumentEdge[]): void {
-  const claimsById = new Map(claims.map((row) => [row.id, row]));
-  for (const edge of edges) {
-    if (edge.kind !== 'undermines') continue;
-    const from = claimsById.get(edge.fromClaimId);
-    const to = claimsById.get(edge.toClaimId);
-    if (from && !from.counterpointIds.includes(edge.toClaimId)) from.counterpointIds.push(edge.toClaimId);
-    if (to && !to.counterpointIds.includes(edge.fromClaimId)) to.counterpointIds.push(edge.fromClaimId);
-  }
-}
-
-function collectClaims(report: NarrativeComparisonReport): { claims: ArgumentClaim[]; claimsByPropId: Map<string, string> } {
-  const claims: ArgumentClaim[] = [];
-  const claimsByPropId = new Map<string, string>();
-  for (const sourceId of Object.keys(report.reports ?? {})) {
-    const sourceReport: NarrativeValidationReport = report.reports[sourceId]!;
-    for (const proposition of sourceReport.propositions ?? []) {
-      const claimId = `${sourceId}:${proposition.proposition_id}`;
-      const surfaceText = proposition.anchor_text ?? proposition.arguments.map((row) => row.value).join(' ');
-      const familyId = deriveFamilyId(proposition.predicate_key, surfaceText);
-      const claim: ArgumentClaim = {
-        id: claimId,
-        sourceId,
-        propositionId: proposition.proposition_id,
-        familyId,
-        predicateKey: proposition.predicate_key,
-        propositionKind: proposition.proposition_kind,
-        normalizedText: surfaceText,
-        surfaceText,
-        arguments: proposition.arguments ?? [],
-        receipts: proposition.receipts ?? [],
-        counterpointIds: [],
-        messageIds: [],
-        confidenceLabel: proposition.receipts?.some((row) => row.kind === 'claim_text') ? 'claim_text grounded' : 'derived'
-      };
-      claims.push(claim);
-      claimsByPropId.set(proposition.proposition_id, claimId);
-    }
-  }
-  return { claims, claimsByPropId };
-}
-
 export async function loadThreadArgumentsWorkbench(repoRoot: string, threadId: string): Promise<ThreadArgumentsWorkbench> {
   const thread = await loadThread(repoRoot, threadId);
   const base: ThreadArgumentsWorkbench = {
@@ -331,12 +49,9 @@ export async function loadThreadArgumentsWorkbench(repoRoot: string, threadId: s
     defaultSelectedClaimIds: [],
     sourceThreadId: thread.sourceThreadId
   };
-  const narrativeThreadId = thread.sourceThreadId ?? thread.canonicalThreadId;
-  const comparisons = await Promise.all([
-    loadNarrativeComparison('friendlyjordies_thread_extract', { threadId: narrativeThreadId, threadTitle: thread.title }),
-    loadNarrativeComparison('friendlyjordies_chat_arguments', { threadId: narrativeThreadId, threadTitle: thread.title }),
-    loadNarrativeComparison('friendlyjordies_authority_wrappers', { threadId: narrativeThreadId, threadTitle: thread.title })
-  ]);
+  const comparisons = await Promise.all(
+    COMPARISON_IDS.map((comparisonId) => loadNarrativeComparison(comparisonId, { threadId: thread.sourceThreadId ?? thread.canonicalThreadId, threadTitle: thread.title }))
+  );
 
   const allClaims: ArgumentClaim[] = [];
   const claimsByPropId = new Map<string, string>();
@@ -359,6 +74,7 @@ export async function loadThreadArgumentsWorkbench(repoRoot: string, threadId: s
       unavailableReason: 'No argument overlay could be derived from this archive thread.'
     };
   }
+
   const anchors = buildAnchors(thread.messages, dedupedClaims);
   addClaimCounterpoints(dedupedClaims, allEdges);
   const claimsById = new Map(dedupedClaims.map((row) => [row.id, row]));
@@ -376,4 +92,16 @@ export async function loadThreadArgumentsWorkbench(repoRoot: string, threadId: s
     edges: allEdges,
     defaultSelectedClaimIds
   };
+}
+
+export function claimCandidates(claim: ArgumentClaim): string[] {
+  return computeClaimCandidates(claim);
+}
+
+export function findFamilySentenceSpan(message: ChatArchiveMessage, claim: ArgumentClaim) {
+  const span = computeFindFamilySentenceSpan(message, claim);
+  if (!span) {
+    return null;
+  }
+  return span;
 }

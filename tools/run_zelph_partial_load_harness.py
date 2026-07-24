@@ -16,7 +16,7 @@ import sys
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 
 TIME_PATTERN = re.compile(r"Time needed for partial loading:\s+([0-9hms.]+)")
@@ -75,6 +75,18 @@ def parse_args() -> argparse.Namespace:
         "--include-name-cases",
         action="store_true",
         help="Also run nameOfNode/nodeOfName selector cases.",
+    )
+    parser.add_argument(
+        "--manifest-v1-expected-mode",
+        choices=("direct", "fallback_or_ok", "ok"),
+        default="fallback_or_ok",
+        help="Acceptance mode for v1 manifest chunk cases. Default keeps v1 migration fallback-tolerant.",
+    )
+    parser.add_argument(
+        "--manifest-v2-expected-mode",
+        choices=("direct", "fallback_or_ok", "ok"),
+        default="direct",
+        help="Acceptance mode for v2 manifest chunk cases. Default requires direct shard-path success.",
     )
     parser.add_argument(
         "--output-json",
@@ -230,6 +242,8 @@ def build_case_matrix(
     manifest_v2: Path,
     shard_root: Path,
     include_name_cases: bool,
+    manifest_v1_expected_mode: str = "fallback_or_ok",
+    manifest_v2_expected_mode: str = "direct",
 ) -> list[HarnessCase]:
     cases = [
         HarnessCase(
@@ -253,7 +267,7 @@ def build_case_matrix(
         HarnessCase(
             "manifest_v1_left0",
             f".load-partial {manifest_v1} left=0 right=none nameOfNode=none nodeOfName=none manifest={manifest_v1}",
-            "fallback_or_ok",
+            manifest_v1_expected_mode,
             artifact_kind="manifest",
         ),
         HarnessCase(
@@ -265,7 +279,7 @@ def build_case_matrix(
         HarnessCase(
             "manifest_v2_left0",
             f".load-partial {manifest_v2} left=0 right=none nameOfNode=none nodeOfName=none manifest={manifest_v2} shard-root={shard_root}",
-            "fallback_or_ok",
+            manifest_v2_expected_mode,
             artifact_kind="manifest",
         ),
     ]
@@ -282,13 +296,13 @@ def build_case_matrix(
                 HarnessCase(
                     "manifest_v1_nameOfNode0",
                     f".load-partial {manifest_v1} left=none right=none nameOfNode=0 nodeOfName=none manifest={manifest_v1}",
-                    "fallback_or_ok",
+                    manifest_v1_expected_mode,
                     artifact_kind="manifest",
                 ),
                 HarnessCase(
                     "manifest_v2_nameOfNode0",
                     f".load-partial {manifest_v2} left=none right=none nameOfNode=0 nodeOfName=none manifest={manifest_v2} shard-root={shard_root}",
-                    "fallback_or_ok",
+                    manifest_v2_expected_mode,
                     artifact_kind="manifest",
                 ),
                 HarnessCase(
@@ -300,13 +314,13 @@ def build_case_matrix(
                 HarnessCase(
                     "manifest_v1_nodeOfName0",
                     f".load-partial {manifest_v1} left=none right=none nameOfNode=none nodeOfName=0 manifest={manifest_v1}",
-                    "fallback_or_ok",
+                    manifest_v1_expected_mode,
                     artifact_kind="manifest",
                 ),
                 HarnessCase(
                     "manifest_v2_nodeOfName0",
                     f".load-partial {manifest_v2} left=none right=none nameOfNode=none nodeOfName=0 manifest={manifest_v2} shard-root={shard_root}",
-                    "fallback_or_ok",
+                    manifest_v2_expected_mode,
                     artifact_kind="manifest",
                 ),
                 HarnessCase(
@@ -318,13 +332,13 @@ def build_case_matrix(
                 HarnessCase(
                     "manifest_v1_left0_nameOfNode0",
                     f".load-partial {manifest_v1} left=0 right=none nameOfNode=0 nodeOfName=none manifest={manifest_v1}",
-                    "fallback_or_ok",
+                    manifest_v1_expected_mode,
                     artifact_kind="manifest",
                 ),
                 HarnessCase(
                     "manifest_v2_left0_nameOfNode0",
                     f".load-partial {manifest_v2} left=0 right=none nameOfNode=0 nodeOfName=none manifest={manifest_v2} shard-root={shard_root}",
-                    "fallback_or_ok",
+                    manifest_v2_expected_mode,
                     artifact_kind="manifest",
                 ),
             ]
@@ -337,6 +351,11 @@ def classify_result(artifact: Path, case: HarnessCase, exit_code: int, output: s
     had_repl_error = "Error in line" in output
     fallback_used = "falling back to sequential bin load" in output
     ok = exit_code == 0 and not had_repl_error
+    if case.expected_mode == "direct":
+        ok = ok and not fallback_used and (
+            "String pool size after partial load:" in output
+            or "Header-only manifest load complete." in output
+        )
     if case.expected_mode == "fallback_or_ok":
         ok = ok and (fallback_used or "String pool size after partial load:" in output or "Header-only manifest load complete." in output)
 
@@ -400,7 +419,15 @@ def main() -> int:
             artifact_dir=artifact_dir,
         )
 
-        for case in build_case_matrix(artifact, manifest_v1, manifest_v2, shard_root, args.include_name_cases):
+        for case in build_case_matrix(
+            artifact,
+            manifest_v1,
+            manifest_v2,
+            shard_root,
+            args.include_name_cases,
+            manifest_v1_expected_mode=args.manifest_v1_expected_mode,
+            manifest_v2_expected_mode=args.manifest_v2_expected_mode,
+        ):
             exit_code, output, elapsed = run_repl_command(zelph_bin, case.command)
             results.append(classify_result(artifact, case, exit_code, output, elapsed))
 

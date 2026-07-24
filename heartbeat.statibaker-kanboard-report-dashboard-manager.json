@@ -1,0 +1,12 @@
+{
+  "agent_name": "docs-implement",
+  "blocker": null,
+  "child_pid": 1799390,
+  "current_step": "1. Implement `dashboard-surface` by loading latest sync report into `sb.dashboard` summary + HTML metrics, then run focused dashboard/query tests.",
+  "exit_code": 0,
+  "last_heartbeat": "2026-05-19T14:23:19Z",
+  "phase": "done",
+  "progress": null,
+  "skill": "long-running-development",
+  "state": 0
+}

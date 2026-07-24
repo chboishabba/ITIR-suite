@@ -11,6 +11,23 @@ ITIR-suite orchestration role and boundaries:
 - `docs/planning/workspace_coordination_boundary_20260327.md`
   (when to keep work multi-repo vs create a new top-level project dir)
 
+## PNF / ITIR Typed Predicate Carrier
+
+Canonical public primer:
+- `SensibLaw/docs/pnf_itir_primer.md`
+- `docs/planning/itir_flatness_doctrine_20260703.md`
+- `docs/planning/pnf_zelph_wd_linkage_depth_contract_20260703.md`
+
+The primer explains Predicate Normal Form as the ITIR typed predicate carrier,
+including implemented carrier fields, residual comparison, current public use
+sites, and authority boundaries.
+
+## Chat Archive Export
+
+DB-backed export roadmap for canonical chat archive threads, including the
+Perplexity replacement path for broken provider Markdown/PDF exports:
+- `docs/planning/chat_archive_db_exporter_roadmap_20260516.md`
+
 ## Validation (Stub)
 
 The context envelope validation stub lives at:
@@ -67,6 +84,48 @@ Background-agent routing and validation:
 Shareable technical framing for external collaborators:
 - `docs/planning/zelph_handoff_index_20260324.md`
 - `docs/planning/zelph_external_handoff_20260320.md`
+- `docs/planning/zelph_develop_sparql_partial_load_readiness_20260702.md`
+- `docs/planning/itir_flatness_doctrine_20260703.md`
+- `docs/planning/itir_wd_zelph_sensiblaw_flatness_optimisation_roadmap_20260702.md`
+- `docs/planning/pnf_zelph_wd_linkage_depth_contract_20260703.md`
+
+Current WD/Zelph follow-through:
+- treat visible HF shards as data-present, not acceptance-ready, until the
+  blessed `develop` binary, manifest, and route-sidecar contract are confirmed
+- diagnose graph flatness as a cross-ontology linkage-depth problem before
+  renderer work
+- distinguish `linkage flatness` from `render flatness`
+- use PNF x Zelph/WD as the first external bridge contract, without letting WD
+  redefine flatness
+- keep WD/reconciliation optimisation behind direct partial-load and graph
+  diagnostic baselines
+- the 2026-07-15 prioritised implementation tranche is recorded in
+  `itir_wd_zelph_sensiblaw_flatness_optimisation_roadmap_20260702.md` under
+  `Phase H`: remote manifests, bounded slices, completeness states, generic
+  world-model/receipt integration, entity/event linking, then domain pressure
+  checks
+
+Generic compiler-convergence plan (2026-07-16):
+- `docs/planning/generic_world_model_compiler_convergence_20260716.md`
+  - treats Nat, Peter/Ege/Rosario, GWB, AU, Brexit, and Affidavit as proving
+    tranches for one generic world-model compiler;
+  - sequences replay symmetry, supplied observations, bounded closure,
+    cohort-derived DSP, governed ontology diagnostics, multi-view pressure,
+    and routed Zelph transport;
+  - separates runtime graph obligations from DASHI's formal fail-closed and
+    non-authority laws.
+
+## Cross-Source Event Braid (2026-07-05)
+
+Current GWB proving-ground notes for multi-document event extraction,
+reconciliation, and partial-order timeline stitching:
+- `docs/planning/gwb_linkage_artifact_audit_20260705.md`
+- `docs/planning/gwb_cross_document_event_braid_20260705.md`
+
+Current rule:
+- preserve `source -> event -> relation -> review` lineage first
+- then build cross-document event reconciliation and ordering
+- only then treat renderer or presentation issues as the next layer
 
 ## Wikidata Hotspot Benchmark Lane (2026-03-25)
 
@@ -95,6 +154,18 @@ across core components.
 Documents:
 - `docs/planning/ui_surface_registry_20260208.md`
 - `docs/planning/ui_surface_manifest.json`
+
+## ITIR / SensibLaw PlantUML Bundle
+
+`docs/planning/itir_sensiblaw_service_architecture_plantuml_20260328.puml` is
+the repo-owned architecture bundle for the current ITIR / SensibLaw surface.
+In plain language, it shows how intake, processing, identity, graph,
+alignment, obligation handling, output, and governance fit together across the
+main system views.
+
+The adjacent `.svg` and `.png` exports are the shipped renderings for that
+bundle. Because the source file contains multiple `@startuml` views, PlantUML
+emits a numbered set of image files for the extra views.
 
 ## UI Integration Strategy (2026-02-08)
 
@@ -171,6 +242,7 @@ options and recommended hybrid model (shared runtime, SL-governed semantics).
 
 Document:
 - `docs/planning/reducer_ownership_contract_20260208.md`
+- `docs/planning/shared_reducer_relational_bundle_contract_20260407.md`
 
 ## ITIR Consumption Matrix (2026-02-08)
 

@@ -1,4 +1,7 @@
 # ITIR-suite
+## Intergenerational Trauma-Informed Identity Rebuilder
+
+![ITIR-suite banner](docs/assets/itir-suite-banner.png)
 
 ITIR-suite is the top-level workspace for a set of tools that help capture,
 organize, review, and hand off difficult material without losing provenance.
@@ -98,11 +101,113 @@ Web-surface control note:
 - root follow-up and sequencing live in [TODO.md](TODO.md) and
   [itir-svelte/README.md](itir-svelte/README.md)
 
+The current suite-level integration doctrine is now MCP-first and guarded:
+
+- MCP is the canonical contract layer for cross-project tool consumption
+- bridge or HTTP shells are transport details, not alternate semantics
+- consequential tool use should flow through guarded evaluation surfaces
+  rather than raw direct calls
+- policy, explanation, and receipts are intended to stay normalized rather
+  than split across separate ad hoc client behaviors
+- managed-host evidence and rollout lanes are higher-trust internal surfaces
+- that managed-host class now explicitly includes both Windows and Linux
+  evidence/evaluate/plan/apply lanes
+- public repo/social discovery lanes are lower-trust candidate-risk surfaces
+  that may propose follow obligations but do not authorize action on their own
+- `WorldMonitor` and `OpenRecall` integrations now consume `itir.*` tools through
+  the MCP seam only, with no duplicated core comparison or policy logic in
+  either client. The consumer-side contract is adapter-only: normalize inputs,
+  call ITIR/MCP, then expose bounded outputs plus receipts.
+
 That same normalization rule is now explicit across the main `SensibLaw` lanes:
 
 - AU legal/hearing material
 - GWB public-source linkage material
 - Wikidata migration/review material
+
+The current P0 compiler spine begins before review-target selection. Canonical
+source spans and shared language annotations produce a locally typed candidate
+world fragment and cheap partial PNF. Coverage pressure seeks meaningful
+entities and eventualities; closure pressure prioritizes deeper evidence needed
+to reduce PNF residuals. A registry-neutral broker interleaves local work with
+deduplicated, cache-aware, backend-rate-limited microbatches; typed evidence
+then refines factorized PNF alternatives before targeting or promotion. The
+meaningful span space remains recoverable without eagerly materializing every
+contiguous span. Candidate identity, resolved identity, and promoted fact stay
+separate. Wikidata and WorldMonitor remain optional revisioned evidence
+backends. Event observations, occurrences, clusters, forecasts, reports, and
+rolling states remain distinct and reconcile through typed obligations rather
+than a scalar similarity score.
+The canonical implementation note is
+[SensibLaw/docs/planning/pnf_driven_entity_resolution_spine_20260717.md](SensibLaw/docs/planning/pnf_driven_entity_resolution_spine_20260717.md).
+The first generic corpus scale-out is now also specified as a directory kernel:
+it inventories a bounded directory, invokes one shared per-document compiler,
+persists content-addressed local artifacts, and emits unresolved-demand groups
+without network resolution, promotion, or silent cross-document identity joins.
+See [SensibLaw/docs/planning/directory_compilation_kernel_20260718.md](SensibLaw/docs/planning/directory_compilation_kernel_20260718.md).
+Its first parser-consolidation slice is now implemented: one canonical
+SensibLaw parser constructs rule/structure nodes, while the historical parser
+module remains a compatibility projection for existing callers.
+The first generic entity-resolution carrier slice now preserves anchored
+mentions, candidate sets, and document-local coreference under a strict
+candidate-only authority boundary; it does not resolve or promote identities.
+P0b.3 adds bounded expansion requests over the recoverable token lattice.
+Alias hints, structural grammar, and future PNF work can request a verified
+canonical token interval without asserting that an alias, interpretation, or
+identity is correct. The resulting mention/license remains candidate-only;
+structural-grammar production, PNF construction, and registry retrieval remain
+separate later stages.
+P0b.4 adds a backend-free alias-index input adapter. Caller-supplied,
+provenance-bearing canonical token sequences produce exact `alias_hint`
+expansion requests only: they carry no QID, selected candidate, registry
+lookup, identity assertion, PNF mutation, or promotion effect. Thus `9 / 11`
+can remain a reviewable surface span without being silently treated as `911`
+or as any particular event.
+P0b.5 adds a parser-interface-only structural-grammar adapter. It emits
+maximal annotated nominal phrases as bounded `grammar_phrase` requests, with
+their profile and context, but makes no entity/role/PNF decision and no
+registry call. Missing annotation produces no invented phrase boundary.
+P0b.6 adds offline bounded candidate retrieval. It compares anchored mention
+surfaces with a caller-supplied, provenance-bearing catalog in the canonical
+token space and preserves explicit zero/one/many candidate alternatives. It
+does not rank or resolve an identity, call a registry, change PNF, or promote a
+claim; in particular, `9 / 11` remains distinct from `911`.
+
+P0b.7 adds generic form derivation before semantic typing and registry
+retrieval. It keeps surface, token, numeric, date-shaped, abbreviation, and
+profile-derived alternatives separate as declared form relations; deterministic
+serialization never encodes a preferred entity, event, or interpretation.
+
+P0b.8 adds candidate-only local typing and coverage pressure above those form
+alternatives. Generic structure supplies numeric quantity, abbreviation,
+calendar-expression, and linguistic-eventuality alternatives; profiles may add
+other local type alternatives with provenance, but cannot resolve identity,
+construct PNF closure, query a registry, or promote a fact.
+
+P0c.1 adds document-bounded factorized `PartialPNF` slots and closure-pressure
+receipts. They bind only compatible local type alternatives, never materialize
+candidate combinations or select identities; a later generic stage may derive
+budgeted demands solely from the recorded closure states.
+
+P0c.2 now derives those demands as source-anchored, facet-specific,
+budget-labelled plans. They remain backend-free and cannot select a candidate,
+mutate PNF, or promote a claim.
+
+P0c now has typed resolution subjects and explicit event roles before
+scheduling. Entity, event type, occurrence, observation/cluster/forecast/
+report/alert/state artifacts, document-local clusters, and properties or
+relations cannot be deduplicated merely because their surface text matches;
+reuse requires an equal semantic demand key. Current grouping is a receipt of
+potential reuse only; no scheduler, cache mutation, or request exists yet.
+The completed P0b.1 follow-on licenses non-structural lexical, numeric,
+name-shaped, and adapter-annotated eventuality spans through the public
+parser/reducer interfaces while retaining a deterministic full-lattice and
+structural-suppression receipt. It remains backend-free and candidate-only.
+
+P0b.2 adds a distinct candidate-safe recurrence receipt: only repeated
+case-folded, whitespace-normalized generated surfaces are grouped, and only
+within one document. Such recurrence is evidence for later work, not an alias,
+coreference, identity decision, PNF mutation, or promotion.
 
 The Wikidata/Nat lane is still review-first overall, but its handoff docs now
 separately track candidate-level promotion gates and post-write verification
@@ -149,6 +254,20 @@ That means the immediate global-source program should prefer:
   translations
 - deterministic identifiers, structured retrieval, and clear provenance
 
+For document-like evidence, "structured retrieval" is now read more strictly
+than `vector + file path`.
+
+The intended substrate is:
+
+- raw document retained
+- canonical text retained
+- text revision identity retained
+- derived chunk refs anchored by exact span/offset into canonical text
+
+That stronger shape is what allows the suite to reconstruct exact evidence,
+re-run evaluation deterministically, and emit compliance/legal receipts that
+are replayable and challengeable.
+
 High-value multilingual exceptions are allowed when they are known to be well
 translated or stably parallelized, for example:
 
@@ -192,6 +311,10 @@ Full-flow read at moonshot:
    time where justified
 8. analyze commonality, disjointness, conflict, and dependency structure
 9. preserve challengeability, replay, and anti-panopticon constraints
+
+The bounded planning note for that document-evidence rule is:
+
+- [docs/planning/canonical_text_span_evidence_contract_20260407.md](docs/planning/canonical_text_span_evidence_contract_20260407.md)
 
 Current P0 control read:
 
@@ -275,8 +398,12 @@ Hard boundaries:
 
 - no person-scoring or predictive judgment
 - no hidden cross-context identity resolution
+- document-local coreference and bounded entity candidates are permitted when
+  span-anchored, explicit, reversible, and non-promoting; cross-context joins
+  remain opt-in review proposals
 - no silent promotion of derived graphs into truth
 - no replacement of primary legal authority with support summaries
+- no forced cross-user merged memory as a default system surface
 
 See:
 
@@ -463,6 +590,10 @@ and [chat-export-structurer/README.md](chat-export-structurer/README.md).
   [docs/planning/itir_orchestrator.md](docs/planning/itir_orchestrator.md)
 - architecture boundary doctrine:
   [docs/architecture/admissibility_lattice.md](docs/architecture/admissibility_lattice.md)
+- `Phi` composition / admissibility / MDL boundary:
+  [docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md](docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md)
+- legal graph relation taxonomy:
+  [docs/planning/legal_graph_relation_taxonomy_20260417.md](docs/planning/legal_graph_relation_taxonomy_20260417.md)
 - JMD x SensibLaw truth-construction boundary:
   [docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md](docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md)
 - motif candidate / promotion / legal-tree boundary:
@@ -471,8 +602,6 @@ and [chat-export-structurer/README.md](chat-export-structurer/README.md).
   [docs/planning/latent_state_over_promoted_truth_20260327.md](docs/planning/latent_state_over_promoted_truth_20260327.md)
 - global latent legal state across systems:
   [docs/planning/global_latent_legal_state_cross_system_20260327.md](docs/planning/global_latent_legal_state_cross_system_20260327.md)
-- Mirror Telegram support-layer boundary:
-  [docs/planning/mirror_telegram_support_layer_boundary_20260401.md](docs/planning/mirror_telegram_support_layer_boundary_20260401.md)
 - `Phi` mapping and latent graph schema:
   [docs/planning/phi_mapping_and_latent_graph_schema_20260328.md](docs/planning/phi_mapping_and_latent_graph_schema_20260328.md)
 - all-sources `FactBundle` / reconciliation boundary:
@@ -554,6 +683,18 @@ and [chat-export-structurer/README.md](chat-export-structurer/README.md).
 
 - one-shot publish plus verify:
   `scripts/run_zkperf_stream_hf.sh --fixture <path-to-zkperf-stream-json>`
+- one-shot publish plus verify from raw observation rows:
+  `scripts/run_zkperf_stream_hf.sh --observations <path-to-zkperf-observation-json-or-ndjson>`
+
+In plain language, this lane is now split so each responsibility stays small:
+build the stream window from observations, keep the latest/indexed retained
+state, and handle remote publish/resolve transport separately.
+
+Current module split for this lane:
+- `itir_jmd_bridge/zkperf_stream_core.py`
+- `itir_jmd_bridge/zkperf_stream_index.py`
+- `itir_jmd_bridge/zkperf_stream_transport.py`
+- `itir_jmd_bridge/zkperf_stream.py` as the compatibility facade
 
 ### Proven example and handoff docs
 
@@ -614,10 +755,40 @@ updated pointer in this root repo.
 
 - `./setup.sh`: initialize and update submodules
 - `./env_init.sh`: build an optional root compatibility venv
+- `./scripts/gitin-recursive.sh`: fast-forward pull the root repo, then sync
+  and update submodules to the pinned commits recorded by the root repo while
+  reporting any branch-attached submodule drift
+- `./scripts/gitout-recursive.sh`: pull, commit, and push dirty repos
+  recursively, with submodules first and explicit diverged-branch reporting
 - `./scripts/sync_chat_context.sh`: sync conversation context into
   `__CONTEXT/last_sync/`
 - `python scripts/build_docs_site.py`: build a lightweight local index of the
   repo's markdown docs under `docs/_site/`
+
+## Prime Index / Zelph helpers
+
+- `tools/prime_index.py`: SL → prime-exponent index with Hecke signature, Δ-cone admissibility, MDL upper-bound pruning, and Zelph export helpers
+- `tools/prime_index_cli.py`: CLI to build a Zelph bundle from SL-style facts JSON
+- `scripts/export_sl_facts_to_zelph.py`: job-runner friendly exporter for promoted SL facts in JSON or JSONL
+- `SensibLaw/scripts/query_fact_review.py zelph-export`: normalized operator-path export over a persisted fact-review run
+
+Usage:
+```bash
+/home/c/Documents/code/ITIR-suite/.venv/bin/python tools/prime_index_cli.py path/to/facts.json -o out.json
+```
+`facts.json` may be a list of fact objects or `{"facts": [...]}`. Output conforms to `schemas/zelph_input.schema.json`.
+
+For pipeline/job use:
+```bash
+/home/c/Documents/code/ITIR-suite/.venv/bin/python scripts/export_sl_facts_to_zelph.py path/to/promoted_facts.jsonl -o out.json
+```
+
+The exporter also accepts a full SensibLaw fact-review workbench payload and carries a full spaCy parse tree into each emitted Zelph fact.
+
+For a persisted fact-review run:
+```bash
+/home/c/Documents/code/ITIR-suite/.venv/bin/python SensibLaw/scripts/query_fact_review.py --db-path path/to/itir.sqlite zelph-export --run-id <run_id> -o out.json
+```
 
 ## Advanced Environment Note
 

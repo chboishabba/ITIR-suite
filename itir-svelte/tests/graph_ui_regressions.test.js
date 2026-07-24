@@ -50,14 +50,17 @@ test('wikiTimelineAoo overlays richer HCA AAO events onto DB-backed metadata whe
 });
 
 test('chat archive path resolver falls back to non-dot chat archive path', () => {
-  const s = read('src/lib/server/chatArchive.ts');
-  assert.ok(s.includes('ITIR_CHAT_ARCHIVE_DB_PATH'));
-  assert.ok(s.includes('CHAT_ARCHIVE_DB_PATH'));
-  assert.ok(s.includes('resolveChatArchiveCandidates'));
-  assert.ok(s.includes("'/tmp/dashig_chat_archive_latest.sqlite'"));
-  assert.ok(s.includes("'.chat_archive.sqlite'"));
-  assert.ok(s.includes("'chat_archive.sqlite'"));
-  assert.ok(s.indexOf("'chat_archive.sqlite'") < s.indexOf("'/tmp/dashig_chat_archive_latest.sqlite'"));
+  const runtime = read('src/lib/server/runtime/pathCandidates.ts');
+  const adapter = read('src/lib/server/chatArchive.ts');
+  assert.ok(runtime.includes('ITIR_CHAT_ARCHIVE_DB_PATH'));
+  assert.ok(runtime.includes('CHAT_ARCHIVE_DB_PATH'));
+  assert.ok(runtime.includes('gatherChatArchiveCandidates'));
+  assert.ok(runtime.includes("'/tmp/dashig_chat_archive_latest.sqlite'"));
+  assert.ok(runtime.includes("'.chat_archive.sqlite'"));
+  assert.ok(runtime.includes("'chat_archive.sqlite'"));
+  assert.ok(runtime.indexOf("'chat_archive.sqlite'") < runtime.indexOf("'/tmp/dashig_chat_archive_latest.sqlite'"));
+  assert.ok(adapter.includes('resolveChatArchiveCandidates'));
+  assert.ok(adapter.includes('gatherChatArchiveCandidates'));
 });
 
 test('LayeredGraph keeps dashed Source/Lens line style but gates it for performance', () => {

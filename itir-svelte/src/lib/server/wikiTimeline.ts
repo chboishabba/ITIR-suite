@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
+import { gatherWikiDbCandidates } from '$lib/server/runtime/pathCandidates';
 
 export type TimelineAnchor = {
   year: number;
@@ -29,19 +30,23 @@ function isObj(v: unknown): v is Record<string, unknown> {
 }
 
 let warnedLegacyTimelineDbEnv = false;
+const LEGACY_DB_VARS = new Set(['SL_WIKI_TIMELINE_DB', 'SL_WIKI_TIMELINE_AOO_DB']);
 
 function resolveItirDbPath(repoRoot: string, explicitDbEnv?: string | null): string {
-  const modern = explicitDbEnv && explicitDbEnv.trim() ? explicitDbEnv.trim() : process.env.ITIR_DB_PATH?.trim();
-  if (modern) return path.resolve(repoRoot, modern);
-  const legacy = process.env.SL_WIKI_TIMELINE_DB?.trim() || process.env.SL_WIKI_TIMELINE_AOO_DB?.trim();
-  if (legacy) {
-    if (!warnedLegacyTimelineDbEnv) {
-      warnedLegacyTimelineDbEnv = true;
-      console.warn('SL_WIKI_TIMELINE_DB / SL_WIKI_TIMELINE_AOO_DB is deprecated; use ITIR_DB_PATH.');
-    }
-    return path.resolve(repoRoot, legacy);
+  const candidates = gatherWikiDbCandidates(repoRoot, explicitDbEnv);
+  const selected = candidates[0];
+  if (!selected) {
+    return path.resolve(repoRoot, '.cache_local', 'itir.sqlite');
   }
-  return path.resolve(repoRoot, '.cache_local', 'itir.sqlite');
+  if (
+    !warnedLegacyTimelineDbEnv &&
+    selected.provenance.type === 'env' &&
+    LEGACY_DB_VARS.has(selected.provenance.envVar)
+  ) {
+    warnedLegacyTimelineDbEnv = true;
+    console.warn('SL_WIKI_TIMELINE_DB / SL_WIKI_TIMELINE_AOO_DB is deprecated; use ITIR_DB_PATH.');
+  }
+  return selected.path;
 }
 
 async function readStdout(cmd: string, args: string[], cwd: string): Promise<string> {

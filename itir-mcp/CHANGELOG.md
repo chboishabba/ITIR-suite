@@ -1,6 +1,38 @@
 # Changelog
 
 ## Unreleased
+- Added `itir.shard.bounded_graph_slice_plan`, a generic non-fetching plan
+  surface that reports selected logical coverage and declared payload cost
+  before a consumer decides to retrieve graph shard bytes.
+- add a generic bounded graph-slice transport view over revision-bound HF/Zelph
+  manifest contracts. It records the selected logical shard plan and declared
+  byte cost without fetching graph payloads, and remains explicitly incomplete,
+  candidate-only, and non-authoritative.
+- Added `itir_mcp.pnf_numeric_abi`, a narrow receipt-bearing
+  `itir.pnf.numeric_abi.v0_1` GEMV validation/parity helper. This is diagnostic
+  adapter plumbing only and does not materialize spectral PNF state,
+  eigenvectors, support authority, routing, or promotion.
+- Added the read-only PNF MCP family:
+  - `itir.pnf.context_index`
+  - `itir.pnf.task_memory_preview`
+  - `itir.pnf.observer_evidence`
+- Added OpenRecall/browser-assist observer evidence handling for PNF residuals
+  without task, runsheet, or Kanboard mutation.
+- Added the docstore/Obsidian MCP family:
+  - `itir.docstore.status`
+  - `itir.docstore.open_questions`
+  - `itir.obsidian.vault_scan`
+  - `itir.docstore.proposal_receipt`
+  - `itir.markdown.render_projection`
+  - `itir.markdown.write_projection`
+  - `itir.docstore.config_plan`
+- Added producer-pressure adapters for SensibLaw review/operator surfaces,
+  StatiBaker dashboard/codex traces, and explicit generated-artifact
+  normalized-artifact gaps.
+- Added generated Markdown projection rendering/writing for
+  `_ITIR/generated/...` pages with replaceable generated blocks.
+- Added an Obsidian plugin scaffold under `obsidian-itir-plugin/` with bundle
+  export, settings, status pane commands, and refresh actions.
 - Added the initial `itir-mcp` scaffold with:
   - a namespaced tool/spec registry
   - SensibLaw-backed read-only tool adapters

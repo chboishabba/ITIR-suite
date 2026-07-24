@@ -38,6 +38,12 @@ class ToolExecutionError(ToolError):
     code = "execution_error"
 
 
+class ToolPolicyError(ToolError):
+    """Raised when a tool call is rejected by guard policy."""
+
+    code = "policy_reject"
+
+
 def success_payload(payload: JsonDict) -> BridgeResponse:
     """Wrap a successful tool result in the stable MCP bridge envelope."""
 

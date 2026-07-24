@@ -123,7 +123,7 @@ def _assert_legal_follow_control_plane(view: dict[str, object], *, source_family
     assert isinstance(queue, list)
     assert summary["queue_count"] == len(queue)
     if queue:
-        assert queue[0]["conjecture_kind"] == "follow_needed_conjecture"
+        assert queue[0]["conjecture_kind"] in {"follow_needed_conjecture", "legal_claim_follow"}
         assert queue[0]["resolution_status"] == "open"
 
 

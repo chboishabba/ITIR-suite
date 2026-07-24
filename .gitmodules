@@ -36,7 +36,7 @@
 	url = https://github.com/ufal/whisper_streaming.git
 [submodule "openrecall"]
 	path = openrecall
-	url = https://github.com/openrecall/openrecall.git
+	url = https://github.com/chboishabba/openrecall.git
 [submodule "doctr"]
 	path = doctr
 	url = https://github.com/mindee/doctr.git
@@ -45,7 +45,7 @@
 	url = https://github.com/chboishabba/SeaMeInIt.git
 [submodule "aur/zelph"]
 	path = aur/zelph
-	url = https://github.com/acrion/zelph.git
+	url = https://github.com/chboishabba/zelph.git
 [submodule "JesusCrust"]
 	path = JesusCrust
 	url = https://github.com/chboishabba/JesusCrust.git

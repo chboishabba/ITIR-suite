@@ -46,7 +46,16 @@
 ## Chunk naming
 - Shard object path pattern:
   - `shards/<section>/chunk-<chunkIndex>.capnp-packed`
-- `chunkIndex` is file-local to the section/chunk family.
+- Historical note: this contract originally treated `chunkIndex` as file-local
+  to the section/chunk family.
+- Current post-fix expectation for WD name sections:
+  - `nameOfNode` chunk indices are section-global
+  - `nodeOfName` chunk indices are section-global
+  - ITIR tooling must not assume a per-language restart for name-section chunk
+    identity
+- Adjacency sections (`left`, `right`) still use section-scoped chunk selectors
+  for manifest selection. Regenerated artifacts may still change chunk
+  identity, so manifests/indexes remain the runtime source of truth.
 
 ## Capabilities
 - Both layouts expose:
@@ -68,11 +77,33 @@
   - manifest identity fields (`createdAtUtc`, `path`, checksums when available)
 - For `v1`, chunk-level cache keys should include `(offset,length)` in the local range fetch layer.
 
+### Manifest revalidation note (2026-07-14)
+
+Manifests and payload ranges must not share the same cache policy. A manifest
+fetch with an open-ended length (`length=0`) can otherwise remain indefinitely
+stale after an in-place manifest patch. This caused a consumer to continue
+reading the superseded local `source.binPath` even though the Hub manifest had
+already been changed to an `hf://` URI.
+
+Required follow-up for the loader/cache implementation:
+
+- revalidate manifest objects before reusing an open-ended manifest cache entry;
+- include the Hub revision or ETag in the manifest cache identity;
+- retain shard/header range caches as immutable only when bound to the same
+  manifest/object revision;
+- preserve explicit `source-bin` as an override for controlled offline or
+  alternate-source loads.
+
+Immediate operational recovery for a stale manifest cache is to remove the
+generated manifest cache entry and refetch it; shard payload caches do not need
+to be discarded solely because the manifest metadata changed.
+
 ## Limitations
 - v1:
   - still monolithic `.bin`
   - patcher for direct seeks is still landing
-  - file-local chunk identity
+  - historical file-local chunk identity assumptions are not authoritative for
+    post-fix WD name sections
 - v2:
   - hosted remote routed consumption now works against a real HF dataset repo
     after fixing:
@@ -116,3 +147,12 @@
   not re-proving hosted fetch.
 - concrete next-contract draft now lives in:
   - `docs/planning/zelph_hf_v3_shard_contract_20260326.md`
+
+## 2026-07-02 addendum
+
+Stefan's post-fix WD sharding changed name-section identity enough that older
+file-local/per-language chunkIndex wording must be treated as superseded for
+`nameOfNode` and `nodeOfName`. Current ITIR readiness is tracked in:
+
+- `docs/planning/zelph_develop_sparql_partial_load_readiness_20260702.md`
+- `docs/planning/itir_wd_zelph_sensiblaw_flatness_optimisation_roadmap_20260702.md`

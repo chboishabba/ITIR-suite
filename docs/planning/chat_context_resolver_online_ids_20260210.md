@@ -7,12 +7,26 @@ We routinely get "online IDs" that look like:
 
 These are **ChatGPT conversation IDs** (UUIDs).
 
-But `~/.chat_archive.sqlite` is keyed by:
+But `~/.chat_archive.sqlite` is internally keyed by:
 
 - `messages.canonical_thread_id` (an internal canonical ID, typically a hash-like string)
 
 and an online UUID will not match `canonical_thread_id` unless we also store an
 upstream ID in the archive.
+
+Terminology clarification:
+
+- `provider_thread_id` is the provider-owned conversation identity, such as a
+  ChatGPT `/c/<uuid>` or Perplexity `/search/<uuid>` UUID. This is the external
+  identity to use for live provider operations.
+- `archive_thread_id` is the local archive identity. The existing
+  `canonical_thread_id` column is a compatibility name for this value; for
+  provider-backed threads it is currently `sha1(platform|account_id|provider_thread_id)`.
+- `source_thread_id` is the storage column carrying the provider identity. It
+  remains the durable mapping from provider thread to archive thread.
+
+The resolver JSON now emits `provider_thread_id` and `archive_thread_id` in
+addition to the legacy `online_thread_id` and `canonical_thread_id` fields.
 
 ## Intended Behavior (Option 1: implement now)
 `scripts/chat_context_resolver.py` should support online UUID selectors without

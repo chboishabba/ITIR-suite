@@ -14,7 +14,10 @@ import json
 from pathlib import Path
 from typing import Any
 
-import cbor2
+try:
+    import cbor2
+except ModuleNotFoundError:  # pragma: no cover - exercised through CLI path.
+    cbor2 = None
 
 
 def parse_args() -> argparse.Namespace:
@@ -165,6 +168,18 @@ def attach_ipfs_refs(
         return
 
 
+def build_non_authority_block() -> dict[str, bool]:
+    return {
+        "artifact_transport_only": True,
+        "candidate_graph_logistics": True,
+        "truth_authority": False,
+        "support_authority": False,
+        "admissibility_authority": False,
+        "promotion_authority": False,
+        "complete_closure_authority": False,
+    }
+
+
 def flatten_sections(manifest: dict[str, Any]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     sections = manifest.get("sections", {})
@@ -274,6 +289,7 @@ def build_contract(
             "preferredReadSink": "hf",
             "preferredPublishSink": "ipfs",
         },
+        "nonAuthority": build_non_authority_block(),
         "shards": shards,
     }
     if routing_index is not None:
@@ -303,6 +319,8 @@ def main() -> int:
         handle.write("\n")
 
     if output_cbor is not None:
+        if cbor2 is None:
+            raise RuntimeError("CBOR output requires optional dependency: cbor2")
         output_cbor.parent.mkdir(parents=True, exist_ok=True)
         with output_cbor.open("wb") as handle:
             cbor2.dump(contract, handle)

@@ -87,12 +87,19 @@ def fetch_hf_object(
     hf_uri: str,
     revision: str | None = None,
     get: Callable[..., Any] | None = None,
+    range_header: str | None = None,
     timeout: float = 20.0,
 ) -> dict[str, Any]:
     reference = parse_hf_uri(hf_uri)
     caller = get or requests.get
     url = reference.resolve_url_for_revision(revision) if revision else reference.resolve_url
-    response = caller(url, allow_redirects=True, timeout=timeout)
+    request_kwargs: dict[str, Any] = {
+        "allow_redirects": True,
+        "timeout": timeout,
+    }
+    if range_header:
+        request_kwargs["headers"] = {"Range": range_header}
+    response = caller(url, **request_kwargs)
     if hasattr(response, "raise_for_status"):
         response.raise_for_status()
     content = response.content if hasattr(response, "content") else bytes(str(response), "utf-8")
@@ -123,6 +130,8 @@ def fetch_hf_object(
         "etag": effective_etag,
         "xRepoCommit": x_repo_commit,
         "contentLength": headers.get("content-length"),
+        "acceptRanges": headers.get("accept-ranges"),
+        "contentRange": headers.get("content-range"),
         "sha256": sha256(content).hexdigest(),
         "sizeBytes": len(content),
         "text": None if binary_like else content.decode("utf-8", "replace"),
@@ -135,18 +144,26 @@ def download_hf_object_bytes(
     hf_uri: str,
     revision: str | None = None,
     get: Callable[..., Any] | None = None,
+    range_header: str | None = None,
     timeout: float = 20.0,
 ) -> dict[str, Any]:
     reference = parse_hf_uri(hf_uri)
     caller = get or requests.get
     url = reference.resolve_url_for_revision(revision) if revision else reference.resolve_url
-    response = caller(url, allow_redirects=True, timeout=timeout)
+    request_kwargs: dict[str, Any] = {
+        "allow_redirects": True,
+        "timeout": timeout,
+    }
+    if range_header:
+        request_kwargs["headers"] = {"Range": range_header}
+    response = caller(url, **request_kwargs)
     if hasattr(response, "raise_for_status"):
         response.raise_for_status()
     content = response.content if hasattr(response, "content") else bytes(str(response), "utf-8")
     fetched = fetch_hf_object(
         hf_uri=hf_uri,
         revision=revision,
+        range_header=range_header,
         get=lambda *args, **kwargs: response,
     )
     return {

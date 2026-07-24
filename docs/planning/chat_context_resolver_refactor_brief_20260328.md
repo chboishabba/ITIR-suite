@@ -107,3 +107,33 @@ Remaining from this brief:
 
 - only minor shell-envelope cleanup or future contract tightening, not the
   original core seam extraction work
+
+## MCA Vector Integration Contract
+
+This resolver remains DB-first and lexical by default. MyChatArchive vector
+integration is optional and downstream of canonical
+archive resolution, not a replacement selector path.
+
+Performance runbook:
+[`docs/planning/chat_context_resolver_performance_runbook_20260605.md`](/home/c/Documents/code/ITIR-suite/docs/planning/chat_context_resolver_performance_runbook_20260605.md)
+captures the 2026-06-04 benchmark matrix and current operator guidance:
+prefer exact `--analyze-term --cross-thread` for archive-wide term ranking,
+use `--progress` for broad terms, and avoid regex/vector lanes as defaults.
+
+Implemented opt-in behavior:
+
+- `--semantic` asks MCA for semantic candidates, then resolves returned
+  canonical thread/message IDs through the archive context contract.
+- `--hybrid` combines archive FTS/exact matches with MCA semantic candidates.
+- `--mca-db` points at the MCA SQLite archive explicitly.
+- `--mca-limit` bounds semantic or hybrid candidate retrieval.
+
+Promotion gates:
+
+- [x] canonical archive rows can be imported into MCA idempotently
+- [ ] MCA embeddings are built from canonical message/chunk records, not Markdown
+  sidecars
+- [x] semantic results include source DB, canonical thread ID, message/chunk ID,
+  title, timestamp range, score/distance, and excerpt
+- [x] resolver JSON output is stable for `--semantic` and `--hybrid`
+- [x] no MCA/vector call happens unless an explicit semantic or hybrid flag is used

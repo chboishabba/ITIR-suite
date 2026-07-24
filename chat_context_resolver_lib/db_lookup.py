@@ -38,6 +38,9 @@ class DbMatch:
     thread_message_count: int
     matched_thread_count: int
     db_path: str
+    selected_source_id: Optional[str] = None
+    source_snapshot_count: int = 0
+    source_snapshot_diagnostics: Optional[dict] = None
 
     @property
     def latest_datetime(self) -> Optional[dt.datetime]:
@@ -130,44 +133,138 @@ def _query_thread_span(cur: sqlite3.Cursor, thread_id: str) -> tuple[int, Option
 
 
 def _fetch_latest_for_online_thread_id(
-    cur: sqlite3.Cursor, online_thread_id: str, *, require_text: bool = False
+    cur: sqlite3.Cursor,
+    online_thread_id: str,
+    *,
+    require_text: bool = False,
+    source_id: Optional[str] = None,
 ) -> Optional[tuple]:
     text_clause = ""
     if require_text:
         text_clause = "AND text IS NOT NULL AND TRIM(text) <> ''"
+    source_clause = ""
+    params: list[object] = [online_thread_id]
+    if source_id:
+        source_clause = "AND source_id = ?"
+        params.append(source_id)
 
     cur.execute(
         f"""
-        SELECT canonical_thread_id, source_thread_id, COALESCE(NULLIF(title, ''), '(no title)') AS title, ts, role, text
+        SELECT canonical_thread_id, source_id, source_thread_id, COALESCE(NULLIF(title, ''), '(no title)') AS title, ts, role, text
         FROM messages
         WHERE LOWER(source_thread_id) = LOWER(?)
+          {source_clause}
           {text_clause}
         ORDER BY ts DESC, rowid DESC
         LIMIT 1
         """,
-        (online_thread_id,),
+        tuple(params),
     )
     row = cur.fetchone()
     if row or not require_text:
         return row
-    return _fetch_latest_for_online_thread_id(cur, online_thread_id, require_text=False)
+    return _fetch_latest_for_online_thread_id(
+        cur,
+        online_thread_id,
+        require_text=False,
+        source_id=source_id,
+    )
 
 
 def _query_online_thread_span(
-    cur: sqlite3.Cursor, online_thread_id: str
+    cur: sqlite3.Cursor,
+    online_thread_id: str,
+    *,
+    source_id: Optional[str] = None,
 ) -> tuple[int, Optional[str], Optional[str]]:
+    source_clause = ""
+    params: list[object] = [online_thread_id]
+    if source_id:
+        source_clause = "AND source_id = ?"
+        params.append(source_id)
     cur.execute(
-        """
+        f"""
         SELECT COUNT(*) AS message_count, MIN(ts) AS earliest_ts, MAX(ts) AS latest_ts
         FROM messages
         WHERE LOWER(source_thread_id) = LOWER(?)
+          {source_clause}
         """,
-        (online_thread_id,),
+        tuple(params),
     )
     row = cur.fetchone()
     if not row:
         return 0, None, None
     return int(row["message_count"] or 0), row["earliest_ts"], row["latest_ts"]
+
+
+def _source_snapshot_diagnostics(cur: sqlite3.Cursor, online_thread_id: str) -> tuple[Optional[str], int, Optional[dict]]:
+    cur.execute(
+        """
+        SELECT
+            source_id,
+            COUNT(*) AS row_count,
+            MIN(ts) AS earliest_ts,
+            MAX(ts) AS latest_ts,
+            COUNT(DISTINCT source_message_id) AS distinct_source_message_count
+        FROM messages
+        WHERE LOWER(source_thread_id) = LOWER(?)
+          AND source_id IS NOT NULL
+          AND TRIM(source_id) <> ''
+        GROUP BY source_id
+        ORDER BY latest_ts DESC, row_count DESC, source_id DESC
+        """,
+        (online_thread_id,),
+    )
+    rows = cur.fetchall()
+    if not rows:
+        return None, 0, None
+
+    snapshots = [
+        {
+            "source_id": row["source_id"],
+            "row_count": int(row["row_count"] or 0),
+            "earliest_ts": row["earliest_ts"],
+            "latest_ts": row["latest_ts"],
+            "distinct_source_message_count": int(row["distinct_source_message_count"] or 0),
+        }
+        for row in rows
+    ]
+    selected_source_id = str(snapshots[0]["source_id"])
+    row_counts = [int(item["row_count"]) for item in snapshots]
+    max_count = max(row_counts) if row_counts else 0
+    min_count = min(row_counts) if row_counts else 0
+    diagnostics: dict = {
+        "warning": (
+            "multiple source_id snapshots exist for this source_thread_id; "
+            "resolver paging is scoped to selected_source_id"
+        )
+        if len(snapshots) > 1
+        else None,
+        "snapshots": snapshots[:10],
+        "snapshot_count": len(snapshots),
+        "row_count_skew": max_count - min_count,
+        "high_row_count_skew": len(snapshots) > 1 and min_count > 0 and max_count >= (min_count * 2),
+    }
+
+    if len(snapshots) > 1:
+        cur.execute(
+            """
+            SELECT source_message_id, COUNT(DISTINCT source_id) AS source_count
+            FROM messages
+            WHERE LOWER(source_thread_id) = LOWER(?)
+              AND source_id IS NOT NULL
+              AND TRIM(source_id) <> ''
+              AND source_message_id IS NOT NULL
+              AND TRIM(source_message_id) <> ''
+            GROUP BY source_message_id
+            HAVING source_count > 1
+            LIMIT 1
+            """,
+            (online_thread_id,),
+        )
+        diagnostics["disjoint_source_message_sets"] = cur.fetchone() is None
+
+    return selected_source_id, len(snapshots), diagnostics
 
 
 def fts_query(selector: str) -> Optional[str]:
@@ -201,21 +298,40 @@ def query_db_fts_candidates(
         return []
 
     cur.execute(
-        """
-        SELECT
-            m.canonical_thread_id AS canonical_thread_id,
-            COALESCE(NULLIF(m.title, ''), '(no title)') AS title,
-            MAX(m.ts) AS latest_ts,
-            COUNT(*) AS hit_count
-        FROM messages_fts
-        JOIN messages m ON m.rowid = messages_fts.rowid
-        WHERE messages_fts MATCH ?
-        GROUP BY m.canonical_thread_id, title
-        ORDER BY hit_count DESC, latest_ts DESC
-        LIMIT ?
-        """,
-        (query, limit),
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'messages_fts_docids'"
     )
+    has_docids = cur.fetchone() is not None
+    if has_docids:
+        sql = """
+            SELECT
+                m.canonical_thread_id AS canonical_thread_id,
+                COALESCE(NULLIF(m.title, ''), '(no title)') AS title,
+                MAX(m.ts) AS latest_ts,
+                COUNT(*) AS hit_count
+            FROM messages_fts
+            JOIN messages_fts_docids d ON d.rowid = messages_fts.rowid
+            JOIN messages m ON m.message_id = d.message_id
+            WHERE messages_fts MATCH ?
+            GROUP BY m.canonical_thread_id, title
+            ORDER BY hit_count DESC, latest_ts DESC
+            LIMIT ?
+            """
+    else:
+        sql = """
+            SELECT
+                m.canonical_thread_id AS canonical_thread_id,
+                COALESCE(NULLIF(m.title, ''), '(no title)') AS title,
+                MAX(m.ts) AS latest_ts,
+                COUNT(*) AS hit_count
+            FROM messages_fts
+            JOIN messages m ON m.rowid = messages_fts.rowid
+            WHERE messages_fts MATCH ?
+            GROUP BY m.canonical_thread_id, title
+            ORDER BY hit_count DESC, latest_ts DESC
+            LIMIT ?
+            """
+
+    cur.execute(sql, (query, limit))
     rows = cur.fetchall()
     candidates: list[dict] = []
     for row in rows:
@@ -231,7 +347,11 @@ def query_db_fts_candidates(
 
 
 def query_db_match(
-    db_path: Path, selector: str, *, allow_canonical_match: bool = False
+    db_path: Path,
+    selector: str,
+    *,
+    allow_canonical_match: bool = False,
+    selected_source_id: Optional[str] = None,
 ) -> Optional[DbMatch]:
     if not db_path.exists():
         return None
@@ -246,10 +366,19 @@ def query_db_match(
         con.close()
         return None
 
-    online_row = _fetch_latest_for_online_thread_id(cur, selector, require_text=True)
+    snapshot_source_id, snapshot_count, snapshot_diagnostics = _source_snapshot_diagnostics(cur, selector)
+    effective_source_id = selected_source_id or snapshot_source_id
+    online_row = _fetch_latest_for_online_thread_id(
+        cur,
+        selector,
+        require_text=True,
+        source_id=effective_source_id,
+    )
     if online_row:
         count, earliest_ts, latest_ts = _query_online_thread_span(
-            cur, str(online_row["source_thread_id"])
+            cur,
+            str(online_row["source_thread_id"]),
+            source_id=effective_source_id,
         )
         con.close()
         return DbMatch(
@@ -264,6 +393,9 @@ def query_db_match(
             thread_message_count=count,
             matched_thread_count=1,
             db_path=str(db_path.expanduser().resolve()),
+            selected_source_id=effective_source_id,
+            source_snapshot_count=snapshot_count,
+            source_snapshot_diagnostics=snapshot_diagnostics,
         )
 
     if allow_canonical_match:

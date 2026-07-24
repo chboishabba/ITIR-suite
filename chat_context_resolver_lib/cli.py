@@ -12,7 +12,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "selector",
-        help="Conversation selector: online_thread_id, canonical_thread_id, or title",
+        help=(
+            "Conversation selector: provider thread UUID, archive_thread_id "
+            "(legacy canonical_thread_id), or title"
+        ),
     )
     parser.add_argument(
         "--db",
@@ -30,6 +33,24 @@ def build_parser() -> argparse.ArgumentParser:
         "--venv-python",
         default=".venv/bin/python",
         help="Python interpreter for module fallback to re_gpt.cli (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--provider",
+        choices=("auto", "chatgpt", "perplexity"),
+        default="auto",
+        help=(
+            "Live provider for URL/export fallback. auto detects supported provider URLs; "
+            "bare UUID live fallback requires an explicit provider."
+        ),
+    )
+    parser.add_argument(
+        "--perplexity-scroll-mode",
+        choices=("step", "end", "hybrid"),
+        default=None,
+        help=(
+            "Perplexity loader scroll strategy. step is safest for full-history loads; "
+            "end is a fast tail probe; hybrid alternates stepped loading with end probes."
+        ),
     )
     parser.add_argument(
         "--web-timeout",
@@ -77,6 +98,27 @@ def build_parser() -> argparse.ArgumentParser:
             "Include the most recent N turns with per-message timestamps "
             "(DB when source=db; live fetch when source=web)."
         ),
+    )
+    parser.add_argument(
+        "--turn-page-size",
+        type=int,
+        default=0,
+        help=(
+            "Return only the next N DB turns in oldest-to-newest order. "
+            "Use --turn-cursor with the returned token to continue."
+        ),
+    )
+    parser.add_argument(
+        "--turn-cursor",
+        help="4-8 character cursor token returned by a previous --turn-page-size call.",
+    )
+    parser.add_argument(
+        "--turn-cursor-store",
+        help="Override cursor store path (default: /tmp/robust-context-fetch-cursors-$UID.sqlite).",
+    )
+    parser.add_argument(
+        "--turn-source-id",
+        help="Page a specific ingest snapshot source_id instead of the latest source_thread_id snapshot.",
     )
     parser.add_argument(
         "--check-web-newer",
@@ -146,6 +188,43 @@ def build_parser() -> argparse.ArgumentParser:
         "--cross-thread",
         action="store_true",
         help="Run archive-wide ranking for the analysis terms instead of a single resolved thread.",
+    )
+    parser.add_argument(
+        "--progress",
+        action="store_true",
+        help="Emit JSONL progress events to stderr for long-running resolver stages.",
+    )
+    parser.add_argument(
+        "--progress-interval",
+        type=float,
+        default=2.0,
+        help="Minimum seconds between progress events for repeated stages (default: %(default)s).",
+    )
+    parser.add_argument(
+        "--semantic",
+        action="store_true",
+        help=(
+            "Opt in to MyChatArchive semantic candidate retrieval. "
+            "Default DB/web resolver behavior is unchanged unless this flag is set."
+        ),
+    )
+    parser.add_argument(
+        "--hybrid",
+        action="store_true",
+        help=(
+            "Opt in to MyChatArchive hybrid FTS + vector candidate retrieval. "
+            "Default DB/web resolver behavior is unchanged unless this flag is set."
+        ),
+    )
+    parser.add_argument(
+        "--mca-db",
+        help="Path to the MyChatArchive SQLite DB for --semantic/--hybrid retrieval.",
+    )
+    parser.add_argument(
+        "--mca-limit",
+        type=int,
+        default=10,
+        help="Max MyChatArchive candidates for --semantic/--hybrid retrieval (default: %(default)s).",
     )
     parser.add_argument(
         "--limit",

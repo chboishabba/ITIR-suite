@@ -5,9 +5,106 @@ def test_default_registry_lists_expected_tools() -> None:
     registry = build_default_registry()
     names = {tool.name for tool in registry.list_tools()}
     assert names == {
+        "itir.build_envelope",
+        "itir.compare_observations",
+        "itir.score_coherence",
+        "sensiblaw.itir_job_status",
         "sensiblaw.obligations_query",
         "sensiblaw.obligations_explain",
         "sensiblaw.obligations_alignment",
         "sensiblaw.obligations_projection",
         "sensiblaw.obligations_activate",
+        "itir.docstore.status",
+        "itir.docstore.open_questions",
+        "itir.obsidian.vault_scan",
+        "itir.docstore.proposal_receipt",
+        "itir.pnf.context_index",
+        "itir.pnf.task_memory_preview",
+        "itir.pnf.observer_evidence",
+        "itir.markdown.render_projection",
+        "itir.markdown.write_projection",
+        "itir.docstore.config_plan",
+        "itir.governance.tool_profiles",
+        "itir.governance.validate_tool_profile",
+        "itir.climate.claim_review",
+        "itir.gwb.follow_graph",
+        "itir.wikidata.tooling_profile",
+        "itir.wikidata.migration_candidate",
+        "itir.wikidata.object_review_bundle",
+        "itir.spectral.candidate_packet",
+        "itir.wikidata.review_packet",
+        "itir.wikiproject.tooling_profile",
+        "itir.zelph.transport_boundary",
+        "itir.zelph.hf_manifest_contract",
+        "itir.zelph.pack_sources",
+        "itir.zelph.partial_closure",
+        "itir.shard.validate_artifact",
+        "itir.shard.route_selector",
+        "itir.shard.partial_graph_view",
+        "itir.shard.bounded_graph_slice_plan",
+        "itir.shard.payload_probe",
     }
+
+
+def test_default_registry_registers_wikidata_object_review_bundle_as_read_only() -> None:
+    registry = build_default_registry()
+
+    assert "itir.wikidata.object_review_bundle" in {tool.name for tool in registry.list_tools()}
+
+    spec = registry.get_tool_spec("itir.wikidata.object_review_bundle")
+    assert spec is not None
+    assert spec.read_only is True
+    assert "lanes" not in spec.input_schema["properties"]
+    assert "domain" not in spec.input_schema["properties"]
+    assert {"object", "objects", "entity", "entities", "wikidata_object", "wikidata_objects"} <= set(
+        spec.input_schema["properties"]
+    )
+
+    profile_key = registry.get_tool_authority_profile_key("itir.wikidata.object_review_bundle")
+    profile = registry.get_tool_authority_profile("itir.wikidata.object_review_bundle")
+
+    assert profile_key == "itir.wikidata.object_review_bundle"
+    assert profile is not None
+    assert profile["tool_id"] == "itir.wikidata.object_review_bundle"
+    assert profile["authority_notes"]["candidate_only"] is True
+    assert profile["authority_notes"]["non_authoritative"] is True
+
+
+def test_default_registry_exposes_stable_authority_profiles_for_governance_and_shards() -> None:
+    registry = build_default_registry()
+    expected_tools = {
+        "itir.governance.tool_profiles",
+        "itir.governance.validate_tool_profile",
+        "itir.climate.claim_review",
+        "itir.gwb.follow_graph",
+        "itir.wikidata.tooling_profile",
+        "itir.wikidata.migration_candidate",
+        "itir.wikidata.object_review_bundle",
+        "itir.spectral.candidate_packet",
+        "itir.wikidata.review_packet",
+        "itir.wikiproject.tooling_profile",
+        "itir.zelph.transport_boundary",
+        "itir.zelph.hf_manifest_contract",
+        "itir.zelph.pack_sources",
+        "itir.zelph.partial_closure",
+        "itir.shard.validate_artifact",
+        "itir.shard.route_selector",
+        "itir.shard.partial_graph_view",
+        "itir.shard.bounded_graph_slice_plan",
+        "itir.shard.payload_probe",
+    }
+
+    assert set(registry.list_tool_authority_profiles()) == expected_tools
+
+    for tool_name in expected_tools:
+        spec = registry.get_tool_spec(tool_name)
+        assert spec is not None
+        assert getattr(spec, "authority_profile_key", None) == tool_name
+
+        profile_key = registry.get_tool_authority_profile_key(tool_name)
+        profile = registry.get_tool_authority_profile(tool_name)
+
+        assert profile_key == tool_name
+        assert profile is not None
+        assert profile["tool_id"] == tool_name
+        assert getattr(spec, "authority_profile", None) == profile

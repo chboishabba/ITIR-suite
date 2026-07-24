@@ -49,11 +49,21 @@ Record the current execution-order roadmap across:
   - Cohort D review-control index
   - Cohort E summary index
   - automation-graduation governance index
+- adjacent Wikibase/Wikidata transport references have now been identified:
+  - `https://github.com/Superraptor/Wikibase-Wikidata-Pipeline`
+  - `https://github.com/Superraptor/wikiodk`
+  These are not replacement runtimes for the Nat lane. Treat them as external
+  adapter/reference surfaces for local Wikibase setup, local-Wikibase to
+  Wikidata mapping, missing-statement/reference detection, and possible
+  reviewed upload handoff.
 
 ### Assist Lane
 
 - still partial and review-first
 - continue only with materially broader bounded coverage
+- the OCTF-facing assist framing should now mention the Claire/Superraptor
+  repositories as adjacent references when explaining where transport/edit
+  tooling ends and the ITIR/SensibLaw admissibility layer begins
 
 ## Recommended Order
 
@@ -76,7 +86,14 @@ Record the current execution-order roadmap across:
 6. define explicit automation graduation criteria and exercise them with real
    proposal batches, repeated-run evidence, and governance indexes before any
    stronger moonshot-readiness claim
-7. advance the assist lane only when broader bounded coverage or better
+7. add a narrow adapter-spike for external Wikibase/Wikidata deltas:
+   - input: mapped candidate delta from a local Wikibase or Wikidata sync tool
+   - normalization: convert subject/predicate/object/reference diffs into the
+     existing bounded candidate/change-review packet shape
+   - output: review-only disposition report, not edit authority
+   - optional handoff: only checked-safe/reviewed rows can be exported back to
+     an uploader or OpenRefine-style staging surface
+8. advance the assist lane only when broader bounded coverage or better
    culprit-oriented reporting is real
 
 ## Why This Order
@@ -95,3 +112,13 @@ axes. Nat Cohort A does not mean Family A. Family A means a row is clean enough
 for `full_auto`; Family B means it is structured enough for `split_auto`; Family
 C/D/E explain why a row needs repair, review-only hold, or manual
 reconstruction.
+
+The external-reference clarification adds a second boundary: transport is not
+admissibility. `Wikibase-Wikidata-Pipeline` is useful because it can discover
+and potentially upload mapped Wikibase/Wikidata statement/reference deltas.
+`wikiodk` is useful because it shows a local Wikibase/ODK import sandbox path.
+The ITIR/SensibLaw contribution remains the bounded review and governance
+surface: candidate deltas become `ChangeReviewPacket`-style inputs, run through
+structural/provenance checks, and emerge as checked, held, contradictory, or
+insufficiently supported review artifacts before any staging/export path is
+trusted.

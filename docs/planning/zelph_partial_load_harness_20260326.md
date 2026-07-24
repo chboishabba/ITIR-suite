@@ -123,6 +123,22 @@ python tools/run_zelph_partial_load_harness.py \
 - non-`ok`:
   - broken regression or uncaught loader failure
 
+## 2026-07-02 addendum
+
+The harness now supports explicit manifest expected modes:
+
+- `--manifest-v1-expected-mode` defaults to `fallback_or_ok`
+- `--manifest-v2-expected-mode` defaults to `direct`
+
+This reflects the current WD/HF readiness target. `v1` remains a migration path
+where fallback can be tolerated for historical checks, but routine `v2`
+manifest cases should succeed through the shard/object path directly. A normal
+`manifest_v2_*` fallback is now evidence that the production WD shard path is
+not acceptance-ready.
+
+Use `fallback_or_ok` for `v2` only when deliberately reproducing older behavior
+or bisecting legacy artifacts.
+
 ## First observed run
 
 - Artifact:

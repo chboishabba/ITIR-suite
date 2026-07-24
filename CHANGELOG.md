@@ -1,6 +1,457 @@
 # Changelog
 
 ## Unreleased
+
+- Add SensibLaw's P0c.3/P0c.4 typed resolution-subject and semantic demand-
+  equivalence carrier. Formal event roles are protected before scheduler design,
+  and grouping remains a receipt rather than request execution or resolution.
+- Add SensibLaw's P0c.2 backend-free ResolutionDemand projection. It maps only
+  explicit unresolved PNF closure obligations to evidence plans without backend
+  selection, request execution, identity resolution, or PNF mutation.
+- Add SensibLaw's P0c.1 factorized PartialPNF and closure-pressure carrier.
+  It preserves local type alternatives without combination, demand issuance,
+  identity resolution, or claim promotion.
+- Add SensibLaw's P0b.8 candidate-only local typing and coverage-pressure
+  carrier, and make P0b.7 composition branch-preserving. Local semantic
+  alternatives remain distinct from identity, PNF closure, registry lookup,
+  and promotion.
+- Add SensibLaw's candidate-safe P0b.7 form derivation carrier. Source-anchored
+  linguistic alternatives and declared form relations now precede entity
+  retrieval; deterministic output order never constitutes a candidate ranking
+  or semantic interpretation.
+- Add SensibLaw's candidate-safe P0b.6 bounded catalog retrieval. Exact
+  canonical-token matching over caller-supplied provenance-bearing entries
+  preserves zero/one/many alternatives without a registry request, identity
+  resolution, PNF mutation, or promotion.
+- Add SensibLaw's candidate-safe P0b.5 structural-grammar request producer.
+  Parser annotations yield bounded nominal-phrase requests only; missing
+  annotation creates no phrase boundary and no identity, PNF, or promotion
+  effect is possible.
+- Add SensibLaw's candidate-safe P0b.4 alias-index request producer. Exact,
+  caller-supplied canonical token sequences create only provenance-bearing
+  alias-hint expansion requests; no registry query, identity decision, PNF
+  mutation, or promotion is possible.
+- Add SensibLaw's candidate-safe P0b.3 bounded expansion receipt. It accepts
+  source-anchored alias-hint, grammar-phrase, and future-PNF-demand token
+  intervals, verifies the licensing carrier and canonical text, and records
+  created or reused mentions without asserting an alias, identity, PNF binding,
+  candidate set, promotion, or execution effect.
+- Add SensibLaw's candidate-safe P0b.2 document-local recurrence receipt.
+  It retains repeated case-folded, whitespace-normalized generated surfaces
+  without treating them as aliases, coreference, identities, PNF assignments,
+  or promotions.
+- Implement the first backend-free P0b lazy mention-licensing slice in
+  SensibLaw. The shared carrier uses public parser/reducer outputs to license
+  lexical, numeric, name-shaped, and adapter-annotated eventuality spans while
+  retaining a deterministic recoverable-lattice/suppression receipt. It makes
+  no external call and has no identity, PNF, promotion, or execution effect.
+- Correct the shared PNF/entity-resolution plan to separate broad local typing
+  coverage from residual-driven closure work. The documented next runtime
+  layers are now a registry-neutral cache/microbatch scheduler, optional
+  Wikidata and WorldMonitor snapshot adapters, and typed event reconciliation
+  that preserves occurrence/observation/cluster/forecast/report/state roles.
+  This changes architecture notes and sequencing only; no external calls,
+  resolver decisions, or promotion behavior were added.
+- Add SensibLaw's first generic candidate-only entity-resolution carrier:
+  anchored mentions, typed candidate sets, and document-local coreference are
+  deterministic and provenance-preserving, while cross-document identity joins,
+  lookup, resolution, and promotion remain out of scope.
+- Consolidate SensibLaw's duplicate section parsers around one canonical
+  ingestion implementation. The legacy root parser remains a compatibility
+  projection for existing `Provision` and simple JSON callers; no entity
+  resolution or promotion authority was introduced.
+- Reframe the shared SensibLaw P0 so the compiler begins with canonical spans,
+  partial PNF, typed entity-resolution demands, bounded candidate sets, and PNF
+  refinement before claim targeting or promotion. The suite notes now preserve
+  exhaustive recoverability, lazy materialization, optional pinned registry
+  evidence, and explicit anti-panopticon identity boundaries. This records
+  architecture and implementation sequencing only; runtime behavior is
+  unchanged.
+- SensibLaw's revision-pinned Nat dry-run now reports profile-fed family
+  geometry through a generic dependency-group inventory, keeping overlapping
+  row-level failure reasons from being misread as independent migration cases.
+
+## Unreleased
+
+- Start the Nat contract-discovery/coverage sprint with generic explainable
+  rule-detector and cumulative-coverage surfaces. Candidate A1/A2/A3 climate
+  profiles now preserve predicate evidence and dependency groups; live pages
+  use bounded rate-limit handling and lossless composite cursors. The first
+  contiguous 400-statement dry run has 4 candidate-rule matches, 115 no-rule
+  rows, and 281 explicit coverage abstentions, with no approved rule or edit.
+
+- Add generic family-member evidence hydration and coverage-reason aggregation
+  to the Nat dry-run path. The same revision-pinned 400-statement population
+  now assesses every sibling from its existing entity export: the former 281
+  family-hydration abstentions become 396 complete no-rule/hold outcomes, while
+  the four candidate matches remain one dependency group. This improves
+  evidence accounting only; it authorizes no rule, edit, or execution.
+
+- Refine the generic governed-invariant carrier with context-witnessed,
+  dependency-grouped contributions. A selected atomic candidate can now retain
+  the complete evidence context that made it reviewable, while empirical
+  snapshots distinguish raw statement contributions from independent
+  family/entity observations. This supports future dry-run migration-rule
+  coverage without authorizing edits or automation.
+
+- Add generic, dry-run transformation-rule coverage: profiles may supply
+  deterministic rule matches for a bounded source snapshot, while the shared
+  carrier distinguishes exact approved matches from review/repair, conflict,
+  no-rule, and incomplete-coverage outcomes. It deliberately cannot emit an
+  execution manifest or an edit.
+
+- Record the first explicit review-only invariant contribution in the Nat
+  climate proving tranche: `reviewer:GPTofJohl` confirmed the pinned
+  Q101416961 annual 2024 explicitly scoped component target shape within a
+  reconciled four-statement family. The resulting trusted
+  member, contribution receipt, I1 snapshot, and immutable replay remain
+  diagnostic/governed artifacts and authorize no Wikidata edit, promotion, or
+  migration execution.
+
+- Extend the generic review intake used by the Nat climate proving tranche:
+  every reconciled candidate now receives a compact packet, with separate
+  conformance, decomposition, and family-conflict interaction shapes. The
+  corrected live 25-statement page produces 9 conformance packets and 16 typed
+  conflict holds, preserving scope/total/period evidence without treating a
+  hold as a split or a trusted invariant contribution.
+
+- Correct the Nat/Wikidata statement-family classifier boundary. Selected
+  statement GUIDs are now assessed atomically against complete pinned sibling
+  context, so separated scope components and an exactly reconciling total do
+  not generate a false split plan. The generic family carrier is reusable by
+  other statement-based adapters; the initial Q101416961 packet remains a
+  preserved rejected-classifier artifact.
+
+- Document the first governed invariant-replay loop: reviewer-approved
+  conforming split outputs can create a later snapshot and a receipt-backed
+  replay without mutating the original assessment or graph.
+
+- Extend the compiler-convergence plan with conservative ontology-class merge
+  safety. Merge now sits beside split and disjointness as a review-only
+  residual-topology proposal family: geometry convergence is insufficient by
+  itself, while a direct merge requires normative compatibility, no typed or
+  conditional obstruction, relation substitutability, bounded impact, and
+  provenance transfer. The documented DASHI governed-residual boundary now
+  covers candidate, impact, gate, and non-mutating checked-receipt semantics;
+  runtime proposal generation remains pending.
+
+- Add generic residual-profile, review-packet, and typed residual-graph
+  building blocks to the SensibLaw Nat proving tranche. Reconciled Family-B
+  rows can now project review-only split packets from the same carrier used by
+  topology, while the graph retains similarity, incompatibility, masked
+  analogies, and coverage unknown separately. A bounded live three-row WDQS
+  page produced three packets and an all-coverage-unknown graph without
+  granting confirmation, invariant, promotion, or edit authority.
+
+- Add the generic SensibLaw review-confirmation boundary for governed
+  invariant learning. Explicit reviewer authority and a confirmed disposition
+  are now required before an approved candidate can become a trusted cohort
+  member; no confirmation can promote or edit anything.
+
+- Add the generic SensibLaw governed invariant carrier for policy-anchored
+  domain pressure. It admits only independently reviewed, revision-pinned,
+  fully observed conforming members and preserves deterministic contribution
+  and revision receipts without granting promotion or edit authority.
+
+- Extend the SensibLaw Nat climate migration proving tranche with bounded live
+  statement discovery and revision-pinned reconciliation. The new path is a
+  review-intake artifact for `P5991 -> P14143`, not a property-renaming or
+  edit mechanism.
+- SensibLaw now emits a generic, diagnostic-only `DomainPressureAssessment`
+  for each Nat `P5991 -> P14143` candidate. It exposes the policy-model,
+  subject, qualifier, reference, temporal, split, and pending-cohort residuals
+  behind the existing A--E review disposition; this does not change promotion
+  or edit authority.
+- Refined the WD/compiler planning docs with governed domain-invariant learning
+  and context-gated residual topology. Policy-anchored DSP now distinguishes
+  normative target requirements from revisioned, independently confirmed cohort
+  regularities and conditional variation; only governed conformant cases may
+  refine an invariant. The plan now also specifies bounded typed residual graphs
+  for review-only class, split, disjointness, bridge-class, exception, and
+  abstraction candidates, while preserving the existing no-authority/no-edit
+  boundary. This is documentation/TODO planning only; no runtime algorithm,
+  ontology edit path, or promotion policy changed.
+- Reordered the documented WD/compiler runtime plan around Nat's governed
+  policy-DSP loop: explicit residuals, trusted cohort admission, typed residual
+  graphs, review-only ontology proposals, then residual-topology analysis now
+  precede generic wrapper replay. Replay remains the later proof that the
+  mature surface is common to GWB, AU, Brexit, and Affidavit. This remains
+  documentation/TODO planning only; no runtime or authority behavior changed.
+- Recorded the third uncommitted DASHI interop boundary,
+  `GovernedResidualOntologyLearning`, alongside the existing spectral and
+  external-context modules. It formalizes reviewed-only empirical-invariant
+  contribution and review-only residual-topology proposals; runtime retrieval,
+  cohort induction, and topology analysis remain unimplemented.
+- Added the generic world-model compiler-convergence plan for the WD bridge.
+  It records Nat, Peter/Ege/Rosario, GWB, AU, Brexit, and Affidavit as proving
+  tranches over one generic carrier/projection/receipt programme; sequences
+  generic replay, supplied observations, bounded closure, policy-anchored then
+  cohort-derived structural pressure, and routed Zelph transport; and
+  distinguishes those runtime obligations from DASHI's formal non-authority
+  boundary. The Nat climate pack is now explicitly described as a
+  policy-anchored `P5991 -> P14143` DSP/migration pack rather than a generic
+  organisation cohort. Related
+  bridge, roadmap, TODO, and planning-index docs now distinguish the live
+  revision-pinned Apoteket slice from the historical incomplete Q1785637
+  abstention fixture. This is documentation/planning only: no runtime API,
+  promotion rule, or authority boundary changed.
+- Added the chat artifact resolver/index lane for Perplexity-backed archive
+  exports. The suite now documents the June 3 Perplexity refresh decision,
+  keeps binary assets outside `/home/c/chat_archive.sqlite`, indexes artifact
+  refs/hashes in `chat-export-structurer.thread_artifacts`, and teaches
+  `scripts/export_chat_archive_thread.py` to render DB-backed artifact links in
+  JSON/Markdown/HTML exports with source-JSON fallback for older archives.
+  StatiBaker/console output remains a bounded artifact/provenance lane rather
+  than raw canonical message text.
+- Added a canonical public PNF / ITIR typed predicate carrier primer in
+  SensibLaw and linked it from the root planning index. The doc explains the
+  implemented carrier fields, residual lattice, current public use sites, and
+  authority boundaries without changing runtime behavior.
+- Closed the StatiBaker Kanboard governance lane with an executable
+  reconciliation/read-only query surface for manager-wave status artifacts:
+  - added `kanboard_manager_wave_status(...)` in `StatiBaker/sb/query.py`
+  - added `kanboard-manager-wave` in `StatiBaker/scripts/query_state.py`
+  - added focused query coverage in `StatiBaker/tests/test_query_cli.py`
+  - updated `StatiBaker/QUERY_SURFACE.md` to include reconciliation reads
+  Governance closeout now explicitly marks stale manager residuals as
+  historical lanes superseded by stabilization while keeping local JSON as the
+  canonical authority.
+- Added `scripts/export_chat_archive_thread.py`, a DB-backed chat archive
+  exporter that writes deterministic Markdown/JSON/printable-HTML thread
+  exports plus an optional checksum manifest bundle. This gives Perplexity
+  threads a proper archive-derived export path instead of relying on
+  Perplexity's broken Markdown/PDF output. Markdown now defaults to a
+  Perplexity-like document layout with user prompts as `#` sections and `---`
+  turn separators, while `--markdown-style transcript` keeps explicit
+  role-by-role audit output. Perplexity exports also clean repeated DOM/export
+  text blocks by default, with `--no-clean-perplexity-duplicates` available for
+  raw audit exports. HTML now defaults to a rendered document view with local
+  static KaTeX pre-rendering when available, display-only long-link compaction
+  for PDF readability, optional `--pdf` rendering via `--pdf-engine auto`
+  (`weasyprint` first when installed, then Chrome/Chromium), browser KaTeX as a
+  fallback mode, and lightweight diagnostics for malformed math delimiters or
+  likely truncated Markdown links. Long HTML/PDF exports can now be split with
+  `--chunk-messages` and `--chunk-target-bytes`; chunked PDF rendering uses
+  bounded parallel workers via `--pdf-workers`, and `--chunk-plan-only`
+  provides a fast JSON planning surface for tuning split sizes before rendering.
+  Added `scripts/benchmark_chat_archive_export_chunks.py` to run repeatable
+  split/worker timing matrices; the current Perplexity long-thread benchmark
+  found `--chunk-messages 80 --chunk-target-bytes 1200000 --pdf-workers 3` as
+  the fastest tested profile on this host, with `--pdf-workers 2` retained as
+  the conservative fallback. HTML/PDF rendering also has a documented
+  `--whitespace-repair` display policy for conservative repair of fragmented
+  terminal/file listings from Perplexity exports; canonical JSON and Markdown
+  remain unchanged, and repairs are surfaced through diagnostics plus the bundle
+  manifest display policy.
+- Added opt-in MyChatArchive semantic and hybrid retrieval integration for the
+  chat context resolver. The resolver remains DB-first by default, but now
+  supports `--semantic`, `--hybrid`, `--mca-db`, and `--mca-limit`; new
+  `scripts/mca_*.py` wrappers provide stable JSON boundaries for canonical
+  archive sync, embedding, semantic search, hybrid search, and result
+  resolution. Missing MCA DBs return structured JSON errors rather than
+  tracebacks.
+- Clarified the SensibLaw Wikidata docs to separate the latest global-latent
+  formalism from the current bounded runtime. The practical README, OCTF
+  entrypoint, and migration-pack contract now state that the formal endstate is
+  monotone structural coherence over a snapshot-derived global ontology index,
+  while today's executable surfaces remain bounded migration packs,
+  PNF/residual review packets, hotspot packs, disjointness diagnostics, and
+  review/grounding lanes. This is docs-only; no global index, QID-only repair
+  bot, runtime behavior, promotion gate, or edit authority changed.
+- Clarified the SensibLaw Wikidata migration-pack docs for Peter's orientation
+  questions. The practical README and migration-pack contract now explain how
+  bounded proposals become row-level review dispositions, what windows and
+  schemas mean in this lane, why `sensiblaw` exists only after package
+  installation, and how `manifest.json`, `slice.json`, `migration_pack.json`,
+  `schemas/sl.wikidata_migration_pack.v1.schema.yaml`,
+  `src/ontology/wikidata.py`, and `cli/__main__.py` fit together. This is
+  docs-only; no runtime behavior, promotion gate, or edit authority changed.
+- Refined the SensibLaw Wikidata OCTF entrypoint and practical README for the
+  four named reader paths: Dave/general OCTF, Peter, Ege, and Rosario. The
+  docs now include an audience matrix near the top, move the worked climate
+  example before the technical PNF/body material, gate the CLI section for
+  technical contributors, and add plain-language leads for hotspot and
+  disjointness review lanes. This is docs-only; no runtime behavior, promotion
+  gate, or edit authority changed.
+- Added a practical Wikidata README and refreshed the April 21 OCTF entrypoint
+  in SensibLaw. This docs-only update gives start-to-finish reviewer paths for
+  climate migration, climate PNF/residual review, structural hotspot packs, and
+  `P2738` disjointness diagnostics while preserving the review-first boundary:
+  candidate findings are not edit authority, bounded reports are the review
+  surface, and only locally complete checked-safe rows are staged.
+- Added the SensibLaw Wikidata temporal-PNF constraint contract and aligned
+  root context/TODO state. This docs-only update records the shared
+  climate/mereology residual skeleton around `TempFam(P, I)`,
+  `INCOMPLETE_tau`, and `CONTRADICTION_mu`; it does not change runtime
+  behavior or promotion gates.
+- Clarified the root ZKPerf stream section in plain language, and added the
+  missing prose note plus generated diagram renders for the shipped SensibLaw
+  service-architecture PlantUML doc. This is a docs/diagram-only update; no
+  implementation changed.
+- split the zkperf stream lane into staged implementation surfaces:
+  - added [itir_jmd_bridge/zkperf_stream_core.py](/home/c/Documents/code/ITIR-suite/itir_jmd_bridge/zkperf_stream_core.py)
+    for fixture loading, observation-to-window shaping, bundle building, and
+    window selection
+  - added [itir_jmd_bridge/zkperf_stream_index.py](/home/c/Documents/code/ITIR-suite/itir_jmd_bridge/zkperf_stream_index.py)
+    for latest/index/retention/artifact helpers
+  - added [itir_jmd_bridge/zkperf_stream_transport.py](/home/c/Documents/code/ITIR-suite/itir_jmd_bridge/zkperf_stream_transport.py)
+    for HF/IPFS publish and remote resolution
+  - reduced [itir_jmd_bridge/zkperf_stream.py](/home/c/Documents/code/ITIR-suite/itir_jmd_bridge/zkperf_stream.py)
+    to a compatibility facade over the split modules
+  - extended [itir_jmd_bridge/cli.py](/home/c/Documents/code/ITIR-suite/itir_jmd_bridge/cli.py)
+    and [scripts/run_zkperf_stream_hf.sh](/home/c/Documents/code/ITIR-suite/scripts/run_zkperf_stream_hf.sh)
+    so operators can build from either a prepared stream fixture or raw
+    `ZKPerfObservation` JSON/NDJSON input
+  - split regression coverage between:
+    - [tests/test_zkperf_stream.py](/home/c/Documents/code/ITIR-suite/tests/test_zkperf_stream.py)
+      for core/index plus command-level checks
+    - [tests/test_zkperf_stream_transport.py](/home/c/Documents/code/ITIR-suite/tests/test_zkperf_stream_transport.py)
+      for transport-specific behavior
+  - validation:
+    - `PYTHONPATH=. pytest -q tests/test_zkperf_stream.py tests/test_zkperf_stream_transport.py`
+      -> `15 passed`
+    - `bash -n scripts/run_zkperf_stream_hf.sh`
+    - `PYTHONPATH=. python -m itir_jmd_bridge build-zkperf-stream-from-observations --input docs/planning/jmd_fixtures/zkperf_on_sl_observation_v1.example.json --output zkperf-from-observations.json`
+- Added [docs/planning/itir_linux_compliance_mcp_contract_20260407.md](/home/c/Documents/code/ITIR-suite/docs/planning/itir_linux_compliance_mcp_contract_20260407.md)
+  and updated
+  [README.md](/home/c/Documents/code/ITIR-suite/README.md),
+  [TODO.md](/home/c/Documents/code/ITIR-suite/TODO.md),
+  [COMPACTIFIED_CONTEXT.md](/home/c/Documents/code/ITIR-suite/COMPACTIFIED_CONTEXT.md),
+  [itir-mcp/README.md](/home/c/Documents/code/ITIR-suite/itir-mcp/README.md),
+  [itir-mcp/docs/interfaces.md](/home/c/Documents/code/ITIR-suite/itir-mcp/docs/interfaces.md),
+  and [docs/planning/project_interfaces.md](/home/c/Documents/code/ITIR-suite/docs/planning/project_interfaces.md)
+  to extend the planned managed-host MCP lane from Windows-only wording to a
+  cross-platform internal trust model that explicitly includes Linux host
+  evidence/evaluate/plan/apply posture.
+  This was a docs-only update; no implementation changed.
+- Added [docs/planning/itir_public_repo_security_discovery_contract_20260407.md](/home/c/Documents/code/ITIR-suite/docs/planning/itir_public_repo_security_discovery_contract_20260407.md)
+  and extended
+  [docs/planning/itir_windows_compliance_mcp_contract_20260407.md](/home/c/Documents/code/ITIR-suite/docs/planning/itir_windows_compliance_mcp_contract_20260407.md),
+  [README.md](/home/c/Documents/code/ITIR-suite/README.md),
+  [TODO.md](/home/c/Documents/code/ITIR-suite/TODO.md),
+  [COMPACTIFIED_CONTEXT.md](/home/c/Documents/code/ITIR-suite/COMPACTIFIED_CONTEXT.md),
+  [itir-mcp/README.md](/home/c/Documents/code/ITIR-suite/itir-mcp/README.md),
+  [itir-mcp/docs/interfaces.md](/home/c/Documents/code/ITIR-suite/itir-mcp/docs/interfaces.md),
+  and [docs/planning/project_interfaces.md](/home/c/Documents/code/ITIR-suite/docs/planning/project_interfaces.md)
+  to split the planned MCP expansion into two trust models:
+  - higher-trust managed-host evidence/evaluate/plan/apply lanes
+  - lower-trust public repo/social discovery lanes
+  The documented doctrine is now explicit:
+  public discovery proposes risk, internal evidence authorizes action.
+  This was a docs-only update; no implementation changed.
+- Documented the newly shipped hierarchical autonomous-orchestrator control-plane
+  metadata surfaces so the canonical state now covers:
+  [docs/planning/orchestrator_control_plane_20260328.md](/home/c/Documents/code/ITIR-suite/docs/planning/orchestrator_control_plane_20260328.md),
+  [TODO.md](/home/c/Documents/code/ITIR-suite/TODO.md), and
+  [COMPACTIFIED_CONTEXT.md](/home/c/Documents/code/ITIR-suite/COMPACTIFIED_CONTEXT.md).
+  Validation:
+  - `.venv/bin/python -m pytest -q /home/c/.codex/skills/autonomous-orchestrator/tests/test_control_plane_metadata.py`
+    -> `pass`
+- Updated [COMPACTIFIED_CONTEXT.md](/home/c/Documents/code/ITIR-suite/COMPACTIFIED_CONTEXT.md),
+  [README.md](/home/c/Documents/code/ITIR-suite/README.md),
+  [TODO.md](/home/c/Documents/code/ITIR-suite/TODO.md),
+  [itir-mcp/README.md](/home/c/Documents/code/ITIR-suite/itir-mcp/README.md),
+  [itir-mcp/docs/interfaces.md](/home/c/Documents/code/ITIR-suite/itir-mcp/docs/interfaces.md),
+  [docs/planning/project_interfaces.md](/home/c/Documents/code/ITIR-suite/docs/planning/project_interfaces.md),
+  and added
+  [docs/planning/itir_windows_compliance_mcp_contract_20260407.md](/home/c/Documents/code/ITIR-suite/docs/planning/itir_windows_compliance_mcp_contract_20260407.md)
+  to align the suite docs with the resolved `LiteLLM hack analysis` thread.
+  The documented control read is now:
+  - MCP is the canonical guarded contract layer
+  - policy, explanation, and receipts should share one normalized surface
+  - the next planned systems-facing family is a Windows evidence/evaluate/plan/apply lane
+  This was a docs/TODO/context alignment pass only; no implementation changed.
+
+- Extended the AU legal-follow operator slice again without widening
+  ownership: `SensibLaw/src/policy/legal_follow_graph.py` now ranks derived
+  legal-claim review packets from structural `edge_admissibility` pressure
+  and exposes bounded priority rollups in the operator summary, while
+  `SensibLaw/src/fact_intake/review_bundle.py` can now recommend
+  `legal_follow_graph` when legal-follow admissibility review pressure
+  dominates promotion pressure. Validation:
+  from `SensibLaw/`:
+  `PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_legal_follow_graph.py tests/test_au_fact_review_bundle.py tests/test_latent_promoted_graph.py tests/test_cross_system_phi_prototype.py -q`
+  -> `29 passed`
+- Extended the worker-landed AU legal-follow slice:
+  `SensibLaw/src/policy/legal_follow_graph.py` now summarizes admissibility
+  across derived `asserts_*` edges and exposes a bounded
+  `edge_admissibility_queue` plus legal-claim packet detail rows. Downstream,
+  `SensibLaw/src/fact_intake/au_review_bundle.py` now surfaces summary-level
+  legal-follow edge-admissibility counts in both
+  `semantic_context.legal_follow_graph.summary` and
+  `operator_views.legal_follow_graph.summary`. Validation:
+  from `SensibLaw/`:
+  `PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_legal_follow_graph.py tests/test_au_fact_review_bundle.py tests/test_latent_promoted_graph.py tests/test_cross_system_phi_prototype.py -q`
+  -> `26 passed`
+- Tightened the next AU legal-graph slice without widening ownership:
+  `SensibLaw/src/policy/legal_follow_graph.py` now attaches typed
+  `sl.legal_edge_admissibility.v1` output to derived `asserts_*` edges built
+  from legal-claim relations. Promoted-anchor reuse keeps its existing owner
+  surface in `SensibLaw/src/latent_promoted_graph.py`, while lower-layer
+  relation candidates remain auditable instead of silently becoming promoted
+  truth. Updated `SensibLaw/tests/test_legal_follow_graph.py`,
+  `SensibLaw/README.md`, `TODO.md`, and `COMPACTIFIED_CONTEXT.md`.
+  Validation:
+  from `SensibLaw/`:
+  `PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_legal_follow_graph.py tests/test_latent_promoted_graph.py tests/test_cross_system_phi_prototype.py -q`
+  -> `16 passed`
+- Added
+  `docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md`,
+  updated
+  `docs/architecture/admissibility_lattice.md`,
+  `README.md`,
+  `TODO.md`,
+  and `COMPACTIFIED_CONTEXT.md`
+  to pin the legal-IR boundary above minimal `Phi` emissions. The root docs
+  now make the normalization rule explicit:
+  `Phi -> composed candidate nodes -> admissibility -> promoted records -> derived graph`,
+  with MDL / latent compression kept derived and non-promotive, and with the
+  next worker lanes split across substrate, composition, admissibility,
+  latent/MDL, and verification/docs ownership.
+- Added the first bounded `SensibLaw` implementation slice for that boundary:
+  `sl.composed_candidate_node.v1` plus a fail-closed composed-candidate
+  admissibility gate. The new files are:
+  `SensibLaw/src/models/composed_candidate_node.py`,
+  `SensibLaw/src/composed_candidate_admissibility.py`,
+  `SensibLaw/schemas/sl.composed_candidate_node.v1.schema.yaml`,
+  `SensibLaw/examples/composed_candidate_node_minimal.json`,
+  `SensibLaw/tests/test_composed_candidate_node.py`, and
+  `SensibLaw/tests/test_composed_candidate_admissibility.py`.
+  Validation:
+  `PYTHONPATH=SensibLaw ./.venv/bin/python -m pytest SensibLaw/tests/test_composed_candidate_node.py SensibLaw/tests/test_composed_candidate_admissibility.py -q`
+  -> `10 passed`
+- Extended that slice with the first bounded downstream consumer:
+  `SensibLaw/src/policy/review_claim_records.py` now adapts
+  `sl.composed_candidate_node.v1` payloads into the existing
+  `review_candidate` envelope without widening fact-intake or review-bundle
+  contracts and without making candidate state truth-bearing.
+  Validation:
+  `PYTHONPATH=SensibLaw ./.venv/bin/python -m pytest SensibLaw/tests/test_composed_candidate_node.py SensibLaw/tests/test_composed_candidate_admissibility.py SensibLaw/tests/test_review_claim_records.py -q`
+  -> `30 passed`
+- Added the first bounded legal edge gate on top of that node-level surface:
+  `SensibLaw/src/legal_edge_admissibility.py` now evaluates typed
+  `relation_kind`, endpoint admissibility inputs, wrapper/status
+  compatibility, section/genre compatibility, shared linkage, shared content
+  identity where required, and structural status conflict for
+  `contradicts` / `overrules`. The gate stays fail-closed and returns
+  `promote | audit | abstain` without inferring relation meaning from raw
+  text. Added focused coverage in
+  `SensibLaw/tests/test_legal_edge_admissibility.py`.
+  Validation:
+  `PYTHONPATH=SensibLaw ./.venv/bin/python -m pytest SensibLaw/tests/test_composed_candidate_node.py SensibLaw/tests/test_composed_candidate_admissibility.py SensibLaw/tests/test_review_claim_records.py SensibLaw/tests/test_legal_edge_admissibility.py -q`
+  -> `38 passed`
+- Landed the next promoted-graph ownership slice:
+  `SensibLaw/src/latent_promoted_graph.py` now emits promoted `legal_claim`
+  nodes plus typed `grounds_claim`, `claim_subject`, and `claim_object`
+  edges for promoted `review_relation` rows, with schema coverage in
+  `SensibLaw/schemas/sl.latent_promoted_graph.v1.schema.yaml`. The first
+  derived consumer now exists in
+  `SensibLaw/src/policy/legal_follow_graph.py`, which can reuse that
+  promoted-anchor surface instead of rebuilding legal claims from lower-layer
+  state. Validation:
+  from `SensibLaw/`:
+  `PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_latent_promoted_graph.py tests/test_legal_follow_graph.py tests/test_cross_system_phi_prototype.py -q`
+  -> `15 passed`
 - Added [SensibLaw/src/sources/worldbank_adapter.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/worldbank_adapter.py),
   [SensibLaw/src/sources/worldbank/worldbank_follow_contract.py](/home/c/Documents/code/ITIR-suite/SensibLaw/src/sources/worldbank/worldbank_follow_contract.py),
   and extended
@@ -478,7 +929,7 @@
     `PYTHONPATH=pyThunderbird .venv/bin/python -m pytest -q pyThunderbird/tests/test_follow.py`
     -> `2 passed`
 - Extended `tests/test_cross_adopter_governance.py` so the root governance
-  gate now covers join semantics and `pyThunderbird` retrieval-follow
+  gate now covers bounded union / join semantics and `pyThunderbird` retrieval-follow
   normalization in addition to the existing legal/archive families.
 - Added `tircorder-JOBBIE/tircorder/normalized_source_sidecar.py` so
   TiRCorder can emit one producer-owned normalized `source_artifact` sidecar
@@ -1197,20 +1648,12 @@
   - Updated Nat-facing status and handoff notes to reflect current reality:
     bounded mainline complete, wider proof lane complete, wider online lane
     held, and reviewer-packet support as the next missing layer.
-- Mirror Telegram support-layer boundary:
-  - Added `docs/planning/mirror_telegram_support_layer_boundary_20260401.md`
-    to freeze the current ITIR posture for the sibling Mirror Telegram work:
-    ITIR should not own top-level Telegram routing, but it should own the
-    support-layer normalization, disambiguation, parser/model lanes,
-    provenance, and labeled fallback discipline that de-brittle routing.
-  - Updated `README.md`, `TODO.md`, and `COMPACTIFIED_CONTEXT.md` so the suite
-    now records:
-    - Mirror route ownership stays local
-    - Core AI remains downstream execution rather than route authority
-    - Telegram chats are now present in `~/chat_archive.sqlite` for local-first
-      follow-up analysis
-    - the next bounded followthrough is a classifier-hardening spec in the
-      sibling Mirror repo
+- Partner support-layer boundary:
+  - Moved partner-specific Telegram routing posture into the partner client
+    documentation surface.
+  - Kept the ITIR-side record scoped to generic support-layer normalization,
+    disambiguation, parser/model lanes, provenance, and labeled fallback
+    discipline.
 - roadmap/state reconciliation checkpoint:
   - Updated `TODO.md`, `COMPACTIFIED_CONTEXT.md`, and `SensibLaw/todo.md` to
     reflect the actual substrate state as of `2026-04-01` rather than the

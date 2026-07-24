@@ -20,6 +20,7 @@ current machine-readable `sl.cross_system_phi.contract.v1` slice.
   - `docs/planning/global_latent_legal_state_cross_system_20260327.md`
   - `docs/planning/latent_state_over_promoted_truth_20260327.md`
   - `docs/architecture/admissibility_lattice.md`
+  - `docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md`
   - `SensibLaw/schemas/sl.cross_system_phi.contract.v1.schema.yaml`
 
 ## Main Decision
@@ -35,6 +36,10 @@ That means:
   the shipped schema enum
 - any migration from the bounded `v1` status grammar to richer relation kinds
   must be explicit and backward-safe
+- composition above local normalized atoms and the admissibility-vs-MDL split
+  are governed separately by
+  `docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md`
+  so this note stays focused on cross-system mapping and latent-graph schema
 
 ## Formal Definition of `Phi`
 For legal systems indexed by `i, j in I`, let:

@@ -1,5 +1,485 @@
 # Compactified Context
 
+## 2026-07-18 — P0 structural-semantics diagnostic and declaration boundary
+
+- SensibLaw's next local-only compiler slice is not a target to lower one
+  residual count. It converts parser-observable structure into factorized,
+  typed, provenance-bearing semantics while retaining unresolved identity,
+  occurrence, scope, and truth obligations.
+- Implemented the first control boundary: immutable generic reduction
+  declarations now declare their candidate-only relation-role projections; a
+  deterministic unresolved-span diagnostic partitions missing local typing by
+  public annotation shape, missing reducer capability, and PNF impact.
+- The compiler contract is `postgres-semantic-compiler:v0_3`; this invalidates
+  reductions and descendants, not canonical source text or annotations.
+- Next implementation order: use the diagnostic to add nominal-description,
+  predication, syntactic-argument, and clause/composition constraints and
+  residual-specific refinements. Do not add lexical identity catalogs,
+  corpus-specific grammar, EPUB/PDF support, external evidence, or promotion.
+
+- 2026-06-03 Perplexity/ChatGPT chat artifact resolver lane:
+  - source:
+    - Perplexity thread title:
+      `check/confirm the formalism... (attached)`
+    - online UUID:
+      `6b8e55b6-ace3-4380-b7b9-9665c7ce142b`
+    - canonical thread ID:
+      `beb01b1e573989aaa177bac5c3d8d87c7427cc60`
+    - source used:
+      `db` first, then live Perplexity export after the DB copy proved stale
+  - main findings:
+    - stale archive had 148 messages ending `2026-05-21T06:33:45Z`
+    - refreshed Perplexity export ingested 576 messages with latest message
+      `2026-06-02T17:32:42Z`
+    - generated-image/media markers were visible in raw Perplexity blocks, but
+      the original text-only ingest did not materialize binaries
+  - main decision:
+    - keep text messages canonical in `/home/c/chat_archive.sqlite`
+    - store downloaded binaries near the DB under
+      `/home/c/chat_archive_artifacts/<platform>/<source_thread_id>/`
+    - add DB artifact references/hashes so pretty exports can hyperlink local
+      assets without embedding binary blobs in `messages.text`
+    - keep StatiBaker/console logs as bounded artifacts or refs; do not roll raw
+      console streams into canonical chat message text
+  - immediate implementation lane:
+    - Perplexity exporter emits top-level `artifacts`
+    - chat archive ingest indexes those artifacts in a separate table
+    - `--artifacts-only` is the operational path for attaching new assets to an
+      already-ingested thread without replaying message upserts
+    - pretty thread exports prefer DB artifact refs and fall back to source JSON
+    - ChatGPT file/image placeholders remain the next resolver parity target
+- 2026-05-19 StatiBaker Kanboard governance closeout:
+  - source:
+    - active governance lane in
+      `status.statibaker-kanboard-promotion-governance-manager.json`
+    - stabilization already complete in
+      `status.statibaker-kanboard-stabilization-manager.json`
+    - residual note required reconciling older ~80% manager status artifacts
+  - main decision:
+    - add an executable read-only reconciliation surface instead of manual
+      status inspection, then close stale manager lanes as historical partials
+      superseded by stabilization
+  - landed code/state:
+    - `StatiBaker/sb/query.py`:
+      `kanboard_manager_wave_status(...)`
+    - `StatiBaker/scripts/query_state.py`:
+      `kanboard-manager-wave`
+    - `StatiBaker/tests/test_query_cli.py`:
+      reconciliation query coverage
+    - `StatiBaker/QUERY_SURFACE.md` updated for the new query
+    - reconciled status artifacts:
+      - `status.statibaker-kanboard-idempotency-manager.json`
+      - `status.statibaker-kanboard-live-sync-manager.json`
+      - `status.statibaker-kanboard-report-dashboard-manager.json`
+    - closed governance control-plane state:
+      - `status.statibaker-kanboard-promotion-governance-manager.json`
+      - `heartbeat.statibaker-kanboard-promotion-governance-manager.json`
+  - validation:
+    - `.venv/bin/python -m pytest -q StatiBaker/tests/test_kanboard_runsheet_adapter.py StatiBaker/tests/test_query_cli.py SensibLaw/tests/test_statibaker_kanban.py`
+    - `python StatiBaker/scripts/query_state.py kanboard-manager-wave --status-root /home/c/Documents/code/ITIR-suite`
+      -> `pending_managers=0`, `reconcile_candidates=0`
+  - governance boundary:
+    - Kanboard remains a one-way external projection
+    - local JSON remains canonical authority
+    - no private token values were found in non-test Kanboard status/heartbeat/runs/code surfaces
+- 2026-05-19 StatiBaker Lane 4 sync-report/query surface slice:
+  - source:
+    - active lane brief in `status.statibaker-kanboard-report-dashboard-manager.json`
+      requiring first-class read-only Kanboard sync artifact + query/dashboard
+      surface
+  - main decision:
+    - implement the report schema/persistence/query path first as the concrete
+      next move, while leaving dashboard metric/render integration as the
+      explicit remaining gap
+  - landed code:
+    - `StatiBaker/sb/kanboard_runsheet.py`
+      - added `sb.kanboard_sync_report.v0_1` report contract builder:
+        `build_sync_report(...)`
+    - `StatiBaker/scripts/plan_kanboard_runsheet.py`
+      - added optional `--report-output` report artifact emission
+    - `StatiBaker/sb/query.py`
+      - added read-only report query functions:
+        `kanboard_sync_report(...)`,
+        `latest_kanboard_sync_report(...)`
+    - `StatiBaker/scripts/query_state.py`
+      - added `kanboard-sync-report` query command
+    - tests:
+      - `StatiBaker/tests/test_kanboard_runsheet_adapter.py`
+      - `StatiBaker/tests/test_query_cli.py`
+  - validation:
+    - `.venv/bin/python -m pytest -q StatiBaker/tests/test_kanboard_runsheet_adapter.py StatiBaker/tests/test_query_cli.py`
+  - governance boundary:
+    - local JSON remains canonical
+    - new report/query surfaces are read-only and do not promote Kanboard to
+      authority
+    - dashboard/read-model integration remains pending
+- 2026-05-15 Wikidata external-reference alignment for Claire/Superraptor repos:
+  - source:
+    - user request to compare current ITIR/SensibLaw Wikidata capabilities
+      against:
+      `https://github.com/Superraptor/Wikibase-Wikidata-Pipeline`
+      and `https://github.com/Superraptor/wikiodk`
+  - main decision:
+    - treat `Wikibase-Wikidata-Pipeline` as an adjacent transport/edit
+      reference for local Wikibase to Wikidata mapping, missing
+      statement/reference detection, and possible reviewed upload handoff
+    - treat `wikiodk` as a local Wikibase/ODK/TTL sandbox reference, not as
+      the main Wikidata review lane
+    - keep the ITIR/SensibLaw claim distinct: external deltas become bounded
+      review packet inputs; structural/provenance/admissibility checks emit
+      review-only dispositions before any staging/export path is trusted
+  - landed docs:
+    - `docs/planning/wikidata_combined_roadmap_nat_and_assist_20260401.md`
+    - `SensibLaw/docs/planning/wikidata_octf_entrypoint_20260421.md`
+    - `TODO.md`
+    - `COMPACTIFIED_CONTEXT.md`
+  - governance boundary:
+    - docs-only update
+    - no runtime behavior, edit authority, upload path, promotion gate, or
+      external repo integration was implemented
+- 2026-05-05 Wikidata global-latent formalism clarification:
+  - source:
+    - user-provided correction distinguishing the latest ITIR/SensibLaw
+      formalism from the current Wikidata runtime implementation state
+  - main decision:
+    - document that the formalism is broader than bounded local repair
+      comparison: given a snapshot-derived global ontology index, typed
+      carriers, finite residual lattice, and filter-respecting edit stream,
+      aggregate structural incoherence is non-increasing
+    - keep the current runtime claim narrower: today the executable Wikidata
+      surfaces are bounded migration packs, PNF/residual climate review
+      packets, hotspot packs, disjointness reports, and grounding/live-follow
+      review surfaces
+    - frame bounded review packets as local projections of the future global
+      latent coherence field, not as the whole formalism
+    - preserve the governance boundary: the system may certify structural
+      coherence improvement; Wikidata community review still certifies edit
+      desirability
+  - landed docs:
+    - `SensibLaw/docs/wikidata/README.md`
+    - `SensibLaw/docs/planning/wikidata_octf_entrypoint_20260421.md`
+    - `SensibLaw/docs/planning/wikidata_migration_pack_contract_20260328.md`
+  - governance boundary:
+    - docs-only update
+    - no runtime behavior, edit authority, promotion gate, global index, or
+      QID-only repair bot was implemented
+- 2026-05-05 Wikidata Peter orientation Q&A:
+  - source:
+    - Peter Patel-Schneider questions from 2026-05-05 about how recommendations
+      are produced, what windows/schemas/Python programs do, why `sensiblaw`
+      is not found in the download, and how `manifest.json`,
+      `migration_pack.json`, `schemas/sl.wikidata_migration_pack.v1.schema.yaml`,
+      and `src/ontology/wikidata.py` relate
+  - main decision:
+    - document that the migration lane produces bounded row-level review
+      dispositions, not global Wikidata ontology policy or edit authority
+    - explain that `sensiblaw` is an installed console script from
+      `SensibLaw/pyproject.toml`, while the checkout-safe fallback is
+      `../.venv/bin/python -m cli.__main__ wikidata ...`
+    - define windows in the migration-pack context as named bounded snapshots
+      inside `slice.json`, with current-window rows classified and previous
+      windows used for drift comparison
+    - state explicitly that the migration-pack schema and
+      `src/ontology/wikidata.py` are authored repo artifacts, not generated
+  - landed docs:
+    - `SensibLaw/docs/wikidata/README.md`
+    - `SensibLaw/docs/planning/wikidata_migration_pack_contract_20260328.md`
+  - governance boundary:
+    - docs-only update
+    - no runtime behavior, edit authority, promotion gate, or automation claim
+      changed
+- 2026-05-04 Wikidata OCTF audience-routing refresh:
+  - source:
+    - user-provided audit of `wikidata_octf_entrypoint_20260421.md` against
+      Dave, Peter, Ege, and Rosario reader needs
+  - main decision:
+    - add an explicit reader matrix near the top of the OCTF entrypoint and
+      mirror it in the practical Wikidata README
+    - move the worked climate example before the technical PNF/body section
+    - rewrite the progress/PNF wording so the reviewer-facing consequence
+      appears before internal architecture vocabulary
+    - gate CLI commands for technical contributors and add plain-language leads
+      for hotspot and disjointness lanes
+  - landed docs:
+    - `SensibLaw/docs/planning/wikidata_octf_entrypoint_20260421.md`
+    - `SensibLaw/docs/wikidata/README.md`
+  - governance boundary:
+    - docs-only update
+    - no runtime behavior, edit authority, promotion gate, or automation claim
+      changed
+- 2026-05-04 Wikidata practical README + OCTF entrypoint refresh:
+  - source:
+    - user-provided critique of the April 21 Wikidata OCTF entrypoint and the
+      missing README-style start-to-finish path
+  - main decision:
+    - keep the current repo claim narrower than a new Wikidata engine but
+      stronger than no change:
+      candidate findings are non-authoritative, bounded packs/reports are the
+      review surface, and only locally complete checked-safe rows are staged
+    - make the operational states explicit:
+      `candidate-only`, `reviewable`, `held`, `promotable`
+    - lead the entrypoint from the reader problem and one worked climate
+      example before the CLI material
+  - landed docs:
+    - `SensibLaw/docs/wikidata/README.md`
+    - `SensibLaw/docs/planning/wikidata_octf_entrypoint_20260421.md`
+    - `SensibLaw/docs/wikidata_working_group_status.md`
+  - governance boundary:
+    - docs-only update
+    - no runtime behavior, edit authority, promotion gate, or automation claim
+      changed
+- 2026-05-02 Wikidata temporal-PNF constraint contract:
+  - source:
+    - user-provided formalism in current Codex session
+  - main decision:
+    - climate temporal/multi-value checks and mereology/parthood interval
+      checks share one PNF/residual skeleton:
+      `delta = add(P, v, Q)` over bounded item slice `S(I)`
+    - compute `TempFam(P, I)` from existing statements in the bounded slice
+    - route missing temporal qualifiers to `INCOMPLETE_tau` with reason
+      `missing_temporal_qualifier`
+    - route exclusive temporal overlaps to `CONTRADICTION_mu` with reason
+      `temporal_exclusive_overlap`
+  - governance boundary:
+    - this is a docs/planning contract only
+    - no runtime behavior, promotion gate, edit authority, revert, or
+      automation claim changed
+  - landed docs:
+    - `SensibLaw/docs/planning/wikidata_temporal_pnf_constraint_contract_20260502.md`
+    - `SensibLaw/docs/wikidata_working_group_status.md`
+    - `TODO.md`
+- 2026-04-29 Wikidata/OCTF refreshed thread + Lane C decision:
+  - refreshed canonical chat:
+    - title:
+      `Migration Frameworks Overview`
+    - online UUID:
+      `69da2fc0-91f0-8398-ba99-08ba3de9f00c`
+    - canonical thread id:
+      `04dc7e26af03cd050d18560b2d53db9fb988595b`
+    - source:
+      `db` after successful UUID pull into `~/chat_archive.sqlite`
+  - main pulled decision:
+    - freeze OCTF/Peter wording at the current review-first intermediate-layer
+      claim
+    - treat Lane C as the bottleneck:
+      build the smallest executable `P5991 -> P14143` demonstrator showing:
+      `candidate change -> text-side predicate carrier -> residual/completeness object -> held/promotable disposition`
+    - keep the safe repo claim:
+      non-authoritative signals, bounded review surfaces, no hidden edit
+      authority
+  - immediate repo alignment:
+    - refresh `SensibLaw/docs/wikidata_working_group_status.md`
+    - dedupe repeated `Q10403939` narrative down to links
+    - implement one bounded runtime demonstrator over the existing real
+      Akademiska Hus packet + climate text artifacts
+- 2026-04-17 legal IR `Phi` composition / admissibility boundary:
+  - source:
+    - internal planning/archive note, sanitized for repo-facing context
+    - specific chat/archive identifiers intentionally omitted
+  - main topics:
+    - minimal canonical `Phi` substrate
+    - composition above `Phi` into challengeable proposition/event candidates
+    - wrapper-aware admissibility as the authority boundary
+    - MDL compression over repeated candidate signatures as a separate
+      derived layer
+  - landed docs:
+    - `docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md`
+    - `docs/architecture/admissibility_lattice.md`
+    - root `README.md`
+    - root `TODO.md`
+  - landed code:
+    - `SensibLaw/src/models/composed_candidate_node.py`
+    - `SensibLaw/src/composed_candidate_admissibility.py`
+    - `SensibLaw/src/legal_edge_admissibility.py`
+    - `SensibLaw/src/latent_promoted_graph.py`
+    - `SensibLaw/src/policy/review_claim_records.py`
+    - `SensibLaw/src/policy/legal_follow_graph.py`
+    - `SensibLaw/schemas/sl.composed_candidate_node.v1.schema.yaml`
+    - `SensibLaw/schemas/sl.latent_promoted_graph.v1.schema.yaml`
+    - `SensibLaw/tests/test_composed_candidate_node.py`
+    - `SensibLaw/tests/test_composed_candidate_admissibility.py`
+    - `SensibLaw/tests/test_legal_edge_admissibility.py`
+    - `SensibLaw/tests/test_latent_promoted_graph.py`
+    - `SensibLaw/tests/test_legal_follow_graph.py`
+    - `SensibLaw/tests/test_review_claim_records.py`
+  - control read:
+    - keep the stack explicit as:
+      `Phi -> composed candidate nodes -> admissibility -> promoted records -> derived graph`
+    - do not let graph density, clustering, or MDL naming behave like hidden
+      admissibility or promotion
+    - keep normalization minimal and canonical:
+      - smallest replayable `Phi` atoms
+      - centralized composition owner
+      - centralized admissibility owner
+      - latent/MDL owner kept derived and non-promotive
+    - first downstream consumer is now the shared review-claim adapter:
+      composed candidate node -> `review_candidate`
+    - keep that adapter-only bridge narrow:
+      - no promoted output path
+      - no fact-intake bundle widening
+      - no truth-bearing reinterpretation of candidate state
+    - first graphable legal edge gate is now explicit and structural:
+      - typed `relation_kind`
+      - endpoint admissibility inputs
+      - wrapper/status compatibility
+      - section/genre compatibility
+      - shared linkage / shared content where required
+      - structural status conflict for `contradicts` / `overrules`
+    - contradiction remains structural and typed:
+      never infer it from free-text markers
+    - promoted legal relation ownership is now explicit:
+      - promoted `review_relation` rows emit promoted `legal_claim` nodes
+      - legal claim role edges are typed as `grounds_claim`,
+        `claim_subject`, and `claim_object`
+      - the AU legal-follow graph is now the first derived consumer of that
+        promoted surface
+    - current next bounded step:
+      - keep promoted legal relation ownership in the latent graph unchanged
+      - wire typed `legal_edge_admissibility` output onto derived
+        `asserts_*` edges in `SensibLaw/src/policy/legal_follow_graph.py`
+      - do not introduce lexical relation inference or a separate promoted
+        edge owner layer unless provenance-join reuse proves insufficient
+    - landed worker followthrough:
+      - `SensibLaw/src/policy/legal_follow_graph.py` now summarizes
+        `asserts_*` edge admissibility in graph summary and operator-view
+        surfaces
+      - legal-claim reviewer packets now expose bounded edge-admissibility
+        detail rows and an `edge_admissibility_queue`
+      - `SensibLaw/src/fact_intake/au_review_bundle.py` now exposes summary-
+        level legal-follow edge-admissibility counts downstream in both
+        `semantic_context.legal_follow_graph.summary` and
+        `operator_views.legal_follow_graph.summary`
+    - current next bounded operator step:
+      - keep the same typed edge-admissibility source unchanged
+      - use it to rank legal-claim review pressure in the derived operator
+        queue
+      - allow AU workflow guidance to switch toward legal-follow review when
+        structural admissibility pressure dominates
+      - do not widen this into a new graph owner, semantic inference layer,
+        or alternate promotion path
+    - landed worker followthrough, round 2:
+      - `SensibLaw/src/policy/legal_follow_graph.py` now ranks legal-claim
+        review packets from structural edge-admissibility pressure and exposes
+        bounded priority rollups in the operator summary
+      - `SensibLaw/src/fact_intake/review_bundle.py` now lets AU workflow
+        guidance recommend `legal_follow_graph` when legal-follow
+        admissibility review pressure dominates promotion pressure
+  - validation:
+    - `PYTHONPATH=SensibLaw ./.venv/bin/python -m pytest SensibLaw/tests/test_composed_candidate_node.py SensibLaw/tests/test_composed_candidate_admissibility.py SensibLaw/tests/test_review_claim_records.py SensibLaw/tests/test_legal_edge_admissibility.py -q`
+      -> `38 passed`
+    - from `SensibLaw/`:
+      `PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_latent_promoted_graph.py tests/test_legal_follow_graph.py tests/test_cross_system_phi_prototype.py -q`
+      -> `15 passed`
+    - from `SensibLaw/` after downstream AU bundle exposure:
+      `PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_legal_follow_graph.py tests/test_au_fact_review_bundle.py tests/test_latent_promoted_graph.py tests/test_cross_system_phi_prototype.py -q`
+      -> `26 passed`
+    - from `SensibLaw/` after legal-follow priority steering:
+      `PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_legal_follow_graph.py tests/test_au_fact_review_bundle.py tests/test_latent_promoted_graph.py tests/test_cross_system_phi_prototype.py -q`
+      -> `29 passed`
+- 2026-04-07 guarded MCP and Windows-compliance planning from resolved chat archive:
+  - resolved thread:
+    - `LiteLLM hack analysis`
+      - online UUID:
+        `69ce0ac6-dd2c-839f-8b84-a0d397285f90`
+      - canonical thread ID:
+        `130c635a73d780dfb0552107cc0a77a77d4cfea9`
+      - source:
+        `db` after direct UUID pull into the canonical archive
+  - main decisions:
+    - MCP should be treated as the canonical integration and contract layer,
+      not as one transport option among several
+    - guarded invocation is the real system seam:
+      - tool outputs are proposals until verified
+      - policy, explanation, and enforcement should share one reason-code
+        vocabulary
+      - `SB` receipts are the authoritative audit surface for consequential
+        decisions
+    - the next systems-facing expansion is a planned Windows endpoint lane
+      under the same doctrine:
+      - observe
+      - evaluate
+      - plan
+      - act
+    - Windows tooling should stay evidence-first:
+      - normalized endpoint evidence in
+      - executable control evaluation
+      - remediation plan before any action
+      - action remains harder than collection or evaluation
+  - docs aligned:
+    - `itir-mcp/README.md`
+    - `itir-mcp/docs/interfaces.md`
+    - `docs/planning/project_interfaces.md`
+    - `docs/planning/itir_windows_compliance_mcp_contract_20260407.md`
+    - `TODO.md`
+
+- 2026-04-07 managed-host vs public-discovery trust split:
+  - main decisions:
+    - full-stack managers, remote access, rollout, patching, and fleet
+      configuration fit the same internal higher-trust control loop:
+      observe -> evaluate -> plan -> approve/gate -> apply -> verify -> receipt
+    - Linux should be treated as the same managed-host class as Windows, but
+      over a distributed configuration substrate:
+      - files
+      - services
+      - kernel/sysctl state
+      - firewall/network state
+      - package/runtime state
+    - public repo/social discovery is a separate lower-trust lane for:
+      - candidate risk findings
+      - repo surface extraction
+      - workflow/auth/update-path inspection
+      - follow obligations and internal exposure checks
+    - the governing doctrine is:
+      - public discovery proposes risk
+      - internal evidence authorizes action
+  - docs aligned:
+    - `docs/planning/itir_windows_compliance_mcp_contract_20260407.md`
+    - `docs/planning/itir_linux_compliance_mcp_contract_20260407.md`
+    - `docs/planning/itir_public_repo_security_discovery_contract_20260407.md`
+    - `README.md`
+    - `TODO.md`
+    - `itir-mcp/README.md`
+    - `itir-mcp/docs/interfaces.md`
+
+- 2026-04-06 observation-substrate clarification from resolved chat archive:
+  - resolved threads:
+    - `Enshittification Failure Model`
+      - online UUID:
+        `69d1d8da-5c44-83a0-a69a-48b2336866be`
+      - canonical thread ID:
+        `a8d28b4c2a5caf03a05cb5ab357da933083782fc`
+      - source:
+        `db`
+    - `Bilawal Sidhu Projects`
+      - online UUID:
+        `69d3972d-e824-83a1-b9d9-fbbdb90e702c`
+      - canonical thread ID:
+        `97a99d7fcfe7fc65b523c679b4ef565c62d333b6`
+      - source:
+        `db`
+    - `Interpreting Politico Dynamics`
+      - online UUID:
+        `69d303ba-4d00-8398-bf6d-3c128d6e5509`
+      - canonical thread ID:
+        `34e976292a728c965c4a128387e3b1965e870410`
+      - source:
+        `db`
+  - main decision:
+    - `WorldMonitor` and `OpenRecall` should be treated as external and
+      internal observation sources in the same substrate, not as separate
+      semantic planes
+    - the next honest seam is shared observation-ingestion normalization into
+      the existing `SensibLaw` relation/equivalence path
+    - explicitly hold:
+      - cognitive-join machinery
+      - attention invariants
+      - perception-vs-truth divergence / Delta-cone work
+      - broader slice-state regime work
+    - docs updated:
+      - `SensibLaw/README.md`
+      - `SensibLaw/todo.md`
+      - `SensibLaw/docs/external_ingestion.md`
+
 - 2026-04-03 Wikidata/Nat live-follow receipt feedback:
   - landed:
     - `SensibLaw/src/ontology/wikidata_grounding_depth.py` now accepts
@@ -1224,30 +1704,30 @@
   - documentation artifact:
     - `docs/planning/wiki_revision_monitor_provenance_path_boundary_20260401.md`
 
-- 2026-04-01 Mirror Telegram support-layer boundary:
-  - source: current working turn plus sibling Mirror docs and local archive
+- 2026-04-01 partner-client support-layer boundary:
+  - source: current working turn plus partner-client docs and local archive
     checks via `robust-context-fetch`
-  - sibling docs checked:
-    - `/home/c/Documents/code/mirror_community_mgr/docs/MIRROR_AI_ITIR_INTEGRATION_CONTRACT.md`
-    - `/home/c/Documents/code/mirror_community_mgr/docs/MIRROR_AI_ITIR_PHASE1_TOOL_MAP.md`
-    - `/home/c/Documents/code/mirror_community_mgr/docs/MIRROR_AI_CORE_AI_API_CONTRACT.md`
+  - partner-client docs checked:
+    - partner integration contract
+    - partner phase-1 tool map
+    - partner core execution API contract
   - ITIR doctrine checked:
     - `docs/planning/hca_case_s942025_ingest_followups_20260211.md`
     - `docs/planning/priority_execution_sequence_20260306.md`
     - `docs/planning/wiki_timeline_extraction_gwb_20260211.md`
     - `docs/planning/assumption_stress_test_20260208.md`
   - archive note:
-    - Telegram-related chats are now present in `~/chat_archive.sqlite`
     - local resolver checks on `2026-04-01` returned DB-side FTS candidates
-      for Telegram queries, so follow-up analysis can now stay local-first
-    - this pass did not pin one single canonical Mirror Telegram thread title;
-      the archive result is still sufficient to justify recording the repo
-      stance and using the DB for future sharper retrieval
+      for channel-routing queries, so follow-up analysis can stay local-first
+    - this pass did not pin one single canonical partner thread title; the
+      archive result is still sufficient to justify recording the repo stance
+      and using the DB for future sharper retrieval
   - main decision:
-    - ITIR should not be the top-level Telegram routing authority for Mirror
+    - ITIR should not be the top-level channel-routing authority for the
+      partner client
     - ITIR should instead act as the support layer that de-brittles the
-      routing substrate under Mirror's locally owned router
-    - Mirror keeps route ownership and user-facing policy
+      routing substrate under the partner client's locally owned router
+    - the partner client keeps route ownership and user-facing policy
     - Core AI remains downstream execution, not route selection
   - intended support-lane split:
     - ingest normalization
@@ -1256,15 +1736,14 @@
     - labeled regex or keyword fallback hygiene
     - typed logic-model outputs with confidence or conflict markers
     - provenance and policy-profile attachment
-    - Mirror-local router consumption
+    - partner-local router consumption
   - missing gap now made explicit:
     - canonical token or lexeme layer for Telegram text
     - typed semantic observations instead of raw keyword gates
     - fallback labeling and provenance on classifier outcomes
     - lexical-noise and collision fixture suites as merge gates
     - reviewed protected-disclosure policy profile
-  - artifact:
-    - `docs/planning/mirror_telegram_support_layer_boundary_20260401.md`
+  - artifact moved to the partner-client documentation surface
 
 - 2026-04-01 substrate status / roadmap reconciliation checkpoint:
   - source: current working turn
@@ -1754,11 +2233,17 @@
       - a compact model-allocation block with scorecard and escalation rules
     - a master orchestrator coordinating multiple namespaced
       `autonomous-orchestrator` runners is supported by convention
-    - first-class master/sub-orchestrator support is not yet implemented:
-      no parent registry, no lane claims, no lifecycle/reporting contract
+    - first-class master/sub-orchestrator support is now implemented:
+      parent metadata, lane/claim ownership, registry, and parent-report
+      workflow data all live in the shared runtime
   - repo state note:
-    - the next control-plane step is hierarchical orchestrator support via a
-      bounded registry/ownership layer rather than more implicit convention
+    - hierarchical orchestrator support now materializes as:
+      - `.autonomous-orchestrator/registry.json` with heartbeats and lane claims
+      - `.autonomous-orchestrator/lane_claims/<orchestrator>.json`
+      - `.autonomous-orchestrator/parent_reports/<parent>.json` for completion
+      histories
+    - idle-complete transitions still write the metadata/registry/parent
+      completion surfaces documented above so the documented state stays valid
 
 - 2026-03-28 largest-file refactor / normalization audit:
   - source: current working turn
@@ -5357,3 +5842,266 @@
       reference URL being pinned for those rows
   - next Nat blocker is now local reference-url coverage for the reconciled
     non-business variance lane
+
+## 2026-07-16 generic compiler-convergence decision
+
+- Governing plan:
+  `docs/planning/generic_world_model_compiler_convergence_20260716.md`.
+- Nat, Peter/Ege/Rosario, GWB, AU, Brexit, and Affidavit are proving tranches
+  for one generic world-model compiler, not separate semantic products.
+- Immediate sequence: isolate the revision-pinned Apoteket slice; make Nat
+  emit explicit policy-DSP residuals; admit governed conforming members into
+  versioned invariants; construct the typed residual graph; emit review-only
+  split/disjoint/bridge/abstraction proposals; then run residual-topology
+  analysis. Generic GWB/AU/Brexit/Affidavit replay follows as the proof that
+  this mature surface is shared; supplied observations/closure, broader proving
+  packs, multi-view input, and routed Zelph transport follow.
+- Runtime owns graph traversal, coverage, cohort induction, and pressure
+  evidence. DASHI owns only the formal candidate-only/non-authority,
+  inspection-relative no-typed-meet, and admitted finite pressure-join laws;
+  it does not prove live WD performance or traversal.
+- Nat's `P5991 -> P14143` work is the first policy-anchored DSP tranche:
+  documented climate-model/migration expectations and subject/statement
+  structure generate pressure before cohort frequency does. The existing
+  five-item climate pack is a migration proving pack, not a generic company
+  cohort; cohort-derived DSP is a second, separately receipted evidence source.
+- 2026-07-16 implemented first runtime seam: generic
+  `src/policy/domain_pressure.py::build_pressure_assessment(...)` and Nat's
+  migration-pack adapter now emit a `DomainPressureAssessment` for every
+  candidate. It separates target-model, subject-type, qualifier, reference,
+  temporal, split, and pending peer-cohort residuals; the legacy A--E bucket is
+  only `review_disposition`, while authority stays `diagnostic_only` and
+  promotion remains `not_evaluated`. The migration-pack schema declares the
+  carrier. Focused tests: 79 passed across the carrier, materializer, and
+  projection suites.
+
+## 2026-07-16 governed invariant and residual-topology refinement
+
+- Live Nat discovery is the immediate input seam before invariant learning:
+  bounded statement-level `company_direct` WDQS pages record query hash,
+  ordering/cursor, source claim GUID, rank, direct `P31`, and target-property
+  coexistence; each row is reconciled against a current pinned entity export.
+  Only `statement_reconciled` rows reach the existing A--E classifier. The
+  first three-row smoke page reconciled `Q101416961@2419927005` and produced
+  three review-only Family-B split rows, not a migration or cohort admission.
+- The generic `domain_invariants` carrier now implements the admission gate:
+  only independently confirmed, pinned, observed members with reviewer
+  authority and explicit feature contributions produce trusted-member,
+  contribution, snapshot, and revision records. A Family A/B/C classifier
+  disposition is not itself an admission decision; all records remain
+  non-promoting and non-editing.
+- `review_confirmation` now supplies that missing explicit decision boundary:
+  it references a candidate/packet and pinned source, names review authority
+  and a confirmed disposition, requires an approved split plan for split
+  confirmations, and is the only implemented conversion to a trusted member.
+
+- The current DSP target is not static. For a policy-anchored domain it is the
+  intersection of the documented policy model and a revisioned cohort of
+  independently reviewed conforming members. Normative requirements, empirical
+  regularities, conditional variation, and legacy/noise must remain distinct.
+- Only governed conformant dispositions may update that cohort; held,
+  unresolved, ambiguous, manual-reconstruction, and coverage-incomplete cases
+  cannot train it. Required artifacts: `DomainInvariantSnapshot`,
+  `TrustedConformingMember`, `InvariantContributionReceipt`, and
+  `InvariantRevisionReceipt`.
+- The next generic DSP stage retains rich residual vectors and builds a bounded
+  context-gated typed residual graph. It distinguishes compatible similarity,
+  incompatibility/disjointness, inadmissible analogy, and insufficient
+  coverage; it may propose nearby classes, splits, disjointness, bridge
+  classes, exception clusters, or new abstractions, but never edits ontology or
+  promotes claims automatically.
+- The first executable profile/packet/graph seam now exists: generic
+  `TypedResidualProfile` projects the same reconciled evidence into compact
+  Family-B review packets and a typed residual graph. The live three-row
+  `Q101416961@2419927005` page emitted three packets and three
+  `unknown_due_to_coverage` edges; unresolved peer-cohort pressure cannot be
+  converted into similarity before explicit review confirmation/trusted
+  admission. Next is a real reviewed split confirmation followed by
+  graph-backed, review-only split/merge/disjoint/bridge/abstraction proposals.
+
+## 2026-07-16 ontology-class merge safety decision
+
+- Ontology merge is now a first-class residual-topology proposal family,
+  balanced with split and disjointness. It corrects a proliferation bias:
+  unsupported boundaries between two classes may warrant a merge review rather
+  than a new subclass/class.
+- `DASHI.Interop.GovernedResidualOntologyLearning` (uncommitted in
+  `../dashi_agda`) now formalizes `OntologyMergeCandidate`, geometry-only
+  non-reviewability, `MergeImpactReport`, `ConservativeMergeGate`, and a
+  review-only checked merge receipt. Focused Agda validation and diff checks
+  were reported as passing; no full `Everything.agda` run was claimed.
+- Geometry convergence alone never permits a merge. A direct merge requires
+  adequate coverage, normative compatibility, no typed or conditional
+  obstruction, relation substitutability, bounded downstream impact, and
+  complete provenance transfer. Even a checked receipt cannot redirect a class
+  or mutate ontology.
+- Runtime work remains pending: proposal generation must emit merge candidates
+  and alternatives (new abstraction, shared superclass, bridge class,
+  conditional distinction, historical alias, held/blocked/incomplete) from the
+  typed residual graph. No automatic ontology merge is authorized.
+
+## 2026-07-16 immutable invariant-replay decision
+
+- The first real governed learning event is a reviewer-approved Family-B split
+  whose contribution contains the conforming target-statement shapes, never
+  the malformed P5991 source bundle. It creates `I1` through a trusted member
+  and contribution receipt.
+- Earlier `I0` assessments, packets, profiles, and graph artifacts remain
+  immutable. A replay names the source graph/snapshot, the revised snapshot,
+  and preserves candidate plus pinned source revision. It explicitly records
+  which residual/comparison states changed or remained unknown.
+- The generic replay carrier validates supplied reassessments and projects the
+  later graph; it never derives climate semantics from cohort counts. The Nat
+  profile decides whether a trusted target statement grounds peer-cohort
+  pressure. The same replay carrier is intended for every future tranche.
+
+## 2026-07-16 rejected live Family-B packet and statement-family correction
+
+- The saved live `Q101416961@2419927005` export contains four separate `P5991`
+  GUIDs: three scoped components (`394`, `66755`, `4024`) and an unscoped total
+  (`71173`); components sum exactly to the total. Review rejected the emitted
+  three packets before confirmation as `rejected_classifier_error`.
+- Root cause: `_detect_independent_axes` treated value/qualifier diversity
+  across a `subject|property` family as an independent axis of every atomic
+  statement. Discovery filtering also supplied only three selected GUIDs to
+  the classifier and hid the fourth sibling.
+- Correct contract: GUIDs are atomic candidates. Complete family context may
+  record partitioning, duplicate/overlap and total/component reconciliation,
+  but sibling diversity never alone creates a split requirement. Selected
+  discovery rows must hydrate all pinned source-property siblings. The rejected
+  artifacts remain negative regression evidence and cannot train `I1`.
+- Implementation result: `src/policy/statement_family_context.py` now owns the
+  generic carrier; the Wikidata wrapper supplies scope properties only.
+  Q101416961's same-year `P580`/`P582` interval is accepted as one annual
+  statement. A rerun of the same selected three GUIDs produced three Family-A
+  `safe_with_reference_transfer` candidates with four-member complete context,
+  `already_partitioned` scope state and `exact_reconciliation`; zero packets,
+  zero graph nodes, and no invariant contribution.
+- A corrected live 25-GUID page (four entities) found no genuine Family-B
+  source: 9 `safe_with_reference_transfer` candidates, 9 scope-overlap holds,
+  and 7 total-component-contradiction/multi-year holds. The next review packet
+  projection must cover those family-conflict holds explicitly; none is a
+  split candidate merely because it has multiple sibling statements.
+
+## 2026-07-16 all-row live review packets
+
+- Generic compact packet projection now covers every reconciled page candidate:
+  model-conformance, decomposition, and family-conflict hold are distinct
+  interaction shapes over the same `TypedResidualProfile`.
+- Live rerun of the 25-statement `P5991 -> P14143` company-direct page emitted
+  25 packets: 9 model-conformance and 16 family-conflict holds. The hold
+  evidence records 9 `scope_overlap`, 7 `component_total_contradiction`, 7
+  `period_mismatch`, and 12 `unknown_scope_partition` residual occurrences.
+  Its 300 graph edges remain `unknown_due_to_coverage`; there is no trusted
+  empirical cohort yet.
+- First suitable confirmation candidate is
+  `Q101416961|P5991|1 @ 2419927005`: +4024, explicit scope, GHG Protocol,
+  2024 interval, cited source, complete four-statement family, and exact
+  component/total reconciliation. It remains only a review packet until a
+  reviewer explicitly confirms it.
+
+## 2026-07-16 first approved invariant contribution
+
+- `reviewer:GPTofJohl` explicitly confirmed
+  `Q101416961|P5991|1` at `Q101416961@2419927005` as
+  `confirmed_model_conformant`. The decision covers only the target `P14143`
+  statement shape represented by
+  `Q101416961$FA70FC6A-B0CD-4838-8475-375506C8B6FB`: annual 2024,
+  GHG Protocol, cited source, complete sibling-family coverage, and exact
+  component/total reconciliation.
+- The materialization at `/tmp/nat-packets-live-25/invariant_i1/` produced a
+  review confirmation, trusted member, contribution receipt, I1 snapshot, and
+  immutable replay of the remaining 24 candidates. It explicitly authorizes
+  no Wikidata edit, automatic promotion, or migration execution.
+- I1 has one trusted explicitly scoped component member within the reconciled
+  four-statement family. The 24 replayed profiles retain
+  `unknown_due_to_coverage` peer relations (276 edges): one confirmed shape
+  does not establish comparability for differently scoped or conflicted rows.
+  I0 assessments and the original 25-node/300-edge graph remain immutable.
+
+## 2026-07-16 family-witnessed contribution and bounded migration-rule decision
+
+- The Q101416961 approval is one atomic candidate statement whose conformance
+  depends on a complete, exactly reconciled four-statement family. Generic
+  trusted-member/contribution records must carry a conformance-context witness,
+  selected-candidate-only contribution scope, and dependency group; sibling
+  statements in one report are not independent empirical observations.
+- Bulk `P5991 -> P14143` migration is contract/rule driven, not exemplar
+  similarity or global predicate renaming. Reviewed structural families lead
+  to versioned transformation rules with exact applicability detectors; only
+  after complete dry-run coverage, stratified validation, rule approval, and a
+  revision-pinned manifest may bounded canary execution be considered. Current
+  authorization remains review/invariant/replay only, with no edits.
+- The first I1 artifact was reissued at
+  `/tmp/nat-packets-live-25/invariant_i1_family_witness/` with a concrete
+  family-conformance witness and dependency group. Its new snapshot is
+  `domain-invariant:df866ca204c0d6e9f69f6b25f633be8981522fa196f55abfebbef62ecc3c61f6`;
+  replayed 24 profiles had zero changed residual transitions.
+- A 100-statement revision-pinned online `company_direct` dry run reconciled
+  every discovered GUID across seven entities. It emitted 78 conformance and
+  22 family-conflict packets; all 4,950 graph edges remain
+  `unknown_due_to_coverage`, so it grants no migration or cohort authority.
+## 2026-07-17 Nat contract-discovery sprint
+
+- The first governed live loop is closed through a family-witnessed trusted
+  contribution and immutable `I0 -> I1` replay, but no migration rule is
+  approved and no execution manifest exists.
+- Nat rule calibration and whole-population dry-run coverage are one iterative
+  sprint: bounded page -> independent positives/near-misses -> exact detector
+  refinement -> cumulative coverage rerun.
+- Initial candidate contracts are A1 atomic annual total, A2 atomic scoped
+  component in a coherent complete family, A3 already-separated annual
+  series, followed by B1 true overload, C1 repairable incompleteness, and
+  explicit D/E exclusions.
+- A legacy A-E classifier result is not a rule match. Generic detector results
+  must preserve predicate states, reason codes, coverage, and dependency
+  groups. Incomplete/conflicting family evidence abstains.
+- Similarity may nominate a contract but cannot authorize migration. Candidate
+  rules and coverage reports remain non-executing and non-authoritative.
+- Implemented candidate A1/A2/A3 profile detectors over the generic
+  transformation-rule carrier, with predicate-level reason codes and
+  dependency grouping. A3 currently abstains unless whole-family period
+  partition and member conformance are supplied.
+- Live discovery now uses bounded rate-limit retry/pacing and a lossless
+  composite `(QID, statement GUID)` cursor. QID-only pages are samples, not
+  cumulative coverage.
+- The first contiguous two-page report covers 400 statements / 28 dependency
+  groups: 4 candidate-rule matches (all Q101416961), 115 no-rule, 281
+  incomplete, 0 approved-rule matches. `population_exhausted=false`; no edit or
+  execution manifest exists.
+- The immediate Sprint 1 priority is coverage reduction, not premature B1/C1
+  proliferation: 281/400 rows abstained because A3 lacked whole-family period
+  partition and independently assessed member evidence. Add generic
+  incomplete-evidence histograms and generic family-member evidence hydration;
+  the climate profile supplies normalized WD periods/conformance only. Then
+  distinguish recoverable retrieval/inspection gaps from genuine source data
+  and policy gaps, and add explicit target-domain exclusions before modelling
+  remaining complete negative rows as new semantic rules.
+- The generic family-member hydration pass closed the recoverable frontier on
+  the same two 200-row composite pages: 400 statements / 28 dependency groups
+  now yield 4 candidate-rule matches (one Q101416961 family), 396 complete
+  no-rule/hold rows, and zero abstentions. This is not extra eligibility: all
+  sibling data was already in the pinned exports but had not been assessed.
+  Generic reports now aggregate incomplete evidence kinds, explicit-exclusion
+  reasons, and deduplicated no-rule reasons; next is a typed partition of that
+  396-row residual population before B1/C1, while lossless pagination proceeds
+  to an exhaustion-proving short page.
+- The next Nat Sprint 1 output is family/dependency-group geometry, not more
+  row-level rule counts: 400 coverage-complete statements collapse to 28
+  dependency groups. Build a generic inventory of profile-provided primary
+  obstruction, secondary evidence, affected statement subset and non-executing
+  family action. Climate owns the typed F1--F8 period/scope/total/semantic
+  labels; shared coverage owns grouping and preservation. `family_conflict`
+  and `annual_period_partition_unresolved` are gates/reason aggregates, not
+  final diagnoses. Retain normalized period shapes and explicitly distinguish
+  a member independently safe from one blocked by sibling overlap,
+  contradiction, exclusion handling, or reconstruction.
+- Implemented and live-replayed the generic family inventory. The first two
+  composite pages remain a non-exhausted 400-statement / 28-family prefix with
+  four candidate matches from one F1 control family and 396 complete
+  no-rule/hold rows. Primary family geometry is F1 coherent partitioned
+  component/total = 1, F4 scope partition/overload = 16, F5 total
+  reconciliation conflict = 11. Q101416961 is correctly F1 with
+  `same_annual_period_component_partition`; equal 2024 component periods do
+  not imply a period conflict. Next: inspect F4 then encode F5 total conflicts
+  as typed residual evidence before B1/C1 or partial-family-migration policy.
