@@ -1,0 +1,35 @@
+{
+  "schema_version": "itir.gwb_timeline_scorecard_baseline.v0_2",
+  "baseline_ref": "baseline:gwb-timeline-scorecard:v0_2",
+  "corpus_ref": "corpus:gwb-versioned-local:v0_2",
+  "measurement_ref": "measurement:gwb-timeline-event-inventory:pr6-validation",
+  "counting_contract": "document-local source-backed event rows after current corpus admission and deduplication",
+  "observed_event_count": 223,
+  "accepted_regression_event_count": 223,
+  "superseded_legacy_expectation": {
+    "event_count": 320,
+    "state": "superseded_unreconciled_expectation",
+    "reason": "The legacy expectation did not match the versioned corpus admitted by ITIR-suite PR #6. Corpus rows were not fabricated or duplicated to satisfy it."
+  },
+  "evidence_refs": [
+    "github:chboishabba/ITIR-suite#6",
+    "commit:3850a434dc3a46b2faae63a3852497e2152732a0",
+    "docs:planning/gwb_cross_document_event_braid_20260705"
+  ],
+  "scope": {
+    "includes": [
+      "document-local event rows present in the versioned GWB corpus",
+      "source-backed event lineage admitted by the current scorecard"
+    ],
+    "excludes": [
+      "inferred cross-document events not materialised as local rows",
+      "claims of historical completeness",
+      "promoted global timeline truth"
+    ]
+  },
+  "rebaseline_state": "accepted_for_regression",
+  "future_change_rule": "A future count change requires a new baseline revision with source-revision, admission, deduplication, and event-lineage evidence.",
+  "semantic_state_promoted": false,
+  "timeline_complete": false,
+  "historical_truth_closed": false
+}
