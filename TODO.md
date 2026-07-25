@@ -1,5 +1,1563 @@
 # TODO (ITIR-suite)
 
+#Added 24/7/26 JB
+Yes. The better unifying picture is not merely a cyclic pipeline of engines. It is a **fibred semantic construction**.
+
+The items we were listing—
+
+```text
+spaCy observations
+semantic typing
+entity/link candidates
+operator composition
+scope and attachment
+Wikidata enrichment
+rule closure
+constraint derivation
+residual generation
+```
+
+—are not peer stages producing one flat graph. They populate, transform, compare, and transport **fibres over semantic coordinates**.
+
+## 1. The base is the coordinate system
+
+Let (\mathcal C) be the base category of semantic coordinates. Objects might include:
+
+[
+c=
+(\text{document},
+\text{scope},
+\text{source span},
+\text{statement role},
+\text{factor family}).
+]
+
+Examples:
+
+```text
+(document D, sentence 4, span 81–96, eventuality)
+(document D, section 7, clause C, exception-host)
+(document D, mention M, entity-link)
+(document D, statement S, causal-validation)
+```
+
+Morphisms in (\mathcal C) express structural relations such as:
+
+* span inclusion;
+* sentence contained in section;
+* qualifier belonging to statement;
+* mention participating in eventuality;
+* local factor contributing to composed factor;
+* document coordinate mapping to an external ontology coordinate.
+
+The base therefore tells us **what semantic question or coordinate a derivation concerns**.
+
+## 2. The fibre contains the admissible interpretations and derivations
+
+Let
+
+[
+\pi:\mathcal E\to\mathcal C
+]
+
+be a fibration-like projection from the total semantic evidence space (\mathcal E) to coordinates.
+
+For each coordinate (c), the fibre is:
+
+[
+\mathcal E_c=\pi^{-1}(c).
+]
+
+That fibre may contain:
+
+* parser observations;
+* semantic-type hypotheses;
+* entity-link candidates;
+* scope alternatives;
+* composed factors;
+* supporting derivations;
+* contradicting derivations;
+* constraint assessments;
+* residual obligations;
+* external knowledge evidence.
+
+So for a mention (m), the fibre might be:
+
+[
+\mathcal E_m=
+{
+\text{person candidate},
+\text{office candidate},
+\text{organisation candidate},
+\text{Wikidata }Q_i\text{ candidates},
+\text{typing residuals}
+}.
+]
+
+For an exception attachment coordinate (a):
+
+[
+\mathcal E_a=
+{
+a\to h_1,;
+a\to h_2,;
+a\to h_3,;
+\text{scope evidence},
+\text{coverage residuals}
+}.
+]
+
+For a causal validation obligation (c):
+
+[
+\mathcal E_c=
+\mathcal E_c^{+}
+\sqcup
+\mathcal E_c^{-}
+\sqcup
+\mathcal E_c^{?}.
+]
+
+This is the important reframing:
+
+> The graph does not merely contain nodes and edges. Each graph coordinate carries a fibre of provenance-bearing candidate structure.
+
+## 3. spaCy supplies sections of the observation fibration
+
+spaCy gives a partial section:
+
+[
+s_{\mathrm{spaCy}}:\mathcal C_{\mathrm{text}}
+\to
+\mathcal E_{\mathrm{obs}}.
+]
+
+At each textual coordinate it chooses or emits observations such as:
+
+[
+\text{token},
+\text{lemma},
+\text{dependency},
+\text{POS},
+\text{morphology}.
+]
+
+It does not choose a final semantic object in the full fibre.
+
+It contributes elements to an observation subfibre:
+
+[
+\mathcal O_c\subseteq\mathcal E_c.
+]
+
+Different parsers could provide different sections over the same base without changing the base coordinate itself.
+
+That is exactly why parser output should remain observation-level evidence.
+
+## 4. Semantic typing lifts observations into richer fibres
+
+Typing is not simply a map from one list to another. It is a lifting operation.
+
+Given an observation (o\in\mathcal O_c), typing constructs candidate lifts:
+
+[
+\operatorname{Lift}_{\mathrm{type}}(o)
+\subseteq
+\mathcal H_c,
+]
+
+where (\mathcal H_c) is the hypothesis fibre over (c).
+
+For example:
+
+[
+o=\text{VERB}(\text{drive})
+]
+
+may lift to:
+
+[
+{
+\text{eventuality},
+\text{action},
+\text{regulated conduct candidate}
+}.
+]
+
+The lift need not be unique. Ambiguity is literally multiplicity in the fibre.
+
+## 5. Entity linking is transport between bases
+
+Entity linking is slightly different because it relates two coordinate systems:
+
+[
+\mathcal C_{\mathrm{text}}
+\qquad\text{and}\qquad
+\mathcal C_{\mathrm{ontology}}.
+]
+
+A link candidate is not merely another local property. It is a proposed transport:
+
+[
+m\in\mathcal C_{\mathrm{text}}
+\rightsquigarrow
+q\in\mathcal C_{\mathrm{WD}}.
+]
+
+Internally, we might represent a candidate correspondence:
+
+[
+\ell:m\leadsto q
+]
+
+with a pullback or reindexing effect on available evidence.
+
+If (q=Q30), the Wikidata fibre over (Q30) may contain aliases, types, subclass paths, geographic relations, and identifiers. A candidate link allows some of that structure to be reindexed into the local mention fibre—but only under the declared strength of the link.
+
+Thus:
+
+[
+\ell^{*}(\mathcal E_q)
+\to
+\mathcal E_m
+]
+
+is controlled transport, not identity collapse.
+
+For `rdfs:seeAlso`, the transport is weak. It may expose further evidence but does not permit unrestricted fact substitution.
+
+For `owl:sameAs`, the implied transport is much stronger and therefore much more dangerous.
+
+## 6. Scope and attachment are morphisms in the base
+
+A scope proposal such as:
+
+[
+\text{negation}\to\text{eventuality}
+]
+
+or:
+
+[
+\text{exception}\to\text{norm}
+]
+
+should be regarded as a candidate base morphism.
+
+Each candidate morphism has its own fibre of justification:
+
+[
+\mathcal E_{a:x\to y}.
+]
+
+That fibre may include:
+
+* dependency evidence;
+* clause containment;
+* semantic-type compatibility;
+* competing host candidates;
+* section coverage;
+* learned scores;
+* rule-derived support.
+
+So an edge is not just present or absent. The edge itself is a base object or morphism carrying a derivational fibre.
+
+That matches your earlier formulation of a defeasible semantic edge.
+
+## 7. Composition combines fibres along diagrams
+
+Operator composition is then not merely “run a rule.”
+
+Suppose we have a diagram in the base:
+
+[
+m \to e
+\leftarrow n,
+]
+
+where (m) is a modal, (e) an eventuality, and (n) a negation.
+
+Composition forms a larger coordinate (k), such as a normative relation candidate:
+
+[
+k=\operatorname{Compose}(m,e,n).
+]
+
+The fibre over (k) is constructed from compatible tuples drawn from the input fibres:
+
+[
+\mathcal E_k
+\subseteq
+\mathcal E_m
+\times
+\mathcal E_e
+\times
+\mathcal E_n
+\times
+\mathcal E_{m\to e}
+\times
+\mathcal E_{n\to e}.
+]
+
+Only compatible tuples induce elements of (\mathcal E_k).
+
+This is why early reduction matters. If the input fibres are full of duplicate or impossible candidates, the product fibre explodes combinatorially.
+
+The optimisation is therefore:
+
+[
+\text{reduce fibres before taking expensive fibre products}.
+]
+
+That is a much more exact statement than “reduce graph edges early.”
+
+## 8. Constraints are predicates over fibres and transports
+
+A constraint is evaluated not just against a bare factor, but against elements or regions of a fibre.
+
+For a bearer relation coordinate (b), a constraint might require:
+
+[
+\operatorname{type}(\text{bearer})=\text{person-compatible}.
+]
+
+The constraint inspects the relevant typing fibre:
+
+[
+\mathcal E_{\text{type}(x)}.
+]
+
+Its result may be:
+
+[
+\mathsf{Satisfied},
+\mathsf{Violated},
+\mathsf{Both},
+\mathsf{Undetermined},
+\mathsf{Inapplicable}.
+]
+
+These correspond to the shape of the relevant fibre and the applicability of the validation map.
+
+Constraint derivation can also create new base obligations. For example:
+
+[
+\operatorname{Cause}(x,y)
+]
+
+creates a coordinate:
+
+[
+c_y=
+\operatorname{RequiresAxisClassification}
+(y,\text{occurrent-axis}).
+]
+
+The fibre over this new obligation is then populated progressively.
+
+So constraints do not merely filter fibres. They can generate new base points whose fibres must be solved.
+
+## 9. Rule closure extends fibres monotonically
+
+Logical closure is a monotone enrichment of fibres.
+
+Given existing fibre contents:
+
+[
+e_1,\ldots,e_n\in\mathcal E_c,
+]
+
+a rule derives:
+
+[
+e'\in\mathcal E_{c'}
+]
+
+or possibly a new relation fibre over (c\to c').
+
+Zelph would be an executor of these fibre-extension rules:
+
+[
+\Delta\mathcal E
+\mapsto
+\operatorname{Close}(\Delta\mathcal E).
+]
+
+Its output should add derivational objects to fibres, not replace the fibres or choose their canonical representatives.
+
+This is the precise place for convergent eventual consistency:
+
+[
+\mathcal E_c^{(n+1)}
+====================
+
+\mathcal E_c^{(n)}
+\sqcup
+\Delta\mathcal E_c.
+]
+
+Where (\sqcup) is ideally associative, commutative, and idempotent.
+
+## 10. Reduction computes canonical summaries of fibres
+
+The PNF reducer does not generate all semantics. It computes a canonical summary or materialised view of each fibre.
+
+For each coordinate (c):
+
+[
+\rho_c:\mathcal E_c\to\mathcal F_c,
+]
+
+where (\mathcal F_c) contains reduced factors, alternatives, and residuals.
+
+A useful form is:
+
+[
+\rho_c(\mathcal E_c)
+====================
+
+(F_c,A_c,R_c,D_c),
+]
+
+with:
+
+* (F_c): compatible factor representatives;
+* (A_c): retained alternatives;
+* (R_c): residual obligations;
+* (D_c): derivation receipt.
+
+The global reducer is fibrewise:
+
+[
+\rho=
+\prod_{c\in\mathcal C}\rho_c,
+]
+
+plus consistency conditions across base morphisms.
+
+This explains the ownership rule:
+
+> One reducible coordinate has one logical authority for materialising its fibre.
+
+Many workers may populate the fibre concurrently. Only one deterministic reduction function determines its current materialised view.
+
+## 11. Residuals are boundary data of incomplete fibres
+
+Residuals are not failed facts.
+
+They express that a fibre is incomplete, conflicted, or awaiting transport from another region.
+
+Examples:
+
+[
+\text{missing typing evidence},
+]
+
+[
+\text{unresolved attachment host},
+]
+
+[
+\text{Wikidata axis not explored},
+]
+
+[
+\text{section coverage not closed},
+]
+
+[
+\text{external identity candidate unresolved}.
+]
+
+A regional solver can export a boundary summary:
+
+[
+\partial\mathcal E_r,
+]
+
+containing precisely those fibre obligations that could not be solved locally.
+
+For a document decomposed into regions (r_i):
+
+[
+\mathcal E_d
+\approx
+\bigcup_i \mathcal E_{r_i}
+\cup
+\partial\mathcal E_d.
+]
+
+The document coordinator does not recompute all regional fibres. It routes and solves their boundary obligations.
+
+This is the fibred version of the shard/frontier architecture.
+
+## 12. Wikidata axes are subfibrations
+
+Your “ontology axes should become first-class” point becomes especially clean here.
+
+For each ontology axis (A), there is a subfibration:
+
+[
+\pi_A:\mathcal E_A\to\mathcal C.
+]
+
+Then over a claim (c):
+
+[
+\mathcal E_{c,A}
+================
+
+\pi_A^{-1}(c).
+]
+
+An entity may have:
+
+[
+\mathcal E_{c,\mathrm{bibliographic}}\neq\varnothing,
+]
+
+while:
+
+[
+\mathcal E_{c,\mathrm{BFO}}=\varnothing
+]
+
+or remains frontier-incomplete.
+
+Domain-specific pressure selects which subfibration must be inspected or populated.
+
+A causal property constraint induces pressure on the occurrent/continuant subfibration. A bibliographic matching problem induces pressure on work/expression/manifestation fibres. A legal query may induce pressure on authority, temporal, jurisdictional, or normative fibres.
+
+This is much more accurate than imagining one universal Wikidata type lattice.
+
+## 13. Learned models produce fibre elements or orderings
+
+A learned model does not need a separate graph.
+
+It contributes candidates inside a fibre or a ranking over them.
+
+For country prediction:
+
+[
+M(m)=
+{
+(Q30,0.81),
+(Q145,0.09),
+\ldots
+}.
+]
+
+This populates the link fibre:
+
+[
+\mathcal E_{\operatorname{link}(m)}.
+]
+
+A TensorFlow Lattice model might produce an order-preserving scoring function:
+
+[
+s:\mathcal E_c\to[0,1],
+]
+
+subject to monotonicity constraints.
+
+It does not compute the canonical factor directly. It enriches or orders the fibre before deterministic reduction.
+
+Likewise an LLM may add candidate derivations to a fibre, but cannot bypass (\rho_c).
+
+## 14. The total ITIR computation
+
+The compiler state is therefore a fibred family:
+
+[
+\mathcal E=
+{\mathcal E_c}_{c\in\mathcal C}.
+]
+
+The integrated producer repeatedly:
+
+1. creates new base coordinates;
+2. populates fibres with observations and hypotheses;
+3. transports evidence along candidate morphisms;
+4. composes compatible fibre elements;
+5. applies constraints;
+6. extends fibres by closure;
+7. requests missing external or cross-axis evidence;
+8. reduces affected fibres;
+9. exports residual boundary obligations.
+
+A schematic operator is:
+
+[
+\Phi(\mathcal E)
+================
+
+\operatorname{Reduce}
+\Big(
+\mathcal E
+\sqcup
+\operatorname{Observe}(\mathcal E)
+\sqcup
+\operatorname{Type}(\mathcal E)
+\sqcup
+\operatorname{Link}(\mathcal E)
+\sqcup
+\operatorname{Attach}(\mathcal E)
+\sqcup
+\operatorname{Compose}(\mathcal E)
+\sqcup
+\operatorname{Constrain}(\mathcal E)
+\sqcup
+\operatorname{Close}(\mathcal E)
+\sqcup
+\operatorname{Enrich}(\mathcal E)
+\Big).
+]
+
+Then:
+
+[
+\mathcal E^\ast
+===============
+
+\operatorname{lfp}(\Phi,\mathcal E_0),
+]
+
+subject to explicit coverage and resource bounds.
+
+But operationally this is evaluated only on affected fibres:
+
+[
+\Delta\mathcal E_c
+\to
+\text{dependent fibres}
+\to
+\text{new reductions}
+\to
+\text{new frontier}.
+]
+
+## 15. What “one integrated producer” now means
+
+The integrated producer is not one monolithic model and not one flat proposal generator.
+
+It is the mechanism that manages this fibration coherently:
+
+[
+\boxed{
+\text{one base coordinate system}
++
+\text{one family of semantic fibres}
++
+\text{one transport/composition discipline}
++
+\text{one fibrewise reduction boundary}.
+}
+]
+
+spaCy, Zelph, Wikidata, learned models, and LLMs are then ways of populating or transforming particular fibres.
+
+They are not competing semantic worlds.
+
+## 16. The concise corrected architecture
+
+```text
+source coordinates form the base
+→ parser observations populate observation fibres
+→ typing and linking populate hypothesis fibres
+→ scope/attachment propose base morphisms
+→ composition constructs higher-order fibres
+→ constraints inspect fibres and create obligations
+→ Zelph/Python closure extends fibres
+→ Wikidata transports evidence across ontology subfibrations
+→ learned models rank or populate candidate fibres
+→ residuals expose unresolved fibre boundaries
+→ the PNF reducer materialises deterministic fibre summaries
+→ Legal IR/SPARQL/MCP are projections of the reduced fibred state
+```
+
+So yes: **fibres are not just a metaphor for validation derivations**. They are plausibly the correct organising algebra for the whole ITIR semantic compiler.
+
+The graph is the base incidence structure; the real semantic content lives in the provenance-bearing fibres above its coordinates.
+
+You’re right. I was treating those as a loose bag of “producer capabilities,” when they actually occupy different algebraic levels and do not all compose in the same way.
+
+The key distinction is between:
+
+[
+\text{observing}
+,\quad
+\text{hypothesising}
+,\quad
+\text{combining}
+,\quad
+\text{constraining}
+,\quad
+\text{resolving}
+,\quad
+\text{enriching}.
+]
+
+They should not all be flattened into one generic inference phase.
+
+## Start with the underlying state
+
+For a document, the compiler state is better thought of as:
+
+[
+S =
+(O,H,F,C,R,E)
+]
+
+where:
+
+* (O): observations;
+* (H): hypotheses or proposals;
+* (F): reduced factors;
+* (C): constraints;
+* (R): residuals;
+* (E): external enrichment evidence.
+
+The stages you listed update different components of this state.
+
+# 1. spaCy observations
+
+spaCy does not produce semantic factors in the strong sense.
+
+It produces evidence such as:
+
+[
+O_{\text{spacy}}
+================
+
+{
+\text{token},
+\text{lemma},
+\text{POS},
+\text{dependency},
+\text{morphology},
+\text{sentence boundary}
+}.
+]
+
+For example:
+
+```text
+must      AUX   modal
+not       PART  neg
+drive     VERB  root
+driver    NOUN  subject-of(drive)
+licensed  VERB  complement/condition candidate
+```
+
+These are observations about the text and parser analysis.
+
+They should remain explicitly fallible:
+
+[
+\text{parser observation}
+\neq
+\text{semantic assertion}.
+]
+
+The same token may support several downstream hypotheses.
+
+# 2. Semantic typing
+
+Semantic typing interprets observations as candidates for semantic categories.
+
+For instance:
+
+[
+\text{VERB}(\text{drive})
+\to
+{
+\text{eventuality candidate},
+\text{action candidate}
+}.
+]
+
+Or:
+
+[
+\text{NOUN}(\text{driver})
+\to
+{
+\text{entity mention},
+\text{agent candidate},
+\text{role bearer candidate}
+}.
+]
+
+Typing is therefore a proposal operation:
+
+[
+T : O \to \mathcal P(H).
+]
+
+It may yield alternatives:
+
+[
+T(o)
+====
+
+{h_1,h_2,\ldots,h_n}.
+]
+
+Semantic typing does not yet decide:
+
+* which mention refers to which entity;
+* which event a modifier scopes over;
+* whether a modal is legally normative;
+* whether two mentions are identical.
+
+It creates typed coordinates on which later operations can work.
+
+# 3. Entity and link candidates
+
+There are actually two separate problems here.
+
+## Mention binding
+
+Within the document:
+
+[
+\text{mention}
+\to
+\text{local discourse entity candidate}.
+]
+
+Examples:
+
+```text
+the driver
+he
+the applicant
+the person
+```
+
+may or may not refer to the same local entity.
+
+## External linking
+
+From a local entity or concept candidate to an external identifier:
+
+[
+\text{local concept/entity}
+\to
+{\text{Wikidata candidate refs}}.
+]
+
+For example:
+
+[
+\text{“United States”}
+\to
+Q30.
+]
+
+But also:
+
+[
+\text{“the US”}
+\to
+Q30,
+]
+
+and perhaps:
+
+[
+\text{“America”}
+\to
+{Q30,\text{other candidates depending on context}}.
+]
+
+These are not merely semantic typing. They introduce possible identity or denotation relations.
+
+So linking should produce proposals such as:
+
+[
+\operatorname{denotesCandidate}(m,Q30)
+]
+
+with evidence and residuals, rather than rewriting the mention into (Q30).
+
+# 4. Operator composition
+
+Operator composition works over already typed factors.
+
+Suppose we have:
+
+[
+m : \text{modal candidate},
+]
+
+[
+e : \text{eventuality candidate},
+]
+
+[
+n : \text{negation candidate}.
+]
+
+Composition may propose:
+
+[
+\operatorname{scopesOver}(m,e),
+]
+
+[
+\operatorname{scopesOver}(n,e),
+]
+
+and therefore perhaps:
+
+[
+\operatorname{normativeRelation}
+(
+\text{prohibition},
+\text{bearer},
+e
+).
+]
+
+This is not general rule closure yet. It is structural construction.
+
+A useful distinction is:
+
+[
+\text{composition}
+==================
+
+\text{construct a larger factor from compatible smaller factors}.
+]
+
+For example:
+
+[
+\text{modal}
++
+\text{event}
++
+\text{negation}
+\to
+\text{normative factor candidate}.
+]
+
+Composition creates candidate structure. It should not necessarily decide whether that structure is the sole valid interpretation.
+
+# 5. Scope and attachment candidates
+
+Scope and attachment are relations between factors.
+
+Examples:
+
+* which eventuality does “must” scope over?
+* does “unless licensed” attach to the driving prohibition or to a subordinate proposition?
+* does an exception attach to one norm or a whole section?
+* does a modifier describe the actor, action, object, or circumstance?
+
+Algebraically, these are edge proposals:
+
+[
+a : x \to y.
+]
+
+There may be several:
+
+[
+A(x)
+====
+
+{x\to y_1,;x\to y_2,\ldots}.
+]
+
+Some can be eliminated locally through syntax and type compatibility.
+
+Others require wider coverage.
+
+This means scope and attachment candidates should normally appear before final composition is closed, because composition depends on them.
+
+A more accurate partial ordering is:
+
+```text
+typed factors
+→ candidate scope/attachment edges
+→ compatibility pruning
+→ composed factors
+```
+
+But composition can also generate new attachment obligations, so this is iterative rather than strictly linear.
+
+# 6. Constraint derivation
+
+Constraints are not merely another type of proposal.
+
+They express admissibility conditions over proposals and factors.
+
+Examples:
+
+[
+\operatorname{type}(x)=\text{person}
+]
+
+may be required for:
+
+[
+\operatorname{bearer}(n,x).
+]
+
+Or:
+
+[
+\operatorname{scope}(m,e)
+]
+
+may require both factors to occupy compatible clause regions.
+
+A constraint can be represented as:
+
+[
+c(F_1,\ldots,F_k)
+\in
+{
+\text{satisfied},
+\text{contradicted},
+\text{insufficient evidence}
+}.
+]
+
+Constraints can:
+
+* eliminate impossible edges;
+* retain alternatives;
+* introduce residuals;
+* trigger new work;
+* establish that a proposal is locally compatible.
+
+But they should not convert uncertainty into certainty merely because no contradiction was found.
+
+# 7. Rule closure
+
+Rule closure derives consequences from admitted factors and relations.
+
+For example:
+
+[
+\operatorname{obligation}(x,\neg e)
+\Rightarrow
+\operatorname{prohibition}(x,e).
+]
+
+Or:
+
+[
+\operatorname{instanceOf}(x,c_1)
+\land
+\operatorname{subclassOf}(c_1,c_2)
+\Rightarrow
+\operatorname{instanceOf}(x,c_2).
+]
+
+Closure is therefore:
+
+[
+\operatorname{lfp}(D,F),
+]
+
+where (D) is a rule set.
+
+But there are two importantly different closures.
+
+## Structural document closure
+
+Rules about:
+
+* modality;
+* negation;
+* scope;
+* conditions;
+* exceptions;
+* transitions;
+* role propagation.
+
+## Ontological closure
+
+Rules about:
+
+* subclass;
+* subproperty;
+* transitivity;
+* disjointness;
+* domain/range;
+* external concept relations.
+
+These should probably not be one undifferentiated rule pack.
+
+They have different provenance, cost, and authority.
+
+# 8. Wikidata-aware enrichment
+
+Wikidata enrichment is not a later decorative add-on.
+
+It can feed several earlier operations.
+
+For example, Wikidata may help with semantic typing:
+
+[
+Q146 \text{ is a subclass of domestic animal}
+]
+
+which may support:
+
+[
+\text{cat mention}
+\to
+\text{pet candidate}.
+]
+
+It may help linking:
+
+[
+\text{surface aliases}
+\to
+Q30.
+]
+
+It may help constraint derivation:
+
+[
+Q5=\text{human}
+]
+
+supports a person-compatible agent role.
+
+It may help rule closure:
+
+[
+x\operatorname{instanceOf}c
+\land
+c\operatorname{subclassOf}d
+\Rightarrow
+x\operatorname{instanceOf}d.
+]
+
+So Wikidata-aware enrichment is a knowledge input that participates in several stages:
+
+[
+E_{\text{WD}}
+\to
+T,;L,;C,;D.
+]
+
+It is not itself one stage that comes neatly after composition.
+
+# 9. Residual generation
+
+Residuals arise throughout the system.
+
+They are not the final garbage output.
+
+Examples:
+
+## Observation residual
+
+```text
+parser token span disagrees with canonical token coordinates
+```
+
+## Typing residual
+
+```text
+mention has multiple incompatible semantic types
+```
+
+## Linking residual
+
+```text
+multiple Wikidata candidates remain
+```
+
+## Attachment residual
+
+```text
+exception host unresolved
+```
+
+## Constraint residual
+
+```text
+candidate bearer lacks sufficient person typing
+```
+
+## Closure residual
+
+```text
+rule prerequisites incomplete
+```
+
+## Coverage residual
+
+```text
+absence claim cannot be finalised before section completion
+```
+
+So residual generation is cross-cutting:
+
+[
+R =
+R_O
+\cup R_T
+\cup R_L
+\cup R_A
+\cup R_C
+\cup R_D.
+]
+
+Residuals are part of the state that guides subsequent work.
+
+# The actual interaction is cyclic
+
+A simple pipeline is misleading.
+
+The real local system is closer to:
+
+```text
+observations
+→ typing proposals
+→ local link proposals
+→ scope/attachment proposals
+→ composition proposals
+→ reduction
+→ constraints
+→ rule consequences
+→ new typing/link/scope/composition obligations
+→ reduction again
+```
+
+With Wikidata evidence entering multiple points:
+
+```text
+                    Wikidata evidence
+                     ↙    ↓    ↘
+observations → typing → linking → constraints
+                    ↘    ↓    ↙
+                     composition
+                          ↓
+                       closure
+```
+
+The system reaches a fixed point when no newly admitted evidence causes:
+
+* a new type proposal;
+* a new link proposal;
+* a new attachment;
+* a new composed factor;
+* a changed constraint assessment;
+* a new rule consequence;
+* a discharged or introduced residual.
+
+# A better decomposition
+
+I think the compiler should distinguish five interacting engines.
+
+## A. Observation engine
+
+Produces only source-grounded observations:
+
+[
+O = \operatorname{observe}(\text{text}).
+]
+
+spaCy lives here.
+
+## B. Hypothesis engine
+
+Produces candidate semantic atoms and edges:
+
+[
+H = \operatorname{hypothesise}(O,E,F).
+]
+
+This includes:
+
+* semantic typing;
+* mention binding;
+* Wikidata links;
+* scope;
+* attachment;
+* candidate roles.
+
+## C. Composition engine
+
+Builds larger candidate structures:
+
+[
+P = \operatorname{compose}(H,F).
+]
+
+This includes:
+
+* eventualities;
+* propositions;
+* normative structures;
+* conditions;
+* exceptions;
+* transitions.
+
+## D. Constraint and reduction engine
+
+Determines compatible groupings without destroying alternatives:
+
+[
+F' =
+\rho(P,C).
+]
+
+It performs:
+
+* deduplication;
+* incompatibility detection;
+* alternative grouping;
+* residual generation;
+* deterministic materialisation.
+
+## E. Consequence engine
+
+Computes monotone derived implications:
+
+[
+\Delta F =
+\operatorname{close}(F',E,D).
+]
+
+Zelph is a candidate executor here.
+
+The output loops back into the hypothesis/composition/reduction system.
+
+# Where neural models fit
+
+A learned country model is not equivalent to rule closure.
+
+It is a hypothesis source:
+
+[
+M(x)
+====
+
+{(Q30,0.81),(Q145,0.09),\ldots}.
+]
+
+Its candidates enter the hypothesis engine.
+
+A learned attachment model similarly proposes edges:
+
+[
+M_{\mathrm{attach}}(a)
+======================
+
+{(a\to h_1,0.7),(a\to h_2,0.3)}.
+]
+
+A neural model can therefore support:
+
+* typing;
+* linking;
+* attachment;
+* classification;
+* ranking.
+
+It should not itself perform canonical reduction.
+
+TensorFlow Lattice is relevant where you want constrained learned scoring:
+
+[
+s(x)
+====
+
+f_{\theta}(x)
+]
+
+subject to monotonicity or shape constraints.
+
+For example:
+
+[
+\text{more alias evidence}
+\not\Rightarrow
+\text{lower link confidence},
+]
+
+or:
+
+[
+\text{stronger geographic evidence}
+\not\Rightarrow
+\text{lower country score}.
+]
+
+Zelph, by contrast, is more naturally used for logical consequence and compatibility rules.
+
+So they are complementary:
+
+```text
+learned model:
+  generate/rank hypotheses
+
+Zelph:
+  derive logical consequences
+
+PNF reducer:
+  preserve and materialise compatible semantic state
+```
+
+# What “one integrated producer” should really mean
+
+It should not mean one giant function that performs every operation.
+
+It should mean one integrated semantic compilation system with coordinated internal subalgebras:
+
+[
+\operatorname{Produce}
+======================
+
+\operatorname{Fix}
+\left(
+O,
+H,
+P,
+C,
+D,
+E,
+R
+\right).
+]
+
+The integrated producer owns the orchestration and proposal vocabulary.
+
+Internally:
+
+```text
+observation adapter       spaCy
+typing/linking engine     rules + indexes + optional learners
+composition engine        generic PNF declarations
+constraint engine         deterministic worklist
+closure executor          Python or Zelph
+external knowledge        Wikidata snapshot/index
+reducer                   canonical PNF reducer
+```
+
+That is one product because:
+
+* all components operate on one coordinate system;
+* all emit one family of carriers;
+* all share one dependency graph;
+* all participate in one fixed-point schedule;
+* all produce one materialised PNF view.
+
+# The likely correct scheduling order
+
+Not a simple once-through sequence, but:
+
+```text
+1. Admit parser observations.
+
+2. Generate immediately available atomic hypotheses:
+   typing, roles, mention candidates, local links.
+
+3. Reduce exact duplicates and impossible candidates.
+
+4. Generate scope and attachment candidates.
+
+5. Compose larger factors from currently compatible candidates.
+
+6. Reduce composed proposals.
+
+7. Evaluate affected constraints.
+
+8. Run enabled closure rules.
+
+9. Admit derived facts as new hypotheses/proposals.
+
+10. Query external knowledge only for newly unresolved coordinates.
+
+11. Re-run only affected typing, linking, attachment,
+    composition, constraint, and closure groups.
+
+12. Stop at fixed point or preserve explicit external residuals.
+```
+
+Wikidata lookup should be demand-driven rather than blindly applied to every token.
+
+Learned models should likewise be called only for unresolved or ambiguous coordinates where their expected value exceeds their cost.
+
+# The central algebra
+
+A useful operator may be:
+
+[
+\Phi(S)
+=======
+
+\operatorname{Reduce}
+\Big(
+S
+\sqcup
+\operatorname{Type}(S)
+\sqcup
+\operatorname{Link}(S)
+\sqcup
+\operatorname{Attach}(S)
+\sqcup
+\operatorname{Compose}(S)
+\sqcup
+\operatorname{Constrain}(S)
+\sqcup
+\operatorname{Close}(S)
+\sqcup
+\operatorname{Enrich}(S)
+\Big).
+]
+
+Then:
+
+[
+S^\ast
+======
+
+\operatorname{lfp}(\Phi,S_0).
+]
+
+But each suboperator must be scheduled incrementally by changed coordinates, not globally rerun.
+
+## The corrected product view
+
+So the broad integrated producer is not:
+
+```text
+spaCy + Zelph + Wikidata + learner
+→ proposals
+```
+
+in a flat sense.
+
+It is:
+
+```text
+source observation algebra
+↔ semantic hypothesis algebra
+↔ composition algebra
+↔ constraint/reduction algebra
+↔ consequence algebra
+↔ external knowledge algebra
+```
+
+all coupled through one immutable delta protocol and one deterministic PNF materialisation boundary.
+
+That is the relationship I was previously compressing too aggressively.
+
+
+
 ## Last assessed
 - 2026-07-17
 
