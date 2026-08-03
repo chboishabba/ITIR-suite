@@ -61,6 +61,7 @@ codex_history*.sqlite*
 
 # Ignore all local cache outputs
 .cache_local/
+.tmp/
 
 # Explicit local-only personal archive test DBs/backups
 .cache_local/itir_chat_test.sqlite*
