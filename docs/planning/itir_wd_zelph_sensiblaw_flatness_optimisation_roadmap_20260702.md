@@ -520,26 +520,6 @@ shape of every query. Until route indexes and smaller shards exist, a logical
 query-shaped plan can still select a physically large shard; the plan must
 surface that cost rather than conceal it.
 
-### SensibLaw H9 transport consequence
-
-The first SensibLaw H9 transport integration now uses the Zelph CLI through a
-provider-neutral snapshot backend. HF is the primary source; a local `.bin`
-artifact is an interchangeable offline source, and live Wikidata is disabled
-unless a caller explicitly supplies that tier.
-
-The current public March 2026 pruned v2 HF manifest is useful for proving the
-transport boundary, but it has no `nodeRouteIndex`. Its legacy chunks are too
-coarse to make one subprocess per label acceptable. The backend therefore
-loads only the `nodeOfName` section for v2 discovery and batches the complete
-label workload through one Zelph process. Property queries keep name sections
-out of the load. This is a measured fallback, not the target economics.
-
-The shard optimization remains the v3 query-shaped bucket plan: deterministic
-name and adjacency buckets plus a route sidecar. Existing estimates put v2
-route-name at 21.70 MiB median / 41.57 MiB p95 and two-sided route-node at
-51.95 MiB median / 60.63 MiB p95. A newer full HF rip should publish a
-route-aware v3 manifest before it is treated as the production H9 source.
-
 ### Compiler-convergence control note
 
 The governing next programme is
