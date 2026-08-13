@@ -1,2 +1,0 @@
-[console_scripts]
-piecash = piecash.scripts.export:cli
