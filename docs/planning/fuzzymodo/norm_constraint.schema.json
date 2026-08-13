@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://itir.local/schemas/fuzzymodo/norm-constraint.schema.json",
+  "title": "Fuzzymodo Norm Constraint",
+  "type": "object",
+  "required": [
+    "id",
+    "dsl_version",
+    "selector",
+    "assertion",
+    "effect",
+    "provenance"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "dsl_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "selector": { "$ref": "selector_dsl.schema.json#/properties/selector" },
+    "assertion": {
+      "type": "object",
+      "required": ["kind", "statement"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["design_intent", "risk_acceptance", "policy_gate"]
+        },
+        "statement": { "type": "string", "minLength": 1 }
+      }
+    },
+    "effect": {
+      "type": "object",
+      "required": ["mode"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["prune", "downgrade", "escalate"]
+        },
+        "severity_delta": { "type": "integer" },
+        "bug_classes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["decided_by", "decided_at", "rationale"],
+      "additionalProperties": false,
+      "properties": {
+        "decided_by": { "type": "string", "minLength": 1 },
+        "decided_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "rationale": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

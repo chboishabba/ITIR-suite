@@ -1,0 +1,86 @@
+
+black
+# Local editable dependency for chat context sync tooling (re_gpt.cli)
+-e ./reverse-engineered-chatgpt
+# both Whisper and SimulWhisper. Now supports Triton 2.x and 3.x with compatibility fix
+certifi==2024.2.2
+cffi
+colorama
+ctranslate2
+# CUDA 12.6 : https://download.pytorch.org/whl/cu126
+# CUDA 12.8 : https://download.pytorch.org/whl/cu128
+curl_cffi
+curl_cffi==0.5.9
+# dependency from WhisperStreaming:
+# dev/test
+dotenv
+--extra-index-url https://download.pytorch.org/whl/cu126
+fastapi
+faster-whisper
+# for using Silero VAD with WhisperStreaming, torchaudio is needed
+# from SimulWhisper
+# from Whisper
+git+https://github.com/jhj0517/pyrubberband.git
+git+https://github.com/jhj0517/ultimatevocalremover_api.git
+gradio
+gradio_client
+gradio-i18n
+graphviz
+# https://download.pytorch.org/whl/xpu
+hypothesis
+ijson>=3.2.0,<4.0.0
+# Install with: pip install -r requirements.txt
+## Intel GPU
+jiwer
+jsonschema
+librosa
+matplotlib
+mypy
+networkx
+nltk
+# Numba requires NumPy < 2.3; Whisper pulls numba for word timings.
+numpy
+numpy<2.3
+## Nvidia GPU
+ofxparse
+onnxruntime-gpu
+openai-whisper
+openai_whisper
+pdfminer.six
+piecash
+playwright
+plotly
+pre-commit
+# Progress bars for CLI scripts (optional but recommended)
+pyannote.audio
+pyaudio
+pycparser==2.22
+pynput
+pytest
+# Python dependencies for Chat Export Structurer
+pytubefix
+pyyaml
+PyYAML
+qifparse
+requests
+ruamel.yaml
+ruff
+sounddevice
+spacy>=3.5,<4
+spacy>=3.7,<4
+sqlmodel
+# Streaming JSON parser for large chat exports
+streamlit
+tiktoken
+torch
+torchaudio
+# torchaudio 2.8+ removed AudioMetaData which our diarization pipeline imports
+tqdm
+tqdm>=4.66.0,<5.0.0
+transformers
+triton>=2.0.0;platform_machine=="x86_64" and sys_platform=="linux" or sys_platform=="linux2"
+# Update above --extra-index-url according to your device.
+vaderSentiment
+webrtcvad
+websockets==12.0
+whisperx

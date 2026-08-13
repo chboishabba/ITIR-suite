@@ -1,0 +1,9 @@
+{
+  "heartbeat_file": "heartbeat.statibaker-verification-governance-manager.json",
+  "lane": "statibaker-kanboard-verification-governance",
+  "lane_claim": "Manager: enforce docs/TODO/changelog/test governance, authority boundaries, and promotion gates for the Kanboard roadmap; may spawn up to six leaf workers.",
+  "orchestrator_id": "statibaker-verification-governance-manager",
+  "parent_orchestrator_id": "itir-statibaker-supermanager",
+  "status_file": "status.statibaker-verification-governance-manager.json",
+  "timestamp": "2026-05-19T12:57:09Z"
+}

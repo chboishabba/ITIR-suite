@@ -1,0 +1,44 @@
+name: Curated Legal IR suite reconciliation
+
+on:
+  push:
+    branches:
+      - agent/curated-legal-ir-suite-reconciliation
+  pull_request:
+    paths:
+      - "SensibLaw"
+      - "baselines/gwb_timeline_scorecard_v0_2.json"
+      - "docs/planning/gwb_timeline_scorecard_rebaseline_20260724.md"
+      - "scripts/check_gwb_timeline_baseline.py"
+      - "tests/test_gwb_timeline_baseline.py"
+      - ".github/workflows/curated-legal-ir-suite-reconciliation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify SensibLaw gitlink
+        run: |
+          test "$(git ls-tree HEAD SensibLaw | awk '{print $3}')" = \
+            "739669e5f717184829d1482d524652b765ab2640"
+
+      - name: Check GWB baseline receipt
+        run: |
+          python scripts/check_gwb_timeline_baseline.py --observed-count 223
+          python -m pytest -q tests/test_gwb_timeline_baseline.py
+
+      - name: Check patch formatting
+        run: git diff --check origin/main...HEAD

@@ -1,0 +1,100 @@
+{
+  "workbench": {
+    "run": {
+      "run_id": "factrun:wave1-procedural",
+      "source_label": "wave1:synthetic_assertion_outcome_v1",
+      "workflow_link": {
+        "workflow_kind": "au_semantic",
+        "workflow_run_id": "synthetic_assertion_outcome_v1"
+      },
+      "contract_version": "fact.review.workbench.v1"
+    },
+    "facts": [
+      {
+        "fact_id": "fact:assertion",
+        "canonical_label": "Party says injury happened first",
+        "candidate_status": "candidate",
+        "signal_classes": ["party_assertion"],
+        "source_signal_classes": [],
+        "inspector_classification": {
+          "status_keys": {
+            "party_assertion": true,
+            "procedural_outcome": false,
+            "later_annotation": false
+          },
+          "dominant_label": "party_assertion",
+          "display_labels": ["party assertion"]
+        }
+      },
+      {
+        "fact_id": "fact:outcome",
+        "canonical_label": "Court ordered rehearing",
+        "candidate_status": "candidate",
+        "signal_classes": ["procedural_outcome"],
+        "source_signal_classes": ["later_annotation"]
+      }
+    ],
+    "operator_views": {
+      "procedural_posture": {
+        "title": "Procedural posture",
+        "groups": {},
+        "items": [
+          {
+            "fact_id": "fact:assertion",
+            "label": "Party says injury happened first"
+          },
+          {
+            "fact_id": "fact:outcome",
+            "label": "Court ordered rehearing"
+          }
+        ]
+      }
+    },
+    "issue_filters": {
+      "default_filter": "all",
+      "available_filters": ["all"],
+      "filters": [],
+      "summary": {}
+    },
+    "inspector_classification": {
+      "status_order": ["party_assertion", "procedural_outcome", "later_annotation"],
+      "selected_fact_id": "fact:assertion",
+      "facts": {
+        "fact:outcome": {
+          "status_keys": {
+            "party_assertion": false,
+            "procedural_outcome": true,
+            "later_annotation": true
+          },
+          "dominant_label": "procedural_outcome",
+          "display_labels": ["procedural outcome", "later annotation"]
+        }
+      }
+    },
+    "inspector_defaults": {
+      "selected_fact_id": "fact:assertion",
+      "default_view": "procedural_posture"
+    },
+    "reopen_navigation": {
+      "current": {
+        "run_id": "factrun:wave1-procedural",
+        "source_label": "wave1:synthetic_assertion_outcome_v1",
+        "workflow_kind": "au_semantic",
+        "workflow_run_id": "synthetic_assertion_outcome_v1"
+      },
+      "query": {
+        "workflow_kind": "au_semantic",
+        "workflow_run_id": "synthetic_assertion_outcome_v1",
+        "source_label": "wave1:synthetic_assertion_outcome_v1"
+      },
+      "recent_sources": []
+    },
+    "chronology_groups": {
+      "dated_events": [],
+      "approximate_events": [],
+      "undated_events": [],
+      "contested_chronology_items": []
+    }
+  },
+  "sources": []
+}

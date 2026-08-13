@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["contract_version", "generated_at", "graph_id", "source_object_id", "nodes", "edges"],
+  "properties": {
+    "contract_version": { "const": "jmd.runtime.graph.v1" },
+    "generated_at": { "type": "string" },
+    "graph_id": { "type": "string" },
+    "source_object_id": { "type": "string" },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["node_id", "kind", "label", "ref"],
+        "properties": {
+          "node_id": { "type": "string" },
+          "kind": { "type": "string" },
+          "cid": { "type": ["string", "null"] },
+          "label": { "type": "string" },
+          "ref": { "type": "string" }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["edge_id", "from_node_id", "to_node_id", "kind"],
+        "properties": {
+          "edge_id": { "type": "string" },
+          "from_node_id": { "type": "string" },
+          "to_node_id": { "type": "string" },
+          "kind": { "type": "string" }
+        }
+      }
+    }
+  }
+}

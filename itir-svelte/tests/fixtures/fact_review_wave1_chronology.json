@@ -1,0 +1,83 @@
+{
+  "workbench": {
+    "run": {
+      "run_id": "factrun:wave1-chronology",
+      "source_label": "wave1:synthetic_conflict_cluster_v1",
+      "workflow_link": {
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_conflict_cluster_v1"
+      },
+      "contract_version": "fact.review.workbench.v1"
+    },
+    "facts": [],
+    "operator_views": {
+      "chronology_prep": {
+        "title": "Chronology prep",
+        "groups": {}
+      }
+    },
+    "issue_filters": {
+      "default_filter": "all",
+      "available_filters": ["all"],
+      "filters": [],
+      "summary": {}
+    },
+    "inspector_classification": {
+      "status_order": ["party_assertion", "procedural_outcome", "later_annotation"],
+      "selected_fact_id": null,
+      "facts": {}
+    },
+    "inspector_defaults": {
+      "selected_fact_id": null,
+      "default_view": "chronology_prep"
+    },
+    "reopen_navigation": {
+      "current": {
+        "run_id": "factrun:wave1-chronology",
+        "source_label": "wave1:synthetic_conflict_cluster_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_conflict_cluster_v1"
+      },
+      "query": {
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "synthetic_conflict_cluster_v1",
+        "source_label": "wave1:synthetic_conflict_cluster_v1"
+      },
+      "recent_sources": []
+    },
+    "chronology_groups": {
+      "dated_events": [
+        {
+          "fact_id": "fact:dated",
+          "event_type": "injury",
+          "primary_actor": "Alice",
+          "time_start": "2024-01-01"
+        }
+      ],
+      "approximate_events": [
+        {
+          "fact_id": "fact:approx",
+          "event_type": "consult",
+          "label": "Consultation around early January",
+          "time_start": null
+        }
+      ],
+      "undated_events": [
+        {
+          "fact_id": "fact:undated",
+          "event_type": "warning",
+          "label": "Undated warning",
+          "time_start": null
+        }
+      ],
+      "contested_chronology_items": [
+        {
+          "fact_id": "fact:contested",
+          "label": "Conflicting date dispute",
+          "time_start": null
+        }
+      ]
+    }
+  },
+  "sources": []
+}

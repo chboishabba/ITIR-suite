@@ -1,0 +1,173 @@
+{
+  "version": "zelph.real_world_pack.v1",
+  "date": "2026-03-24",
+  "selection_policy": {
+    "priority_order": [
+      "technical_credibility",
+      "downstream_reasoning",
+      "safety"
+    ],
+    "real_first": true,
+    "synthetic_demo_evidence_allowed": false
+  },
+  "entries": [
+    {
+      "path": "SensibLaw/sl_zelph_demo/compile_db.py",
+      "artifact_role": "bridge_proof",
+      "workflow_family": "db_rule_atom_export",
+      "safety_tier": "safe_after_final_review",
+      "zelph_story": "technical_credibility",
+      "inclusion_status": "v1_pack",
+      "commands": [
+        {
+          "kind": "test",
+          "command": "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/pytest -q tests/test_sl_zelph_demo_tools.py -k \"compile_db_smoke or compile_db_extended\""
+        }
+      ]
+    },
+    {
+      "path": "SensibLaw/sl_zelph_demo/db_rules.zlp",
+      "artifact_role": "bridge_proof",
+      "workflow_family": "db_rule_atom_export",
+      "safety_tier": "safe_after_final_review",
+      "zelph_story": "technical_credibility",
+      "inclusion_status": "v1_pack",
+      "commands": [
+        {
+          "kind": "test",
+          "command": "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/pytest -q tests/test_sl_zelph_demo_tools.py -k \"compile_db_smoke or compile_db_extended\""
+        }
+      ]
+    },
+    {
+      "path": "SensibLaw/sl_zelph_demo/db_run.sh",
+      "artifact_role": "bridge_proof",
+      "workflow_family": "db_rule_atom_export",
+      "safety_tier": "safe_after_final_review",
+      "zelph_story": "technical_credibility",
+      "inclusion_status": "v1_pack",
+      "commands": [
+        {
+          "kind": "inspect",
+          "command": "cd /home/c/Documents/code/ITIR-suite/SensibLaw/sl_zelph_demo && sed -n '1,200p' db_run.sh"
+        }
+      ]
+    },
+    {
+      "path": "SensibLaw/tests/test_sl_zelph_demo_tools.py",
+      "artifact_role": "bridge_proof",
+      "workflow_family": "db_rule_atom_export",
+      "safety_tier": "safe_after_final_review",
+      "zelph_story": "technical_credibility",
+      "inclusion_status": "v1_pack",
+      "commands": [
+        {
+          "kind": "test",
+          "command": "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/pytest -q tests/test_sl_zelph_demo_tools.py -k \"compile_db_smoke or compile_db_extended\""
+        }
+      ]
+    },
+    {
+      "path": "itir-svelte/tests/fixtures/fact_review_wave1_real_au_demo_bundle.json",
+      "artifact_role": "real_review_bundle",
+      "workflow_family": "au_semantic",
+      "safety_tier": "safe_after_final_review",
+      "zelph_story": "downstream_reasoning",
+      "inclusion_status": "v1_pack",
+      "commands": [
+        {
+          "kind": "inspect",
+          "command": "cd /home/c/Documents/code/ITIR-suite && python -m json.tool itir-svelte/tests/fixtures/fact_review_wave1_real_au_demo_bundle.json"
+        },
+        {
+          "kind": "test",
+          "command": "cd /home/c/Documents/code/ITIR-suite/SensibLaw && ../.venv/bin/pytest -q tests/test_au_fact_review_bundle.py"
+        }
+      ]
+    },
+    {
+      "path": "SensibLaw/tests/fixtures/wikidata/real_qualifier_imported_slice_20260307.json",
+      "artifact_role": "real_structured_import",
+      "workflow_family": "wikidata_import",
+      "safety_tier": "safe_after_final_review",
+      "zelph_story": "structured_import",
+      "inclusion_status": "v1_pack",
+      "commands": [
+        {
+          "kind": "inspect",
+          "command": "cd /home/c/Documents/code/ITIR-suite && python -m json.tool SensibLaw/tests/fixtures/wikidata/real_qualifier_imported_slice_20260307.json"
+        }
+      ]
+    },
+    {
+      "path": "itir-svelte/tests/fixtures/fact_review_wave5_real_professional_handoff_demo_bundle.json",
+      "artifact_role": "real_review_bundle",
+      "workflow_family": "transcript_semantic",
+      "safety_tier": "internal_only",
+      "zelph_story": "downstream_reasoning",
+      "inclusion_status": "internal_ranked_only",
+      "commands": [
+        {
+          "kind": "inspect",
+          "command": "cd /home/c/Documents/code/ITIR-suite && python -m json.tool itir-svelte/tests/fixtures/fact_review_wave5_real_professional_handoff_demo_bundle.json"
+        }
+      ]
+    },
+    {
+      "path": "itir-svelte/tests/fixtures/fact_review_wave3_real_fragmented_support_demo_bundle.json",
+      "artifact_role": "real_review_bundle",
+      "workflow_family": "transcript_semantic",
+      "safety_tier": "internal_only",
+      "zelph_story": "downstream_reasoning",
+      "inclusion_status": "internal_ranked_only",
+      "commands": [
+        {
+          "kind": "inspect",
+          "command": "cd /home/c/Documents/code/ITIR-suite && python -m json.tool itir-svelte/tests/fixtures/fact_review_wave3_real_fragmented_support_demo_bundle.json"
+        }
+      ]
+    },
+    {
+      "path": "SensibLaw/tests/fixtures/fact_semantic_bench/chat_archive_seed.json",
+      "artifact_role": "synthetic_benchmark_seed",
+      "workflow_family": "benchmark_calibration",
+      "safety_tier": "internal_only",
+      "zelph_story": "regression_only",
+      "inclusion_status": "excluded_from_demo",
+      "commands": [
+        {
+          "kind": "inspect",
+          "command": "cd /home/c/Documents/code/ITIR-suite && python -m json.tool SensibLaw/tests/fixtures/fact_semantic_bench/chat_archive_seed.json"
+        }
+      ]
+    },
+    {
+      "path": "SensibLaw/tests/fixtures/fact_semantic_bench/transcript_handoff_seed.json",
+      "artifact_role": "synthetic_benchmark_seed",
+      "workflow_family": "benchmark_calibration",
+      "safety_tier": "internal_only",
+      "zelph_story": "regression_only",
+      "inclusion_status": "excluded_from_demo",
+      "commands": [
+        {
+          "kind": "inspect",
+          "command": "cd /home/c/Documents/code/ITIR-suite && python -m json.tool SensibLaw/tests/fixtures/fact_semantic_bench/transcript_handoff_seed.json"
+        }
+      ]
+    }
+  ],
+  "phase2_chat_lane": {
+    "canonical_source_family": "chat_history_db",
+    "preferred_topics": [
+      "development_workflow",
+      "math_general_reasoning",
+      "public_events"
+    ],
+    "logic_tree_role": "exploratory_only",
+    "required_outputs": [
+      "reviewed_repo_stable_artifact",
+      "human_readable_summary",
+      "zelph_facing_export_or_query_surface"
+    ]
+  }
+}

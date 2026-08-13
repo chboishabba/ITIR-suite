@@ -1,0 +1,25 @@
+envelope_id: healthcare_visitation_exception
+domain: healthcare
+allowed_actions:
+  - research
+  - draft_communications
+  - send_communications
+  - escalate_within_org
+forbidden_actions:
+  - medical_decision
+  - legal_binding
+  - financial_commitment
+  - emotional_manipulation
+allowed_channels:
+  - email
+  - official_form
+termination_conditions:
+  stop_on:
+    - first_success
+    - authoritative_denial
+  time_limit_hours: 24
+tone_constraints:
+  - factual
+  - risk_framed
+  - non_emotive
+

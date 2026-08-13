@@ -1,0 +1,9 @@
+{
+  "heartbeat_file": "heartbeat.statibaker-runsheet-dashboard-manager.json",
+  "lane": "statibaker-runsheet-dashboard",
+  "lane_claim": "Manager: surface runsheet/progress state in StatiBaker local dashboard/query views without making Kanboard canonical; may spawn up to six leaf workers.",
+  "orchestrator_id": "statibaker-runsheet-dashboard-manager",
+  "parent_orchestrator_id": "itir-statibaker-supermanager",
+  "status_file": "status.statibaker-runsheet-dashboard-manager.json",
+  "timestamp": "2026-05-19T12:57:08Z"
+}

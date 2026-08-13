@@ -1,0 +1,27 @@
+{
+  "name": "obsidian-itir-plugin",
+  "version": "0.1.0",
+  "description": "Obsidian read-only observer plugin for ITIR MCP docstore projections.",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "build": "tsc --noEmit --skipLibCheck && node esbuild.config.mjs production",
+    "dev": "node esbuild.config.mjs",
+    "typecheck": "tsc --noEmit --skipLibCheck",
+    "check:static": "node scripts/static-check.mjs"
+  },
+  "keywords": [
+    "obsidian",
+    "itir",
+    "mcp",
+    "docstore"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "builtin-modules": "^3.3.0",
+    "esbuild": "^0.28.0",
+    "obsidian": "^1.5.12",
+    "typescript": "^5.4.5"
+  }
+}

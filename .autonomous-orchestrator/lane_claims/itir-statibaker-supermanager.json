@@ -1,0 +1,9 @@
+{
+  "heartbeat_file": "heartbeat.itir-statibaker-supermanager.json",
+  "lane": "statibaker-kanboard-root",
+  "lane_claim": "Supermanager monitor for StatiBaker local runsheet plus Kanboard projection roadmap; no direct file ownership beyond orchestration state.",
+  "orchestrator_id": "itir-statibaker-supermanager",
+  "parent_orchestrator_id": null,
+  "status_file": "status.itir-statibaker-supermanager.json",
+  "timestamp": "2026-05-19T12:57:08Z"
+}

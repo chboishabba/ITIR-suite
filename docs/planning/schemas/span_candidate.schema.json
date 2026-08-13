@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SpanCandidate",
+  "type": "object",
+  "required": ["span_id", "event_id", "span", "text", "span_type"],
+  "properties": {
+    "span_id": { "type": "string" },
+    "event_id": { "type": "string" },
+    "span": {
+      "type": "object",
+      "required": ["kind", "start", "end"],
+      "properties": {
+        "kind": { "type": "string", "enum": ["event_text", "revision_text"] },
+        "revision_id": { "type": "string" },
+        "start": { "type": "integer", "minimum": 0 },
+        "end": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "text": { "type": "string" },
+    "span_type": {
+      "type": "string",
+      "enum": ["PERSON", "ORGANIZATION", "PLACE", "COLLECTIVE_ROLE", "EVENT", "LEGAL_INSTRUMENT", "ABSTRACT"]
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source"],
+        "properties": {
+          "source": { "type": "string", "enum": ["dep_parse", "manual", "other"] },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "recurrence": {
+      "type": "object",
+      "properties": {
+        "seen_events": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "hygiene": {
+      "type": "object",
+      "description": "Optional, view-oriented metadata. Must not be used as a truth admissibility gate.",
+      "properties": {
+        "token_count": { "type": "integer", "minimum": 0 },
+        "is_time_expression": { "type": "boolean" },
+        "overlaps_resolved_entity": { "type": "boolean" },
+        "view_score": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

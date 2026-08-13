@@ -1,0 +1,12 @@
+{
+  "agent_name": "wave-regime",
+  "blocker": null,
+  "child_pid": 1861649,
+  "current_step": "- Remaining gap is operational ownership conflict on `heartbeat.statibaker-kanboard-promotion-governance-manager.json` (external runner writes over manual cl...",
+  "exit_code": 0,
+  "last_heartbeat": "2026-05-19T14:45:30Z",
+  "phase": "done",
+  "progress": null,
+  "skill": "long-running-development",
+  "state": 0
+}

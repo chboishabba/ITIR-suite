@@ -1,0 +1,67 @@
+{
+  "contractVersion": "erdfa-manifest-promotion/v1",
+  "artifactId": "wikidata-2026-demo",
+  "artifactRevision": "rev-20260329-a",
+  "artifactClass": "erdfa-shard-set",
+  "createdAtUtc": "2026-03-29T12:30:00Z",
+  "buildProvenance": {
+    "builder": "erdfa-publish-rs",
+    "builderVersion": "0.1.0",
+    "sourceInputs": [
+      "docs/planning/jmd_fixtures/zkperf_on_sl_observation_v1.example.json"
+    ]
+  },
+  "shards": [
+    {
+      "id": "left-bucket-001",
+      "cid": "bafkleftbucket001example",
+      "tags": [
+        "left",
+        "adjacency"
+      ],
+      "logicalKind": "adjacency-bucket",
+      "encoding": "cbor",
+      "sizeBytes": 2048,
+      "objectRefs": [
+        {
+          "sink": "ipfs",
+          "uri": "ipfs://bafy-left-bucket-001",
+          "sizeBytes": 2048,
+          "contentDigest": "sha256:left-bucket-001-example"
+        },
+        {
+          "sink": "hf",
+          "uri": "hf://datasets/acrion/zelph-demo/shards/left-bucket-001.cbor",
+          "sizeBytes": 2048,
+          "contentDigest": "sha256:left-bucket-001-example"
+        }
+      ],
+      "routingKeys": [
+        "route-left-node=Q123"
+      ]
+    },
+    {
+      "id": "nodeOfName-en-017",
+      "cid": "bafknodeofname017example",
+      "tags": [
+        "name",
+        "en"
+      ],
+      "logicalKind": "name-bucket",
+      "encoding": "cbor",
+      "sizeBytes": 1024,
+      "objectRefs": [
+        {
+          "sink": "hf",
+          "uri": "hf://datasets/acrion/zelph-demo/shards/nodeOfName-en-017.cbor",
+          "sizeBytes": 1024,
+          "contentDigest": "sha256:nodeofname-en-017-example"
+        }
+      ],
+      "routingKeys": [
+        "route-name=tenant",
+        "route-lang=en"
+      ]
+    }
+  ]
+}

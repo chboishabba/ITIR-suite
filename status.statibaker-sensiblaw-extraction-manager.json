@@ -1,0 +1,105 @@
+{
+  "active_checklist": "Align SensibLaw StatiBaker task extraction with the runsheet bridge.",
+  "allocation_scorecard": {
+    "ambiguity": "medium",
+    "context_width": "medium",
+    "coupling_risk": "high",
+    "failure_cost": "high",
+    "latency_pressure": "low",
+    "lower_tier_failures": "0",
+    "reversibility": "medium"
+  },
+  "architecture": "complete",
+  "audit": "complete",
+  "child_heartbeat": {
+    "agent_name": "tests-implement",
+    "blocker": null,
+    "child_pid": 1701349,
+    "current_step": "- No escalation needed from the selected model allocation block.",
+    "exit_code": 0,
+    "last_heartbeat": "2026-05-19T13:31:46Z",
+    "phase": "done",
+        "progress": {
+            "completed": 4,
+            "total": 4
+        },
+    "skill": "long-running-development",
+    "state": 0
+  },
+  "context": "ready",
+  "current_agent": null,
+  "docs": "ready",
+  "external_reasoning": "off",
+  "fallback_model": "gpt-5.3-codex",
+  "lane": "sensiblaw-statibaker-task-extraction",
+  "lane_claim": "Manager repair rerun: close stale SensibLaw StatiBaker extraction lane, update runsheet/status explicitly, preserve authority rules, and run focused tests; may spawn up to six leaf workers.",
+  "last_action": "long-running-development",
+  "last_cycle_finished_at": "2026-05-19T13:31:46Z",
+  "last_cycle_started_at": "2026-05-19T13:27:57Z",
+  "last_deescalation_rule": "De-escalate once ambiguity collapses and the work reduces to a narrow bounded edit set.",
+  "last_escalation_rule": "Escalate one tier if constraints are missed twice, ambiguity grows, or the task proves more coupled than the current frame indicates.",
+  "last_exit_code": 0,
+  "last_selected_model": "gpt-5.1-codex-max",
+  "last_task_stats": {
+    "agent_name": "tests-implement",
+    "allocation_scorecard": {
+      "ambiguity": "medium",
+      "context_width": "medium",
+      "coupling_risk": "high",
+      "failure_cost": "high",
+      "latency_pressure": "low",
+      "lower_tier_failures": "0",
+      "reversibility": "medium"
+    },
+    "dry_run": false,
+    "elapsed_seconds": 229.12,
+    "exit_code": 0,
+    "model_allocation": {
+      "deescalation_rule": "De-escalate once ambiguity collapses and the work reduces to a narrow bounded edit set.",
+      "escalation_rule": "Escalate one tier if constraints are missed twice, ambiguity grows, or the task proves more coupled than the current frame indicates.",
+      "fallback_model": "gpt-5.3-codex",
+      "reason": "Coding task is coupled or has already shown lower-tier trouble, so deep coding reasoning is warranted.",
+      "selected_model": "gpt-5.1-codex-max"
+    },
+    "output_lines": 9216,
+    "skill": "long-running-development",
+    "timed_out": false
+  },
+  "milestones_remaining": 0,
+  "model_allocation": {
+    "deescalation_rule": "De-escalate once ambiguity collapses and the work reduces to a narrow bounded edit set.",
+    "escalation_rule": "Escalate one tier if constraints are missed twice, ambiguity grows, or the task proves more coupled than the current frame indicates.",
+    "fallback_model": "gpt-5.3-codex",
+    "reason": "Coding task is coupled or has already shown lower-tier trouble, so deep coding reasoning is warranted.",
+    "selected_model": "gpt-5.1-codex-max"
+  },
+  "notes": "Lane ownership: SensibLaw/src/statibaker_kanban.py and focused SensibLaw tests/fixtures only. Do not own Kanboard RPC code. Ensure build_task_memory_index/project_kanban/build_task_timeline_probe can feed the bridge model or clearly report the missing adapter boundary. Preserve authority rules: structural task evidence only; no keyword-only promotion. Preferred model: gpt-5.1-codex-max if code changes span extraction semantics; gpt-5.1-codex-mini for fixture/test-only work.",
+  "orchestrator_id": "statibaker-sensiblaw-extraction-manager",
+  "parent_orchestrator_id": "itir-statibaker-supermanager",
+  "phase": "implementation",
+  "runsheet": {
+    "items": [
+      {
+        "id": "inspect",
+        "status": "done",
+        "title": "Inspect current task memory and timeline probe outputs"
+      },
+      {
+        "id": "map",
+        "status": "done",
+        "title": "Map statuses/provenance/residuals into local runsheet rows"
+      },
+      {
+        "id": "tests",
+        "status": "done",
+        "title": "Add or update tests using archive task/timeline fixtures"
+      },
+      {
+        "id": "report",
+        "status": "done",
+        "title": "Return ZKP summary, changed files, validation, and residual gaps"
+      }
+    ]
+  },
+  "tests": "passing"
+}

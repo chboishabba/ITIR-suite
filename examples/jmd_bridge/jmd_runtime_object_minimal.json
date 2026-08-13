@@ -1,0 +1,87 @@
+{
+  "contract_version": "jmd.runtime.object.v1",
+  "object": {
+    "content_ref": {
+      "cid_ref": {
+        "cid": "bafkreigh2akiscaildcjexample000000000000000000000000000000",
+        "provider": "ipfs"
+      },
+      "paste_ref": {
+        "base_url": "https://pastebin.xware.online",
+        "paste_id": "note-0001",
+        "paste_url": "https://pastebin.xware.online/paste/note-0001",
+        "provider": "kant-zk-pastebin",
+        "raw_url": "https://pastebin.xware.online/raw/note-0001"
+      }
+    },
+    "content_type": "text/plain; charset=utf-8",
+    "erdfa": {
+      "archive": {
+        "archive_path": "/tmp/jmd/note-0001.tar",
+        "archive_sha256": "98e0dc8f31ca130a3f9340c5034d05d4d9fa619c1ccb6fa66dfcd8fc66a1f16e",
+        "manifest_present": true,
+        "member_count": 2,
+        "provider": "erdfa-publish-rs",
+        "shard_members": [
+          "note-0001"
+        ]
+      },
+      "cid": "bafkreigh2akiscaildcjexample000000000000000000000000000000",
+      "component_kind": "text",
+      "component_type": "Paragraph",
+      "dasl": {
+        "nested_cid": {
+          "bott_index": 40,
+          "hash_fragment": 394758,
+          "hecke_index": 40,
+          "shard_index": 50
+        },
+        "prefix": "0xDA51",
+        "raw": "0xda5132a082861406",
+        "raw_data": "0x32a082861406",
+        "type_code": 3
+      },
+      "link_refs": [
+        "jmd:erdfa:shard:receipt-0001"
+      ],
+      "local_cid": "bafkff088661406673c4f58142da823121d9",
+      "parent_refs": [],
+      "provider": "erdfa-publish-rs",
+      "reply_to": "20260319_121137_rfcs",
+      "shard_id": "note-0001",
+      "tags": [
+        "note",
+        "financial-event"
+      ],
+      "witness": "ff088661406673c4f58142da823121d9a3187a8669ec8694f2687cfa91e13b41"
+    },
+    "object_id": "jmd:erdfa:shard:note-0001",
+    "object_type": "shard",
+    "provenance": {
+      "body_text_sha256": "a6f4f6d2d4ac9b08f718f5e14bf14d9174d67f27d0dbefd9a0d7538dc8f4888d",
+      "captured_at": "2026-03-22T00:00:00Z",
+      "ipfs_verification": {
+        "content_sha256": "a6f4f6d2d4ac9b08f718f5e14bf14d9174d67f27d0dbefd9a0d7538dc8f4888d",
+        "fetched_at": "2026-03-22T00:00:01Z",
+        "matches_body_text": true,
+        "provider": "ipfs_proxy",
+        "status_code": 200,
+        "url": "https://pastebin.xware.online/ipfs/QmX9Rxscf735hd2TtXH9si3zX96w2rtNtvtcX3X2GztL26"
+      },
+      "raw_text_sha256": "f0f7743885c42f55ca61563e48ced0a13120d2300e96b97d4f4855eca1f9f62f",
+      "retrieval_mode": "http_raw",
+      "source": "pastebin",
+      "source_url": "https://pastebin.xware.online/paste/note-0001"
+    },
+    "raw_text": "--- note-0001 ---\nTitle: note-0001\nCID: bafkexample\nIPFS: bafkreigh2akiscaildcjexample000000000000000000000000000000\n\nAlice paid Bob on 2026-03-19. Receipt hash: abc123.\n",
+    "text": "Alice paid Bob on 2026-03-19. Receipt hash: abc123.",
+    "title": "note-0001",
+    "token_count": 8
+  },
+  "provider": {
+    "base_url": "https://pastebin.xware.online",
+    "kind": "pastebin",
+    "name": "kant-zk-pastebin"
+  },
+  "resolved_at": "2026-03-22T00:00:00Z"
+}

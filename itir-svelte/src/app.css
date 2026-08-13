@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  font-family: theme(fontFamily.display);
+  background: radial-gradient(1200px 600px at 20% 10%, #ffffff 0%, #fbfaf7 35%, #f3f1ea 100%);
+  color: #0b1020;
+}
+
+code, pre {
+  font-family: theme(fontFamily.mono);
+}

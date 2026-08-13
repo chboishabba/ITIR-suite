@@ -1,0 +1,100 @@
+{
+  "ok": true,
+  "dbPath": "/home/c/Documents/code/ITIR-suite/.cache_local/itir.sqlite",
+  "workbench": {
+    "run": {
+      "run_id": "factrun:wave1-intake",
+      "source_label": "wave1:real_transcript_intake_v1",
+      "workflow_link": {
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_intake_v1"
+      },
+      "contract_version": "fact.review.workbench.v1"
+    },
+    "summary": {
+      "review_queue_count": 2,
+      "contested_item_count": 1
+    },
+    "sources": [],
+    "facts": [
+      {
+        "fact_id": "fact:injury-date",
+        "canonical_label": "Initial injury date",
+        "candidate_status": "candidate",
+        "signal_classes": [],
+        "source_signal_classes": [
+          "user_authored"
+        ],
+        "inspector_classification": {
+          "status_keys": {
+            "party_assertion": false,
+            "procedural_outcome": false,
+            "later_annotation": false
+          },
+          "dominant_label": "unclassified",
+          "display_labels": [
+            "unclassified"
+          ]
+        }
+      }
+    ],
+    "events": [],
+    "statements": [],
+    "excerpts": [],
+    "review_queue": [],
+    "chronology_summary": {
+      "dated_event_count": 0,
+      "undated_event_count": 0,
+      "no_event_fact_count": 1
+    },
+    "chronology_groups": {
+      "dated_events": [],
+      "approximate_events": [],
+      "undated_events": [],
+      "contested_chronology_items": []
+    },
+    "contested_summary": {},
+    "operator_views": {
+      "intake_triage": {
+        "title": "Intake triage",
+        "groups": {},
+        "items": []
+      }
+    },
+    "reopen_navigation": {
+      "current": {
+        "run_id": "factrun:wave1-intake",
+        "source_label": "wave1:real_transcript_intake_v1",
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_intake_v1"
+      },
+      "query": {
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_intake_v1",
+        "source_label": "wave1:real_transcript_intake_v1"
+      },
+      "recent_sources": []
+    },
+    "issue_filters": {
+      "default_filter": "all",
+      "available_filters": [
+        "all"
+      ],
+      "filters": [],
+      "summary": {}
+    },
+    "inspector_classification": {
+      "status_order": [
+        "party_assertion",
+        "procedural_outcome",
+        "later_annotation"
+      ],
+      "selected_fact_id": "fact:injury-date",
+      "facts": {}
+    },
+    "inspector_defaults": {
+      "selected_fact_id": "fact:injury-date",
+      "default_view": "intake_triage"
+    }
+  }
+}

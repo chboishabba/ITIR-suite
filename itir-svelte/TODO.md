@@ -1,0 +1,390 @@
+# TODO (itir-svelte)
+
+## Purpose
+Track SB dashboard module parity work and Svelte-specific componentization tasks.
+
+Primary contract: SB dashboard JSON outputs (`dashboard*.json`) under `SB_RUNS_ROOT`.
+
+## Direction
+
+- `itir-svelte/` is the sole intended web interface for ITIR-suite.
+- product-stack adoption should prefer producer-owned normalized artifacts over
+  route-local reinterpretation
+- Treat legacy `Pelican/` and `Zola/` web generators in other projects as
+  reference-only migration material, not active runtime targets.
+- When legacy behavior is still useful, port or restate the contract here
+  rather than extending those older web stacks.
+
+## Suite Normalized Artifact Adoption
+
+- DONE (2026-04-02): add `/graphs/normalized-artifacts` as the first bounded
+  suite-level operator consumer for the root normalized artifact contract.
+  - reads current `SensibLaw` and `StatiBaker` normalized artifacts directly
+  - stays read-only
+  - does not reinterpret compiled state as review output or vice versa
+- DONE (2026-04-02): upgrade `/graphs/normalized-artifacts` from a proof card
+  into a clearer operator inspection surface.
+  - makes the four operator questions explicit:
+    what this artifact is, why it exists, what supports it, and what remains
+    unresolved
+  - surfaces review-side promotion gate and recommended next action from the
+    existing fact-review workflow summary
+  - adds bounded drill-ins to the fact-review workbench and timeline ribbon
+- DONE (2026-04-02): widen `/graphs/normalized-artifacts` to one explicit
+  capture/archive adopter path.
+  - accepts one producer-owned `chat-export-structurer` normalized artifact
+    path via the route query
+  - keeps archive inspection bounded to `/corpora/chat-archive`
+- DONE (2026-04-02): keep `/graphs/normalized-artifacts` aligned with the
+  normalized-artifact contract by making conformance visibility explicit,
+  honoring explicit `tircorder` capture/source paths when the route copy
+  already carries them, surfacing `notebooklm-py` retrieval paths that travel
+  alongside those copies, and leaving source artifacts source-shaped instead
+  of rerouting them into a state drill-in.
+- next:
+  - widen the route only to additional producer-owned adopters with real
+    normalized artifact lanes
+  - add richer contract diagnostics only if they stay read-only and
+    root-contract-shaped
+  - keep broader domain-specific proving grounds subordinate to this shared
+    product-stack view
+
+## Near-Term (Parity)
+
+- DONE (2026-02-11): lock parity baseline docs for migration decisions:
+  - `docs/planning/sl_sb_web_component_inventory_20260210.md`
+  - `docs/planning/itir_svelte_tool_use_parser_display_contract_20260211.md`
+- Weekly HTML parity modules (from legacy SB HTML screenshots):
+  - When You Work (Weekday x Hour) multi-lane heatmap:
+    - data source: `dashboard_weekly_*.json` -> `weekday_hour_heatmaps`
+    - controls: signal toggles, normalize(score), presets (all/none/intent set)
+    - cell hover: per-signal breakdown + raw counts
+    - add an optional per-day log view for selected ranges: render day-by-day hour strips
+      grouped into 7-day segments below the aggregate weekday heatmap (for 14-day range,
+      render 2 segments; for month, render ~4 segments).
+  - Above/Below rollups (weekday/hour + top weekday-hours table)
+  - Totals grid cards
+  - NotebookLM lifecycle (`notes_meta_summary`)
+  - Per-day summary table (daily rows across selected range)
+- Daily HTML parity modules (from `dashboard_all.html`):
+  - Context Overlays (Selected)
+  - Chat Context Usage (Estimated) (window sweep + thread usage table)
+  - Media Consumption
+  - Agent Edit Activity
+  - Warnings module (daily + weekly)
+- Routing:
+  - add dedicated `weekly` and `lifetime` routes that load `dashboard_weekly_*.json` and
+    `dashboard_lifetime*.json` directly when present
+  - range mode should prefer precomputed weekly JSON when available, else aggregate from dailies
+
+## Reusable Viewers
+
+- DONE (2026-02-12): add reusable viewer primitives under `src/lib/viewers/`:
+  - `TranscriptViewer.svelte` (cue list + active highlighting + click/space seek hooks)
+  - `DocumentViewer.svelte` (line-addressable text/markdown viewer with search)
+  - `FolderListViewer.svelte` (generic file/folder picker lane)
+  - `transcript.ts` (deterministic cue/timestamp parsing utilities ported from tircorder behavior)
+- DONE (2026-02-12): add `/viewers/hca-case` workbench route to exercise transcript + document + folder viewers against `SensibLaw/demo/ingest/hca_case_s942025`.
+- Keep the `workbench` concept documented and consistent:
+  - workbenches are inspection/debug routes, not parity/dashboard modules
+  - they may carry richer reviewer affordances, but no independent semantic authority
+- Follow-up:
+  - wire these viewers into SB thread/event detail surfaces where transcript/document artifacts are present.
+  - define a shared span contract (`char_start/end`, `token span`, `source artifact id`) for graph <-> viewer cross-highlighting.
+  - evaluate extracting a shared “transcript cue sync” store so audio time, selected cue, and graph node focus can synchronize across pages.
+  - adopt `sensiblaw.interfaces.shared_reducer` in producer/read-model paths
+    where canonical lexeme/structure refs are needed, instead of re-deriving
+    local tokenizer behavior in the UI layer.
+- Transcript-browser parity pass (2026-03-19):
+  - DONE: confirm `TranscriptViewer`/`/viewers/hca-case` already cover the
+    main retained Pelican transcript-browser behaviors worth porting
+    (cue parsing, seek, active cue highlighting, scroll, document-side
+    inspection)
+  - DONE: restore live accessibility cue-status parity via an `aria-live`
+    status region in `TranscriptViewer`
+  - next:
+    - decide whether the legacy matched-audio/transcript timeline shell is
+      still product-relevant enough to merit a dedicated `itir-svelte` route
+    - if yes, implement it as a Svelte workbench/consumer route rather than
+      extending Pelican/Zola
+
+## Mary-Parity Fact Review
+
+- Keep `/graphs/fact-review` as a read-only consumer of the persisted
+  `SensibLaw` fact-review workbench/acceptance contract.
+- DONE (2026-03-19): route validation now runs against a real captured
+  `wave1_legal` transcript baseline exported through
+  `SensibLaw/scripts/query_fact_review.py demo-bundle`:
+  - `source_label`: `wave1:real_transcript_intake_v1`
+  - `workflow_kind`: `transcript_semantic`
+  - `workflow_run_id`: `transcript_acceptance_real_intake_v1`
+- DONE (2026-03-19): route regressions now map directly to the transcript-side
+  wave-1 Mary operator expectations:
+  - `SL-US-09` intake triage filters, chronology split, contested-item flow
+  - `SL-US-10` current-run reopen + recent/source-centric reopen path
+  - `SL-US-11` assertion vs later-annotation visibility
+  - `SL-US-12` to `SL-US-14` procedural-posture visibility from the persisted bundle
+- DONE (2026-03-20): widen the same real-path proof to AU/legal through
+  `SensibLaw/scripts/query_fact_review.py demo-bundle`:
+  - `source_label`: `wave1:real_au_procedural_v1`
+  - `workflow_kind`: `au_semantic`
+  - `workflow_run_id`: `run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d`
+  - route regressions now prove `SL-US-12`, `SL-US-13`, and `SL-US-14`
+    against a real persisted AU bundle instead of transcript-only coverage
+- DONE (2026-03-27): `/graphs/fact-review` now exposes the AU
+  `authority_follow` operator view by reading the AU `demo-bundle`
+  operator surface for AU selectors.
+  - shows route-target counts
+  - shows the bounded follow-needed authority queue
+  - keeps the generic persisted workbench contract unchanged for non-AU lanes
+- DONE (2026-03-27): `/graphs/fact-review` now renders the first shared
+  follow/review control-plane queues generically from `control_plane` +
+  `queue` metadata.
+  - first concrete users:
+    - AU `authority_follow`
+    - generic fact-review `intake_triage`
+    - generic fact-review `contested_items`
+  - next: move additional real source-family queues onto the same portable
+    control-plane instead of adding more one-off renderers
+- DONE (2026-03-20): widen the same `demo-bundle` real-path proof to the
+  transcript-side trauma/handoff lanes:
+  - wave 3 trauma/support baseline:
+    `wave3:real_transcript_fragmented_support_v1` /
+    `real_transcript_fragmented_support_v1`
+  - wave 5 professional handoff baseline:
+    `wave5:real_transcript_professional_handoff_v1` /
+    `real_transcript_professional_handoff_v1`
+  - wave 5 false-coherence baseline:
+    `wave5:real_transcript_false_coherence_v1` /
+    `real_transcript_false_coherence_v1`
+  - route regressions now prove `ITIR-US-13` to `ITIR-US-16` against real
+    persisted bundles instead of relying on synthetic-only trauma/handoff
+    coverage
+- Near-term priority:
+  - tighten the route presentation around the new ITIR operator stories without
+    broadening backend semantics
+  - keep future real-path widening on the `demo-bundle` seam instead of adding
+    route-local fixtures
+  - next meaningful operator surface after fact review:
+    `/graphs/narrative-compare`, starting with ingress-backed URL/media sources
+    instead of fixture-only loading
+- Keep low-judgment agents focused on route-consumer coverage first:
+  - do not invent new fact-review backend semantics in Svelte
+  - prefer seam tests over speculative UI refactors
+
+## Chat Threads
+
+- DONE (2026-02-11): add a source selector (multi-toggle) in Chat Threads so
+  thread rows can be enabled/disabled by source without changing date range.
+- DONE (2026-02-11): include `notebooklm (meta-only)` in the Chat Threads source
+  selector when NotebookLM lifecycle metadata exists in the selected payload.
+- DONE (2026-02-11): map `notebooklm (meta-only)` to metadata-backed rows by
+  parsing `runs/<date>/logs/notes/<date>.jsonl` (grouped by `notebook_id_hash`,
+  with an unscoped bucket for notebookless events).
+- DONE (2026-02-11): route NotebookLM rows into `/thread/<id>` and render
+  NotebookLM lifecycle cards (event/source/artifact/title/snippet fields).
+- DONE (2026-02-11): in NotebookLM thread view, render a source index panel
+  (numbered source list + type badges) and show per-event source refs as
+  compact number ranges (`1-3,7`) instead of repeating long source titles.
+- DONE (2026-02-11): render NotebookLM source snippets via Markdown-lite so
+  headings/lists/code formatting survives.
+- Keep source derivation consistent:
+  - prefer per-thread `source_ids` when present
+  - fallback to thread `origin`
+- Follow-up: add a dashboard-level global source scope (shared picker) that can
+  drive chat-source and metadata-source filtering across modules.
+- Follow-up: add a privacy mode toggle for NotebookLM thread rendering
+  (local full snippets vs strict metadata-only redaction).
+- DONE (2026-03-27): add a corpus-browser route family for the main local
+  browse surfaces:
+  - `/corpora`
+  - `/corpora/chat-archive`
+  - `/corpora/messenger`
+  - `/corpora/openrecall`
+  - `/corpora/processed`
+  - `/corpora/processed/personal`
+  - `/corpora/processed/broader`
+  This keeps full-ingest inspection in one place instead of scattering it
+  across only thread-specific or workbench-specific routes.
+- DONE (2026-03-27): switch `/corpora/processed/personal` affidavit cards to
+  prefer the persisted contested-review receiver via
+  `SensibLaw/scripts/query_fact_review.py contested-runs|contested-summary`,
+  with artifact JSON only as fallback.
+- DONE (2026-03-27): add a first collector-facing feedback capture surface to
+  `/corpora/processed/personal` over the canonical ITIR DB:
+  - one-receipt form backed by `query_fact_review.py feedback-add`
+  - JSONL paste/import form backed by `query_fact_review.py feedback-import`
+  - recent feedback-receipt cards from `feedback-receipts`
+- DONE (2026-03-27): add first bounded feedback receipt drill-ins from
+  `/corpora/processed/personal` back into internal routes/workbenches when the
+  receipt names an internal `target_surface` or safely maps to one.
+- DONE (2026-03-27): make those receipt drill-ins provenance-first when
+  stronger refs already exist in the receipt:
+  canonical thread ids, fact-review selector refs, or direct internal route
+  refs.
+- DONE (2026-03-27): expose explicit capture fields for those stronger refs in
+  `/corpora/processed/personal`:
+  canonical thread id plus fact-review selector refs.
+- next:
+  - improve feedback collector UX beyond raw field entry / JSONL paste
+  - extend explicit capture to other canonical object families only where
+    there is a clear product path and stable target surface
+
+## Tool Use Summary (Parser)
+
+- DONE (2026-02-11): document display-layer parser contract and invariants in
+  `docs/planning/itir_svelte_tool_use_parser_display_contract_20260211.md`
+  (compound segmentation, directory context grouping, and special-case trunking).
+- Implement a generic shell-line parser for compound commands:
+  - recognize `&&`, `||`, `;`, and `|`
+  - treat leading `cd <dir>` (and `pushd <dir>`) as a directory context for subsequent segments
+  - group commands by directory context (Artifacts-style) when present
+  - show "real" subcommands (post-`cd`) rather than the `cd` wrapper
+- Important constraint:
+  - keep SB-native family counts/labels from the JSON payload; the parser is for *display grouping*
+    within a family, not for reclassifying families.
+- Keep special-case trunking:
+  - heredocs: `python - <<'PY'` grouped under `'PY'` with subvariants derived from the body
+  - patches: `apply_patch` grouped under `'PATCH'` with subvariants derived from touched paths/ops
+
+## Timeline Surfaces
+
+- Ribbon ownership: keep richer ribbon implementation work in `itir-svelte/`;
+  treat `itir-ribbon/` as the contract/spec source, not the main runtime UI.
+- Ribbon: align richer `itir-svelte` ribbon surfaces to the existing ribbon contract docs:
+  - `SensibLaw/docs/timeline_ribbon.md`
+  - `itir-ribbon/docs/interfaces.md`
+  - `itir-ribbon/ui_contract.md`
+- DONE (2026-03-15): dashboard ribbon and `/graphs/timeline-ribbon` now expose:
+  - named conserved quantity + total mass badge
+  - contract selectors for viewport/segments/lens switcher
+  - explicit separation between mass-carrying segments and non-mass thread/source callouts
+- Ribbon: keep `step-ribbon` scoped as AAO graph placement/linearization only;
+  do not let it silently become the conserved-allocation ribbon surface.
+- Ribbon: next Svelte implementation slice should add:
+  - producer-owned lens/context envelopes instead of dashboard-only derived hour bins
+  - compare-overlay and inspector behavior backed by explicit acceptance tests, not only source regression guards
+- Timeline list: keep "accounting surface" posture (compact rows, full ISO on hover).
+- DONE (2026-02-12): `/graphs/wiki-fact-timeline` now has:
+  - frame-scoped node->fact scope validator (`scope_validator`, leak samples),
+  - view-only importance profile selector (`entropy_role_section_v1`),
+  - bounded percentile sizing for subject/object nodes.
+
+## Wiki Graph Surfaces
+
+- AAO mini-graph: consider month-name rendering (`Jan 2010` vs `2010-01`) as a display-only toggle.
+- Whole-article AAO view: add optional edge labels/weights and filters (by section, by action verb) without changing extraction artifacts.
+- Whole-article AAO view: add a "show hidden counts" summary (subjects/objects dropped by display caps).
+- Whole-article AAO view: add evidence overlay lane (`citations[]`, `sl_references[]`) with edge-kind toggle (`role|sequence|evidence`) and keep evidence edges out of layout-neighbor centering logic.
+
+## Semantic Report Workbench
+
+- Add a token-arc debug inspector to `/graphs/semantic-report` for text-rich
+  semantic events:
+  - render event text as hoverable tokens
+  - draw SVG arcs on hover
+  - color by relation family/type
+  - opacity by confidence tier
+  - visually distinguish promoted vs candidate-only rows
+- Keep this surface debug-only:
+  - derive anchors from existing mentions/receipts/label-text fallback
+  - do not invent canonical spans or write back new semantic facts
+- DONE (2026-03-08): extract a shared `text-debug` payload contract for
+  token/text-local relation inspection instead of keeping semantic-report-
+  specific arc types in the route loader.
+- DONE (2026-03-08): prove the contract with a transcript/freeform semantic
+  producer so the workbench is demonstrably reusable beyond legal-only lanes.
+- DONE (2026-03-08): move token/anchor/relation-family shaping for the semantic
+  workbench into Python report producers so `semanticReport.ts` consumes a
+  producer-owned `text_debug` artifact instead of re-deriving anchors locally.
+- DONE (2026-03-08): add a compact producer-owned semantic review summary
+  (`review_summary`) so the workbench can compare predicate/cue/anchor coverage
+  without depending on raw relation tables.
+- DONE (2026-03-08): wire the semantic report workbench to use producer-owned
+  `charStart/charEnd/sourceArtifactId` spans for event-local cross-highlighting
+  in a document viewer, while keeping the source-document slot explicit about
+  unavailable source text.
+- DONE (2026-03-08): add append-only correction submission to the semantic
+  report workbench, now backed by `itir.sqlite` review tables keyed by
+  source/run/event/relation/anchor refs.
+- DONE (2026-03-08): let event/source document viewers request selection back
+  into the token-arc inspector by clicking highlighted lines, so review can
+  start from text as well as arcs.
+- DONE (2026-03-08): surface transcript/freeform `mission_observer` payloads in
+  the semantic report workbench and provide a download/export surface for the
+  SB-safe observer bundle.
+- Follow-up:
+  - revisit a shared graph <-> document span contract after this view is stable
+  - add a replay/review surface over submitted DB-backed correction receipts
+    rather than only a recent-submissions list
+  - if mission observer review becomes regular, split it into a dedicated
+    workbench route rather than overloading `/graphs/semantic-report`
+- Follow-up:
+  - add a future ingress-hub workbench for public media/transcript URLs so
+    transcript/narrative validation can start from a dropped source rather than
+    only checked-in fixtures
+  - extend the new `/graphs/narrative-compare` workbench from fixture-first to
+    ingress-backed URL/media sources
+  - if/when OpenRecall import becomes stable, consume the normalized ITIR
+    capture read model rather than wiring `openrecall/` directly into Svelte;
+    GUI work stays downstream of the importer/read-model seam
+  - render widened proposition-layer output (attribution wrappers, cited
+    holdings, proposition links) distinctly once the current bounded v1 grows
+    beyond HCA-first idioms
+- DONE (2026-03-08): add `/graphs/mission-lens` as a fused actual-vs-should
+  workbench over ITIR mission planning + SB dashboard data using a bipartite
+  flow graph, layered hierarchy graph, deadline panel, drift panel, and
+  bounded planning-node authoring.
+- DONE (2026-03-08): add reviewed actual-to-mission mapping controls to
+  `/graphs/mission-lens`, so concrete SB activity rows can be linked to the
+  selected planning node instead of relying only on lexical fallback.
+- Follow-up:
+  - add richer reviewed mapping management (unlink/reassign/status review)
+    instead of only append-only linking
+  - surface why a lexical mapping matched when no reviewed link exists
+
+## Chat Flow Waterfall (Semantics)
+
+- Decide desired default semantics for Chat Flow visualization:
+  - legacy HTML: per-message linear strip (gap-to-next as width) + optional multi-lane waterfall
+  - Svelte port: hour+thread grouped segments (time vs messages width mode)
+- Hover details: show thread title + representative message snippet for the hovered segment:
+  - option A: extend SB payload to include message previews per `chat_flow.waterfall` item
+  - option B: on-demand local archive lookup by `canonical_thread_id + ts` (cache + debounce)
+- Visual cue for message volume inside a segment (if keeping hour+thread grouping):
+  - ticks/texture, opacity by log(messageCount), or height modulation
+
+## Range Handling
+
+- Define explicit behavior for missing days inside a range:
+  - display missing dates
+  - offer a "build missing" action
+  - DB-first: missing days must be computed against the canonical dashboard DB, not `dashboard*.json` on disk.
+
+## Reliability
+
+- Home route (`/`): do not hard-500 when no dashboard payload exists on disk; render a
+  load-error panel with instructions to set `SB_DASHBOARD_JSON` or `SB_RUNS_ROOT+SB_DATE`.
+- DB-first: hydrate the home page from `SB_DASHBOARD_DB` / `SB_RUNS_ROOT/dashboard.sqlite`; keep `SB_DASHBOARD_JSON` as regression/debug only.
+- DONE (2026-02-14): Missing days in a selected range auto-run a local catch-up job by default
+  (disable via `ITIR_AUTO_BUILD_MISSING_DASHBOARDS=0`):
+  - ingest Codex chats into `~/.chat_archive.sqlite` (best-effort)
+  - run `StatiBaker/scripts/build_dashboard.py` for missing dates
+  - show spinner + estimated % in the Missing Runs panel while running
+- DONE (2026-02-14): Vite/Svelte SSR circular-init regression recovery tooling:
+  - `npm run dev:clean` clears Vite prebundle cache + `.svelte-kit/output`
+  - `npm run dev:stable` runs dev server with a larger Node heap
+  - recovery steps documented in `README.md`
+  - do not silently backfill with invented values
+
+## Engineering Hygiene
+
+- Keep domain logic in server loaders/adapters; keep components prop-driven.
+- Maintain Zod contracts under `src/lib/sb-dashboard/contracts/` as the runtime gate.
+- Avoid SSR/CSR hydration mismatches (defer browser-only reads like `localStorage` to `onMount`).
+
+## Thread Viewer
+
+- Extend tool-call “beautifiers”:
+  - `apply_patch` payload summary (touched files/ops) when available
+  - tool-specific iconography and copy-on-click affordances (session id, thread id)

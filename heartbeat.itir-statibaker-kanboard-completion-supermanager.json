@@ -1,0 +1,12 @@
+{
+  "agent_name": "orchestrator",
+  "blocker": null,
+  "child_pid": null,
+  "current_step": "project complete",
+  "exit_code": 0,
+  "last_heartbeat": "2026-05-19T14:17:07Z",
+  "phase": "done",
+  "progress": null,
+  "skill": null,
+  "state": 0
+}

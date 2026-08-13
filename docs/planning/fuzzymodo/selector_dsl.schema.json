@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://itir.local/schemas/fuzzymodo/selector-dsl.schema.json",
+  "title": "Fuzzymodo Selector DSL",
+  "type": "object",
+  "required": ["dsl_version", "selector"],
+  "additionalProperties": false,
+  "properties": {
+    "dsl_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "selector": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "all_of": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/clause" }
+        },
+        "any_of": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/clause" }
+        },
+        "not": {
+          "$ref": "#/$defs/clause"
+        }
+      },
+      "anyOf": [
+        { "required": ["all_of"] },
+        { "required": ["any_of"] },
+        { "required": ["not"] }
+      ]
+    }
+  },
+  "$defs": {
+    "clause": {
+      "type": "object",
+      "required": ["graph", "where"],
+      "additionalProperties": false,
+      "properties": {
+        "graph": {
+          "type": "string",
+          "enum": [
+            "structural",
+            "execution",
+            "build",
+            "threat",
+            "ecosystem",
+            "normative",
+            "timeline"
+          ]
+        },
+        "where": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": { "$ref": "#/$defs/predicate" }
+        }
+      }
+    },
+    "predicate": {
+      "oneOf": [
+        {
+          "type": ["string", "number", "boolean", "null"]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "eq": { "type": ["string", "number", "boolean", "null"] },
+            "neq": { "type": ["string", "number", "boolean", "null"] },
+            "lt": { "type": "number" },
+            "lte": { "type": "number" },
+            "gt": { "type": "number" },
+            "gte": { "type": "number" },
+            "in": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": ["string", "number", "boolean", "null"] }
+            },
+            "startswith": { "type": "string" },
+            "matches": { "type": "string" },
+            "exists": { "type": "boolean" }
+          },
+          "minProperties": 1
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "ITIR Docker GPU"
+  short_description: "Run GPU-enabled commands in the ITIR Docker container"
+  default_prompt: "Use docker exec into container ITIR and run Python via /Whisper-WebUI/venv/bin/python with workdir /home/c/Documents/code/ITIR-suite."

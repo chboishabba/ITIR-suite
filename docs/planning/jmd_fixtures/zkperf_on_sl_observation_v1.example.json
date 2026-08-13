@@ -1,0 +1,39 @@
+{
+  "zkperf_observation_id": "zkperf-obsv-0001",
+  "trace_id": "trace-20260329-0001",
+  "run_id": "run-20260329-a",
+  "asserted_at": "2026-03-29T12:00:00Z",
+  "source_ref": "receipt:zkperf-run-20260329-a",
+  "status": "observed",
+  "metrics": [
+    {
+      "name": "elapsed_ms",
+      "kind": "integer",
+      "value": 184
+    },
+    {
+      "name": "transition_count",
+      "kind": "integer",
+      "value": 37
+    },
+    {
+      "name": "compression_ratio",
+      "kind": "float",
+      "value": 1.42
+    }
+  ],
+  "trace_refs": [
+    "trace:window:run-20260329-a:0001"
+  ],
+  "proof_refs": [
+    "proof:zkperf:run-20260329-a:summary"
+  ],
+  "related_artifact_refs": [
+    {
+      "artifactId": "wikidata-2026-demo",
+      "artifactRevision": "rev-20260329-a",
+      "shardId": "left-bucket-001"
+    }
+  ],
+  "hash": "sha256:example-zkperf-on-sl-observation-v1"
+}

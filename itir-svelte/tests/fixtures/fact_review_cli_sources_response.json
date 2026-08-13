@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "dbPath": "/home/c/Documents/code/ITIR-suite/.cache_local/itir.sqlite",
+  "sources": [
+    {
+      "source_id": "source:intake",
+      "source_order": 1,
+      "source_type": "context_file",
+      "source_label": "wave1:real_transcript_intake_v1",
+      "provenance": {},
+      "latest_workflow_link": {
+        "workflow_kind": "transcript_semantic",
+        "workflow_run_id": "real_transcript_intake_v1",
+        "fact_run_id": "factrun:wave1-intake"
+      }
+    }
+  ]
+}

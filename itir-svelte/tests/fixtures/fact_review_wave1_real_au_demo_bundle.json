@@ -1,0 +1,3725 @@
+{
+  "acceptance": {
+    "fixture_kind": "real",
+    "run": {
+      "run_id": "factrun:1de59c55e079ea96c0b1a4ad7f0df5635d37d963ce6b07d43a407bb442d0f6c5",
+      "source_label": "wave1:real_au_procedural_v1",
+      "workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:26:44",
+        "fact_run_id": "factrun:1de59c55e079ea96c0b1a4ad7f0df5635d37d963ce6b07d43a407bb442d0f6c5",
+        "source_label": "wave1:real_au_procedural_v1",
+        "workflow_kind": "au_semantic",
+        "workflow_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d"
+      }
+    },
+    "stories": [
+      {
+        "blocking_explanation": null,
+        "check_count": 6,
+        "checks": [
+          {
+            "check_id": "provenance_drilldown",
+            "explanation": "Missing drill-down from fact/event rows to source statements and excerpts.",
+            "passed": true
+          },
+          {
+            "check_id": "review_queue",
+            "explanation": "Missing actionable review queue for follow-up work.",
+            "passed": true
+          },
+          {
+            "check_id": "chronology_split",
+            "explanation": "Chronology is not clearly separated into dated, undated, and no-event material.",
+            "passed": true
+          },
+          {
+            "check_id": "roleful_queue_reasons",
+            "explanation": "Review queue reasons are still too generic for operator triage.",
+            "passed": true
+          },
+          {
+            "check_id": "queue_grouping",
+            "explanation": "Review queue lacks grouped/filterable issue categories.",
+            "passed": true
+          },
+          {
+            "check_id": "inspector_classification",
+            "explanation": "Inspector does not explicitly distinguish assertion, procedural outcome, and later annotation.",
+            "passed": true
+          }
+        ],
+        "failed_check_ids": [],
+        "gap_tags": [],
+        "label": "Community legal centre intake triage",
+        "passed_check_count": 6,
+        "status": "pass",
+        "story_id": "SL-US-09"
+      },
+      {
+        "blocking_explanation": null,
+        "check_count": 4,
+        "checks": [
+          {
+            "check_id": "provenance_drilldown",
+            "explanation": "Missing drill-down from fact/event rows to source statements and excerpts.",
+            "passed": true
+          },
+          {
+            "check_id": "contested_summary",
+            "explanation": "Contested items are not summarized separately from the main review flow.",
+            "passed": true
+          },
+          {
+            "check_id": "workflow_link",
+            "explanation": "Stored run cannot be reopened cleanly from workflow metadata.",
+            "passed": true
+          },
+          {
+            "check_id": "reopen_navigation",
+            "explanation": "Source-centric reopen navigation is not explicit enough in the persisted workbench.",
+            "passed": true
+          }
+        ],
+        "failed_check_ids": [],
+        "gap_tags": [],
+        "label": "NGO litigation campaign case assembly",
+        "passed_check_count": 4,
+        "status": "pass",
+        "story_id": "SL-US-10"
+      },
+      {
+        "blocking_explanation": null,
+        "check_count": 4,
+        "checks": [
+          {
+            "check_id": "provenance_drilldown",
+            "explanation": "Missing drill-down from fact/event rows to source statements and excerpts.",
+            "passed": true
+          },
+          {
+            "check_id": "review_queue",
+            "explanation": "Missing actionable review queue for follow-up work.",
+            "passed": true
+          },
+          {
+            "check_id": "chronology_split",
+            "explanation": "Chronology is not clearly separated into dated, undated, and no-event material.",
+            "passed": true
+          },
+          {
+            "check_id": "assertion_outcome_distinction",
+            "explanation": "Party assertion, later annotation, and procedural outcome are still blurred together.",
+            "passed": true
+          }
+        ],
+        "failed_check_ids": [],
+        "gap_tags": [],
+        "label": "Paralegal evidence pack preparation",
+        "passed_check_count": 4,
+        "status": "pass",
+        "story_id": "SL-US-11"
+      },
+      {
+        "blocking_explanation": null,
+        "check_count": 4,
+        "checks": [
+          {
+            "check_id": "provenance_drilldown",
+            "explanation": "Missing drill-down from fact/event rows to source statements and excerpts.",
+            "passed": true
+          },
+          {
+            "check_id": "contested_summary",
+            "explanation": "Contested items are not summarized separately from the main review flow.",
+            "passed": true
+          },
+          {
+            "check_id": "legal_procedural_signal",
+            "explanation": "Legal/procedural observations are not visible enough in the review surface.",
+            "passed": true
+          },
+          {
+            "check_id": "assertion_outcome_distinction",
+            "explanation": "Party assertion, later annotation, and procedural outcome are still blurred together.",
+            "passed": true
+          }
+        ],
+        "failed_check_ids": [],
+        "gap_tags": [],
+        "label": "Solicitor case theory preparation",
+        "passed_check_count": 4,
+        "status": "pass",
+        "story_id": "SL-US-12"
+      },
+      {
+        "blocking_explanation": null,
+        "check_count": 4,
+        "checks": [
+          {
+            "check_id": "chronology_split",
+            "explanation": "Chronology is not clearly separated into dated, undated, and no-event material.",
+            "passed": true
+          },
+          {
+            "check_id": "contested_summary",
+            "explanation": "Contested items are not summarized separately from the main review flow.",
+            "passed": true
+          },
+          {
+            "check_id": "workflow_link",
+            "explanation": "Stored run cannot be reopened cleanly from workflow metadata.",
+            "passed": true
+          },
+          {
+            "check_id": "approximate_chronology",
+            "explanation": "Approximate or relative dates are not surfaced distinctly enough.",
+            "passed": true
+          }
+        ],
+        "failed_check_ids": [],
+        "gap_tags": [],
+        "label": "Barrister chronology and contradiction prep",
+        "passed_check_count": 4,
+        "status": "pass",
+        "story_id": "SL-US-13"
+      },
+      {
+        "blocking_explanation": null,
+        "check_count": 4,
+        "checks": [
+          {
+            "check_id": "legal_procedural_signal",
+            "explanation": "Legal/procedural observations are not visible enough in the review surface.",
+            "passed": true
+          },
+          {
+            "check_id": "read_only_posture",
+            "explanation": "Review surface does not clearly maintain read-only, non-reasoning posture.",
+            "passed": true
+          },
+          {
+            "check_id": "provenance_drilldown",
+            "explanation": "Missing drill-down from fact/event rows to source statements and excerpts.",
+            "passed": true
+          },
+          {
+            "check_id": "assertion_outcome_distinction",
+            "explanation": "Party assertion, later annotation, and procedural outcome are still blurred together.",
+            "passed": true
+          }
+        ],
+        "failed_check_ids": [],
+        "gap_tags": [],
+        "label": "Judge / associate procedural reconstruction",
+        "passed_check_count": 4,
+        "status": "pass",
+        "story_id": "SL-US-14"
+      }
+    ],
+    "summary": {
+      "fail_count": 0,
+      "partial_count": 0,
+      "pass_count": 6,
+      "story_count": 6
+    },
+    "version": "fact.review.acceptance.v1",
+    "wave": "wave1_legal"
+  },
+  "dbPath": "/home/c/Documents/code/ITIR-suite/.cache_local/itir.sqlite",
+  "ok": true,
+  "selector": {
+    "fixture_kind": "real",
+    "run_id": "factrun:1de59c55e079ea96c0b1a4ad7f0df5635d37d963ce6b07d43a407bb442d0f6c5",
+    "source_label": "wave1:real_au_procedural_v1",
+    "wave": "wave1_legal",
+    "workflow_kind": "au_semantic",
+    "workflow_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d"
+  },
+  "sources": [
+    {
+      "latest_created_at": "2026-03-19 14:26:44",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:26:44",
+        "fact_run_id": "factrun:b6790ef16a463eeeb286d81eeb14d876ca46801487dff715e586f46eccdd752e",
+        "source_label": "wave1:synthetic_assertion_outcome_v1",
+        "workflow_kind": "au_semantic",
+        "workflow_run_id": "synthetic_assertion_outcome_v1"
+      },
+      "linked_run_count": 1,
+      "source_label": "wave1:synthetic_assertion_outcome_v1"
+    },
+    {
+      "latest_created_at": "2026-03-19 14:26:44",
+      "latest_workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:26:44",
+        "fact_run_id": "factrun:1de59c55e079ea96c0b1a4ad7f0df5635d37d963ce6b07d43a407bb442d0f6c5",
+        "source_label": "wave1:real_au_procedural_v1",
+        "workflow_kind": "au_semantic",
+        "workflow_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d"
+      },
+      "linked_run_count": 2,
+      "source_label": "wave1:real_au_procedural_v1"
+    }
+  ],
+  "workbench": {
+    "chronology": {
+      "events": [
+        {
+          "event_id": "event:41c5bbdbd409a0f6",
+          "event_type": "appealed",
+          "object_text": "High Court of Australia",
+          "primary_actor": "Appellant",
+          "source_event_ids": [
+            "au-ev-3"
+          ],
+          "status": "candidate",
+          "time_precision": "approximate",
+          "time_start": "1936"
+        },
+        {
+          "event_id": "event:4c50f6c8a3ee0def",
+          "event_type": "challenged",
+          "object_text": "High Court of Australia",
+          "primary_actor": "Plaintiff",
+          "source_event_ids": [
+            "au-ev-1"
+          ],
+          "status": "candidate",
+          "time_precision": "approximate",
+          "time_start": "2003"
+        }
+      ],
+      "facts": [
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "1936",
+          "chronology_sort_key": "1936",
+          "fact_id": "fact:44e3b170c347a29b",
+          "order": 1
+        },
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "2003",
+          "chronology_sort_key": "2003",
+          "fact_id": "fact:33bf5d1e2fbd3c36",
+          "order": 2
+        },
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "2003-06-01",
+          "chronology_sort_key": "2003-06-01",
+          "fact_id": "fact:9d43035cc83c0c08",
+          "order": 3
+        }
+      ]
+    },
+    "chronology_groups": {
+      "approximate_events": [
+        {
+          "event_id": "event:41c5bbdbd409a0f6",
+          "event_type": "appealed",
+          "object_text": "High Court of Australia",
+          "primary_actor": "Appellant",
+          "source_event_ids": [
+            "au-ev-3"
+          ],
+          "status": "candidate",
+          "time_precision": "approximate",
+          "time_start": "1936"
+        },
+        {
+          "event_id": "event:4c50f6c8a3ee0def",
+          "event_type": "challenged",
+          "object_text": "High Court of Australia",
+          "primary_actor": "Plaintiff",
+          "source_event_ids": [
+            "au-ev-1"
+          ],
+          "status": "candidate",
+          "time_precision": "approximate",
+          "time_start": "2003"
+        }
+      ],
+      "contested_chronology_items": [
+        {
+          "chronology_impacted": true,
+          "chronology_sort_key": "1936",
+          "contestation_count": 1,
+          "contestation_statuses": [
+            "disputed"
+          ],
+          "event_ids": [
+            "event:41c5bbdbd409a0f6"
+          ],
+          "fact_id": "fact:44e3b170c347a29b",
+          "label": "Criminal appeal",
+          "reason_texts": [
+            "Competing accounts of what was denied affect the procedural chronology."
+          ],
+          "review_statuses": [
+            "needs_followup"
+          ]
+        }
+      ],
+      "dated_events": [],
+      "facts_with_no_event": [
+        {
+          "candidate_status": "candidate",
+          "chronology_label": "2003-06-01",
+          "fact_id": "fact:9d43035cc83c0c08",
+          "label": "Orders",
+          "source_ids": [
+            "src:6a3b4bc55ae19a13"
+          ],
+          "statement_ids": [
+            "statement:9bdf64c16d023757"
+          ]
+        }
+      ],
+      "undated_events": []
+    },
+    "chronology_summary": {
+      "approximate_event_count": 2,
+      "contested_chronology_item_count": 1,
+      "dated_event_count": 0,
+      "dated_fact_count": 3,
+      "event_count": 2,
+      "fact_count": 3,
+      "no_event_fact_count": 1,
+      "undated_event_count": 0,
+      "undated_fact_count": 0
+    },
+    "contested_summary": {
+      "chronology_impacted_count": 1,
+      "chronology_impacted_items": [
+        {
+          "chronology_impacted": true,
+          "chronology_sort_key": "1936",
+          "contestation_count": 1,
+          "contestation_statuses": [
+            "disputed"
+          ],
+          "event_ids": [
+            "event:41c5bbdbd409a0f6"
+          ],
+          "fact_id": "fact:44e3b170c347a29b",
+          "label": "Criminal appeal",
+          "reason_texts": [
+            "Competing accounts of what was denied affect the procedural chronology."
+          ],
+          "review_statuses": [
+            "needs_followup"
+          ]
+        }
+      ],
+      "count": 1,
+      "items": [
+        {
+          "chronology_impacted": true,
+          "chronology_sort_key": "1936",
+          "contestation_count": 1,
+          "contestation_statuses": [
+            "disputed"
+          ],
+          "event_ids": [
+            "event:41c5bbdbd409a0f6"
+          ],
+          "fact_id": "fact:44e3b170c347a29b",
+          "label": "Criminal appeal",
+          "reason_texts": [
+            "Competing accounts of what was denied affect the procedural chronology."
+          ],
+          "review_statuses": [
+            "needs_followup"
+          ]
+        }
+      ],
+      "needs_followup_count": 1,
+      "needs_followup_items": [
+        {
+          "chronology_impacted": true,
+          "chronology_sort_key": "1936",
+          "contestation_count": 1,
+          "contestation_statuses": [
+            "disputed"
+          ],
+          "event_ids": [
+            "event:41c5bbdbd409a0f6"
+          ],
+          "fact_id": "fact:44e3b170c347a29b",
+          "label": "Criminal appeal",
+          "reason_texts": [
+            "Competing accounts of what was denied affect the procedural chronology."
+          ],
+          "review_statuses": [
+            "needs_followup"
+          ]
+        }
+      ],
+      "reviewed_count": 1,
+      "reviewed_items": [
+        {
+          "chronology_impacted": true,
+          "chronology_sort_key": "1936",
+          "contestation_count": 1,
+          "contestation_statuses": [
+            "disputed"
+          ],
+          "event_ids": [
+            "event:41c5bbdbd409a0f6"
+          ],
+          "fact_id": "fact:44e3b170c347a29b",
+          "label": "Criminal appeal",
+          "reason_texts": [
+            "Competing accounts of what was denied affect the procedural chronology."
+          ],
+          "review_statuses": [
+            "needs_followup"
+          ]
+        }
+      ]
+    },
+    "events": [
+      {
+        "assembler_version": "fact_event_assembler_v1",
+        "attributes": [
+          {
+            "attribute_type": "claimed",
+            "attribute_value": "Judicial review challenge",
+            "confidence": 0.99,
+            "source_observation_id": "obs:fe600bfb2f67f98d"
+          },
+          {
+            "attribute_type": "denied",
+            "attribute_value": "Judicial review challenge",
+            "confidence": 0.99,
+            "source_observation_id": "obs:7be96aa811d2b3eb"
+          }
+        ],
+        "confidence": 0.99,
+        "created_at": "2026-03-19 14:26:44",
+        "event_id": "event:41c5bbdbd409a0f6",
+        "event_type": "appealed",
+        "evidence": [
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:057e2b5c9e91aa8d",
+            "role": "primary_actor"
+          },
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:25b962bab5654f6d",
+            "role": "secondary_actor"
+          },
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:2c89ab3990739563",
+            "role": "event_type"
+          },
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:6374fd6939066d3b",
+            "role": "event_type"
+          },
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:7be96aa811d2b3eb",
+            "role": "attribute"
+          },
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:ca30678651136a51",
+            "role": "time_start"
+          },
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:d6442cc0fcc1a1fc",
+            "role": "event_type"
+          },
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:e9ba16571afa8dbc",
+            "role": "object_text"
+          },
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:fe600bfb2f67f98d",
+            "role": "attribute"
+          }
+        ],
+        "instrument_text": null,
+        "location_text": null,
+        "object_text": "High Court of Australia",
+        "primary_actor": "Appellant",
+        "secondary_actor": "House v The King",
+        "source_event_ids": [
+          "au-ev-3"
+        ],
+        "source_ids": [
+          "src:6a3b4bc55ae19a13"
+        ],
+        "statement_ids": [
+          "statement:39f1c473fe933c97"
+        ],
+        "status": "candidate",
+        "time_end": null,
+        "time_start": "1936"
+      },
+      {
+        "assembler_version": "fact_event_assembler_v1",
+        "attributes": [
+          {
+            "attribute_type": "ordered",
+            "attribute_value": "matter to proceed",
+            "confidence": 0.99,
+            "source_observation_id": "obs:3eec89cd96e65a8d"
+          },
+          {
+            "attribute_type": "ruled",
+            "attribute_value": "Judicial review challenge",
+            "confidence": 0.99,
+            "source_observation_id": "obs:9233e77296747d74"
+          }
+        ],
+        "confidence": 0.99,
+        "created_at": "2026-03-19 14:26:44",
+        "event_id": "event:4c50f6c8a3ee0def",
+        "event_type": "challenged",
+        "evidence": [
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:3eec89cd96e65a8d",
+            "role": "attribute"
+          },
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:4aba7656f33d4a7e",
+            "role": "time_start"
+          },
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:5db3d699940b9af7",
+            "role": "primary_actor"
+          },
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:84d2bdb689e11a27",
+            "role": "event_type"
+          },
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:9233e77296747d74",
+            "role": "attribute"
+          },
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:9f7e20ab283a8d50",
+            "role": "object_text"
+          },
+          {
+            "confidence": 0.99,
+            "observation_id": "obs:d3594413f6ef2e19",
+            "role": "event_type"
+          }
+        ],
+        "instrument_text": null,
+        "location_text": null,
+        "object_text": "High Court of Australia",
+        "primary_actor": "Plaintiff",
+        "secondary_actor": null,
+        "source_event_ids": [
+          "au-ev-1"
+        ],
+        "source_ids": [
+          "src:6a3b4bc55ae19a13"
+        ],
+        "statement_ids": [
+          "statement:90baf113c43c4b2f"
+        ],
+        "status": "candidate",
+        "time_end": null,
+        "time_start": "2003"
+      }
+    ],
+    "excerpts": [
+      {
+        "anchor_label": "au-ev-3",
+        "char_end": null,
+        "char_start": null,
+        "excerpt_id": "excerpt:31b8613498793038",
+        "excerpt_order": 1,
+        "excerpt_text": "In House v The King the appellant appealed and the matter was heard by the High Court.",
+        "provenance": {
+          "section": "Criminal appeal",
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3"
+        },
+        "source_id": "src:6a3b4bc55ae19a13"
+      },
+      {
+        "anchor_label": "au-ev-1",
+        "char_end": null,
+        "char_start": null,
+        "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+        "excerpt_order": 2,
+        "excerpt_text": "The plaintiff claimed the privative clause denied review, and the Commonwealth denied that challenge before the High Court.",
+        "provenance": {
+          "section": "Judicial review",
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-1"
+        },
+        "source_id": "src:6a3b4bc55ae19a13"
+      },
+      {
+        "anchor_label": "au-ev-2",
+        "char_end": null,
+        "char_start": null,
+        "excerpt_id": "excerpt:fd91f21db1358062",
+        "excerpt_order": 3,
+        "excerpt_text": "The High Court ruled on the challenge and ordered the matter to proceed.",
+        "provenance": {
+          "section": "Orders",
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-2"
+        },
+        "source_id": "src:6a3b4bc55ae19a13"
+      }
+    ],
+    "facts": [
+      {
+        "candidate_status": "candidate",
+        "canonical_label": "Criminal appeal",
+        "chronology_label": "1936",
+        "chronology_sort_key": "1936",
+        "contestations": [
+          {
+            "author": "mary-parity-acceptance",
+            "contestation_id": "contest:bf7b0c4203c0acb9",
+            "contestation_status": "disputed",
+            "created_at": "2026-03-19 14:26:44",
+            "provenance": {
+              "contestation_scope": "chronology",
+              "fixture_key": "real_au_procedural_v1_contest",
+              "source": "acceptance_fixture"
+            },
+            "reason_text": "Competing accounts of what was denied affect the procedural chronology.",
+            "statement_id": "statement:39f1c473fe933c97"
+          }
+        ],
+        "event_ids": [
+          "event:41c5bbdbd409a0f6"
+        ],
+        "excerpt_ids": [
+          "excerpt:31b8613498793038"
+        ],
+        "fact_id": "fact:44e3b170c347a29b",
+        "fact_text": "In House v The King the appellant appealed and the matter was heard by the High Court.",
+        "fact_type": "au_timeline_statement_capture",
+        "inferred_signal_classes": [
+          "party_assertion",
+          "appeal_stage_signal",
+          "procedural_outcome"
+        ],
+        "inferred_source_signal_classes": [],
+        "inspector_classification": {
+          "display_labels": [
+            "party assertion",
+            "procedural outcome"
+          ],
+          "dominant_label": "procedural_outcome",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": true,
+            "procedural_outcome": true
+          }
+        },
+        "latest_review_note": "Confirm whether the claim or denial is supported by the judgment text.",
+        "latest_review_status": "needs_followup",
+        "legal_procedural_predicates": [
+          "appealed",
+          "heard_by",
+          "heard_by",
+          "claimed",
+          "denied"
+        ],
+        "lexical_projection_mode": "au_legal",
+        "observations": [
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:31b8613498793038",
+            "object_ref": null,
+            "object_text": "1936",
+            "object_type": "date_hint",
+            "observation_id": "obs:ca30678651136a51",
+            "observation_order": 1,
+            "observation_status": "captured",
+            "predicate_family": "temporal",
+            "predicate_key": "event_date",
+            "provenance": {
+              "anchor_kind": "timeline_anchor",
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-3"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:39f1c473fe933c97",
+            "subject_text": "Criminal appeal"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:31b8613498793038",
+            "object_ref": "actor:doc:run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d:appellant",
+            "object_text": "Appellant",
+            "object_type": "actor",
+            "observation_id": "obs:057e2b5c9e91aa8d",
+            "observation_order": 2,
+            "observation_status": "captured",
+            "predicate_family": "actor_identification",
+            "predicate_key": "actor",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 467,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-3",
+              "source_predicate_key": "appealed"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:39f1c473fe933c97",
+            "subject_text": null
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:31b8613498793038",
+            "object_ref": "appealed",
+            "object_text": "appealed",
+            "object_type": "legal_relation",
+            "observation_id": "obs:6374fd6939066d3b",
+            "observation_order": 3,
+            "observation_status": "captured",
+            "predicate_family": "actions_events",
+            "predicate_key": "performed_action",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 467,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-3",
+              "source_predicate_key": "appealed"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:39f1c473fe933c97",
+            "subject_text": "Appellant"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:31b8613498793038",
+            "object_ref": "actor:high_court_of_australia",
+            "object_text": "High Court of Australia",
+            "object_type": "actor",
+            "observation_id": "obs:60d2825e506fedae",
+            "observation_order": 4,
+            "observation_status": "captured",
+            "predicate_family": "legal_procedural",
+            "predicate_key": "appealed",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 467,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-3",
+              "source_predicate_key": "appealed"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:39f1c473fe933c97",
+            "subject_text": "Appellant"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:31b8613498793038",
+            "object_ref": "actor:high_court_of_australia",
+            "object_text": "High Court of Australia",
+            "object_type": "actor",
+            "observation_id": "obs:e9ba16571afa8dbc",
+            "observation_order": 5,
+            "observation_status": "captured",
+            "predicate_family": "object_target",
+            "predicate_key": "acted_on",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 467,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-3",
+              "source_predicate_key": "appealed"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:39f1c473fe933c97",
+            "subject_text": "Appellant"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:31b8613498793038",
+            "object_ref": "legal_ref:house_v_the_king",
+            "object_text": "House v The King",
+            "object_type": "legal_ref",
+            "observation_id": "obs:25b962bab5654f6d",
+            "observation_order": 6,
+            "observation_status": "captured",
+            "predicate_family": "actor_identification",
+            "predicate_key": "actor",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 468,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-3",
+              "source_predicate_key": "heard_by"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:39f1c473fe933c97",
+            "subject_text": null
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:31b8613498793038",
+            "object_ref": "heard_by",
+            "object_text": "heard by",
+            "object_type": "legal_relation",
+            "observation_id": "obs:2c89ab3990739563",
+            "observation_order": 7,
+            "observation_status": "captured",
+            "predicate_family": "actions_events",
+            "predicate_key": "performed_action",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 468,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-3",
+              "source_predicate_key": "heard_by"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:39f1c473fe933c97",
+            "subject_text": "House v The King"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:31b8613498793038",
+            "object_ref": "actor:high_court_of_australia",
+            "object_text": "High Court of Australia",
+            "object_type": "actor",
+            "observation_id": "obs:687654eff5ef24ce",
+            "observation_order": 8,
+            "observation_status": "captured",
+            "predicate_family": "legal_procedural",
+            "predicate_key": "heard_by",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 468,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-3",
+              "source_predicate_key": "heard_by"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:39f1c473fe933c97",
+            "subject_text": "House v The King"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:31b8613498793038",
+            "object_ref": "actor:high_court_of_australia",
+            "object_text": "High Court of Australia",
+            "object_type": "actor",
+            "observation_id": "obs:4bb214e837fa2d3a",
+            "observation_order": 9,
+            "observation_status": "captured",
+            "predicate_family": "object_target",
+            "predicate_key": "acted_on",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 468,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-3",
+              "source_predicate_key": "heard_by"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:39f1c473fe933c97",
+            "subject_text": "House v The King"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:31b8613498793038",
+            "object_ref": "actor:doc:run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d:appellant",
+            "object_text": "Appellant",
+            "object_type": "actor",
+            "observation_id": "obs:fdd7e911249cbf97",
+            "observation_order": 10,
+            "observation_status": "captured",
+            "predicate_family": "actor_identification",
+            "predicate_key": "actor",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 469,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-3",
+              "source_predicate_key": "heard_by"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:39f1c473fe933c97",
+            "subject_text": null
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:31b8613498793038",
+            "object_ref": "heard_by",
+            "object_text": "heard by",
+            "object_type": "legal_relation",
+            "observation_id": "obs:d6442cc0fcc1a1fc",
+            "observation_order": 11,
+            "observation_status": "captured",
+            "predicate_family": "actions_events",
+            "predicate_key": "performed_action",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 469,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-3",
+              "source_predicate_key": "heard_by"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:39f1c473fe933c97",
+            "subject_text": "Appellant"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:31b8613498793038",
+            "object_ref": "actor:high_court_of_australia",
+            "object_text": "High Court of Australia",
+            "object_type": "actor",
+            "observation_id": "obs:dc51c9cea1f76b9b",
+            "observation_order": 12,
+            "observation_status": "captured",
+            "predicate_family": "legal_procedural",
+            "predicate_key": "heard_by",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 469,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-3",
+              "source_predicate_key": "heard_by"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:39f1c473fe933c97",
+            "subject_text": "Appellant"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:31b8613498793038",
+            "object_ref": "actor:high_court_of_australia",
+            "object_text": "High Court of Australia",
+            "object_type": "actor",
+            "observation_id": "obs:e848cbd029d7fc54",
+            "observation_order": 13,
+            "observation_status": "captured",
+            "predicate_family": "object_target",
+            "predicate_key": "acted_on",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 469,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-3",
+              "source_predicate_key": "heard_by"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:39f1c473fe933c97",
+            "subject_text": "Appellant"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:31b8613498793038",
+            "object_ref": null,
+            "object_text": "Judicial review challenge",
+            "object_type": "legal_claim",
+            "observation_id": "obs:fe600bfb2f67f98d",
+            "observation_order": 14,
+            "observation_status": "captured",
+            "predicate_family": "legal_procedural",
+            "predicate_key": "claimed",
+            "provenance": {
+              "fixture_key": "real_au_procedural_v1_claimed",
+              "source": "acceptance_fixture"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:39f1c473fe933c97",
+            "subject_text": "Plaintiff"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:31b8613498793038",
+            "object_ref": null,
+            "object_text": "Judicial review challenge",
+            "object_type": "legal_claim",
+            "observation_id": "obs:7be96aa811d2b3eb",
+            "observation_order": 15,
+            "observation_status": "captured",
+            "predicate_family": "legal_procedural",
+            "predicate_key": "denied",
+            "provenance": {
+              "fixture_key": "real_au_procedural_v1_denied",
+              "source": "acceptance_fixture"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:39f1c473fe933c97",
+            "subject_text": "Commonwealth of Australia"
+          }
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_statement_id": "statement:39f1c473fe933c97",
+        "provenance": {
+          "section": "Criminal appeal",
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3"
+        },
+        "reviews": [
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "note": "Confirm whether the claim or denial is supported by the judgment text.",
+            "provenance": {
+              "fixture_key": "real_au_procedural_v1_review",
+              "source": "acceptance_fixture"
+            },
+            "review_id": "review:002cd1dea54ee5f5",
+            "review_status": "needs_followup",
+            "reviewer": "mary-parity-acceptance"
+          }
+        ],
+        "signal_classes": [
+          "appeal_stage_signal",
+          "party_assertion",
+          "procedural_context",
+          "procedural_outcome"
+        ],
+        "source_ids": [
+          "src:6a3b4bc55ae19a13"
+        ],
+        "source_signal_classes": [
+          "procedural_record"
+        ],
+        "source_types": [
+          "timeline_payload"
+        ],
+        "statement_ids": [
+          "statement:39f1c473fe933c97"
+        ],
+        "statement_roles": [
+          "au_timeline_statement"
+        ],
+        "statement_texts": [
+          "In House v The King the appellant appealed and the matter was heard by the High Court."
+        ]
+      },
+      {
+        "candidate_status": "candidate",
+        "canonical_label": "Judicial review",
+        "chronology_label": "2003",
+        "chronology_sort_key": "2003",
+        "contestations": [],
+        "event_ids": [
+          "event:4c50f6c8a3ee0def"
+        ],
+        "excerpt_ids": [
+          "excerpt:d1b4b6cb53fc8826"
+        ],
+        "fact_id": "fact:33bf5d1e2fbd3c36",
+        "fact_text": "The plaintiff claimed the privative clause denied review, and the Commonwealth denied that challenge before the High Court.",
+        "fact_type": "au_timeline_statement_capture",
+        "inferred_signal_classes": [
+          "procedural_outcome",
+          "party_assertion"
+        ],
+        "inferred_source_signal_classes": [],
+        "inspector_classification": {
+          "display_labels": [
+            "party assertion",
+            "procedural outcome"
+          ],
+          "dominant_label": "procedural_outcome",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": true,
+            "procedural_outcome": true
+          }
+        },
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_predicates": [
+          "challenged",
+          "heard_by",
+          "ruled",
+          "ordered"
+        ],
+        "lexical_projection_mode": "au_legal",
+        "observations": [
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+            "object_ref": null,
+            "object_text": "2003",
+            "object_type": "date_hint",
+            "observation_id": "obs:4aba7656f33d4a7e",
+            "observation_order": 1,
+            "observation_status": "captured",
+            "predicate_family": "temporal",
+            "predicate_key": "event_date",
+            "provenance": {
+              "anchor_kind": "timeline_anchor",
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-1"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:90baf113c43c4b2f",
+            "subject_text": "Judicial review"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+            "object_ref": "actor:doc:run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d:plaintiff",
+            "object_text": "Plaintiff",
+            "object_type": "actor",
+            "observation_id": "obs:5db3d699940b9af7",
+            "observation_order": 2,
+            "observation_status": "captured",
+            "predicate_family": "actor_identification",
+            "predicate_key": "actor",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 470,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-1",
+              "source_predicate_key": "challenged"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:90baf113c43c4b2f",
+            "subject_text": null
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+            "object_ref": "challenged",
+            "object_text": "challenged",
+            "object_type": "legal_relation",
+            "observation_id": "obs:d3594413f6ef2e19",
+            "observation_order": 3,
+            "observation_status": "captured",
+            "predicate_family": "actions_events",
+            "predicate_key": "performed_action",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 470,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-1",
+              "source_predicate_key": "challenged"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:90baf113c43c4b2f",
+            "subject_text": "Plaintiff"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+            "object_ref": "actor:high_court_of_australia",
+            "object_text": "High Court of Australia",
+            "object_type": "actor",
+            "observation_id": "obs:27ba57cb741721e0",
+            "observation_order": 4,
+            "observation_status": "captured",
+            "predicate_family": "legal_procedural",
+            "predicate_key": "challenged",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 470,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-1",
+              "source_predicate_key": "challenged"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:90baf113c43c4b2f",
+            "subject_text": "Plaintiff"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+            "object_ref": "actor:high_court_of_australia",
+            "object_text": "High Court of Australia",
+            "object_type": "actor",
+            "observation_id": "obs:9f7e20ab283a8d50",
+            "observation_order": 5,
+            "observation_status": "captured",
+            "predicate_family": "object_target",
+            "predicate_key": "acted_on",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 470,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-1",
+              "source_predicate_key": "challenged"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:90baf113c43c4b2f",
+            "subject_text": "Plaintiff"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+            "object_ref": "actor:doc:run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d:plaintiff",
+            "object_text": "Plaintiff",
+            "object_type": "actor",
+            "observation_id": "obs:9d676ed144d96087",
+            "observation_order": 6,
+            "observation_status": "captured",
+            "predicate_family": "actor_identification",
+            "predicate_key": "actor",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 471,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-1",
+              "source_predicate_key": "heard_by"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:90baf113c43c4b2f",
+            "subject_text": null
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+            "object_ref": "heard_by",
+            "object_text": "heard by",
+            "object_type": "legal_relation",
+            "observation_id": "obs:84d2bdb689e11a27",
+            "observation_order": 7,
+            "observation_status": "captured",
+            "predicate_family": "actions_events",
+            "predicate_key": "performed_action",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 471,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-1",
+              "source_predicate_key": "heard_by"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:90baf113c43c4b2f",
+            "subject_text": "Plaintiff"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+            "object_ref": "actor:high_court_of_australia",
+            "object_text": "High Court of Australia",
+            "object_type": "actor",
+            "observation_id": "obs:f784108bc5abb487",
+            "observation_order": 8,
+            "observation_status": "captured",
+            "predicate_family": "legal_procedural",
+            "predicate_key": "heard_by",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 471,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-1",
+              "source_predicate_key": "heard_by"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:90baf113c43c4b2f",
+            "subject_text": "Plaintiff"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+            "object_ref": "actor:high_court_of_australia",
+            "object_text": "High Court of Australia",
+            "object_type": "actor",
+            "observation_id": "obs:69a9864af427385b",
+            "observation_order": 9,
+            "observation_status": "captured",
+            "predicate_family": "object_target",
+            "predicate_key": "acted_on",
+            "provenance": {
+              "promotion_status": "promoted",
+              "relation_candidate_id": 471,
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-1",
+              "source_predicate_key": "heard_by"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:90baf113c43c4b2f",
+            "subject_text": "Plaintiff"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+            "object_ref": null,
+            "object_text": "Judicial review challenge",
+            "object_type": "procedural_outcome",
+            "observation_id": "obs:9233e77296747d74",
+            "observation_order": 10,
+            "observation_status": "captured",
+            "predicate_family": "legal_procedural",
+            "predicate_key": "ruled",
+            "provenance": {
+              "fixture_key": "real_au_procedural_v1_ruled",
+              "source": "acceptance_fixture"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:90baf113c43c4b2f",
+            "subject_text": "High Court of Australia"
+          },
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+            "object_ref": null,
+            "object_text": "matter to proceed",
+            "object_type": "procedural_outcome",
+            "observation_id": "obs:3eec89cd96e65a8d",
+            "observation_order": 11,
+            "observation_status": "captured",
+            "predicate_family": "legal_procedural",
+            "predicate_key": "ordered",
+            "provenance": {
+              "fixture_key": "real_au_procedural_v1_ordered",
+              "source": "acceptance_fixture"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:90baf113c43c4b2f",
+            "subject_text": "High Court of Australia"
+          }
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_statement_id": "statement:90baf113c43c4b2f",
+        "provenance": {
+          "section": "Judicial review",
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-1"
+        },
+        "reviews": [],
+        "signal_classes": [
+          "party_assertion",
+          "procedural_context",
+          "procedural_outcome"
+        ],
+        "source_ids": [
+          "src:6a3b4bc55ae19a13"
+        ],
+        "source_signal_classes": [
+          "procedural_record"
+        ],
+        "source_types": [
+          "timeline_payload"
+        ],
+        "statement_ids": [
+          "statement:90baf113c43c4b2f"
+        ],
+        "statement_roles": [
+          "au_timeline_statement"
+        ],
+        "statement_texts": [
+          "The plaintiff claimed the privative clause denied review, and the Commonwealth denied that challenge before the High Court."
+        ]
+      },
+      {
+        "candidate_status": "candidate",
+        "canonical_label": "Orders",
+        "chronology_label": "2003-06-01",
+        "chronology_sort_key": "2003-06-01",
+        "contestations": [],
+        "event_ids": [],
+        "excerpt_ids": [
+          "excerpt:fd91f21db1358062"
+        ],
+        "fact_id": "fact:9d43035cc83c0c08",
+        "fact_text": "The High Court ruled on the challenge and ordered the matter to proceed.",
+        "fact_type": "au_timeline_statement_capture",
+        "inferred_signal_classes": [
+          "procedural_outcome"
+        ],
+        "inferred_source_signal_classes": [],
+        "inspector_classification": {
+          "display_labels": [
+            "procedural outcome"
+          ],
+          "dominant_label": "procedural_outcome",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": false,
+            "procedural_outcome": true
+          }
+        },
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_predicates": [],
+        "lexical_projection_mode": "au_legal",
+        "observations": [
+          {
+            "created_at": "2026-03-19 14:26:44",
+            "excerpt_id": "excerpt:fd91f21db1358062",
+            "object_ref": null,
+            "object_text": "2003-06-01",
+            "object_type": "date_hint",
+            "observation_id": "obs:ee667d1a9209350b",
+            "observation_order": 1,
+            "observation_status": "captured",
+            "predicate_family": "temporal",
+            "predicate_key": "event_date",
+            "provenance": {
+              "anchor_kind": "timeline_anchor",
+              "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+              "source_event_id": "au-ev-2"
+            },
+            "source_id": "src:6a3b4bc55ae19a13",
+            "statement_id": "statement:9bdf64c16d023757",
+            "subject_text": "Orders"
+          }
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_statement_id": "statement:9bdf64c16d023757",
+        "provenance": {
+          "section": "Orders",
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-2"
+        },
+        "reviews": [],
+        "signal_classes": [
+          "procedural_outcome"
+        ],
+        "source_ids": [
+          "src:6a3b4bc55ae19a13"
+        ],
+        "source_signal_classes": [
+          "procedural_record"
+        ],
+        "source_types": [
+          "timeline_payload"
+        ],
+        "statement_ids": [
+          "statement:9bdf64c16d023757"
+        ],
+        "statement_roles": [
+          "au_timeline_statement"
+        ],
+        "statement_texts": [
+          "The High Court ruled on the challenge and ordered the matter to proceed."
+        ]
+      }
+    ],
+    "inspector_classification": {
+      "facts": {
+        "fact:33bf5d1e2fbd3c36": {
+          "display_labels": [
+            "party assertion",
+            "procedural outcome"
+          ],
+          "dominant_label": "procedural_outcome",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": true,
+            "procedural_outcome": true
+          }
+        },
+        "fact:44e3b170c347a29b": {
+          "display_labels": [
+            "party assertion",
+            "procedural outcome"
+          ],
+          "dominant_label": "procedural_outcome",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": true,
+            "procedural_outcome": true
+          }
+        },
+        "fact:9d43035cc83c0c08": {
+          "display_labels": [
+            "procedural outcome"
+          ],
+          "dominant_label": "procedural_outcome",
+          "status_keys": {
+            "later_annotation": false,
+            "party_assertion": false,
+            "procedural_outcome": true
+          }
+        }
+      },
+      "selected_fact_id": "fact:44e3b170c347a29b",
+      "status_order": [
+        "party_assertion",
+        "procedural_outcome",
+        "later_annotation"
+      ]
+    },
+    "inspector_defaults": {
+      "default_view": "intake_triage",
+      "selected_fact_id": "fact:44e3b170c347a29b"
+    },
+    "issue_filters": {
+      "available_filters": [
+        "all",
+        "missing_actor",
+        "contradictory_chronology",
+        "procedural_significance"
+      ],
+      "default_filter": "all",
+      "filters": [
+        {
+          "count": 0,
+          "fact_ids": [],
+          "filter_key": "missing_date",
+          "label": "Missing date"
+        },
+        {
+          "count": 1,
+          "fact_ids": [
+            "fact:9d43035cc83c0c08"
+          ],
+          "filter_key": "missing_actor",
+          "label": "Missing actor"
+        },
+        {
+          "count": 1,
+          "fact_ids": [
+            "fact:44e3b170c347a29b"
+          ],
+          "filter_key": "contradictory_chronology",
+          "label": "Contradictory chronology"
+        },
+        {
+          "count": 3,
+          "fact_ids": [
+            "fact:44e3b170c347a29b",
+            "fact:33bf5d1e2fbd3c36",
+            "fact:9d43035cc83c0c08"
+          ],
+          "filter_key": "procedural_significance",
+          "label": "Procedural significance"
+        }
+      ],
+      "summary": {
+        "contradictory_chronology_review_queue_count": 1,
+        "missing_actor_review_queue_count": 1,
+        "missing_date_review_queue_count": 0,
+        "procedural_significance_review_queue_count": 3
+      }
+    },
+    "observations": [
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "object_ref": null,
+        "object_text": "1936",
+        "object_type": "date_hint",
+        "observation_id": "obs:ca30678651136a51",
+        "observation_order": 1,
+        "observation_status": "captured",
+        "predicate_family": "temporal",
+        "predicate_key": "event_date",
+        "provenance": {
+          "anchor_kind": "timeline_anchor",
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:39f1c473fe933c97",
+        "subject_text": "Criminal appeal"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "object_ref": "actor:doc:run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d:appellant",
+        "object_text": "Appellant",
+        "object_type": "actor",
+        "observation_id": "obs:057e2b5c9e91aa8d",
+        "observation_order": 2,
+        "observation_status": "captured",
+        "predicate_family": "actor_identification",
+        "predicate_key": "actor",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 467,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3",
+          "source_predicate_key": "appealed"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:39f1c473fe933c97",
+        "subject_text": null
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "object_ref": "appealed",
+        "object_text": "appealed",
+        "object_type": "legal_relation",
+        "observation_id": "obs:6374fd6939066d3b",
+        "observation_order": 3,
+        "observation_status": "captured",
+        "predicate_family": "actions_events",
+        "predicate_key": "performed_action",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 467,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3",
+          "source_predicate_key": "appealed"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:39f1c473fe933c97",
+        "subject_text": "Appellant"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "object_ref": "actor:high_court_of_australia",
+        "object_text": "High Court of Australia",
+        "object_type": "actor",
+        "observation_id": "obs:60d2825e506fedae",
+        "observation_order": 4,
+        "observation_status": "captured",
+        "predicate_family": "legal_procedural",
+        "predicate_key": "appealed",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 467,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3",
+          "source_predicate_key": "appealed"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:39f1c473fe933c97",
+        "subject_text": "Appellant"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "object_ref": "actor:high_court_of_australia",
+        "object_text": "High Court of Australia",
+        "object_type": "actor",
+        "observation_id": "obs:e9ba16571afa8dbc",
+        "observation_order": 5,
+        "observation_status": "captured",
+        "predicate_family": "object_target",
+        "predicate_key": "acted_on",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 467,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3",
+          "source_predicate_key": "appealed"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:39f1c473fe933c97",
+        "subject_text": "Appellant"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "object_ref": "legal_ref:house_v_the_king",
+        "object_text": "House v The King",
+        "object_type": "legal_ref",
+        "observation_id": "obs:25b962bab5654f6d",
+        "observation_order": 6,
+        "observation_status": "captured",
+        "predicate_family": "actor_identification",
+        "predicate_key": "actor",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 468,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3",
+          "source_predicate_key": "heard_by"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:39f1c473fe933c97",
+        "subject_text": null
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "object_ref": "heard_by",
+        "object_text": "heard by",
+        "object_type": "legal_relation",
+        "observation_id": "obs:2c89ab3990739563",
+        "observation_order": 7,
+        "observation_status": "captured",
+        "predicate_family": "actions_events",
+        "predicate_key": "performed_action",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 468,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3",
+          "source_predicate_key": "heard_by"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:39f1c473fe933c97",
+        "subject_text": "House v The King"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "object_ref": "actor:high_court_of_australia",
+        "object_text": "High Court of Australia",
+        "object_type": "actor",
+        "observation_id": "obs:687654eff5ef24ce",
+        "observation_order": 8,
+        "observation_status": "captured",
+        "predicate_family": "legal_procedural",
+        "predicate_key": "heard_by",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 468,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3",
+          "source_predicate_key": "heard_by"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:39f1c473fe933c97",
+        "subject_text": "House v The King"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "object_ref": "actor:high_court_of_australia",
+        "object_text": "High Court of Australia",
+        "object_type": "actor",
+        "observation_id": "obs:4bb214e837fa2d3a",
+        "observation_order": 9,
+        "observation_status": "captured",
+        "predicate_family": "object_target",
+        "predicate_key": "acted_on",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 468,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3",
+          "source_predicate_key": "heard_by"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:39f1c473fe933c97",
+        "subject_text": "House v The King"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "object_ref": "actor:doc:run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d:appellant",
+        "object_text": "Appellant",
+        "object_type": "actor",
+        "observation_id": "obs:fdd7e911249cbf97",
+        "observation_order": 10,
+        "observation_status": "captured",
+        "predicate_family": "actor_identification",
+        "predicate_key": "actor",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 469,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3",
+          "source_predicate_key": "heard_by"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:39f1c473fe933c97",
+        "subject_text": null
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "object_ref": "heard_by",
+        "object_text": "heard by",
+        "object_type": "legal_relation",
+        "observation_id": "obs:d6442cc0fcc1a1fc",
+        "observation_order": 11,
+        "observation_status": "captured",
+        "predicate_family": "actions_events",
+        "predicate_key": "performed_action",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 469,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3",
+          "source_predicate_key": "heard_by"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:39f1c473fe933c97",
+        "subject_text": "Appellant"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "object_ref": "actor:high_court_of_australia",
+        "object_text": "High Court of Australia",
+        "object_type": "actor",
+        "observation_id": "obs:dc51c9cea1f76b9b",
+        "observation_order": 12,
+        "observation_status": "captured",
+        "predicate_family": "legal_procedural",
+        "predicate_key": "heard_by",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 469,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3",
+          "source_predicate_key": "heard_by"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:39f1c473fe933c97",
+        "subject_text": "Appellant"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "object_ref": "actor:high_court_of_australia",
+        "object_text": "High Court of Australia",
+        "object_type": "actor",
+        "observation_id": "obs:e848cbd029d7fc54",
+        "observation_order": 13,
+        "observation_status": "captured",
+        "predicate_family": "object_target",
+        "predicate_key": "acted_on",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 469,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3",
+          "source_predicate_key": "heard_by"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:39f1c473fe933c97",
+        "subject_text": "Appellant"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "object_ref": null,
+        "object_text": "Judicial review challenge",
+        "object_type": "legal_claim",
+        "observation_id": "obs:fe600bfb2f67f98d",
+        "observation_order": 14,
+        "observation_status": "captured",
+        "predicate_family": "legal_procedural",
+        "predicate_key": "claimed",
+        "provenance": {
+          "fixture_key": "real_au_procedural_v1_claimed",
+          "source": "acceptance_fixture"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:39f1c473fe933c97",
+        "subject_text": "Plaintiff"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "object_ref": null,
+        "object_text": "Judicial review challenge",
+        "object_type": "legal_claim",
+        "observation_id": "obs:7be96aa811d2b3eb",
+        "observation_order": 15,
+        "observation_status": "captured",
+        "predicate_family": "legal_procedural",
+        "predicate_key": "denied",
+        "provenance": {
+          "fixture_key": "real_au_procedural_v1_denied",
+          "source": "acceptance_fixture"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:39f1c473fe933c97",
+        "subject_text": "Commonwealth of Australia"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+        "object_ref": null,
+        "object_text": "2003",
+        "object_type": "date_hint",
+        "observation_id": "obs:4aba7656f33d4a7e",
+        "observation_order": 1,
+        "observation_status": "captured",
+        "predicate_family": "temporal",
+        "predicate_key": "event_date",
+        "provenance": {
+          "anchor_kind": "timeline_anchor",
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-1"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:90baf113c43c4b2f",
+        "subject_text": "Judicial review"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+        "object_ref": "actor:doc:run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d:plaintiff",
+        "object_text": "Plaintiff",
+        "object_type": "actor",
+        "observation_id": "obs:5db3d699940b9af7",
+        "observation_order": 2,
+        "observation_status": "captured",
+        "predicate_family": "actor_identification",
+        "predicate_key": "actor",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 470,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-1",
+          "source_predicate_key": "challenged"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:90baf113c43c4b2f",
+        "subject_text": null
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+        "object_ref": "challenged",
+        "object_text": "challenged",
+        "object_type": "legal_relation",
+        "observation_id": "obs:d3594413f6ef2e19",
+        "observation_order": 3,
+        "observation_status": "captured",
+        "predicate_family": "actions_events",
+        "predicate_key": "performed_action",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 470,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-1",
+          "source_predicate_key": "challenged"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:90baf113c43c4b2f",
+        "subject_text": "Plaintiff"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+        "object_ref": "actor:high_court_of_australia",
+        "object_text": "High Court of Australia",
+        "object_type": "actor",
+        "observation_id": "obs:27ba57cb741721e0",
+        "observation_order": 4,
+        "observation_status": "captured",
+        "predicate_family": "legal_procedural",
+        "predicate_key": "challenged",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 470,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-1",
+          "source_predicate_key": "challenged"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:90baf113c43c4b2f",
+        "subject_text": "Plaintiff"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+        "object_ref": "actor:high_court_of_australia",
+        "object_text": "High Court of Australia",
+        "object_type": "actor",
+        "observation_id": "obs:9f7e20ab283a8d50",
+        "observation_order": 5,
+        "observation_status": "captured",
+        "predicate_family": "object_target",
+        "predicate_key": "acted_on",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 470,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-1",
+          "source_predicate_key": "challenged"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:90baf113c43c4b2f",
+        "subject_text": "Plaintiff"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+        "object_ref": "actor:doc:run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d:plaintiff",
+        "object_text": "Plaintiff",
+        "object_type": "actor",
+        "observation_id": "obs:9d676ed144d96087",
+        "observation_order": 6,
+        "observation_status": "captured",
+        "predicate_family": "actor_identification",
+        "predicate_key": "actor",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 471,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-1",
+          "source_predicate_key": "heard_by"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:90baf113c43c4b2f",
+        "subject_text": null
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+        "object_ref": "heard_by",
+        "object_text": "heard by",
+        "object_type": "legal_relation",
+        "observation_id": "obs:84d2bdb689e11a27",
+        "observation_order": 7,
+        "observation_status": "captured",
+        "predicate_family": "actions_events",
+        "predicate_key": "performed_action",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 471,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-1",
+          "source_predicate_key": "heard_by"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:90baf113c43c4b2f",
+        "subject_text": "Plaintiff"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+        "object_ref": "actor:high_court_of_australia",
+        "object_text": "High Court of Australia",
+        "object_type": "actor",
+        "observation_id": "obs:f784108bc5abb487",
+        "observation_order": 8,
+        "observation_status": "captured",
+        "predicate_family": "legal_procedural",
+        "predicate_key": "heard_by",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 471,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-1",
+          "source_predicate_key": "heard_by"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:90baf113c43c4b2f",
+        "subject_text": "Plaintiff"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+        "object_ref": "actor:high_court_of_australia",
+        "object_text": "High Court of Australia",
+        "object_type": "actor",
+        "observation_id": "obs:69a9864af427385b",
+        "observation_order": 9,
+        "observation_status": "captured",
+        "predicate_family": "object_target",
+        "predicate_key": "acted_on",
+        "provenance": {
+          "promotion_status": "promoted",
+          "relation_candidate_id": 471,
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-1",
+          "source_predicate_key": "heard_by"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:90baf113c43c4b2f",
+        "subject_text": "Plaintiff"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+        "object_ref": null,
+        "object_text": "Judicial review challenge",
+        "object_type": "procedural_outcome",
+        "observation_id": "obs:9233e77296747d74",
+        "observation_order": 10,
+        "observation_status": "captured",
+        "predicate_family": "legal_procedural",
+        "predicate_key": "ruled",
+        "provenance": {
+          "fixture_key": "real_au_procedural_v1_ruled",
+          "source": "acceptance_fixture"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:90baf113c43c4b2f",
+        "subject_text": "High Court of Australia"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+        "object_ref": null,
+        "object_text": "matter to proceed",
+        "object_type": "procedural_outcome",
+        "observation_id": "obs:3eec89cd96e65a8d",
+        "observation_order": 11,
+        "observation_status": "captured",
+        "predicate_family": "legal_procedural",
+        "predicate_key": "ordered",
+        "provenance": {
+          "fixture_key": "real_au_procedural_v1_ordered",
+          "source": "acceptance_fixture"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:90baf113c43c4b2f",
+        "subject_text": "High Court of Australia"
+      },
+      {
+        "created_at": "2026-03-19 14:26:44",
+        "excerpt_id": "excerpt:fd91f21db1358062",
+        "object_ref": null,
+        "object_text": "2003-06-01",
+        "object_type": "date_hint",
+        "observation_id": "obs:ee667d1a9209350b",
+        "observation_order": 1,
+        "observation_status": "captured",
+        "predicate_family": "temporal",
+        "predicate_key": "event_date",
+        "provenance": {
+          "anchor_kind": "timeline_anchor",
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-2"
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "statement_id": "statement:9bdf64c16d023757",
+        "subject_text": "Orders"
+      }
+    ],
+    "operator_views": {
+      "chronology_prep": {
+        "groups": {
+          "approximate_events": [
+            {
+              "event_id": "event:41c5bbdbd409a0f6",
+              "event_type": "appealed",
+              "object_text": "High Court of Australia",
+              "primary_actor": "Appellant",
+              "source_event_ids": [
+                "au-ev-3"
+              ],
+              "status": "candidate",
+              "time_precision": "approximate",
+              "time_start": "1936"
+            },
+            {
+              "event_id": "event:4c50f6c8a3ee0def",
+              "event_type": "challenged",
+              "object_text": "High Court of Australia",
+              "primary_actor": "Plaintiff",
+              "source_event_ids": [
+                "au-ev-1"
+              ],
+              "status": "candidate",
+              "time_precision": "approximate",
+              "time_start": "2003"
+            }
+          ],
+          "contested_chronology_items": [
+            {
+              "chronology_impacted": true,
+              "chronology_sort_key": "1936",
+              "contestation_count": 1,
+              "contestation_statuses": [
+                "disputed"
+              ],
+              "event_ids": [
+                "event:41c5bbdbd409a0f6"
+              ],
+              "fact_id": "fact:44e3b170c347a29b",
+              "label": "Criminal appeal",
+              "reason_texts": [
+                "Competing accounts of what was denied affect the procedural chronology."
+              ],
+              "review_statuses": [
+                "needs_followup"
+              ]
+            }
+          ],
+          "dated_events": [],
+          "facts_with_no_event": [
+            {
+              "candidate_status": "candidate",
+              "chronology_label": "2003-06-01",
+              "fact_id": "fact:9d43035cc83c0c08",
+              "label": "Orders",
+              "source_ids": [
+                "src:6a3b4bc55ae19a13"
+              ],
+              "statement_ids": [
+                "statement:9bdf64c16d023757"
+              ]
+            }
+          ],
+          "undated_events": []
+        },
+        "summary": {
+          "approximate_event_count": 2,
+          "contested_chronology_item_count": 1,
+          "dated_event_count": 0,
+          "dated_fact_count": 3,
+          "event_count": 2,
+          "fact_count": 3,
+          "no_event_fact_count": 1,
+          "undated_event_count": 0,
+          "undated_fact_count": 0
+        },
+        "title": "Chronology prep"
+      },
+      "claim_alignment": {
+        "items": [],
+        "summary": {
+          "structural_boundary_count": 0,
+          "wikidata_claim_count": 0
+        },
+        "title": "Claim alignment"
+      },
+      "contested_items": {
+        "items": [
+          {
+            "chronology_impacted": true,
+            "chronology_sort_key": "1936",
+            "contestation_count": 1,
+            "contestation_statuses": [
+              "disputed"
+            ],
+            "event_ids": [
+              "event:41c5bbdbd409a0f6"
+            ],
+            "fact_id": "fact:44e3b170c347a29b",
+            "inferred_signal_classes": [
+              "party_assertion",
+              "appeal_stage_signal",
+              "procedural_outcome"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Criminal appeal",
+            "reason_texts": [
+              "Competing accounts of what was denied affect the procedural chronology."
+            ],
+            "review_statuses": [
+              "needs_followup"
+            ],
+            "signal_classes": [
+              "appeal_stage_signal",
+              "party_assertion",
+              "procedural_context",
+              "procedural_outcome"
+            ],
+            "source_signal_classes": [
+              "procedural_record"
+            ]
+          }
+        ],
+        "summary": {
+          "chronology_impacted_count": 1,
+          "count": 1,
+          "needs_followup_count": 1
+        },
+        "title": "Contested items"
+      },
+      "false_coherence_review": {
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": true,
+            "chronology_label": "2003-06-01",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:9d43035cc83c0c08",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [
+              "procedural_outcome"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Orders",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "missing_actor",
+              "statement_only_fact",
+              "procedural_significance"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Missing actor",
+              "Statement-only fact",
+              "Procedural significance"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "procedural_outcome"
+            ],
+            "source_ids": [
+              "src:6a3b4bc55ae19a13"
+            ],
+            "source_projection_modes": [
+              "au_legal"
+            ],
+            "source_signal_classes": [
+              "procedural_record"
+            ],
+            "source_types": [
+              "timeline_payload"
+            ],
+            "statement_ids": [
+              "statement:9bdf64c16d023757"
+            ],
+            "statement_roles": [
+              "au_timeline_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "abstained_count": 0,
+          "contested_count": 1,
+          "no_event_fact_count": 1
+        },
+        "title": "False-coherence review"
+      },
+      "intake_triage": {
+        "groups": {
+          "chronology_conflict": [
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "approximate",
+              "chronology_impacted": true,
+              "chronology_label": "1936",
+              "contestation_count": 1,
+              "event_ids": [
+                "event:41c5bbdbd409a0f6"
+              ],
+              "fact_id": "fact:44e3b170c347a29b",
+              "has_legal_procedural_observations": true,
+              "label": "Criminal appeal",
+              "latest_review_note": "Confirm whether the claim or denial is supported by the judgment text.",
+              "latest_review_status": "needs_followup",
+              "legal_procedural_observation_count": 5,
+              "legal_procedural_predicates": [
+                "appealed",
+                "heard_by",
+                "heard_by",
+                "claimed",
+                "denied"
+              ],
+              "needs_review": true,
+              "observation_families": [
+                "actions_events",
+                "actor_identification",
+                "legal_procedural",
+                "object_target",
+                "temporal"
+              ],
+              "policy_outcomes": [
+                "review_required"
+              ],
+              "primary_contested_reason_text": "Competing accounts of what was denied affect the procedural chronology.",
+              "reason_codes": [
+                "contested",
+                "review_followup",
+                "procedural_significance",
+                "contradictory_chronology"
+              ],
+              "reason_labels": [
+                "Contested",
+                "Review requires follow-up",
+                "Procedural significance",
+                "Contradictory chronology"
+              ],
+              "review_statuses": [
+                "needs_followup"
+              ],
+              "signal_classes": [
+                "appeal_stage_signal",
+                "party_assertion",
+                "procedural_context",
+                "procedural_outcome"
+              ],
+              "source_ids": [
+                "src:6a3b4bc55ae19a13"
+              ],
+              "source_projection_modes": [
+                "au_legal"
+              ],
+              "source_signal_classes": [
+                "procedural_record"
+              ],
+              "source_types": [
+                "timeline_payload"
+              ],
+              "statement_ids": [
+                "statement:39f1c473fe933c97"
+              ],
+              "statement_roles": [
+                "au_timeline_statement"
+              ]
+            }
+          ],
+          "contradictory_chronology": [
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "approximate",
+              "chronology_impacted": true,
+              "chronology_label": "1936",
+              "contestation_count": 1,
+              "event_ids": [
+                "event:41c5bbdbd409a0f6"
+              ],
+              "fact_id": "fact:44e3b170c347a29b",
+              "has_legal_procedural_observations": true,
+              "label": "Criminal appeal",
+              "latest_review_note": "Confirm whether the claim or denial is supported by the judgment text.",
+              "latest_review_status": "needs_followup",
+              "legal_procedural_observation_count": 5,
+              "legal_procedural_predicates": [
+                "appealed",
+                "heard_by",
+                "heard_by",
+                "claimed",
+                "denied"
+              ],
+              "needs_review": true,
+              "observation_families": [
+                "actions_events",
+                "actor_identification",
+                "legal_procedural",
+                "object_target",
+                "temporal"
+              ],
+              "policy_outcomes": [
+                "review_required"
+              ],
+              "primary_contested_reason_text": "Competing accounts of what was denied affect the procedural chronology.",
+              "reason_codes": [
+                "contested",
+                "review_followup",
+                "procedural_significance",
+                "contradictory_chronology"
+              ],
+              "reason_labels": [
+                "Contested",
+                "Review requires follow-up",
+                "Procedural significance",
+                "Contradictory chronology"
+              ],
+              "review_statuses": [
+                "needs_followup"
+              ],
+              "signal_classes": [
+                "appeal_stage_signal",
+                "party_assertion",
+                "procedural_context",
+                "procedural_outcome"
+              ],
+              "source_ids": [
+                "src:6a3b4bc55ae19a13"
+              ],
+              "source_projection_modes": [
+                "au_legal"
+              ],
+              "source_signal_classes": [
+                "procedural_record"
+              ],
+              "source_types": [
+                "timeline_payload"
+              ],
+              "statement_ids": [
+                "statement:39f1c473fe933c97"
+              ],
+              "statement_roles": [
+                "au_timeline_statement"
+              ]
+            }
+          ],
+          "missing_actor": [
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "no_event",
+              "chronology_impacted": true,
+              "chronology_label": "2003-06-01",
+              "contestation_count": 0,
+              "event_ids": [],
+              "fact_id": "fact:9d43035cc83c0c08",
+              "has_legal_procedural_observations": true,
+              "label": "Orders",
+              "latest_review_note": null,
+              "latest_review_status": null,
+              "legal_procedural_observation_count": 0,
+              "legal_procedural_predicates": [],
+              "needs_review": true,
+              "observation_families": [
+                "temporal"
+              ],
+              "policy_outcomes": [
+                "review_required"
+              ],
+              "primary_contested_reason_text": null,
+              "reason_codes": [
+                "unreviewed",
+                "event_missing",
+                "missing_actor",
+                "statement_only_fact",
+                "procedural_significance"
+              ],
+              "reason_labels": [
+                "Unreviewed",
+                "No assembled event",
+                "Missing actor",
+                "Statement-only fact",
+                "Procedural significance"
+              ],
+              "review_statuses": [],
+              "signal_classes": [
+                "procedural_outcome"
+              ],
+              "source_ids": [
+                "src:6a3b4bc55ae19a13"
+              ],
+              "source_projection_modes": [
+                "au_legal"
+              ],
+              "source_signal_classes": [
+                "procedural_record"
+              ],
+              "source_types": [
+                "timeline_payload"
+              ],
+              "statement_ids": [
+                "statement:9bdf64c16d023757"
+              ],
+              "statement_roles": [
+                "au_timeline_statement"
+              ]
+            }
+          ],
+          "missing_date": [],
+          "procedural_significance": [
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "approximate",
+              "chronology_impacted": true,
+              "chronology_label": "1936",
+              "contestation_count": 1,
+              "event_ids": [
+                "event:41c5bbdbd409a0f6"
+              ],
+              "fact_id": "fact:44e3b170c347a29b",
+              "has_legal_procedural_observations": true,
+              "label": "Criminal appeal",
+              "latest_review_note": "Confirm whether the claim or denial is supported by the judgment text.",
+              "latest_review_status": "needs_followup",
+              "legal_procedural_observation_count": 5,
+              "legal_procedural_predicates": [
+                "appealed",
+                "heard_by",
+                "heard_by",
+                "claimed",
+                "denied"
+              ],
+              "needs_review": true,
+              "observation_families": [
+                "actions_events",
+                "actor_identification",
+                "legal_procedural",
+                "object_target",
+                "temporal"
+              ],
+              "policy_outcomes": [
+                "review_required"
+              ],
+              "primary_contested_reason_text": "Competing accounts of what was denied affect the procedural chronology.",
+              "reason_codes": [
+                "contested",
+                "review_followup",
+                "procedural_significance",
+                "contradictory_chronology"
+              ],
+              "reason_labels": [
+                "Contested",
+                "Review requires follow-up",
+                "Procedural significance",
+                "Contradictory chronology"
+              ],
+              "review_statuses": [
+                "needs_followup"
+              ],
+              "signal_classes": [
+                "appeal_stage_signal",
+                "party_assertion",
+                "procedural_context",
+                "procedural_outcome"
+              ],
+              "source_ids": [
+                "src:6a3b4bc55ae19a13"
+              ],
+              "source_projection_modes": [
+                "au_legal"
+              ],
+              "source_signal_classes": [
+                "procedural_record"
+              ],
+              "source_types": [
+                "timeline_payload"
+              ],
+              "statement_ids": [
+                "statement:39f1c473fe933c97"
+              ],
+              "statement_roles": [
+                "au_timeline_statement"
+              ]
+            },
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "approximate",
+              "chronology_impacted": true,
+              "chronology_label": "2003",
+              "contestation_count": 0,
+              "event_ids": [
+                "event:4c50f6c8a3ee0def"
+              ],
+              "fact_id": "fact:33bf5d1e2fbd3c36",
+              "has_legal_procedural_observations": true,
+              "label": "Judicial review",
+              "latest_review_note": null,
+              "latest_review_status": null,
+              "legal_procedural_observation_count": 4,
+              "legal_procedural_predicates": [
+                "challenged",
+                "heard_by",
+                "ruled",
+                "ordered"
+              ],
+              "needs_review": true,
+              "observation_families": [
+                "actions_events",
+                "actor_identification",
+                "legal_procedural",
+                "object_target",
+                "temporal"
+              ],
+              "policy_outcomes": [
+                "review_required"
+              ],
+              "primary_contested_reason_text": null,
+              "reason_codes": [
+                "unreviewed",
+                "procedural_significance"
+              ],
+              "reason_labels": [
+                "Unreviewed",
+                "Procedural significance"
+              ],
+              "review_statuses": [],
+              "signal_classes": [
+                "party_assertion",
+                "procedural_context",
+                "procedural_outcome"
+              ],
+              "source_ids": [
+                "src:6a3b4bc55ae19a13"
+              ],
+              "source_projection_modes": [
+                "au_legal"
+              ],
+              "source_signal_classes": [
+                "procedural_record"
+              ],
+              "source_types": [
+                "timeline_payload"
+              ],
+              "statement_ids": [
+                "statement:90baf113c43c4b2f"
+              ],
+              "statement_roles": [
+                "au_timeline_statement"
+              ]
+            },
+            {
+              "candidate_status": "candidate",
+              "chronology_bucket": "no_event",
+              "chronology_impacted": true,
+              "chronology_label": "2003-06-01",
+              "contestation_count": 0,
+              "event_ids": [],
+              "fact_id": "fact:9d43035cc83c0c08",
+              "has_legal_procedural_observations": true,
+              "label": "Orders",
+              "latest_review_note": null,
+              "latest_review_status": null,
+              "legal_procedural_observation_count": 0,
+              "legal_procedural_predicates": [],
+              "needs_review": true,
+              "observation_families": [
+                "temporal"
+              ],
+              "policy_outcomes": [
+                "review_required"
+              ],
+              "primary_contested_reason_text": null,
+              "reason_codes": [
+                "unreviewed",
+                "event_missing",
+                "missing_actor",
+                "statement_only_fact",
+                "procedural_significance"
+              ],
+              "reason_labels": [
+                "Unreviewed",
+                "No assembled event",
+                "Missing actor",
+                "Statement-only fact",
+                "Procedural significance"
+              ],
+              "review_statuses": [],
+              "signal_classes": [
+                "procedural_outcome"
+              ],
+              "source_ids": [
+                "src:6a3b4bc55ae19a13"
+              ],
+              "source_projection_modes": [
+                "au_legal"
+              ],
+              "source_signal_classes": [
+                "procedural_record"
+              ],
+              "source_types": [
+                "timeline_payload"
+              ],
+              "statement_ids": [
+                "statement:9bdf64c16d023757"
+              ],
+              "statement_roles": [
+                "au_timeline_statement"
+              ]
+            }
+          ]
+        },
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "approximate",
+            "chronology_impacted": true,
+            "chronology_label": "1936",
+            "contestation_count": 1,
+            "event_ids": [
+              "event:41c5bbdbd409a0f6"
+            ],
+            "fact_id": "fact:44e3b170c347a29b",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [
+              "party_assertion",
+              "appeal_stage_signal",
+              "procedural_outcome"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Criminal appeal",
+            "latest_review_note": "Confirm whether the claim or denial is supported by the judgment text.",
+            "latest_review_status": "needs_followup",
+            "legal_procedural_observation_count": 5,
+            "legal_procedural_predicates": [
+              "appealed",
+              "heard_by",
+              "heard_by",
+              "claimed",
+              "denied"
+            ],
+            "needs_review": true,
+            "observation_families": [
+              "actions_events",
+              "actor_identification",
+              "legal_procedural",
+              "object_target",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": "Competing accounts of what was denied affect the procedural chronology.",
+            "reason_codes": [
+              "contested",
+              "review_followup",
+              "procedural_significance",
+              "contradictory_chronology"
+            ],
+            "reason_labels": [
+              "Contested",
+              "Review requires follow-up",
+              "Procedural significance",
+              "Contradictory chronology"
+            ],
+            "review_statuses": [
+              "needs_followup"
+            ],
+            "signal_classes": [
+              "appeal_stage_signal",
+              "party_assertion",
+              "procedural_context",
+              "procedural_outcome"
+            ],
+            "source_ids": [
+              "src:6a3b4bc55ae19a13"
+            ],
+            "source_projection_modes": [
+              "au_legal"
+            ],
+            "source_signal_classes": [
+              "procedural_record"
+            ],
+            "source_types": [
+              "timeline_payload"
+            ],
+            "statement_ids": [
+              "statement:39f1c473fe933c97"
+            ],
+            "statement_roles": [
+              "au_timeline_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "approximate",
+            "chronology_impacted": true,
+            "chronology_label": "2003",
+            "contestation_count": 0,
+            "event_ids": [
+              "event:4c50f6c8a3ee0def"
+            ],
+            "fact_id": "fact:33bf5d1e2fbd3c36",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [
+              "procedural_outcome",
+              "party_assertion"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Judicial review",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 4,
+            "legal_procedural_predicates": [
+              "challenged",
+              "heard_by",
+              "ruled",
+              "ordered"
+            ],
+            "needs_review": true,
+            "observation_families": [
+              "actions_events",
+              "actor_identification",
+              "legal_procedural",
+              "object_target",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "procedural_significance"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "Procedural significance"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "party_assertion",
+              "procedural_context",
+              "procedural_outcome"
+            ],
+            "source_ids": [
+              "src:6a3b4bc55ae19a13"
+            ],
+            "source_projection_modes": [
+              "au_legal"
+            ],
+            "source_signal_classes": [
+              "procedural_record"
+            ],
+            "source_types": [
+              "timeline_payload"
+            ],
+            "statement_ids": [
+              "statement:90baf113c43c4b2f"
+            ],
+            "statement_roles": [
+              "au_timeline_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": true,
+            "chronology_label": "2003-06-01",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:9d43035cc83c0c08",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [
+              "procedural_outcome"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Orders",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "missing_actor",
+              "statement_only_fact",
+              "procedural_significance"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Missing actor",
+              "Statement-only fact",
+              "Procedural significance"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "procedural_outcome"
+            ],
+            "source_ids": [
+              "src:6a3b4bc55ae19a13"
+            ],
+            "source_projection_modes": [
+              "au_legal"
+            ],
+            "source_signal_classes": [
+              "procedural_record"
+            ],
+            "source_types": [
+              "timeline_payload"
+            ],
+            "statement_ids": [
+              "statement:9bdf64c16d023757"
+            ],
+            "statement_roles": [
+              "au_timeline_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "missing_actor_review_queue_count": 1,
+          "missing_date_review_queue_count": 0,
+          "needs_followup_count": 1,
+          "review_queue_count": 3,
+          "statement_only_review_queue_count": 1
+        },
+        "title": "Intake triage"
+      },
+      "procedural_posture": {
+        "items": [
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "approximate",
+            "chronology_impacted": true,
+            "chronology_label": "1936",
+            "contestation_count": 1,
+            "event_ids": [
+              "event:41c5bbdbd409a0f6"
+            ],
+            "fact_id": "fact:44e3b170c347a29b",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [
+              "party_assertion",
+              "appeal_stage_signal",
+              "procedural_outcome"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Criminal appeal",
+            "latest_review_note": "Confirm whether the claim or denial is supported by the judgment text.",
+            "latest_review_status": "needs_followup",
+            "legal_procedural_observation_count": 5,
+            "legal_procedural_predicates": [
+              "appealed",
+              "heard_by",
+              "heard_by",
+              "claimed",
+              "denied"
+            ],
+            "needs_review": true,
+            "observation_families": [
+              "actions_events",
+              "actor_identification",
+              "legal_procedural",
+              "object_target",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": "Competing accounts of what was denied affect the procedural chronology.",
+            "reason_codes": [
+              "contested",
+              "review_followup",
+              "procedural_significance",
+              "contradictory_chronology"
+            ],
+            "reason_labels": [
+              "Contested",
+              "Review requires follow-up",
+              "Procedural significance",
+              "Contradictory chronology"
+            ],
+            "review_statuses": [
+              "needs_followup"
+            ],
+            "signal_classes": [
+              "appeal_stage_signal",
+              "party_assertion",
+              "procedural_context",
+              "procedural_outcome"
+            ],
+            "source_ids": [
+              "src:6a3b4bc55ae19a13"
+            ],
+            "source_projection_modes": [
+              "au_legal"
+            ],
+            "source_signal_classes": [
+              "procedural_record"
+            ],
+            "source_types": [
+              "timeline_payload"
+            ],
+            "statement_ids": [
+              "statement:39f1c473fe933c97"
+            ],
+            "statement_roles": [
+              "au_timeline_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "approximate",
+            "chronology_impacted": true,
+            "chronology_label": "2003",
+            "contestation_count": 0,
+            "event_ids": [
+              "event:4c50f6c8a3ee0def"
+            ],
+            "fact_id": "fact:33bf5d1e2fbd3c36",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [
+              "procedural_outcome",
+              "party_assertion"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Judicial review",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 4,
+            "legal_procedural_predicates": [
+              "challenged",
+              "heard_by",
+              "ruled",
+              "ordered"
+            ],
+            "needs_review": true,
+            "observation_families": [
+              "actions_events",
+              "actor_identification",
+              "legal_procedural",
+              "object_target",
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "procedural_significance"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "Procedural significance"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "party_assertion",
+              "procedural_context",
+              "procedural_outcome"
+            ],
+            "source_ids": [
+              "src:6a3b4bc55ae19a13"
+            ],
+            "source_projection_modes": [
+              "au_legal"
+            ],
+            "source_signal_classes": [
+              "procedural_record"
+            ],
+            "source_types": [
+              "timeline_payload"
+            ],
+            "statement_ids": [
+              "statement:90baf113c43c4b2f"
+            ],
+            "statement_roles": [
+              "au_timeline_statement"
+            ]
+          },
+          {
+            "candidate_status": "candidate",
+            "chronology_bucket": "no_event",
+            "chronology_impacted": true,
+            "chronology_label": "2003-06-01",
+            "contestation_count": 0,
+            "event_ids": [],
+            "fact_id": "fact:9d43035cc83c0c08",
+            "has_legal_procedural_observations": true,
+            "inferred_signal_classes": [
+              "procedural_outcome"
+            ],
+            "inferred_source_signal_classes": [],
+            "label": "Orders",
+            "latest_review_note": null,
+            "latest_review_status": null,
+            "legal_procedural_observation_count": 0,
+            "legal_procedural_predicates": [],
+            "needs_review": true,
+            "observation_families": [
+              "temporal"
+            ],
+            "policy_outcomes": [
+              "review_required"
+            ],
+            "primary_contested_reason_text": null,
+            "reason_codes": [
+              "unreviewed",
+              "event_missing",
+              "missing_actor",
+              "statement_only_fact",
+              "procedural_significance"
+            ],
+            "reason_labels": [
+              "Unreviewed",
+              "No assembled event",
+              "Missing actor",
+              "Statement-only fact",
+              "Procedural significance"
+            ],
+            "review_statuses": [],
+            "signal_classes": [
+              "procedural_outcome"
+            ],
+            "source_ids": [
+              "src:6a3b4bc55ae19a13"
+            ],
+            "source_projection_modes": [
+              "au_legal"
+            ],
+            "source_signal_classes": [
+              "procedural_record"
+            ],
+            "source_types": [
+              "timeline_payload"
+            ],
+            "statement_ids": [
+              "statement:9bdf64c16d023757"
+            ],
+            "statement_roles": [
+              "au_timeline_statement"
+            ]
+          }
+        ],
+        "summary": {
+          "contested_item_count": 1,
+          "legal_procedural_review_queue_count": 3
+        },
+        "title": "Procedural posture"
+      },
+      "professional_handoff": {
+        "items": [],
+        "summary": {
+          "documentary_count": 0,
+          "professional_note_count": 0,
+          "user_authored_count": 0
+        },
+        "title": "Professional handoff"
+      },
+      "public_claim_review": {
+        "items": [],
+        "summary": {
+          "procedural_record_count": 3,
+          "public_claim_count": 0
+        },
+        "title": "Public claim review"
+      },
+      "trauma_handoff": {
+        "items": [],
+        "summary": {
+          "abstained_count": 0,
+          "support_handoff_count": 0
+        },
+        "title": "Trauma handoff"
+      },
+      "wiki_fidelity": {
+        "items": [],
+        "summary": {
+          "wiki_fidelity_count": 0
+        },
+        "title": "Wiki fidelity"
+      }
+    },
+    "reopen_navigation": {
+      "current": {
+        "run_id": "factrun:1de59c55e079ea96c0b1a4ad7f0df5635d37d963ce6b07d43a407bb442d0f6c5",
+        "source_label": "wave1:real_au_procedural_v1",
+        "workflow_kind": "au_semantic",
+        "workflow_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d"
+      },
+      "query": {
+        "source_label": "wave1:real_au_procedural_v1",
+        "workflow_kind": "au_semantic",
+        "workflow_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d"
+      },
+      "recent_sources": [
+        {
+          "fact_run_id": "factrun:b6790ef16a463eeeb286d81eeb14d876ca46801487dff715e586f46eccdd752e",
+          "run_count": null,
+          "source_label": "wave1:synthetic_assertion_outcome_v1",
+          "workflow_kind": "au_semantic",
+          "workflow_run_id": "synthetic_assertion_outcome_v1"
+        },
+        {
+          "fact_run_id": "factrun:1de59c55e079ea96c0b1a4ad7f0df5635d37d963ce6b07d43a407bb442d0f6c5",
+          "run_count": null,
+          "source_label": "wave1:real_au_procedural_v1",
+          "workflow_kind": "au_semantic",
+          "workflow_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d"
+        }
+      ]
+    },
+    "review_queue": [
+      {
+        "candidate_status": "candidate",
+        "chronology_bucket": "approximate",
+        "chronology_impacted": true,
+        "chronology_label": "1936",
+        "contestation_count": 1,
+        "event_ids": [
+          "event:41c5bbdbd409a0f6"
+        ],
+        "fact_id": "fact:44e3b170c347a29b",
+        "has_legal_procedural_observations": true,
+        "inferred_signal_classes": [
+          "party_assertion",
+          "appeal_stage_signal",
+          "procedural_outcome"
+        ],
+        "inferred_source_signal_classes": [],
+        "label": "Criminal appeal",
+        "latest_review_note": "Confirm whether the claim or denial is supported by the judgment text.",
+        "latest_review_status": "needs_followup",
+        "legal_procedural_observation_count": 5,
+        "legal_procedural_predicates": [
+          "appealed",
+          "heard_by",
+          "heard_by",
+          "claimed",
+          "denied"
+        ],
+        "needs_review": true,
+        "observation_families": [
+          "actions_events",
+          "actor_identification",
+          "legal_procedural",
+          "object_target",
+          "temporal"
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_contested_reason_text": "Competing accounts of what was denied affect the procedural chronology.",
+        "reason_codes": [
+          "contested",
+          "review_followup",
+          "procedural_significance",
+          "contradictory_chronology"
+        ],
+        "reason_labels": [
+          "Contested",
+          "Review requires follow-up",
+          "Procedural significance",
+          "Contradictory chronology"
+        ],
+        "review_statuses": [
+          "needs_followup"
+        ],
+        "signal_classes": [
+          "appeal_stage_signal",
+          "party_assertion",
+          "procedural_context",
+          "procedural_outcome"
+        ],
+        "source_ids": [
+          "src:6a3b4bc55ae19a13"
+        ],
+        "source_projection_modes": [
+          "au_legal"
+        ],
+        "source_signal_classes": [
+          "procedural_record"
+        ],
+        "source_types": [
+          "timeline_payload"
+        ],
+        "statement_ids": [
+          "statement:39f1c473fe933c97"
+        ],
+        "statement_roles": [
+          "au_timeline_statement"
+        ]
+      },
+      {
+        "candidate_status": "candidate",
+        "chronology_bucket": "approximate",
+        "chronology_impacted": true,
+        "chronology_label": "2003",
+        "contestation_count": 0,
+        "event_ids": [
+          "event:4c50f6c8a3ee0def"
+        ],
+        "fact_id": "fact:33bf5d1e2fbd3c36",
+        "has_legal_procedural_observations": true,
+        "inferred_signal_classes": [
+          "procedural_outcome",
+          "party_assertion"
+        ],
+        "inferred_source_signal_classes": [],
+        "label": "Judicial review",
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_observation_count": 4,
+        "legal_procedural_predicates": [
+          "challenged",
+          "heard_by",
+          "ruled",
+          "ordered"
+        ],
+        "needs_review": true,
+        "observation_families": [
+          "actions_events",
+          "actor_identification",
+          "legal_procedural",
+          "object_target",
+          "temporal"
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_contested_reason_text": null,
+        "reason_codes": [
+          "unreviewed",
+          "procedural_significance"
+        ],
+        "reason_labels": [
+          "Unreviewed",
+          "Procedural significance"
+        ],
+        "review_statuses": [],
+        "signal_classes": [
+          "party_assertion",
+          "procedural_context",
+          "procedural_outcome"
+        ],
+        "source_ids": [
+          "src:6a3b4bc55ae19a13"
+        ],
+        "source_projection_modes": [
+          "au_legal"
+        ],
+        "source_signal_classes": [
+          "procedural_record"
+        ],
+        "source_types": [
+          "timeline_payload"
+        ],
+        "statement_ids": [
+          "statement:90baf113c43c4b2f"
+        ],
+        "statement_roles": [
+          "au_timeline_statement"
+        ]
+      },
+      {
+        "candidate_status": "candidate",
+        "chronology_bucket": "no_event",
+        "chronology_impacted": true,
+        "chronology_label": "2003-06-01",
+        "contestation_count": 0,
+        "event_ids": [],
+        "fact_id": "fact:9d43035cc83c0c08",
+        "has_legal_procedural_observations": true,
+        "inferred_signal_classes": [
+          "procedural_outcome"
+        ],
+        "inferred_source_signal_classes": [],
+        "label": "Orders",
+        "latest_review_note": null,
+        "latest_review_status": null,
+        "legal_procedural_observation_count": 0,
+        "legal_procedural_predicates": [],
+        "needs_review": true,
+        "observation_families": [
+          "temporal"
+        ],
+        "policy_outcomes": [
+          "review_required"
+        ],
+        "primary_contested_reason_text": null,
+        "reason_codes": [
+          "unreviewed",
+          "event_missing",
+          "missing_actor",
+          "statement_only_fact",
+          "procedural_significance"
+        ],
+        "reason_labels": [
+          "Unreviewed",
+          "No assembled event",
+          "Missing actor",
+          "Statement-only fact",
+          "Procedural significance"
+        ],
+        "review_statuses": [],
+        "signal_classes": [
+          "procedural_outcome"
+        ],
+        "source_ids": [
+          "src:6a3b4bc55ae19a13"
+        ],
+        "source_projection_modes": [
+          "au_legal"
+        ],
+        "source_signal_classes": [
+          "procedural_record"
+        ],
+        "source_types": [
+          "timeline_payload"
+        ],
+        "statement_ids": [
+          "statement:9bdf64c16d023757"
+        ],
+        "statement_roles": [
+          "au_timeline_statement"
+        ]
+      }
+    ],
+    "run": {
+      "contract_version": "fact.intake.bundle.v1",
+      "created_at": "2026-03-19 14:26:44",
+      "mary_projection_version": "mary.fact_workflow.v1",
+      "notes": "Wave 1 legal acceptance AU procedural fixture",
+      "run_id": "factrun:1de59c55e079ea96c0b1a4ad7f0df5635d37d963ce6b07d43a407bb442d0f6c5",
+      "source_label": "wave1:real_au_procedural_v1",
+      "workflow_link": {
+        "adapter_version": "fact_workflow_link_v1",
+        "created_at": "2026-03-19 14:26:44",
+        "fact_run_id": "factrun:1de59c55e079ea96c0b1a4ad7f0df5635d37d963ce6b07d43a407bb442d0f6c5",
+        "source_label": "wave1:real_au_procedural_v1",
+        "workflow_kind": "au_semantic",
+        "workflow_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d"
+      }
+    },
+    "sources": [
+      {
+        "content_sha256": "55fb3b2f6ada075549aeb4c4eb77e2e69e520b7fad311c6be9d6c0751bbbf933",
+        "provenance": {
+          "lexical_projection_mode": "au_legal",
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_document_id": ".cache_local/real_au_procedural_v1_timeline_aoo.json",
+          "source_signal_classes": [
+            "procedural_record"
+          ]
+        },
+        "source_id": "src:6a3b4bc55ae19a13",
+        "source_label": "real_au_procedural_v1_timeline_aoo.json",
+        "source_order": 1,
+        "source_ref": ".cache_local/real_au_procedural_v1_timeline_aoo.json",
+        "source_type": "timeline_payload"
+      }
+    ],
+    "statements": [
+      {
+        "chronology_hint": "1936",
+        "excerpt_id": "excerpt:31b8613498793038",
+        "provenance": {
+          "section": "Criminal appeal",
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-3"
+        },
+        "speaker_label": null,
+        "statement_id": "statement:39f1c473fe933c97",
+        "statement_order": 1,
+        "statement_role": "au_timeline_statement",
+        "statement_status": "captured",
+        "statement_text": "In House v The King the appellant appealed and the matter was heard by the High Court."
+      },
+      {
+        "chronology_hint": "2003",
+        "excerpt_id": "excerpt:d1b4b6cb53fc8826",
+        "provenance": {
+          "section": "Judicial review",
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-1"
+        },
+        "speaker_label": null,
+        "statement_id": "statement:90baf113c43c4b2f",
+        "statement_order": 1,
+        "statement_role": "au_timeline_statement",
+        "statement_status": "captured",
+        "statement_text": "The plaintiff claimed the privative clause denied review, and the Commonwealth denied that challenge before the High Court."
+      },
+      {
+        "chronology_hint": "2003-06-01",
+        "excerpt_id": "excerpt:fd91f21db1358062",
+        "provenance": {
+          "section": "Orders",
+          "semantic_run_id": "run:5ab560b645ee10d0badd59fe6ef0a9442bf5d41bc57e7ff950688ae5961ef12d",
+          "source_event_id": "au-ev-2"
+        },
+        "speaker_label": null,
+        "statement_id": "statement:9bdf64c16d023757",
+        "statement_order": 1,
+        "statement_role": "au_timeline_statement",
+        "statement_status": "captured",
+        "statement_text": "The High Court ruled on the challenge and ordered the matter to proceed."
+      }
+    ],
+    "summary": {
+      "abstained_fact_count": 0,
+      "approximate_event_count": 2,
+      "chronology_impacted_review_queue_count": 3,
+      "contested_chronology_item_count": 1,
+      "contested_fact_count": 1,
+      "contested_item_count": 1,
+      "contradictory_chronology_review_queue_count": 1,
+      "dated_event_count": 0,
+      "dated_fact_count": 3,
+      "event_count": 2,
+      "excerpt_count": 3,
+      "fact_count": 3,
+      "legal_procedural_review_queue_count": 3,
+      "missing_actor_review_queue_count": 1,
+      "missing_date_review_queue_count": 0,
+      "needs_followup_count": 1,
+      "no_event_fact_count": 1,
+      "observation_count": 27,
+      "policy_review_required_count": 3,
+      "review_queue_count": 3,
+      "reviewed_fact_count": 1,
+      "source_count": 1,
+      "statement_count": 3,
+      "statement_only_review_queue_count": 1,
+      "undated_event_count": 0,
+      "undated_fact_count": 0
+    },
+    "version": "fact.review.workbench.v1",
+    "zelph": {
+      "active_packs": [
+        "au_legal"
+      ],
+      "engine": {
+        "status": "ok",
+        "stderr": "Importing file /tmp/tmp9iic0f3l/query.zph...\nError in line \"include \"/tmp/tmp9iic0f3l/facts.zlp\"\": fact(): facts with same subject and object are only supported for facts with a single object: include /tmp/tmp9iic0f3l/rules.zlp include\n",
+        "stdout": "",
+        "triples": []
+      },
+      "facts_serialized_count": 117,
+      "inferred_by_fact_id": {
+        "fact:33bf5d1e2fbd3c36": {
+          "signal_classes": [
+            "procedural_outcome",
+            "party_assertion"
+          ],
+          "source_signal_classes": []
+        },
+        "fact:44e3b170c347a29b": {
+          "signal_classes": [
+            "party_assertion",
+            "appeal_stage_signal",
+            "procedural_outcome"
+          ],
+          "source_signal_classes": []
+        },
+        "fact:9d43035cc83c0c08": {
+          "signal_classes": [
+            "procedural_outcome"
+          ],
+          "source_signal_classes": []
+        }
+      },
+      "inferred_fact_count": 3,
+      "rule_status": "engine_ok",
+      "triples": [
+        {
+          "object": "party_assertion",
+          "predicate": "signal_class",
+          "subject": "fact_fact_44e3b170c347a29b"
+        },
+        {
+          "object": "appeal_stage_signal",
+          "predicate": "signal_class",
+          "subject": "fact_fact_44e3b170c347a29b"
+        },
+        {
+          "object": "procedural_outcome",
+          "predicate": "signal_class",
+          "subject": "fact_fact_44e3b170c347a29b"
+        },
+        {
+          "object": "procedural_outcome",
+          "predicate": "signal_class",
+          "subject": "fact_fact_33bf5d1e2fbd3c36"
+        },
+        {
+          "object": "party_assertion",
+          "predicate": "signal_class",
+          "subject": "fact_fact_33bf5d1e2fbd3c36"
+        },
+        {
+          "object": "procedural_outcome",
+          "predicate": "signal_class",
+          "subject": "fact_fact_9d43035cc83c0c08"
+        }
+      ],
+      "version": "fact_intake.zelph_bridge.v1"
+    },
+    "zelph_ruleset_version": "fact.review.workbench.zelph.v2"
+  }
+}

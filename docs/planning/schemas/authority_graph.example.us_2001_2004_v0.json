@@ -1,0 +1,63 @@
+{
+  "graph_id": "authority_graph_us_2001_2004_v0",
+  "jurisdiction": "US_Federal",
+  "nodes": [
+    {
+      "id": "office:president_us",
+      "node_type": "office",
+      "label": "President of the United States"
+    },
+    {
+      "id": "office:secdef",
+      "node_type": "office",
+      "label": "Secretary of Defense"
+    },
+    {
+      "id": "office:cia_director",
+      "node_type": "office",
+      "label": "Director of Central Intelligence"
+    },
+    {
+      "id": "authority:aumf_2001",
+      "node_type": "legal_authority",
+      "label": "Authorization for Use of Military Force (2001)"
+    },
+    {
+      "id": "authority:eo_13224",
+      "node_type": "legal_authority",
+      "label": "Executive Order 13224"
+    },
+    {
+      "id": "person:bush_george_w",
+      "node_type": "person",
+      "label": "George W. Bush"
+    }
+  ],
+  "edges": [
+    {
+      "edge_type": "DERIVES_AUTHORITY_FROM",
+      "from": "office:president_us",
+      "to": "authority:aumf_2001",
+      "valid_from": "2001-09-18",
+      "scope": "use of military force",
+      "confidence": "high"
+    },
+    {
+      "edge_type": "DELEGATES_TO",
+      "from": "office:president_us",
+      "to": "office:secdef",
+      "valid_from": "2001-09-18",
+      "scope": "military operations",
+      "confidence": "high"
+    },
+    {
+      "edge_type": "OCCUPIES",
+      "from": "person:bush_george_w",
+      "to": "office:president_us",
+      "valid_from": "2001-01-20",
+      "valid_to": "2009-01-20",
+      "confidence": "high"
+    }
+  ]
+}
+

@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "itir://schemas/dbpedia_lookup_queue.schema.json",
+  "title": "DbpediaLookupQueue",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "queue_id",
+    "generated_at",
+    "source",
+    "selection_policy",
+    "candidates"
+  ],
+  "properties": {
+    "queue_id": {
+      "type": "string",
+      "description": "Stable identifier for this queue instance."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["input_file", "input_sha256"],
+      "properties": {
+        "input_file": { "type": "string" },
+        "input_sha256": { "type": "string" },
+        "note": { "type": "string" }
+      }
+    },
+    "selection_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["top_n", "heuristics"],
+      "properties": {
+        "top_n": { "type": "integer", "minimum": 1 },
+        "heuristics": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "excludes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/candidate" }
+    }
+  },
+  "$defs": {
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "score", "rank", "category_guess", "rationale", "status"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Wikipedia page title (entity string)."
+        },
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Upstream ranking score (e.g. weighted link frequency)."
+        },
+        "rank": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Normalized rank in [0,1] for this queue (non-authoritative)."
+        },
+        "category_guess": {
+          "type": "string",
+          "enum": [
+            "person",
+            "office",
+            "institution",
+            "law",
+            "treaty",
+            "program",
+            "location",
+            "event",
+            "other"
+          ],
+          "description": "Heuristic guess for prioritization (non-authoritative)."
+        },
+        "rationale": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" },
+          "description": "Structural reasons for inclusion (no narrative claims)."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "resolved", "skipped", "ambiguous"]
+        },
+        "dbpedia": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "properties": {
+            "uri": { "type": "string" },
+            "types": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+        "dbpedia_candidates": {
+          "type": ["array", "null"],
+          "description": "Optional cached candidates from the DBpedia Lookup service (curation-time only).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["uri"],
+            "properties": {
+              "uri": { "type": "string" },
+              "label": { "type": ["string", "null"] },
+              "comment": { "type": ["string", "null"] },
+              "types": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            }
+          }
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

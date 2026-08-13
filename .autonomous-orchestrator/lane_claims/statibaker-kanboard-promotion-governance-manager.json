@@ -1,0 +1,9 @@
+{
+  "heartbeat_file": "heartbeat.statibaker-kanboard-promotion-governance-manager.json",
+  "lane": "statibaker-kanboard-final-governance-promotion",
+  "lane_claim": "Final governance manager: reconcile manager statuses after stabilization, update docs/changelog/query surface if needed, run final tests/secret checks, and produce promotion state. Workers are not needed unless a read-only sidecar can run independently.",
+  "orchestrator_id": "statibaker-kanboard-promotion-governance-manager",
+  "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+  "status_file": "status.statibaker-kanboard-promotion-governance-manager.json",
+  "timestamp": "2026-05-19T14:37:39Z"
+}

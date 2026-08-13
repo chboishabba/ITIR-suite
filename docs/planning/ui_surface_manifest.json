@@ -1,0 +1,88 @@
+{
+  "schema_version": "itir.ui.surface.v1",
+  "generated_for": "2026-02-08",
+  "surfaces": [
+    {
+      "component": "SensibLaw",
+      "surface_id": "sensiblaw_streamlit",
+      "surface_type": "streamlit",
+      "authority_lane": "SL",
+      "access": "http://127.0.0.1:8501",
+      "launch_command": "cd SensibLaw && streamlit run streamlit_app.py",
+      "notes": "Primary operations and reasoning UI."
+    },
+    {
+      "component": "WhisperX-WebUI",
+      "surface_id": "whisperx_gradio",
+      "surface_type": "gradio",
+      "authority_lane": "observer_capture",
+      "access": "http://127.0.0.1:7860",
+      "launch_command": "cd WhisperX-WebUI && bash start-webui.sh",
+      "notes": "Primary transcription UI used by TiRC flows."
+    },
+    {
+      "component": "WhisperX-WebUI",
+      "surface_id": "whisperx_backend_docs",
+      "surface_type": "fastapi_docs",
+      "authority_lane": "observer_service",
+      "access": "http://127.0.0.1:8000/docs",
+      "launch_command": "cd WhisperX-WebUI && uvicorn backend.main:app --host 0.0.0.0 --port 8000",
+      "notes": "API exploration and backend diagnostics."
+    },
+    {
+      "component": "StatiBaker",
+      "surface_id": "statibaker_daily_dashboard",
+      "surface_type": "static_html",
+      "authority_lane": "SB_projection",
+      "access": "StatiBaker/runs/<date>/outputs/dashboard.html",
+      "launch_command": "cd StatiBaker && python scripts/build_dashboard.py --date <YYYY-MM-DD>",
+      "notes": "Read-only daily process lens output."
+    },
+    {
+      "component": "StatiBaker",
+      "surface_id": "statibaker_weekly_dashboard",
+      "surface_type": "static_html",
+      "authority_lane": "SB_projection",
+      "access": "StatiBaker/runs/<date>/outputs/dashboard_weekly_<N>d.html",
+      "launch_command": "cd StatiBaker && python scripts/build_dashboard.py --date <YYYY-MM-DD> --weekly --weekly-days <N>",
+      "notes": "Read-only weekly aggregate output."
+    },
+    {
+      "component": "StatiBaker",
+      "surface_id": "statibaker_lifetime_dashboard",
+      "surface_type": "static_html",
+      "authority_lane": "SB_projection",
+      "access": "StatiBaker/runs/<date>/outputs/dashboard_lifetime.html",
+      "launch_command": "cd StatiBaker && python scripts/build_dashboard.py --date <YYYY-MM-DD> --lifetime",
+      "notes": "Read-only lifetime aggregate output."
+    },
+    {
+      "component": "ITIR-suite",
+      "surface_id": "repo_docs_browser",
+      "surface_type": "static_html",
+      "authority_lane": "read_only",
+      "access": "http://127.0.0.1:8001/docs/_site/index.html",
+      "launch_command": "python scripts/build_docs_site.py && python -m http.server 8001",
+      "notes": "Repo-wide Markdown browser (indexes most *.md; excludes .venv/node_modules by default)."
+    }
+  ],
+  "non_web_components": [
+    "SL-reasoner",
+    "tircorder-JOBBIE",
+    "itir-ribbon",
+    "reverse-engineered-chatgpt",
+    "chat-export-structurer",
+    "notebooklm-py",
+    "Chatistics",
+    "pyThunderbird",
+    "SimulStreaming",
+    "whisper_streaming",
+    "fuzzymodo",
+    "casey-git-clone",
+    "living-environment-simulator",
+    "aquaponics-calculator",
+    "crops-planner",
+    "medication-tracker",
+    "pet-smart-collar"
+  ]
+}

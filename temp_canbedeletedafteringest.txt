@@ -1,0 +1,1119 @@
+Applied as a ZKP-style design pass, the problem is not “improve three features,” but “prove a cleaner invariant for the ingest system.”
+
+The invariant you want is:
+
+**one deterministic article-state compiler, with three distinct projections over that state:**
+
+1. event/timeline projection,
+2. article/fact projection,
+3. revision/delta projection.
+
+That fits the direction already stated elsewhere in your docs: one pipeline, always deterministic, with optional learned extras layered on top rather than multiple competing pipelines . It also matches the broader SensibLaw habit of separating structure from semantics instead of mixing them into one blob .
+
+## ZKP framing
+
+From the uploaded ZKP note, the operative frame is the formal model:
+
+**O, R, C, S, L, P, F**
+
+Applied here:
+
+**O (organisation)**
+SensibLaw’s ingest/review system for Wikipedia-like material.
+
+**R (requirement / request for proposal)**
+Unify the current date-driven timeline extractor, the article-ingest scorer, and the revision harness without them bleeding into each other.
+
+**C (code)**
+Current code paths:
+
+* date-anchored timeline extraction,
+* article-wide sentence ingest/AAO scoring,
+* revision comparison using extractor-visible deltas plus light edit-history metadata.
+
+**S (state)**
+Current state is muddled:
+
+* timeline logic still acts like the “main” ingest lane,
+* article ingest is broader but not yet clearly canonical,
+* revision harness partly compares article structure and partly depends on timeline/event signatures,
+* responsibilities are overlapping rather than separated.
+
+**L (lattice)**
+The real design lattice is not “timeline vs ingest vs revision.”
+It is:
+
+* **Text surface**
+* **Canonical article state**
+* **Derived projections**
+
+That is the right partial order:
+`raw article text -> canonical extracted state -> specialised views`
+
+**P (proposal)**
+Refactor into three layers with one canonical middle.
+
+**F (gap function)**
+The current gap is the amount of logic that bypasses the canonical middle and couples a projection directly to extraction assumptions.
+
+That is the thing to minimise.
+
+## The actual solution
+
+### Layer 1 — Canonical article-state extraction
+
+This becomes the only ingest truth.
+
+Input:
+
+* article text,
+* optionally revision metadata.
+
+Output:
+
+* sentence rows,
+* spans,
+* actors,
+* actions,
+* objects,
+* claims,
+* attributions,
+* confidence / provenance,
+* weak anchors if present,
+* section structure.
+
+This layer is **not** a timeline layer.
+It is article-wide and date-agnostic by default.
+
+Think of it as the equivalent of your “semantic atom” middle layer elsewhere: not yet a legal frame, not yet a timeline, but structured state extracted from text .
+
+So the canonical object is something like:
+
+`ArticleState`
+
+* article_id
+* revision_id
+* full text hash
+* sentence units
+* extracted event candidates
+* extracted claim candidates
+* extracted actor/action/object tuples
+* attribution objects
+* anchor candidates
+* section tree
+
+This is where determinism lives.
+
+### Layer 2 — Projection layer
+
+Everything user-facing derives from `ArticleState`.
+
+There should be **three projections**, not three ingest systems.
+
+#### A. Timeline projection
+
+Purpose: produce date-bearing event rows.
+
+Rule:
+
+* only emit rows when anchor strength passes threshold,
+* explicit dates > weak dates > heading/category/*VIBE* fallback. re vibe eg 'this looks like an event', and also ideally event predicate eg He woke up, brushed his teeth, and went to work... Should all be three separate things attributed to whoever we can reasonably determine 'he' to be, in correct order etc..
+
+This preserves your current conservative timeline behaviour, but makes it clear that timeline is a **projection over article state**, not the main ingest ontology.
+
+So:
+
+* timeline rows are a filtered, anchored subset of extracted event candidates,
+* no anchor = still kept in article state, just absent from timeline view.
+
+That solves the current conceptual confusion.
+
+#### B. Article-ingest projection
+
+Purpose: whole-article coverage and AAO-style scoring.
+
+This is the broadest projection:
+
+* every sentence row,
+* every extractable actor/action/object relation,
+* claim-bearing and attribution-bearing structures,
+* coverage metrics.
+
+This is the canonical “what did we get from the article?” surface.
+
+#### C. Revision projection
+
+Purpose: compare two `ArticleState`s.
+
+Important: revision should not compare “timeline rows” as its primary ontology.
+It should compare canonical state first, then optionally report projection-level deltas.
+
+So revision deltas become:
+
+* sentence added/removed/changed,
+* actor/action/object tuple deltas,
+* claim delta,
+* attribution delta,
+* anchor delta,
+* event candidate delta.
+
+Then, secondarily:
+
+* timeline-visible delta,
+* graph materiality score,
+* reviewer packet.
+
+That makes revision a projection over **state differencing**, not a half-timeline subsystem.
+
+## What should move where
+
+### What belongs in Layer 1
+
+* sentence segmentation
+* article-wide row building
+* actor/action/object extraction
+* claim-bearing detection
+* attribution detection
+* section tree
+* anchor detection and anchor strength scoring
+* stable event-candidate signatures
+
+### What belongs only in Timeline projection
+
+* “is this fit for timeline emission?”
+* anchor thresholding
+* chronology sort rules
+* weak-anchor fallback policy
+* timeline row formatting
+
+### What belongs only in Revision projection
+
+* state diffing between revisions
+* materiality ranking
+* reviewer packet generation
+* edit-history metadata fusion like byte delta, revert regex, burst signal
+
+That edit-history metadata should stay secondary, exactly as you described: a pack-runner ranking aid, not the semantic core.
+
+## The key architectural claim
+
+Right now the system implicitly treats “event” in two different ways:
+
+* as a date-worthy timeline row,
+* as a broader semantic unit of article change.
+
+Those must be split.
+
+Use two names:
+
+* **EventCandidate** = extracted semantic event in canonical article state
+* **TimelineEvent** = EventCandidate that satisfies timeline anchoring rules
+
+That single rename will kill a lot of confusion.
+
+Likewise for revision:
+
+* compare `EventCandidate`s in core state,
+* report `TimelineEvent` deltas only as one reviewer-facing view.
+
+## Minimal schema sketch
+
+You could normalise it like this:
+
+`article_state`
+
+* article_id
+* revision_id
+* text_hash
+* extracted_at
+
+`article_sentence`
+
+* sentence_id
+* article_state_id
+* sentence_index
+* text
+* section_path
+
+`event_candidate`
+
+* event_id
+* article_state_id
+* sentence_id
+* text_signature
+* actor_sig
+* action_sig
+* object_sig
+* claim_bearing
+* attribution_count
+
+`event_anchor`
+
+* event_id
+* anchor_type
+* anchor_value
+* anchor_strength
+
+`timeline_event`
+
+* timeline_event_id
+* event_id
+* chosen_anchor
+* chosen_strength
+* emitted_bool
+
+`article_state_diff`
+
+* from_state_id
+* to_state_id
+* materiality_score
+
+`event_diff`
+
+* diff_id
+* old_event_id
+* new_event_id
+* diff_type
+* changed_axes
+
+That keeps the separation crisp:
+
+* core extraction tables,
+* timeline as derived emission,
+* revision as state diff.
+
+## The proof obligation
+
+The ZKP-style “proof” you want the architecture to satisfy is:
+
+**For any article revision pair, the revision harness must be reproducible from canonical article-state differencing alone; timeline output must be reproducible from canonical article-state plus anchor policy alone.**
+
+If that holds, you have eliminated bleed.
+
+Equivalently:
+
+* no revision-only extraction logic,
+* no timeline-only primary extraction logic,
+* no second hidden ingest lane.
+
+Just:
+`text -> article state -> projections`
+
+## Gap function F
+
+Define the gap function as:
+
+**F = number and weight of behaviours that cannot be reconstructed from canonical article state**
+
+Today F is non-zero because:
+
+* timeline semantics still act partly like ingest semantics,
+* revision reasoning partly depends on projection-shaped objects rather than state-shaped objects.
+
+Target state:
+
+* `F -> 0`
+
+You know you’ve succeeded when:
+
+1. turning timeline off does not affect article ingest or revision diff,
+2. turning revision off does not affect article ingest or timeline,
+3. article ingest remains the sole canonical extraction path.
+
+## Practical next move
+
+The cleanest next implementation step is not rewriting everything.
+
+It is:
+
+**introduce `ArticleState` and `EventCandidate` as explicit core objects, then demote timeline and revision to projection consumers.**
+
+In order:
+
+1. make article-ingest canonical,
+2. make timeline emit from canonical state,
+3. make revision diff canonical states,
+4. keep edit-history metadata as ranking-only enrichment.
+
+That is the ZKP-consistent solution: prove one invariant core, then derive all views from it.
+
+The strongest line from your earlier materials that supports this direction is the repeated push toward a **single deterministic pipeline** with optional extras, rather than redundant overlapping paths , together with the broader ontology lesson to separate semantic middle layers from higher-level frames/projections .
+
+If you want, I can turn this into a concrete pseudo-UML or FK-ready schema next.
+
+
+In your context, **AAO = Actor–Action–Object**.
+
+It’s just a compact way of representing the core structure of a sentence or clause as a **triple**:
+
+```text
+Actor → Action → Object
+```
+
+---
+
+# What each part means
+
+### 1. Actor
+
+Who is doing the thing
+
+* subject of the sentence (or inferred subject)
+
+Examples:
+
+* “**John** ate the apple” → Actor = John
+* “**He** ran” → Actor = He (resolved to prior entity)
+
+---
+
+### 2. Action
+
+What is happening
+
+* the predicate / verb (often normalised)
+
+Examples:
+
+* “ate”, “ran”, “signed”, “was arrested”
+
+---
+
+### 3. Object
+
+What the action is applied to (if any)
+
+* direct object, indirect object, or target
+
+Examples:
+
+* “apple” in “ate the apple”
+* “contract” in “signed the contract”
+* may be empty:
+
+  * “He ran” → no object
+
+---
+
+# Examples
+
+### Simple
+
+```text
+“The company acquired the startup”
+→ Actor: company
+→ Action: acquire
+→ Object: startup
+```
+
+---
+
+### With pronoun resolution
+
+```text
+“Sarah entered the room. She sat down.”
+→ Actor: Sarah
+→ Action: enter / sit
+→ Object: room / (none)
+```
+
+---
+
+### Your example
+
+```text
+“He woke up, brushed his teeth, and went to work”
+```
+
+AAO decomposition:
+
+1. He → wake_up → —
+2. He → brush → teeth
+3. He → go → work
+
+---
+
+# Why AAO matters in SensibLaw
+
+AAO is basically your **lowest stable semantic unit** before higher reasoning.
+
+It lets you:
+
+### 1. Build events deterministically
+
+Each AAO triple = candidate event
+
+### 2. Compare revisions cleanly
+
+Diff becomes:
+
+* actor changed
+* action changed
+* object changed
+
+### 3. Build graphs
+
+* actors connect to actions
+* actions connect to objects
+
+### 4. Avoid “vibe”
+
+Instead of:
+
+> “this sentence feels event-like”
+
+You get:
+
+> “this clause contains a predicate with an actor → valid AAO → valid EventCandidate”
+
+---
+
+# Important nuance (for your system)
+
+AAO is a **projection**, not the full truth.
+
+It simplifies:
+
+```text
+Actor → Action → Object
+```
+
+But real sentences may include:
+
+* time
+* modality (“might”, “allegedly”)
+* attribution (“X claims that…”)
+* conditions
+
+So in SL terms:
+
+```text
+AAO = core skeleton
++ metadata layers = full semantic object
+```
+
+---
+
+# Relationship to your pipeline
+
+With your current direction:
+
+```text
+TEXT
+→ clause split
+→ AAO extraction  ← (this is where AAO lives)
+→ EventCandidate
+→ projections (timeline / revision / article)
+```
+
+---
+
+# One-line definition
+
+> **AAO is the minimal structured representation of “who did what to what,” used as the foundation for event extraction and reasoning.**
+
+---
+
+If you want, next step is:
+
+* extending AAO → **AAOC** (Actor–Action–Object–Context)
+  so you can cleanly encode time, attribution, modality without breaking the core.
+
+
+Good — this is exactly the edge where a sloppy “predicate rule” breaks if you don’t formalise it properly.
+
+Let’s reapply ZKP cleanly.
+
+---
+
+# The issue you’ve found
+
+You correctly noticed:
+
+* “After the meeting” ❌ (no predicate → not an event)
+* but:
+
+  > “He brushed his teeth **after the meeting**” ✅
+
+So:
+👉 the same phrase is invalid alone, but valid as part of a larger structure.
+
+This means:
+
+> **we must distinguish event-bearing clauses from modifiers**
+
+---
+
+# ZKP refinement
+
+## The corrected invariant
+
+> **An EventCandidate exists iff there is a predicate-bearing clause.**
+> Non-predicate spans can still contribute structure, but cannot form events themselves.
+
+---
+
+# Formal structure
+
+We now split everything into two types:
+
+### 1. Predicate clauses (event-producing)
+
+Contain a verb → produce EventCandidate
+
+### 2. Modifier spans (non-event)
+
+Attach to predicates → provide context
+
+---
+
+# Apply to your example
+
+## Input
+
+> “He brushed his teeth after the meeting”
+
+## Decomposition
+
+### Main clause (predicate)
+
+```text
+He brushed his teeth
+```
+
+→ EventCandidate:
+
+* Actor: He
+* Action: brush
+* Object: teeth
+
+---
+
+### Modifier (non-predicate)
+
+```text
+after the meeting
+```
+
+→ NOT an event
+→ attaches as **temporal context**
+
+---
+
+# Representation
+
+```text
+EventCandidate:
+  actor: He
+  action: brush
+  object: teeth
+  time_relation:
+    type: AFTER
+    reference: meeting
+```
+
+---
+
+# Why “after the meeting” is not an event
+
+Because it fails the invariant:
+
+* no predicate ❌
+* no actor ❌
+* no action ❌
+
+It is:
+👉 a **temporal anchor expression**, not an event
+
+---
+
+# ZKP rule update (important)
+
+We refine Rule 2 and Rule 7 into a stricter system:
+
+---
+
+## Rule 2 (updated) — Predicate requirement
+
+A span produces an EventCandidate **iff** it contains:
+
+* a verb (explicit or recovered)
+
+Otherwise:
+→ it is a modifier or fragment
+
+---
+
+## Rule 7 (updated) — Anchor attachment
+
+Non-predicate spans can:
+
+* attach to nearest predicate clause
+* define:
+
+  * temporal relation (after, before, during)
+  * location
+  * condition
+  * cause
+
+But:
+👉 **they never create events themselves**
+
+---
+
+# General pattern
+
+| Structure                            | Output                    |
+| ------------------------------------ | ------------------------- |
+| “The meeting”                        | object/entity only        |
+| “After the meeting”                  | temporal modifier         |
+| “The meeting occurred”               | event                     |
+| “He brushed teeth after the meeting” | event + temporal relation |
+
+---
+
+# Edge case (important for you)
+
+What about:
+
+> “After the meeting, he left”
+
+Now:
+
+* “he left” → predicate → event
+* “after the meeting” → modifier → attaches
+
+Same rule holds.
+
+---
+
+# Even trickier case
+
+> “The meeting ended”
+
+Now:
+
+* predicate = “ended” ✅
+  → this *is* an event
+
+So:
+
+| Phrase              | Event? |
+| ------------------- | ------ |
+| “the meeting”       | ❌      |
+| “after the meeting” | ❌      |
+| “the meeting ended” | ✅      |
+
+---
+
+# Why this matters for your system
+
+Without this distinction, you get:
+
+* phantom events (“the meeting” becomes an event)
+* broken timelines
+* noisy revision diffs
+
+With it:
+
+* only real actions become events
+* modifiers enrich events instead of polluting them
+
+---
+
+# Clean model (final)
+
+Your pipeline should now be:
+
+```text
+TEXT
+→ clause segmentation
+→ classify spans:
+    - predicate clause → EventCandidate
+    - modifier span → attach to nearest predicate
+→ build enriched EventCandidates
+```
+
+---
+
+# ZKP proof statement (refined)
+
+> Every EventCandidate must be traceable to a predicate-bearing clause.
+> All non-predicate spans must attach as context, never instantiate events.
+
+---
+
+# One-liner intuition
+
+> “After the meeting” doesn’t *do* anything — it only *locates* something that does.
+
+---
+
+If you want next step, I can formalise:
+
+* a dependency-parse rule set for detecting these attachments, or
+* how to encode this cleanly into your `event_signature` so revision diffs capture temporal-relation changes (which is actually very powerful).
+
+Good — now we make it **implementation-grade** and tie it directly into your existing SL structures (especially `event_signature` + revision harness).
+
+We’ll do two things:
+
+1. **Deterministic dependency-parse rules (spaCy/UD style)**
+2. **Extend `event_signature` to encode modifiers cleanly (so diffs become meaningful)**
+
+---
+
+# 1) Deterministic extraction rules (dependency-based)
+
+Assume a standard dependency parse (spaCy / Universal Dependencies style).
+
+## Core idea
+
+* **Event = verb head**
+* **Everything else = attached via dependency edges**
+
+---
+
+## A. Find event heads (verbs)
+
+Select tokens where:
+
+* `pos_ == VERB` OR `pos_ == AUX` (filtered)
+* OR `dep_ == ROOT` and behaves like predicate
+
+```python
+def is_event_head(tok):
+    return (
+        tok.pos_ in {"VERB", "AUX"}
+        and tok.dep_ not in {"aux", "cop"}  # exclude helpers
+    )
+```
+
+---
+
+## B. Extract Actor (subject)
+
+Priority:
+
+* `nsubj`
+* `nsubjpass`
+* fallback: inherit from previous coordinated clause
+
+```python
+def get_actor(verb):
+    for child in verb.children:
+        if child.dep_ in {"nsubj", "nsubjpass"}:
+            return resolve_coref(child)
+    return inherit_actor(verb)
+```
+
+---
+
+## C. Extract Object
+
+Look for:
+
+* `dobj` (direct object)
+* `pobj` (object of preposition)
+* `attr` (copular complement)
+
+```python
+def get_object(verb):
+    for child in verb.children:
+        if child.dep_ in {"dobj", "attr"}:
+            return child
+    return None
+```
+
+---
+
+## D. Extract modifiers (THIS is your key upgrade)
+
+### 1. Temporal modifiers
+
+Dependencies:
+
+* `prep` (prepositions like “after”, “before”)
+* `advmod` (then, later)
+* `npadvmod` (temporal noun phrases)
+
+```python
+TEMPORAL_PREPS = {"after", "before", "during", "since", "until"}
+
+def get_temporal_mods(verb):
+    mods = []
+    for child in verb.children:
+        if child.dep_ == "prep" and child.text.lower() in TEMPORAL_PREPS:
+            pobj = next((c for c in child.children if c.dep_ == "pobj"), None)
+            if pobj:
+                mods.append({
+                    "type": child.text.lower(),   # after/before
+                    "reference": pobj.text
+                })
+    return mods
+```
+
+---
+
+### 2. Adverbial sequence markers
+
+```python
+SEQUENCE_WORDS = {"then", "next", "later", "afterwards"}
+
+def get_sequence_mods(verb):
+    return [
+        {"type": "sequence", "value": child.text}
+        for child in verb.children
+        if child.dep_ == "advmod" and child.text.lower() in SEQUENCE_WORDS
+    ]
+```
+
+---
+
+### 3. Coordination (splitting events)
+
+This is critical for your “woke up, brushed teeth, went to work”.
+
+Dependency:
+
+* `conj`
+
+```python
+def split_conj_chain(verb):
+    events = [verb]
+    events.extend([c for c in verb.children if c.dep_ == "conj"])
+    return events
+```
+
+---
+
+# 2) EventCandidate structure (upgrade)
+
+You now need to extend your internal object.
+
+## OLD (approx)
+
+```python
+event_signature = {
+    "actor": ...,
+    "action": ...,
+    "object": ...
+}
+```
+
+## NEW (ZKP-consistent)
+
+```python
+event_signature = {
+    "actor": canonical_actor_id,
+    "action": canonical_verb_lemma,
+    "object": canonical_object_id,
+
+    # NEW
+    "temporal_relations": [
+        {"type": "after", "ref": "meeting"}
+    ],
+    "sequence_markers": [
+        "then"
+    ],
+
+    "clause_index": i,
+    "source_span": "...",
+}
+```
+
+---
+
+# 3) Full extraction flow (drop-in pseudocode)
+
+```python
+def extract_events(doc):
+    events = []
+
+    for tok in doc:
+        if not is_event_head(tok):
+            continue
+
+        # split coordination
+        verbs = split_conj_chain(tok)
+
+        for i, verb in enumerate(verbs):
+            actor = get_actor(verb)
+            obj = get_object(verb)
+
+            temporal = get_temporal_mods(verb)
+            sequence = get_sequence_mods(verb)
+
+            events.append({
+                "actor": actor,
+                "action": verb.lemma_,
+                "object": obj.text if obj else None,
+                "temporal_relations": temporal,
+                "sequence_markers": sequence,
+                "clause_index": i,
+                "source_span": verb.sent.text,
+            })
+
+    return events
+```
+
+---
+
+# 4) Apply to your example
+
+## Input
+
+“He brushed his teeth after the meeting”
+
+## Output
+
+```json
+[
+  {
+    "actor": "he",
+    "action": "brush",
+    "object": "teeth",
+    "temporal_relations": [
+      {"type": "after", "ref": "meeting"}
+    ],
+    "sequence_markers": []
+  }
+]
+```
+
+---
+
+# 5) Now the important part: revision harness upgrade
+
+This is where it becomes powerful.
+
+---
+
+## OLD revision diff
+
+You compare:
+
+* actor/action/object
+* claim/attribution
+
+---
+
+## NEW diff axes
+
+Add:
+
+### A. Temporal relation diff
+
+```python
+if old.temporal_relations != new.temporal_relations:
+    mark_change("temporal_relation_changed")
+```
+
+Example:
+
+* “after the meeting”
+* → “before the meeting”
+
+This is **semantically massive**, but currently invisible.
+
+---
+
+### B. Ordering diff
+
+Using:
+
+* clause_index
+* sequence markers
+
+```python
+if old.clause_index != new.clause_index:
+    mark_change("event_order_changed")
+```
+
+---
+
+### C. Modifier attachment diff
+
+Example:
+
+* “He left after the meeting”
+* → “He left before the meeting”
+
+This becomes a clean structural diff, not text similarity noise.
+
+---
+
+# 6) What this gives you (big payoff)
+
+### 1. Kills “vibe”
+
+Everything is:
+
+* predicate
+* or modifier
+* or nothing
+
+---
+
+### 2. Makes revision harness *semantic*
+
+Instead of:
+
+* SimHash changed → maybe important
+
+You get:
+
+* **temporal relation flipped**
+* **event reordered**
+* **actor changed**
+
+That’s legally meaningful.
+
+---
+
+### 3. Enables timeline properly
+
+Timeline becomes:
+
+```python
+if event.temporal_relations OR explicit_date:
+    emit_timeline_event(event)
+```
+
+No special parsing needed.
+
+---
+
+### 4. Compression improves
+
+You now store:
+
+```text
+actor_id, action_id, object_id, relation_type
+```
+
+instead of raw text blobs.
+
+---
+
+# 7) ZKP final statement (execution-level)
+
+You can now claim:
+
+> Every event and every temporal relation in the system is derivable from dependency structure alone, without heuristic “event-like” classification.
+
+And:
+
+> All revision-relevant semantic changes are reducible to diffs over structured event signatures.
+
+---
+
+# If you want next step
+
+I can:
+
+1. Map this **directly onto your existing `revision_harness.py` lines (166 / 297)**
+2. Or design a **minimal SQLite schema + indices** so this runs fast over large corpora
+3. Or show how to **merge this with your AAO scorer (AAO → AAOC)** cleanly
+
+Your call — but this is now at the point where it can be dropped into SL as a real upgrade.

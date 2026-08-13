@@ -1,0 +1,429 @@
+import path from 'node:path';
+import { resolveRepoRoot, resolveItirDbPath, readStdout } from './utils';
+import { parseFactReviewCliPayload } from '$lib/server/factReviewCli.js';
+
+export type FactReviewSelector = {
+  runId?: string | null;
+  workflowKind?: string | null;
+  workflowRunId?: string | null;
+  sourceLabel?: string | null;
+};
+
+export interface FactReviewWorkflowLink {
+  workflow_kind?: string;
+  workflow_run_id?: string;
+  fact_run_id?: string;
+}
+
+export interface FactReviewRun {
+  run_id: string;
+  source_label: string;
+  workflow_link?: FactReviewWorkflowLink;
+  contract_version: string;
+}
+
+export interface FactReviewSource {
+  source_id: string;
+  source_order: number;
+  source_type: string;
+  source_label: string;
+  provenance: Record<string, unknown>;
+  latest_workflow_link?: FactReviewWorkflowLink;
+  run_count?: number;
+}
+
+export interface FactReviewRecentSource {
+  source_label: string;
+  workflow_kind?: string;
+  workflow_run_id?: string;
+  fact_run_id?: string;
+  run_count?: number;
+  latest_workflow_link?: FactReviewWorkflowLink;
+}
+
+export interface FactReviewIssueFilter {
+  filter_key: string;
+  label: string;
+  count: number;
+  fact_ids: string[];
+}
+
+export interface FactReviewIssueFilters {
+  default_filter: string;
+  available_filters: string[];
+  filters: FactReviewIssueFilter[];
+  summary: Record<string, number>;
+}
+
+export interface FactReviewInspectorClassification {
+  status_keys: Record<string, boolean>;
+  dominant_label: string;
+  display_labels: string[];
+}
+
+export interface FactReviewFact {
+  fact_id: string;
+  canonical_label?: string;
+  fact_text?: string;
+  candidate_status?: string;
+  event_ids?: string[];
+  statement_ids?: string[];
+  excerpt_ids?: string[];
+  signal_classes?: string[];
+  source_signal_classes?: string[];
+  policy_outcomes?: string[];
+  latest_review_note?: string | null;
+  inspector_classification?: FactReviewInspectorClassification;
+  observations?: Array<{
+    predicate_key?: string;
+    object_text?: string;
+  }>;
+  source_types?: string[];
+  statement_roles?: string[];
+}
+
+export interface FactReviewStatement {
+  statement_id: string;
+  statement_text: string;
+}
+
+export interface FactReviewExcerpt {
+  excerpt_id: string;
+  excerpt_text: string;
+}
+
+export interface FactReviewEvent {
+  event_id: string;
+  event_type?: string;
+  primary_actor?: string;
+  time_start?: string | null;
+  label?: string;
+}
+
+export interface FactReviewChronologyRow {
+  fact_id?: string;
+  event_id?: string;
+  event_type?: string;
+  primary_actor?: string;
+  time_start?: string | null;
+  label?: string;
+}
+
+export interface FactReviewViewItem {
+  fact_id: string;
+  label?: string;
+  latest_review_status?: string | null;
+  candidate_status?: string | null;
+  contestation_count?: number | null;
+  reason_labels?: string[];
+  primary_contested_reason_text?: string | null;
+  signal_classes?: string[];
+  source_signal_classes?: string[];
+  policy_outcomes?: string[];
+}
+
+export interface FactReviewControlPlane {
+  version: string;
+  source_family: string;
+  hint_kind: string;
+  receipt_kind: string;
+  substrate_kind: string;
+  conjecture_kind: string;
+  route_targets?: string[];
+  resolution_statuses?: string[];
+}
+
+export interface FactReviewControlPlaneQueueItem {
+  item_id: string;
+  title: string;
+  subtitle?: string | null;
+  description?: string | null;
+  conjecture_kind: string;
+  route_target: string;
+  resolution_status: string;
+  chips?: string[];
+  detail_rows?: Array<{ label: string; value: string }>;
+  [key: string]: unknown;
+}
+
+export interface FactReviewOperatorView {
+  title: string;
+  control_plane?: FactReviewControlPlane;
+  summary?: Record<string, any>;
+  groups?: Record<string, FactReviewViewItem[] | FactReviewEvent[]>;
+  items?: any[];
+  queue?: FactReviewControlPlaneQueueItem[];
+  available?: boolean;
+}
+
+export interface FactReviewPromotionGate {
+  schema_version?: string;
+  lane?: string;
+  product_ref?: string;
+  decision?: 'promote' | 'abstain' | 'audit' | string;
+  reason?: string;
+  evidence?: {
+    promoted_count?: number;
+    review_count?: number;
+    abstained_count?: number;
+    product_roles?: string[];
+  };
+}
+
+export interface FactReviewLegalFollowGraphSummary {
+  node_count?: number;
+  edge_count?: number;
+  event_count?: number;
+  authority_receipt_count?: number;
+  case_ref_count?: number;
+  supporting_legislation_count?: number;
+  cited_instrument_count?: number;
+  supporting_receipt_count?: number;
+  supporting_authority_kind_counts?: Record<string, number>;
+  source_kind_counts?: Record<string, number>;
+  source_family_label_counts?: Record<string, number>;
+  linkage_kind_counts?: Record<string, number>;
+  review_status_label_counts?: Record<string, number>;
+  support_kind_label_counts?: Record<string, number>;
+}
+
+export interface FactReviewLegalFollowGraphNode {
+  id: string;
+  kind: string;
+  label: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface FactReviewLegalFollowGraphEdge {
+  source: string;
+  target: string;
+  kind: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface FactReviewLegalFollowGraphOperatorHighlightNode {
+  id: string;
+  kind: string;
+  label: string;
+}
+
+export interface FactReviewLegalFollowGraphOperatorSampleEdge {
+  source: string;
+  target: string;
+  kind: string;
+}
+
+export interface FactReviewOperatorLegalFollowGraphView {
+  available: boolean;
+  summary?: Record<string, number>;
+  highlight_nodes?: FactReviewLegalFollowGraphOperatorHighlightNode[];
+  sample_edges?: FactReviewLegalFollowGraphOperatorSampleEdge[];
+}
+
+export interface FactReviewLegalFollowGraph {
+  version?: string;
+  derived_only?: boolean;
+  challengeable?: boolean;
+  summary?: FactReviewLegalFollowGraphSummary;
+  nodes?: FactReviewLegalFollowGraphNode[];
+  edges?: FactReviewLegalFollowGraphEdge[];
+}
+
+export interface FactReviewWorkflowSummary {
+  stage: 'inspect' | 'decide' | 'record' | 'follow_up' | string;
+  title: string;
+  recommended_view: string;
+  recommended_filter?: string | null;
+  focus_fact_id?: string | null;
+  reason: string;
+  counts: {
+    review_queue_count: number;
+    contested_followup_count: number;
+    authority_follow_queue_count: number;
+    undated_event_count: number;
+    no_event_fact_count: number;
+  };
+  promotion_gate?: FactReviewPromotionGate | null;
+}
+
+export interface FactReviewWorkbench {
+  run: FactReviewRun;
+  summary: Record<string, number>;
+  sources: FactReviewSource[];
+  facts: FactReviewFact[];
+  events: FactReviewEvent[];
+  statements: FactReviewStatement[];
+  excerpts: FactReviewExcerpt[];
+  semantic_context?: Record<string, unknown>;
+  workflow_summary?: FactReviewWorkflowSummary;
+  review_queue: FactReviewViewItem[];
+  chronology_summary: Record<string, number>;
+  chronology_groups: Record<string, FactReviewChronologyRow[]>;
+  contested_summary: Record<string, unknown>;
+  operator_views: Record<string, FactReviewOperatorView>;
+  reopen_navigation: {
+    current: {
+      run_id?: string;
+      source_label?: string;
+      workflow_kind?: string;
+      workflow_run_id?: string;
+    };
+    query: {
+      workflow_kind?: string;
+      workflow_run_id?: string;
+      source_label?: string;
+    };
+    recent_sources: FactReviewRecentSource[];
+  };
+  issue_filters: FactReviewIssueFilters;
+  inspector_classification: {
+    status_order: string[];
+    selected_fact_id?: string | null;
+    facts: Record<string, FactReviewInspectorClassification>;
+  };
+  inspector_defaults: {
+    selected_fact_id?: string | null;
+    default_view: string;
+  };
+  legal_follow_graph?: FactReviewLegalFollowGraph;
+}
+
+export interface FactReviewStoryCheck {
+  check_id: string;
+  passed: boolean;
+  explanation?: string;
+}
+
+export interface FactReviewStoryResult {
+  story_id: string;
+  label: string;
+  status: 'pass' | 'fail' | 'partial';
+  check_count: number;
+  passed_check_count: number;
+  failed_check_ids: string[];
+  gap_tags: string[];
+  blocking_explanation?: string | null;
+  checks: FactReviewStoryCheck[];
+}
+
+export interface FactReviewAcceptanceReport {
+  version: string;
+  wave: string;
+  fixture_kind: string;
+  run: {
+    run_id?: string;
+    source_label?: string;
+    workflow_link?: FactReviewWorkflowLink;
+  };
+  summary: {
+    story_count: number;
+    pass_count: number;
+    partial_count: number;
+    fail_count: number;
+  };
+  stories: FactReviewStoryResult[];
+}
+
+export interface FactReviewDemoBundle {
+  selector: {
+    run_id?: string;
+    workflow_kind?: string;
+    workflow_run_id?: string;
+    source_label?: string;
+    wave?: string;
+    fixture_kind?: string;
+  };
+  workbench: FactReviewWorkbench;
+  acceptance: FactReviewAcceptanceReport;
+  sources: FactReviewSource[];
+}
+
+function queryScriptPath(repoRoot: string): string {
+  return path.join(repoRoot, 'SensibLaw', 'scripts', 'query_fact_review.py');
+}
+
+function selectorArgs(selector: FactReviewSelector): string[] {
+  const args: string[] = [];
+  if (selector.runId) args.push('--run-id', selector.runId);
+  if (selector.workflowKind) args.push('--workflow-kind', selector.workflowKind);
+  if (selector.workflowRunId) args.push('--workflow-run-id', selector.workflowRunId);
+  if (selector.sourceLabel) args.push('--source-label', selector.sourceLabel);
+  return args;
+}
+
+async function runQuery<T>(commandArgs: string[], field: string): Promise<T> {
+  const repoRoot = resolveRepoRoot();
+  const raw = await readStdout(
+    'python3',
+    [queryScriptPath(repoRoot), '--db-path', resolveItirDbPath(repoRoot), ...commandArgs],
+    repoRoot
+  );
+  return parseFactReviewCliPayload<T>(raw, field);
+}
+
+export async function loadFactReviewWorkbench(selector: FactReviewSelector): Promise<FactReviewWorkbench> {
+  const workbench = await runQuery<FactReviewWorkbench>([...selectorArgs(selector), 'workbench'], 'workbench');
+  const semanticContext = workbench.semantic_context ?? {};
+  return {
+    ...workbench,
+    legal_follow_graph: (semanticContext as Record<string, unknown>).legal_follow_graph as
+      | FactReviewLegalFollowGraph
+      | undefined,
+  };
+}
+
+export async function loadFactReviewAcceptance(
+  selector: FactReviewSelector,
+  opts: { wave?: string; fixtureKind?: string } = {}
+): Promise<FactReviewAcceptanceReport> {
+  return await runQuery<FactReviewAcceptanceReport>(
+    [
+      ...selectorArgs(selector),
+      'acceptance',
+      '--wave',
+      opts.wave ?? 'all',
+      '--fixture-kind',
+      opts.fixtureKind ?? 'unknown'
+    ],
+    'acceptance'
+  );
+}
+
+export async function loadFactReviewDemoBundle(
+  selector: FactReviewSelector,
+  opts: { wave?: string; fixtureKind?: string } = {}
+): Promise<FactReviewDemoBundle> {
+  return await runQuery<FactReviewWorkbench>(
+    [
+      ...selectorArgs(selector),
+      'demo-bundle',
+      '--wave',
+      opts.wave ?? 'all',
+      '--fixture-kind',
+      opts.fixtureKind ?? 'unknown'
+    ],
+    'workbench'
+  ).then(async (workbench) => {
+    const acceptance = await loadFactReviewAcceptance(selector, opts);
+    const sources = await listFactReviewSources(selector.workflowKind);
+    return {
+      selector: {
+        run_id: selector.runId ?? undefined,
+        workflow_kind: selector.workflowKind ?? undefined,
+        workflow_run_id: selector.workflowRunId ?? undefined,
+        source_label: selector.sourceLabel ?? undefined,
+        wave: opts.wave ?? 'all',
+        fixture_kind: opts.fixtureKind ?? 'unknown'
+      },
+      workbench,
+      acceptance,
+      sources
+    };
+  });
+}
+
+export async function listFactReviewSources(workflowKind?: string | null): Promise<FactReviewSource[]> {
+  const args = ['sources'];
+  if (workflowKind) args.push('--workflow-kind', workflowKind);
+  return await runQuery<FactReviewSource[]>(args, 'sources');
+}

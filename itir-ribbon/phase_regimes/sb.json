@@ -1,0 +1,10 @@
+{
+  "subsystem": "StatiBaker",
+  "signals": [
+    "interaction_rate",
+    "annotation_rate",
+    "support_contact_events"
+  ],
+  "phases": ["Acquire", "Normalize", "Contest", "Publish"],
+  "lens_ids": ["time"]
+}

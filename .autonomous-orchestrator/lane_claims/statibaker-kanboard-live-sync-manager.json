@@ -1,0 +1,9 @@
+{
+  "heartbeat_file": "heartbeat.statibaker-kanboard-live-sync-manager.json",
+  "lane": "statibaker-kanboard-live-sync-apply",
+  "lane_claim": "Manager lane 2: implement explicit one-way --apply sync from local runsheet JSON to Kanboard JSON-RPC. Workers are optional only for independent sidecars with disjoint write sets.",
+  "orchestrator_id": "statibaker-kanboard-live-sync-manager",
+  "parent_orchestrator_id": "itir-statibaker-kanboard-completion-supermanager",
+  "status_file": "status.statibaker-kanboard-live-sync-manager.json",
+  "timestamp": "2026-05-19T14:17:07Z"
+}

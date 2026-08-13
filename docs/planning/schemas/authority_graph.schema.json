@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "itir://schemas/authority_graph.schema.json",
+  "title": "AuthorityGraph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["graph_id", "jurisdiction", "nodes", "edges"],
+  "properties": {
+    "graph_id": { "type": "string" },
+    "jurisdiction": { "type": "string" },
+    "nodes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/node" }
+    },
+    "edges": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/edge" }
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "node_type", "label"],
+      "properties": {
+        "id": { "type": "string" },
+        "node_type": {
+          "type": "string",
+          "enum": ["office", "person", "legal_authority"]
+        },
+        "label": { "type": "string" },
+        "meta": { "type": "object" }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["edge_type", "from", "to", "valid_from"],
+      "properties": {
+        "edge_type": {
+          "type": "string",
+          "enum": [
+            "DERIVES_AUTHORITY_FROM",
+            "DELEGATES_TO",
+            "OCCUPIES",
+            "CONSTRAINED_BY",
+            "EXPIRES"
+          ]
+        },
+        "from": { "type": "string" },
+        "to": { "type": "string" },
+        "valid_from": { "type": "string", "format": "date" },
+        "valid_to": { "type": ["string", "null"], "format": "date" },
+        "scope": { "type": "string" },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"]
+        }
+      }
+    }
+  }
+}
+

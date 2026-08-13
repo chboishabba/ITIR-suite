@@ -1,0 +1,5 @@
+{
+  "lens_id": "time",
+  "units": "seconds",
+  "rho": {"op": "const", "value": 1}
+}
