@@ -2,6 +2,71 @@
 
 ## Unreleased
 
+- Add SensibLaw's P0c.3/P0c.4 typed resolution-subject and semantic demand-
+  equivalence carrier. Formal event roles are protected before scheduler design,
+  and grouping remains a receipt rather than request execution or resolution.
+- Add SensibLaw's P0c.2 backend-free ResolutionDemand projection. It maps only
+  explicit unresolved PNF closure obligations to evidence plans without backend
+  selection, request execution, identity resolution, or PNF mutation.
+- Add SensibLaw's P0c.1 factorized PartialPNF and closure-pressure carrier.
+  It preserves local type alternatives without combination, demand issuance,
+  identity resolution, or claim promotion.
+- Add SensibLaw's P0b.8 candidate-only local typing and coverage-pressure
+  carrier, and make P0b.7 composition branch-preserving. Local semantic
+  alternatives remain distinct from identity, PNF closure, registry lookup,
+  and promotion.
+- Add SensibLaw's candidate-safe P0b.7 form derivation carrier. Source-anchored
+  linguistic alternatives and declared form relations now precede entity
+  retrieval; deterministic output order never constitutes a candidate ranking
+  or semantic interpretation.
+- Add SensibLaw's candidate-safe P0b.6 bounded catalog retrieval. Exact
+  canonical-token matching over caller-supplied provenance-bearing entries
+  preserves zero/one/many alternatives without a registry request, identity
+  resolution, PNF mutation, or promotion.
+- Add SensibLaw's candidate-safe P0b.5 structural-grammar request producer.
+  Parser annotations yield bounded nominal-phrase requests only; missing
+  annotation creates no phrase boundary and no identity, PNF, or promotion
+  effect is possible.
+- Add SensibLaw's candidate-safe P0b.4 alias-index request producer. Exact,
+  caller-supplied canonical token sequences create only provenance-bearing
+  alias-hint expansion requests; no registry query, identity decision, PNF
+  mutation, or promotion is possible.
+- Add SensibLaw's candidate-safe P0b.3 bounded expansion receipt. It accepts
+  source-anchored alias-hint, grammar-phrase, and future-PNF-demand token
+  intervals, verifies the licensing carrier and canonical text, and records
+  created or reused mentions without asserting an alias, identity, PNF binding,
+  candidate set, promotion, or execution effect.
+- Add SensibLaw's candidate-safe P0b.2 document-local recurrence receipt.
+  It retains repeated case-folded, whitespace-normalized generated surfaces
+  without treating them as aliases, coreference, identities, PNF assignments,
+  or promotions.
+- Implement the first backend-free P0b lazy mention-licensing slice in
+  SensibLaw. The shared carrier uses public parser/reducer outputs to license
+  lexical, numeric, name-shaped, and adapter-annotated eventuality spans while
+  retaining a deterministic recoverable-lattice/suppression receipt. It makes
+  no external call and has no identity, PNF, promotion, or execution effect.
+- Correct the shared PNF/entity-resolution plan to separate broad local typing
+  coverage from residual-driven closure work. The documented next runtime
+  layers are now a registry-neutral cache/microbatch scheduler, optional
+  Wikidata and WorldMonitor snapshot adapters, and typed event reconciliation
+  that preserves occurrence/observation/cluster/forecast/report/state roles.
+  This changes architecture notes and sequencing only; no external calls,
+  resolver decisions, or promotion behavior were added.
+- Add SensibLaw's first generic candidate-only entity-resolution carrier:
+  anchored mentions, typed candidate sets, and document-local coreference are
+  deterministic and provenance-preserving, while cross-document identity joins,
+  lookup, resolution, and promotion remain out of scope.
+- Consolidate SensibLaw's duplicate section parsers around one canonical
+  ingestion implementation. The legacy root parser remains a compatibility
+  projection for existing `Provision` and simple JSON callers; no entity
+  resolution or promotion authority was introduced.
+- Reframe the shared SensibLaw P0 so the compiler begins with canonical spans,
+  partial PNF, typed entity-resolution demands, bounded candidate sets, and PNF
+  refinement before claim targeting or promotion. The suite notes now preserve
+  exhaustive recoverability, lazy materialization, optional pinned registry
+  evidence, and explicit anti-panopticon identity boundaries. This records
+  architecture and implementation sequencing only; runtime behavior is
+  unchanged.
 - SensibLaw's revision-pinned Nat dry-run now reports profile-fed family
   geometry through a generic dependency-group inventory, keeping overlapping
   row-level failure reasons from being misread as independent migration cases.

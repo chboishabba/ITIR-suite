@@ -1,5 +1,22 @@
 # Compactified Context
 
+## 2026-07-18 — P0 structural-semantics diagnostic and declaration boundary
+
+- SensibLaw's next local-only compiler slice is not a target to lower one
+  residual count. It converts parser-observable structure into factorized,
+  typed, provenance-bearing semantics while retaining unresolved identity,
+  occurrence, scope, and truth obligations.
+- Implemented the first control boundary: immutable generic reduction
+  declarations now declare their candidate-only relation-role projections; a
+  deterministic unresolved-span diagnostic partitions missing local typing by
+  public annotation shape, missing reducer capability, and PNF impact.
+- The compiler contract is `postgres-semantic-compiler:v0_3`; this invalidates
+  reductions and descendants, not canonical source text or annotations.
+- Next implementation order: use the diagnostic to add nominal-description,
+  predication, syntactic-argument, and clause/composition constraints and
+  residual-specific refinements. Do not add lexical identity catalogs,
+  corpus-specific grammar, EPUB/PDF support, external evidence, or promotion.
+
 - 2026-06-03 Perplexity/ChatGPT chat artifact resolver lane:
   - source:
     - Perplexity thread title:
