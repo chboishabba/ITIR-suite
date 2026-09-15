@@ -2,6 +2,32 @@
 
 Date: 2026-09-15
 
+## Implementation status — 2026-09-16
+
+The Mabo workbench has now been factored toward a portable semantic reader on `agent/mabo-reading-workbench-v1` without replacing the existing reader or proof graph.
+
+New source-level surfaces:
+
+```text
+itir-svelte/src/lib/workbench/semanticTrail.js
+itir-svelte/src/lib/workbench/readingComprehensionFixture.js
+itir-svelte/tests/semantic_trail_regressions.test.js
+itir-svelte/tests/reading_comprehension_fixture.test.js
+itir-svelte/tests/reading_surface_component_contract.test.js
+docs/planning/semantic_reader_adaptive_cone_20260916.md
+docs/planning/adaptive_semantic_reader_implementation_20260916.md
+```
+
+The generic semantic trail now carries independent semantic-target identity, adaptive base-depth/high-elucidatory cone projection, Execute/Defer/Reject outcomes, portable semantic intents, progressive disclosure defaults, and explicit Wiki/Wikidata non-authority firewalls.
+
+A small reading-comprehension fixture demonstrates overlapping constituent/composite targets over `They wove a panel from golden spider silk.` without introducing a second parser or claiming comprehension.
+
+The Mabo specimen now carries explicit Wikidata/Wikipedia context coordinates separately from exact source coordinates, and the context drawer exposes those references only on demand.
+
+DASHI parity is mirrored by `DASHI/Interop/SemanticReaderElucidatoryConeExact.agda` on the active DASHI branch. Focused Node/Svelte and Agda receipts remain required before this tranche is called runtime/formal-paid.
+
+The next integration seam after focused verification is a live SensibLaw Mabo proof-specimen read projection into the same semantic-trail contract. Renderer-model selection, automatic prose repair, live Perplexity asking, and whole-life/temporal integration remain downstream.
+
 ## Implementation status — 2026-09-15
 
 Source-level first specimen now exists on `agent/mabo-reading-workbench-v1`:
