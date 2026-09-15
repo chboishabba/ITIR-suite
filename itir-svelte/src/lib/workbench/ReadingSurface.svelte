@@ -1,8 +1,10 @@
 <script>
-  import { cardKinds, guideCues } from './readingSurface.js';
+  import { createEventDispatcher } from 'svelte';
+  import { cardKinds, compileReadingIntent, guideCues } from './readingSurface.js';
 
   export let specimen;
 
+  const dispatch = createEventDispatcher();
   let selectedIndex = 2;
   let openCard = null;
 
@@ -15,6 +17,13 @@
 
   function toggleCard(kind) {
     openCard = openCard === kind ? null : kind;
+  }
+
+  function explore(kind, intent) {
+    toggleCard(kind);
+    if (openCard === kind && intent) {
+      dispatch('intent', compileReadingIntent(selected, intent));
+    }
   }
 </script>
 
@@ -58,19 +67,19 @@
     <p class="summary">{selected.summary}</p>
 
     <nav class="actions" aria-label="Explore this step">
-      <button type="button" class:pressed={openCard === 'proof'} on:click={() => toggleCard('proof')}>
+      <button type="button" class:pressed={openCard === 'proof'} on:click={() => explore('proof', 'why')}>
         Why?
       </button>
-      <button type="button" class:pressed={openCard === 'source'} on:click={() => toggleCard('source')}>
+      <button type="button" class:pressed={openCard === 'source'} on:click={() => explore('source', 'source')}>
         Source
       </button>
-      <button type="button" class:pressed={openCard === 'identity'} on:click={() => toggleCard('identity')}>
+      <button type="button" class:pressed={openCard === 'identity'} on:click={() => explore('identity', 'context')}>
         Context
       </button>
       <button type="button" class:pressed={openCard === 'guide'} on:click={() => toggleCard('guide')}>
         Reading guide
       </button>
-      <button type="button" class:pressed={openCard === 'graph'} on:click={() => toggleCard('graph')}>
+      <button type="button" class:pressed={openCard === 'graph'} on:click={() => explore('graph', 'graph')}>
         Show structure
       </button>
     </nav>
