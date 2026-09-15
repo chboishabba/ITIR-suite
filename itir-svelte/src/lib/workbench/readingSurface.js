@@ -1,3 +1,5 @@
+import { createContextCandidate } from './semanticTrail.js';
+
 export const readingViews = Object.freeze([
   'explain',
   'why',
@@ -59,6 +61,15 @@ export function createMaboReadingSpecimen() {
     showHashesByDefault: false,
     showAllResidualsByDefault: false,
     showAllSourceRolesByDefault: false,
+    context: Object.freeze({
+      ...createContextCandidate({
+        semanticRef: 'mabo:case:1992:hca:23',
+        qid: 'Q1501525',
+        wikipediaRef: 'wiki:en:Mabo_v_Queensland_(No_2)',
+        sourceRefs: ['source:mabo:1992:hca:23'],
+      }),
+      wikidataQid: 'Q1501525',
+    }),
     stages: Object.freeze([
       makeStage({
         role: 'challenged-premise',
