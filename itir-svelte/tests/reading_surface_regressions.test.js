@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   cardKinds,
+  compileReadingIntent,
   createMaboReadingSpecimen,
   guideCues,
   projectReadingStage,
@@ -37,6 +38,32 @@ test('all view projections preserve semantic, proof, and source identity', () =>
     assert.equal(projected.proofRef, stage.proofRef);
     assert.equal(projected.sourceRef, stage.sourceRef);
   }
+});
+
+test('reading interactions compile to the existing JCUI semantic actions', () => {
+  const stage = createMaboReadingSpecimen().stages[2];
+
+  assert.deepEqual(compileReadingIntent(stage, 'why'), {
+    action: 'Expand',
+    targetKind: 'Semantic',
+    target: stage.semanticRef,
+  });
+  assert.deepEqual(compileReadingIntent(stage, 'source'), {
+    action: 'OpenSource',
+    targetKind: 'Source',
+    target: stage.sourceRef,
+  });
+  assert.deepEqual(compileReadingIntent(stage, 'context'), {
+    action: 'Follow',
+    targetKind: 'Semantic',
+    target: stage.semanticRef,
+  });
+  assert.deepEqual(compileReadingIntent(stage, 'graph'), {
+    action: 'Zoom',
+    targetKind: 'Semantic',
+    target: stage.semanticRef,
+    detail: 'Fit',
+  });
 });
 
 test('identity source and proof cards remain separate', () => {
