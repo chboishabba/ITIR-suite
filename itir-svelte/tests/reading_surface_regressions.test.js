@@ -101,6 +101,17 @@ test('source inspection retains exact-source readiness coordinates', () => {
   assert.equal(stage.exactAuthorityReady, true);
 });
 
+test('Mabo context keeps Wikidata and Wikipedia navigation explicitly non-authoritative', () => {
+  const specimen = createMaboReadingSpecimen();
+
+  assert.equal(specimen.context.wikidataQid, 'Q1501525');
+  assert.equal(specimen.context.wikipediaRef, 'wiki:en:Mabo_v_Queensland_(No_2)');
+  assert.equal(specimen.context.identityCandidateOnly, true);
+  assert.equal(specimen.context.legalAuthority, false);
+  assert.equal(specimen.context.evidencePaid, false);
+  assert.equal(specimen.context.semanticPromotion, false);
+});
+
 test('fixture cannot encode legal verdict, payment, belief, or comprehension state', () => {
   const specimen = createMaboReadingSpecimen();
 
