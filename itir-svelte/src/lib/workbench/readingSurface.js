@@ -136,3 +136,35 @@ export function projectReadingStage(stage, view) {
 
   return Object.freeze({ ...stage, view });
 }
+
+export function compileReadingIntent(stage, intent) {
+  switch (intent) {
+    case 'why':
+      return Object.freeze({
+        action: 'Expand',
+        targetKind: 'Semantic',
+        target: stage.semanticRef,
+      });
+    case 'source':
+      return Object.freeze({
+        action: 'OpenSource',
+        targetKind: 'Source',
+        target: stage.sourceRef,
+      });
+    case 'context':
+      return Object.freeze({
+        action: 'Follow',
+        targetKind: 'Semantic',
+        target: stage.semanticRef,
+      });
+    case 'graph':
+      return Object.freeze({
+        action: 'Zoom',
+        targetKind: 'Semantic',
+        target: stage.semanticRef,
+        detail: 'Fit',
+      });
+    default:
+      throw new TypeError(`unsupported reading intent: ${intent}`);
+  }
+}
