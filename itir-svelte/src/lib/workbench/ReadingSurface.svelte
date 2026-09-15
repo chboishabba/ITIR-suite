@@ -1,6 +1,11 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  import { cardKinds, compileReadingIntent, guideCues } from './readingSurface.js';
+  import {
+    cardKinds,
+    compileReadingIntent,
+    guideCues,
+    projectContextInspection,
+  } from './readingSurface.js';
 
   export let specimen;
 
@@ -9,6 +14,7 @@
   let openCard = null;
 
   $: selected = specimen.stages[selectedIndex];
+  $: contextInspection = projectContextInspection(specimen, selected);
 
   function chooseStage(index) {
     selectedIndex = index;
@@ -117,11 +123,16 @@
         <p class="drawer-label">Identity / context</p>
         <h3>{selected.contextLabel}</h3>
         <p>
-          This is where Wikipedia, Wikidata and public-ontology navigation can appear progressively. Identity helps you follow the rabbit hole; it does not create legal authority or applicability.
+          Wikipedia and Wikidata are progressive navigation context. Following them does not create legal authority or applicability, and the exact judgment source remains a separate coordinate.
         </p>
         <details>
-          <summary>Semantic reference</summary>
-          <code>{selected.semanticRef}</code>
+          <summary>Show context and source references</summary>
+          <dl class="refs">
+            <div><dt>Wikidata identity</dt><dd><code>{contextInspection.wikidataQid}</code></dd></div>
+            <div><dt>Wikipedia context</dt><dd><code>{contextInspection.wikipediaRef}</code></dd></div>
+            <div><dt>Exact source</dt><dd><code>{contextInspection.exactSourceRef}</code></dd></div>
+            <div><dt>Semantic focus</dt><dd><code>{contextInspection.semanticRef}</code></dd></div>
+          </dl>
         </details>
       </aside>
     {:else if openCard === 'guide'}
@@ -322,7 +333,7 @@
 
   .refs div {
     display: grid;
-    grid-template-columns: 5rem 1fr;
+    grid-template-columns: 8rem 1fr;
     gap: 0.5rem;
     margin: 0.45rem 0;
   }
