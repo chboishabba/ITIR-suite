@@ -6,6 +6,7 @@ import {
   compileReadingIntent,
   createMaboReadingSpecimen,
   guideCues,
+  projectContextInspection,
   projectReadingStage,
 } from '../src/lib/workbench/readingSurface.js';
 
@@ -110,6 +111,22 @@ test('Mabo context keeps Wikidata and Wikipedia navigation explicitly non-author
   assert.equal(specimen.context.legalAuthority, false);
   assert.equal(specimen.context.evidencePaid, false);
   assert.equal(specimen.context.semanticPromotion, false);
+});
+
+test('context inspector keeps navigation coordinates separate from exact authority source', () => {
+  const specimen = createMaboReadingSpecimen();
+  const stage = specimen.stages[2];
+  const context = projectContextInspection(specimen, stage);
+
+  assert.deepEqual(context, {
+    semanticRef: stage.semanticRef,
+    wikidataQid: 'Q1501525',
+    wikipediaRef: 'wiki:en:Mabo_v_Queensland_(No_2)',
+    exactSourceRef: stage.sourceRef,
+    identityCandidateOnly: true,
+    legalAuthority: false,
+    evidencePaid: false,
+  });
 });
 
 test('fixture cannot encode legal verdict, payment, belief, or comprehension state', () => {
