@@ -5,6 +5,14 @@ export const MABO_CANONICAL_CITATION = 'Mabo v Queensland (No 2) [1992] HCA 23';
 export const MABO_CANONICAL_BODY =
   'The High Court recognised native title in Australia and rejected the doctrine of terra nullius.';
 
+export const MABO_CANONICAL_CORPUS_EVIDENCE = Object.freeze({
+  corpusRef: MABO_CANONICAL_CORPUS_REF,
+  citation: MABO_CANONICAL_CITATION,
+  court: 'High Court of Australia',
+  date: '1992-06-03',
+  body: MABO_CANONICAL_BODY,
+});
+
 const detailedResidualByRole = Object.freeze({
   'challenged-premise': 'mabo:residual:challenged-premise-span',
   'historical-input': 'mabo:residual:historical-input-span',
@@ -25,7 +33,7 @@ function validateCanonicalCorpus(corpusEvidence) {
   }
 }
 
-export function createSourceConditionedMaboSpecimen({ corpusEvidence }) {
+export function createSourceConditionedMaboSpecimen({ corpusEvidence = MABO_CANONICAL_CORPUS_EVIDENCE } = {}) {
   validateCanonicalCorpus(corpusEvidence);
   const base = createMaboReadingSpecimen();
 
