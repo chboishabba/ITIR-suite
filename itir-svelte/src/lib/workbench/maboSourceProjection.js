@@ -50,17 +50,25 @@ export function createSourceConditionedMaboSpecimen({ corpusEvidence = MABO_CANO
   });
 
   const stages = Object.freeze(
-    base.stages.map((stage) =>
-      Object.freeze({
+    base.stages.map((stage) => {
+      const residual = detailedResidualByRole[stage.role];
+      return Object.freeze({
         ...stage,
         sourceSpanRef: null,
         sourceRevisionRef: null,
         exactAuthorityReady: false,
         proofPaid: false,
         sourceCondition: 'detailed-proposition-unpaid',
-        residual: detailedResidualByRole[stage.role],
-      }),
-    ),
+        residual,
+        actionAvailability: Object.freeze({
+          source: Object.freeze({ status: 'defer', residual }),
+          why: Object.freeze({
+            status: 'defer',
+            residual: 'mabo:residual:detailed-proposition-chain',
+          }),
+        }),
+      });
+    }),
   );
 
   return Object.freeze({
