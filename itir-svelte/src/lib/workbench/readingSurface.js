@@ -161,6 +161,16 @@ export function projectContextInspection(specimen, stage) {
 }
 
 export function compileReadingIntent(stage, intent) {
+  const availability = stage?.actionAvailability?.[intent];
+  if (availability && availability.status !== 'execute') {
+    return Object.freeze({
+      action: 'Defer',
+      targetKind: 'Residual',
+      target: availability.residual,
+      requestedIntent: intent,
+    });
+  }
+
   switch (intent) {
     case 'why':
       return Object.freeze({
