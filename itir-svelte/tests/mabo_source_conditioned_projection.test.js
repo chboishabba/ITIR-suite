@@ -6,6 +6,7 @@ import {
   createSourceConditionedMaboSpecimen,
   resolveMaboStageAction,
 } from '../src/lib/workbench/maboSourceProjection.js';
+import { compileReadingIntent } from '../src/lib/workbench/readingSurface.js';
 
 const corpusEvidence = Object.freeze({
   corpusRef: MABO_CANONICAL_CORPUS_REF,
@@ -37,6 +38,26 @@ test('unpaid exact-authority stages defer instead of inventing paragraph/span su
     status: 'defer',
     residual: 'mabo:residual:exact-authority-span',
     requestedSourceRef: 'source:mabo:1992:hca:23',
+  });
+});
+
+test('stage publishes generic action availability so ReadingSurface cannot bypass the residual', () => {
+  const specimen = createSourceConditionedMaboSpecimen({ corpusEvidence });
+  const authorityStage = specimen.stages.find((stage) => stage.role === 'authority-proposition');
+
+  assert.deepEqual(authorityStage.actionAvailability.source, {
+    status: 'defer',
+    residual: 'mabo:residual:exact-authority-span',
+  });
+  assert.deepEqual(authorityStage.actionAvailability.why, {
+    status: 'defer',
+    residual: 'mabo:residual:detailed-proposition-chain',
+  });
+  assert.deepEqual(compileReadingIntent(authorityStage, 'source'), {
+    action: 'Defer',
+    targetKind: 'Residual',
+    target: 'mabo:residual:exact-authority-span',
+    requestedIntent: 'source',
   });
 });
 
