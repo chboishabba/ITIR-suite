@@ -1,8 +1,8 @@
 <script>
   import ReadingSurface from '$lib/workbench/ReadingSurface.svelte';
-  import { createMaboReadingSpecimen } from '$lib/workbench/readingSurface.js';
+  import { createSourceConditionedMaboSpecimen } from '$lib/workbench/maboSourceProjection.js';
 
-  const specimen = createMaboReadingSpecimen();
+  const specimen = createSourceConditionedMaboSpecimen();
 </script>
 
 <ReadingSurface {specimen} />
