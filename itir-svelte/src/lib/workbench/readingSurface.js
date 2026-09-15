@@ -148,6 +148,18 @@ export function projectReadingStage(stage, view) {
   return Object.freeze({ ...stage, view });
 }
 
+export function projectContextInspection(specimen, stage) {
+  return Object.freeze({
+    semanticRef: stage.semanticRef,
+    wikidataQid: specimen.context.wikidataQid,
+    wikipediaRef: specimen.context.wikipediaRef,
+    exactSourceRef: stage.sourceRef,
+    identityCandidateOnly: specimen.context.identityCandidateOnly,
+    legalAuthority: false,
+    evidencePaid: false,
+  });
+}
+
 export function compileReadingIntent(stage, intent) {
   switch (intent) {
     case 'why':
