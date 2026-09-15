@@ -2,6 +2,21 @@
 
 Date: 2026-09-15
 
+## Implementation status — 2026-09-15
+
+Source-level first specimen now exists on `agent/mabo-reading-workbench-v1`:
+
+```text
+itir-svelte/src/lib/workbench/readingSurface.js
+itir-svelte/src/lib/workbench/ReadingSurface.svelte
+itir-svelte/src/routes/reading/mabo/+page.svelte
+itir-svelte/tests/reading_surface_regressions.test.js
+```
+
+The current specimen implements the bounded five-stage Mabo explanation, progressive Identity/Source/Proof/Guide/Structure drawers, exact-source readiness coordinates, and semantic interaction intents corresponding to existing JCUI `Expand`, `OpenSource`, `Follow`, and `Zoom(Fit)` actions.
+
+This status is source-level only until the focused Node/Svelte checks are observed. The fixture is deliberately not the canonical legal read model. The next integration seam is to replace fixture presentation strings/refs with a live SensibLaw proof-specimen read projection while preserving the same JCUI identities and interaction contract.
+
 ## Purpose
 
 Define the UI contract for legal/public-interest proof explanation without making the interface graph-first or leaking internal information density into every view.
