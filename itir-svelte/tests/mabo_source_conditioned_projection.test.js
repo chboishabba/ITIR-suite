@@ -16,6 +16,16 @@ const corpusEvidence = Object.freeze({
   body: 'The High Court recognised native title in Australia and rejected the doctrine of terra nullius.',
 });
 
+const paidRadicalTitleSource = Object.freeze({
+  semanticRef: 'mabo:proposition:radical-title-native-title',
+  sourceRevisionRef: 'source-revision:mabo:1992:hca:23:wikisource:page-39:2026-06-22',
+  spanRef: 'span:mabo:brennan:radical-title:no-automatic-beneficial-ownership',
+  exactAuthoritySpanPaid: true,
+  propositionChainPaid: false,
+  claimTruthPaid: false,
+  applicabilityPaid: false,
+});
+
 test('canonical corpus pays only the coarse Mabo coordinates it actually states', () => {
   const specimen = createSourceConditionedMaboSpecimen({ corpusEvidence });
 
@@ -39,6 +49,47 @@ test('unpaid exact-authority stages defer instead of inventing paragraph/span su
     residual: 'mabo:residual:exact-authority-span',
     requestedSourceRef: 'source:mabo:1992:hca:23',
   });
+});
+
+test('PG-paid radical-title span flips only the authority Source action to execute', () => {
+  const specimen = createSourceConditionedMaboSpecimen({
+    corpusEvidence,
+    readerPayments: [paidRadicalTitleSource],
+  });
+  const authorityStage = specimen.stages.find((stage) => stage.role === 'authority-proposition');
+  const otherStages = specimen.stages.filter((stage) => stage.role !== 'authority-proposition');
+
+  assert.equal(authorityStage.exactAuthorityReady, true);
+  assert.equal(authorityStage.sourceRevisionRef, paidRadicalTitleSource.sourceRevisionRef);
+  assert.equal(authorityStage.sourceSpanRef, paidRadicalTitleSource.spanRef);
+  assert.equal(authorityStage.proofPaid, false);
+  assert.deepEqual(authorityStage.actionAvailability.source, { status: 'execute' });
+  assert.deepEqual(authorityStage.actionAvailability.why, {
+    status: 'defer',
+    residual: 'mabo:residual:detailed-proposition-chain',
+  });
+  assert.deepEqual(compileReadingIntent(authorityStage, 'source'), {
+    action: 'OpenSource',
+    targetKind: 'Source',
+    target: 'source:mabo:1992:hca:23',
+  });
+  assert.deepEqual(compileReadingIntent(authorityStage, 'why'), {
+    action: 'Defer',
+    targetKind: 'Residual',
+    target: 'mabo:residual:detailed-proposition-chain',
+    requestedIntent: 'why',
+  });
+  assert.ok(otherStages.every((stage) => stage.exactAuthorityReady === false));
+});
+
+test('reader payment cannot upgrade source when truth/applicability flags are smuggled in', () => {
+  assert.throws(
+    () => createSourceConditionedMaboSpecimen({
+      corpusEvidence,
+      readerPayments: [{ ...paidRadicalTitleSource, claimTruthPaid: true }],
+    }),
+    /reader source payment cannot carry claim truth or applicability/,
+  );
 });
 
 test('stage publishes generic action availability so ReadingSurface cannot bypass the residual', () => {
