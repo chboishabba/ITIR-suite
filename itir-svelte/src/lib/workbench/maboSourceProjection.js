@@ -33,9 +33,43 @@ function validateCanonicalCorpus(corpusEvidence) {
   }
 }
 
-export function createSourceConditionedMaboSpecimen({ corpusEvidence = MABO_CANONICAL_CORPUS_EVIDENCE } = {}) {
+function validateReaderPayment(payment) {
+  if (!payment || typeof payment.semanticRef !== 'string' || payment.semanticRef.length === 0) {
+    throw new TypeError('reader source payment requires semanticRef');
+  }
+  if (payment.claimTruthPaid === true || payment.applicabilityPaid === true) {
+    throw new TypeError('reader source payment cannot carry claim truth or applicability');
+  }
+  if (payment.exactAuthoritySpanPaid === true) {
+    if (typeof payment.sourceRevisionRef !== 'string' || payment.sourceRevisionRef.length === 0) {
+      throw new TypeError('paid reader source payment requires sourceRevisionRef');
+    }
+    if (typeof payment.spanRef !== 'string' || payment.spanRef.length === 0) {
+      throw new TypeError('paid reader source payment requires spanRef');
+    }
+  }
+  return payment;
+}
+
+function paymentBySemanticRef(readerPayments) {
+  const payments = new Map();
+  for (const rawPayment of readerPayments) {
+    const payment = validateReaderPayment(rawPayment);
+    if (payments.has(payment.semanticRef)) {
+      throw new TypeError(`duplicate reader source payment: ${payment.semanticRef}`);
+    }
+    payments.set(payment.semanticRef, payment);
+  }
+  return payments;
+}
+
+export function createSourceConditionedMaboSpecimen({
+  corpusEvidence = MABO_CANONICAL_CORPUS_EVIDENCE,
+  readerPayments = [],
+} = {}) {
   validateCanonicalCorpus(corpusEvidence);
   const base = createMaboReadingSpecimen();
+  const payments = paymentBySemanticRef(readerPayments);
 
   const sourceBasis = Object.freeze({
     corpusRef: corpusEvidence.corpusRef,
@@ -52,20 +86,29 @@ export function createSourceConditionedMaboSpecimen({ corpusEvidence = MABO_CANO
   const stages = Object.freeze(
     base.stages.map((stage) => {
       const residual = detailedResidualByRole[stage.role];
+      const payment = payments.get(stage.semanticRef);
+      const exactAuthorityReady = payment?.exactAuthoritySpanPaid === true;
+      const proofPaid = payment?.propositionChainPaid === true;
       return Object.freeze({
         ...stage,
-        sourceSpanRef: null,
-        sourceRevisionRef: null,
-        exactAuthorityReady: false,
-        proofPaid: false,
-        sourceCondition: 'detailed-proposition-unpaid',
-        residual,
+        sourceSpanRef: exactAuthorityReady ? payment.spanRef : null,
+        sourceRevisionRef: exactAuthorityReady ? payment.sourceRevisionRef : null,
+        exactAuthorityReady,
+        proofPaid,
+        sourceCondition: exactAuthorityReady
+          ? 'exact-authority-span-paid'
+          : 'detailed-proposition-unpaid',
+        residual: exactAuthorityReady ? null : residual,
         actionAvailability: Object.freeze({
-          source: Object.freeze({ status: 'defer', residual }),
-          why: Object.freeze({
-            status: 'defer',
-            residual: 'mabo:residual:detailed-proposition-chain',
-          }),
+          source: exactAuthorityReady
+            ? Object.freeze({ status: 'execute' })
+            : Object.freeze({ status: 'defer', residual }),
+          why: proofPaid
+            ? Object.freeze({ status: 'execute' })
+            : Object.freeze({
+                status: 'defer',
+                residual: 'mabo:residual:detailed-proposition-chain',
+              }),
         }),
       });
     }),
@@ -73,7 +116,7 @@ export function createSourceConditionedMaboSpecimen({ corpusEvidence = MABO_CANO
 
   return Object.freeze({
     ...base,
-    id: 'reading:mabo:source-conditioned:v2',
+    id: 'reading:mabo:source-conditioned:v3',
     sourceBasis,
     stages,
   });
