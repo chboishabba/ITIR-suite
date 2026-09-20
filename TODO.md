@@ -1,3 +1,15 @@
+# Canonical architecture alignment (2026-09-20)
+
+Before adding new cross-domain evidence/world abstractions, use:
+- `docs/planning/federated_typed_world_projection_contract_20260920.md`
+- `docs/planning/federated_world_materialisation_boundary_20260915.md`
+
+Current rule: compose existing WorldMonitor evidence-health, SensibLaw/SL
+semantic admission, StatiBaker temporal observer state, Casey possibility
+state, Aristotle/proof-search discriminator machinery and ribbon projection
+contracts. Do not create a parallel generic world/evidence ontology merely
+because a new data source (health, finance, study/PDF, Wikidata, etc.) appears.
+
 # TODO (ITIR-suite)
 
 #Added 24/7/26 JB

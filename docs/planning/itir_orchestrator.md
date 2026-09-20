@@ -7,6 +7,10 @@ component internals; it coordinates them through explicit contracts.
 - Maintain cross-project intent, priorities, and context.
 - Route work between component interfaces.
 - Keep artifacts, provenance, and planning aligned across boundaries.
+- Preserve authority separation between semantic world state, temporal observer
+  state, possibility/workspace state and projection-only views.
+- Prefer source-addressable handoffs: stable semantic identity plus exact
+  source/revision/anchor and receipt/dependency references.
 
 ## What ITIR Orchestrates
 - `SensibLaw/`: deterministic legal substrate and graph outputs.
@@ -25,6 +29,11 @@ component internals; it coordinates them through explicit contracts.
 - Component contracts remain authoritative inside each project directory.
 - Cross-component behavior must be declared via interface channels.
 - ITIR object-schema ownership lives in `SensibLaw/docs/itir_model.md`.
+- WorldMonitor/semantic-world observations do not become StatiBaker authority.
+- StatiBaker observer history does not become SensibLaw truth/payment.
+- Casey candidate/workspace selection does not become global truth.
+- Formal checker/proof receipts do not become external-world authority.
+- Ribbon/timeline/proof-tree/graph projections do not become canonical stores.
 
 ## Orchestration Channels
 ### Channel O1: Context and Planning Ingress
@@ -42,6 +51,14 @@ component internals; it coordinates them through explicit contracts.
 ### Channel O4: Artifact and Decision Egress
 - Outputs: `TODO.md`, `__CONTEXT/COMPACTIFIED_CONTEXT.md`, planning indexes.
 - Purpose: record what changed, why, and what remains.
+
+## Current world/materialisation contract
+- `docs/planning/federated_typed_world_projection_contract_20260920.md`
+  (orthogonal state authorities, source-addressable semantic nodes, typed
+  refinements, cross-stream/flow projection and formal/runtime role split).
+- `docs/planning/federated_world_materialisation_boundary_20260915.md`
+  (semantic identity vs bytes/availability/replication/candidate membership/
+  observer history/semantic authority).
 
 ## Current Priority Intersection
 - Four-way handoff contract:
