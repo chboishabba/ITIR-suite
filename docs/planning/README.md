@@ -1,4 +1,17 @@
-# Planning Docs
+# Planning
+
+## Current architecture contracts
+
+- `federated_typed_world_projection_contract_20260920.md` — canonical current
+  ownership split for semantic/formal world state, StatiBaker temporal observer
+  state, Casey possibility/workspace state, SensibLaw/SLR admission/legal
+  projection and projection-only ribbon/timeline/graph surfaces; also pins the
+  source-addressable semantic-node interaction contract.
+- `federated_world_materialisation_boundary_20260915.md` — semantic identity
+  vs bytes, availability, replication, candidate membership, observer history
+  and semantic authority/payment.
+
+ Docs
 
 This folder contains ADRs, UI component specs, doctrine notes, and validation
 artifacts for the context invariant.
