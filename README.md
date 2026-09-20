@@ -48,6 +48,13 @@ The original arc was closer to a smart journal than to a single legal engine:
 The legal/compiler work is one major proving ground inside that broader arc,
 not the whole thing.
 
+The current world/state read is frozen in
+[`docs/planning/federated_typed_world_projection_contract_20260920.md`](docs/planning/federated_typed_world_projection_contract_20260920.md).
+It distinguishes semantic/epistemic world state, StatiBaker temporal observer
+state, Casey possibility/workspace state, SensibLaw review/admission and
+projection-only views. Cross-suite values should remain source-addressable back
+to exact revision/anchor and transformation/review receipts.
+
 The new P0 read is that the suite should converge on a small normalized set
 of concepts:
 
@@ -80,18 +87,25 @@ At the suite level that means:
   local memory/archive substrate
 - `reverse-engineered-chatgpt`, `openrecall`, `notebooklm-py`, and
   `pyThunderbird` are bounded acquisition/retrieval/archive adapters
-- `StatiBaker` handles read-only state compilation and continuity
+- `StatiBaker` handles read-only **temporal observer-state** compilation and
+  continuity; it does not become the global semantic world store
 - `SensibLaw` currently carries the substantive deterministic review,
-  provenance, canonical reduction, promotion, and bounded graph/report work
+  provenance, canonical reduction, promotion, and legal/semantic consumer
+  projection work; SLR is its production Rust runtime
 - `SL-reasoner` remains a cordoned optional interpretive layer and stays low
   priority until the core engine is stable enough that a split is actually
   useful
 - the current boundary seam is contract-shaped only:
   producer-owned repos may export read-only `reasoner_input_artifact`
   payloads, but substantive deterministic logic still stays in the owner repo
+- `casey-git-clone` owns live candidate/workspace/collapse/build state rather
+  than global truth;
 - `itir-mcp`, `itir-ribbon`, and `moltbook-api-client` are integration and
-  operator-adjacent surfaces
-- `itir-svelte` handles operator-facing read-only and review-first surfaces
+  operator-adjacent surfaces; `itir-ribbon` is projection-only
+- `itir-svelte` handles operator-facing read-only and review-first surfaces;
+- `dashi_agda` is the exploratory/golden formal corpus while `dashi_lean4`
+  is the intended progressively consolidated/sorted formal world/reference and
+  executable checker/prover-worker implementation.
 
 Web-surface control note:
 
