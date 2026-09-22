@@ -165,3 +165,26 @@ Interpretation:
 
 These are now explicitly subordinate to Mary-parity delivery rather than
 standing alone as ontology work.
+
+## 2026-09-22 relationship to the shared user/world runtime
+
+Mary parity remains the operator-facing fact/provenance/chronology substrate.
+It is not the whole suite roadmap.
+
+The current cross-suite contract is
+`docs/planning/shared_user_world_runtime_20260922.md`:
+
+```text
+Mary-equivalent source/fact/review substrate
+  -> reviewed shared world
+  -> consumer-specific projection
+     -> journal
+     -> legal proof
+     -> mission
+     -> handoff
+     -> research/comparison
+```
+
+This keeps the Mary acceptance work central to usability while allowing
+SensibLaw's adversarial legal reasoning and ITIR's competing interpretations to
+remain downstream specialisations.
