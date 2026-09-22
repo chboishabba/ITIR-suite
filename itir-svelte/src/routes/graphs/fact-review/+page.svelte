@@ -27,6 +27,7 @@
     resolveInspectorStatusRows,
     resolveSelectedFact
   } from '$lib/workbench/factReview.js';
+  import { buildUnifiedWorkbenchProjection } from '$lib/workbench/unifiedWorkbench.js';
 
   type FactReviewSourceRow = FactReviewSource | FactReviewRecentSource;
 
@@ -124,6 +125,9 @@
   $: workflowSummary = data.workbench?.workflow_summary ?? null;
   $: chronologyBuckets = resolveChronologyBuckets(data.workbench);
   $: selectedFact = resolveSelectedFact(data.workbench, selectedFactId) as FactReviewFact | null;
+  $: unifiedWorkbench = buildUnifiedWorkbenchProjection(data.workbench, {
+    selectedFactId: selectedFact?.fact_id ?? selectedFactId
+  });
   $: selectedClassification = resolveInspectorClassification(
     data.workbench,
     selectedFact
@@ -296,6 +300,38 @@
         </div>
       </div>
     </div>
+
+    <section class="mb-6 rounded border border-zinc-200 bg-white p-4">
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div class="text-xs uppercase tracking-[0.24em] text-zinc-500">Unified workbench</div>
+          <h2 class="mt-2 text-lg font-semibold text-zinc-950">Same world, progressive operator views</h2>
+          <p class="mt-1 max-w-3xl text-sm text-zinc-700">
+            Journal, timeline, handoff, proof, and research are projections over the current persisted workbench. Missing stages stay explicit rather than being inferred.
+          </p>
+        </div>
+        <div class="text-xs text-zinc-500">Derived-only · No authority promotion</div>
+      </div>
+      <div class="mt-4 grid gap-3 md:grid-cols-5">
+        {#each unifiedWorkbench.stages as stage (stage.key)}
+          <div
+            class={`rounded border px-3 py-3 text-sm ${
+              stage.status === 'available'
+                ? 'border-emerald-200 bg-emerald-50'
+                : stage.status === 'blocked'
+                  ? 'border-amber-200 bg-amber-50'
+                  : 'border-zinc-200 bg-zinc-50'
+            }`}
+          >
+            <div class="flex items-center justify-between gap-2">
+              <div class="font-medium text-zinc-950">{stage.label}</div>
+              <div class="text-[10px] uppercase tracking-[0.16em] text-zinc-500">{stage.status}</div>
+            </div>
+            <div class="mt-2 text-xs text-zinc-600">{stage.reason}</div>
+          </div>
+        {/each}
+      </div>
+    </section>
 
     {#if workflowSummary}
       <section class="mb-6 rounded border border-zinc-200 bg-white p-4">
