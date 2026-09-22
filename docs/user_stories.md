@@ -1087,3 +1087,62 @@ Acceptance criteria:
   clear omissions.
 - The review surface stays provenance-first and does not claim the affidavit is
   legally sufficient or complete by default.
+
+## Shared User/World Consumer Acceptance (2026-09-22)
+
+Canonical design: `docs/planning/shared_user_world_runtime_20260922.md`.
+
+These acceptance stories apply across the personal, professional, legal,
+mission and research personas above.
+
+### ITIR-US-SW-01: Shared-world reuse before new acquisition
+As a user, I want a consumer to reuse already-reviewed, in-scope world
+coordinates before asking me to reacquire or re-review the same material.
+
+Acceptance criteria:
+- each consumer exposes a dependency slice;
+- already-paid coordinates quotient out before producer selection;
+- graph adjacency, keyword similarity, same QID or citation co-occurrence do
+  not themselves establish a dependency;
+- scope/privacy is checked before reuse.
+
+### ITIR-US-SW-02: Personal world remains first-class
+As a private user, I want journal fragments, notes, chats, captures, schedules
+and documents to form a provenance-bearing personal world without being forced
+into one coherent narrative or legal case.
+
+Acceptance criteria:
+- conflicting/fragmentary accounts may coexist;
+- approximate dates and explicit unknowns remain representable;
+- private hypotheses do not silently become facts;
+- "unknown / not ready" may remain terminal for the personal consumer.
+
+### ITIR-US-SW-03: Selective professional handoff
+As a user, I want to project only a selected slice of my world to a lawyer,
+doctor, advocate, regulator/ombuds or journalist.
+
+Acceptance criteria:
+- inclusion/exclusion and share scope are explicit;
+- provenance and uncertainty survive the handoff;
+- unselected private coordinates remain unavailable;
+- recipient-specific reuse never upgrades a personal note to evidence or truth
+  merely because it was shared.
+
+### ITIR-US-SW-04: Multi-consumer recomputation
+As a user, I want newly reviewed knowledge to update every consumer that
+actually depends on it without rerunning unrelated consumers.
+
+Acceptance criteria:
+- reviewed world deltas are indexed to affected consumer slices;
+- journal/legal/mission/research consumers may all reuse the same coordinate
+  where their dependency and scope gates permit;
+- shared coordinates do not collapse consumer semantics.
+
+### ITIR-US-SW-05: Revision is maintenance, not discovery
+As a user, I want source changes to invalidate only dependent outputs without
+making external revision churn the primary mechanism for discovering new work.
+
+Acceptance criteria:
+- stale coordinates reuse the affected-consumer path;
+- ordinary discovery remains question/residual driven;
+- no revision change is required to open legitimate new research.
