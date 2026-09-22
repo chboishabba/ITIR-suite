@@ -171,3 +171,17 @@ The next whole-suite documentation and implementation rounds should:
 - make suite-wide constraints and invariants explicit at the root
 - keep submodule roles distinct
 - prefer normalized cross-project contracts over local one-off abstractions
+
+## 2026-09-22 shared user/world convergence
+
+The Smart Journal moonshot now has an explicit runtime contract in
+`docs/planning/shared_user_world_runtime_20260922.md`.
+
+The key operational addition is that journal, legal, mission, handoff and
+research views are consumer projections over one provenance-bearing shared
+world.  Every consumer declares a dependency slice and scope.  Reviewed,
+in-scope coordinates are reused before new acquisition; reviewed world deltas
+recompute only affected consumers.
+
+This preserves the original moonshot while preventing the legal proving ground
+from becoming the suite ontology.
