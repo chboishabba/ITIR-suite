@@ -2,6 +2,15 @@
 
 Date: 2026-09-22
 Status: canonical suite-level design contract
+
+## SensibLaw repository identity
+
+Within this suite contract, **SensibLaw** denotes one system. Its production
+runtime is the Rust `slr` repository; the older `SensibLaw` repository
+contains Python/prototype, product, user-story and historical surfaces. They
+must not be modelled as independent consumer families or competing semantic
+authorities.
+
 Related: Smart Journal moonshot, Mary parity, federated world materialisation, OpenRecall observer integration, mission lens, SensibLaw legal proof search.
 
 ## Purpose
