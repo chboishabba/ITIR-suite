@@ -240,3 +240,63 @@ M9 should close only when:
 
 That is the first demonstration that S19 is genuinely a Shared **User/World**
 Runtime rather than a renamed shared legal world.
+
+## 2026-09-22 implementation checkpoint — explicit scope receipts
+
+The runtime now treats human/governance share scope as an explicit replayable
+input rather than something inferred from review state or source class.
+
+New production owners:
+
+```text
+chboishabba/slr
+
+crates/sl-legal-runtime/src/
+  personal_world_scope_receipt.rs
+  wave5_professional_handoff_run.rs
+
+crates/sl-legal-runtime/examples/
+  wave5_professional_handoff_scope.rs
+```
+
+Formal owners:
+
+```text
+chboishabba/dashi_agda
+
+DASHI/Law/
+  SensibLawWave5ShareScopeReceiptExact.agda
+  SensibLawWave5ShareScopeReceiptRegression.agda
+```
+
+The real Wave-5 scope executable deliberately runs with no fabricated human
+decision. Its required result is therefore:
+
+```text
+therapist-note
+  reviewed = true
+  share-scope decision = absent
+  professional inclusion = none
+  unresolved_scope_coordinates contains therapist-note
+```
+
+The generic runtime can replay explicit Allow/Deny/NotReady/Withdrawn receipts,
+and test-only fixtures prove that distinct professional fibres plus exact delta
+recomputation work. Test-only scope receipts are explicitly labelled as not
+human governance decisions.
+
+Accordingly, the remaining M9 closure artifact is genuinely external to the
+compiler:
+
+```text
+one or more explicit human/governance share-scope receipts
+        ↓
+real Wave-5 projection rerun
+        ↓
+reviewed scoped coordinate delta
+        ↓
+exact affected-professional-consumer recompute receipt
+```
+
+No review receipt, professional authorship, source class, or personal-world
+availability is permitted to substitute for that decision.
