@@ -66,6 +66,14 @@ test('fact review route server uses SvelteKit PageServerLoad typing', () => {
   assert.ok(s.includes('classifyFactReviewErrorMessage'));
 });
 
+test('M10 fact review page surfaces the unified workbench without creating a new route', () => {
+  const s = read('src/routes/graphs/fact-review/+page.svelte');
+  assert.ok(s.includes("buildUnifiedWorkbenchProjection"));
+  assert.ok(s.includes("Same world, progressive operator views"));
+  assert.ok(s.includes("Derived-only · No authority promotion"));
+  assert.ok(s.includes("unifiedWorkbench.stages"));
+});
+
 test('fact review page consumes typed Mary-parity helpers and page data', () => {
   const s = read('src/routes/graphs/fact-review/+page.svelte');
   assert.ok(s.includes("import type { PageData } from './$types';"));
