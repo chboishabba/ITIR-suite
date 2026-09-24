@@ -38,6 +38,9 @@ secret/
 secret_scan_reports/
 logs/
 
+# Authenticated personal health exports are local-only and must never be committed.
+exports/google_health/
+
 # Chat exports and context sync artifacts (often contain PII)
 chat_exports/
 __CONTEXT/last_sync/
