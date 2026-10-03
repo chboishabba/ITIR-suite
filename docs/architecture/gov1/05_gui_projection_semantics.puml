@@ -1,0 +1,58 @@
+@startuml
+skinparam shadowing false
+skinparam linetype ortho
+
+title INV Workbench — Projection and Interaction Semantics
+
+state "Acquisition World\n(authoritative runtime state)" as W
+state "MatterContext Projection" as M
+state "Investigate View\nobligation-first" as I
+state "Inspect View\nprovenance + exact refs" as X
+state "Graph View\nexpert dependency/source graph" as G
+
+W --> M : project(matter, consumer, viewer)
+M --> I : default
+I --> X : inspect details
+X --> I : back
+I --> G : explicit graph action
+G --> I : back
+
+state "UI Actions" as A {
+  state InspectRoute
+  state OpenSourceLocator
+  state RequestAuthorization
+  state MarkYielded
+  state RecordAcquisitionResult
+  state RequestNewRoute
+}
+
+I --> A : operator action
+X --> A
+G --> A
+
+note right of M
+  Projection laws:
+  visible(route) -> route exists in W
+  hidden(route) -/-> absent(route)
+  filter/sort does not alter frontier
+end note
+
+note right of I
+  Presentation firewalls:
+  selected != preferred
+  first != best
+  blocked != dominated
+  executable != frontier
+  frontier != authorized
+  colour is never the only state signal
+end note
+
+note bottom of A
+  Action firewalls:
+  inspect does not mutate
+  open locator does not acquire
+  request authorization does not grant it
+  record result references an already-canonical source
+  UI cannot create Present or a reopening receipt
+end note
+@enduml
