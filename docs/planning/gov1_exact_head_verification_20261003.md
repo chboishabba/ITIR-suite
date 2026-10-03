@@ -7,7 +7,7 @@ compile/fixture/runtime/production evidence without an observed receipt.
 
 | Repository | Branch / PR | GOV-1 source head | Service state | Evidence state | Observed GOV-1 verification |
 |---|---|---:|---|---|---|
-| SensibLaw | `agent/gov1-integrated-control-case` / PR #498 | `17a73595872bb5bd31d565090acc25b582d50276` | implemented | source_written | none yet |
+| SensibLaw | `agent/gov1-integrated-control-case` / PR #498 | `291f593fae4bc7fccef323fa3fcdd58a7007584d` | implemented | source_written | none yet |
 | StatiBaker | `agent/gov1-execution-evidence` / PR #2 | `8ef6f63f5771e1d76f06554dec8b937fdcd1b6b0` | implemented | source_written | none yet |
 | SLR | `agent/gov1-inv-control-packet` / PR #52 | `5e8d81c3b3092b0ed69f8f691bb1b5a85502be69` | implemented | source_written | none yet |
 | itir-dioxus | `agent/m10-mixed-source-dual-lens` / PR #9 | `9de58188f05804389e379be6ea9a5f5c1e86913a` | implemented | source_written | none yet |
