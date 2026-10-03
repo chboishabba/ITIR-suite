@@ -1,0 +1,70 @@
+@startuml
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype ortho
+
+title GOV-1 — Deployment, Privacy, Security and Trust Boundaries
+
+actor "Investigator / Reviewer" as USER
+
+node "User / Reviewer Device" as DEVICE {
+  component "Dioxus Desktop" as DIOX
+  component "Browser / Svelte" as WEB
+}
+
+node "Trusted Local Runtime" as LOCAL <<trusted>> {
+  component "SensibLaw / ITIR services" as CORE
+  component "GOV-1 evaluator" as GOV
+  component "MatterContext / Review" as MATTER
+  database "PostgreSQL" as PG
+  folder "Canonical source blobs" as BLOBS
+  component "Audit / Receipt Store" as AUDIT
+}
+
+node "Formal Verification Environment" as FORMAL <<controlled>> {
+  component "Agda kernel" as AGDA
+  component "Lean kernel" as LEAN
+}
+
+node "StatiBaker Operational Plane" as SB <<controlled>> {
+  component "Execution / Service Evidence" as EXEC
+}
+
+cloud "External Provider / Source" as EXT <<untrusted>>
+
+USER --> DIOX
+USER --> WEB
+DIOX --> MATTER : authenticated/scoped read/action
+WEB --> MATTER : authenticated/scoped read/action
+MATTER --> CORE
+CORE --> PG
+CORE --> BLOBS
+CORE --> GOV
+GOV --> AUDIT
+EXEC --> GOV : minimized evidence refs
+GOV --> AGDA : formal obligations / source refs
+GOV --> LEAN
+AGDA --> GOV : theorem receipt
+LEAN --> GOV : theorem receipt
+EXT --> CORE : bounded external I/O\nrevision-pinned source acquisition
+
+note right of PG
+  [PII / sensitive-data boundary]
+  purpose + matter + allowed consumers
+  retention / revocation / audit refs
+end note
+
+note right of EXT
+  External provider is never:
+  - semantic truth
+  - access authority
+  - edit authority
+  - identity authority
+end note
+
+note bottom of LOCAL
+  InformationAsset answers: what do we hold?
+  ProcessingActivity answers: why/how may we process it?
+  MatterContext answers: may this viewer see it now?
+end note
+@enduml
