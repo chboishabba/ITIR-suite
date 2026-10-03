@@ -1,0 +1,51 @@
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam defaultTextAlignment center
+
+title GOV-1 / REL / INV — C4 System Context
+
+actor "Investigator / Reviewer" as Investigator
+actor "Operator / Counsel / Analyst" as Operator
+
+rectangle "ITIR Suite\nInvestigative & relational product" as ITIR <<System>>
+rectangle "SensibLaw\nCanonical semantic + governance evaluator" as SL <<System>>
+rectangle "StatiBaker\nExecution-memory / operational evidence" as SB <<System>>
+rectangle "DASHI (Agda / Lean)\nFormal proof owners" as DASHI <<System>>
+rectangle "Dioxus / Svelte\nHuman workbench projections" as UI <<System>>
+
+cloud "External source systems\nWikidata · Wikipedia · legal · biomedical · public records" as Sources
+cloud "Optional external services\nregistries · authorized providers · source locators" as Providers
+
+Investigator --> UI : inspect residuals, routes, evidence\nreview / request bounded actions
+Operator --> UI : matter-scoped review
+UI --> ITIR : typed read/action requests\n(no semantic authority)
+ITIR --> SL : source/PNF/review/governance contracts
+SL --> ITIR : comparisons, residuals, control assessments
+SB --> SL : execution / service / observer receipts
+SL --> SB : bounded normalized handoff refs
+SL --> DASHI : theorem surface / runtime witness boundary
+DASHI --> SL : formal refinement receipts\n(no automatic runtime→proof coercion)
+Sources --> SL : revision-pinned canonical source material
+Providers --> SL : candidate evidence / acquisition results\nsubject to access + ingestion boundaries
+
+note right of ITIR
+  Product loop:
+  REL residual
+  -> acquisition obligation
+  -> non-scalar Pareto frontier
+  -> lawful new source
+  -> selective reopening
+  -> Compare_q
+end note
+
+note bottom of UI
+  Projection only:
+  selected != preferred
+  hidden != absent
+  blocked != dominated
+  executable != authorized truth
+end note
+@enduml
