@@ -473,6 +473,77 @@ Acceptance criteria:
   abstained.
 - Query/report surfaces stay descriptive and provenance-first, not advisory.
 
+### ITIR-US-PI: Professional Investigator / OSINT Researcher
+As an authorized investigator or OSINT researcher, I want unresolved semantic
+and evidentiary residuals to generate source-specific acquisition obligations
+and a non-scalar acquisition frontier so I can spend investigative effort on
+evidence that is likely to discriminate between live hypotheses while
+preserving provenance, access constraints, source dependence, and unresolved
+alternatives.
+
+Typical flow:
+- User opens an existing Matter with one or more unresolved REL comparison
+  residuals.
+- A residual is converted into a targeted acquisition obligation without
+  changing the underlying source or claim state.
+- Candidate acquisition routes are compared on multiple declared axes such as
+  expected discrimination gain, dependency-closure impact, unpaid-coordinate
+  coverage, provenance novelty, and lawful/reviewer/resource cost.
+- The system displays the Pareto frontier rather than reducing the axes to one
+  opaque score.
+- Routes whose access status is unknown, prohibited, or awaiting authorization
+  remain visible but cannot be treated as executable.
+- When a genuinely new source is lawfully acquired and persisted, only
+  explicitly dependency-reachable assessments are reopened.
+- The new source enters the ordinary source → observation → PNF → comparison
+  path; acquisition priority itself never resolves a claim.
+
+Preferences:
+- Original/primary sources should be easy to distinguish from derivative or
+  report-family repetitions.
+- Search effort should be explainable in terms of unpaid evidentiary
+  coordinates, not opaque ranking.
+- A branch may yield or pause when further derivative retrieval adds no
+  useful information, without implying that an unresolved hypothesis is
+  false.
+- Investigation state should be reopenable and auditable by Matter, source,
+  acquisition obligation, route, and downstream affected assessment.
+
+Requirements:
+- not located, known absent, unavailable, excluded by scope, and redacted
+  remain distinct states.
+- Metadata duplicate, publication duplicate, report-family duplicate, common
+  upstream source, and same empirical study must not be collapsed.
+- Source independence must be separately evidenced; a new URL or publication
+  identifier does not establish an independent witness.
+- Every acquisition route carries its lawful-access or authority constraint.
+- Unknown or unauthorized access never becomes executable merely because the
+  route is Pareto-optimal.
+- Acquisition priority must not create source truth, semantic authority,
+  review admission, user priority, or credibility/personality scoring.
+- Newly acquired evidence selectively reopens only consumers connected by an
+  explicit dependency path.
+- The system must not scrape, impersonate, bypass access controls, or invent a
+  missing source in order to satisfy an acquisition obligation.
+
+Acceptance criteria:
+- An unresolved REL residual can be reopened as a durable acquisition
+  obligation with exact parent comparison/source references.
+- At least two candidate routes can remain jointly Pareto-admissible without a
+  scalar winner.
+- A dominated route is removed from the Pareto frontier while a blocked but
+  non-dominated route remains visible as non-executable.
+- not located can generate a targeted search obligation; known absent closes
+  only that exact acquisition branch and does not refute every dependent
+  hypothesis.
+- A newly persisted source produces a selective-reopening receipt listing
+  direct and transitive dependents while unrelated assessments remain
+  unopened.
+- Reopening and acquisition do not promote source truth, claim truth, semantic
+  identity, evidence independence, or public/private access authority.
+- MatterContext prevents an investigator from seeing an acquisition queue if
+  one of its parent source revisions is outside the current authorized scope.
+
 ### ITIR-US-13: Trauma-Survivor Safe Reconstruction
 As a trauma survivor using ITIR, I want to record fragmented, uncertain, or
 contradictory material into a fact/chronology substrate that preserves gaps and
