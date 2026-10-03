@@ -1,0 +1,53 @@
+@startuml
+skinparam shadowing false
+skinparam linetype ortho
+
+title GOV-1 — Integrated Control Case Traceability
+
+rectangle "User Story / Context of Use" as US
+rectangle "Requirement" as REQ
+rectangle "Risk" as RISK
+rectangle "Control Obligation" as CTRL
+rectangle "Implementation Mechanism" as IMPL
+rectangle "Verification Evidence / Receipt" as EVID
+rectangle "Control Assessment" as ASSESS
+rectangle "Residual / Nonconformance" as NC
+rectangle "CAPA / Bounded Repair" as CAPA
+rectangle "Service Change State" as CHANGE
+rectangle "Release / Observation" as RELEASE
+
+US --> REQ : derives
+REQ --> RISK : threat / failure modes
+RISK --> CTRL : treatment
+CTRL --> IMPL : implemented by
+IMPL --> EVID : verified by
+EVID --> ASSESS : evaluate exact scope
+ASSESS --> RELEASE : satisfied / accepted
+ASSESS --> NC : partial / failed / insufficient
+NC --> CAPA : corrective / preventive action
+CAPA --> CHANGE : proposed -> implemented
+CHANGE --> EVID : verify / validate
+RELEASE --> RISK : continual improvement / observed incidents
+
+note left of ASSESS
+  Statuses:
+  satisfied
+  not_satisfied
+  insufficient_evidence
+  not_applicable
+end note
+
+note right of EVID
+  Evidence state is separate from change state:
+  source_written
+  compile_checked
+  fixture_checked
+  runtime_observed
+  production_observed
+end note
+
+note bottom of CTRL
+  Standards are provenance/control lenses,
+  not an automatic certification claim.
+end note
+@enduml
