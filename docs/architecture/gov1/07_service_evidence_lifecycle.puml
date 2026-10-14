@@ -1,0 +1,33 @@
+@startuml
+skinparam shadowing false
+
+title GOV-1 — Service Change vs Evidence State
+
+state "ServiceChangeState" as S {
+  [*] --> proposed
+  proposed --> implemented
+  implemented --> verified
+  verified --> validated
+  validated --> released
+  released --> observed
+  observed --> incident : failure / deviation
+  incident --> proposed : problem / CAPA change
+  implemented --> rolledBack : rollback
+  released --> rolledBack : rollback
+}
+
+state "EvidenceState" as E {
+  [*] --> source_written
+  source_written --> compile_checked
+  compile_checked --> fixture_checked
+  fixture_checked --> runtime_observed
+  runtime_observed --> production_observed
+}
+
+note between S and E
+  Orthogonal coordinates:
+  implemented != validated
+  draft/source-written != runtime-certified
+  release state never fabricates evidence state
+end note
+@enduml

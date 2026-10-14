@@ -1,0 +1,84 @@
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype ortho
+
+title GOV-1 — Container / Authority Boundary View
+
+actor User
+
+package "ITIR / SensibLaw runtime" {
+  component "Canonical Source Store" as CSS <<authority>>
+  component "Parser / Candidate PNF" as PNF <<observation>>
+  component "REL Comparator" as REL <<candidate-semantic>>
+  component "INV Acquisition Engine" as INV <<workflow>>
+  component "S29 Review" as S29 <<review-authority>>
+  component "S30 MatterContext" as S30 <<visibility-authority>>
+  component "GOV-1 Control Case Evaluator" as GOV <<governance-authority>>
+  component "Selective Reopening" as REOPEN <<workflow>>
+  database "PostgreSQL durable stores" as PG
+  folder "Canonical blobs / source bytes" as BLOBS
+}
+
+package "Human surfaces" {
+  component "Dioxus Workbench\nInvestigate / Inspect / Graph" as DIOX <<read-projection>>
+  component "Svelte Web UI" as SVELTE <<read-projection>>
+}
+
+package "Operational evidence" {
+  component "StatiBaker" as SB
+  component "Service / Evidence State Projector" as SERVICE
+}
+
+package "Formal verification" {
+  component "Agda owners" as AGDA
+  component "Lean owners" as LEAN
+}
+
+cloud "External source / provider" as EXT <<trust-boundary>>
+
+User --> DIOX
+User --> SVELTE
+DIOX --> S30 : request scoped view
+SVELTE --> S30 : request scoped view
+S30 --> PG : visibility projection
+
+EXT --> CSS : bounded acquisition / ingestion
+CSS --> BLOBS
+CSS --> PNF
+PNF --> REL
+REL --> PG : persist + reopen
+REL --> INV : residual obligation
+INV --> PG : queue / route / update receipts
+INV --> REOPEN : only after canonical source exists
+REOPEN --> REL : dependency-scoped reconsideration
+REL --> S29 : candidate review item
+S29 --> PG
+
+SB --> SERVICE
+SERVICE --> GOV : execution/service evidence
+REL --> GOV : semantic + provenance evidence
+INV --> GOV : route/access/risk evidence
+S29 --> GOV : review evidence
+S30 --> GOV : scope/access evidence
+GOV --> PG : control case / assessment / CAPA refs
+
+GOV --> AGDA : proof obligations
+GOV --> LEAN : proof obligations
+AGDA --> GOV : kernel/formal receipts
+LEAN --> GOV : kernel/formal receipts
+
+note right of GOV
+  UserStory -> Requirement -> Risk -> Control
+  -> Implementation -> Evidence -> Residual/CAPA -> Release
+end note
+
+note right of INV
+  Priority cannot create:
+  - truth
+  - access authority
+  - evidence independence
+  - semantic admission
+end note
+@enduml

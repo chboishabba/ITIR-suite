@@ -1,0 +1,51 @@
+@startuml
+skinparam shadowing false
+
+title ITIR-INV-1 — Proof-Directed Acquisition and Selective Reopening
+
+actor Investigator
+participant "Dioxus\nprojection" as UI
+participant "REL Comparator" as REL
+participant "INV Queue" as INV
+participant "GOV-1" as GOV
+participant "Canonical Source Store" as SRC
+participant "Acquisition Process\n(outside semantic authority)" as ACQ
+participant "Dependency Graph" as DEP
+
+REL -> REL : compare consumer q
+REL -> INV : residual obligation
+INV -> INV : derive routes + (I,D,C,N,L)
+INV -> INV : mixed-orientation Pareto frontier\n(no scalar score)
+INV -> GOV : route/access/privacy/security evidence
+GOV --> INV : executable / blocked / unresolved control state
+INV --> UI : Matter-scoped queue projection
+UI --> Investigator : obligation-first explanation\nfrontier + access + potential reopening
+
+Investigator -> UI : inspect/select route
+note over UI
+Selection is navigation only.
+It does not create preference,
+access authority or acquisition.
+end note
+
+UI -> ACQ : bounded request / locator handoff
+ACQ -> SRC : ingest separately obtained source
+SRC --> ACQ : canonical source revision ref
+ACQ -> INV : acquisition update + receipt
+
+alt notLocated -> present
+  INV -> SRC : verify revision already exists
+  INV -> DEP : calculate explicit affected closure
+  DEP --> INV : direct + transitive targets
+  INV -> REL : selective reopening targets only
+  REL -> REL : recompute Compare_q
+else notLocated -> knownAbsent
+  INV -> INV : close exact acquisition branch
+  note right of INV
+    No automatic downstream refutation.
+    No unrelated reopening.
+  end note
+end
+
+INV --> UI : actual reopening state
+@enduml
