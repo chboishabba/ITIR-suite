@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "colab_prover_job_v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "job_id", "repository", "commit_sha", "operation", "arguments", "toolchain_policy", "requested_by", "created_at", "resource_class", "timeout_seconds"],
+  "properties": {
+    "schema_version": {"const": "colab_prover_job_v1"},
+    "job_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9._-]+$"},
+    "repository": {"enum": ["chboishabba/dashi_lean4", "chboishabba/dashi_agda"]},
+    "commit_sha": {"type": "string", "pattern": "^[0-9a-fA-F]{40}$"},
+    "operation": {"enum": ["lake_build", "lake_env_lean", "agda_module"]},
+    "arguments": {"type": "object"},
+    "toolchain_policy": {"const": "repo_pinned"},
+    "requested_by": {"type": "string", "minLength": 1, "maxLength": 128},
+    "created_at": {"type": "string", "minLength": 1},
+    "resource_class": {"const": "high_mem"},
+    "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 21600}
+  }
+}
