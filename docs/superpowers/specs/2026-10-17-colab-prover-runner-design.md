@@ -16,7 +16,7 @@ This system is an execution adapter. It does not promote mathematical authority,
 
 The implementation will integrate rather than fork the two official Google Colab projects:
 
-- `googlecolab/google-colab-cli`, pinned initially to commit `006ff96ac2d0e4dcfb702467a76493d687929be8` (observed 2026-10-17). This is the primary headless execution/runtime control surface.
+- `googlecolab/google-colab-cli`, pinned initially to commit `006ff96ac2d0e4dcfb702467a76493d687929be8` (observed 2026-10-17). This is the primary supported headless provisioning/control surface when a local or external client needs to allocate or connect to Colab.
 - `googlecolab/colab-mcp`, pinned initially to commit `b9ab3899e0f1fa493390b1fd6d54aa2e464ecdf1` (observed 2026-10-17). This is an optional local-agent/browser-session frontend, not the canonical execution protocol.
 
 No upstream source is copied into ITIR-suite unless a later implementation step demonstrates that a small vendored patch is necessary. The default is commit-pinned installation plus attribution metadata.
@@ -76,17 +76,27 @@ SUBMITTED -> CLAIMED -> RUNNING -> {SUCCEEDED | FAILED | REJECTED | ABORTED}
 
 Jobs are immutable after submission. The worker never edits a job document.
 
-To prevent duplicate execution, the worker creates a claim receipt before execution:
+To prevent duplicate execution, the first worker creates generation-zero claim receipt:
 
 ```text
-.itir/colab/claims/<job-id>.json
+.itir/colab/claims/<job-id>.0000.json
 ```
 
-A claim contains `job_digest`, worker identity, claim time, and lease metadata. Claim creation is compare-and-create: if another valid claim already exists for the same digest, the worker does not execute the job a second time.
+A claim contains `job_digest`, worker identity, generation, claim time, lease expiry, and claim status. `CLAIMED` and `RUNNING` are represented by claim-receipt state; terminal state is represented by the immutable result document.
 
-A stale lease may be taken over only under an explicit stale-claim rule. The takeover is recorded; it never silently overwrites the original claim history. The implementation may use a generation suffix for takeover receipts if GitHub's file semantics make append-only takeover cleaner than mutation.
+Claim creation is compare-and-create. A worker must inspect all claim generations for a job before creating the next generation. If a non-expired claim exists for the same digest, it does not execute the job. If a terminal result already exists for the digest, it never executes the job again.
 
-Repeated submission of byte-equivalent job content is safe. A submitter may reuse a job ID only when the canonical job digest is identical; conflicting reuse is rejected.
+A stale lease may be taken over only by creating the next append-only generation:
+
+```text
+.itir/colab/claims/<job-id>.0001.json
+.itir/colab/claims/<job-id>.0002.json
+...
+```
+
+The takeover receipt names the previous generation and reason. Claim files are never overwritten. Conflicting job-ID reuse with a different canonical job digest is rejected.
+
+Repeated submission of byte-equivalent job content is therefore safe and replay-observable without duplicate compiler execution.
 
 ## 5. Job schema
 
@@ -145,7 +155,13 @@ The baseline Lean installation is available to the runtime, but **repository-pin
 
 The same rule applies to Agda configuration: repository/project configuration is preferred. The bootstrap supplies runtime dependencies; the execution profile records the exact Agda and stdlib versions actually used.
 
-Bootstrap is idempotent and emits a machine-readable environment receipt so notebook setup failures can be diagnosed independently of proof-job failures.
+Bootstrap is idempotent and emits a machine-readable environment receipt at:
+
+```text
+.itir/colab/environments/<worker-id>/<bootstrap-id>.json
+```
+
+so notebook setup failures can be diagnosed independently of proof-job failures.
 
 ## 7. Notebook integration
 
@@ -166,7 +182,7 @@ No secret is embedded in the notebook, repository, job, result, or log.
 
 ## 8. Authentication and security boundary
 
-The worker reads a dedicated fine-grained GitHub token from Colab Secrets/environment injection. The token must have the minimum permissions necessary to read the allowed source repositories, read ITIR-suite jobs/configuration, and create claim/result/log artifacts in the relay branch.
+The worker reads a dedicated fine-grained GitHub token from Colab Secrets/environment injection. The token must have the minimum permissions necessary to read the allowed source repositories, read ITIR-suite jobs/configuration, and create claim/result/log/environment artifacts in the relay branch.
 
 The runner never serializes token values or the full environment.
 
@@ -187,11 +203,17 @@ The worker executes in a fresh per-job checkout/worktree directory and removes o
 
 ## 9. GitHub write model
 
-The relay is append-oriented. Normal operation creates new files rather than repeatedly mutating a shared queue document.
+The canonical runtime-state branch is:
 
-The initial implementation targets a dedicated runner-state branch in `ITIR-suite`, tentatively `colab-runner-state`, rather than writing generated job/log noise to `main`. Source code remains on normal reviewed branches/main; runtime state remains isolated.
+```text
+colab-runner-state
+```
 
-Submitters and the worker use optimistic GitHub writes. If the state branch advances, they refresh and retry their single-file create rather than force-pushing.
+All `.itir/colab/jobs`, `claims`, `results`, `logs`, and `environments` artifacts live on that branch. Generated runtime state does not land on `main`.
+
+The relay is append-oriented. Normal operation creates new files rather than repeatedly mutating a shared queue document. Source code remains on normal reviewed branches/main; runtime state remains isolated.
+
+Submitters and the worker use optimistic GitHub writes. If `colab-runner-state` advances, they refresh and retry their single-file create rather than force-pushing. Claim/result publication code must be safe under concurrent branch advancement.
 
 The worker never rewrites source branches in `dashi_lean4` or `dashi_agda`.
 
@@ -222,7 +244,7 @@ Each job result records best-effort host metadata without exposing user secrets:
 - Lean/Agda/Lake version strings relevant to the operation;
 - Colab resource class requested/observed where available.
 
-The worker must tolerate Colab runtime eviction. If the process can emit an `ABORTED` receipt before termination, it should; otherwise the next worker may identify an expired claim and perform a recorded takeover/retry.
+The worker must tolerate Colab runtime eviction. If the process can emit an `ABORTED` receipt before termination, it should; otherwise the next worker may identify an expired claim and perform a recorded generation takeover/retry.
 
 ## 12. Components to implement
 
@@ -255,7 +277,7 @@ The public scripts remain thin adapters over those generic modules, consistent w
 
 Implementation is tests-first.
 
-Unit/contract tests must cover valid Lean and Agda job parsing, exact-SHA enforcement, repository allowlist enforcement, operation allowlist enforcement, path traversal rejection, deterministic argv construction, canonical job digest stability, duplicate-job/idempotency behavior, claim collision behavior, stale-claim policy, terminal result construction, log chunking and hashing, secret redaction, toolchain-policy handling, runtime receipt serialization, and the absence of any arbitrary-shell execution path.
+Unit/contract tests must cover valid Lean and Agda job parsing, exact-SHA enforcement, repository allowlist enforcement, operation allowlist enforcement, path traversal rejection, deterministic argv construction, canonical job digest stability, duplicate-job/idempotency behavior, claim collision behavior, stale-claim generation policy, terminal result construction, log chunking and hashing, secret redaction, toolchain-policy handling, runtime receipt serialization, and the absence of any arbitrary-shell execution path.
 
 Tests must not require an actual Colab allocation or actual Lean/Agda compiler invocation. Integration verification of the real worker happens on the provisioned Colab runtime after source/tests are locally green.
 
@@ -275,7 +297,7 @@ Failure domains stay separate:
 - bootstrap/toolchain failure -> environment/bootstrap receipt plus job `ABORTED`/`FAILED` as appropriate;
 - compiler nonzero exit -> `FAILED`, preserving stdout/stderr chunks;
 - GitHub result-publish failure -> retain local pending result and retry publication without rerunning the compiler;
-- runtime eviction -> claim lease expires; a later worker may perform a recorded retry.
+- runtime eviction -> claim lease expires; a later worker may perform a recorded generation retry.
 
 A publication retry must never cause compiler re-execution if a durable local terminal result already exists.
 
