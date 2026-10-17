@@ -4,6 +4,7 @@ import sys
 
 from .artifact_receipt import main as artifact_receipt_main
 from .cli import main as bridge_main
+from .xpollenation_artifact import main as xpollenation_artifact_main
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -11,6 +12,8 @@ def main(argv: list[str] | None = None) -> int:
     actual = list(sys.argv[1:] if argv is None else argv)
     if actual and actual[0] == "emit-artifact-resolution-receipt":
         return artifact_receipt_main(actual[1:])
+    if actual and actual[0] == "emit-xpollenation-artifact":
+        return xpollenation_artifact_main(actual[1:])
     return bridge_main(actual)
 
 
