@@ -11,8 +11,9 @@ import uuid
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools" / "colab-runner" / "src"))
 
-from itir_colab_runner.github_relay import GitHubContentsStore, GitHubRelay
-from itir_colab_runner.model import load_job, job_digest
+from itir_colab_runner.github_relay import GitHubRelay
+from itir_colab_runner.github_store import GitHubContentsStore
+from itir_colab_runner.model import load_job
 
 REPOS = ["chboishabba/dashi_lean4", "chboishabba/dashi_agda"]
 OPS = ["lake_build", "lake_env_lean", "agda_module"]
@@ -73,7 +74,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"digest={digest}")
     print(f"repository={job.repository}")
     print(f"commit_sha={job.commit_sha}")
-    print(f"state_branch=colab-runner-state")
+    print("state_branch=colab-runner-state")
     print(f"path=.itir/colab/jobs/{job.job_id}.json")
     return 0
 
