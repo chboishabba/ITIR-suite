@@ -41,6 +41,42 @@ It should **not** be treated as:
 - free-floating embedding material
 - a reason to bypass the existing shard/artifact contract
 
+## 2026-10-17 formal-evidence graph alignment
+
+The DA51 × SLR proof-spine work makes the separation more explicit. `zkperf`
+receipts are sibling evidence on the same object/artifact graph as formal proof
+receipts; they are not a lower-quality form of kernel proof and they do not become
+formal proof because they share a DA51 address or formal demand reference.
+
+```text
+SLR ProofObligation
+  |-- FormalProofDemand -> dashi-repo -> Lean/Agda checker -> formal evidence
+  `-- runtime/empirical demand -> zkperf -> trace/benchmark receipt
+
+both may attach to:
+  DA51 semantic identity
+  ITIR artifactId / artifactRevision
+  shardId / contentDigest
+
+but:
+  zkperf trace/benchmark != theorem certificate
+```
+
+A zkperf linkage may carry opaque provenance joins such as:
+
+- `da51Address`
+- `formalDemandRef` / `obligationRef` when the run is related to that demand
+- `artifactId` / `artifactRevision`
+- content/run digest
+
+Those joins permit navigation and selective reopening only. They do not set
+`establishesProof`, legal applicability, claim truth, or security conclusions.
+
+Canonical companion contract and fixture:
+
+- `docs/planning/da51_slr_formal_evidence_artifact_contract_v1_20261017.md`
+- `docs/planning/jmd_fixtures/da51_slr_formal_evidence_v1.example.json`
+
 ## Minimal roadmap
 
 ### Phase 1 — bounded SL-side representation
@@ -99,6 +135,8 @@ discussed:
   spectral ranking
 - do not let `zkperf` turn into an excuse for raw-vector retrieval
 - do not let `zkperf` redefine the logical shard contract
+- do not let DA51/demand/artifact linkage turn runtime evidence into formal proof
+- do not let formal proof linkage turn a benchmark into a security conclusion
 
 ## Followthrough
 
@@ -115,3 +153,7 @@ The next bounded layer on top is now:
 
 which carries observational `zkperf` windows into a stream/container/HF
 publication path without changing `SL` truth authority.
+
+The cross-repo DA51/SLR formal-evidence contract now supplies the common object /
+artifact provenance seam used to relate that observational evidence to formal
+work without collapsing the two evidence classes.
