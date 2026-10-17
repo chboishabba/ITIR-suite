@@ -72,3 +72,28 @@ def test_artifact_resolution_receipt_rejects_ipfs_cid_mismatch() -> None:
 
     with pytest.raises(ValueError, match="IPFS CID"):
         build_artifact_resolution_receipt(item)
+
+
+def test_artifact_resolution_receipt_rejects_boolean_payload_size() -> None:
+    item = resolved()
+    item["payload"]["sizeBytes"] = True
+    item["selectedObjectRef"]["sizeBytes"] = True
+
+    with pytest.raises(ValueError, match="sizeBytes"):
+        build_artifact_resolution_receipt(item)
+
+
+def test_artifact_resolution_receipt_requires_logical_shard_digest() -> None:
+    item = resolved()
+    del item["shard"]["contentDigest"]
+
+    with pytest.raises(ValueError, match="shard.contentDigest"):
+        build_artifact_resolution_receipt(item)
+
+
+def test_artifact_resolution_receipt_requires_explicit_fetch_sink_and_uri() -> None:
+    item = resolved()
+    item["fetch"] = {"metadata": {"cid": "bafy-demo-erdfa-tar"}}
+
+    with pytest.raises(ValueError, match="fetch"):
+        build_artifact_resolution_receipt(item)
