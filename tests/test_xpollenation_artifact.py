@@ -14,6 +14,7 @@ def _neighbourhood() -> dict:
         "edges": [
             {
                 "edgeId": "edge:b",
+                "subject": {"namespace": "uniprot", "identifier": "P35228"},
                 "relation": "candidate-neighbour",
                 "object": {"namespace": "wikidata-qid", "identifier": "Q2"},
                 "sourceRef": "qid",
@@ -27,6 +28,7 @@ def _neighbourhood() -> dict:
             },
             {
                 "edgeId": "edge:a",
+                "subject": {"namespace": "rhea", "identifier": "RHEA:19897"},
                 "relation": "catalysed-by",
                 "object": {"namespace": "uniprot", "identifier": "P35228"},
                 "sourceRef": "rhea",
@@ -60,6 +62,7 @@ def test_build_xpollenation_artifact_is_logical_first_and_deterministic() -> Non
     assert shard["objectRefs"] == []
     payload = json.loads(first["embeddedPayloads"]["neighbourhood"])
     assert [edge["edgeId"] for edge in payload["edges"]] == ["edge:a", "edge:b"]
+    assert payload["edges"][1]["subject"] == {"namespace": "uniprot", "identifier": "P35228"}
     assert shard["contentDigest"].startswith("sha256:")
     assert first["artifactRevision"] == shard["contentDigest"].split(":", 1)[1]
 
