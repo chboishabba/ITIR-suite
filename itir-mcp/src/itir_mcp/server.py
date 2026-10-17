@@ -25,8 +25,11 @@ def build_fastmcp_server(registry: ToolRegistry | None = None):
 
 
 def _register_fastmcp_tool(server, registry: ToolRegistry, spec: ToolSpec) -> None:
-    def _tool_handler(arguments: dict | None = None):
-        return registry.invoke(spec.name, arguments or {})
+    def _tool_handler(arguments: dict | None = None, **kwargs):
+        payload = dict(kwargs)
+        if isinstance(arguments, dict):
+            payload.update(arguments)
+        return registry.invoke(spec.name, payload)
 
     _tool_handler.__name__ = spec.name.replace(".", "_")
     _tool_handler.__doc__ = spec.description

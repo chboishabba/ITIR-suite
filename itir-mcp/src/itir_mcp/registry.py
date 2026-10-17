@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
+from .autonomous_orchestrator_tools import get_autonomous_orchestrator_tools
 from .config_tools import get_config_tools
 from .comparison_tools import get_comparison_tools
 from .contracts import JsonDict, ToolError, ToolExecutionError, ToolHandler, ToolSpec, error_payload, success_payload
@@ -108,4 +109,6 @@ def build_default_registry() -> ToolRegistry:
             authority_profile_key=spec.name if spec.name in DEFAULT_REGISTRY_TOOL_AUTHORITY_PROFILES else None,
             authority_profile=DEFAULT_REGISTRY_TOOL_AUTHORITY_PROFILES.get(spec.name),
         )
+    for spec, handler in get_autonomous_orchestrator_tools():
+        registry.register(spec, handler)
     return registry

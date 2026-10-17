@@ -43,6 +43,11 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.shard.partial_graph_view",
         "itir.shard.bounded_graph_slice_plan",
         "itir.shard.payload_probe",
+        "itir.ao.status",
+        "itir.ao.claim_lane",
+        "itir.ao.heartbeat",
+        "itir.ao.report_result",
+        "itir.ao.gap_check",
     }
 
 
