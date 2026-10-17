@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import os
 from pathlib import Path
 import socket
@@ -11,9 +12,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools" / "colab-runner" / "src"))
 
 from itir_colab_runner.executor import Executor
-from itir_colab_runner.github_relay import GitHubContentsStore, GitHubRelay
+from itir_colab_runner.github_relay import GitHubRelay
+from itir_colab_runner.github_store import GitHubContentsStore
 from itir_colab_runner.worker import run_one_job, run_poll_loop
-from datetime import datetime, timezone
 
 
 def parser() -> argparse.ArgumentParser:
