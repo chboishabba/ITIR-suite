@@ -4,7 +4,10 @@ import json
 
 import pytest
 
-from itir_jmd_bridge.xpollenation_artifact import build_xpollenation_artifact
+from itir_jmd_bridge.xpollenation_artifact import (
+    build_xpollenation_artifact,
+    resolve_xpollenation_selector,
+)
 
 
 def _neighbourhood() -> dict:
@@ -65,6 +68,8 @@ def test_build_xpollenation_artifact_is_logical_first_and_deterministic() -> Non
     assert payload["edges"][1]["subject"] == {"namespace": "uniprot", "identifier": "P35228"}
     assert shard["contentDigest"].startswith("sha256:")
     assert first["artifactRevision"] == shard["contentDigest"].split(":", 1)[1]
+    assert resolve_xpollenation_selector(first, "route-external=rhea:RHEA:19897") == ["neighbourhood"]
+    assert resolve_xpollenation_selector(first, "route-external=rhea:RHEA:11920") == []
 
 
 def test_build_xpollenation_artifact_rejects_authority_escalation() -> None:
