@@ -11,6 +11,7 @@ from typing import Any, Mapping
 XPOLLENATION_SCHEMA = "dashi.xpollenation-neighbourhood/v1"
 SHARED_SHARD_CONTRACT = "shared-shard-artifact/v1"
 XPOLLENATION_AUTHORITY = "navigation-enrichment-only"
+XPOLLENATION_ROUTE_FORMAT = "xpollenation-route/v1"
 
 
 def _text(name: str, value: Any) -> str:
@@ -69,6 +70,42 @@ def canonicalize_neighbourhood(item: Mapping[str, Any]) -> dict[str, Any]:
     return normalized
 
 
+def resolve_xpollenation_selector(
+    artifact: Mapping[str, Any], selector: str
+) -> list[str]:
+    """Resolve one xPollenation external selector to logical shard IDs.
+
+    This deliberately stops at logical shard identity. Existing ITIR transport
+    code may then resolve/fetch an objectRef for the selected shard. CID/path
+    choice therefore remains downstream of semantic routing.
+    """
+    selector = _text("selector", selector)
+    if not selector.startswith("route-external="):
+        return []
+    routing_index = artifact.get("routingIndex")
+    if not isinstance(routing_index, Mapping):
+        return []
+    if routing_index.get("format") != XPOLLENATION_ROUTE_FORMAT:
+        return []
+    routes = routing_index.get("routes")
+    if not isinstance(routes, Mapping):
+        return []
+    raw = routes.get(selector)
+    if not isinstance(raw, list):
+        return []
+    known = {
+        _text("shardId", shard.get("shardId"))
+        for shard in artifact.get("shards", [])
+        if isinstance(shard, Mapping) and shard.get("shardId")
+    }
+    result: list[str] = []
+    for value in raw:
+        shard_id = _text("routing shard id", value)
+        if shard_id in known and shard_id not in result:
+            result.append(shard_id)
+    return result
+
+
 def build_xpollenation_artifact(
     neighbourhood: Mapping[str, Any],
     *,
@@ -92,7 +129,7 @@ def build_xpollenation_artifact(
         "artifactId": artifact_id,
         "artifactRevision": digest_body,
         "artifactClass": "xpollenation-neighbourhood",
-        "createdAtUtc": _text("createdAtUtc", payload.get("createdAtUtc") or "unspecified"),
+        "createdAtUtc": _text("createdAtUtc", payload.get("createdAtUtc") or "unknown-created-at"),
         "buildProvenance": {
             "builder": "itir_jmd_bridge.xpollenation_artifact",
             "builderVersion": "1",
@@ -112,7 +149,7 @@ def build_xpollenation_artifact(
             }
         ],
         "routingIndex": {
-            "format": "xpollenation-route/v1",
+            "format": XPOLLENATION_ROUTE_FORMAT,
             "routes": {routing_key: ["neighbourhood"]},
         },
         "embeddedPayloads": {"neighbourhood": canonical_json},
