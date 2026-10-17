@@ -14,14 +14,20 @@ dashi.xpollenation-neighbourhood/v1
         ↓
 shared-shard-artifact/v1
         ↓
-logical shard identity + contentDigest + objectRefs[]
+route-external=namespace:id
+        ↓
+logical shard identity
+        ↓
+contentDigest + objectRefs[]
         ↓
 file / HF / IPFS
         ↓
 artifact-resolution-receipt/v1
 ```
 
-`itir_jmd_bridge.xpollenation_artifact` performs only the middle projection. It canonicalizes edge order, serializes the neighbourhood deterministically, hashes the exact payload bytes, and emits one logical `neighbourhood` shard. `objectRefs[]` starts empty; the existing publisher/pinning paths attach file/HF/IPFS refs later without changing the logical shard.
+`itir_jmd_bridge.xpollenation_artifact` performs the neighbourhood-to-logical-artifact projection. It canonicalizes edge order, serializes the neighbourhood deterministically, hashes the exact payload bytes, and emits one logical `neighbourhood` shard. `objectRefs[]` starts empty; the existing publisher/pinning paths attach file/HF/IPFS refs later without changing the logical shard.
+
+The same module owns the narrow `route-external` resolver. It maps the external selector to a logical shard ID first; existing ITIR transport code can then resolve/fetch an objectRef for that shard. The generic ITIR selector registry is intentionally not widened just for this domain.
 
 ## Command
 
@@ -72,6 +78,7 @@ The first consumer is the BH4 finite reaction panel in `dashi_agda`:
 12 finite Rhea columns
  -> typed Rhea/ChEBI/UniProt/SABIO/PDB/QID neighbourhoods
  -> one logical xPollenation artifact per reaction
+ -> route-external selector -> logical shard
  -> optional IPFS mirror / CID
  -> artifact-resolution-receipt
  -> dashi-repo xPollenation store
