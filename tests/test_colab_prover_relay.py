@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools" / "colab-runner" / "src"))
 
 from itir_colab_runner.github_relay import InMemoryContentStore, GitHubRelay, RelayConflict
+from itir_colab_runner.github_store import GitHubContentsStore
 from itir_colab_runner.model import load_job, ProverResult
 
 SHA = "a" * 40
@@ -84,3 +85,22 @@ def test_publish_result_rejects_conflicting_terminal_receipt():
     r.publish_result(a)
     with pytest.raises(RelayConflict):
         r.publish_result(b)
+
+
+def test_github_store_translates_filename_prefix_to_parent_directory_listing():
+    class FakeGitHubStore(GitHubContentsStore):
+        def __init__(self):
+            super().__init__("owner/repo", "token")
+            self.requested = []
+        def _req(self, method, path, payload=None):
+            self.requested.append((method, path))
+            assert method == "GET"
+            assert path == ".itir/colab/claims"
+            return [
+                {"type": "file", "path": ".itir/colab/claims/job-1.0000.json"},
+                {"type": "file", "path": ".itir/colab/claims/job-2.0000.json"},
+            ]
+    store = FakeGitHubStore()
+    assert store.list_paths(".itir/colab/claims/job-1.") == [
+        ".itir/colab/claims/job-1.0000.json"
+    ]
