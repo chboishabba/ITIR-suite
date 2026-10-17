@@ -16,6 +16,7 @@ _SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
 
 
 def _require_text(name: str, value: Any) -> str:
+    """Return a required non-empty string or raise a field-specific error."""
     text = str(value or "").strip()
     if not text:
         raise ValueError(f"{name} must be non-empty")
@@ -23,6 +24,7 @@ def _require_text(name: str, value: Any) -> str:
 
 
 def _sha256_digest(name: str, value: Any) -> str:
+    """Normalize one strict SHA-256 value to the canonical `sha256:` form."""
     text = _require_text(name, value)
     body = text.split(":", 1)[1] if text.lower().startswith("sha256:") else text
     if not _SHA256_RE.fullmatch(body):
@@ -31,6 +33,7 @@ def _sha256_digest(name: str, value: Any) -> str:
 
 
 def _ipfs_cid(uri: str) -> str:
+    """Extract the CID from one required `ipfs://` object reference."""
     if not uri.startswith("ipfs://"):
         raise ValueError("IPFS object ref must use ipfs:// URI")
     parsed = urlparse(uri)
@@ -41,11 +44,12 @@ def _ipfs_cid(uri: str) -> str:
 
 
 def build_artifact_resolution_receipt(resolved: dict[str, Any]) -> dict[str, Any]:
-    """Build a transport-only receipt from a resolved shared-shard payload.
+    """Build a verified, transport-only receipt from a resolved shard payload.
 
-    The receipt binds logical artifact identity to one selected sink and to the
-    digest of the payload actually returned by the resolver.  It deliberately
-    establishes neither theorem proof nor semantic/legal authority.
+    Verification requires the logical shard's own content digest, an explicit
+    fetch sink/URI, and exact equality between that logical digest and the bytes
+    returned by the resolver.  Object-ref digest/size fields are additional
+    consistency checks; they never substitute for the logical shard identity.
     """
 
     artifact_id = _require_text("artifactId", resolved.get("artifactId"))
@@ -64,31 +68,34 @@ def build_artifact_resolution_receipt(resolved: dict[str, Any]) -> dict[str, Any
     payload = resolved.get("payload") or {}
     payload_digest = _sha256_digest("payload.sha256", payload.get("sha256"))
     payload_size = payload.get("sizeBytes")
-    if not isinstance(payload_size, int) or payload_size < 0:
+    if type(payload_size) is not int or payload_size < 0:
         raise ValueError("payload.sizeBytes must be a non-negative integer")
 
-    object_digest_value = selected.get("contentDigest")
     shard_digest_value = shard.get("contentDigest")
-    if object_digest_value is None and shard_digest_value is None:
-        raise ValueError("resolved artifact has no expected content digest")
-    content_digest = _sha256_digest(
-        "contentDigest",
-        object_digest_value if object_digest_value is not None else shard_digest_value,
-    )
-    if shard_digest_value is not None:
-        shard_digest = _sha256_digest("shard.contentDigest", shard_digest_value)
-        if shard_digest != content_digest:
-            raise ValueError("shard and object-ref content digests disagree")
+    if shard_digest_value is None:
+        raise ValueError("shard.contentDigest is required for verified resolution")
+    content_digest = _sha256_digest("shard.contentDigest", shard_digest_value)
     if payload_digest != content_digest:
         raise ValueError("payload digest does not match logical shard content digest")
 
+    object_digest_value = selected.get("contentDigest")
+    if object_digest_value is not None:
+        object_digest = _sha256_digest(
+            "selectedObjectRef.contentDigest", object_digest_value
+        )
+        if object_digest != content_digest:
+            raise ValueError("shard and object-ref content digests disagree")
+
     object_size = selected.get("sizeBytes")
-    if object_size is not None and int(object_size) != payload_size:
-        raise ValueError("payload size does not match selected object-ref size")
+    if object_size is not None:
+        if type(object_size) is not int or object_size < 0:
+            raise ValueError("selectedObjectRef.sizeBytes must be a non-negative integer")
+        if object_size != payload_size:
+            raise ValueError("payload size does not match selected object-ref size")
 
     fetch = deepcopy(resolved.get("fetch") or {})
-    fetch_sink = str(fetch.get("sink") or sink)
-    fetch_uri = str(fetch.get("uri") or uri)
+    fetch_sink = _require_text("fetch.sink", fetch.get("sink"))
+    fetch_uri = _require_text("fetch.uri", fetch.get("uri"))
     if fetch_sink != sink or fetch_uri != uri:
         raise ValueError("fetch transport does not match selected object ref")
 
@@ -133,6 +140,7 @@ def build_artifact_resolution_receipt(resolved: dict[str, Any]) -> dict[str, Any
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Read resolved-artifact JSON and emit its verified receipt projection."""
     parser = argparse.ArgumentParser(
         description="Emit a verified transport-only receipt from an ITIR resolved-artifact JSON payload."
     )
