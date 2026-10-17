@@ -1,0 +1,536 @@
+STDOUT
+✔ [4/12] Built Batteries.Tactic.Unreachable (1.0s)
+✔ [5/13] Built Batteries.Util.LibraryNote (1.7s)
+✔ [6/14] Built Batteries.Lean.TagAttribute (765ms)
+✔ [7/14] Built Batteries.Linter.UnreachableTactic (1.6s)
+✖ [8/18] Building Batteries.Classes.Cast (840ms)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/Batteries/Classes/Cast.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Classes/Cast.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Classes/Cast.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Classes/Cast.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Classes/Cast.setup.json --json
+error: Batteries/Classes/Cast.lean:12:0: Invalid definition `LibraryNote.coercion_into_rings`, may not access declaration `Batteries.Util.instInhabitedLibraryNote` marked as `meta`
+⚠ [9/18] Built Batteries.Lean.AttributeExtra (1.0s)
+warning: Batteries/Lean/AttributeExtra.lean:17:5: Ambiguous namespace `Std`: it is interpreted as `_root_.Lean.Std` because this `open` occurs inside `namespace Lean`, while `_root_.Std` is silently not opened. Specify the namespace unambiguously, e.g. `_root_.Lean.Std`. The warning can sometimes also be addressed by moving the `open` outside of the surrounding `namespace`.
+
+Note: This linter can be disabled with `set_option linter.ambiguousOpen false`
+✔ [10/19] Built Batteries.Tactic.Init (2.6s)
+✔ [11/19] Built Batteries.Tactic.SeqFocus (2.6s)
+✔ [12/19] Built Batteries.Util.ProofWanted (1.8s)
+✔ [13/22] Built Batteries.Classes.RatCast (1.0s)
+✖ [14/22] Building Batteries.Lean.EStateM (1.6s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/Batteries/Lean/EStateM.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Lean/EStateM.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Lean/EStateM.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Lean/EStateM.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Lean/EStateM.setup.json --json
+error: Batteries/Lean/EStateM.lean:46:16: `EStateM.run_bind` has already been declared
+error: Batteries/Lean/EStateM.lean:83:34: unsolved goals
+ε σ α β : Type u_1
+x : EStateM ε σ α
+y : EStateM ε σ β
+s : σ
+⊢ (match x.run s with
+    | Result.ok x s => Result.map (fun a => x) (y.run s)
+    | Result.error e s => Result.error e s) =
+    match x.run s with
+    | Result.ok x s => Result.map (fun a => x) (y.run s)
+    | Result.error e s => Result.error e s
+error: Batteries/Lean/EStateM.lean:159:16: `EStateM.run_adaptExcept` has already been declared
+✔ [15/23] Built Batteries.Linter.UnnecessarySeqFocus (3.0s)
+✔ [16/24] Built Batteries.Lean.Except (836ms)
+✔ [17/26] Built Batteries.Linter (858ms)
+✔ [19/26] Built Batteries.Tactic.Basic (883ms)
+✔ [20/26] Built Batteries.CodeAction.Attr (1.5s)
+⚠ [21/27] Built Batteries.Lean.Position (785ms)
+warning: Batteries/Lean/Position.lean:14:2: The updated constant has a different type:
+  FileMap → Syntax → optParam Bool false → Option Lsp.Range
+instead of
+  FileMap → Syntax → Option Lsp.Range
+
+This suggests that addressing the deprecation might be more involved than simply replacing the old name with the new name. This is often expected, but sometimes it indicates that the deprecation is in favor of the wrong declaration, or that there is a mistake in one of the statements.
+
+If the type difference is intentional, use `+typeChanged` to silence this warning.
+
+Hint: Add `+typeChanged`:
+  [apply] +typeChanged
+⚠ [22/27] Built Batteries.Classes.Order (1.8s)
+warning: Batteries/Classes/Order.lean:167:51: `if_neg` has been deprecated: Use `ite_eq_right` instead
+
+Hint: Replace the deprecated name:
+  i̵f̵_̵n̵e̵g̵i̲t̲e̲_̲e̲q̲_̲r̲i̲g̲h̲t̲
+⚠ [23/27] Built Batteries.CodeAction.Basic (1.9s)
+warning: Batteries/CodeAction/Basic.lean:10:0: 'Lean.Server.InfoUtils' has been deprecated: please replace this import by
+
+import Lean.Elab.InfoTree.Util
+✔ [24/27] Built Batteries.Data.List.ArrayMap (737ms)
+✔ [25/30] Built Batteries.Classes.Deprecated (2.1s)
+✔ [26/35] Built Batteries.CodeAction.Misc (4.0s)
+✔ [27/35] Built Batteries.CodeAction.Deprecated (2.2s)
+✔ [28/35] Built Batteries.Control.ForInStep.Basic (1.2s)
+✔ [29/38] Built Batteries.Data.List.Init.Lemmas (1.2s)
+✔ [30/38] Built Batteries.Control.ForInStep.Lemmas (1.1s)
+✔ [31/40] Built Batteries.Data.Array.Match (1.8s)
+✖ [33/45] Building Batteries.Tactic.Alias (3.6s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/Batteries/Tactic/Alias.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Tactic/Alias.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Tactic/Alias.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Tactic/Alias.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Tactic/Alias.setup.json --json
+error: Batteries/Tactic/Alias.lean:118:16: Application type mismatch: The argument
+  (doc, isVerso)
+has type
+  ?m.158 × ?m.159
+but is expected to have type
+  TSyntax `Lean.Parser.Command.docComment
+in the application
+  some (doc, isVerso)
+error: Batteries/Tactic/Alias.lean:156:14: Application type mismatch: The argument
+  (doc, isVerso)
+has type
+  ?m.17 × ?m.18
+but is expected to have type
+  TSyntax `Lean.Parser.Command.docComment
+in the application
+  some (doc, isVerso)
+✔ [40/49] Built Batteries.Data.List.Matcher (724ms)
+✔ [44/50] Built Batteries.Control.Lemmas (758ms)
+✔ [45/54] Built Batteries.Control.ForInStep (667ms)
+✔ [47/54] Built Batteries.Control.LawfulMonadState (2.4s)
+✔ [48/56] Built Batteries.Tactic.Lint.Basic (1.9s)
+✖ [49/57] Building Batteries.Tactic.Lint.Misc (367ms)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/Batteries/Tactic/Lint/Misc.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Tactic/Lint/Misc.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Tactic/Lint/Misc.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Tactic/Lint/Misc.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Tactic/Lint/Misc.setup.json --json
+error: Batteries/Tactic/Lint/Misc.lean:6:0: object file '/root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/lib/lean/Lean/Meta/GlobalInstances.olean' of module Lean.Meta.GlobalInstances does not exist
+✔ [50/58] Built Batteries.Control.OptionT (934ms)
+✔ [51/59] Built Batteries.Data.Array.Init.Lemmas (648ms)
+✖ [53/60] Building Batteries.Data.UInt (1.8s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/Batteries/Data/UInt.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Data/UInt.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Data/UInt.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Data/UInt.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Data/UInt.setup.json --json
+error: Batteries/Data/UInt.lean:35:8: `UInt8.max_def` has already been declared
+error: Batteries/Data/UInt.lean:37:8: `UInt8.min_def` has already been declared
+error: Batteries/Data/UInt.lean:40:6: Unknown identifier `max_def`
+error: Batteries/Data/UInt.lean:39:81: unsolved goals
+x y : UInt8
+⊢ (max x y).toNat = max x.toNat y.toNat
+error: Batteries/Data/UInt.lean:50:6: Unknown identifier `min_def`
+error: Batteries/Data/UInt.lean:49:81: unsolved goals
+x y : UInt8
+⊢ (min x y).toNat = min x.toNat y.toNat
+error: Batteries/Data/UInt.lean:82:8: `UInt16.max_def` has already been declared
+error: Batteries/Data/UInt.lean:84:8: `UInt16.min_def` has already been declared
+error: Batteries/Data/UInt.lean:87:6: Unknown identifier `max_def`
+error: Batteries/Data/UInt.lean:86:83: unsolved goals
+x y : UInt16
+⊢ (max x y).toNat = max x.toNat y.toNat
+error: Batteries/Data/UInt.lean:97:6: Unknown identifier `min_def`
+error: Batteries/Data/UInt.lean:96:83: unsolved goals
+x y : UInt16
+⊢ (min x y).toNat = min x.toNat y.toNat
+error: Batteries/Data/UInt.lean:129:8: `UInt32.max_def` has already been declared
+error: Batteries/Data/UInt.lean:131:8: `UInt32.min_def` has already been declared
+error: Batteries/Data/UInt.lean:134:6: Unknown identifier `max_def`
+error: Batteries/Data/UInt.lean:133:83: unsolved goals
+x y : UInt32
+⊢ (max x y).toNat = max x.toNat y.toNat
+error: Batteries/Data/UInt.lean:144:6: Unknown identifier `min_def`
+error: Batteries/Data/UInt.lean:143:83: unsolved goals
+x y : UInt32
+⊢ (min x y).toNat = min x.toNat y.toNat
+error: Batteries/Data/UInt.lean:176:8: `UInt64.max_def` has already been declared
+error: Batteries/Data/UInt.lean:178:8: `UInt64.min_def` has already been declared
+error: Batteries/Data/UInt.lean:181:6: Unknown identifier `max_def`
+error: Batteries/Data/UInt.lean:180:83: unsolved goals
+x y : UInt64
+⊢ (max x y).toNat = max x.toNat y.toNat
+error: Batteries/Data/UInt.lean:191:6: Unknown identifier `min_def`
+error: Batteries/Data/UInt.lean:190:83: unsolved goals
+x y : UInt64
+⊢ (min x y).toNat = min x.toNat y.toNat
+✔ [55/61] Built Batteries.Control.AlternativeMonad (1.6s)
+✔ [57/65] Built Batteries.Data.MLList.Basic (2.0s)
+✔ [62/67] Built Batteries.Data.Array.Merge (3.9s)
+⚠ [64/70] Built Batteries.Data.Bool (970ms)
+warning: Batteries/Data/Bool.lean:18:0: Definition `Bool.lt_wfRel` of class type is semireducible. Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, this warning can be disabled with `set_option warn.classDefReducibility false`.
+warning: Batteries/Data/Bool.lean:25:0: Definition `Bool.gt_wfRel` of class type is semireducible. Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, this warning can be disabled with `set_option warn.classDefReducibility false`.
+✖ [65/71] Building Batteries.Data.BinaryHeap.Basic (5.7s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/Batteries/Data/BinaryHeap/Basic.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Data/BinaryHeap/Basic.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Data/BinaryHeap/Basic.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Data/BinaryHeap/Basic.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Data/BinaryHeap/Basic.setup.json --json
+error: Batteries/Data/BinaryHeap/Basic.lean:120:2: Tactic `split` failed: Could not split an `if` or `match` expression in the goal
+
+Hint: Use `set_option trace.split.failure true` to display additional diagnostic information
+
+α : Type u_1
+lt : α → α → Bool
+self : BinaryHeap α lt
+⊢ (if h0 : self.arr.size = 0 then self
+        else
+          if h : 0 < self.arr.size - 1 then
+            { arr := (heapifyDown lt (self.vector.swap 0 (self.arr.size - 1) ⋯ ⋯).pop ⟨0, h⟩).toArray }
+          else { arr := (self.vector.swap 0 (self.arr.size - 1) ⋯ ⋯).pop.toArray }).arr.size =
+    self.arr.size - 1
+✔ [67/77] Built Batteries.Data.BitVec.Basic (866ms)
+✖ [68/79] Building Batteries.Data.Nat.Basic (1.2s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/Batteries/Data/Nat/Basic.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Data/Nat/Basic.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Data/Nat/Basic.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Data/Nat/Basic.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Data/Nat/Basic.setup.json --json
+error: Batteries/Data/Nat/Basic.lean:95:4: `Nat.sqrt` has already been declared
+✖ [74/79] Building Batteries.Data.ByteArray (1.6s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/Batteries/Data/ByteArray.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Data/ByteArray.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Data/ByteArray.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Data/ByteArray.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Data/ByteArray.setup.json --json
+error: Batteries/Data/ByteArray.lean:30:16: `ByteArray.size_push` has already been declared
+✔ [75/85] Built Batteries.Data.ByteSlice (1.4s)
+✔ [79/86] Built Batteries.Data.DList.Basic (847ms)
+✖ [80/90] Building Batteries.Data.DList.Lemmas (859ms)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/Batteries/Data/DList/Lemmas.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Data/DList/Lemmas.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Data/DList/Lemmas.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Data/DList/Lemmas.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Data/DList/Lemmas.setup.json --json
+error: Batteries/Data/DList/Lemmas.lean:42:88: unsolved goals
+α : Type u_1
+l₁ l₂ : DList α
+⊢ (l₁ ++ l₂).apply [] ++ [] = l₁.apply [] ++ l₂.apply []
+warning: Batteries/Data/DList/Lemmas.lean:43:21: This simp argument is unused:
+  append
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [toList, Function.comp]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+warning: Batteries/Data/DList/Lemmas.lean:43:29: This simp argument is unused:
+  Function.comp
+
+Hint: Omit it from the simp argument list.
+  [apply] simp only [toList, append]
+
+Note: This linter can be disabled with `set_option linter.unusedSimpArgs false`
+✔ [86/93] Built Batteries.Data.BinomialHeap.Basic (12s)
+✔ [87/93] Built Batteries.Data.FloatArray (1.0s)
+✔ [88/94] Built Batteries.Lean.HashMap (1.2s)
+✔ [91/98] Built Batteries.Data.BinomialHeap.Lemmas (2.2s)
+✔ [92/98] Built Batteries.Data.MLList.Heartbeats (1.4s)
+✔ [93/98] Built Batteries.Data.BinomialHeap (1.1s)
+✔ [94/99] Built Batteries.Lean.System.IO (656ms)
+✔ [95/100] Built Batteries.Data.NameSet (642ms)
+✔ [96/101] Built Batteries.Data.MLList.IO (610ms)
+✔ [97/103] Built Batteries.Data.Nat.Bitwise (901ms)
+✔ [98/103] Built Batteries.Data.MLList (802ms)
+✖ [99/104] Building Batteries.Data.Nat.Digits (1.0s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/Batteries/Data/Nat/Digits.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Data/Nat/Digits.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Data/Nat/Digits.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Data/Nat/Digits.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Data/Nat/Digits.setup.json --json
+error: Batteries/Data/Nat/Digits.lean:14:8: `Nat.isDigit_digitChar` has already been declared
+error: Batteries/Data/Nat/Digits.lean:34:8: `Nat.isDigit_of_mem_toDigits` has already been declared
+error: Batteries/Data/Nat/Digits.lean:42:8: `Nat.toDigits_of_lt_base` has already been declared
+error: Batteries/Data/Nat/Digits.lean:45:8: `Nat.toDigits_zero` has already been declared
+error: Batteries/Data/Nat/Digits.lean:81:8: `Nat.toDigits_append_toDigits` has already been declared
+✔ [101/112] Built Batteries.Data.Nat.Bisect (6.4s)
+✔ [109/118] Built Batteries.Data.PairingHeap (3.8s)
+✖ [112/118] Building Batteries.Lean.Float (906ms)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/Batteries/Lean/Float.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Lean/Float.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Lean/Float.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Lean/Float.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Lean/Float.setup.json --json
+error: Batteries/Lean/Float.lean:16:4: `Float.inf` has already been declared
+error: Batteries/Lean/Float.lean:23:4: `Float.nan` has already been declared
+✔ [114/119] Built Batteries.Data.Random.MersenneTwister (3.1s)
+✔ [116/119] Built Batteries.Data.RunningStats (1.0s)
+✔ [117/121] Built Batteries.Data.Random (1.4s)
+✖ [118/122] Building Batteries.Data.Stream (1.0s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/Batteries/Data/Stream.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Data/Stream.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Data/Stream.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Data/Stream.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Data/Stream.setup.json --json
+error: Batteries/Data/Stream.lean:87:11: unsolved goals
+α : Type u_1
+n : Nat
+ih : ∀ (l : List α), Stream.drop l n = List.drop n l
+l : List α
+head✝ : α
+tail✝ : List α
+⊢ (match Stream.next? (head✝ :: tail✝) with
+    | none => head✝ :: tail✝
+    | some (fst, s) => List.drop n s) =
+    List.drop n tail✝
+error: Batteries/Data/Stream.lean:96:11: unsolved goals
+α : Type u_1
+n : Nat
+ih : ∀ (l : List α), Stream.take l n = (List.take n l, List.drop n l)
+l : List α
+head✝ : α
+tail✝ : List α
+⊢ (match Stream.next? (head✝ :: tail✝) with
+    | none => ([], head✝ :: tail✝)
+    | some (a, s) => (a :: List.take n s, List.drop n s)) =
+    (head✝ :: List.take n tail✝, List.drop n tail✝)
+✔ [119/122] Built Batteries.Data.String.AsciiCasing (949ms)
+✔ [120/125] Built Batteries.Data.String.Basic (1.1s)
+✔ [121/129] Built Batteries.Data.String.Matcher (1.0s)
+✔ [122/131] Built Batteries.Util.Panic (813ms)
+✔ [126/133] Built Batteries.Data.String.Legacy (2.5s)
+✔ [129/135] Built Batteries.Data.Vector.Basic (589ms)
+✔ [131/136] Built Batteries.Data.Vector.Lemmas (1.3s)
+⚠ [133/137] Built Batteries.Lean.Expr (1.4s)
+warning: Batteries/Lean/Expr.lean:35:22: `Lean.levelZero` has been deprecated: Use `Lean.Level.zero` instead
+
+Note: The updated constant is in a different namespace. Dot notation may need to be changed (e.g., from `x.levelZero` to `Level.zero x`).
+
+Hint: Replace the deprecated name:
+  l̵e̵v̵e̵l̵Z̵e̵r̵o̵L̲e̲v̲e̲l̲.̲z̲e̲r̲o̲
+✔ [134/139] Built Batteries.Lean.HashSet (799ms)
+✔ [136/140] Built Batteries.Lean.IO.Process (688ms)
+✔ [137/140] Built Batteries.Lean.LawfulMonad (971ms)
+✖ [138/143] Building Batteries.Lean.LawfulMonadLift (983ms)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/Batteries/Lean/LawfulMonadLift.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Lean/LawfulMonadLift.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Lean/LawfulMonadLift.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Lean/LawfulMonadLift.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Lean/LawfulMonadLift.setup.json --json
+error: Batteries/Lean/LawfulMonadLift.lean:37:21: Tactic `unfold` failed to unfold `EST.bind` in
+  (fun r r_1 =>
+      instMonadEIO._aux_13 (instMonadEIO._aux_13 (instMonadEIO._aux_5 r) fun a => instMonadEIO._aux_5 a.ref) fun a s =>
+        match instMonadEIO._aux_13 ma f s with
+        | EST.Out.ok a s => EST.Out.ok a s
+        | EST.Out.error e s =>
+          EST.Out.error ((fun err => Exception.error a (MessageData.ofFormat (format (toString err)))) e) s) =
+    fun r r_1 =>
+    instMonadEIO._aux_13
+      (instMonadEIO._aux_13 (instMonadEIO._aux_13 (instMonadEIO._aux_5 r) fun a => instMonadEIO._aux_5 a.ref) fun a s =>
+        match ma s with
+        | EST.Out.ok a s => EST.Out.ok a s
+        | EST.Out.error e s =>
+          EST.Out.error ((fun err => Exception.error a (MessageData.ofFormat (format (toString err)))) e) s)
+      fun a =>
+      instMonadEIO._aux_13 (instMonadEIO._aux_13 (instMonadEIO._aux_5 r) fun a => instMonadEIO._aux_5 a.ref)
+        fun a_1 s =>
+        match f a s with
+        | EST.Out.ok a s => EST.Out.ok a s
+        | EST.Out.error e s =>
+          EST.Out.error ((fun err => Exception.error a_1 (MessageData.ofFormat (format (toString err)))) e) s
+✔ [139/145] Built Batteries.Lean.Meta.Basic (1.1s)
+✔ [140/145] Built Batteries.Lean.Meta.Expr (629ms)
+✔ [141/145] Built Batteries.Lean.PersistentHashMap (713ms)
+✔ [142/147] Built Batteries.Lean.Meta.Inaccessible (909ms)
+✔ [143/147] Built Batteries.Lean.Meta.InstantiateMVars (808ms)
+✔ [144/150] Built Batteries.Lean.Meta.DiscrTree (766ms)
+✔ [145/151] Built Batteries.Lean.MonadBacktrack (590ms)
+✔ [146/151] Built Batteries.Lean.Meta.UnusedNames (986ms)
+✔ [147/152] Built Batteries.Tactic.OpenPrivate (2.1s)
+✔ [148/153] Built Batteries.Lean.Meta.SavedState (956ms)
+✔ [149/153] Built Batteries.Lean.NameMapAttribute (1.5s)
+✔ [150/155] Built Batteries.Lean.PersistentHashSet (3.6s)
+✖ [152/158] Building Batteries.Lean.Meta.Simp (7.1s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/Batteries/Lean/Meta/Simp.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Lean/Meta/Simp.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Lean/Meta/Simp.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Lean/Meta/Simp.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Lean/Meta/Simp.setup.json --json
+error: Batteries/Lean/Meta/Simp.lean:62:27: Application type mismatch: The argument
+  __do_lift✝
+has type
+  ConfigWithOptions
+but is expected to have type
+  optParam Config { }
+in the application
+  @mkContext __do_lift✝
+✔ [155/159] Built Batteries.Lean.Syntax (3.7s)
+✔ [156/160] Built Batteries.Tactic.Congr (4.0s)
+✔ [158/162] Built Batteries.Tactic.Case (5.6s)
+✔ [159/163] Built Batteries.Tactic.HelpCmd (4.5s)
+✖ [160/163] Building Batteries.Tactic.GeneralizeProofs (6.4s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/Batteries/Tactic/GeneralizeProofs.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Tactic/GeneralizeProofs.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean/Batteries/Tactic/GeneralizeProofs.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Tactic/GeneralizeProofs.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/ir/Batteries/Tactic/GeneralizeProofs.setup.json --json
+error: Batteries/Tactic/GeneralizeProofs.lean:58:67: unexpected identifier; expected '#guard_msgs', 'abbrev', 'add_decl_doc', 'axiom', 'binder_predicate', 'builtin_cbv_simproc', 'builtin_cbv_simproc_decl', 'builtin_dsimproc', 'builtin_dsimproc_decl', 'builtin_grind_propagator', 'builtin_initialize', 'builtin_simproc', 'builtin_simproc_decl', 'cbv_simproc', 'cbv_simproc_decl', 'class', 'coinductive', 'declare_simp_like_tactic', 'declare_syntax_cat', 'def', 'dsimproc', 'dsimproc_decl', 'elab', 'elab_rules', 'example', 'grind_propagator', 'inductive', 'infix', 'infixl', 'infixr', 'initialize', 'instance', 'macro', 'macro_rules', 'notation', 'opaque', 'postfix', 'prefix', 'recall', 'recommended_spelling', 'register_builtin_option', 'register_error_explanation', 'register_option', 'register_tactic_tag', 'register_try?_tactic', 'simproc', 'simproc_decl', 'structure', 'syntax', 'tactic_extension', 'theorem' or 'unif_hint'
+warning: Batteries/Tactic/GeneralizeProofs.lean:475:0: declaration uses `sorry`
+warning: Batteries/Tactic/GeneralizeProofs.lean:508:56: Variable name `config` is not explicitly referenced.
+
+Hint: The binding can be removed (if unused) or named `_` (if used implicitly). Alternatively, prefix the name with `_` to silence this warning:
+  [apply] _config
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+✔ [161/164] Built Batteries.Tactic.Instances (2.6s)
+✔ [162/167] Built Batteries.Tactic.Lemma (2.1s)
+✔ [163/168] Built Batteries.Tactic.Lint.TypeClass (1.2s)
+✔ [164/169] Built Batteries.Tactic.Lint.Simp (2.9s)
+✔ [165/170] Built Batteries.Tactic.NoMatch (1.9s)
+✔ [166/171] Built Batteries.Tactic.Lint.Frontend (3.5s)
+✔ [168/172] Built Batteries.Tactic.PermuteGoals (1.2s)
+✔ [169/174] Built Batteries.Tactic.PrintOpaques (1.4s)
+✔ [171/175] Built Batteries.Tactic.PrintDependents (1.7s)
+✔ [172/176] Built Batteries.Tactic.ShowUnused (1.6s)
+✔ [173/177] Built Batteries.Tactic.SqueezeScope (5.5s)
+✔ [174/179] Built Batteries.Tactic.Trans (5.3s)
+✔ [175/179] Built Batteries.Util.Cache (1.0s)
+✔ [176/183] Built Batteries.Util.Pickle (922ms)
+✔ [177/205] Built Batteries.Util.ExtendedBinder (2.2s)
+✔ [181/210] Built ImportGraph.Imports.ImportGraph (898ms)
+✔ [182/210] Built Mathlib.Tactic.Linter.DirectoryDependency (2.3s)
+✔ [183/211] Built ImportGraph.Imports.Redundant (816ms)
+✔ [184/214] Built ImportGraph.Lean.Environment (703ms)
+✔ [185/280] Built ImportGraph.Imports.RequiredModules (1.7s)
+✖ [186/284] Building Mathlib.Tactic.Linter.Header (2.3s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/Mathlib/Tactic/Linter/Header.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/Header.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/Tactic/Linter/Header.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/ir/Mathlib/Tactic/Linter/Header.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/ir/Mathlib/Tactic/Linter/Header.setup.json --json
+error: Mathlib/Tactic/Linter/Header.lean:365:23: Type mismatch
+  d
+has type
+  Bool
+but is expected to have type
+  Unit
+error: Mathlib/Tactic/Linter/Header.lean:371:13: Type mismatch
+  val
+has type
+  Bool
+but is expected to have type
+  Unit
+warning: Mathlib/Tactic/Linter/Header.lean:364:2: This `do` element and its control-flow region are dead code. Consider refactoring your code to remove it.
+✔ [284/290] Built Aesop.Check (895ms)
+✔ [285/290] Built Aesop.Forward.PremiseIndex (695ms)
+✔ [286/291] Built Aesop.Forward.SlotIndex (667ms)
+✔ [287/293] Built Aesop.Forward.LevelIndex (775ms)
+✔ [288/296] Built Aesop.Options.Public (3.2s)
+✔ [289/296] Built Aesop.Nanos (829ms)
+✔ [290/296] Built Aesop.Index.DiscrTreeConfig (1.9s)
+✔ [291/296] Built Aesop.Options.Internal (2.5s)
+✔ [292/296] Built Aesop.Util.UnorderedArraySet (1.8s)
+✔ [293/299] Built Aesop.Options (1.9s)
+✔ [294/305] Built Aesop.Rule.Name (1.8s)
+✔ [295/308] Built Aesop.Util.UnionFind (1.0s)
+✔ [296/308] Built Aesop.Percent (838ms)
+⚠ [297/309] Built Aesop.Util.Basic (6.2s)
+warning: Aesop/Util/Basic.lean:452:30: `Lean.levelZero` has been deprecated: Use `Lean.Level.zero` instead
+
+Note: The updated constant is in a different namespace. Dot notation may need to be changed (e.g., from `x.levelZero` to `Level.zero x`).
+
+Hint: Replace the deprecated name:
+  l̵e̵v̵e̵l̵Z̵e̵r̵o̵L̲e̲v̲e̲l̲.̲z̲e̲r̲o̲
+✔ [300/312] Built Aesop.RuleTac.RuleTerm (904ms)
+✔ [301/312] Built Aesop.RuleTac.FVarIdSubst (1.8s)
+✔ [302/314] Built Aesop.Forward.Substitution (2.0s)
+✔ [303/314] Built Aesop.Script.CtorNames (2.1s)
+✔ [304/314] Built Aesop.RulePattern.Cache (1.5s)
+✔ [309/319] Built Aesop.Script.Tactic (2.9s)
+✔ [312/322] Built Aesop.Script.GoalWithMVars (1.9s)
+✖ [314/325] Building Aesop.Util.EqualUpToIds (5.0s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/Aesop/Util/EqualUpToIds.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Util/EqualUpToIds.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean/Aesop/Util/EqualUpToIds.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/ir/Aesop/Util/EqualUpToIds.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/ir/Aesop/Util/EqualUpToIds.setup.json --json
+error: Aesop/Util/EqualUpToIds.lean:53:4: `inferInstanceAs` failed, expected type contains metavariables
+  ?m.1
+
+Note: `inferInstanceAs` requires full knowledge of the expected ("target") type to do its instance translation. If you do not intend to transport instances between two types, consider using `inferInstance` or `(inferInstance : expectedType)` instead.
+error: Aesop/Util/EqualUpToIds.lean:53:2: expected structure
+error: Aesop/Util/EqualUpToIds.lean:90:12: Invalid field `lDepth`: The environment does not contain `Lean.MetavarContext.lDepth`, so it is not possible to project the field `lDepth` from an expression
+  mctx
+of type `MetavarContext`
+error: Aesop/Util/EqualUpToIds.lean:90:45: Invalid field `lDepth`: The environment does not contain `Lean.MetavarContext.lDepth`, so it is not possible to project the field `lDepth` from an expression
+  mctx
+of type `MetavarContext`
+✔ [316/327] Built Aesop.Script.TacticState (1.8s)
+✖ [323/332] Building Aesop.ElabM (1.5s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/Aesop/ElabM.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean/Aesop/ElabM.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean/Aesop/ElabM.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/ir/Aesop/ElabM.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/ir/Aesop/ElabM.setup.json --json
+error: Aesop/ElabM.lean:50:4: `inferInstanceAs` failed, expected type contains metavariables
+  ?m.1
+
+Note: `inferInstanceAs` requires full knowledge of the expected ("target") type to do its instance translation. If you do not intend to transport instances between two types, consider using `inferInstance` or `(inferInstance : expectedType)` instead.
+error: Aesop/ElabM.lean:50:2: expected structure
+✔ [326/333] Built Aesop.Util.Tactic (1.5s)
+✔ [328/339] Built Aesop.Util.OrderedHashSet (975ms)
+✔ [331/341] Built Aesop.Util.Unfold (2.2s)
+✔ [333/343] Built Aesop.RuleSet.Name (1.3s)
+✔ [334/360] Built Aesop.Util.Tactic.Unfold (2.6s)
+✔ [338/360] Built Aesop.RuleSet.Filter (1.5s)
+✔ [357/364] Built Aesop.Search.Expansion.Simp (1.1s)
+✔ [358/377] Built Aesop.Constants (647ms)
+✔ [373/404] Built Aesop.Script.OptimizeSyntax (2.0s)
+✔ [399/429] Built Aesop.Exception (2.5s)
+✔ [429/439] Built Aesop.Frontend.Basic (2.4s)
+✔ [439/444] Built Qq.ForLean.ToExpr (2.0s)
+✔ [440/448] Built Qq.ForLean.ReduceEval (2.3s)
+✖ [441/450] Building Qq.Typ (1.6s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/Qq/Typ.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean/Qq/Typ.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean/Qq/Typ.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/ir/Qq/Typ.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/ir/Qq/Typ.setup.json --json
+error: Qq/Typ.lean:71:17: failed to synthesize instance of type class
+  ToMessageData (Quoted α)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+error: Qq/Typ.lean:71:27: failed to synthesize instance of type class
+  ToMessageData (Quoted α)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+✔ [446/529] Built Qq.ForLean.Do (1.6s)
+✔ [505/551] Built Qq.SortLocalDecls (818ms)
+✔ [547/561] Built Plausible.Attr (807ms)
+✔ [548/562] Built Plausible.Random (1.4s)
+✔ [549/562] Built ImportGraph.Graph.TransitiveClosure (719ms)
+✔ [550/566] Built ImportGraph.Tools.ImportDiff (1.4s)
+✔ [551/566] Built Plausible.Gen (1.9s)
+✔ [552/566] Built ImportGraph.Tools.MinImports (1.1s)
+✔ [554/566] Built ImportGraph.Tools.FindHome (1.6s)
+✔ [555/566] Built ImportGraph.Tools.RedundantImports (1.2s)
+⚠ [557/568] Built Plausible.Arbitrary (1.3s)
+warning: Plausible/Arbitrary.lean:126:0: Definition `Plausible.Char.arbitraryFromList` of class type is semireducible. Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, this warning can be disabled with `set_option warn.classDefReducibility false`.
+✔ [558/568] Built ImportGraph.Tools (1.1s)
+✔ [559/568] Built Plausible.ArbitraryFueled (818ms)
+✔ [560/571] Built LeanSearchClient.Basic (1.7s)
+⚠ [561/571] Built Plausible.Sampleable (2.9s)
+warning: Plausible/Sampleable.lean:121:11: Definition `Plausible.SampleableExt.proxyRepr` of class type is semireducible. Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, this warning can be disabled with `set_option warn.classDefReducibility false`.
+warning: Plausible/Sampleable.lean:122:11: Definition `Plausible.SampleableExt.shrink` of class type is semireducible. Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, this warning can be disabled with `set_option warn.classDefReducibility false`.
+warning: Plausible/Sampleable.lean:136:0: Definition `Plausible.SampleableExt.mkSelfContained` of class type is semireducible. Most type class instances should be instance-reducible, so consider marking this
+definition with `@[instance_reducible]`. If it is intentionally semireducible, this warning can be disabled with `set_option warn.classDefReducibility false`.
+✔ [562/573] Built Plausible.DeriveArbitrary (4.5s)
+✔ [563/573] Built LeanSearchClient.Syntax (4.3s)
+✔ [565/574] Built LeanSearchClient.LoogleSyntax (2.8s)
+✖ [568/645] Building Plausible.Testable (3.6s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/Plausible/Testable.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean/Plausible/Testable.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean/Plausible/Testable.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/ir/Plausible/Testable.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/ir/Plausible/Testable.setup.json --json
+error: Plausible/Testable.lean:378:67: Application type mismatch: The argument
+  addShrinks (n + 1) res
+has type
+  TestResult (β (SampleableExt.interp candidate))
+but is expected to have type
+  ?m.278 __r✝⁵ __r✝⁴ candidate __s✝ __r✝² res __r✝¹ __r✝ candidate
+in the application
+  ⟨candidate, addShrinks (n + 1) res⟩
+✔ [636/645] Built LeanSearchClient (949ms)
+✔ [645/654] Built ProofWidgets.Compat (881ms)
+⚠ [646/654] Built ProofWidgets.Util (1.3s)
+warning: ProofWidgets/Util.lean:43:5: Ambiguous namespace `SubExpr`: it is interpreted as `_root_.Lean.PrettyPrinter.Delaborator.SubExpr` because this `open` occurs inside `namespace Lean.PrettyPrinter.Delaborator`, while `_root_.Lean.SubExpr` is silently not opened. Specify the namespace unambiguously, e.g. `_root_.Lean.PrettyPrinter.Delaborator.SubExpr`. The warning can sometimes also be addressed by moving the `open` outside of the surrounding `namespace`.
+
+Note: This linter can be disabled with `set_option linter.ambiguousOpen false`
+✔ [647/656] Built ProofWidgets.Component.Basic (2.5s)
+✔ [648/656] Built ProofWidgets.Cancellable (2.9s)
+✖ [649/747] Building ProofWidgets.Component.MakeEditLink (1.5s)
+trace: .> LEAN_PATH=/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Cli/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/batteries/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/Qq/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/aesop/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/importGraph/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/plausible/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/mathlib/.lake/build/lib/lean:/content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/build/lib/lean /root/.elan/toolchains/leanprover--lean4---v4.35.0-rc3/bin/lean /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/ProofWidgets/Component/MakeEditLink.lean -o /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean/ProofWidgets/Component/MakeEditLink.olean -i /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/lib/lean/ProofWidgets/Component/MakeEditLink.ilean -c /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/ir/ProofWidgets/Component/MakeEditLink.c --setup /content/itir-prover-work/chboishabba__dashi_lean4/57795094baf0f74d4f9a67bbff946ec6998eda77/.lake/packages/proofwidgets/.lake/build/ir/ProofWidgets/Component/MakeEditLink.setup.json --json
+error: ProofWidgets/Component/MakeEditLink.lean:13:64: Invalid field `utf16Size`: The environment does not contain `Char.utf16Size`, so it is not possible to project the field `utf16Size` from an expression
+  c
+of type `Char`
+✔ [1197/6428] Built ProofWidgets.Data.Html (6.5s)
+✔ [1213/6452] Built ProofWidgets.Component.FilterDetails (1.2s)
+⚠ [1277/7240] Built ProofWidgets.Component.OfRpcMethod (1.7s)
+warning: ProofWidgets/Component/OfRpcMethod.lean:66:39: `Lean.levelOne` has been deprecated: Use `Lean.Level.one` instead
+
+Note: The updated constant is in a different namespace. Dot notation may need to be changed (e.g., from `x.levelOne` to `Level.one x`).
+
+Hint: Replace the deprecated name:
+  l̵e̵v̵e̵l̵O̵n̵e̵L̲e̲v̲e̲l̲.̲o̲n̲e̲
+✔ [7868/7875] Built ProofWidgets.Component.PenroseDiagram (1.9s)
+✔ [7870/7877] Built ProofWidgets.Presentation.Expr (2.1s)
+✔ [7872/8004] Built ProofWidgets.Component.HtmlDisplay (2.2s)
+✔ [8001/8031] Built ProofWidgets.Component.Panel.Basic (2.7s)
+Some required targets logged failures:
+- Batteries.Classes.Cast
+- Batteries.Lean.EStateM
+- Batteries.Tactic.Alias
+- Batteries.Tactic.Lint.Misc
+- Batteries.Data.UInt
+- Batteries.Data.BinaryHeap.Basic
+- Batteries.Data.Nat.Basic
+- Batteries.Data.ByteArray
+- Batteries.Data.DList.Lemmas
+- Batteries.Data.Nat.Digits
+- Batteries.Lean.Float
+- Batteries.Data.Stream
+- Batteries.Lean.LawfulMonadLift
+- Batteries.Lean.Meta.Simp
+- Batteries.Tactic.GeneralizeProofs
+- Mathlib.Tactic.Linter.Header
+- Aesop.Util.EqualUpToIds
+- Aesop.ElabM
+- Qq.Typ
+- Plausible.Testable
+- ProofWidgets.Component.MakeEditLink
+
+STDERR
+info: downloading component 'lean'
+info: installing component 'lean'
+info: mathlib: materializing new dependency
+info: mathlib: fetching revision '8f9d9cff6bd728b17a24e163c9402775d9e6a365' from https://github.com/leanprover-community/mathlib4.git
+info: mathlib: checking out revision '8f9d9cff6bd728b17a24e163c9402775d9e6a365'
+info: plausible: materializing new dependency
+info: plausible: fetching revision '55c8532eb21ec9f6d565d51d96b8ca50bd1fbef3' from https://github.com/leanprover-community/plausible
+info: plausible: checking out revision '55c8532eb21ec9f6d565d51d96b8ca50bd1fbef3'
+info: LeanSearchClient: materializing new dependency
+info: LeanSearchClient: fetching revision 'c5d5b8fe6e5158def25cd28eb94e4141ad97c843' from https://github.com/leanprover-community/LeanSearchClient
+info: LeanSearchClient: checking out revision 'c5d5b8fe6e5158def25cd28eb94e4141ad97c843'
+info: importGraph: materializing new dependency
+info: importGraph: fetching revision '85b59af46828c029a9168f2f9c35119bd0721e6e' from https://github.com/leanprover-community/import-graph
+info: importGraph: checking out revision '85b59af46828c029a9168f2f9c35119bd0721e6e'
+info: proofwidgets: materializing new dependency
+info: proofwidgets: fetching revision 'be3b2e63b1bbf496c478cef98b86972a37c1417d' from https://github.com/leanprover-community/ProofWidgets4
+info: proofwidgets: checking out revision 'be3b2e63b1bbf496c478cef98b86972a37c1417d'
+info: aesop: materializing new dependency
+info: aesop: fetching revision 'f642a64c76df8ba9cb53dba3b919425a0c2aeaf1' from https://github.com/leanprover-community/aesop
+info: aesop: checking out revision 'f642a64c76df8ba9cb53dba3b919425a0c2aeaf1'
+info: Qq: materializing new dependency
+info: Qq: fetching revision 'b8f98e9087e02c8553945a2c5abf07cec8e798c3' from https://github.com/leanprover-community/quote4
+info: Qq: checking out revision 'b8f98e9087e02c8553945a2c5abf07cec8e798c3'
+info: batteries: materializing new dependency
+info: batteries: fetching revision '495c008c3e3f4fb4256ff5582ddb3abf3198026f' from https://github.com/leanprover-community/batteries
+info: batteries: checking out revision '495c008c3e3f4fb4256ff5582ddb3abf3198026f'
+info: Cli: materializing new dependency
+info: Cli: fetching revision '4f10f47646cb7d5748d6f423f4a07f98f7bbcc9e' from https://github.com/leanprover/lean4-cli
+info: Cli: checking out revision '4f10f47646cb7d5748d6f423f4a07f98f7bbcc9e'
+error: build failed
