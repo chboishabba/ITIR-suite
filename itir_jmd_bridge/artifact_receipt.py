@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import argparse
 from copy import deepcopy
+import json
+from pathlib import Path
 import re
 from typing import Any
 from urllib.parse import urlparse
@@ -127,3 +130,25 @@ def build_artifact_resolution_receipt(resolved: dict[str, Any]) -> dict[str, Any
         "authority": "transport-only",
         "establishesProof": False,
     }
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Emit a verified transport-only receipt from an ITIR resolved-artifact JSON payload."
+    )
+    parser.add_argument("--resolved-json", type=Path, required=True)
+    parser.add_argument("--output", type=Path)
+    args = parser.parse_args(argv)
+
+    resolved = json.loads(args.resolved_json.read_text(encoding="utf-8"))
+    receipt = build_artifact_resolution_receipt(resolved)
+    rendered = json.dumps(receipt, indent=2, sort_keys=True) + "\n"
+    if args.output is None:
+        print(rendered, end="")
+    else:
+        args.output.write_text(rendered, encoding="utf-8")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
