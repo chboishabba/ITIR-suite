@@ -68,6 +68,37 @@ def prepare_checkout(repository: str, commit_sha: str, workspace: Path) -> Check
     resolved = _run_checked(["git", "rev-parse", "HEAD"], cwd=checkout).stdout.strip()
     if resolved.lower() != commit_sha.lower():
         raise RuntimeError("checkout did not resolve to requested commit")
+
+    if repository == "chboishabba/dashi_agda":
+        for sub in ["DCHoTT-Agda", "cubical", "vendor/bishop"]:
+            if (checkout / ".gitmodules").exists():
+                subprocess.run(
+                    ["git", "submodule", "update", "--init", "--depth=1", sub],
+                    cwd=checkout,
+                    capture_output=True,
+                    text=True,
+                    shell=False,
+                )
+
+    if repository == "chboishabba/dashi_lean4":
+        if (checkout / "lakefile.toml").exists() or (checkout / "lakefile.lean").exists():
+            if shutil.which("elan"):
+                subprocess.run(
+                    ["elan", "override", "set", "v4.28.0"],
+                    cwd=checkout,
+                    capture_output=True,
+                    text=True,
+                    shell=False,
+                )
+            if shutil.which("lake"):
+                subprocess.run(
+                    ["lake", "exe", "cache", "get"],
+                    cwd=checkout,
+                    capture_output=True,
+                    text=True,
+                    shell=False,
+                )
+
     return Checkout(checkout, repository, resolved)
 
 

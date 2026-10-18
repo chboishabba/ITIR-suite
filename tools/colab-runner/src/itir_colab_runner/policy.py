@@ -55,5 +55,21 @@ def build_argv(job: ProverJob, checkout: Path) -> list[str]:
         if set(args) != {"path", "profile"} or args.get("profile") != "repo" or not isinstance(args.get("path"), str):
             raise ValueError("agda_module requires path and profile=repo")
         path = validate_relative_source_path(checkout, args["path"], ".agda")
-        return ["agda", _relative_arg(checkout, path)]
+        cmd = [
+            "agda",
+            "--no-libraries",
+            "--no-default-libraries",
+            "-i",
+            ".",
+            "-i",
+            "DCHoTT-Agda",
+            "-i",
+            "vendor/bishop",
+            "-i",
+            "cubical",
+        ]
+        if Path("/usr/share/agda-stdlib").exists():
+            cmd.extend(["-i", "/usr/share/agda-stdlib"])
+        cmd.extend(["-WnoUnsupportedIndexedMatch", _relative_arg(checkout, path)])
+        return cmd
     raise ValueError("unsupported operation")
