@@ -1,6 +1,6 @@
 import sqlite3
 import unittest
-from scripts.evidence_fleet_controller import (migrate,lineage,packet,score,upsert_work,plan,lifecycle,validate_transport,attach_receipt,refresh_work_evidence,EvidenceDeferred)
+from scripts.evidence_fleet_controller import (migrate,lineage,packet,score,upsert_work,plan,lifecycle,validate_transport,attach_receipt,refresh_work_evidence,EvidenceDeferred,exact_async_archive_provider)
 
 class FleetTest(unittest.TestCase):
     def setUp(self):
@@ -83,5 +83,67 @@ class FleetTest(unittest.TestCase):
         # is imported or available to the controller.
         self.assertNotIn("MutationService",vars(__import__("scripts.evidence_fleet_controller",fromlist=["*"])))
         self.assertEqual(refresh_work_evidence(self.db,work,cid,forbidden_mutation)["stage"],"failed")
+
+
+    def test_existing_async_puller_exact_once_and_gap(self):
+        import json, tempfile
+        from pathlib import Path
+        from types import SimpleNamespace
+        cid="123e4567-e89b-42d3-a456-426614174000"
+        with tempfile.TemporaryDirectory() as td:
+            puller=Path(td)/"pull_to_structurer.py"; puller.touch()
+            archive=Path(td)/"archive.sqlite"; archive.touch()
+            formal=Path(td)/"formal.agda"; formal.touch()
+            world=Path(td)/"world.slrw"; world.touch()
+            calls=[]
+            def run(cmd, **kwargs):
+                calls.append(cmd)
+                return SimpleNamespace(returncode=0,stdout=json.dumps({
+                    "requested_targets":1,"selected_id_filters":1,
+                    "async":{"total":1,"ok":1,"failures":0,"messages":4},
+                    "source_id":"pull_receipt_1","ingest":{"messages":4}}))
+            def gap(*args):
+                self.assertEqual(args,(cid,str(formal),str(world)))
+                return SimpleNamespace(unmatched_informal_factors=2,
+                    unmatched_formal_factors=1,matched_semantic_factors=5)
+            provider=exact_async_archive_provider(str(puller),str(archive),"main",
+                formal_file=str(formal),slrw_path=str(world),runner=run,gap_compare=gap)
+            with self.assertRaises(ValueError): provider("not-a-uuid")
+            self.assertEqual(len(calls),0)
+            work=upsert_work(self.db,"gap",[cid],["node"],1)
+            result=refresh_work_evidence(self.db,work,cid,provider)
+            self.assertEqual(result["stage"],"rescored")
+            self.assertEqual(len(calls),1)
+            self.assertEqual(calls[0][calls[0].index("--ids")+1],cid)
+            self.assertEqual(calls[0][calls[0].index("--engine")+1],"async")
+            self.assertNotIn("--titles",calls[0])
+            self.assertNotIn("--dry-run",calls[0])
+            self.assertEqual(self.db.execute("SELECT priority FROM fleet_work_units").fetchone()[0],3)
+
+    def test_async_rejection_and_missing_gap_are_deferred(self):
+        import json,tempfile
+        from pathlib import Path
+        from types import SimpleNamespace
+        cid="123e4567-e89b-42d3-a456-426614174000"
+        with tempfile.TemporaryDirectory() as td:
+            puller=Path(td)/"pull.py";puller.touch()
+            archive=Path(td)/"archive.db";archive.touch()
+            work=upsert_work(self.db,"gap",[cid],["node"],1)
+            count=[]
+            def reject(cmd,**kwargs):
+                count.append(1)
+                return SimpleNamespace(returncode=0,stdout=json.dumps({
+                    "requested_targets":1,"selected_id_filters":1,
+                    "async":{"total":1,"ok":0,"failures":1},"source_id":"x","ingest":{}}))
+            p=exact_async_archive_provider(str(puller),str(archive),"main",runner=reject)
+            self.assertEqual(refresh_work_evidence(self.db,work,cid,p)["stage"],"deferred")
+            self.assertEqual(len(count),1)
+            def accepted(cmd,**kwargs):
+                return SimpleNamespace(returncode=0,stdout=json.dumps({
+                    "requested_targets":1,"selected_id_filters":1,
+                    "async":{"total":1,"ok":1,"failures":0,"messages":2},
+                    "source_id":"x","ingest":{}}))
+            p=exact_async_archive_provider(str(puller),str(archive),"main",runner=accepted)
+            self.assertEqual(refresh_work_evidence(self.db,work,cid,p)["stage"],"deferred")
 
 if __name__ == "__main__": unittest.main()
