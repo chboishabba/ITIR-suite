@@ -9,3 +9,23 @@ TODO:
 - [ ] Implement source-linked lightweight candidate PNF units with abstentions, without duplicating SLR parsing authority.
 - [ ] Add capped MCP tool and fixture tests; execute locally where possible.
 - [ ] Record delivered behavior, test receipt and remaining producer/PG integration gap.
+
+## Delivered — candidate-only v1
+
+`scripts/pnf_work_packet_provider.py` opens the canonical archive read-only and strictly checks the 25 production `messages` columns. It tail-selects at most 40 messages and 24,000 text characters per thread by default (hard ceilings 200 messages / 100,000 characters); at most eight threads per call. Packet JSON defaults to a 24,000-character ceiling, hard ceiling 100,000. On overflow it removes **derived candidate units from the tail** and records `packet_budget_truncated` plus the number removed; if source references alone exceed the ceiling, it fails closed. No source body is serialized.
+
+The lightweight extraction contract is deliberately narrow: a selected message with matching bounded vocabulary (`lemma/theorem/proof/formal/agda/lean/gap/TODO/blocked/implement/PR #n`) contributes **unverified lexical candidate kinds**, linked to a canonical message reference. This is **not** SLR semantic PNF parsing and must not be treated as proof, task promotion or equivalent-claim detection. The existing `itir.pnf.task_memory_preview` and `itir.pnf.observer_evidence` remain independent producer-facing interfaces; no new parser authority is asserted. Each packet carries deterministic `packet_id`, digest-checked locator coordinates, ledger evidence receipts, selected/total counts and truncation flags, and an in-memory `local_reference_only` projection receipt. The PostgreSQL adapter explicitly raises `NotImplementedError`; no PostgreSQL connection is made or required.
+
+The tool `itir.pnf.work_packet` is registered through existing `get_pnf_tools` and `build_default_registry` with `additionalProperties: false`. It is read-only, candidate evidence only. AO can compose a worker brief from task atom, source references, candidate kinds and evidence receipts without reading the whole transcript; any deeper SLR/PNF parse must be separately selected and attributed.
+
+### Local validation commands
+
+```bash
+python -m unittest discover -s tests -p 'test_pnf_work_packet_provider.py' -v
+ruff check scripts/pnf_work_packet_provider.py itir-mcp/src/itir_mcp/pnf_tools.py tests/test_pnf_work_packet_provider.py
+PYTHONPATH=itir-mcp/src python -c 'from itir_mcp.registry import build_default_registry; print([t.name for t in build_default_registry().list_tools()])'
+```
+
+**Execution receipt:** pending local referee execution. GitHub connector edits were made without a runnable local repository checkout; no test/ruff success is claimed, no CI or Colab invoked.
+
+**Remaining gaps:** real SLR selected-span parser composition, persistent local projection receipts (the current receipt is in-memory), formal comparison/gap producer joins, source-content verification against external archive snapshots, and downstream 500-thread AO routing integration. No PG startup, raw transcript duplication, autonomous dispatch, browser or mutation.
