@@ -107,12 +107,27 @@ def prepare_checkout(repository: str, commit_sha: str, workspace: Path) -> Check
 
 
 def _minimal_env(checkout_path: Path | None = None) -> dict[str, str]:
-    keep = {"PATH", "HOME", "LANG", "LC_ALL", "ELAN_HOME", "AGDA_DIR", "XDG_CACHE_HOME", "DASHI_NO_TMUX", "AGDA_BIN", "STDLIB_SRC", "DASHI_AGDA29_CACHE_ROOT", "DASHI_REPO_ROOT", "AGDA_JOBS", "GHCRTS", "DASHI_AGDA_RSS_LIMIT_MB"}
+    keep = {"PATH", "HOME", "LANG", "LC_ALL", "ELAN_HOME", "AGDA_DIR", "XDG_CACHE_HOME", "DASHI_NO_TMUX", "AGDA_BIN", "STDLIB_SRC", "DASHI_AGDA29_CACHE_ROOT", "DASHI_REPO_ROOT", "AGDA_JOBS", "GHCRTS", "DASHI_AGDA_RSS_LIMIT_MB", "AGDA_RTS_HEAP"}
     env = {k: v for k, v in os.environ.items() if k in keep}
     env["DASHI_NO_TMUX"] = "1"
     env["AGDA_JOBS"] = "0"
-    env["GHCRTS"] = "-N"
-    env["DASHI_AGDA_RSS_LIMIT_MB"] = "36864"
+    total_mem_kib = 13286936
+    try:
+        with open("/proc/meminfo", encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("MemTotal:"):
+                    total_mem_kib = int(line.split()[1])
+                    break
+    except Exception:
+        pass
+    if total_mem_kib > 30 * 1024 * 1024:
+        env["AGDA_RTS_HEAP"] = "32G"
+        env["GHCRTS"] = "-N -M32G"
+        env["DASHI_AGDA_RSS_LIMIT_MB"] = "36864"
+    else:
+        env["AGDA_RTS_HEAP"] = "10G"
+        env["GHCRTS"] = "-N -M10G"
+        env["DASHI_AGDA_RSS_LIMIT_MB"] = "11500"
     if checkout_path is not None:
         cache_root = checkout_path.parents[2] / "dashi-agda-cache"
         env["DASHI_AGDA29_CACHE_ROOT"] = str(cache_root)
