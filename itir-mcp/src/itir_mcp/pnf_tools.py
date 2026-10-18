@@ -236,7 +236,7 @@ def _text(value: Any) -> str:
 
 
 def pnf_work_packet(payload: Mapping[str, Any]) -> JsonDict:
-    from scripts.pnf_work_packet_provider import build_work_packet
+    from .pnf_work_packet_provider import build_work_packet
 
     allowed = {"proposals", "archive_db", "span_policy"}
     if set(payload) - allowed or "proposals" not in payload:
