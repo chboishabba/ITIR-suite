@@ -64,6 +64,15 @@ Not in scope for the first increment:
 - `itir.markdown.write_projection`
 - `itir.docstore.config_plan`
 
+## Governed ChatGPT worker lane
+
+`itir-mcp` owns the fleet-facing ChatGPT worker boundary. Callers use
+`itir.chatgpt.dispatch_worker`, `itir.chatgpt.operation_status`, and
+`itir.chatgpt.reconcile` rather than constructing a `re-gpt` CLI command.
+The adapter delegates to the local re-gpt public API with direct async writes,
+DOM fallback disabled, and receipt-bearing operation state. It does not expose
+browser/session bootstrap controls and never resends an uncertain operation.
+
 ## Numeric ABI
 
 `itir_mcp.pnf_numeric_abi` is a narrow receipt-bearing numeric ABI for

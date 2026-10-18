@@ -48,6 +48,9 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.ao.heartbeat",
         "itir.ao.report_result",
         "itir.ao.gap_check",
+        "itir.chatgpt.dispatch_worker",
+        "itir.chatgpt.operation_status",
+        "itir.chatgpt.reconcile",
     }
 
 
