@@ -34,3 +34,20 @@ Reused interfaces identified: `scripts/chat_archive_batch.py` offers `select_thr
 TODO: [ ] Independently verify provider read-only behavior and canonical archive delta semantics; [ ] expose the adapter through stdio MCP with provenance and authority checks; [ ] separately design user-authorized direct async `curl_cffi` execution with `dom_fallback=False` and exactly-once receipt gating. No promotion from a PNF/gap score to a formal theorem.
 
 Changelog: added exact-ID injected lifecycle receipt storage, deterministic priority re-score and deferred/failure audit facts without ChatGPT mutation.
+
+## Exact-ID async operator adapter (explicit invocation only)
+
+The controller CLI delegates exactly one supplied UUID to the **existing** `reverse-engineered-chatgpt/scripts/pull_to_structurer.py` using `--ids UUID --engine async --mode pull --concurrency 1 --no-skip-existing --json --no-progress`. The puller's existing identity check and chat-export-structurer canonical ingest remain authoritative. Its own subprocess runs `asyncio.run(_fetch_async(...))` once; no nested event-loop issue. The CLI requires a canonical archive DB and explicit puller path. Optional formal comparison requires **both** a formal source file and a `.slrw` world store, using `re_gpt.gap_comparator.ExactGapComparator.compare`. No formal target is inferred.
+
+```bash
+python -m scripts.evidence_fleet_controller --db /path/to/fleet_control.sqlite \
+  --refresh-work WORK_ID --conversation-id CANONICAL_UUID \
+  --puller /path/to/reverse-engineered-chatgpt/scripts/pull_to_structurer.py \
+  --archive-db /path/to/canonical_chat_archive.sqlite --account main \
+  --formal-file /path/to/explicit.agda --slrw /path/to/world.slrw
+```
+
+The puller may fetch authenticated private content into the *owned canonical archive* only. It must not be run without operator authorization. The controller records metadata only, not raw responses or tokens. Rejected/identity-invalid/transport-unavailable reads are classified as deferred; malformed receipts or comparator failures are classified as failed. There is no retry, browser, sync or mutation fallback in this adapter. **Caveat:** `archive_delta` currently reflects the puller's fetched message count, not a verified before/after inserted-row delta; archive-count semantics must be reconciled with structurer ingest statistics before treating it as a canonical delta. This is not a formal receipt or promotion gate.
+
+TODO: [ ] Verify true archive insertion/update deltas and immutable source IDs from structurer; [ ] verify optional comparator against explicit `.slrw` and formal path; [ ] expose stdio MCP operation with authorization and receipt gates; [ ] separately implement authorized exactly-once async mutation adapter.
+Changelog: added operator-invoked existing async exact-ID puller delegation and optional existing exact-gap comparator.
