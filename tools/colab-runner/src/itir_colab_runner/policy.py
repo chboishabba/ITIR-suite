@@ -55,6 +55,9 @@ def build_argv(job: ProverJob, checkout: Path) -> list[str]:
         if set(args) != {"path", "profile"} or args.get("profile") != "repo" or not isinstance(args.get("path"), str):
             raise ValueError("agda_module requires path and profile=repo")
         path = validate_relative_source_path(checkout, args["path"], ".agda")
+        parallel_script = checkout / "scripts" / "run_agda29_parallel_check.sh"
+        if parallel_script.exists():
+            return ["bash", "scripts/run_agda29_parallel_check.sh", _relative_arg(checkout, path)]
         cmd = [
             "agda",
             "--no-libraries",

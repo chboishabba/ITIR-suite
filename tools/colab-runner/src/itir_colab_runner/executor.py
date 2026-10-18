@@ -102,9 +102,21 @@ def prepare_checkout(repository: str, commit_sha: str, workspace: Path) -> Check
     return Checkout(checkout, repository, resolved)
 
 
-def _minimal_env() -> dict[str, str]:
-    keep = {"PATH", "HOME", "LANG", "LC_ALL", "ELAN_HOME", "AGDA_DIR", "XDG_CACHE_HOME"}
-    return {k: v for k, v in os.environ.items() if k in keep}
+def _minimal_env(checkout_path: Path | None = None) -> dict[str, str]:
+    keep = {"PATH", "HOME", "LANG", "LC_ALL", "ELAN_HOME", "AGDA_DIR", "XDG_CACHE_HOME", "DASHI_NO_TMUX", "AGDA_BIN", "STDLIB_SRC", "DASHI_AGDA29_CACHE_ROOT"}
+    env = {k: v for k, v in os.environ.items() if k in keep}
+    env["DASHI_NO_TMUX"] = "1"
+    if checkout_path is not None:
+        cache_root = checkout_path.parents[2] / "dashi-agda-cache"
+        env["DASHI_AGDA29_CACHE_ROOT"] = str(cache_root)
+    agda29_path = Path("/nix/store/jv7cagyh8wm4cw8j94z5s2ffqmjv10dq-Agda-2.9.0-bin/bin/agda")
+    if agda29_path.exists():
+        env["AGDA_BIN"] = str(agda29_path)
+    elif shutil.which("agda29"):
+        env["AGDA_BIN"] = shutil.which("agda29") or "agda"
+    if Path("/usr/share/agda-stdlib").exists():
+        env["STDLIB_SRC"] = "/usr/share/agda-stdlib"
+    return env
 
 
 def execute_job(job: ProverJob, checkout: Checkout, secrets: Sequence[str] = ()) -> ExecutionOutcome:
@@ -120,7 +132,7 @@ def execute_job(job: ProverJob, checkout: Checkout, secrets: Sequence[str] = ())
             text=True,
             shell=False,
             timeout=job.timeout_seconds,
-            env=_minimal_env(),
+            env=_minimal_env(checkout.path),
         )
         elapsed = time.monotonic() - started
         status = "SUCCEEDED" if cp.returncode == 0 else "FAILED"
