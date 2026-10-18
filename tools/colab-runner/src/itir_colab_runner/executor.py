@@ -107,11 +107,12 @@ def prepare_checkout(repository: str, commit_sha: str, workspace: Path) -> Check
 
 
 def _minimal_env(checkout_path: Path | None = None) -> dict[str, str]:
-    keep = {"PATH", "HOME", "LANG", "LC_ALL", "ELAN_HOME", "AGDA_DIR", "XDG_CACHE_HOME", "DASHI_NO_TMUX", "AGDA_BIN", "STDLIB_SRC", "DASHI_AGDA29_CACHE_ROOT", "DASHI_REPO_ROOT", "AGDA_JOBS", "GHCRTS"}
+    keep = {"PATH", "HOME", "LANG", "LC_ALL", "ELAN_HOME", "AGDA_DIR", "XDG_CACHE_HOME", "DASHI_NO_TMUX", "AGDA_BIN", "STDLIB_SRC", "DASHI_AGDA29_CACHE_ROOT", "DASHI_REPO_ROOT", "AGDA_JOBS", "GHCRTS", "DASHI_AGDA_RSS_LIMIT_MB"}
     env = {k: v for k, v in os.environ.items() if k in keep}
     env["DASHI_NO_TMUX"] = "1"
     env["AGDA_JOBS"] = "0"
     env["GHCRTS"] = "-N"
+    env["DASHI_AGDA_RSS_LIMIT_MB"] = "36864"
     if checkout_path is not None:
         cache_root = checkout_path.parents[2] / "dashi-agda-cache"
         env["DASHI_AGDA29_CACHE_ROOT"] = str(cache_root)
