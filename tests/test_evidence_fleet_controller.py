@@ -1,6 +1,6 @@
 import sqlite3
 import unittest
-from scripts.evidence_fleet_controller import (migrate,lineage,packet,score,upsert_work,plan,lifecycle,validate_transport,attach_receipt,refresh_work_evidence,EvidenceDeferred,exact_async_archive_provider)
+from scripts.evidence_fleet_controller import (migrate,lineage,packet,score,upsert_work,plan,lifecycle,validate_transport,attach_receipt,refresh_work_evidence,EvidenceDeferred,exact_async_archive_provider,attach_gap_to_archive)
 
 class FleetTest(unittest.TestCase):
     def setUp(self):
@@ -101,7 +101,7 @@ class FleetTest(unittest.TestCase):
                 return SimpleNamespace(returncode=0,stdout=json.dumps({
                     "requested_targets":1,"selected_id_filters":1,
                     "async":{"total":1,"ok":1,"failures":0,"messages":4},
-                    "source_id":"pull_receipt_1","ingest":{"messages":4}}))
+                    "source_id":"pull_receipt_1","ingest":{"inserted":2,"duplicates":1,"parsed_messages":4,"artifacts":{"indexed":1}}}))
             def gap(*args):
                 self.assertEqual(args,(cid,str(formal),str(world)))
                 return SimpleNamespace(unmatched_informal_factors=2,
@@ -119,6 +119,13 @@ class FleetTest(unittest.TestCase):
             self.assertNotIn("--titles",calls[0])
             self.assertNotIn("--dry-run",calls[0])
             self.assertEqual(self.db.execute("SELECT priority FROM fleet_work_units").fetchone()[0],3)
+            receipt=self.db.execute("""SELECT archive_delta,duplicates,parsed_messages,
+              fetched_messages FROM fleet_archive_receipts""").fetchone()
+            self.assertEqual(receipt,(2,1,4,4))
+            self.assertEqual(self.db.execute("SELECT count(*) FROM fleet_gap_receipts").fetchone()[0],1)
+            self.assertEqual(refresh_work_evidence(self.db,work,cid,provider)["archive_replayed"],True)
+            self.assertEqual(self.db.execute("SELECT count(*) FROM fleet_archive_receipts").fetchone()[0],1)
+            self.assertEqual(self.db.execute("SELECT count(*) FROM fleet_gap_receipts").fetchone()[0],1)
 
     def test_async_rejection_and_missing_gap_are_deferred(self):
         import json,tempfile
@@ -134,7 +141,7 @@ class FleetTest(unittest.TestCase):
                 count.append(1)
                 return SimpleNamespace(returncode=0,stdout=json.dumps({
                     "requested_targets":1,"selected_id_filters":1,
-                    "async":{"total":1,"ok":0,"failures":1},"source_id":"x","ingest":{}}))
+                    "async":{"total":1,"ok":0,"failures":1},"source_id":"x","ingest":{"inserted":0,"duplicates":0,"parsed_messages":0,"artifacts":{}}}))
             p=exact_async_archive_provider(str(puller),str(archive),"main",runner=reject)
             self.assertEqual(refresh_work_evidence(self.db,work,cid,p)["stage"],"deferred")
             self.assertEqual(len(count),1)
@@ -142,8 +149,24 @@ class FleetTest(unittest.TestCase):
                 return SimpleNamespace(returncode=0,stdout=json.dumps({
                     "requested_targets":1,"selected_id_filters":1,
                     "async":{"total":1,"ok":1,"failures":0,"messages":2},
-                    "source_id":"x","ingest":{}}))
+                    "source_id":"x","ingest":{"inserted":1,"duplicates":1,"parsed_messages":2,"artifacts":{}}}))
             p=exact_async_archive_provider(str(puller),str(archive),"main",runner=accepted)
-            self.assertEqual(refresh_work_evidence(self.db,work,cid,p)["stage"],"deferred")
+            result=refresh_work_evidence(self.db,work,cid,p)
+            self.assertEqual(result["stage"],"deferred")
+            self.assertEqual(result["archive_stage"],"ingested")
+            self.assertEqual(self.db.execute("SELECT archive_delta FROM fleet_archive_receipts").fetchone()[0],1)
+            self.assertEqual(self.db.execute("SELECT count(*) FROM fleet_gap_receipts").fetchone()[0],0)
+            formal=Path(td)/"f.agda";formal.touch()
+            world=Path(td)/"w.slrw";world.touch()
+            def gap(*args):
+                return SimpleNamespace(unmatched_informal_factors=2,
+                    unmatched_formal_factors=0,matched_semantic_factors=1)
+            receipt=result["archive_receipt_digest"]
+            attached=attach_gap_to_archive(self.db,work,cid,receipt,str(formal),str(world),gap)
+            self.assertEqual(attached["stage"],"rescored")
+            self.assertTrue(attach_gap_to_archive(self.db,work,cid,receipt,
+                str(formal),str(world),gap)["replayed"])
+            self.assertEqual(self.db.execute("SELECT count(*) FROM fleet_archive_receipts").fetchone()[0],1)
+            self.assertEqual(self.db.execute("SELECT count(*) FROM fleet_gap_receipts").fetchone()[0],1)
 
 if __name__ == "__main__": unittest.main()
