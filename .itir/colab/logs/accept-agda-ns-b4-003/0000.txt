@@ -1,0 +1,10 @@
+STDOUT
+Logging Agda output to: /home/c/.gemini/antigravity/scratch/dashi-agda29-parallel-check-20261018-041316-DASHI__Physics__Closure__NSCanonicalB4PhysicalR440AnalyticInterfaceExact.agda.log
+Agda RSS guard: 8192 MiB
+Checking: DASHI/Physics/Closure/NSCanonicalB4PhysicalR440AnalyticInterfaceExact.agda
+Cannot read file /content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSCanonicalB4PhysicalR440AnalyticInterfaceExact.agda
+Error: /content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSCanonicalB4PhysicalR440AnalyticInterfaceExact.agda: openBinaryFile: does not exist (No such file or directory)
+
+STDERR
+Cloning into '/content/dashi-agda-cache/agda-stdlib-experimental'...
+Agda failed for: DASHI/Physics/Closure/NSCanonicalB4PhysicalR440AnalyticInterfaceExact.agda
