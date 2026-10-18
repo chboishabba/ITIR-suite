@@ -9,7 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "itir-mcp" / "src"))
 from itir_mcp.registry import build_default_registry
-from scripts.pnf_work_packet_provider import build_work_packet, postgres_reference_adapter
+from itir_mcp.pnf_work_packet_provider import build_work_packet, postgres_reference_adapter
 
 LIVE_COLUMNS = (
     "message_id canonical_thread_id platform account_id ts role text title source_id "
@@ -78,6 +78,27 @@ class PacketTests(unittest.TestCase):
             postgres_reference_adapter()
         self.assertEqual(self.packet()["packets"][0]["reference_projection"]["postgres_adapter"],
                          "unavailable_stub")
+
+    def test_production_server_import_isolated(self):
+        import os
+        import subprocess
+
+        package_src = Path(__file__).resolve().parents[1] / "itir-mcp" / "src"
+        snippet = (
+            "from itir_mcp.registry import build_default_registry; "
+            "import sys; "
+            "r=build_default_registry().invoke('itir.pnf.work_packet', "
+            "{'archive_db':sys.argv[1], "
+            "'proposals':[{'canonical_thread_id':'thread','task_atom':'lemma'}]}); "
+            "assert r['ok'], r; assert r['result']['packets'][0]['source_refs']"
+        )
+        proc = subprocess.run(
+            [sys.executable, "-c", snippet, str(self.archive)],
+            cwd=package_src.parent,
+            env={**os.environ, "PYTHONPATH": str(package_src)},
+            capture_output=True, text=True, check=False, timeout=30,
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
 
     def test_registry(self):
         spec = build_default_registry().get_tool_spec("itir.pnf.work_packet")
