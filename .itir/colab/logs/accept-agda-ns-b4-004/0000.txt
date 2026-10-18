@@ -1,0 +1,10 @@
+STDOUT
+Logging Agda output to: /home/c/.gemini/antigravity/scratch/dashi-agda29-parallel-check-20261018-041741-DASHI__Physics__Closure__NSTriadKNCanonicalBAnalyticCutsetASTExact.agda.log
+Agda RSS guard: 8192 MiB
+Checking: DASHI/Physics/Closure/NSTriadKNCanonicalBAnalyticCutsetASTExact.agda
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNCanonicalBAnalyticCutsetASTExact.agda:131.48: error: [ParseError]
+=<ERROR>  bound P
+    ; Comm.liveCommut...
+
+STDERR
+Agda failed for: DASHI/Physics/Closure/NSTriadKNCanonicalBAnalyticCutsetASTExact.agda
