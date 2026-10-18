@@ -172,5 +172,19 @@ class Executor:
         self.workspace = workspace
         self.secrets = tuple(secrets)
     def execute(self, job: ProverJob) -> ExecutionOutcome:
-        checkout = prepare_checkout(job.repository, job.commit_sha, self.workspace)
-        return execute_job(job, checkout, self.secrets)
+        try:
+            checkout = prepare_checkout(job.repository, job.commit_sha, self.workspace)
+            return execute_job(job, checkout, self.secrets)
+        except Exception as exc:
+            return ExecutionOutcome(
+                status="FAILED",
+                argv=["git", "checkout", job.commit_sha],
+                exit_code=128,
+                stdout="",
+                stderr=f"prepare_checkout failed: {exc}",
+                elapsed_seconds=0.0,
+                runtime={"before": {}, "after": {}},
+                toolchain={},
+                resolved_commit_sha=job.commit_sha,
+            )
+
