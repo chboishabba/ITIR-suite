@@ -29,6 +29,8 @@ def _register_fastmcp_tool(server, registry: ToolRegistry, spec: ToolSpec) -> No
         payload = dict(kwargs)
         if isinstance(arguments, dict):
             payload.update(arguments)
+        # FastMCP's **kwargs signature injects this reserved transport artifact.
+        payload.pop("kwargs", None)
         return registry.invoke(spec.name, payload)
 
     _tool_handler.__name__ = spec.name.replace(".", "_")
