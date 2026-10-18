@@ -9,6 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "itir-mcp" / "src"))
 from itir_mcp.registry import build_default_registry
+from itir_mcp.server import _register_fastmcp_tool
 from itir_mcp.pnf_work_packet_provider import build_work_packet, postgres_reference_adapter
 
 LIVE_COLUMNS = (
@@ -99,6 +100,31 @@ class PacketTests(unittest.TestCase):
             capture_output=True, text=True, check=False, timeout=30,
         )
         self.assertEqual(proc.returncode, 0, proc.stderr)
+
+    def test_fastmcp_registered_transport_strips_reserved_kwargs(self):
+        class FakeFastMCP:
+            def __init__(self):
+                self.handlers = {}
+
+            def tool(self, *, name, description):
+                def register(handler):
+                    self.handlers[name] = handler
+                    return handler
+                return register
+
+        server = FakeFastMCP()
+        registry = build_default_registry()
+        spec = registry.get_tool_spec("itir.pnf.work_packet")
+        _register_fastmcp_tool(server, registry, spec)
+        handler = server.handlers["itir.pnf.work_packet"]
+        payload = {"archive_db": str(self.archive), "proposals": self.proposals}
+        result = handler(arguments=payload, kwargs={})
+        self.assertTrue(result["ok"], result)
+        self.assertTrue(result["result"]["packets"][0]["source_refs"])
+        # Genuine unknown tool fields still fail closed.
+        rejected = handler(arguments={**payload, "unexpected": True}, kwargs={})
+        self.assertFalse(rejected["ok"], rejected)
+        self.assertEqual(rejected["error"]["code"], "input_error")
 
     def test_registry(self):
         spec = build_default_registry().get_tool_spec("itir.pnf.work_packet")
