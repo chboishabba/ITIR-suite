@@ -73,6 +73,16 @@ The adapter delegates to the local re-gpt public API with direct async writes,
 DOM fallback disabled, and receipt-bearing operation state. It does not expose
 browser/session bootstrap controls and never resends an uncertain operation.
 
+ChatGPT is the normal low-cost implementation worker. A report-only dispatch
+is an intentional phase gate: require the worker to establish the applicable
+roadmap, phase, deliverables/acceptance state, ZKP frame, and relevant
+Agda/Lean proof surfaces from repository evidence. Do not impose an arbitrary
+word cap on that report. A subsequent implementation dispatch should deliver
+the largest coherent max-cut supported by the gate, not a needlessly tiny
+patch. Promotion requires applicable tests or formal checks actually run by
+the worker or in the local/Colab verification environment; an operation or PR
+receipt alone is not acceptance.
+
 ## Numeric ABI
 
 `itir_mcp.pnf_numeric_abi` is a narrow receipt-bearing numeric ABI for
