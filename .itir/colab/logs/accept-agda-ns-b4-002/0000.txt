@@ -1,0 +1,5 @@
+STDOUT
+Checking DASHI.Physics.Closure.NSCanonicalB4PhysicalR440AnalyticInterfaceExact (/content/itir-prover-work/chboishabba__dashi_agda/e3cb609cda9ed7d55281afe32e7294589581b675/DASHI/Physics/Closure/NSCanonicalB4PhysicalR440AnalyticInterfaceExact.agda).
+ Checking DASHI.Physics.Closure.NSCanonicalB4PhysicalR440PaymentResidualExact (/content/itir-prover-work/chboishabba__dashi_agda/e3cb609cda9ed7d55281afe32e7294589581b675/DASHI/Physics/Closure/NSCanonicalB4PhysicalR440PaymentResidualExact.agda).
+
+STDERR
