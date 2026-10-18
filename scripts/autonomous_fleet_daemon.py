@@ -44,7 +44,11 @@ from itir_mcp.autonomous_orchestrator_tools import (
 )
 from sb.ao_kanboard_control import build_ao_control_runsheet
 from re_gpt.mutation_service import MutationService
+from re_gpt.stream_follow_install import install_stream_first_follow
 import threading
+
+# Activate stream-terminal follow to eliminate repetitive polling
+install_stream_first_follow()
 
 RUNNING = True
 BROWSER_LOCK = threading.Lock()
@@ -174,17 +178,26 @@ class CarouselFleetOrchestrator:
         rows = cur.fetchall()
         conn.close()
 
+        CHAFF_WORDS = (
+            "attach root", "reply new", "attach probe", "ping", "test", "hose splitter",
+            "dishwasher", "ivdfi", "dog bite", "carrot slice", "breville", "wine", "ibs",
+            "lg tv", "wipex", "vigi nas", "lawn", "coffee", "recipe", "pixar", "meme"
+        )
+
         self.roster = []
         for cid, title, turns in rows:
+            t_clean = (title or "Untitled").strip()
+            if any(cw in t_clean.lower() for cw in CHAFF_WORDS):
+                continue
             self.roster.append({
                 "conversation_id": cid,
-                "title": title or "Untitled",
+                "title": t_clean,
                 "turns": turns,
                 "lane": f"fleet.{cid[:8]}",
                 "status": "queued",
                 "last_run_at": 0.0,
             })
-        logging.info(f"Loaded {len(self.roster)} candidate threads into carousel roster.")
+        logging.info(f"Loaded {len(self.roster)} candidate threads into carousel roster (chaff filtered).")
 
     def synthesize_prompt(self, cid: str, title: str) -> str:
         """Synthesize a targeted falsifiable continuation prompt."""
@@ -273,6 +286,7 @@ class CarouselFleetOrchestrator:
                         prompt,
                         write_transport="dom",
                         dom_fallback=True,
+                        browser_mode="displayless",
                         reconcile_attempts=0,
                         follow=False,
                     )
@@ -397,7 +411,7 @@ class CarouselFleetOrchestrator:
             cid = t["conversation_id"]
             self.active_in_flight.add(cid)
             executor.submit(self.advance_single_thread, t)
-            time.sleep(1.5)  # Stagger dispatches to prevent burst collision
+            time.sleep(2.5)  # Stagger dispatches to prevent burst collision
 
         # Pulse daemon status & runsheet
         try:
