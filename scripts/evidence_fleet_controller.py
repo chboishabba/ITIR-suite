@@ -258,8 +258,34 @@ def exact_async_archive_provider(
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--db",required=True)
-    parser.add_argument("--plan",action="store_true",required=True)
+    mode=parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--plan",action="store_true")
+    mode.add_argument("--refresh-work",metavar="WORK_ID")
+    parser.add_argument("--conversation-id")
+    parser.add_argument("--puller")
+    parser.add_argument("--archive-db")
+    parser.add_argument("--account",default="main")
+    parser.add_argument("--formal-file")
+    parser.add_argument("--slrw")
     parser.add_argument("--limit",type=int,default=3)
     args=parser.parse_args()
-    with sqlite3.connect(args.db) as db: print(json.dumps(plan(db,args.limit),indent=2))
+    with sqlite3.connect(args.db) as db:
+        if args.plan:
+            result=plan(db,args.limit)
+        else:
+            if not args.conversation_id or not UUID_PATTERN.fullmatch(args.conversation_id):
+                parser.error("--conversation-id must be an explicit canonical UUID")
+            if not args.puller or not args.archive_db:
+                parser.error("--puller and --archive-db required")
+            # Guard work-unit membership before initializing any provider or session.
+            migrate(db)
+            row=db.execute("SELECT parent_ids,evidence_refs FROM fleet_work_units WHERE work_id=?",
+                           (args.refresh_work,)).fetchone()
+            if row is None: raise KeyError(args.refresh_work)
+            if args.conversation_id not in json.loads(row[0])+json.loads(row[1]):
+                parser.error("conversation UUID not attached to work unit")
+            provider=exact_async_archive_provider(args.puller,args.archive_db,args.account,
+                formal_file=args.formal_file,slrw_path=args.slrw)
+            result=refresh_work_evidence(db,args.refresh_work,args.conversation_id,provider)
+        print(json.dumps(result,indent=2))
 if __name__ == "__main__": main()
