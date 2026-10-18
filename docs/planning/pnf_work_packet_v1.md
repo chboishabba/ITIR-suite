@@ -12,7 +12,7 @@ TODO:
 
 ## Delivered — candidate-only v1
 
-`scripts/pnf_work_packet_provider.py` opens the canonical archive read-only and strictly checks the 25 production `messages` columns. It tail-selects at most 40 messages and 24,000 text characters per thread by default (hard ceilings 200 messages / 100,000 characters); at most eight threads per call. Packet JSON defaults to a 24,000-character ceiling, hard ceiling 100,000. On overflow it removes **derived candidate units from the tail** and records `packet_budget_truncated` plus the number removed; if source references alone exceed the ceiling, it fails closed. No source body is serialized.
+`itir-mcp/src/itir_mcp/pnf_work_packet_provider.py` opens the canonical archive read-only and strictly checks the 25 production `messages` columns. It tail-selects at most 40 messages and 24,000 text characters per thread by default (hard ceilings 200 messages / 100,000 characters); at most eight threads per call. Packet JSON defaults to a 24,000-character ceiling, hard ceiling 100,000. On overflow it removes **derived candidate units from the tail** and records `packet_budget_truncated` plus the number removed; if source references alone exceed the ceiling, it fails closed. No source body is serialized.
 
 The lightweight extraction contract is deliberately narrow: a selected message with matching bounded vocabulary (`lemma/theorem/proof/formal/agda/lean/gap/TODO/blocked/implement/PR #n`) contributes **unverified lexical candidate kinds**, linked to a canonical message reference. This is **not** SLR semantic PNF parsing and must not be treated as proof, task promotion or equivalent-claim detection. The existing `itir.pnf.task_memory_preview` and `itir.pnf.observer_evidence` remain independent producer-facing interfaces; no new parser authority is asserted. Each packet carries deterministic `packet_id`, digest-checked locator coordinates, ledger evidence receipts, selected/total counts and truncation flags, and an in-memory `local_reference_only` projection receipt. The PostgreSQL adapter explicitly raises `NotImplementedError`; no PostgreSQL connection is made or required.
 
@@ -22,10 +22,24 @@ The tool `itir.pnf.work_packet` is registered through existing `get_pnf_tools` a
 
 ```bash
 python -m unittest discover -s tests -p 'test_pnf_work_packet_provider.py' -v
-ruff check scripts/pnf_work_packet_provider.py itir-mcp/src/itir_mcp/pnf_tools.py tests/test_pnf_work_packet_provider.py
+ruff check itir-mcp/src/itir_mcp/pnf_work_packet_provider.py itir-mcp/src/itir_mcp/pnf_tools.py tests/test_pnf_work_packet_provider.py
 PYTHONPATH=itir-mcp/src python -c 'from itir_mcp.registry import build_default_registry; print([t.name for t in build_default_registry().list_tools()])'
 ```
 
 **Execution receipt:** pending local referee execution. GitHub connector edits were made without a runnable local repository checkout; no test/ruff success is claimed, no CI or Colab invoked.
 
 **Remaining gaps:** real SLR selected-span parser composition, persistent local projection receipts (the current receipt is in-memory), formal comparison/gap producer joins, source-content verification against external archive snapshots, and downstream 500-thread AO routing integration. No PG startup, raw transcript duplication, autonomous dispatch, browser or mutation.
+
+## Referee fix — production MCP import isolation
+
+Moved the complete provider implementation to `itir-mcp/src/itir_mcp/pnf_work_packet_provider.py` and changed `pnf_tools.pnf_work_packet` to use `from .pnf_work_packet_provider import build_work_packet`. The package now resolves its own `canonical_archive_path` without importing `scripts.canonical_candidate_ledger`. The obsolete repo-root provider was deleted. This removes both imports that failed under the production `cwd=itir-mcp; PYTHONPATH=src` configuration. The new subprocess fixture test invokes the registered MCP tool from that cwd with the package source as its only explicit PYTHONPATH, using a temporary real-schema canonical SQLite archive.
+
+Local referee previously verified 5/5 tests and the registry before this correction. **Post-correction tests, Ruff, and real-archive MCP smoke call are not executed by this GitHub connector**; these remain pending and are not claimed green.
+
+```bash
+python -m unittest discover -s tests -p 'test_pnf_work_packet_provider.py' -v
+ruff check itir-mcp/src/itir_mcp/pnf_work_packet_provider.py itir-mcp/src/itir_mcp/pnf_tools.py tests/test_pnf_work_packet_provider.py
+(cd itir-mcp && PYTHONPATH=src python -c "from itir_mcp.registry import build_default_registry; r=build_default_registry().invoke('itir.pnf.work_packet', {'proposals':[{'canonical_thread_id':'6825e290-f1bc-8002-9e5a-73b675157c0c','task_atom':'smoke'}]}); print(r); assert r['ok'] and r['result']['packets'][0]['source_refs']")
+```
+
+No CI, browser, mutation, resend, or production archive write.
