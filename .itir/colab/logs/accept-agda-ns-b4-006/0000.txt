@@ -1,0 +1,4 @@
+STDOUT
+
+STDERR
+prepare_checkout failed: Command '['git', 'checkout', '--detach', '811dc56d11018908610eb6772425d7c865ae931d']' returned non-zero exit status 128.
