@@ -1,0 +1,577 @@
+STDOUT
+Logging Agda output to: /home/c/.gemini/antigravity/scratch/dashi-agda29-parallel-check-20261018-044415-DASHI__Physics__Closure__NSTriadKNCanonicalBAnalyticCutsetASTExact.agda.log
+Agda RSS guard: 8192 MiB
+Checking: DASHI/Physics/Closure/NSTriadKNCanonicalBAnalyticCutsetASTExact.agda
+(  5/119) Checking Level (/content/dashi-agda-cache/agda-stdlib-experimental/src/Level.agda).
+(  6/203) Checking DASHI.Physics.Closure.NSTriadKNExactSignedGalerkinCoefficient (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNExactSignedGalerkinCoefficient.agda).
+( 11/430) Checking DASHI.Physics.Closure.NSTriadKNRestrictedTransverseUniqueness (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNRestrictedTransverseUniqueness.agda).
+( 12/510) Checking Data.Unit.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Unit/Base.agda).
+( 15/551) Checking DASHI.Physics.Closure.NSTriadKNTaoFrozenLegParaproductProgram (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNTaoFrozenLegParaproductProgram.agda).
+( 22/561) Checking Data.Irrelevant (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Irrelevant.agda).
+( 20/561) Checking Function.Metric.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Metric/Core.agda).
+( 23/561) Checking Relation.Nullary.Irrelevant (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Nullary/Irrelevant.agda).
+( 25/561) Checking Effect.Empty (/content/dashi-agda-cache/agda-stdlib-experimental/src/Effect/Empty.agda).
+( 24/561) Checking Algebra.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Core.agda).
+( 26/561) Checking Effect.Choice (/content/dashi-agda-cache/agda-stdlib-experimental/src/Effect/Choice.agda).
+( 21/561) Checking Function.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Core.agda).
+( 27/561) Checking Data.Unit.Polymorphic.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Unit/Polymorphic/Base.agda).
+( 28/561) Checking Function.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Base.agda).
+( 32/561) Checking Relation.Nullary.Recomputable.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Nullary/Recomputable/Core.agda).
+( 30/561) Checking DASHI.Physics.YangMills.CompactLieProofLevel (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/YangMills/CompactLieProofLevel.agda).
+( 35/561) Checking Data.Empty (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Empty.agda).
+( 38/561) Checking Reflection.TCM.Syntax (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/TCM/Syntax.agda).
+( 41/561) Checking Data.Bool.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Bool/Base.agda).
+( 42/561) Checking Relation.Nullary.Indexed (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Nullary/Indexed.agda).
+( 43/561) Checking Data.Empty.Polymorphic (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Empty/Polymorphic.agda).
+( 40/561) Checking DASHI.Core.ProofSearchLeastPrivilegeAdmissionExact (/content/dashi-agda-cache/dashi-shadow/DASHI/Core/ProofSearchLeastPrivilegeAdmissionExact.agda).
+( 39/561) Checking DASHI.Physics.Closure.NSPeriodicNearShellOverlapCount (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSPeriodicNearShellOverlapCount.agda).
+( 44/561) Checking Data.Product.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Product/Base.agda).
+( 45/561) Checking Data.Sum.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Sum/Base.agda).
+( 46/561) Checking Function.Strict (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Strict.agda).
+( 47/561) Checking DASHI.Physics.Closure.NSTriadKNComDyadicHatWidthOneRound46Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNComDyadicHatWidthOneRound46Exact.agda).
+( 48/561) Checking Data.These.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/These/Base.agda).
+( 49/561) Checking Relation.Nullary.Negation.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Nullary/Negation/Core.agda).
+( 50/561) Checking Data.Product.Relation.Unary.All (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Product/Relation/Unary/All.agda).
+( 51/561) Checking Relation.Binary.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Core.agda).
+( 55/561) Checking Relation.Binary.Morphism.Definitions (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Morphism/Definitions.agda).
+( 56/561) Checking Function.Definitions (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Definitions.agda).
+( 53/561) Checking Relation.Binary.Lattice.Definitions (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Lattice/Definitions.agda).
+( 54/561) Checking Relation.Binary.Construct.Constant.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Construct/Constant/Core.agda).
+( 57/561) Checking Relation.Binary.Indexed.Heterogeneous.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Indexed/Heterogeneous/Core.agda).
+( 52/561) Checking DASHI.Physics.Closure.NSTriadKNComCommonHatSupportLeafRound58 (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNComCommonHatSupportLeafRound58.agda).
+( 58/561) Checking Relation.Nullary.Recomputable (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Nullary/Recomputable.agda).
+( 60/561) Checking Data.Product (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Product.agda).
+( 59/561) Checking Algebra.Morphism.Definitions (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Morphism/Definitions.agda).
+( 61/561) Checking Relation.Binary.Bundles.Raw (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Bundles/Raw.agda).
+( 62/561) Checking Relation.Nullary.Reflects (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Nullary/Reflects.agda).
+( 63/561) Checking Relation.Binary.Morphism.Structures (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Morphism/Structures.agda).
+( 64/561) Checking Algebra.Bundles.Raw (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Bundles/Raw.agda).
+( 65/561) Checking Algebra.Lattice.Bundles.Raw (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Lattice/Bundles/Raw.agda).
+( 66/561) Checking Algebra.Definitions.RawMagma (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Definitions/RawMagma.agda).
+( 67/561) Checking Relation.Nullary.Decidable.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Nullary/Decidable/Core.agda).
+( 69/561) Checking Relation.Nullary (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Nullary.agda).
+( 68/561) Checking Data.Maybe.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Maybe/Base.agda).
+( 70/561) Checking Relation.Binary.Definitions (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Definitions.agda).
+( 71/561) Checking Data.Sum (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Sum.agda).
+( 72/561) Checking Algebra.Definitions (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Definitions.agda).
+( 73/561) Checking Relation.Binary.Indexed.Heterogeneous.Definitions (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Indexed/Heterogeneous/Definitions.agda).
+( 74/561) Checking Relation.Binary.PropositionalEquality.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/PropositionalEquality/Core.agda).
+( 78/561) Checking Reflection.AST.Argument.Quantity (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST/Argument/Quantity.agda).
+( 80/561) Checking Effect.Functor (/content/dashi-agda-cache/agda-stdlib-experimental/src/Effect/Functor.agda).
+( 77/561) Checking Relation.Binary.Construct.Closure.Reflexive (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Construct/Closure/Reflexive.agda).
+( 81/561) Checking Axiom.Extensionality.Propositional (/content/dashi-agda-cache/agda-stdlib-experimental/src/Axiom/Extensionality/Propositional.agda).
+( 76/561) Checking Relation.Binary.Indexed.Heterogeneous.Structures (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Indexed/Heterogeneous/Structures.agda).
+( 79/561) Checking Reflection.AST.Argument.Visibility (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST/Argument/Visibility.agda).
+( 75/561) Checking Data.Sign.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Sign/Base.agda).
+( 82/561) Checking Reflection.AST.Argument.Relevance (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST/Argument/Relevance.agda).
+( 84/561) Checking Relation.Unary (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Unary.agda).
+( 83/561) Checking Relation.Binary.Reasoning.Syntax (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Reasoning/Syntax.agda).
+( 85/561) Checking Reflection.AST.Argument.Modality (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST/Argument/Modality.agda).
+( 87/561) Checking Effect.Applicative (/content/dashi-agda-cache/agda-stdlib-experimental/src/Effect/Applicative.agda).
+( 86/561) Checking Data.Parity.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Parity/Base.agda).
+( 88/561) Checking Relation.Binary.Indexed.Heterogeneous.Bundles (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Indexed/Heterogeneous/Bundles.agda).
+( 89/561) Checking Reflection.AST.Argument.Information (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST/Argument/Information.agda).
+( 90/561) Checking Relation.Binary.Reasoning.Base.Single (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Reasoning/Base/Single.agda).
+( 91/561) Checking Relation.Binary.Indexed.Heterogeneous (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Indexed/Heterogeneous.agda).
+( 92/561) Checking Effect.Monad (/content/dashi-agda-cache/agda-stdlib-experimental/src/Effect/Monad.agda).
+( 95/561) Checking Relation.Binary.Consequences (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Consequences.agda).
+( 93/561) Checking Relation.Unary.PredicateTransformer (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Unary/PredicateTransformer.agda).
+( 94/561) Checking Data.Nat.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/Base.agda).
+( 96/561) Checking Data.Maybe.Effectful (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Maybe/Effectful.agda).
+( 97/561) Checking Data.Sum.Effectful.Left (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Sum/Effectful/Left.agda).
+( 98/561) Checking Relation.Nullary.Negation (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Nullary/Negation.agda).
+( 99/561) Checking Induction (/content/dashi-agda-cache/agda-stdlib-experimental/src/Induction.agda).
+(100/561) Checking Function.Metric.Definitions (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Metric/Definitions.agda).
+(103/561) Checking Data.Char.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Char/Base.agda).
+(101/561) Checking Data.Integer.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Integer/Base.agda).
+(104/561) Checking Data.Word64.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Word64/Base.agda).
+(106/561) Checking Data.List.Kleene.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Kleene/Base.agda).
+(102/561) Checking Function.Metric.Nat.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Metric/Nat/Core.agda).
+(105/561) Checking Data.Fin.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Fin/Base.agda).
+(107/561) Checking Data.Float.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Float/Base.agda).
+(109/561) Checking Data.Rational.Unnormalised.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Rational/Unnormalised/Base.agda).
+(108/561) Checking DASHI.Physics.Closure.NSIntegerFourierLattice (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSIntegerFourierLattice.agda).
+(110/561) Checking Function.Metric.Nat.Definitions (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Metric/Nat/Definitions.agda).
+(113/561) Checking Induction.WellFounded (/content/dashi-agda-cache/agda-stdlib-experimental/src/Induction/WellFounded.agda).
+(111/561) Checking Algebra.Consequences.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Consequences/Base.agda).
+(112/561) Checking Relation.Binary.Structures (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Structures.agda).
+(114/561) Checking DASHI.Physics.Closure.NSTriadKNComplex3ExactCarrier (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNComplex3ExactCarrier.agda).
+(115/561) Checking Data.List.Kleene (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Kleene.agda).
+(116/561) Checking Function.Nary.NonDependent.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Nary/NonDependent/Base.agda).
+(117/561) Checking Data.List.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Base.agda).
+(118/561) Checking Data.Fin.Patterns (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Fin/Patterns.agda).
+(120/561) Checking Relation.Binary.Construct.Composition (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Construct/Composition.agda).
+(119/561) Checking Relation.Binary.Reasoning.Base.Double (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Reasoning/Base/Double.agda).
+(121/561) Checking Relation.Binary.Properties.ApartnessRelation (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Properties/ApartnessRelation.agda).
+(123/561) Checking Relation.Binary.Lattice.Structures (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Lattice/Structures.agda).
+(122/561) Checking Relation.Binary.Structures.Biased (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Structures/Biased.agda).
+(124/561) Checking Relation.Binary.Reasoning.Base.Triple (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Reasoning/Base/Triple.agda).
+(126/561) Checking Function.Metric.Structures (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Metric/Structures.agda).
+(125/561) Checking Relation.Binary.Bundles (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Bundles.agda).
+(128/561) Checking Function.Metric.Bundles (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Metric/Bundles.agda).
+(127/561) Checking Function.Metric.Nat.Structures (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Metric/Nat/Structures.agda).
+(129/561) Checking Relation.Binary (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary.agda).
+(131/561) Checking Relation.Binary.Morphism.Bundles (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Morphism/Bundles.agda).
+(130/561) Checking Relation.Binary.Construct.On (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Construct/On.agda).
+(134/561) Checking Function.Structures (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Structures.agda).
+(132/561) Checking Relation.Binary.Lattice.Bundles (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Lattice/Bundles.agda).
+(136/561) Checking Relation.Binary.Reasoning.Setoid (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Reasoning/Setoid.agda).
+(135/561) Checking Function.Consequences (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Consequences.agda).
+(139/561) Checking Function.Indexed.Relation.Binary.Equality (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Indexed/Relation/Binary/Equality.agda).
+(140/561) Checking Function.Dependent.Bundles (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Dependent/Bundles.agda).
+(138/561) Checking Relation.Binary.Properties.Setoid (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Properties/Setoid.agda).
+(141/561) Checking Relation.Binary.Reasoning.Preorder (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Reasoning/Preorder.agda).
+(133/561) Checking Relation.Binary.Indexed.Heterogeneous.Construct.Trivial (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Indexed/Heterogeneous/Construct/Trivial.agda).
+(137/561) Checking Relation.Binary.Construct.Flip.EqAndOrd (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Construct/Flip/EqAndOrd.agda).
+(142/561) Checking Algebra.Consequences.Setoid (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Consequences/Setoid.agda).
+(143/561) Checking Relation.Binary.PropositionalEquality.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/PropositionalEquality/Properties.agda).
+(144/561) Checking Relation.Binary.Properties.DecSetoid (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Properties/DecSetoid.agda).
+(145/561) Checking Relation.Binary.Morphism (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Morphism.agda).
+(146/561) Checking Function.Consequences.Setoid (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Consequences/Setoid.agda).
+(147/561) Checking Relation.Binary.Morphism.RelMonomorphism (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Morphism/RelMonomorphism.agda).
+(148/561) Checking Reflection.AST.Argument (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST/Argument.agda).
+(151/561) Checking Data.Bool.ListAction (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Bool/ListAction.agda).
+(150/561) Checking Data.List.Relation.Binary.Pointwise.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Pointwise/Base.agda).
+(149/561) Checking Data.List.Relation.Unary.Any (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Unary/Any.agda).
+(155/561) Checking Data.Vec.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Vec/Base.agda).
+(152/561) Checking DASHI.Physics.Closure.NSTriadKNPeriodicHelicalFourierInfrastructure (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPeriodicHelicalFourierInfrastructure.agda).
+(153/561) Checking Data.Nat.ListAction (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/ListAction.agda).
+(154/561) Checking DASHI.Physics.Closure.NSTriadKNOrderedEuclideanL2Carrier (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNOrderedEuclideanL2Carrier.agda).
+(156/561) Checking Relation.Binary.Properties.Preorder (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Properties/Preorder.agda).
+(157/561) Checking Relation.Binary.Lattice (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Lattice.agda).
+(158/561) Checking Relation.Binary.Morphism.OrderMonomorphism (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Morphism/OrderMonomorphism.agda).
+(159/561) Checking Data.List.Membership.Setoid (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Membership/Setoid.agda).
+(160/561) Checking Relation.Binary.Construct.Closure.Symmetric (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Construct/Closure/Symmetric.agda).
+(161/561) Checking Data.List.Relation.Binary.Lex.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Lex/Core.agda).
+(162/561) Checking Algebra.Structures (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Structures.agda).
+(164/561) Checking Data.List.Relation.Binary.Subset.Setoid (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Subset/Setoid.agda).
+(163/561) Checking Data.List.Relation.Binary.Disjoint.Setoid (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Disjoint/Setoid.agda).
+(166/561) Checking Data.List.Membership.Propositional (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Membership/Propositional.agda).
+(165/561) Checking Axiom.UniquenessOfIdentityProofs (/content/dashi-agda-cache/agda-stdlib-experimental/src/Axiom/UniquenessOfIdentityProofs.agda).
+(168/561) Checking Function.Metric.Nat.Bundles (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Metric/Nat/Bundles.agda).
+(167/561) Checking Algebra.Consequences.Propositional (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Consequences/Propositional.agda).
+(169/561) Checking Data.List.Relation.Binary.Disjoint.Propositional (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Disjoint/Propositional.agda).
+(170/561) Checking Function.Consequences.Propositional (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Consequences/Propositional.agda).
+(171/561) Checking Data.Vec.Functional (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Vec/Functional.agda).
+(172/561) Checking Data.List.Relation.Binary.Subset.Propositional (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Subset/Propositional.agda).
+(173/561) Checking Function.Bundles (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Bundles.agda).
+(174/561) Checking Function.Metric.Nat (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Metric/Nat.agda).
+(175/561) Checking Data.List.Membership.Propositional.Properties.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Membership/Propositional/Properties/Core.agda).
+(176/561) Checking Function.Construct.Symmetry (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Construct/Symmetry.agda).
+(179/561) Checking Function.Construct.Composition (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Construct/Composition.agda).
+(178/561) Checking Data.Vec.N-ary (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Vec/N-ary.agda).
+(177/561) Checking Data.Sum.Relation.Binary.Pointwise (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Sum/Relation/Binary/Pointwise.agda).
+(180/561) Checking Relation.Nullary.Decidable (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Nullary/Decidable.agda).
+(181/561) Checking Function.Properties.RightInverse (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Properties/RightInverse.agda).
+(183/561) Checking Data.Sum.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Sum/Properties.agda).
+(182/561) Checking Function.Construct.Identity (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Construct/Identity.agda).
+(185/561) Checking Algebra.Apartness.Structures (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Apartness/Structures.agda).
+(184/561) Checking Algebra.Structures.Biased (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Structures/Biased.agda).
+(186/561) Checking Algebra.Bundles (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Bundles.agda).
+(187/561) Checking Algebra.Lattice.Structures (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Lattice/Structures.agda).
+(191/561) Checking Relation.Binary.Construct.Intersection (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Construct/Intersection.agda).
+(188/561) Checking Data.Product.Relation.Binary.Pointwise.NonDependent (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Product/Relation/Binary/Pointwise/NonDependent.agda).
+(190/561) Checking Data.Product.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Product/Properties.agda).
+(193/561) Checking Data.List.Relation.Binary.Pointwise.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Pointwise/Properties.agda).
+(194/561) Checking Data.List.Membership.DecSetoid (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Membership/DecSetoid.agda).
+(192/561) Checking Relation.Binary.Construct.NonStrictToStrict (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Construct/NonStrictToStrict.agda).
+(195/561) Checking Data.List.Relation.Binary.Lex (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Lex.agda).
+(197/561) Checking Data.Unit.Polymorphic.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Unit/Polymorphic/Properties.agda).
+(198/561) Checking Relation.Unary.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Unary/Properties.agda).
+(196/561) Checking Relation.Binary.Construct.Closure.Reflexive.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Construct/Closure/Reflexive/Properties.agda).
+(189/561) Checking Data.Maybe.Relation.Unary.Any (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Maybe/Relation/Unary/Any.agda).
+(199/561) Checking Data.List.Membership.DecPropositional (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Membership/DecPropositional.agda).
+(200/561) Checking Data.Unit.Polymorphic (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Unit/Polymorphic.agda).
+(202/561) Checking Relation.Binary.Construct.NaturalOrder.Left (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Construct/NaturalOrder/Left.agda).
+(201/561) Checking Algebra.Lattice.Structures.Biased (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Lattice/Structures/Biased.agda).
+(203/561) Checking Relation.Binary.Reflection (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Reflection.agda).
+(205/561) Checking Data.Maybe.Relation.Unary.All (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Maybe/Relation/Unary/All.agda).
+(204/561) Checking Data.Maybe.Relation.Binary.Pointwise (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Maybe/Relation/Binary/Pointwise.agda).
+(206/561) Checking Relation.Binary.Properties.Poset (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Properties/Poset.agda).
+(207/561) Checking Data.Product.Nary.NonDependent (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Product/Nary/NonDependent.agda).
+(209/561) Checking Relation.Binary.Properties.TotalOrder (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Properties/TotalOrder.agda).
+(208/561) Checking Data.Product.Function.NonDependent.Setoid (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Product/Function/NonDependent/Setoid.agda).
+(210/561) Checking Function.Nary.NonDependent (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Nary/NonDependent.agda).
+(212/561) Checking Relation.Binary.Properties.DecTotalOrder (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/Properties/DecTotalOrder.agda).
+(211/561) Checking Algebra.Construct.NaturalChoice.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Construct/NaturalChoice/Base.agda).
+(213/561) Checking Data.List.Relation.Unary.All (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Unary/All.agda).
+(214/561) Checking Algebra (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra.agda).
+(215/561) Checking Algebra.Apartness.Bundles (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Apartness/Bundles.agda).
+(217/561) Checking Algebra.Morphism.Structures (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Morphism/Structures.agda).
+(218/561) Checking Data.List.NonEmpty.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/NonEmpty/Base.agda).
+(220/561) Checking Data.Sign.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Sign/Properties.agda).
+(219/561) Checking Data.Maybe.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Maybe/Properties.agda).
+(221/561) Checking Algebra.Definitions.RawMonoid (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Definitions/RawMonoid.agda).
+(222/561) Checking Algebra.Properties.Quasigroup (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Properties/Quasigroup.agda).
+(223/561) Checking Relation.Binary.PropositionalEquality.Algebra (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/PropositionalEquality/Algebra.agda).
+(216/561) Checking Algebra.Lattice.Bundles (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Lattice/Bundles.agda).
+(225/561) Checking Algebra.Properties.Semigroup (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Properties/Semigroup.agda).
+(224/561) Checking Algebra.Construct.LiftedChoice (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Construct/LiftedChoice.agda).
+(226/561) Checking Algebra.Definitions.RawSemiring (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Definitions/RawSemiring.agda).
+(227/561) Checking Algebra.Construct.NaturalChoice.MinOp (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Construct/NaturalChoice/MinOp.agda).
+(228/561) Checking Algebra.Properties.Loop (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Properties/Loop.agda).
+(229/561) Checking Relation.Binary.PropositionalEquality (/content/dashi-agda-cache/agda-stdlib-experimental/src/Relation/Binary/PropositionalEquality.agda).
+(230/561) Checking Algebra.Apartness (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Apartness.agda).
+(232/561) Checking Algebra.Properties.CommutativeSemigroup (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Properties/CommutativeSemigroup.agda).
+(231/561) Checking Algebra.Properties.Monoid.Mult (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Properties/Monoid/Mult.agda).
+(233/561) Checking Data.Sum.Function.Setoid (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Sum/Function/Setoid.agda).
+(234/561) Checking Tactic.RingSolver.Core.Expression (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/Core/Expression.agda).
+(235/561) Checking Algebra.Properties.Group (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Properties/Group.agda).
+(236/561) Checking Algebra.Lattice (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Lattice.agda).
+(237/561) Checking Algebra.Lattice.Properties.Semilattice (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Lattice/Properties/Semilattice.agda).
+(238/561) Checking Function.Properties.Inverse.HalfAdjointEquivalence (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Properties/Inverse/HalfAdjointEquivalence.agda).
+(242/561) Checking DASHI.Physics.Closure.NSTriadKNCommutingPhysicalCarrierSelectorRound28Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNCommutingPhysicalCarrierSelectorRound28Exact.agda).
+(241/561) Checking DASHI.Physics.Closure.NSTriadKNHighHighToLowCancellationProgram (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNHighHighToLowCancellationProgram.agda).
+(240/561) Checking DASHI.Physics.Closure.NSCompactGammaReplenishmentAbsorption (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSCompactGammaReplenishmentAbsorption.agda).
+(239/561) Checking DASHI.Physics.Closure.NSTriadKNComplex3AlgebraLaws (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNComplex3AlgebraLaws.agda).
+(243/561) Checking Algebra.Properties.Monoid.Mult.TCOptimised (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Properties/Monoid/Mult/TCOptimised.agda).
+(244/561) Checking Function.Properties.Surjection (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Properties/Surjection.agda).
+(245/561) Checking Function.Properties.Inverse (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Properties/Inverse.agda).
+(246/561) Checking Data.Sign (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Sign.agda).
+(247/561) Checking Data.List.Scans.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Scans/Base.agda).
+(248/561) Checking Data.String.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/String/Base.agda).
+(249/561) Checking Algebra.Lattice.Properties.Lattice (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Lattice/Properties/Lattice.agda).
+(250/561) Checking DASHI.Physics.Closure.NSPeriodicFiniteTriadPartition (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSPeriodicFiniteTriadPartition.agda).
+(251/561) Checking DASHI.Physics.Closure.NSPeriodicOfficialFiniteSumIdentification (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSPeriodicOfficialFiniteSumIdentification.agda).
+(252/561) Checking Tactic.RingSolver.Core.NatSet (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/Core/NatSet.agda).
+(253/561) Checking Algebra.Properties.CommutativeMonoid.Mult (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Properties/CommutativeMonoid/Mult.agda).
+(254/561) Checking Text.Format.Generic (/content/dashi-agda-cache/agda-stdlib-experimental/src/Text/Format/Generic.agda).
+(255/561) Checking DASHI.Physics.Closure.NSPeriodicConcreteNearTriadSums (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSPeriodicConcreteNearTriadSums.agda).
+(257/561) Checking Algebra.Lattice.Properties.DistributiveLattice (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Lattice/Properties/DistributiveLattice.agda).
+(256/561) Checking DASHI.Physics.Closure.NSPeriodicConcreteCutoffCubeCarrier (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSPeriodicConcreteCutoffCubeCarrier.agda).
+(258/561) Checking Algebra.Properties.AbelianGroup (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Properties/AbelianGroup.agda).
+(259/561) Checking Data.List.Relation.Unary.All.Properties.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Unary/All/Properties/Core.agda).
+(260/561) Checking Data.List.Relation.Unary.AllPairs.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Unary/AllPairs/Core.agda).
+(261/561) Checking Text.Printf.Generic (/content/dashi-agda-cache/agda-stdlib-experimental/src/Text/Printf/Generic.agda).
+(262/561) Checking Text.Format (/content/dashi-agda-cache/agda-stdlib-experimental/src/Text/Format.agda).
+(263/561) Checking Algebra.Properties.CommutativeMonoid.Mult.TCOptimised (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Properties/CommutativeMonoid/Mult/TCOptimised.agda).
+(264/561) Checking DASHI.Physics.Closure.NSPeriodicNearTriadClassification (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSPeriodicNearTriadClassification.agda).
+(265/561) Checking Algebra.Properties.RingWithoutOne (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Properties/RingWithoutOne.agda).
+(267/561) Checking Data.Sum.Algebra (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Sum/Algebra.agda).
+(266/561) Checking Function.Properties.Bijection (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Properties/Bijection.agda).
+(268/561) Checking Data.List.Relation.Unary.AllPairs (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Unary/AllPairs.agda).
+(269/561) Checking Algebra.Lattice.Properties.BooleanAlgebra (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Lattice/Properties/BooleanAlgebra.agda).
+(270/561) Checking Algebra.Lattice.Construct.NaturalChoice.MinOp (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Lattice/Construct/NaturalChoice/MinOp.agda).
+(271/561) Checking Algebra.Construct.NaturalChoice.Min (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Construct/NaturalChoice/Min.agda).
+(272/561) Checking Algebra.Construct.NaturalChoice.MaxOp (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Construct/NaturalChoice/MaxOp.agda).
+(273/561) Checking Algebra.Properties.Ring (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Properties/Ring.agda).
+(275/561) Checking Algebra.Morphism.MagmaMonomorphism (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Morphism/MagmaMonomorphism.agda).
+(274/561) Checking Algebra.Morphism (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Morphism.agda).
+(276/561) Checking Function.Related.Propositional (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Related/Propositional.agda).
+(277/561) Checking Data.Product.Algebra (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Product/Algebra.agda).
+(278/561) Checking Algebra.Construct.NaturalChoice.Max (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Construct/NaturalChoice/Max.agda).
+(279/561) Checking Algebra.Construct.NaturalChoice.MinMaxOp (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Construct/NaturalChoice/MinMaxOp.agda).
+(280/561) Checking Algebra.Solver.Ring.AlmostCommutativeRing (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Solver/Ring/AlmostCommutativeRing.agda).
+(281/561) Checking Algebra.Morphism.MonoidMonomorphism (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Morphism/MonoidMonomorphism.agda).
+(282/561) Checking Algebra.Lattice.Construct.NaturalChoice.MaxOp (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Lattice/Construct/NaturalChoice/MaxOp.agda).
+(283/561) Checking Data.List.Relation.Unary.Unique.Setoid (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Unary/Unique/Setoid.agda).
+(284/561) Checking Data.List.Extrema.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Extrema/Core.agda).
+(285/561) Checking Algebra.Morphism.GroupMonomorphism (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Morphism/GroupMonomorphism.agda).
+(286/561) Checking Data.List.Relation.Unary.Unique.Propositional (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Unary/Unique/Propositional.agda).
+(287/561) Checking Algebra.Lattice.Morphism.Structures (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Lattice/Morphism/Structures.agda).
+(288/561) Checking Tactic.RingSolver.Core.AlmostCommutativeRing (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/Core/AlmostCommutativeRing.agda).
+(289/561) Checking DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda).
+(290/561) Checking Data.Sum.Function.Propositional (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Sum/Function/Propositional.agda).
+(291/561) Checking Data.Product.Function.Dependent.Propositional (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Product/Function/Dependent/Propositional.agda).
+(292/561) Checking Data.Product.Function.NonDependent.Propositional (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Product/Function/NonDependent/Propositional.agda).
+(293/561) Checking Algebra.Solver.Ring.Lemmas (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Solver/Ring/Lemmas.agda).
+(294/561) Checking Algebra.Morphism.RingMonomorphism (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Morphism/RingMonomorphism.agda).
+(295/561) Checking Algebra.Lattice.Construct.NaturalChoice.MinMaxOp (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Lattice/Construct/NaturalChoice/MinMaxOp.agda).
+(296/561) Checking Algebra.Lattice.Morphism.LatticeMonomorphism (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Lattice/Morphism/LatticeMonomorphism.agda).
+(297/561) Checking Data.Bool.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Bool/Properties.agda).
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:159.11-15: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+pairTriad pair
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:175.23-27: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+enumerateFromPairs N (pair ∷ pairs)
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:178.1-11: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-258 N
+  pair
+  true
+  pairs
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:179.1-12: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-258 N
+  pair
+  false
+  pairs
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:191.35-39: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+enumeratedPairMember {N} {pairs = pair ∷ pairs} member
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:194.1-32: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-294
+  {N}
+  pair
+  pairs
+  {_}
+  member
+  true
+  (_∈_.here equality)
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:196.1-29: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-294
+  {N}
+  pair
+  pairs
+  {_}
+  member
+  true
+  (_∈_.there tail)
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:198.1-21: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-294
+  {N}
+  pair
+  pairs
+  {_}
+  member₁
+  false
+  member
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:207.39-43: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+enumeratedOutputWithin {N} {pairs = pair ∷ pairs} {τ = τ} member
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:210.3-13: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-370
+  {N}
+  pair
+  true
+  cutoffProof
+  pairs
+  {τ = τ}
+  member
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:211.3-14: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-370
+  {N}
+  pair
+  false
+  cutoffProof
+  pairs
+  {τ = τ}
+  member
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:222.22-26: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+trueOutputMember N pair pairs proof (_∈_.here equality)
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:227.22-26: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+trueOutputMember N pair pairs proof (_∈_.there tail)
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:237.23-27: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+falseOutputMember N pair pairs member
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:267.17-21: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+enumerateFromPairsNoDuplicates N
+  (unique∷ {x = pair} {xs = pairs} pairFresh rest)
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:270.1-11: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-526 N
+  {_}
+  true
+  {_}
+  pairFresh
+  rest
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:280.1-12: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-526 N
+  {_}
+  false
+  {_}
+  pairFresh
+  rest
+(299/561) Checking DASHI.Physics.Closure.NSTriadKNPhysicalScaleTrichotomy (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalScaleTrichotomy.agda).
+(298/561) Checking DASHI.Physics.Closure.NSTriadKNPhysicalOutputFiber (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalOutputFiber.agda).
+(300/561) Checking DASHI.Physics.Closure.NSTriadKNDeterministicNestedColumnRound331Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNDeterministicNestedColumnRound331Exact.agda).
+(301/561) Checking Tactic.RingSolver.Core.Polynomial.Reasoning (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/Core/Polynomial/Reasoning.agda).
+(302/561) Checking Tactic.RingSolver.Core.Polynomial.Parameters (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/Core/Polynomial/Parameters.agda).
+(303/561) Checking Function.Related.TypeIsomorphisms (/content/dashi-agda-cache/agda-stdlib-experimental/src/Function/Related/TypeIsomorphisms.agda).
+(305/561) Checking DASHI.Physics.Closure.NSTriadKNLiteralNestedRowEnumerationRound330Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNLiteralNestedRowEnumerationRound330Exact.agda).
+(304/561) Checking DASHI.Physics.Closure.NSTriadKNComplex3GalerkinEquationAudit (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNComplex3GalerkinEquationAudit.agda).
+(306/561) Checking Data.Nat.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/Properties.agda).
+(308/561) Checking Data.Fin.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Fin/Properties.agda).
+(307/561) Checking Algebra.Properties.Semiring.Exp (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Properties/Semiring/Exp.agda).
+(310/561) Checking Data.Nat.GCD.Lemmas (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/GCD/Lemmas.agda).
+(311/561) Checking Data.Char.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Char/Properties.agda).
+(314/561) Checking Data.Nat (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat.agda).
+(313/561) Checking Data.Word64.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Word64/Properties.agda).
+(312/561) Checking Data.Nat.GeneralisedArithmetic (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/GeneralisedArithmetic.agda).
+(309/561) Checking Data.Integer.Properties.NatLemmas (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Integer/Properties/NatLemmas.agda).
+(318/561) Checking Data.Nat.Induction (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/Induction.agda).
+(316/561) Checking Data.Nat.DivMod.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/DivMod/Core.agda).
+(319/561) Checking Reflection.AST.Meta (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST/Meta.agda).
+(317/561) Checking Data.Nat.Divisibility.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/Divisibility/Core.agda).
+(315/561) Checking DASHI.Physics.Closure.NSTriadKNResonantNullGain (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNResonantNullGain.agda).
+(320/561) Checking Data.Float.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Float/Properties.agda).
+(321/561) Checking Reflection.AST.Name (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST/Name.agda).
+(322/561) Checking Induction.Lexicographic (/content/dashi-agda-cache/agda-stdlib-experimental/src/Induction/Lexicographic.agda).
+(323/561) Checking Data.Nat.Logarithm.Core (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/Logarithm/Core.agda).
+(324/561) Checking Tactic.RingSolver.Core.Polynomial.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/Core/Polynomial/Base.agda).
+(326/561) Checking Algebra.Solver.Ring (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Solver/Ring.agda).
+(325/561) Checking Algebra.Properties.Semiring.Exp.TCOptimised (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Properties/Semiring/Exp/TCOptimised.agda).
+(327/561) Checking Data.Integer.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Integer/Properties.agda).
+(328/561) Checking Algebra.Properties.CommutativeSemiring.Exp.TCOptimised (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Properties/CommutativeSemiring/Exp/TCOptimised.agda).
+(329/561) Checking Data.Nat.Logarithm (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/Logarithm.agda).
+(330/561) Checking Tactic.RingSolver.Core.Polynomial.Semantics (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/Core/Polynomial/Semantics.agda).
+(331/561) Checking Tactic.RingSolver.Core.Polynomial.Homomorphism.Constants (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/Core/Polynomial/Homomorphism/Constants.agda).
+(332/561) Checking Tactic.RingSolver.Core.Polynomial.Homomorphism.Lemmas (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/Core/Polynomial/Homomorphism/Lemmas.agda).
+(333/561) Checking Algebra.Solver.Ring.Simple (/content/dashi-agda-cache/agda-stdlib-experimental/src/Algebra/Solver/Ring/Simple.agda).
+(334/561) Checking Tactic.RingSolver.Core.Polynomial.Homomorphism.Negation (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/Core/Polynomial/Homomorphism/Negation.agda).
+(335/561) Checking Tactic.RingSolver.Core.Polynomial.Homomorphism.Addition (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/Core/Polynomial/Homomorphism/Addition.agda).
+(336/561) Checking Tactic.RingSolver.Core.Polynomial.Homomorphism.Variables (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/Core/Polynomial/Homomorphism/Variables.agda).
+(338/561) Checking Data.Fin.Permutation.Components (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Fin/Permutation/Components.agda).
+(337/561) Checking Data.Nat.DivMod (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/DivMod.agda).
+(339/561) Checking Data.Fin.Permutation (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Fin/Permutation.agda).
+(343/561) Checking Data.Integer.Solver (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Integer/Solver.agda).
+(342/561) Checking DASHI.Physics.Closure.NSTriadKNOfficialInfinityNormTriangle (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNOfficialInfinityNormTriangle.agda).
+(340/561) Checking DASHI.Physics.Closure.NSTriadKNPhysicalTriadOrbitConstruction (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadOrbitConstruction.agda).
+(341/561) Checking DASHI.Physics.Closure.NSTriadKNPhysicalTriadSymmetry (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadSymmetry.agda).
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNOfficialInfinityNormTriangle.agda:39.6-15: warning: -W[no]UserWarning
+Warning: n≤m⊔n was deprecated in v1.6. Please use m≤n⊔m instead.
+when scope checking Nat.n≤m⊔n
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNOfficialInfinityNormTriangle.agda:43.20-29: warning: -W[no]UserWarning
+Warning: n≤m⊔n was deprecated in v1.6. Please use m≤n⊔m instead.
+when scope checking Nat.n≤m⊔n
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNOfficialInfinityNormTriangle.agda:50.3-14: warning: -W[no]UserWarning
+Warning: ⊔-least was deprecated in v1.6. Please use ⊔-lub instead.
+when scope checking Nat.⊔-least
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNOfficialInfinityNormTriangle.agda:50.16-27: warning: -W[no]UserWarning
+Warning: ⊔-least was deprecated in v1.6. Please use ⊔-lub instead.
+when scope checking Nat.⊔-least
+(344/561) Checking Data.Rational.Unnormalised.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Rational/Unnormalised/Properties.agda).
+(345/561) Checking DASHI.Physics.Closure.NSTriadKNLiteralDyadicShellConstants (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNLiteralDyadicShellConstants.agda).
+(346/561) Checking DASHI.Physics.Closure.NSTriadKNPhysicalSymmetryEnumerationClosure (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalSymmetryEnumerationClosure.agda).
+(347/561) Checking Tactic.RingSolver.Core.Polynomial.Homomorphism.Multiplication (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/Core/Polynomial/Homomorphism/Multiplication.agda).
+(348/561) Checking DASHI.Physics.Closure.NSTriadKNPhysicalOutputFiberConjugationRound35Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalOutputFiberConjugationRound35Exact.agda).
+(350/561) Checking Data.Nat.Divisibility (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/Divisibility.agda).
+(349/561) Checking Data.Digit (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Digit.agda).
+(352/561) Checking Data.Integer.Divisibility (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Integer/Divisibility.agda).
+(351/561) Checking Data.Nat.GCD (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/GCD.agda).
+(353/561) Checking Data.List.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Properties.agda).
+(354/561) Checking Tactic.RingSolver.Core.Polynomial.Homomorphism.Exponentiation (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/Core/Polynomial/Homomorphism/Exponentiation.agda).
+(355/561) Checking Data.List.Relation.Binary.Permutation.Homogeneous (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Permutation/Homogeneous.agda).
+(356/561) Checking Tactic.RingSolver.Core.Polynomial.Homomorphism (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/Core/Polynomial/Homomorphism.agda).
+(358/561) Checking Tactic.RingSolver.NonReflective (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver/NonReflective.agda).
+(357/561) Checking Data.Integer.GCD (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Integer/GCD.agda).
+(359/561) Checking DASHI.Physics.Closure.NSTriadKNComplex3FieldAlgebra (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNComplex3FieldAlgebra.agda).
+(361/561) Checking Data.List.Effectful (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Effectful.agda).
+(360/561) Checking Data.List.Relation.Binary.Pointwise (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Pointwise.agda).
+(362/561) Checking Data.Nat.Show (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/Show.agda).
+(363/561) Checking Data.Integer.Show (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Integer/Show.agda).
+(365/561) Checking Data.List.Relation.Binary.Lex.Strict (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Lex/Strict.agda).
+(366/561) Checking Data.List.Relation.Binary.Equality.Setoid (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Equality/Setoid.agda).
+(364/561) Checking Data.List.Relation.Unary.Any.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Unary/Any/Properties.agda).
+(367/561) Checking Text.Printf (/content/dashi-agda-cache/agda-stdlib-experimental/src/Text/Printf.agda).
+(369/561) Checking Data.List.Relation.Binary.Equality.Propositional (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Equality/Propositional.agda).
+(368/561) Checking Data.List.Relation.Binary.Permutation.Setoid (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Permutation/Setoid.agda).
+(370/561) Checking Reflection.TCM.Format (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/TCM/Format.agda).
+(371/561) Checking Data.List.Relation.Binary.Permutation.Propositional (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Permutation/Propositional.agda).
+(372/561) Checking Data.String.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/String/Properties.agda).
+(373/561) Checking Reflection.AST.Abstraction (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST/Abstraction.agda).
+(374/561) Checking Reflection.AST.Literal (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST/Literal.agda).
+(375/561) Checking Reflection.AST.Term (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST/Term.agda).
+(376/561) Checking Reflection.AST.AlphaEquality (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST/AlphaEquality.agda).
+(378/561) Checking Reflection.AST.Definition (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST/Definition.agda).
+(379/561) Checking Data.List.Reflection (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Reflection.agda).
+(381/561) Checking Reflection.AST.Pattern (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST/Pattern.agda).
+(382/561) Checking Reflection.TCM (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/TCM.agda).
+(380/561) Checking Data.Nat.Reflection (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/Reflection.agda).
+(377/561) Checking Data.Vec.Reflection (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Vec/Reflection.agda).
+(383/561) Checking Data.List.Membership.Setoid.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Membership/Setoid/Properties.agda).
+(384/561) Checking Data.List.Relation.Binary.Permutation.Setoid.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Permutation/Setoid/Properties.agda).
+(385/561) Checking Data.List.Membership.Propositional.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Membership/Propositional/Properties.agda).
+(386/561) Checking Data.List.Relation.Unary.All.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Unary/All/Properties.agda).
+(387/561) Checking Data.List.Extrema (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Extrema.agda).
+(388/561) Checking Data.Nat.ListAction.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/ListAction/Properties.agda).
+(390/561) Checking Data.List.Relation.Binary.Permutation.Propositional.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Permutation/Propositional/Properties.agda).
+(389/561) Checking Data.Nat.Primality (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/Primality.agda).
+(391/561) Checking Data.String (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/String.agda).
+(392/561) Checking Data.Nat.Coprimality (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Nat/Coprimality.agda).
+(393/561) Checking Reflection.AST.Show (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST/Show.agda).
+(394/561) Checking Data.Rational.Base (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Rational/Base.agda).
+(395/561) Checking Data.Integer.Coprimality (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Integer/Coprimality.agda).
+(396/561) Checking Data.List.Relation.Binary.Disjoint.Setoid.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Binary/Disjoint/Setoid/Properties.agda).
+(397/561) Checking Data.List.Relation.Unary.AllPairs.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Unary/AllPairs/Properties.agda).
+(398/561) Checking Reflection.AST (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection/AST.agda).
+(401/561) Checking Data.Rational.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Rational/Properties.agda).
+(399/561) Checking DASHI.Physics.Closure.NSTriadKNComNormalizedFibreMassLeafRound58 (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNComNormalizedFibreMassLeafRound58.agda).
+(400/561) Checking DASHI.Physics.Closure.NSTriadKNIntegrationTransportAuthorityRound495Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNIntegrationTransportAuthorityRound495Exact.agda).
+(402/561) Checking Data.List.Relation.Unary.Unique.Setoid.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Unary/Unique/Setoid/Properties.agda).
+(403/561) Checking Reflection (/content/dashi-agda-cache/agda-stdlib-experimental/src/Reflection.agda).
+(404/561) Checking Tactic.RingSolver (/content/dashi-agda-cache/agda-stdlib-experimental/src/Tactic/RingSolver.agda).
+(405/561) Checking Data.List.Relation.Unary.Unique.Propositional.Properties (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/List/Relation/Unary/Unique/Propositional/Properties.agda).
+(406/561) Checking Data.Rational (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Rational.agda).
+(407/561) Checking Data.Rational.Tactic.RingSolver (/content/dashi-agda-cache/agda-stdlib-experimental/src/Data/Rational/Tactic/RingSolver.agda).
+(408/561) Checking DASHI.Physics.YangMills.BalabanClayT4PositiveDenominatorQuotientEndpointsExact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/YangMills/BalabanClayT4PositiveDenominatorQuotientEndpointsExact.agda).
+(409/561) Checking DASHI.Physics.Closure.NSTriadKNSignedCrossShellAlmostOrthogonalityRound29Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNSignedCrossShellAlmostOrthogonalityRound29Exact.agda).
+(410/561) Checking DASHI.Physics.YangMills.BalabanBoolean4BlockPoincareExact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/YangMills/BalabanBoolean4BlockPoincareExact.agda).
+(413/561) Checking DASHI.Physics.Closure.NSTriadKNResolventEndpointCompletionRound297Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNResolventEndpointCompletionRound297Exact.agda).
+(411/561) Checking DASHI.Physics.Closure.NSTriadKNRationalOrderedFiniteL2 (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNRationalOrderedFiniteL2.agda).
+(414/561) Checking DASHI.Physics.Closure.NSTriadKNWeightedGramFluxCompilerRound290Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNWeightedGramFluxCompilerRound290Exact.agda).
+(416/561) Checking DASHI.Physics.Closure.NSTriadKNDelayedPositivePartRound29Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNDelayedPositivePartRound29Exact.agda).
+(412/561) Checking DASHI.Physics.Closure.NSTriadKNFiniteKernelRankOneQuadraticSplitRound444Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNFiniteKernelRankOneQuadraticSplitRound444Exact.agda).
+(415/561) Checking DASHI.Physics.Closure.NSTriadKNSymmetricUnorderedOrderedOffDiagonalRound539Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNSymmetricUnorderedOrderedOffDiagonalRound539Exact.agda).
+(417/561) Checking DASHI.Physics.Closure.NSTriadKNHeatFactorizedPairRemainderRound299Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNHeatFactorizedPairRemainderRound299Exact.agda).
+(418/561) Checking DASHI.Physics.Closure.NSTriadKNComNormalizedFibreSourceRound60Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNComNormalizedFibreSourceRound60Exact.agda).
+(419/561) Checking DASHI.Physics.Closure.NSTriadKNComNormalizedFibreAggregateRound60Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNComNormalizedFibreAggregateRound60Exact.agda).
+Agda RSS watchdog: 8480256 KiB exceeds 8388608 KiB; terminating DASHI/Physics/Closure/NSTriadKNCanonicalBAnalyticCutsetASTExact.agda
+
+STDERR
+Agda failed for: DASHI/Physics/Closure/NSTriadKNCanonicalBAnalyticCutsetASTExact.agda
