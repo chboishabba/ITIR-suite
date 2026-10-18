@@ -43,3 +43,18 @@ ruff check itir-mcp/src/itir_mcp/pnf_work_packet_provider.py itir-mcp/src/itir_m
 ```
 
 No CI, browser, mutation, resend, or production archive write.
+
+## Referee round 2 — FastMCP transport artifact
+
+The production stdio call reached the registry but failed the strict field allowlist because FastMCP injects a reserved `kwargs` field. The shared `itir_mcp.server._register_fastmcp_tool` wrapper now removes `kwargs` **after** merging `arguments` and before invoking any registered handler. This corrects the transport/handler boundary for every strict tool without relaxing unknown-field validation.
+
+Added a regression test that registers `itir.pnf.work_packet` through the actual `_register_fastmcp_tool` wrapper on a capture server and invokes the resulting function with `arguments=...`, `kwargs={}`. It checks successful nonempty source refs and rejection of a genuine unexpected field. The fixture does not require the optional FastMCP transport package or a live archive.
+
+**Post-fix validation pending referee execution** (GitHub connector cannot execute local repository commands):
+
+```bash
+python -m unittest discover -s tests -p 'test_pnf_work_packet_provider.py' -v
+ruff check itir-mcp/src/itir_mcp/server.py itir-mcp/src/itir_mcp/pnf_tools.py itir-mcp/src/itir_mcp/pnf_work_packet_provider.py tests/test_pnf_work_packet_provider.py
+```
+
+Full stdio smoke to be re-run by the referee with `cwd=itir-mcp`, `PYTHONPATH=src`, and `tools/call` arguments plus `kwargs={}`. Expected result is `ok:true` and nonempty `source_refs`; this has **not** been observed in this session. No CI, browser, mutation, or production write.
