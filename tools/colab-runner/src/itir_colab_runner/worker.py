@@ -87,6 +87,8 @@ def run_one_job(
             if claim is not None:
                 break
         else:
+            if latest.worker_id == worker_id:
+                break
             if now >= latest.lease_expires_at:
                 try:
                     relay.create_takeover_claim(job, latest, worker_id, now)
