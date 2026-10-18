@@ -54,7 +54,7 @@ class FleetTest(unittest.TestCase):
         self.assertEqual(result["stages"],["refreshed","ingested","reduced","rescored"])
         self.assertEqual(refresh_work_evidence(self.db,work,cid,provider)["replayed"],True)
         self.assertEqual(calls,[cid,cid])
-        self.assertEqual(self.db.execute("SELECT count(*) FROM fleet_evidence_receipts").fetchone()[0],1)
+        self.assertEqual(self.db.execute("SELECT count(*) FROM fleet_archive_receipts").fetchone()[0],1)
         self.assertEqual(self.db.execute("SELECT priority FROM fleet_work_units").fetchone()[0],7)
         self.assertEqual(self.db.execute("SELECT state FROM fleet_work_units").fetchone()[0],"proposed")
 
