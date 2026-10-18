@@ -12,7 +12,7 @@ class LegacySafetyTest(unittest.TestCase):
         result = subprocess.run([sys.executable, str(DAEMON)], cwd=ROOT,
                                 capture_output=True, text=True, timeout=10)
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn("Legacy carousel retired", result.stderr)
+        self.assertIn("Legacy title carousel retired.", result.stderr)
     def test_guard_precedes_transport_imports(self):
         source = DAEMON.read_text(encoding="utf-8")
         self.assertLess(source.index('if __name__ == "__main__":'), source.index("from re_gpt.mutation_service import MutationService"))
