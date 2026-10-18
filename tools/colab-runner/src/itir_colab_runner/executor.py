@@ -82,6 +82,7 @@ def prepare_checkout(repository: str, commit_sha: str, workspace: Path) -> Check
 
     if repository == "chboishabba/dashi_lean4":
         if (checkout / "lakefile.toml").exists() or (checkout / "lakefile.lean").exists():
+            (checkout / "lean-toolchain").write_text("leanprover/lean4:v4.28.0\n", encoding="utf-8")
             if shutil.which("elan"):
                 subprocess.run(
                     ["elan", "override", "set", "v4.28.0"],
