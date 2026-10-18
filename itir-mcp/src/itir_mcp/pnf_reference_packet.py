@@ -65,13 +65,13 @@ def reference_work_packet(payload: Mapping[str, Any], *, connect=None) -> JsonDi
                 comparisons=[]
                 if revisions:
                     cur.execute("""SELECT s.source_revision_ref, f.role_ref, f.dependency_ref,
-                        f.start_offset, f.end_offset, b.batch_ref
+                        f.source_start_char, f.source_end_char, b.batch_ref
                         FROM corpus.source_statement s
                         JOIN pnf.statement_candidate_batch b ON b.statement_ref=s.statement_ref
                         JOIN pnf.statement_candidate_factor f ON f.batch_ref=b.batch_ref
                         WHERE s.source_revision_ref = ANY(%s)
                         AND b.candidate_only=TRUE AND b.semantic_admission_paid=FALSE
-                        ORDER BY b.batch_ref,f.factor_ordinal LIMIT %s""",
+                        ORDER BY b.batch_ref,f.candidate_ref LIMIT %s""",
                         (revisions,limit))
                     factors=[dict(zip(("source_revision_ref","role_ref","dependency_ref",
                         "start_offset","end_offset","batch_ref"),row)) for row in cur.fetchall()]
