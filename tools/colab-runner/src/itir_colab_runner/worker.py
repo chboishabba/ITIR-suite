@@ -78,20 +78,23 @@ def run_one_job(
     pending = relay.list_pending_jobs()
     if not pending:
         return WorkerOutcome("IDLE")
-    job = relay.read_job(pending[0])
 
-    latest = relay.latest_claim(job.job_id)
-    if latest is None:
-        claim = relay.try_create_claim(job, worker_id, now)
-        if claim is None:
-            return WorkerOutcome("IDLE", job.job_id, "claim lost")
+    for candidate_id in pending:
+        job = relay.read_job(candidate_id)
+        latest = relay.latest_claim(job.job_id)
+        if latest is None:
+            claim = relay.try_create_claim(job, worker_id, now)
+            if claim is not None:
+                break
+        else:
+            if now >= latest.lease_expires_at:
+                try:
+                    relay.create_takeover_claim(job, latest, worker_id, now)
+                    break
+                except RelayConflict:
+                    pass
     else:
-        if now < latest.lease_expires_at:
-            return WorkerOutcome("IDLE", job.job_id, "already claimed")
-        try:
-            relay.create_takeover_claim(job, latest, worker_id, now)
-        except RelayConflict:
-            return WorkerOutcome("IDLE", job.job_id, "takeover lost")
+        return WorkerOutcome("IDLE", pending[0], "all pending jobs currently claimed")
 
     outcome = executor.execute(job)
     log_text = f"STDOUT\n{outcome.stdout}\nSTDERR\n{outcome.stderr}".encode("utf-8")
