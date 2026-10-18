@@ -1,0 +1,198 @@
+STDOUT
+Logging Agda output to: /home/c/.gemini/antigravity/scratch/dashi-agda29-parallel-check-20261018-061700-DASHI__Physics__Closure__NSTriadKNCanonicalBAnalyticCutsetASTExact.agda.log
+Agda RSS guard: 36864 MiB
+Checking: DASHI/Physics/Closure/NSTriadKNCanonicalBAnalyticCutsetASTExact.agda
+(239/561) Checking DASHI.Physics.Closure.NSTriadKNComplex3AlgebraLaws (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNComplex3AlgebraLaws.agda).
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:159.11-15: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+pairTriad pair
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:175.23-27: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+enumerateFromPairs N (pair ∷ pairs)
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:178.1-11: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-258 N
+  pair
+  true
+  pairs
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:179.1-12: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-258 N
+  pair
+  false
+  pairs
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:191.35-39: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+enumeratedPairMember {N} {pairs = pair ∷ pairs} member
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:194.1-32: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-294
+  {N}
+  pair
+  pairs
+  {_}
+  member
+  true
+  (_∈_.here equality)
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:196.1-29: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-294
+  {N}
+  pair
+  pairs
+  {_}
+  member
+  true
+  (_∈_.there tail)
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:198.1-21: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-294
+  {N}
+  pair
+  pairs
+  {_}
+  member₁
+  false
+  member
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:207.39-43: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+enumeratedOutputWithin {N} {pairs = pair ∷ pairs} {τ = τ} member
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:210.3-13: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-370
+  {N}
+  pair
+  true
+  cutoffProof
+  pairs
+  {τ = τ}
+  member
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:211.3-14: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-370
+  {N}
+  pair
+  false
+  cutoffProof
+  pairs
+  {τ = τ}
+  member
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:222.22-26: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+trueOutputMember N pair pairs proof (_∈_.here equality)
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:227.22-26: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+trueOutputMember N pair pairs proof (_∈_.there tail)
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:237.23-27: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+falseOutputMember N pair pairs member
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:267.17-21: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+enumerateFromPairsNoDuplicates N
+  (unique∷ {x = pair} {xs = pairs} pairFresh rest)
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:270.1-11: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-526 N
+  {_}
+  true
+  {_}
+  pairFresh
+  rest
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadEnumeration.agda:280.1-12: warning: -W[no]PatternShadowsConstructor
+The pattern variable pair has the same name as the constructor
+Cube.pair
+when checking the clause left hand side
+DASHI.Physics.Closure.NSTriadKNPhysicalTriadEnumeration.with-526 N
+  {_}
+  false
+  {_}
+  pairFresh
+  rest
+(306/561) Checking DASHI.Physics.Closure.NSTriadKNComplex3GalerkinEquationAudit (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNComplex3GalerkinEquationAudit.agda).
+(315/561) Checking DASHI.Physics.Closure.NSTriadKNResonantNullGain (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNResonantNullGain.agda).
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNOfficialInfinityNormTriangle.agda:39.6-15: warning: -W[no]UserWarning
+Warning: n≤m⊔n was deprecated in v1.6. Please use m≤n⊔m instead.
+when scope checking Nat.n≤m⊔n
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNOfficialInfinityNormTriangle.agda:43.20-29: warning: -W[no]UserWarning
+Warning: n≤m⊔n was deprecated in v1.6. Please use m≤n⊔m instead.
+when scope checking Nat.n≤m⊔n
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNOfficialInfinityNormTriangle.agda:50.3-14: warning: -W[no]UserWarning
+Warning: ⊔-least was deprecated in v1.6. Please use ⊔-lub instead.
+when scope checking Nat.⊔-least
+
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNOfficialInfinityNormTriangle.agda:50.16-27: warning: -W[no]UserWarning
+Warning: ⊔-least was deprecated in v1.6. Please use ⊔-lub instead.
+when scope checking Nat.⊔-least
+(334/561) Checking DASHI.Physics.Closure.NSTriadKNPhysicalTriadOrbitConstruction (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalTriadOrbitConstruction.agda).
+(352/561) Checking DASHI.Physics.Closure.NSTriadKNPhysicalOutputFiberConjugationRound35Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNPhysicalOutputFiberConjugationRound35Exact.agda).
+(376/561) Checking DASHI.Physics.Closure.NSTriadKNComplex3FieldAlgebra (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNComplex3FieldAlgebra.agda).
+(410/561) Checking DASHI.Physics.YangMills.BalabanBoolean4BlockPoincareExact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/YangMills/BalabanBoolean4BlockPoincareExact.agda).
+(412/561) Checking DASHI.Physics.Closure.NSTriadKNSymmetricUnorderedOrderedOffDiagonalRound539Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNSymmetricUnorderedOrderedOffDiagonalRound539Exact.agda).
+(414/561) Checking DASHI.Physics.Closure.NSTriadKNHeatFactorizedPairRemainderRound299Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNHeatFactorizedPairRemainderRound299Exact.agda).
+(415/561) Checking DASHI.Physics.Closure.NSTriadKNFiniteKernelRankOneQuadraticSplitRound444Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNFiniteKernelRankOneQuadraticSplitRound444Exact.agda).
+(413/561) Checking DASHI.Physics.Closure.NSTriadKNWeightedGramFluxCompilerRound290Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNWeightedGramFluxCompilerRound290Exact.agda).
+(417/561) Checking DASHI.Physics.Closure.NSTriadKNResolventEndpointCompletionRound297Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNResolventEndpointCompletionRound297Exact.agda).
+(416/561) Checking DASHI.Physics.Closure.NSTriadKNDelayedPositivePartRound29Exact (/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNDelayedPositivePartRound29Exact.agda).
+/content/dashi-agda-cache/dashi-shadow/DASHI/Physics/Closure/NSTriadKNComplex3FieldAlgebra.agda:91.19-40: error: [UnequalTerms]
+The terms
+  C3.add F a b
+and
+  a
+are not equal at type F .C3.Carrier
+when checking that the expression realDistributeRight F has type
+(_≡_ Algebra.Definitions.DistributesOverˡ C3.multiply F) (C3.add F)
+
+STDERR
+Agda failed for: DASHI/Physics/Closure/NSTriadKNCanonicalBAnalyticCutsetASTExact.agda
