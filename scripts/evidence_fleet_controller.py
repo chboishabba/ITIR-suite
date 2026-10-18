@@ -189,6 +189,72 @@ def refresh_work_evidence(db: sqlite3.Connection, work_id: str, conversation_id:
         db.commit()
         return {"stage":stage,"receipt_digest":receipt_id,"error_class":error_class,"replayed":False}
 
+
+def exact_async_archive_provider(
+    puller: str, archive_db: str, account: str, *,
+    formal_file: str | None = None, slrw_path: str | None = None,
+    runner: Any = None, gap_compare: Any = None,
+) -> Any:
+    """Factory for one explicit existing pull_to_structurer.py async exact-ID invocation.
+
+    Subprocess isolates puller's asyncio.run from an existing event loop.
+    Runner and comparator are injectable for token-free tests. No retries.
+    """
+    import subprocess
+    import sys
+    from pathlib import Path
+    puller_path, db_path = Path(puller).expanduser(), Path(archive_db).expanduser()
+    if not puller_path.is_file() or not db_path.is_file() or not account:
+        raise EvidenceDeferred("archive or puller prerequisite missing")
+    def provider(conversation_id: str) -> dict:
+        if not UUID_PATTERN.fullmatch(conversation_id):
+            raise ValueError("canonical conversation UUID required")
+        cmd = [sys.executable, str(puller_path), "--ids", conversation_id,
+               "--db", str(db_path), "--account", account,
+               "--engine", "async", "--mode", "pull", "--concurrency", "1",
+               "--no-progress", "--json", "--no-skip-existing"]
+        run = runner or subprocess.run
+        try:
+            completed = run(cmd, capture_output=True, text=True, timeout=240, check=False)
+        except (subprocess.TimeoutExpired, OSError) as exc:
+            raise EvidenceDeferred("exact async read unavailable") from exc
+        if completed.returncode != 0:
+            raise EvidenceDeferred("exact async pull rejected or unavailable")
+        try:
+            summary = json.loads(completed.stdout)
+            async_status = summary["async"]
+            if (summary.get("requested_targets") != 1 or
+                summary.get("selected_id_filters") != 1 or
+                async_status["total"] != 1 or async_status["ok"] != 1 or
+                async_status["failures"] != 0 or "ingest" not in summary):
+                raise EvidenceDeferred("exact fetch rejected, identity invalid, or ingest missing")
+            source_id = summary["source_id"]
+            count = async_status["messages"]
+            if not isinstance(count,int) or count < 0:
+                raise ValueError("invalid message count")
+        except (KeyError, TypeError, json.JSONDecodeError, ValueError) as exc:
+            raise EvidenceDeferred("invalid exact fetch receipt") from exc
+        if not formal_file or not slrw_path:
+            raise EvidenceDeferred("explicit formal file and SLRW required for gap score")
+        if not Path(formal_file).is_file() or not Path(slrw_path).is_file():
+            raise EvidenceDeferred("formal or SLRW prerequisite missing")
+        if gap_compare is None:
+            # Reuse the existing owner implementation, never parse formal bodies here.
+            from re_gpt.gap_comparator import ExactGapComparator
+            gap = ExactGapComparator(slrw_path).compare(conversation_id,formal_file)
+        else:
+            gap = gap_compare(conversation_id,formal_file,slrw_path)
+        observed = datetime.now(timezone.utc).isoformat()
+        return dict(receipt_ref="ingest:"+digest([conversation_id,source_id])[:48],
+            source_ref="pull:"+source_id,source_digest=digest([conversation_id,source_id,count]),
+            archive_delta=count,pnf_ref="slrw:"+digest(str(slrw_path))[:48],
+            gap_ref="formal:"+digest(str(formal_file))[:48],
+            gap_digest=digest([gap.unmatched_informal_factors,gap.unmatched_formal_factors,
+                               gap.matched_semantic_factors]),
+            gap_score=float(gap.unmatched_informal_factors+gap.unmatched_formal_factors),
+            observed_at=observed)
+    return provider
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--db",required=True)
