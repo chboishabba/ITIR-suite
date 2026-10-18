@@ -67,3 +67,24 @@ python -m scripts.evidence_fleet_controller --db /path/to/fleet_control.sqlite \
 ```
 
 This path uses only the existing local `ExactGapComparator`. The prior injected-provider tests remain compatible. TODO: verify structurer's `ingest.artifacts` shape and source-ID immutability against the deployed puller before live use; run focused local tests. Changelog: split durable archive and optional gap receipts, corrected inserted-row semantics, and added offline gap attachment.
+
+## Stdio MCP fleet evidence tools
+
+Registered through `itir_mcp.registry.build_default_registry` and the existing FastMCP/bridge adapter, with strict `additionalProperties: false` input schemas:
+
+- `itir.fleet.plan`: required `control_db`; optional `limit` 2, 3 or 4. Opens an existing SQLite control DB read-only. No archive or session.
+- `itir.fleet.refresh_evidence`: required `authorized: true`, `control_db`, `work_id`, canonical `conversation_id`, `puller`, `archive_db`; optional `account`, `formal_file`, `slrw`. Authorization is checked before controller import, path resolution or session initialization. Exact async read/ingest only; writes to owned archive and local evidence receipts.
+- `itir.fleet.attach_gap`: required `control_db`, `work_id`, canonical `conversation_id`, `archive_receipt_digest`, `formal_file`, `slrw`. Offline comparator only; no puller.
+
+All results explicitly mark `authoritative: false`, `promotion_state: not_requested` and state the authority boundary: archive/PNF receipts are evidence only, not theorem certification, task execution or promotion. The generic `safe_call` envelope's verification means structural guard verification, **not** formal promotion. Errors are generic and redact underlying exception messages.
+
+Independent live gate: the known worker-thread exact async fetch and canonical archive ingest produced a compact `fleet_archive_receipts` ingestion receipt; the gap phase was deferred because no formal target was supplied. That is **not** a formal proof.
+
+Local verification (not CI):
+
+```bash
+python -m unittest discover -s itir-mcp/tests -p 'test_fleet_tools.py' -v
+python -m unittest discover -s tests -p 'test_evidence_fleet_controller.py' -v
+```
+
+TODO: [x] Expose the archive-first lifecycle through existing stdio MCP; [ ] independently validate authority-aware task selection and PNF synthesis policy; [ ] preserve explicit authorization and proof receipt gates before any separately scoped mutation tool. Changelog: added three bounded evidence-only stdio MCP registry tools with authorization checks and tests.
