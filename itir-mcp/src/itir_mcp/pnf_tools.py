@@ -7,6 +7,7 @@ from typing import Any, Mapping, Sequence
 from .contracts import JsonDict, ToolHandler, ToolInputError, ToolSpec
 
 
+PNF_WORK_PACKET_VERSION = "itir.pnf.work_packet.v1"
 PNF_CONTEXT_INDEX_VERSION = "itir.pnf.context_index.v1"
 PNF_TASK_MEMORY_PREVIEW_VERSION = "itir.pnf.task_memory_preview.v1"
 PNF_OBSERVER_EVIDENCE_VERSION = "itir.pnf.observer_evidence.v1"
@@ -234,8 +235,58 @@ def _text(value: Any) -> str:
     return str(value or "").strip()
 
 
+def pnf_work_packet(payload: Mapping[str, Any]) -> JsonDict:
+    from .pnf_work_packet_provider import build_work_packet
+
+    allowed = {"proposals", "archive_db", "span_policy"}
+    if set(payload) - allowed or "proposals" not in payload:
+        raise ToolInputError("explicit proposals and known fields required")
+    try:
+        return build_work_packet(
+            payload["proposals"],
+            archive_db=payload.get("archive_db"),
+            span_policy=payload.get("span_policy"),
+        )
+    except (ValueError, RuntimeError, FileNotFoundError, TypeError) as exc:
+        raise ToolInputError(str(exc)) from exc
+
+
 def get_pnf_tools() -> list[tuple[ToolSpec, ToolHandler]]:
     return [
+        (
+            ToolSpec(
+                name="itir.pnf.work_packet",
+                title="Bounded canonical archive PNF work packet",
+                description="Read-only source digest references and unverified candidate units; no promotion.",
+                input_schema={
+                    "type": "object",
+                    "required": ["proposals"],
+                    "additionalProperties": False,
+                    "properties": {
+                        "archive_db": {"type": "string", "minLength": 1},
+                        "proposals": {"type": "array", "minItems": 1, "maxItems": 8,
+                            "items": {"type": "object", "additionalProperties": False,
+                                "required": ["canonical_thread_id", "task_atom"],
+                                "properties": {
+                                    "canonical_thread_id": {"type": "string", "minLength": 1},
+                                    "task_atom": {"type": "string", "minLength": 1},
+                                    **{k: {"type": "array", "items": {"type": "string"}}
+                                       for k in ("formal_gap_receipts", "repo_receipts",
+                                                 "pnf_receipts", "evidence_refs")},
+                                }}},
+                        "span_policy": {"type": "object", "additionalProperties": False,
+                            "properties": {
+                                "max_messages": {"type": "integer", "minimum": 1, "maximum": 200},
+                                "max_chars": {"type": "integer", "minimum": 1, "maximum": 100000},
+                                "packet_max_chars": {"type": "integer", "minimum": 1, "maximum": 100000},
+                            }},
+                    },
+                },
+                response_version=PNF_WORK_PACKET_VERSION,
+                read_only=True,
+            ),
+            pnf_work_packet,
+        ),
         (
             ToolSpec(
                 name="itir.pnf.context_index",
