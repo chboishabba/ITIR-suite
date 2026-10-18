@@ -13,6 +13,11 @@ Orchestrator Lifecycle Decisions:
 
 from __future__ import annotations
 
+# Retired: fail closed before transport imports, session creation, or dispatch.
+if __name__ == "__main__":
+    raise SystemExit("Legacy title carousel retired. Use python -m scripts.evidence_fleet_controller --db PATH --plan")
+
+
 import argparse
 import concurrent.futures
 import json
