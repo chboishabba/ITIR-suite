@@ -63,7 +63,10 @@ def prepare_checkout(repository: str, commit_sha: str, workspace: Path) -> Check
         shutil.rmtree(checkout)
     checkout.parent.mkdir(parents=True, exist_ok=True)
     _run_checked(["git", "clone", "--filter=blob:none", "--no-checkout", REPO_URLS[repository], str(checkout)])
-    _run_checked(["git", "fetch", "--depth=1", "origin", commit_sha], cwd=checkout)
+    try:
+        _run_checked(["git", "fetch", "--depth=1", "origin", commit_sha], cwd=checkout)
+    except subprocess.CalledProcessError:
+        _run_checked(["git", "fetch", "--depth=50", "origin"], cwd=checkout)
     _run_checked(["git", "checkout", "--detach", commit_sha], cwd=checkout)
     resolved = _run_checked(["git", "rev-parse", "HEAD"], cwd=checkout).stdout.strip()
     if resolved.lower() != commit_sha.lower():
