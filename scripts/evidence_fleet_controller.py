@@ -115,91 +115,156 @@ CREATE TABLE IF NOT EXISTS fleet_evidence_receipts (
  PRIMARY KEY(work_id,receipt_digest),
  FOREIGN KEY(work_id) REFERENCES fleet_work_units(work_id)
 );
+CREATE TABLE IF NOT EXISTS fleet_archive_receipts (
+ work_id TEXT NOT NULL, receipt_digest TEXT NOT NULL, conversation_id TEXT NOT NULL,
+ source_ref TEXT NOT NULL, source_digest TEXT NOT NULL,
+ archive_delta INTEGER NOT NULL, duplicates INTEGER NOT NULL,
+ parsed_messages INTEGER NOT NULL, fetched_messages INTEGER NOT NULL,
+ artifacts_digest TEXT NOT NULL, observed_at TEXT NOT NULL,
+ PRIMARY KEY(work_id,receipt_digest)
+);
+CREATE TABLE IF NOT EXISTS fleet_gap_receipts (
+ work_id TEXT NOT NULL, archive_receipt_digest TEXT NOT NULL,
+ gap_digest TEXT NOT NULL, pnf_ref TEXT NOT NULL, gap_ref TEXT NOT NULL,
+ gap_score REAL NOT NULL, observed_at TEXT NOT NULL,
+ PRIMARY KEY(work_id,archive_receipt_digest,gap_digest),
+ FOREIGN KEY(work_id,archive_receipt_digest)
+ REFERENCES fleet_archive_receipts(work_id,receipt_digest)
+);
 """
 
 class EvidenceDeferred(Exception):
     """Required exact-thread evidence is not yet available."""
 
-def refresh_work_evidence(db: sqlite3.Connection, work_id: str, conversation_id: str, provider: Any) -> dict:
-    """Call one injected read-only exact-ID provider and store metadata only.
-
-    provider(conversation_id) must return a dict with receipt_ref, source_ref,
-    source_digest, archive_delta, pnf_ref, gap_ref, gap_digest, gap_score,
-    observed_at. It must not return bodies, nor perform account writes.
-    """
+def _validate_work(db: sqlite3.Connection, work_id: str, conversation_id: str) -> None:
+    if not isinstance(conversation_id, str) or not UUID_PATTERN.fullmatch(conversation_id):
+        raise ValueError("canonical conversation UUID required")
     migrate(db)
-    db.executescript(EVIDENCE_SCHEMA)
-    row = db.execute("SELECT parent_ids,evidence_refs,state,priority FROM fleet_work_units WHERE work_id=?",
+    row = db.execute("SELECT parent_ids,evidence_refs FROM fleet_work_units WHERE work_id=?",
                      (work_id,)).fetchone()
     if row is None:
         raise KeyError(work_id)
-    parents, refs = json.loads(row[0]), json.loads(row[1])
-    if not isinstance(conversation_id, str) or not UUID_PATTERN.fullmatch(conversation_id):
-        raise ValueError("canonical conversation UUID required")
-    if conversation_id not in parents and conversation_id not in refs:
+    if conversation_id not in json.loads(row[0]) + json.loads(row[1]):
         raise ValueError("conversation ID is not attached to work unit")
+
+def _failure(db: sqlite3.Connection, work_id: str, conversation_id: str, exc: Exception,
+             *, phase: str = "read", archive_receipt_digest: str | None = None) -> dict:
+    stage = "deferred" if isinstance(exc, EvidenceDeferred) else "failed"
+    key = digest([work_id,conversation_id,phase,archive_receipt_digest,stage,type(exc).__name__])
     now = datetime.now(timezone.utc).isoformat()
+    db.execute("""INSERT OR IGNORE INTO fleet_evidence_receipts
+      (work_id,receipt_digest,conversation_id,stage,observed_at,error_class)
+      VALUES (?,?,?,?,?,?)""",
+      (work_id,key,conversation_id,stage,now,type(exc).__name__))
+    db.commit()
+    return {"stage":stage,"phase":phase,"archive_receipt_digest":archive_receipt_digest,
+            "receipt_digest":key,"error_class":type(exc).__name__,"replayed":False}
+
+def _compact_string(value: Any) -> bool:
+    return isinstance(value,str) and 0 < len(value) <= 256
+
+def _store_gap(db: sqlite3.Connection, work_id: str, conversation_id: str,
+               archive_key: str, gap: dict) -> dict:
+    expected = {"pnf_ref","gap_ref","gap_digest","gap_score","observed_at"}
+    if set(gap) != expected or not all(_compact_string(gap[k]) for k in
+        ("pnf_ref","gap_ref","gap_digest","observed_at")):
+        raise ValueError("invalid gap receipt")
+    score_value = gap["gap_score"]
+    if (not isinstance(score_value,(float,int)) or isinstance(score_value,bool)
+        or not 0 <= score_value <= 1000000):
+        raise ValueError("invalid gap score")
+    gap_key = digest([gap["pnf_ref"],gap["gap_ref"],gap["gap_digest"]])
+    exists = db.execute("""SELECT 1 FROM fleet_gap_receipts
+      WHERE work_id=? AND archive_receipt_digest=? AND gap_digest=?""",
+      (work_id,archive_key,gap_key)).fetchone()
+    if not exists:
+        db.execute("""INSERT INTO fleet_gap_receipts
+          (work_id,archive_receipt_digest,gap_digest,pnf_ref,gap_ref,gap_score,observed_at)
+          VALUES (?,?,?,?,?,?,?)""",
+          (work_id,archive_key,gap_key,gap["pnf_ref"],gap["gap_ref"],
+           float(score_value),gap["observed_at"]))
+        latest = db.execute("""SELECT gap_score FROM fleet_gap_receipts
+          WHERE work_id=? ORDER BY observed_at DESC,gap_digest DESC LIMIT 1""",
+          (work_id,)).fetchone()
+        db.execute("UPDATE fleet_work_units SET priority=?,updated_at=CURRENT_TIMESTAMP WHERE work_id=?",
+                   (latest[0],work_id))
+        db.commit()
+    return {"stage":"rescored","stages":["reduced","rescored"],"archive_receipt_digest":archive_key,
+            "gap_receipt_digest":gap_key,"replayed":bool(exists)}
+
+def refresh_work_evidence(db: sqlite3.Connection, work_id: str, conversation_id: str,
+                          provider: Any) -> dict:
+    """One exact-ID provider call; persist archive receipt before optional reduction.
+
+    Modern provider returns {"archive": compact_archive, "gap": compact_gap|None,
+    "gap_deferred": bool}. Legacy nine-field injected providers remain supported.
+    """
+    _validate_work(db,work_id,conversation_id)
+    db.executescript(EVIDENCE_SCHEMA)
     try:
         evidence = provider(conversation_id)
-        if not isinstance(evidence, dict):
-            raise EvidenceDeferred("missing metadata")
-        required = ("receipt_ref","source_ref","source_digest","archive_delta",
-                    "pnf_ref","gap_ref","gap_digest","gap_score","observed_at")
-        if any(k not in evidence for k in required):
-            raise EvidenceDeferred("incomplete evidence metadata")
-        if set(evidence) != set(required):
-            raise ValueError("unexpected evidence fields (potential body material)")
-        for key in ("receipt_ref","source_ref","source_digest","pnf_ref","gap_ref","gap_digest","observed_at"):
-            if not isinstance(evidence[key], str) or not evidence[key] or len(evidence[key]) > 256:
-                raise ValueError("invalid compact evidence reference")
-        if not isinstance(evidence["archive_delta"], int) or isinstance(evidence["archive_delta"], bool) or evidence["archive_delta"] < 0:
-            raise ValueError("invalid archive delta")
-        if not isinstance(evidence["gap_score"], (int,float)) or isinstance(evidence["gap_score"], bool) or not 0 <= evidence["gap_score"] <= 1000000:
-            raise ValueError("invalid gap score")
-        receipt_id = digest([conversation_id,evidence["receipt_ref"]])
-        previous = db.execute("SELECT stage FROM fleet_evidence_receipts WHERE work_id=? AND receipt_digest=?",
-                              (work_id,receipt_id)).fetchone()
-        if previous:
-            return {"stage":previous[0],"receipt_digest":receipt_id,"replayed":True}
-        stage = "rescored"
-        db.execute("""INSERT INTO fleet_evidence_receipts
-          (work_id,receipt_digest,conversation_id,stage,source_ref,source_digest,archive_delta,
-           pnf_ref,gap_ref,gap_digest,gap_score,observed_at)
-          VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
-          (work_id,receipt_id,conversation_id,stage,evidence["source_ref"],evidence["source_digest"],
-           evidence["archive_delta"],evidence["pnf_ref"],evidence["gap_ref"],
-           evidence["gap_digest"],float(evidence["gap_score"]),evidence["observed_at"]))
-        # No mutation/execution state transition: priority is a deterministic projection
-        # of the most recent evidence score; ties break by digest.
-        scores = db.execute("""SELECT gap_score FROM fleet_evidence_receipts
-          WHERE work_id=? AND stage='rescored'
-          ORDER BY observed_at DESC, receipt_digest DESC LIMIT 1""",(work_id,)).fetchone()
-        db.execute("UPDATE fleet_work_units SET priority=?,updated_at=CURRENT_TIMESTAMP WHERE work_id=?",
-                   (scores[0],work_id))
-        db.commit()
-        return {"stage":stage,"stages":["refreshed","ingested","reduced","rescored"],
-                "receipt_digest":receipt_id,"replayed":False}
-    except (EvidenceDeferred, Exception) as exc:
-        stage = "deferred" if isinstance(exc,EvidenceDeferred) else "failed"
-        error_class = type(exc).__name__
-        receipt_id = digest([work_id,conversation_id,stage,error_class])
-        db.execute("""INSERT OR IGNORE INTO fleet_evidence_receipts
-          (work_id,receipt_digest,conversation_id,stage,observed_at,error_class)
-          VALUES (?,?,?,?,?,?)""",(work_id,receipt_id,conversation_id,stage,now,error_class))
-        db.commit()
-        return {"stage":stage,"receipt_digest":receipt_id,"error_class":error_class,"replayed":False}
-
+        if not isinstance(evidence,dict):
+            raise EvidenceDeferred("missing evidence")
+        if "archive" not in evidence:
+            # Compatibility for existing injected-provider regression tests.
+            if set(evidence) != {"receipt_ref","source_ref","source_digest","archive_delta",
+                "pnf_ref","gap_ref","gap_digest","gap_score","observed_at"}:
+                raise EvidenceDeferred("incomplete legacy receipt")
+            evidence = {"archive":dict(receipt_ref=evidence["receipt_ref"],
+                source_ref=evidence["source_ref"],source_digest=evidence["source_digest"],
+                archive_delta=evidence["archive_delta"],duplicates=0,
+                parsed_messages=evidence["archive_delta"],
+                fetched_messages=evidence["archive_delta"],
+                artifacts_digest=digest([]),observed_at=evidence["observed_at"]),
+                "gap":{k:evidence[k] for k in ("pnf_ref","gap_ref","gap_digest",
+                    "gap_score","observed_at")},"gap_deferred":False}
+        if set(evidence) != {"archive","gap","gap_deferred"}:
+            raise ValueError("unexpected provider evidence fields")
+        archive=evidence["archive"]
+        required={"receipt_ref","source_ref","source_digest","archive_delta","duplicates",
+                  "parsed_messages","fetched_messages","artifacts_digest","observed_at"}
+        if not isinstance(archive,dict) or set(archive) != required:
+            raise ValueError("invalid archive receipt fields")
+        if not all(_compact_string(archive[k]) for k in
+            ("receipt_ref","source_ref","source_digest","artifacts_digest","observed_at")):
+            raise ValueError("invalid archive refs")
+        if not all(type(archive[k]) is int and archive[k] >= 0 for k in
+            ("archive_delta","duplicates","parsed_messages","fetched_messages")):
+            raise ValueError("invalid archive counts")
+        archive_key=digest([conversation_id,archive["receipt_ref"],archive["source_digest"]])
+        exists=db.execute("SELECT 1 FROM fleet_archive_receipts WHERE work_id=? AND receipt_digest=?",
+                          (work_id,archive_key)).fetchone()
+        if not exists:
+            db.execute("""INSERT INTO fleet_archive_receipts
+              (work_id,receipt_digest,conversation_id,source_ref,source_digest,archive_delta,
+               duplicates,parsed_messages,fetched_messages,artifacts_digest,observed_at)
+              VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+              (work_id,archive_key,conversation_id,archive["source_ref"],archive["source_digest"],
+               archive["archive_delta"],archive["duplicates"],archive["parsed_messages"],
+               archive["fetched_messages"],archive["artifacts_digest"],archive["observed_at"]))
+            db.commit()
+        # Archive ingestion is durable independently of the optional gap phase.
+        if evidence["gap"] is None:
+            return {"stage":"deferred","phase":"gap","stages":["refreshed","ingested","deferred"],
+                    "archive_stage":"ingested","archive_receipt_digest":archive_key,
+                    "archive_replayed":bool(exists),"error_class":"EvidenceDeferred"}
+        try:
+            result=_store_gap(db,work_id,conversation_id,archive_key,evidence["gap"])
+            result["stages"]=["refreshed","ingested"]+result["stages"]
+            result["archive_replayed"]=bool(exists)
+            return result
+        except Exception as exc:
+            return _failure(db,work_id,conversation_id,exc,phase="gap",
+                            archive_receipt_digest=archive_key)
+    except Exception as exc:
+        return _failure(db,work_id,conversation_id,exc)
 
 def exact_async_archive_provider(
     puller: str, archive_db: str, account: str, *,
     formal_file: str | None = None, slrw_path: str | None = None,
     runner: Any = None, gap_compare: Any = None,
 ) -> Any:
-    """Factory for one explicit existing pull_to_structurer.py async exact-ID invocation.
-
-    Subprocess isolates puller's asyncio.run from an existing event loop.
-    Runner and comparator are injectable for token-free tests. No retries.
-    """
+    """Existing exact async puller and optional comparator; never retry."""
     import subprocess
     import sys
     from pathlib import Path
@@ -209,51 +274,102 @@ def exact_async_archive_provider(
     def provider(conversation_id: str) -> dict:
         if not UUID_PATTERN.fullmatch(conversation_id):
             raise ValueError("canonical conversation UUID required")
-        cmd = [sys.executable, str(puller_path), "--ids", conversation_id,
-               "--db", str(db_path), "--account", account,
-               "--engine", "async", "--mode", "pull", "--concurrency", "1",
-               "--no-progress", "--json", "--no-skip-existing"]
-        run = runner or subprocess.run
+        cmd=[sys.executable,str(puller_path),"--ids",conversation_id,
+             "--db",str(db_path),"--account",account,"--engine","async",
+             "--mode","pull","--concurrency","1","--no-progress","--json",
+             "--no-skip-existing"]
         try:
-            completed = run(cmd, capture_output=True, text=True, timeout=240, check=False)
-        except (subprocess.TimeoutExpired, OSError) as exc:
+            completed=(runner or subprocess.run)(cmd,capture_output=True,text=True,
+                                                  timeout=240,check=False)
+        except (subprocess.TimeoutExpired,OSError) as exc:
             raise EvidenceDeferred("exact async read unavailable") from exc
-        if completed.returncode != 0:
+        if completed.returncode:
             raise EvidenceDeferred("exact async pull rejected or unavailable")
         try:
-            summary = json.loads(completed.stdout)
-            async_status = summary["async"]
+            summary=json.loads(completed.stdout)
+            status=summary["async"]
+            ingest=summary["ingest"]
             if (summary.get("requested_targets") != 1 or
                 summary.get("selected_id_filters") != 1 or
-                async_status["total"] != 1 or async_status["ok"] != 1 or
-                async_status["failures"] != 0 or "ingest" not in summary):
-                raise EvidenceDeferred("exact fetch rejected, identity invalid, or ingest missing")
-            source_id = summary["source_id"]
-            count = async_status["messages"]
-            if not isinstance(count,int) or count < 0:
-                raise ValueError("invalid message count")
-        except (KeyError, TypeError, json.JSONDecodeError, ValueError) as exc:
-            raise EvidenceDeferred("invalid exact fetch receipt") from exc
-        if not formal_file or not slrw_path:
-            raise EvidenceDeferred("explicit formal file and SLRW required for gap score")
-        if not Path(formal_file).is_file() or not Path(slrw_path).is_file():
-            raise EvidenceDeferred("formal or SLRW prerequisite missing")
-        if gap_compare is None:
-            # Reuse the existing owner implementation, never parse formal bodies here.
-            from re_gpt.gap_comparator import ExactGapComparator
-            gap = ExactGapComparator(slrw_path).compare(conversation_id,formal_file)
-        else:
-            gap = gap_compare(conversation_id,formal_file,slrw_path)
-        observed = datetime.now(timezone.utc).isoformat()
-        return dict(receipt_ref="ingest:"+digest([conversation_id,source_id])[:48],
-            source_ref="pull:"+source_id,source_digest=digest([conversation_id,source_id,count]),
-            archive_delta=count,pnf_ref="slrw:"+digest(str(slrw_path))[:48],
-            gap_ref="formal:"+digest(str(formal_file))[:48],
-            gap_digest=digest([gap.unmatched_informal_factors,gap.unmatched_formal_factors,
-                               gap.matched_semantic_factors]),
-            gap_score=float(gap.unmatched_informal_factors+gap.unmatched_formal_factors),
+                status["total"] != 1 or status["ok"] != 1 or status["failures"] != 0):
+                raise EvidenceDeferred("exact identity/read failure")
+            counts={k:ingest[k] for k in ("inserted","duplicates","parsed_messages")}
+            if not all(type(v) is int and v >= 0 for v in counts.values()):
+                raise ValueError("invalid ingest counts")
+            fetched=status["messages"]
+            if type(fetched) is not int or fetched < 0:
+                raise ValueError("invalid fetched count")
+            source=summary["source_id"]
+            if not _compact_string(source):
+                raise ValueError("invalid source ID")
+            artifacts=ingest["artifacts"]
+            if not isinstance(artifacts,(dict,list,int)):
+                raise ValueError("invalid artifact receipt")
+        except (KeyError,TypeError,ValueError,json.JSONDecodeError) as exc:
+            raise EvidenceDeferred("missing or invalid canonical ingest receipt") from exc
+        observed=datetime.now(timezone.utc).isoformat()
+        immutable=digest([conversation_id,source,counts,artifacts])
+        archive=dict(receipt_ref="ingest:"+immutable[:48],source_ref="pull:"+source,
+            source_digest=immutable,archive_delta=counts["inserted"],
+            duplicates=counts["duplicates"],parsed_messages=counts["parsed_messages"],
+            fetched_messages=fetched,artifacts_digest=digest(artifacts),
             observed_at=observed)
+        result={"archive":archive,"gap":None,"gap_deferred":True}
+        if not formal_file or not slrw_path:
+            return result
+        if not Path(formal_file).is_file() or not Path(slrw_path).is_file():
+            return result
+        try:
+            if gap_compare is None:
+                from re_gpt.gap_comparator import ExactGapComparator
+                gap=ExactGapComparator(slrw_path).compare(conversation_id,formal_file)
+            else:
+                gap=gap_compare(conversation_id,formal_file,slrw_path)
+            result["gap"]=dict(pnf_ref="slrw:"+digest(str(slrw_path))[:48],
+                gap_ref="formal:"+digest(str(formal_file))[:48],
+                gap_digest=digest([gap.unmatched_informal_factors,
+                    gap.unmatched_formal_factors,gap.matched_semantic_factors]),
+                gap_score=float(gap.unmatched_informal_factors+gap.unmatched_formal_factors),
+                observed_at=observed)
+            result["gap_deferred"]=False
+        except Exception:
+            # Preserve archive success; classify gap failure at controller boundary.
+            result["gap"]={"invalid":"comparator failure"}
+            result["gap_deferred"]=False
+        return result
     return provider
+
+def attach_gap_to_archive(db: sqlite3.Connection, work_id: str, conversation_id: str,
+                          archive_receipt_digest: str, formal_file: str, slrw_path: str,
+                          gap_compare: Any = None) -> dict:
+    """Explicit offline gap-only action; never invoke the archive puller."""
+    from pathlib import Path
+    _validate_work(db,work_id,conversation_id)
+    db.executescript(EVIDENCE_SCHEMA)
+    found=db.execute("""SELECT 1 FROM fleet_archive_receipts
+      WHERE work_id=? AND conversation_id=? AND receipt_digest=?""",
+      (work_id,conversation_id,archive_receipt_digest)).fetchone()
+    if not found:
+        raise ValueError("unknown canonical archive receipt")
+    if not formal_file or not slrw_path or not Path(formal_file).is_file() or not Path(slrw_path).is_file():
+        return {"stage":"deferred","phase":"gap","archive_receipt_digest":archive_receipt_digest}
+    try:
+        if gap_compare is None:
+            from re_gpt.gap_comparator import ExactGapComparator
+            gap=ExactGapComparator(slrw_path).compare(conversation_id,formal_file)
+        else:
+            gap=gap_compare(conversation_id,formal_file,slrw_path)
+        now=datetime.now(timezone.utc).isoformat()
+        return _store_gap(db,work_id,conversation_id,archive_receipt_digest,
+            dict(pnf_ref="slrw:"+digest(str(slrw_path))[:48],
+                 gap_ref="formal:"+digest(str(formal_file))[:48],
+                 gap_digest=digest([gap.unmatched_informal_factors,
+                     gap.unmatched_formal_factors,gap.matched_semantic_factors]),
+                 gap_score=float(gap.unmatched_informal_factors+gap.unmatched_formal_factors),
+                 observed_at=now))
+    except Exception as exc:
+        return _failure(db,work_id,conversation_id,exc,phase="gap",
+                        archive_receipt_digest=archive_receipt_digest)
 
 def main():
     parser=argparse.ArgumentParser()
