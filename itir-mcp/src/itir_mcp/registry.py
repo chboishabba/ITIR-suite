@@ -8,6 +8,7 @@ from .comparison_tools import get_comparison_tools
 from .contracts import JsonDict, ToolError, ToolExecutionError, ToolHandler, ToolSpec, error_payload, success_payload
 from .docstore_tools import get_docstore_tools
 from .export_tools import get_export_tools
+from .fleet_tools import get_fleet_tools
 from .guardrails import safe_tool_call
 from .governance_tools import get_governance_tools
 from .promotion_tools import get_promotion_tools
@@ -110,5 +111,7 @@ def build_default_registry() -> ToolRegistry:
             authority_profile=DEFAULT_REGISTRY_TOOL_AUTHORITY_PROFILES.get(spec.name),
         )
     for spec, handler in get_autonomous_orchestrator_tools():
+        registry.register(spec, handler)
+    for spec, handler in get_fleet_tools():
         registry.register(spec, handler)
     return registry
