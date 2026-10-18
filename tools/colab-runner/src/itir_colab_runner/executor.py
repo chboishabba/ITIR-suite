@@ -66,7 +66,7 @@ def prepare_checkout(repository: str, commit_sha: str, workspace: Path) -> Check
     try:
         _run_checked(["git", "fetch", "--depth=1", "origin", commit_sha], cwd=checkout)
     except subprocess.CalledProcessError:
-        _run_checked(["git", "fetch", "--depth=50", "origin"], cwd=checkout)
+        _run_checked(["git", "fetch", "--depth=50", "origin", "+refs/heads/*:refs/remotes/origin/*"], cwd=checkout)
     _run_checked(["git", "checkout", "--detach", commit_sha], cwd=checkout)
     resolved = _run_checked(["git", "rev-parse", "HEAD"], cwd=checkout).stdout.strip()
     if resolved.lower() != commit_sha.lower():
