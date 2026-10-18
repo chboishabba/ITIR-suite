@@ -383,6 +383,7 @@ def main():
     parser.add_argument("--account",default="main")
     parser.add_argument("--formal-file")
     parser.add_argument("--slrw")
+    parser.add_argument("--gap-archive-receipt",help="offline gap-only receipt digest; no fetch")
     parser.add_argument("--limit",type=int,default=3)
     args=parser.parse_args()
     with sqlite3.connect(args.db) as db:
@@ -391,8 +392,8 @@ def main():
         else:
             if not args.conversation_id or not UUID_PATTERN.fullmatch(args.conversation_id):
                 parser.error("--conversation-id must be an explicit canonical UUID")
-            if not args.puller or not args.archive_db:
-                parser.error("--puller and --archive-db required")
+            if not args.gap_archive_receipt and (not args.puller or not args.archive_db):
+                parser.error("--puller and --archive-db required for refresh")
             # Guard work-unit membership before initializing any provider or session.
             migrate(db)
             row=db.execute("SELECT parent_ids,evidence_refs FROM fleet_work_units WHERE work_id=?",
@@ -400,8 +401,14 @@ def main():
             if row is None: raise KeyError(args.refresh_work)
             if args.conversation_id not in json.loads(row[0])+json.loads(row[1]):
                 parser.error("conversation UUID not attached to work unit")
-            provider=exact_async_archive_provider(args.puller,args.archive_db,args.account,
-                formal_file=args.formal_file,slrw_path=args.slrw)
-            result=refresh_work_evidence(db,args.refresh_work,args.conversation_id,provider)
+            if args.gap_archive_receipt:
+                if not args.formal_file or not args.slrw:
+                    parser.error("--formal-file and --slrw required for offline gap")
+                result=attach_gap_to_archive(db,args.refresh_work,args.conversation_id,
+                    args.gap_archive_receipt,args.formal_file,args.slrw)
+            else:
+                provider=exact_async_archive_provider(args.puller,args.archive_db,args.account,
+                    formal_file=args.formal_file,slrw_path=args.slrw)
+                result=refresh_work_evidence(db,args.refresh_work,args.conversation_id,provider)
         print(json.dumps(result,indent=2))
 if __name__ == "__main__": main()
