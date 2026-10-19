@@ -57,6 +57,61 @@ def _policy(policy: Mapping[str, Any] | None) -> tuple[int, int, int]:
     return values
 
 
+
+def _materialization_receipt(packet: Mapping[str, Any]) -> dict[str, Any]:
+    """Reconstruct a reference-only PNF graph from the final bounded packet.
+
+    Never stores or returns transcript text.  Candidate kinds are not
+    producer-verified SensibLaw PNF assertions; their residual is explicit.
+    """
+    refs = packet["source_refs"]
+    by_id = {ref["message_id"]: ref for ref in refs}
+    if len(by_id) != len(refs):
+        raise ValueError("duplicate archive message identity in packet")
+    projections = []
+    for index, unit in enumerate(packet["derived_units"]):
+        message_id = unit["source_message_id"]
+        if message_id not in by_id:
+            raise ValueError("candidate missing selected source reference")
+        ref = by_id[message_id]
+        projections.append({
+            "pnf_ref": "pnf-candidate:" + _digest(_json({
+                "packet_id": packet["packet_id"],
+                "source_message_id": message_id,
+                "candidate_kinds": unit["candidate_kinds"],
+            })),
+            "candidate_kinds": unit["candidate_kinds"],
+            "source_ref": {
+                "message_id": message_id,
+                "source_message_id": ref["source_message_id"],
+                "node_id": ref["node_id"],
+                "archive_locator": ref["archive_locator"],
+                "body_sha256": ref["body_sha256"],
+            },
+            "residuals": ["lexical_candidate_not_producer_verified_pnf"],
+            "authority": "candidate_evidence_only",
+        })
+    return {
+        "version": "itir.pnf.reference_materialization.v1",
+        "receipt_id": _digest(_json({
+            "packet_id": packet["packet_id"], "projections": projections,
+            "source_refs": refs, "missing_evidence": packet["missing_evidence"],
+            "truncation": packet["truncation_receipt"],
+        })),
+        "archive_thread_ref": packet["canonical_thread_id"],
+        "work_packet_ref": packet["packet_id"],
+        "pnf_projection_refs": projections,
+        "source_ref_count": len(refs),
+        "residuals": list(packet["missing_evidence"]),
+        "governed_dispatch": {
+            "mode": "direct_async_governed",
+            "state": "not_dispatched",
+            "dispatch_receipt_ref": None,
+        },
+        "raw_body_persisted": False,
+        "producer_verified_pnf": False,
+    }
+
 def build_work_packet(
     proposals: Sequence[Mapping[str, Any]], *,
     archive_db: str | None = None,
@@ -164,4 +219,10 @@ def build_work_packet(
         largest["derived_units"].pop()
         largest["truncation_receipt"]["packet_budget_truncated"] = True
         largest["truncation_receipt"]["derived_units_dropped"] += 1
+    # Materialize only after packet budgeting, so every projected reference
+    # remains reachable in the actual delivered packet.
+    for packet in packets:
+        packet["reference_materialization_receipt"] = _materialization_receipt(packet)
+    if len(_json(result)) > packet_max:
+        raise ValueError("packet exceeds budget with reference materialization receipts")
     return result
