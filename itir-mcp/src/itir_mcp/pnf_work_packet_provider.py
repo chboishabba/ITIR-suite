@@ -210,8 +210,13 @@ def build_work_packet(
         "canonical_truth_mutated": False, "promotion": False,
         "packets": packets,
     }
-    # Explicitly shrink derived units from the tail; source refs remain intact.
-    while len(_json(result)) > packet_max:
+    # Rebuild materialization after every truncation so no receipt can point
+    # at a derived unit that was removed from the actual packet.
+    while True:
+        for packet in packets:
+            packet["reference_materialization_receipt"] = _materialization_receipt(packet)
+        if len(_json(result)) <= packet_max:
+            break
         eligible = [p for p in packets if p["derived_units"]]
         if not eligible:
             raise ValueError("packet exceeds budget even without derived units")
@@ -219,10 +224,4 @@ def build_work_packet(
         largest["derived_units"].pop()
         largest["truncation_receipt"]["packet_budget_truncated"] = True
         largest["truncation_receipt"]["derived_units_dropped"] += 1
-    # Materialize only after packet budgeting, so every projected reference
-    # remains reachable in the actual delivered packet.
-    for packet in packets:
-        packet["reference_materialization_receipt"] = _materialization_receipt(packet)
-    if len(_json(result)) > packet_max:
-        raise ValueError("packet exceeds budget with reference materialization receipts")
     return result
