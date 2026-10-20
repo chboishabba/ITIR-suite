@@ -83,6 +83,12 @@ patch. Promotion requires applicable tests or formal checks actually run by
 the worker or in the local/Colab verification environment; an operation or PR
 receipt alone is not acceptance.
 
+For ZKP-framed worker briefs and receipts, use the canonical model without
+renaming or collapsing fields: `O` Organization, `R` RFP, `C` Code, `S` State,
+`L` Lattice, `P` Proposal, `G` Governance, and `F` Gap function. In
+particular, governance is a separate promotion/control surface, not part of
+the gap function.
+
 ## Numeric ABI
 
 `itir_mcp.pnf_numeric_abi` is a narrow receipt-bearing numeric ABI for
