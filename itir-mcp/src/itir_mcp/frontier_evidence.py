@@ -10,6 +10,8 @@ from typing import Any, Callable, Mapping, Sequence
 
 from .comparison_tools import build_envelope, compare_observations, score_coherence
 from .pnf_work_packet_provider import canonical_archive_path
+from .frontier_reference_validation import (completed_operation_candidates,
+                                            validate_typed_references)
 
 SCHEMA = "itir.ao.frontier_evidence.v1"
 MAX_EVALUATED = 64
@@ -134,6 +136,8 @@ def build_frontier(
     roster_db: str | None = None,
     max_evaluated: int = 24, max_proposals: int = 4,
     gap_evaluator: Callable[[str, str, Mapping[str, Any]], Mapping[str, Any]] | None = None,
+    completed_operations: bool = False, receipt_db: str | None = None,
+    operation_limit: int = 24,
 ) -> dict[str, Any]:
     """Select only explicitly evidenced threads. Metadata enumeration never selects text."""
     if type(max_evaluated) is not int or not 1 <= max_evaluated <= MAX_EVALUATED:
@@ -142,15 +146,29 @@ def build_frontier(
         raise ValueError("max_proposals must be 1..4")
     if len(evidence) > MAX_EVALUATED:
         raise ValueError("explicit evidence exceeds 64 rows")
+    if type(completed_operations) is not bool:
+        raise ValueError("completed_operations must be boolean")
     archive = canonical_archive_path(archive_db)
     metadata = _read_metadata(archive)
     by_id = {m["canonical_thread_id"]: m for m in metadata}
+    operation_discovery = (completed_operation_candidates(archive_db=str(archive),
+                            db_path=receipt_db, limit=operation_limit)
+                           if completed_operations else None)
     evidence_by_id: dict[str, Mapping[str, Any]] = {}
     for item in evidence:
         tid = str(item.get("canonical_thread_id") or "")
         if not tid or tid in evidence_by_id:
             raise ValueError("evidence requires unique canonical_thread_id")
         evidence_by_id[tid] = item
+    if operation_discovery:
+        for op in operation_discovery["candidates"]:
+            tid = op["canonical_thread_id"]
+            if tid not in evidence_by_id:
+                evidence_by_id[tid] = {
+                    "canonical_thread_id": tid, "kind": "implementation",
+                    "task_atom": "", "typed_refs": [
+                        {"kind": "operation", "ref": op["evidence_ref"]}],
+                }
     # Prioritize explicitly evidenced candidates; metadata-only rows are never promoted.
     eligible_ids = sorted(
         (tid for tid in evidence_by_id if tid in by_id),
@@ -165,6 +183,13 @@ def build_frontier(
     for tid in selected_ids:
         source = evidence_by_id[tid]
         meta = by_id[tid]
+        typed_refs = source.get("typed_refs", [])
+        validation = validate_typed_references(
+            tid, typed_refs, operation_candidates=operation_discovery,
+        )
+        valid_ops = [record["ref"] for record in validation["records"]
+                     if record["kind"] == "operation"
+                     and record["status"] == "source_bound"]
         refs = [str(ref) for ref in source.get("evidence_refs", [])]
         row = {
             "canonical_thread_id": tid, "task_atom": str(source.get("task_atom") or "").strip(),
@@ -175,6 +200,8 @@ def build_frontier(
             "explicit_promotion": source.get("explicit_promotion") is True,
             "evidence_refs": sorted(set(refs + ["canonical:thread:" + tid])),
             "outstanding_operation_receipt": source.get("outstanding_operation_receipt"),
+            "typed_reference_receipt": validation,
+            "source_bound_operation_receipts": valid_ops,
         }
         artifact = source.get("formal_artifact")
         if artifact:
@@ -194,6 +221,14 @@ def build_frontier(
                 except Exception as exc:
                     abstentions.append({"canonical_thread_id": tid, "reason": "gap_evaluator_failed",
                                         "error_type": type(exc).__name__})
+        if typed_refs and validation["held_count"]:
+            row["formal_gap_receipts"] = []
+            row["repo_receipts"] = []
+            row["pnf_receipts"] = []
+            row["explicit_promotion"] = False
+            row["task_atom"] = ""
+            abstentions.append({"canonical_thread_id": tid, "reason": "typed_reference_hold",
+                                "held_count": validation["held_count"]})
         rows.append(row)
     for tid in evidence_by_id:
         if tid not in by_id:
@@ -248,5 +283,6 @@ def build_frontier(
                        "candidate_limit_hit": len(eligible_ids) > max_evaluated,
                        "pairwise_limit_hit": len(rows) * (len(rows) - 1) // 2 > 128,
                        "metadata_only_not_evaluated": len(metadata) - len(selected_ids)},
+        "operation_discovery": operation_discovery,
         "comparison_authority": "candidate_only_not_merge_proof",
     }
