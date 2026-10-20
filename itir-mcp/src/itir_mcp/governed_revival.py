@@ -18,6 +18,8 @@ from typing import Any, Mapping
 
 from .pnf_work_packet_provider import REQUIRED, canonical_archive_path
 
+REGPT_COLUMNS = frozenset(("conversation_id", "message_index", "author", "content", "create_time"))
+
 VERSION = "itir.pnf.governed_handoff.v1"
 VIEW_VERSION = "itir.archive.thread_view.v1"
 OP_VERSION = "itir.ao.operation_review.v1"
@@ -73,6 +75,7 @@ def _ref(row: sqlite3.Row, path: Path) -> dict[str, Any]:
         "parent_node_id": row["parent_node_id"],
         "branch_membership": row["branch_membership"],
         "source_thread_id": row["source_thread_id"],
+        "lineage_status": "exact_graph" if row["node_id"] is not None and row["parent_node_id"] is not None else "unavailable_compressed_archive",
         "ts": row["ts"], "role": row["role"],
         "body_sha256": _hash(body),
         "archive_locator": f"sqlite:{path.resolve()}#messages/{row['message_id']}",
@@ -126,14 +129,39 @@ def governed_handoff(
     with sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True) as db:
         db.row_factory = sqlite3.Row
         cols = {r[1] for r in db.execute("PRAGMA table_info(messages)")}
-        if not REQUIRED <= cols:
-            raise RuntimeError("canonical messages schema mismatch")
-        cursor = db.execute(
-            """SELECT message_id,source_message_id,node_id,parent_node_id,
-                      branch_membership,source_thread_id,ts,role,text
-               FROM messages WHERE canonical_thread_id=?
-               ORDER BY ts ASC,message_id ASC""", (thread,),
-        )
+        if REQUIRED <= cols:
+            cursor = db.execute(
+                """SELECT message_id,source_message_id,node_id,parent_node_id,
+                          branch_membership,source_thread_id,ts,role,text
+                   FROM messages WHERE canonical_thread_id=?
+                   ORDER BY ts ASC,message_id ASC""", (thread,),
+            )
+            archive_schema = "canonical_messages"
+        elif REGPT_COLUMNS <= cols:
+            # Historical re-gpt rows contain chronological message coordinates,
+            # not mapping node IDs or graph parent edges. NULL means unknown.
+            cursor = db.execute(
+                """SELECT conversation_id || ':' || message_index || ':' || author AS message_id,
+                          message_key AS source_message_id,
+                          NULL AS node_id, NULL AS parent_node_id,
+                          NULL AS branch_membership,
+                          conversation_id AS source_thread_id,
+                          create_time AS ts, author AS role, content AS text
+                   FROM messages WHERE conversation_id=?
+                   ORDER BY message_index ASC, author ASC""", (thread,),
+            ) if "message_key" in cols else db.execute(
+                """SELECT conversation_id || ':' || message_index || ':' || author AS message_id,
+                          NULL AS source_message_id,
+                          NULL AS node_id, NULL AS parent_node_id,
+                          NULL AS branch_membership,
+                          conversation_id AS source_thread_id,
+                          create_time AS ts, author AS role, content AS text
+                   FROM messages WHERE conversation_id=?
+                   ORDER BY message_index ASC, author ASC""", (thread,),
+            )
+            archive_schema = "regpt_compressed_messages"
+        else:
+            raise RuntimeError("unsupported archive messages schema; no inferred graph projection")
         for row in cursor:
             total += 1
             if total > MAX_SCAN:
@@ -189,7 +217,9 @@ def governed_handoff(
         "lineage_receipt": {
             "parent_thread_id": thread, "child_thread_id": child_thread_id,
             "relationship": "proposed_not_created",
-            "node_parent_pointers_preserved": True,
+            "node_parent_pointers_preserved": archive_schema == "canonical_messages",
+            "status": "exact_graph_coordinates_unavailable_hold" if archive_schema == "regpt_compressed_messages" else "source_graph_coordinates_present",
+            "archive_schema": archive_schema,
         },
         "span_receipt": {
             "policy": "full_thread_stream_task_rank_plus_last_two",
@@ -200,6 +230,13 @@ def governed_handoff(
             "packet_units_dropped": 0, "packet_truncated": False,
         },
         "governance": operation_review({"operation_status": operation_status}),
+        "semantic_pnf_execution": {
+            "status": "abstained_producer_not_executed",
+            "producer": "re_gpt.pnf_compiler.PnfFleetCompiler -> sensiblaw-world-compiler",
+            "coverage": "not_established",
+            "residual": "full_thread_task_span_compilation_and_binary_receipt_unavailable",
+            "candidate_only": True, "no_promotion": True,
+        },
         "formal_gap": {
             "status": "open_unless_formal_receipt_verified",
             "formal_gap_receipts": evidence["formal_gap_receipts"],
@@ -207,7 +244,7 @@ def governed_handoff(
         },
         "authority": {
             "canonical_archive": "source_only", "transport_cache": "not_used",
-            "pnf": "lexical_or_token_span_candidate",
+            "pnf": "lexical_or_token_span_candidate_not_semantic_pnf",
             "reviewed_evidence": "receipt_references_only",
             "formal_evidence": "receipt_references_only",
             "ui": "projection_only", "dispatch": False,
