@@ -37,7 +37,7 @@ Implemented:
 - `itir.ao.frontier_evidence` MCP tool via default registry. No dispatch.
 - `tests/test_frontier_evidence_engine.py`: live canonical-column fixture, metadata gate, ledger merge/retire/park, injected comparator, roster, registry and production-cwd import.
 
-Unverified: tests, Ruff, actual live archive smoke, FastMCP registered transport regression. No local checkout is mounted; GitHub connector cannot run them. No CI run.
+Referee local baseline at c9ae339: frontier 3/4 (fresh merge roster failure), work-packet 7/7, Ruff 2 E402. Fix round: first receipt may establish any state, including merged; established transitions remain gated. Identical same-state/reason/evidence replays return the original receipt ID and original null previous_state without inserting a transition. Added a fifth frontier test for fresh merge receipt and idempotent rerun; suppressed the two bootstrap E402 imports. Exact-head rerun remains caller-owned. Unverified: updated tests, Ruff, actual live archive smoke, FastMCP registered transport regression. No local checkout is mounted; GitHub connector cannot run them. No CI run.
 
 ### AO convergence dry-run #1
 1. Produce an explicit `evidence.json` containing 3–5 **canonical-hashed** thread IDs, `task_atom`, formal artifact path, PR/branch receipt refs, PNF receipt refs and provenance digests. Discover candidates using cheap canonical metadata and existing repo/ledger receipts; do not select via titles or raw transcript sweeps.
