@@ -11,7 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "itir-mcp" / "src"))
 
-from itir_mcp.governed_revival import governed_handoff, operation_review, thread_view, _lexical_spans, _sensiblaw_tokenizer
+from itir_mcp.governed_revival import governed_handoff, operation_review, thread_view, _lexical_spans, _sensiblaw_tokenizer, TOKEN_RE
 from itir_mcp.operation_receipt_lookup import operation_receipts
 from unittest.mock import patch
 from itir_mcp.registry import build_default_registry
@@ -47,7 +47,12 @@ class GovernedRevivalTests(unittest.TestCase):
         return governed_handoff(self.proposal, archive_db=str(self.archive), **kw)
 
     def test_full_span_and_tail_decision(self):
-        packet = self.build(child_thread_id="child")
+        def public_tokenizer(text):
+            return [(match.group(), match.start(), match.end()) for match in TOKEN_RE.finditer(text)]
+
+        with patch("itir_mcp.governed_revival._sensiblaw_tokenizer", return_value=public_tokenizer):
+            packet = self.build(child_thread_id="child")
+            repeat_packet = self.build(child_thread_id="child")
         ids = {r["message_id"] for r in packet["source_refs"]}
         self.assertIn("5", ids)
         self.assertIn("89", ids)
@@ -62,7 +67,7 @@ class GovernedRevivalTests(unittest.TestCase):
                          hashlib.sha256(b"Final decision: blocked lemma PR #42").hexdigest())
         self.assertNotIn("Final decision:", json.dumps(packet))
         self.assertEqual(packet["evidence_receipts"]["repo_receipts"], ["PR:42"])
-        self.assertEqual(packet["packet_id"], self.build(child_thread_id="child")["packet_id"])
+        self.assertEqual(packet["packet_id"], repeat_packet["packet_id"])
 
     def test_ambiguous_operation_hold(self):
         for status in ("async_starting", "commit_unknown"):
