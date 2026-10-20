@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from collections import deque
 from functools import lru_cache
-from itertools import islice
 import hashlib
 import heapq
 import json
@@ -42,30 +41,26 @@ def _hash(text: str) -> str:
 
 @lru_cache(maxsize=1)
 def _sensiblaw_tokenizer():
-    # Explicit suite-relative producer path, independent of server cwd.
+    """Load the supported SensibLaw public interface, never a private parser."""
     suite_root = Path(__file__).resolve().parents[3]
     producer = suite_root / "SensibLaw"
     if producer.is_dir() and str(producer) not in sys.path:
         sys.path.insert(0, str(producer))
     try:
-        from src.text.deterministic_legal_tokenizer import tokenize_with_spans
+        from sensiblaw.interfaces.shared_reducer import tokenize_canonical_with_spans
     except ImportError:
         return None
-    return tokenize_with_spans
+    return tokenize_canonical_with_spans
 
 
 def _lexical_spans(body: str, words: frozenset[str]) -> list[dict[str, Any]]:
-    """Use SensibLaw tokenizer when available; otherwise abstain from parser authority."""
-    tokenize_with_spans = _sensiblaw_tokenizer()
-    if tokenize_with_spans is None:
-        # This is an explicitly degraded lexical fallback, never a typed PNF proof.
-        return [{"kind": match.group().lower(), "start": match.start(),
-                 "end": match.end(), "authority": "regex_hint_only"}
-                for match in islice(TOKEN_RE.finditer(body), 5000)
-                if match.group().lower() in words][:12]
+    """Public producer token spans only; unavailable producer means abstention."""
+    tokenize = _sensiblaw_tokenizer()
+    if tokenize is None:
+        return []
     return [{"kind": token.lower(), "start": start, "end": end,
-             "authority": "sensiblaw_token_span_candidate"}
-            for token, start, end in tokenize_with_spans(body)
+             "authority": "sensiblaw_public_token_span_candidate"}
+            for token, start, end in tokenize(body)
             if token.lower() in words][:12]
 
 
@@ -187,6 +182,9 @@ def governed_handoff(
         "task_atom": task,
         "source_refs": refs,
         "pnf_candidates": candidates,
+        "producer_receipt": {"interface": "sensiblaw.interfaces.shared_reducer.tokenize_canonical_with_spans",
+                             "available": _sensiblaw_tokenizer() is not None,
+                             "fallback": "abstain_no_parser_authority" if _sensiblaw_tokenizer() is None else None},
         "evidence_receipts": evidence,
         "lineage_receipt": {
             "parent_thread_id": thread, "child_thread_id": child_thread_id,
