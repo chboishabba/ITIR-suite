@@ -111,8 +111,39 @@ def reconcile(payload: Mapping[str, Any]) -> JsonDict:
     }
 
 
+def recent_operation_receipts(payload: Mapping[str, Any]) -> JsonDict:
+    """Resolve canonical thread identity, then review bounded transport receipts."""
+    from .operation_receipt_lookup import operation_receipts
+
+    try:
+        return operation_receipts(payload)
+    except (ValueError, RuntimeError, FileNotFoundError, TypeError) as exc:
+        raise ToolInputError(str(exc)) from exc
+
+
 def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
     return [
+        (
+            ToolSpec(
+                name="itir.chatgpt.operation_receipts",
+                title="Read recent canonical-thread operation receipts",
+                description="Resolve canonical conversation to bounded re-gpt transport receipt state; no SQL or dispatch.",
+                input_schema={
+                    "type": "object", "required": ["canonical_thread_id"],
+                    "additionalProperties": False,
+                    "properties": {
+                        "canonical_thread_id": {"type": "string", "minLength": 1},
+                        "archive_db": {"type": "string"},
+                        "db_path": {"type": "string"},
+                        "limit": {"type": "integer", "minimum": 1, "maximum": 50},
+                        "active_only": {"type": "boolean"},
+                    },
+                },
+                response_version="itir.chatgpt.operation_receipts.v1",
+                read_only=True,
+            ),
+            recent_operation_receipts,
+        ),
         (
             ToolSpec(
                 name="itir.chatgpt.dispatch_worker",

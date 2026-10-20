@@ -73,8 +73,11 @@ The adapter delegates to the local re-gpt public API with direct async writes,
 DOM fallback disabled, and receipt-bearing operation state. It does not expose
 browser/session bootstrap controls and never resends an uncertain operation.
 
-ChatGPT is the normal low-cost implementation worker. A report-only dispatch
-is an intentional phase gate: require the worker to establish the applicable
+ChatGPT is the normal low-cost worker for a major coherent implementation cut.
+Keep tiny local fixes, bounded review repairs, test-harness adjustments, and
+verification plumbing in the calling Codex/AO lane rather than creating a
+worker round-trip. A report-only dispatch is an intentional phase gate:
+require the worker to establish the applicable
 roadmap, phase, deliverables/acceptance state, ZKP frame, and relevant
 Agda/Lean proof surfaces from repository evidence. Do not impose an arbitrary
 word cap on that report. A subsequent implementation dispatch should deliver
@@ -86,6 +89,9 @@ runs applicable tests or formal checks locally or in Colab. An operation or PR
 receipt alone is not acceptance. Once accepted, the calling lane merges and
 pushes the branch to the authoritative target before dispatching dependent
 workers, so they build on checked current code.
+
+High-RAM Colab is the escalation path for Lean/Agda or another demonstrated
+memory-heavy verification need; ordinary Python/MCP tests stay local.
 
 For ZKP-framed worker briefs and receipts, use the canonical model without
 renaming or collapsing fields: `O` Organization, `R` RFP, `C` Code, `S` State,

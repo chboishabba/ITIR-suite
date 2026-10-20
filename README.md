@@ -17,6 +17,22 @@ This repo is the place where those pieces are pinned together, documented
 together, and routed together. Most detailed setup and day-to-day running
 happens inside the individual project directories.
 
+## Governed canonical revival MCP boundary
+
+Draft PR #30 provides read-only `itir.pnf.governed_handoff` and
+`itir.archive.thread_view` projections over the canonical archive, plus
+`itir.ao.operation_review` and `itir.chatgpt.operation_receipts`.
+The receipt lookup resolves a canonical thread to one transport conversation
+identity, then returns bounded re-gpt mutation states and no raw bodies.
+Canonical archive is the corpus authority; the re-gpt SQLite cache supplies
+**operation receipts only**, not canonical message truth. The handoff consumes
+public `sensiblaw.interfaces.shared_reducer.tokenize_canonical_with_spans`;
+unavailable producer means explicit abstention, not regex semantic authority.
+`async_starting` and `commit_unknown` require review, never automatic
+resend. No browser/DOM or dispatch is performed by these read-only tools.
+R means RFP; G (governance) and F (gap function) remain distinct.
+See [the contract](docs/planning/governed_revival_handoff_v1.md).
+
 ## What This Repo Is For
 
 Use the root repo when you want to:
