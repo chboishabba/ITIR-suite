@@ -80,3 +80,20 @@ ruff check itir-mcp/src/itir_mcp/governed_revival.py itir-mcp/src/itir_mcp/pnf_t
 ```
 
 **Acceptance boundary:** a successful fixture run is not a production proof. Next require a real canonical archive smoke call, a genuine SensibLaw tokenizer/SLR PNF selected-span producer receipt, an AO lineage receipt with actual successor thread ID, and exact-head Agda/Lean formal checks. The current token-span candidates are explicitly `semantic_pnf: abstained`; typed PNF/world-store compilation and proof discharge are **not** implemented in this cut. No claim of formal closure, no automatic operation dispatch or retry. Formalisation gap: establish an Agda/Lean theorem that a read-only handoff preserves the canonical node/parent lineage, does not promote candidate evidence, and cannot authorize resend of ambiguous operations.
+
+## Review corrections — public parser and operation receipt lookup
+
+**Public SensibLaw contract:** `itir_mcp.governed_revival` imports only `sensiblaw.interfaces.shared_reducer.tokenize_canonical_with_spans`, from the explicit suite-relative producer root. It never imports the private `src.text.deterministic_legal_tokenizer`. If the public interface is unavailable, candidate spans are empty, `producer_receipt.available=false`, and `fallback=abstain_no_parser_authority`; no regex-derived semantic candidates or alternative parser authority are invented. Public token offsets remain lexical candidates, not typed PNF/proof closure.
+
+**MCP-owned receipt lookup:** `itir.chatgpt.operation_receipts` takes a canonical thread ID, resolves exactly one `source_thread_id` through read-only canonical `messages`, and reads only bounded `mutation_attempts` fields from the separate re-gpt transport receipt SQLite database (`db_path`, `ITIR_REGPT_RECEIPT_DB`, or `~/.chatgpt_history.sqlite3`). It returns latest/active receipt IDs, state, node references, prompt digest, timestamps, transport and per-operation `itir.ao.operation_review` decisions. It never returns prompt bodies, error details, attachments or transcript text; `LIMIT limit+1` yields explicit `more_available`. Missing/ambiguous canonical→transport identity and absent/mismatched receipt schema fail closed. Transport receipts are **not** canonical corpus authority. `async_starting`/`commit_unknown` remain hold/no-resend. No browser, DOM, dispatch or reconciliation mutation is invoked.
+
+Canonical ZKP model remains O, R=RFP, C, S, L, P, G=governance, F=gap function; G is not collapsed into F.
+
+**Intended referee verification only — not executed in this connector session:**
+```bash
+python -m unittest discover -s tests -p 'test_governed_revival_handoff.py' -v
+ruff check itir-mcp/src/itir_mcp/governed_revival.py itir-mcp/src/itir_mcp/operation_receipt_lookup.py itir-mcp/src/itir_mcp/chatgpt_worker_tools.py itir-mcp/src/itir_mcp/pnf_tools.py tests/test_governed_revival_handoff.py
+(cd itir-mcp && PYTHONPATH=src python -c "from itir_mcp.registry import build_default_registry; print([t.name for t in build_default_registry().list_tools() if 'operation_receipts' in t.name or 'governed_handoff' in t.name])")
+```
+
+Residual: real-host stdio MCP smoke, canonical ID mapping across multi-source threads, public SensibLaw producer installation, and kernel-verified typed PNF/world-store proof remain referee/next-phase boundaries.
