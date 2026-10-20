@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from collections import deque
 from functools import lru_cache
+from itertools import islice
 import hashlib
 import heapq
 import json
@@ -60,7 +61,7 @@ def _lexical_spans(body: str, words: frozenset[str]) -> list[dict[str, Any]]:
         # This is an explicitly degraded lexical fallback, never a typed PNF proof.
         return [{"kind": match.group().lower(), "start": match.start(),
                  "end": match.end(), "authority": "regex_hint_only"}
-                for match in list(TOKEN_RE.finditer(body))[:5000]
+                for match in islice(TOKEN_RE.finditer(body), 5000)
                 if match.group().lower() in words][:12]
     return [{"kind": token.lower(), "start": start, "end": end,
              "authority": "sensiblaw_token_span_candidate"}
