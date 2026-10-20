@@ -11,7 +11,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "itir-mcp" / "src"))
 
-from itir_mcp.governed_revival import governed_handoff, operation_review, thread_view
+from itir_mcp.governed_revival import governed_handoff, operation_review, thread_view, _lexical_spans, _sensiblaw_tokenizer
+from itir_mcp.operation_receipt_lookup import operation_receipts
+from unittest.mock import patch
 from itir_mcp.registry import build_default_registry
 from itir_mcp.pnf_work_packet_provider import REQUIRED
 
@@ -80,6 +82,55 @@ class GovernedRevivalTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             governed_handoff({"canonical_thread_id": "missing", "task_atom": "proof"},
                              archive_db=str(self.archive))
+
+    def test_public_tokenizer_and_degraded_abstention(self):
+        _sensiblaw_tokenizer.cache_clear()
+        with patch("itir_mcp.governed_revival._sensiblaw_tokenizer", return_value=None):
+            self.assertEqual(_lexical_spans("lemma proof", frozenset({"lemma"})), [])
+            packet = self.build()
+            self.assertFalse(packet["producer_receipt"]["available"])
+            self.assertEqual(packet["producer_receipt"]["fallback"],
+                             "abstain_no_parser_authority")
+        def public_tokenizer(text):
+            return [("lemma", 0, 5)]
+        with patch("itir_mcp.governed_revival._sensiblaw_tokenizer",
+                   return_value=public_tokenizer):
+            self.assertEqual(_lexical_spans("lemma", frozenset({"lemma"}))[0]["authority"],
+                             "sensiblaw_public_token_span_candidate")
+
+    def test_bounded_operation_receipt_lookup_and_review(self):
+        receipt_db = self.archive.parent / "transport.sqlite"
+        with sqlite3.connect(receipt_db) as db:
+            db.execute(
+                "CREATE TABLE mutation_attempts (operation_id TEXT,operation TEXT,"
+                "conversation_id TEXT,requested_parent_node_id TEXT,"
+                "prompt_digest TEXT,transport TEXT,state TEXT,started_at REAL,"
+                "submitted_at REAL,committed_at REAL,completed_at REAL,"
+                "user_node_id TEXT,assistant_node_id TEXT,error_detail TEXT)"
+            )
+            for index, state in enumerate(("complete", "commit_unknown", "async_starting")):
+                db.execute(
+                    "INSERT INTO mutation_attempts VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (str(index), "continue", "origin", None, "sha256", "async", state,
+                     float(index), None, None, None, None, None, "private raw detail"),
+                )
+        payload = {"canonical_thread_id": "parent", "archive_db": str(self.archive),
+                   "db_path": str(receipt_db), "limit": 1, "active_only": True}
+        result = operation_receipts(payload)
+        self.assertEqual(result["records"][0]["operation_id"], "2")
+        self.assertEqual(result["records"][0]["governance_review"]["decision"],
+                         "hold_reconcile_no_resend")
+        self.assertTrue(result["truncation_receipt"]["more_available"])
+        self.assertNotIn("private raw detail", json.dumps(result))
+        registry_result = build_default_registry().invoke(
+            "itir.chatgpt.operation_receipts", payload)
+        self.assertTrue(registry_result["ok"], registry_result)
+        self.assertIsNotNone(build_default_registry().get_tool_spec(
+            "itir.chatgpt.operation_receipts"))
+        with self.assertRaises(ValueError):
+            operation_receipts({**payload, "unexpected": 1})
+        with self.assertRaises(FileNotFoundError):
+            operation_receipts({**payload, "db_path": str(self.archive.parent / "missing")})
 
     def test_view_and_registry(self):
         view = thread_view({"canonical_thread_id": "parent", "archive_db": str(self.archive)})
