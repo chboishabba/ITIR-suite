@@ -6,11 +6,13 @@ receipts leave this module; no raw transcript is persisted or returned.
 from __future__ import annotations
 
 from collections import deque
+from functools import lru_cache
 import hashlib
 import heapq
 import json
 import re
 import sqlite3
+import sys
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -37,11 +39,24 @@ def _hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def _lexical_spans(body: str, words: frozenset[str]) -> list[dict[str, Any]]:
-    """Use SensibLaw tokenizer when available; otherwise abstain from parser authority."""
+@lru_cache(maxsize=1)
+def _sensiblaw_tokenizer():
+    # Explicit suite-relative producer path, independent of server cwd.
+    suite_root = Path(__file__).resolve().parents[3]
+    producer = suite_root / "SensibLaw"
+    if producer.is_dir() and str(producer) not in sys.path:
+        sys.path.insert(0, str(producer))
     try:
         from src.text.deterministic_legal_tokenizer import tokenize_with_spans
     except ImportError:
+        return None
+    return tokenize_with_spans
+
+
+def _lexical_spans(body: str, words: frozenset[str]) -> list[dict[str, Any]]:
+    """Use SensibLaw tokenizer when available; otherwise abstain from parser authority."""
+    tokenize_with_spans = _sensiblaw_tokenizer()
+    if tokenize_with_spans is None:
         # This is an explicitly degraded lexical fallback, never a typed PNF proof.
         return [{"kind": match.group().lower(), "start": match.start(),
                  "end": match.end(), "authority": "regex_hint_only"}
