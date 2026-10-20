@@ -72,6 +72,11 @@ Not in scope for the first increment:
 The adapter delegates to the local re-gpt public API with direct async writes,
 DOM fallback disabled, and receipt-bearing operation state. It does not expose
 browser/session bootstrap controls and never resends an uncertain operation.
+A normal worker dispatch is event-driven: the caller awaits its completion
+result and does not poll while it is in flight or require a user wake-up. The
+caller may complete independent work while waiting, otherwise waits silently.
+`operation_status` and `reconcile` are recovery tools for an uncertain or
+interrupted operation, not routine liveness checks.
 
 ChatGPT is the normal low-cost worker for a major coherent implementation cut.
 Keep tiny local fixes, bounded review repairs, test-harness adjustments, and
