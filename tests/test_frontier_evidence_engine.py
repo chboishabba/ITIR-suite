@@ -14,8 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "itir-mcp" / "src"
 sys.path.insert(0, str(SRC))
 
-from itir_mcp.frontier_evidence import build_frontier, transition_roster
-from itir_mcp.registry import build_default_registry
+from itir_mcp.frontier_evidence import build_frontier, transition_roster  # noqa: E402
+from itir_mcp.registry import build_default_registry  # noqa: E402
 
 COLUMNS = (
     "message_id canonical_thread_id platform account_id ts role text title source_id "
@@ -73,6 +73,33 @@ class FrontierTests(unittest.TestCase):
         self.assertEqual(result["proposals"][0]["source_thread_id"], "re-gpt-0")
         with sqlite3.connect(self.roster) as db:
             self.assertEqual(db.execute("SELECT COUNT(*) FROM frontier_roster").fetchone()[0], 5)
+
+    def test_fresh_merge_receipt_and_idempotent_replay(self):
+        result = build_frontier(archive_db=str(self.archive), evidence=self.evidence,
+                                max_evaluated=5, roster_db=str(self.roster))
+        first = next(r for r in result["roster"]
+                     if r["canonical_thread_id"] == "canonical-1")
+        self.assertEqual(first["next_state"], "merged")
+        self.assertIsNone(first["previous_state"])
+        with sqlite3.connect(self.roster) as db:
+            self.assertEqual(
+                db.execute("SELECT previous_state FROM frontier_transitions "
+                           "WHERE receipt_id=?", (first["receipt_id"],)).fetchone(),
+                (None,),
+            )
+            count_before = db.execute(
+                "SELECT COUNT(*) FROM frontier_transitions"
+            ).fetchone()[0]
+        repeated = build_frontier(archive_db=str(self.archive), evidence=self.evidence,
+                                  max_evaluated=5, roster_db=str(self.roster))
+        second = next(r for r in repeated["roster"]
+                      if r["canonical_thread_id"] == "canonical-1")
+        self.assertEqual(first, second)
+        with sqlite3.connect(self.roster) as db:
+            self.assertEqual(
+                db.execute("SELECT COUNT(*) FROM frontier_transitions").fetchone()[0],
+                count_before,
+            )
 
     def test_injected_gap_receipt_and_bounded_selection(self):
         calls = []
