@@ -87,7 +87,10 @@ roadmap, phase, deliverables/acceptance state, ZKP frame, and relevant
 Agda/Lean proof surfaces from repository evidence. Do not impose an arbitrary
 word cap on that report. A subsequent implementation dispatch should deliver
 the largest coherent max-cut supported by the gate, not a needlessly tiny
-patch. The ChatGPT connector returns the branch/PR, intended verification
+patch. Every nontrivial brief carries the full `O/R/C/S/L/P/G/F` frame and
+material constraints, invariants, preconditions, and postconditions; it names
+the owner, disjoint write surface, post-worker verification phase, and a
+measurable refinement criterion. The ChatGPT connector returns the branch/PR, intended verification
 commands, and its execution boundary; it is not asked to run local tests,
 assume a mounted checkout, or use GitHub Actions. Before dispatch, the calling
 lane inspects available local clones and supplies the exact GitHub
@@ -102,6 +105,11 @@ workers, so they build on checked current code.
 
 High-RAM Colab is the escalation path for Lean/Agda or another demonstrated
 memory-heavy verification need; ordinary Python/MCP tests stay local.
+
+Use plain language and proportional accessibility requirements for
+human-facing artifacts. A visualization or visual proof is requested only
+when it materially clarifies a difficult relation, and is inspected before any
+claim based on it is promoted.
 
 For ZKP-framed worker briefs and receipts, use the canonical model without
 renaming or collapsing fields: `O` Organization, `R` RFP, `C` Code, `S` State,
