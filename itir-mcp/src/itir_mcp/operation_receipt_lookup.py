@@ -64,20 +64,17 @@ def operation_receipts(payload: Mapping[str, Any]) -> dict[str, Any]:
         if not REQUIRED_OPERATION_COLUMNS <= cols:
             raise RuntimeError("transport mutation_attempts schema mismatch")
         # Fetch limit+1 for a truthful truncation receipt. No prompts or error_detail.
+        where = "conversation_id=?"
+        if active_only:
+            where += " AND state NOT IN ('complete','failed_precommit','attachment_failed_precommit')"
         rows = db.execute(
-            """SELECT operation_id,operation,conversation_id,requested_parent_node_id,
-                      prompt_digest,transport,state,started_at,submitted_at,
-                      committed_at,completed_at,user_node_id,assistant_node_id
-               FROM mutation_attempts WHERE conversation_id=?
-               ORDER BY started_at DESC,operation_id DESC LIMIT ?""",
-            (conversation_id, limit + 1 if not active_only else 10001),
+            "SELECT operation_id,operation,conversation_id,requested_parent_node_id,"
+            "prompt_digest,transport,state,started_at,submitted_at,"
+            "committed_at,completed_at,user_node_id,assistant_node_id "
+            "FROM mutation_attempts WHERE " + where +
+            " ORDER BY started_at DESC,operation_id DESC LIMIT ?",
+            (conversation_id, limit + 1),
         ).fetchall()
-    if active_only:
-        rows = [r for r in rows if str(r["state"]) not in {
-            "complete", "failed_precommit", "attachment_failed_precommit"
-        }]
-        if len(rows) > limit + 1:
-            rows = rows[:limit + 1]
     truncated = len(rows) > limit
     records = []
     for row in rows[:limit]:
