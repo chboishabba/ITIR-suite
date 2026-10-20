@@ -84,7 +84,12 @@ word cap on that report. A subsequent implementation dispatch should deliver
 the largest coherent max-cut supported by the gate, not a needlessly tiny
 patch. The ChatGPT connector returns the branch/PR, intended verification
 commands, and its execution boundary; it is not asked to run local tests,
-assume a mounted checkout, or use GitHub Actions. The calling Codex/AO lane
+assume a mounted checkout, or use GitHub Actions. Before dispatch, the calling
+lane inspects available local clones and supplies the exact GitHub
+repository/branch, current schema/API facts, roadmap paths, and intended
+local/Colab acceptance commands. The connector uses its GitHub integration
+against those named targets rather than guessing a repository mapping. The
+calling Codex/AO lane
 runs applicable tests or formal checks locally or in Colab. An operation or PR
 receipt alone is not acceptance. Once accepted, the calling lane merges and
 pushes the branch to the authoritative target before dispatching dependent
