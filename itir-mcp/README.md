@@ -83,7 +83,9 @@ patch. The ChatGPT connector returns the branch/PR, intended verification
 commands, and its execution boundary; it is not asked to run local tests,
 assume a mounted checkout, or use GitHub Actions. The calling Codex/AO lane
 runs applicable tests or formal checks locally or in Colab. An operation or PR
-receipt alone is not acceptance.
+receipt alone is not acceptance. Once accepted, the calling lane merges and
+pushes the branch to the authoritative target before dispatching dependent
+workers, so they build on checked current code.
 
 For ZKP-framed worker briefs and receipts, use the canonical model without
 renaming or collapsing fields: `O` Organization, `R` RFP, `C` Code, `S` State,
