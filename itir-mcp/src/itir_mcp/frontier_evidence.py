@@ -91,17 +91,28 @@ def transition_roster(
     with sqlite3.connect(path) as db:
         _init_roster(db)
         row = db.execute(
-            "SELECT state, source_thread_id FROM frontier_roster WHERE canonical_thread_id=?",
+            "SELECT state, source_thread_id, last_receipt_id FROM frontier_roster WHERE canonical_thread_id=?",
             (canonical_thread_id,),
         ).fetchone()
         previous = row[0] if row else None
         if row and row[1] and source_thread_id and row[1] != source_thread_id:
             raise ValueError("source_thread_id mapping conflict")
-        if previous != next_state and next_state not in TRANSITIONS[previous]:
+        evidence_digest = _digest(sorted(set(evidence_refs)))
+        if row and previous == next_state:
+            prior = db.execute(
+                "SELECT previous_state, reason, evidence_digest FROM frontier_transitions "
+                "WHERE receipt_id=?", (row[2],),
+            ).fetchone()
+            if prior and prior[1] == reason and prior[2] == evidence_digest:
+                return {"receipt_id": row[2], "canonical_thread_id": canonical_thread_id,
+                        "source_thread_id": row[1], "previous_state": prior[0],
+                        "next_state": next_state, "reason": reason,
+                        "evidence_digest": evidence_digest}
+        if row and previous != next_state and next_state not in TRANSITIONS[previous]:
             raise ValueError(f"forbidden roster transition: {previous} -> {next_state}")
         receipt = {"canonical_thread_id": canonical_thread_id, "source_thread_id": source_thread_id,
                    "previous_state": previous, "next_state": next_state, "reason": reason,
-                   "evidence_digest": _digest(sorted(set(evidence_refs)))}
+                   "evidence_digest": evidence_digest}
         receipt_id = _digest(receipt)
         db.execute(
             "INSERT OR IGNORE INTO frontier_transitions VALUES (?,?,?,?,?,?,?)",
