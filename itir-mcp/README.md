@@ -79,8 +79,10 @@ roadmap, phase, deliverables/acceptance state, ZKP frame, and relevant
 Agda/Lean proof surfaces from repository evidence. Do not impose an arbitrary
 word cap on that report. A subsequent implementation dispatch should deliver
 the largest coherent max-cut supported by the gate, not a needlessly tiny
-patch. Promotion requires applicable tests or formal checks actually run by
-the worker or in the local/Colab verification environment; an operation or PR
+patch. The ChatGPT connector returns the branch/PR, intended verification
+commands, and its execution boundary; it is not asked to run local tests,
+assume a mounted checkout, or use GitHub Actions. The calling Codex/AO lane
+runs applicable tests or formal checks locally or in Colab. An operation or PR
 receipt alone is not acceptance.
 
 For ZKP-framed worker briefs and receipts, use the canonical model without
