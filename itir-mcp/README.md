@@ -60,6 +60,12 @@ Not in scope for the first increment:
 - `itir.pnf.context_index`
 - `itir.pnf.task_memory_preview`
 - `itir.pnf.observer_evidence`
+- `itir.pnf.work_packet`
+- `itir.pnf.governed_handoff`
+- `itir.pnf.residual_cases`
+- `itir.archive.thread_view`
+- `itir.ao.operation_review`
+- `itir.chatgpt.operation_receipts`
 - `itir.markdown.render_projection`
 - `itir.markdown.write_projection`
 - `itir.docstore.config_plan`
@@ -107,8 +113,9 @@ High-RAM Colab is the escalation path for Lean/Agda or another demonstrated
 memory-heavy verification need; ordinary Python/MCP tests stay local.
 
 Use plain language and proportional accessibility requirements for
-human-facing artifacts. A visualization or visual proof is requested only
-when it materially clarifies a difficult relation, and is inspected before any
+human-facing artifacts. Agents may propose a visualization or visual proof
+when it materially clarifies a difficult relation, but require explicit human
+approval before creating one; an approved artifact is inspected before any
 claim based on it is promoted.
 
 For ZKP-framed worker briefs and receipts, use the canonical model without

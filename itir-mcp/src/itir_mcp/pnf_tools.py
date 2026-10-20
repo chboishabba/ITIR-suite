@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import sqlite3
 import sys
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -11,6 +13,7 @@ PNF_WORK_PACKET_VERSION = "itir.pnf.work_packet.v1"
 PNF_CONTEXT_INDEX_VERSION = "itir.pnf.context_index.v1"
 PNF_TASK_MEMORY_PREVIEW_VERSION = "itir.pnf.task_memory_preview.v1"
 PNF_OBSERVER_EVIDENCE_VERSION = "itir.pnf.observer_evidence.v1"
+PNF_RESIDUAL_CASES_VERSION = "itir.pnf_agda_receipt_export.v0_1"
 
 
 def _repo_root() -> Path:
@@ -289,8 +292,42 @@ def pnf_operation_review(payload: Mapping[str, Any]) -> JsonDict:
         raise ToolInputError(str(exc)) from exc
 
 
+def pnf_residual_cases(payload: Mapping[str, Any]) -> JsonDict:
+    from .pnf_residual_cases import load_receipt_cases
+
+    allowed = {"run_db", "run_id", "canonical_thread_id"}
+    if set(payload) - allowed:
+        raise ToolInputError("unknown residual-case fields")
+    run_db = _required_str(payload, "run_db")
+    run_id = _required_str(payload, "run_id")
+    thread = payload.get("canonical_thread_id")
+    if thread is not None and (not isinstance(thread, str) or not thread.strip()):
+        raise ToolInputError("canonical_thread_id must be a non-empty string")
+    try:
+        return load_receipt_cases(run_db, run_id=run_id, canonical_thread_id=thread)
+    except (OSError, sqlite3.Error, ValueError, TypeError, json.JSONDecodeError) as exc:
+        raise ToolInputError(str(exc)) from exc
+
+
 def get_pnf_tools() -> list[tuple[ToolSpec, ToolHandler]]:
     return [
+        (
+            ToolSpec(
+                name="itir.pnf.residual_cases",
+                title="Receipt-backed PNF residual cases",
+                description="Read residual cases from one completed PNF batch run without writing artifacts or promoting claims.",
+                input_schema={
+                    "type": "object", "required": ["run_db", "run_id"], "additionalProperties": False,
+                    "properties": {
+                        "run_db": {"type": "string", "minLength": 1},
+                        "run_id": {"type": "string", "minLength": 1},
+                        "canonical_thread_id": {"type": "string", "minLength": 1},
+                    },
+                },
+                response_version=PNF_RESIDUAL_CASES_VERSION, read_only=True,
+            ),
+            pnf_residual_cases,
+        ),
         (
             ToolSpec(
                 name="itir.pnf.governed_handoff",
