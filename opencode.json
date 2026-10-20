@@ -1,0 +1,28 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md",
+    "OPENCODE-ROLE.md",
+    "itir-mcp/README.md",
+    "/home/c/.codex/skills/autonomous-orchestrator/SKILL.md",
+    "/home/c/.codex/skills/itir-mcp/SKILL.md"
+  ],
+  "mcp": {
+    "servers": {
+      "itir": {
+        "type": "local",
+        "command": [
+          "/home/c/Documents/code/ITIR-suite/.venv/bin/python",
+          "-m",
+          "itir_mcp"
+        ],
+        "cwd": "/home/c/Documents/code/ITIR-suite/itir-mcp",
+        "environment": {
+          "PYTHONPATH": "/home/c/Documents/code/ITIR-suite/itir-mcp/src",
+          "ITIR_CHATGPT_ACCOUNT": "main"
+        },
+        "enabled": true
+      }
+    }
+  }
+}
