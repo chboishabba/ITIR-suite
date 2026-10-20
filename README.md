@@ -17,9 +17,33 @@ This repo is the place where those pieces are pinned together, documented
 together, and routed together. Most detailed setup and day-to-day running
 happens inside the individual project directories.
 
+## Chat archive storage boundary
+
+The structured archive at `~/chat_archive.sqlite` is the sole canonical chat
+corpus. It owns canonical thread IDs, message text, provenance, graph/archive
+hydration receipts, and archive search. Consumers must use canonical thread
+coordinates for corpus selection.
+
+`~/.chatgpt_history.sqlite3` is a separate re-gpt operational store. It may
+provide bounded mutation/adapter receipts after an exact canonical-to-source
+thread mapping, but it is not corpus authority and must not drive candidate
+selection, transcript retrieval, title-based worker revival, or browser-based
+fallbacks. `~/.chat_archive.sqlite` is a historical archive path; it is not
+silently selected or merged.
+
+The archive migration direction is one-way: a reviewed, receipt-bearing
+backfill may read the operational store and materialize compatible records in
+the canonical archive. It never joins the databases or overwrites canonical
+messages. Derived roster and lifecycle receipts live in their own database.
+
+The legacy operational-store default is scheduled for removal only after the
+bounded receipt lookup receives an explicit replacement locator. Until then,
+new callers should pass that locator explicitly rather than rely on the legacy
+fallback.
+
 ## Governed canonical revival MCP boundary
 
-Draft PR #30 provides read-only `itir.pnf.governed_handoff` and
+Merged PR #30 provides read-only `itir.pnf.governed_handoff` and
 `itir.archive.thread_view` projections over the canonical archive, plus
 `itir.ao.operation_review` and `itir.chatgpt.operation_receipts`.
 The receipt lookup resolves a canonical thread to one transport conversation

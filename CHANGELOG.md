@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Document the canonical chat-storage boundary: `~/chat_archive.sqlite` is the
+  corpus authority; the re-gpt operational SQLite store is receipt-only, and
+  the historical hidden archive path is never selected or merged implicitly.
+  Record the explicit-locator migration required before retiring the legacy
+  operational-store default.
+
 - Add SensibLaw's P0c.3/P0c.4 typed resolution-subject and semantic demand-
   equivalence carrier. Formal event roles are protected before scheduler design,
   and grouping remains a receipt rather than request execution or resolution.

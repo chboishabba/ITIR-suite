@@ -1,5 +1,14 @@
 # TODO (ITIR-suite)
 
+## Chat archive storage migration
+
+- [ ] Replace the implicit `~/.chatgpt_history.sqlite3` fallback in re-gpt
+  receipt consumers with an explicitly configured, receipt-only locator.
+- [ ] After all governed callers pass explicit transport receipt locations,
+  rename/archive the legacy default path and fail closed if it is selected.
+- [ ] Keep `~/chat_archive.sqlite` as the only canonical corpus location; do
+  not auto-merge the historical `~/.chat_archive.sqlite` path.
+
 #Added 24/7/26 JB
 Yes. The better unifying picture is not merely a cyclic pipeline of engines. It is a **fibred semantic construction**.
 
