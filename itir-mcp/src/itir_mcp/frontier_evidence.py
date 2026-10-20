@@ -183,6 +183,13 @@ def build_frontier(
     for tid in selected_ids:
         source = evidence_by_id[tid]
         meta = by_id[tid]
+        typed_refs = source.get("typed_refs", [])
+        validation = validate_typed_references(
+            tid, typed_refs, operation_candidates=operation_discovery,
+        )
+        valid_ops = [record["ref"] for record in validation["records"]
+                     if record["kind"] == "operation"
+                     and record["status"] == "source_bound"]
         refs = [str(ref) for ref in source.get("evidence_refs", [])]
         row = {
             "canonical_thread_id": tid, "task_atom": str(source.get("task_atom") or "").strip(),
@@ -214,6 +221,14 @@ def build_frontier(
                 except Exception as exc:
                     abstentions.append({"canonical_thread_id": tid, "reason": "gap_evaluator_failed",
                                         "error_type": type(exc).__name__})
+        if typed_refs and validation["held_count"]:
+            row["formal_gap_receipts"] = []
+            row["repo_receipts"] = []
+            row["pnf_receipts"] = []
+            row["explicit_promotion"] = False
+            row["task_atom"] = ""
+            abstentions.append({"canonical_thread_id": tid, "reason": "typed_reference_hold",
+                                "held_count": validation["held_count"]})
         rows.append(row)
     for tid in evidence_by_id:
         if tid not in by_id:
