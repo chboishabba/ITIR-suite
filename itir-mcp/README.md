@@ -256,3 +256,16 @@ Doctrine: all tool outputs are proposals until verified.
 - `dioxus/web` should call a backend/native seam that talks to this adapter
 - existing internal Dioxus MCP-like registries remain useful UI/debug surfaces
   but are not the canonical suite transport layer
+
+
+## Dioxus fleet/research cockpit integration (2026-10-23 planning addendum)
+
+Canonical operator UI: `chboishabba/itir-dioxus` M10/M11, **not** legacy `itir-svelte`. Reuse Dioxus `VisualisationIr` and the shared `DomainCommand` reducer. UI must not become a second fleet controller, archive, world store, or semantic authority.
+
+**Read-only producer projection** should link AO operation/lane/worker state, canonical archive handoff and source digests, StatiBaker observer chronology, SLR candidate-only proof-search/residual receipts and exact verifier evidence by stable scoped references. First cut is one mission end-to-end with bounded graph/timeline/inspector selection. Do not infer success from a heartbeat, output text, GPU node color or PR creation.
+
+**Governed action boundary:** `itir.chatgpt.dispatch_worker`, `operation_status`, `reconcile` and `itir.ao.*` remain the only documented controller interfaces for their respective operations. Dioxus may propose a typed requested action, but execution requires scope and policy review, explicit approval where applicable, and a receipt of the actual outcome. `async_starting` and `commit_unknown` are hold/reconcile/no-resend, never auto-retry. Ordinary dispatch is event-driven and should not be converted into polling for dashboard animation. The historical title/DOM-based fleet daemon is excluded from this governed path.
+
+**Cross-project acceptance:** deterministic replay and stable selection IDs, unknown versus unavailable versus redacted visually distinct, bounded raw-source drill-down, identical GPU/shell selection reducer outcome, no implicit promotion and no new semantic write by UI. Verified-progress metrics require producer-owned proof/test receipts; match evaluation budgets before claiming improvements from Cogentic-style prover populations or self-improving harnesses.
+
+See `docs/planning/user_story_alignment_and_reprioritization_20260402.md` (superseding UI note), `docs/planning/governed_revival_handoff_v1.md`, `itir-dioxus/docs/M10_UNIFIED_WORKBENCH.md` and `slr/docs/ROADMAP.md`. External research inputs: https://arxiv.org/abs/2609.40324 (Cogentic), https://arxiv.org/abs/2609.00006 (harness taxonomy), https://arxiv.org/abs/2606.09498 (Self-Harness), https://arxiv.org/abs/2610.05300 (MESH). **Planning only; no new runtime/kernel/test acceptance claimed.**
