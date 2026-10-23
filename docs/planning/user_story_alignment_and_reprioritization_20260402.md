@@ -212,3 +212,23 @@ the existing fact-review/operator-view/read-model spine.
 - C4:
   - product/workflow surfaces now become the main container-level focus, while
     the substrate remains the stable supporting layer
+
+
+## Superseding UI ownership / fleet-research workbench decision — 2026-10-23
+
+**Correction to historical references above:** references to building new `itir-svelte` pages describe the April 2026 state only. New production UI work is owned by `chboishabba/itir-dioxus` M10/M11. Svelte is a regression/read-model fixture, not an implementation destination; see `itir-dioxus/docs/M10_UNIFIED_WORKBENCH.md`.
+
+**Existing fleet, not new infrastructure:** AO and `itir-mcp` already own operation status, lane claim/heartbeat/report, governed `itir.chatgpt.dispatch_worker`, `operation_status`, `reconcile`, canonical predecessor handoffs and no-resend controls. `StatiBaker/sb.ao_kanboard_control` provides runsheet integration. Audit current producer/operation receipts before proposing any additional dispatcher. The historical `scripts/autonomous_fleet_daemon.py` with title/DOM fallbacks is **not** the governed controller; do not revive it.
+
+**Revised user-story priorities**
+- P0: Dioxus unified fleet/research cockpit *read-only* mission slice: one selected operation/obligation synchronized across fleet graph, StatiBaker chronology, source/PNF evidence, residual frontier and inspector. Raw artifacts and exact canonical refs always reopen; unknown/missing/restricted are distinct.
+- P0: uncertain-operation reconciliation visibility (`async_starting`, `commit_unknown` = hold/no resend) and stable replay identities; no implicit dispatch via rendering.
+- P1: typed `DomainCommand` -> explicitly approved AO control action -> guarded MCP receipt; safe-call gates, scope, operator permissions and post-action outcomes explicit.
+- P1: proof/experiment branches, negative results, alternatives, review and exact-head kernel certification presented as different authority levels.
+- P2: evaluate multiple prover/critic strategies and budget-aware harness evolution (Cogentic, Self-Harness, MESH) atop existing fleet. Do not claim empirical superiority until matched-budget tests.
+
+**Acceptance story:** As a mission operator, I can select an active or archived fleet mission and answer what ran, which worker owned it, what changed, what was proposed, which source supports it, what was verified, what remains unproved, and whether an operation may be safely acted upon. Changing graph depth cannot change authority. A read-only view must remain useful when some producers are unavailable.
+
+**References/rationale:** `StatiBaker/docs/user_stories.md` SB-SL-US-01..04; `ITIR-suite/docs/user_stories.md` ITIR-US-02/10 and SL-US-08; `ITIR-suite/docs/planning/governed_revival_handoff_v1.md`; `itir-mcp/README.md`; `itir-dioxus/README.md`, `docs/M10_UNIFIED_WORKBENCH.md`; `slr/README.md` and `docs/ROADMAP.md`. Research: Cogentic https://arxiv.org/abs/2609.40324, Harness Engineering https://arxiv.org/abs/2609.00006, Self-Harness https://arxiv.org/abs/2606.09498, MESH https://arxiv.org/abs/2610.05300. The last four are external architectural inspirations, not local delivery receipts.
+
+**Status:** documentation priority update only; user testing, live data integration, exact-head acceptance and kernel receipts remain outstanding.
