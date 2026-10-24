@@ -74,9 +74,42 @@ class OperatorWorkflowTests(unittest.TestCase):
         self.assertIn("unverified_typed_reference", r["rows"][0]["holds"])
         self.assertFalse(r["promotion"])
 
-    def test_missing_semantic_pnf_abstains(self):
+    def test_missing_semantic_pnf_stays_candidate_only_not_promoted(self):
         r = build_operator_workflow(self.request())
-        self.assertIn("semantic_pnf_producer_unavailable", r["rows"][0]["holds"])
+        self.assertEqual(r["rows"][0]["state"], "candidate")
+        self.assertEqual(r["rows"][0]["pnf_verification"], "unverified")
+        self.assertTrue(r["rows"][0]["selected"])
+        self.assertFalse(r["promotion"])
+
+    def test_trusted_verified_pnf_is_actionable_without_pg(self):
+        calls = []
+        def verify(thread, refs):
+            calls.append((thread, refs))
+            return thread == "a" and refs == ("pnf:fixture",)
+        r = build_operator_workflow(self.request(), verified_pnf_resolver=verify)
+        row = r["rows"][0]
+        self.assertEqual(calls, [("a", ("pnf:fixture",))])
+        self.assertEqual(row["pnf_verification"], "verified")
+        self.assertEqual(row["state"], "candidate")
+        self.assertEqual(row["next_action"], "inspect_candidate_handoff")
+        self.assertTrue(row["selected"])
+        self.assertIsNotNone(row["pnf_packet_id"])
+        self.assertFalse(r["promotion"])
+        self.assertEqual(r["workflow_id"], build_operator_workflow(
+            self.request(), verified_pnf_resolver=verify)["workflow_id"])
+
+    def test_untrusted_pnf_label_does_not_claim_verified(self):
+        r = build_operator_workflow(self.request())
+        self.assertEqual(r["rows"][0]["pnf_verification"], "unverified")
+        self.assertNotEqual(r["rows"][0]["authority"], "producer_verified_pnf_review_only")
+
+    def test_verifier_failure_is_held_without_promotion(self):
+        def unavailable(_thread, _refs):
+            raise RuntimeError("PRIVATE_API_TOKEN_ABC")
+        r = build_operator_workflow(self.request(), verified_pnf_resolver=unavailable)
+        self.assertIn("pnf_verification_unavailable", r["rows"][0]["holds"])
+        self.assertFalse(r["rows"][0]["selected"])
+        self.assertNotIn("PRIVATE_API_TOKEN_ABC", json.dumps(r))
 
     def test_ambiguous_operation_states_hold_no_resend(self):
         for status in ("async_starting", "commit_unknown"):
