@@ -31,8 +31,45 @@ channels for each core project directory in this workspace.
 - Every component defines explicit ingress/egress channels.
 - Cross-component handoffs should map directly to declared channels.
 - Implementation work should follow these contracts before adding new behavior.
+- "State" is authority-scoped rather than global: semantic/epistemic world state,
+  temporal observer state, possibility/workspace state and projection state
+  remain distinct.
+- Cross-suite values should preserve source-addressable identity so projections
+  can navigate back to exact revision/anchor and transformation/review receipts.
+- New domains add typed refinements/adapters over the shared provenance fabric;
+  they do not create parallel canonical evidence universes.
+
+## Current federated-world ownership
+
+```text
+SensibLaw / SLR
+  semantic construction, review/admission, legal consumer projection
+
+WorldMonitor / formal world surfaces
+  world observations, source health, gaps/baselines and epistemic coordinates
+
+StatiBaker
+  temporal observer compilation, continuity, receipts and deterministic replay
+
+casey-git-clone
+  live candidate/workspace/collapse/build authority
+
+dashi_agda / dashi_lean4
+  formal/reference contracts and executable bounded checking/proof workers
+  (dashi_lean4 is the consolidation direction)
+
+itir-ribbon / Streamline
+  projection-only timeline/ribbon/Sankey surfaces
+```
+
+See:
+- `docs/planning/federated_typed_world_projection_contract_20260920.md`
+- `docs/planning/federated_world_materialisation_boundary_20260915.md`
 
 ## Focused Intersection Artifacts
+- `docs/planning/federated_typed_world_projection_contract_20260920.md`:
+  current cross-suite world/state/projection ownership, source-addressable
+  semantic-node doctrine, typed refinements and SLR Sprint-3 consequence.
 - `docs/planning/sl_tircorder_ribbon_sb_intersection_20260208.md`:
   four-way contract map for `SensibLaw`, `tircorder-JOBBIE`, `itir-ribbon`,
   and `StatiBaker`.

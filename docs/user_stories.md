@@ -9,9 +9,17 @@ datasets).
 ## Suite-Level Invariants (Non-Negotiable)
 - Context is mandatory: artifacts must never be interpreted without temporal,
   social, and epistemic frame metadata.
-- Interpretation is optional: the system does not render moral or legal verdicts.
+- Interpretation is optional: the system does not silently promote moral, legal,
+  clinical, causal or other domain conclusions from observation alone.
 - It must be cheaper to expand context than to compress it.
 - Context removal is explicit and logged.
+- Observation, occurrence, report, interpretation, review/admission and
+  authority remain distinct states.
+- Missing/failed/stale coverage is not negative evidence.
+- Every derived/displayed semantic value must remain navigable to exact source
+  revision/anchor and its transformation/review dependencies.
+- A timeline, proof tree, Sankey/ribbon, citation graph and source pane are
+  projections, not independent truth stores.
 
 ---
 
@@ -72,6 +80,56 @@ Acceptance criteria:
 - Captures appear as reviewable activity evidence rather than silently
   rewriting mission or semantic state.
 - Promotion from capture evidence into stronger state remains explicit.
+
+## ITIR-US-18: Source-Addressable Semantic Node
+As a user, I want every important value shown by ITIR to be traceable to the
+exact source material and derivation that produced it so that I can inspect,
+challenge and reuse the value without trusting a hidden summary.
+
+Examples include a reported sample size, a bank transfer, a judgment paragraph,
+a Wikidata statement, a sensor reading or a derived pattern.
+
+Acceptance criteria:
+- Hover or local inspection can show a bounded source preview with the relevant
+  span/row/coordinate highlighted where the source supports one.
+- Opening the item reaches the exact source revision and anchor rather than a
+  generic document homepage.
+- "Why?" exposes the dependency/evidence path.
+- "Used where?" exposes downstream consumers.
+- Citation-capable sources expose outgoing and incoming citation/source edges
+  with citing context where available.
+- Revision/supersession lineage and unresolved residuals are inspectable.
+- Switching Explain/Why/Source/Context/Graph views does not clone or silently
+  alter the underlying semantic identity.
+
+## ITIR-US-19: Heterogeneous Cross-Stream Reconstruction
+As a user, I want health/sensor observations, communications, financial flows,
+documents and external world observations to align on one time/provenance
+surface so I can inspect temporal relationships without the system silently
+turning correlation into causation or a legal/clinical finding.
+
+Acceptance criteria:
+- Each stream retains its native source/revision/device/account/document
+  provenance.
+- Temporal alignment can create a candidate relationship/pattern while keeping
+  each underlying observation distinct.
+- Source freshness, genealogy/diversity and coverage gaps remain visible when
+  relevant.
+- Missing observations are never rendered as observed absence.
+- Downstream consumers such as SensibLaw may interpret the aligned observations
+  only through their own explicit review/admission boundaries.
+
+## ITIR-US-20: Competing World Alternatives Without Forced Collapse
+As a user, I want incompatible but still plausible interpretations to coexist so
+I can investigate what evidence would distinguish them instead of having the
+system prematurely merge or choose one.
+
+Acceptance criteria:
+- Candidate alternatives remain individually source-backed and inspectable.
+- Selection/collapse is explicit and receipted when a domain owner authorizes it.
+- An experiment/proof-search/discriminator surface may propose the next
+  observation likely to separate consumer-relevant alternatives.
+- A possibility/workspace selection is not silently promoted into world truth.
 
 ---
 
@@ -148,6 +206,12 @@ Acceptance criteria:
 
 ---
 
+# SB (StatiBaker) - Temporal Observer State
+
+StatiBaker owns temporal reconstruction, observer memory, gaps and deterministic
+replay. It may retain references/receipts from other systems but does not inherit
+their semantic, legal, workspace or source authority.
+
 # SB (StatiBaker) - Pattern Without Narrative
 
 ## SB-US-06: Reputational Exposure Map (No Verdict Mode)
@@ -189,8 +253,11 @@ Any user action that removes or suppresses context is logged with a timestamp.
 ---
 
 ## Design Sentence (Suite-Wide)
-ITIR preserves what happened, SL constrains what can be claimed, and SB refuses
-to tell you what it means.
+ITIR federates source-addressable observations and typed world material without
+collapsing authority; SL/SensibLaw reviews and admits semantic/legal
+interpretations; StatiBaker preserves temporal observer continuity; Casey owns
+explicit workspace/candidate collapse; formal workers check bounded obligations;
+projection surfaces show these objects without becoming new truth stores.
 
 ---
 
