@@ -6,6 +6,7 @@ from typing import Any, Mapping
 from .contracts import ToolInputError, ToolSpec
 from .frontier_evidence import build_frontier
 from .frontier_reference_validation import completed_operation_candidates
+from .operator_workflow import build_operator_workflow
 
 
 def frontier_evidence_tool(payload: Mapping[str, Any]) -> dict[str, Any]:
@@ -37,6 +38,23 @@ def completed_operation_candidates_tool(payload: Mapping[str, Any]) -> dict[str,
 
 def get_frontier_tools() -> list[tuple[ToolSpec, Any]]:
     return [(
+        ToolSpec(
+            name="itir.ao.operator_workflow",
+            title="Canonical evidence-to-handoff operator workflow",
+            description="Bounded read-only canonical evidence review; no dispatch or promotion.",
+            input_schema={"type": "object", "additionalProperties": False,
+                          "required": ["archive_db", "candidates"],
+                          "properties": {
+                              "archive_db": {"type": "string"},
+                              "receipt_db": {"type": "string"},
+                              "operation_receipts": {"type": "boolean"},
+                              "max_items": {"type": "integer", "minimum": 1, "maximum": 8},
+                              "candidates": {"type": "array", "minItems": 1, "maxItems": 64,
+                                             "items": {"type": "object"}},
+                          }},
+        ),
+        build_operator_workflow,
+    ), (
         ToolSpec(
             name="itir.ao.frontier_evidence",
             title="AO canonical frontier evidence",
