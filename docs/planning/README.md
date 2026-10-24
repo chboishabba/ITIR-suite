@@ -3,6 +3,28 @@
 This folder contains ADRs, UI component specs, doctrine notes, and validation
 artifacts for the context invariant.
 
+## DA51 × SLR × JMD Formal Proof Spine (2026-10-17)
+
+Current cross-repo max-cut for PNF/proof obligations, repository-intelligence
+routing, DA51 evidence, formal backends, and artifact publication:
+- `docs/planning/da51_slr_formal_evidence_artifact_contract_v1_20261017.md`
+- `docs/planning/jmd_fixtures/da51_slr_formal_evidence_v1.example.json`
+- `docs/planning/shared_shard_artifact_contract_v1_20260327.md`
+- `docs/planning/zkperf_on_sl_roadmap_20260329.md`
+
+Ownership remains split deliberately:
+- SLR owns production PNF, residuals, proof obligations, payment, Matters, and recurrence;
+- dashi-repo owns discovery/dedupe/history/routing receipts;
+- DA51 is a semantic/reference join, not theorem authority;
+- agda2lean/Aristotle are formalisation backends, not certification authority;
+- Lean/Agda checkers own certification receipts;
+- ITIR + ERDFA/Kant package evidence artifacts;
+- HF/IPFS/file are sinks; ZOS publishes/pulls; Zelph/Dioxus consume read-only.
+
+The invariant is exact `demand_ref + obligation_ref + statement_digest` payment.
+No route, DA51 status, translator capability, runtime trace, CID, or UI projection
+may silently upgrade itself into proof/legal/security authority.
+
 ## ITIR Orchestrator Contract
 
 ITIR-suite orchestration role and boundaries:
