@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 
 from .frontier_evidence import build_frontier
 from .governed_revival import governed_handoff, operation_review
@@ -79,7 +79,10 @@ def _validate(payload: Mapping[str, Any]) -> tuple[list[dict[str, Any]], int]:
     return sorted(clean, key=lambda x: x["canonical_thread_id"]), max_items
 
 
-def build_operator_workflow(payload: Mapping[str, Any]) -> dict[str, Any]:
+def build_operator_workflow(
+    payload: Mapping[str, Any], *,
+    verified_pnf_resolver: Callable[[str, tuple[str, ...]], bool] | None = None,
+) -> dict[str, Any]:
     """Compose existing producer receipts; no roster writes, mutation or dispatch."""
     rows, max_items = _validate(payload)
     archive = payload["archive_db"]
@@ -132,6 +135,15 @@ def build_operator_workflow(payload: Mapping[str, Any]) -> dict[str, Any]:
             reasons.append("operation_receipt_not_requested")
         if operations and not discovery.get("candidates"):
             reasons.append("operation_receipt_unavailable")
+        # A caller-supplied receipt string is never verification. Only a trusted,
+        # independently injected producer resolver can attest PNF semantics.
+        verified_pnf = False
+        if not reasons and row.get("pnf_receipts") and verified_pnf_resolver is not None:
+            try:
+                verified_pnf = verified_pnf_resolver(
+                    tid, tuple(sorted(set(row["pnf_receipts"])))) is True
+            except (ValueError, RuntimeError, OSError):
+                reasons.append("pnf_verification_unavailable")
         packet_id = None
         packet_refs: list[dict[str, Any]] = []
         truncation: dict[str, Any] = {}
@@ -149,8 +161,14 @@ def build_operator_workflow(payload: Mapping[str, Any]) -> dict[str, Any]:
                                for ref in packet["source_refs"][:8]]
                 truncation = {"pnf": packet["truncation_receipt"],
                               "handoff": handoff["span_receipt"]}
-                if "producer_verified_pnf_parse" in packet["missing_evidence"]:
-                    reasons.append("semantic_pnf_producer_unavailable")
+                # PG materialisation is optional for read-only operator review.
+                # Lexical work-packet absence is disclosed, not silently promoted.
+                # Without producer verification, the operator may inspect a
+                # candidate handoff, but cannot treat it as verified PNF.
+                if verified_pnf:
+                    truncation["pnf_verified_by_producer"] = True
+                else:
+                    truncation["pnf_verified_by_producer"] = False
             except (ValueError, RuntimeError, FileNotFoundError, KeyError):
                 reasons.append("bounded_packet_or_handoff_unavailable")
         if decision and decision["decision"] != "admit":
@@ -160,7 +178,8 @@ def build_operator_workflow(payload: Mapping[str, Any]) -> dict[str, Any]:
             "canonical_thread_id": tid,
             "task_atom_digest": _digest(row["task_atom"]),
             "candidate_disposition": decision["decision"] if decision else "park",
-            "authority": "candidate_only_not_promoted",
+            "authority": "producer_verified_pnf_review_only" if verified_pnf else "candidate_only_not_promoted",
+            "pnf_verification": "verified" if verified_pnf else "unverified",
             "selected": bool(decision and decision["decision"] == "admit" and not reasons),
             "state": "held" if reasons else "candidate",
             "holds": reasons,
