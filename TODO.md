@@ -5952,3 +5952,8 @@ Canonical implementation note:
 - [ ] Caller executes the focused unit, regression, Ruff and production-cwd fixture smoke commands in `docs/planning/ao_operator_workflow_v1.md`.
 - [ ] Independent review of source-written integration and formalization gap; no kernel-verified refinement claimed.
 - [ ] Receipt-location migration remains a separate cut; no default operational-store retirement here.
+
+- [x] AO-OP-1 acceptance-gap source change: missing optional semantic producer/PG no longer blocks canonical **candidate-only review**; verified-PNF review is available only with a trusted injected resolver.
+- [x] Add focused regression fixtures for verified resolver, deterministic actionable handoff, no PG dependency, untrusted labels, and fail-closed resolver errors.
+- [ ] Wire a genuine producer-owned PNF verifier into the production MCP runtime if production needs to assert verified-PNF (currently unverified/candidate-only; no user-controlled verification flag).
+- [ ] Caller executes focused tests, lint and production registry smoke; independent review required.
