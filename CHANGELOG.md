@@ -3108,3 +3108,9 @@
   canonical foundation-source catalog when a review row already names a known
   UK/EU legal source, which gives the Brexit proving ground a bounded
   non-crawling legal-cite follow path.
+
+## Unreleased — AO-OP-1 (source-written, unverified)
+
+- Added `itir.ao.operator_workflow`, a bounded, read-only canonical evidence-to-handoff composition over existing frontier, ledger, typed reference, PNF packet and operation-review producers.
+- Added fixture acceptance for fail-closed holds, stable identities, redaction, bounded selection, production registration and unchanged canonical archive; **tests and CI not executed**.
+- Documented operator acceptance, separate receipt-location migration and outstanding Agda/Lean refinement gap. Root roadmap and PR #34 planner surfaces unchanged.
