@@ -74,3 +74,53 @@ def test_referee_verified_certification_persists_and_resolves(tmp_path, monkeypa
     assert default_receipt_store().resolver()(REPO, SHA, PATH, THREAD)
     assert not default_receipt_store().resolver()(REPO, "b" * 40, PATH, THREAD)
     assert not default_receipt_store().resolver()(REPO, SHA, PATH, "other")
+
+
+def test_configured_registry_writes_only_verified_results(tmp_path, monkeypatch):
+    import itir_mcp.registry as registry_module
+
+    monkeypatch.setenv("ITIR_FORMAL_RECEIPT_DB", str(tmp_path / "formal.sqlite3"))
+    artifact = {
+        "schemaVersion": "artifact-resolution-receipt/v1",
+        "contentDigest": "artifact", "verified": True,
+        "authority": "transport-only", "establishesProof": False,
+        "logicalArtifactRef": PATH,
+    }
+    kernel = {
+        "schemaVersion": "kernel-certification-receipt/v1",
+        "authority": "formal-checker-only", "certifiesFormalResult": True,
+        "createsLegalAuthority": False, "applicabilityPromoted": False,
+        "claimTruthPromoted": False, "certificationState": "kernel-certified",
+        "sourceRevision": "git:" + SHA,
+        "artifactRef": PATH, "artifactDigest": "artifact",
+        "checker": "agda", "checkerRevision": "2.9", "dependencies": [],
+    }
+    trusted = {
+        "authenticated_local_referee": True, "independent_kernel_success": True,
+        "repo": REPO, "path": PATH, "canonical_thread_id": THREAD,
+        "subject_commit": SHA, "source_digest": "artifact",
+        "artifact_digest": "artifact",
+        "checker_digest": _digest({"checker": "agda", "revision": "2.9"}),
+        "dependency_digest": _digest([]),
+    }
+    original = registry_module.get_formal_tools
+
+    def with_checker(**kwargs):
+        return original(
+            certifier=lambda **_: kernel,
+            handoff_validator=lambda *_: {"artifact_digest": "artifact"},
+            **kwargs,
+        )
+
+    monkeypatch.setattr(registry_module, "get_formal_tools", with_checker)
+    registry = build_default_registry(local_referee_context=lambda: trusted)
+    payload = {
+        "artifact_resolution_receipt": artifact,
+        "demand_ref": "d", "obligation_ref": "o", "statement_digest": "s",
+    }
+    response = registry.invoke("itir.formal.certify", payload)
+    assert response["ok"] is True
+    assert default_receipt_store().resolver()(REPO, SHA, PATH, THREAD)
+    trusted["authenticated_local_referee"] = False
+    assert registry.invoke("itir.formal.certify", payload)["ok"] is True
+    assert not default_receipt_store().resolver()(REPO, "b" * 40, PATH, THREAD)
