@@ -96,6 +96,66 @@ def completed_operation_candidates(
                        "dispatch": False, "resend": False, "raw_bodies": False}}
 
 
+
+def formal_receipt_resolver(
+    receipt_provider: Callable[[str, str, str, str], Mapping[str, Any] | None],
+) -> Callable[[str, str, str, str], bool]:
+    """Accept only referee-supplied, source-bound formal certification receipts.
+
+    The provider must obtain receipts from the independent local referee.
+    Actor-provided MCP arguments and candidate inspection outputs are not trusted.
+    """
+    def resolve(repo: str, sha: str, path: str, thread: str) -> bool:
+        if not isinstance(repo, str) or not isinstance(sha, str):
+            return False
+        if not isinstance(path, str) or not isinstance(thread, str) or not thread:
+            return False
+        if SHA.fullmatch(sha) is None or FORMAL.fullmatch(f"{repo}@{sha}:{path}") is None:
+            return False
+        if ".." in path.split("/"):
+            return False
+        try:
+            receipt = receipt_provider(repo, sha, path, thread)
+        except (KeyError, LookupError, OSError, ValueError):
+            return False
+        if not isinstance(receipt, Mapping):
+            return False
+        if receipt.get("status") != "verified":
+            return False
+        if receipt.get("kernel_handoff_eligible") is not True:
+            return False
+        if receipt.get("authority_kind") != "isolated_kernel_check":
+            return False
+        if receipt.get("candidate_only") is not False:
+            return False
+        if receipt.get("establishes_proof") is not True:
+            return False
+        handoff = receipt.get("handoff")
+        if not isinstance(handoff, Mapping):
+            return False
+        if handoff.get("subject_commit") != sha:
+            return False
+        if handoff.get("authority_kind") != "isolated_kernel_check":
+            return False
+        if handoff.get("candidate_only") is not False:
+            return False
+        if handoff.get("establishes_proof") is not True:
+            return False
+        if not all(isinstance(handoff.get(key), str) and handoff[key] for key in
+                   ("source_digest", "artifact_digest", "checker_digest", "dependency_digest")):
+            return False
+        binding = receipt.get("reference_binding")
+        if not isinstance(binding, Mapping):
+            return False
+        return (binding.get("repo") == repo
+                and binding.get("sha") == sha
+                and binding.get("path") == path
+                and binding.get("canonical_thread_id") == thread
+                and binding.get("authenticated_local_referee") is True)
+
+    return resolve
+
+
 def validate_typed_references(
     canonical_thread_id: str, references: Sequence[Mapping[str, Any]], *,
     operation_candidates: Mapping[str, Any] | None = None,
