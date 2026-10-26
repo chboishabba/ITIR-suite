@@ -81,3 +81,4 @@ codex_history*.sqlite*
 .cache_local/messenger_export*/
 .cache_local/openrecall_handoff/
 .cache_local/openrecall_handoff*/
+evidence.json
