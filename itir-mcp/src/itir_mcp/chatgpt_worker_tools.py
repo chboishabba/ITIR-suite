@@ -50,6 +50,15 @@ WORKER_PROMPT_PRESETS: dict[str, str] = {
         "(Python/HTML/SVG). 3. Inspect the visualization. 4. Formalize new findings in "
         "Lean or Agda per repo convention."
     ),
+    "converge_toe": (
+        "Converge toward the DASHI TOE: dashi_agda DASHI/EverythingTOESymmetryResolved369.agda, "
+        "DASHI/Unifier.agda and DASHI/Unified/. Assume the content already exists in-repo. "
+        "Search first for existing, duplicate or near constructions (GitHub code search; the local "
+        "referee confirms with dashi-agda-preflight related_symbols/discover/round_lineage). "
+        "Order: reuse, then unify duplicates, then extend, then construct new. Attach every new "
+        "result to the TOE import graph. Do not edit ESD surfaces (dashi_digital_esd repo, "
+        "*digital_esd* and *ESD* modules); import only. Keep attribution for meta-introspector repos."
+    ),
     "referee_pass": (
         "Local referee verification passed (0 errors, 0 warnings). Proceed immediately "
         "to the next highest-alpha vertical slice per max-cut and pareto/snowball/ibrahim; "
@@ -383,7 +392,7 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                 title="Dispatch governed ChatGPT worker",
                 description=(
                     "Dispatch one existing-thread re-gpt worker turn through direct async transport only. "
-                    "Supports @max_cut, @grug_ste100, @zkp_qa, @introspective_viz, and @referee_pass presets."
+                    "Supports @max_cut, @grug_ste100, @zkp_qa, @introspective_viz, @converge_toe, and @referee_pass presets."
                 ),
                 input_schema={
                     "type": "object",
@@ -393,7 +402,7 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                         "prompt": {"type": "string"},
                         "preset": {
                             "type": "string",
-                            "description": "Optional space/comma-separated presets: max_cut, grug_ste100, zkp_qa, introspective_viz, referee_pass",
+                            "description": "Optional space/comma-separated presets: max_cut, grug_ste100, zkp_qa, introspective_viz, converge_toe, referee_pass",
                         },
                         "attachments": {"type": "array", "items": {"type": "string"}},
                         "follow": {"type": "boolean"},
