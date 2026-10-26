@@ -8,6 +8,7 @@ def test_registry_exposes_governed_chatgpt_worker_tools() -> None:
     registry = build_default_registry()
 
     for name in (
+        "itir.chatgpt.hydrate",
         "itir.chatgpt.dispatch_worker",
         "itir.chatgpt.operation_status",
         "itir.chatgpt.reconcile",
@@ -26,7 +27,19 @@ def test_dispatch_forces_async_without_dom_fallback(monkeypatch) -> None:
             calls.append(kwargs)
             return {"operation_id": "op-1", "state": "complete"}
 
+        @staticmethod
+        def chatgpt_hydrate(**kwargs):
+            return {"hydrated_count": 1, "results": [{"conversation_id": "c1", "status": "ok"}]}
+
     monkeypatch.setattr(chatgpt_worker_tools, "_worker_api", lambda: FakeWorkerApi)
+
+    hydrate_res = build_default_registry().invoke(
+        "itir.chatgpt.hydrate",
+        {"conversation_id": "c1"},
+    )
+    assert hydrate_res["ok"] is True
+    assert hydrate_res["result"]["result"]["hydrated_count"] == 1
+
     result = build_default_registry().invoke(
         "itir.chatgpt.dispatch_worker",
         {"conversation_id": "thread-1", "prompt": "implement this", "follow": False},

@@ -121,8 +121,46 @@ def recent_operation_receipts(payload: Mapping[str, Any]) -> JsonDict:
         raise ToolInputError(str(exc)) from exc
 
 
+def hydrate(payload: Mapping[str, Any]) -> JsonDict:
+    """Hydrate one or more conversations into local SQLite using direct async transport (token-optimized)."""
+    conversation_id = payload.get("conversation_id")
+    if conversation_id is not None and (not isinstance(conversation_id, str) or not conversation_id.strip()):
+        raise ToolInputError("Expected non-empty string field: conversation_id")
+    limit = payload.get("limit", 1)
+    if not isinstance(limit, int):
+        raise ToolInputError("Expected integer field: limit")
+    db_path = _optional_db_path(payload)
+    return {
+        "version": SCHEMA_VERSION,
+        "result": _worker_api().chatgpt_hydrate(
+            conversation_id=conversation_id.strip() if conversation_id else None,
+            limit=limit,
+            db_path=db_path,
+        ),
+    }
+
+
 def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
     return [
+        (
+            ToolSpec(
+                name="itir.chatgpt.hydrate",
+                title="Hydrate archived conversation messages",
+                description="Hydrate one thread or the most recent unpulled threads into local SQLite using direct async transport (token-optimized).",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "conversation_id": {"type": "string"},
+                        "limit": {"type": "integer", "minimum": 1, "maximum": 20},
+                        "db_path": {"type": "string"},
+                    },
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=False,
+            ),
+            hydrate,
+        ),
         (
             ToolSpec(
                 name="itir.chatgpt.operation_receipts",
