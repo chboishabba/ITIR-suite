@@ -28,8 +28,9 @@ class FakePreflight:
     def da51_resolve(self, address):
         return {"address": address}
 
-    def formal_evidence_for_obligation(self, query):
-        return {"query": query}
+    def formal_evidence_for_obligation(self, *, demand_ref, external_obligation_ref, statement_digest):
+        return {"demand_ref": demand_ref, "external_obligation_ref": external_obligation_ref,
+                "statement_digest": statement_digest}
 
 
 def handlers(**kwargs):
@@ -124,3 +125,18 @@ def test_no_referee_context_never_executes_certifier():
     result = handlers(certifier=forbidden)["itir.formal.certify"]({
         "artifact_resolution_receipt": {}, "demand_ref": "x"})
     assert result["status"] == "held"
+
+
+def test_formal_evidence_routing_uses_keyword_only_identity():
+    result = handlers()["itir.formal.route"]({
+        "action": "formal_evidence_for_obligation",
+        "demand_ref": "demand",
+        "external_obligation_ref": "obligation",
+        "statement_digest": "sha256:statement",
+    })
+    assert result["summary"] == {
+        "demand_ref": "demand",
+        "external_obligation_ref": "obligation",
+        "statement_digest": "sha256:statement",
+    }
+    assert result["candidate_only"] is True
