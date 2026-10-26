@@ -99,7 +99,42 @@ def _handoff_eligible(kernel: Mapping[str, Any], artifact: Mapping[str, Any],
     if not all(isinstance(handoff.get(k), str) and handoff[k] and
                handoff[k] == trusted.get(k) for k in fields):
         return False
+    if kernel.get("schemaVersion") != "kernel-certification-receipt/v1":
+        return False
+    if kernel.get("authority") != "formal-checker-only":
+        return False
+    if kernel.get("certifiesFormalResult") is not True:
+        return False
+    if any(kernel.get(key) is not False for key in
+           ("createsLegalAuthority", "applicabilityPromoted", "claimTruthPromoted")):
+        return False
     if kernel.get("certificationState") != "kernel-certified":
+        return False
+    if artifact.get("schemaVersion") != "artifact-resolution-receipt/v1":
+        return False
+    if artifact.get("verified") is not True:
+        return False
+    if artifact.get("authority") != "transport-only" or artifact.get("establishesProof") is not False:
+        return False
+    if kernel.get("artifactRef") != artifact.get("logicalArtifactRef"):
+        return False
+    if not kernel.get("artifactRef"):
+        return False
+    if kernel.get("checker") not in {"agda", "lean"}:
+        return False
+    if not kernel.get("checkerRevision"):
+        return False
+    if not isinstance(kernel.get("dependencies"), list):
+        return False
+    if not all(isinstance(item, str) and item for item in kernel["dependencies"]):
+        return False
+    if trusted["source_digest"] != artifact.get("contentDigest"):
+        return False
+    if trusted["checker_digest"] != _digest({
+        "checker": kernel["checker"], "revision": kernel["checkerRevision"],
+    }):
+        return False
+    if trusted["dependency_digest"] != _digest(kernel["dependencies"]):
         return False
     if kernel.get("sourceRevision") != "git:" + trusted["subject_commit"]:
         return False
