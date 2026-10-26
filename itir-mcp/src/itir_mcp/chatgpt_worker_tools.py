@@ -180,6 +180,21 @@ def dispatch_worker(payload: Mapping[str, Any]) -> JsonDict:
     attachments = payload.get("attachments", [])
     if not isinstance(attachments, list) or not all(isinstance(item, str) and item.strip() for item in attachments):
         raise ToolInputError("Expected attachments to be an array of non-empty path strings")
+    auto_latex_bridge = payload.get("auto_latex_bridge", False)
+    if not isinstance(auto_latex_bridge, bool):
+        raise ToolInputError("Expected boolean field: auto_latex_bridge")
+    pnf_mode = payload.get("pnf_mode", False)
+    if not isinstance(pnf_mode, bool):
+        raise ToolInputError("Expected boolean field: pnf_mode")
+
+    bridge_capsule: dict[str, Any] | None = None
+    if pnf_mode or auto_latex_bridge:
+        from .latex_math_bridge import distill_pnf_capsule
+
+        capsule = distill_pnf_capsule(prompt, conversation_id=conversation_id)
+        bridge_capsule = capsule.to_dict()
+        if pnf_mode:
+            prompt = capsule.condensed_prompt_text
 
     result = _worker_api().chatgpt_continue(
         conversation_id=conversation_id,
@@ -190,7 +205,7 @@ def dispatch_worker(payload: Mapping[str, Any]) -> JsonDict:
         dom_fallback=False,
         db_path=db_path,
     )
-    return {
+    ret = {
         "version": SCHEMA_VERSION,
         "operation": _compact_operation(result),
         "policy": {
@@ -199,6 +214,9 @@ def dispatch_worker(payload: Mapping[str, Any]) -> JsonDict:
             "automatic_resend": False,
         },
     }
+    if bridge_capsule is not None:
+        ret["latex_bridge"] = bridge_capsule
+    return ret
 
 
 def operation_status(payload: Mapping[str, Any]) -> JsonDict:
@@ -385,6 +403,40 @@ def fleet_opportunities(payload: Mapping[str, Any]) -> JsonDict:
         raise ToolExecutionError(f"fleet opportunities failed: {exc}") from exc
 
 
+def formal_latex_bridge(payload: Mapping[str, Any]) -> JsonDict:
+    """Extract LaTeX math AST without regex, search in-repo formal definitions, and generate proof stub."""
+    text = _required_text(payload, "text")
+    root_dir = payload.get("root_dir")
+    from .latex_math_bridge import distill_pnf_capsule
+
+    capsule = distill_pnf_capsule(text, root_dir=root_dir)
+    return {
+        "version": SCHEMA_VERSION,
+        **capsule.to_dict(),
+    }
+
+
+def pnf_distill_prompt(payload: Mapping[str, Any]) -> JsonDict:
+    """Condense research text into pure PNF predicate atoms and in-repo formal links (~99% token reduction)."""
+    text = _required_text(payload, "text")
+    conversation_id = payload.get("conversation_id")
+    root_dir = payload.get("root_dir")
+    from .latex_math_bridge import distill_pnf_capsule
+
+    capsule = distill_pnf_capsule(text, conversation_id=conversation_id, root_dir=root_dir)
+    return {
+        "version": SCHEMA_VERSION,
+        "distilled_prompt": capsule.condensed_prompt_text,
+        "compression_ratio": capsule.compression_ratio,
+        "original_chars": capsule.original_char_count,
+        "distilled_chars": capsule.distilled_char_count,
+        "pnf_atoms": capsule.pnf_atoms,
+        "math_expressions": capsule.math_expressions,
+        "matched_symbols": capsule.matched_repo_symbols,
+        "proof_linkage_stub": capsule.proof_linkage_stub,
+    }
+
+
 def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
     return [
         (
@@ -483,6 +535,8 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                         },
                         "attachments": {"type": "array", "items": {"type": "string"}},
                         "follow": {"type": "boolean"},
+                        "auto_latex_bridge": {"type": "boolean", "description": "Auto-extract LaTeX math and link to in-repo formal symbols."},
+                        "pnf_mode": {"type": "boolean", "description": "Distill prompt through PNF reduction before dispatch (~99% token reduction)."},
                         "db_path": {"type": "string"},
                     },
                     "additionalProperties": False,
@@ -587,5 +641,44 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                 read_only=True,
             ),
             fleet_opportunities,
+        ),
+        (
+            ToolSpec(
+                name="itir.formal.latex_bridge",
+                title="Extract LaTeX Math & Link to Formal In-Repo Symbols",
+                description="Extract LaTeX math AST via pylatexenc/sympy without regex, search in-repo formal definitions, and generate an Agda/Lean4 proof stub.",
+                input_schema={
+                    "type": "object",
+                    "required": ["text"],
+                    "properties": {
+                        "text": {"type": "string", "description": "Text containing LaTeX math formulas to parse."},
+                        "root_dir": {"type": "string", "description": "Optional repository root path."},
+                    },
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=True,
+            ),
+            formal_latex_bridge,
+        ),
+        (
+            ToolSpec(
+                name="itir.pnf.distill_prompt",
+                title="Distill Text into Pure PNF Submission Capsule",
+                description="Condense research text into pure PNF predicate atoms and in-repo formal links (~99% token reduction).",
+                input_schema={
+                    "type": "object",
+                    "required": ["text"],
+                    "properties": {
+                        "text": {"type": "string", "description": "Informal text or prompt to distill into pure PNF."},
+                        "conversation_id": {"type": "string", "description": "Optional target conversation ID."},
+                        "root_dir": {"type": "string", "description": "Optional repository root path."},
+                    },
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=True,
+            ),
+            pnf_distill_prompt,
         ),
     ]
