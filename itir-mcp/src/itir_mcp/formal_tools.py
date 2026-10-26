@@ -53,7 +53,8 @@ def _default_tools() -> Any:
     adapter_module = importlib.import_module("agda_preflight.mcp_adapter")
     extension = importlib.import_module("agda_preflight.mcp_semantic_extension")
     extension.install_mcp_adapter_semantic_extension(adapter_module.DashiAgdaMcpTools)
-    return adapter_module.DashiAgdaMcpTools(service_module.DashiAgdaService(root=root))
+    index = Path(os.environ.get("DASHI_AGDA_INDEX", str(root / ".cache" / "agda_preflight" / "source-index.sqlite3")))
+    return adapter_module.DashiAgdaMcpTools(service_module.DashiAgdaService(root, index))
 
 
 def _required(data: Mapping[str, Any], key: str) -> str:
@@ -152,7 +153,11 @@ def get_formal_tools(
         elif action == "da51_resolve":
             raw = tools.da51_resolve(_required(data, "address"))
         elif action == "formal_evidence_for_obligation":
-            raw = tools.formal_evidence_for_obligation(_required(data, "query"))
+            raw = tools.formal_evidence_for_obligation(
+                demand_ref=_required(data, "demand_ref"),
+                external_obligation_ref=_required(data, "external_obligation_ref"),
+                statement_digest=_required(data, "statement_digest"),
+            )
         else:
             raise ToolInputError("unknown route action")
         return _candidate("obligation_routing", raw)
