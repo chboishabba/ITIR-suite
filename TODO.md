@@ -5957,3 +5957,16 @@ Canonical implementation note:
 - [x] Add focused regression fixtures for verified resolver, deterministic actionable handoff, no PG dependency, untrusted labels, and fail-closed resolver errors.
 - [ ] Wire a genuine producer-owned PNF verifier into the production MCP runtime if production needs to assert verified-PNF (currently unverified/candidate-only; no user-controlled verification flag).
 - [x] Caller executes focused tests, lint and production registry smoke; independent review required.
+
+## Proof search and formal gap roadmap
+
+- [ ] Wire live PostgreSQL PNF compiler store (`port 55432`, `compiler_pnf_factor`) into `itir.ao.gap_check` and `itir.pnf.work_packet` to resolve informal thread factors against the 14,392 pre-compiled factors.
+- [ ] Fix sort signature mismatch in `dashi_agda/DASHI/Physics/Closure/NSTriadKNComplex3FieldAlgebra.agda:111` to unblock Colab Agda 2.9.0 parallel runner (`accept-agda-ns-b4-011`).
+- [ ] Maintain SLR proof-search lattice exploration as candidate-only; ensure no AST tactic or LLM-suggested step promotes without an independent kernel verifier receipt.
+- [ ] Integrate candidate spectral packets (`itir.spectral.candidate_packet`) into formal work packet evidence.
+
+## Wiki and public-knowledge governance roadmap
+
+- [ ] Connect `itir.wikidata.review_packet` and `itir.wikidata.object_review_bundle` to the Dioxus M10/M11 read-only inspection cockpit.
+- [ ] Surface disjointness violations (P2738) and metaclass hierarchy collisions in `sl.wikidata_signal_review_bundle.v0_1` before generating `itir.wikidata.migration_candidate` proposals.
+- [ ] Enforce `itir.wikiproject.tooling_profile` governance contracts on external batch runs (QuickStatements, OpenRefine, Listeria) to prevent unreviewed mutations to live Wikidata.

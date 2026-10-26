@@ -1093,3 +1093,281 @@ Acceptance criteria:
 Source-written, pending caller verification: a read-only `itir.ao.operator_workflow` composes canonical frontier/ledger, typed references, bounded PNF packet, governed handoff and operation review for ITIR-US-11/12/15/16. Operator acceptance: explicit canonical task and provenance; bounded source digests and candidate disposition; holds for ambiguity/unverified semantic or formal evidence; no bodies, mutation or automatic resend. This is shared workflow infrastructure, **not** full acceptance of any UI story or a verified semantic parser. See `docs/planning/ao_operator_workflow_v1.md`.
 
 AO-OP-1 acceptance follow-up: uniquely canonical admitted tasks now yield deterministic actionable **review-only** handoffs even without optional PostgreSQL materialisation or a semantic PNF producer. A trusted producer resolver can attest verified-PNF in direct composition; ordinary governed MCP output remains explicitly unverified/candidate-only until a real verifier is wired. This closes operator review access without claiming semantic promotion, create-thread support, or autonomous dispatch.
+
+---
+
+## Proof search and formal verification operator stories
+
+### SLR-US-01 / ITIR-US-18: Formal Multiset Gap Check Operator (PNF-to-AST Residual Accounting)
+As a formal verification researcher or proof-search operator, I want to compute
+the exact difference between informal research thread claims and formal
+Agda/Lean AST factors ($\Delta_{\text{Gap}} = M_{\text{informal}} \setminus M_{\text{formal}}$)
+via `itir.ao.gap_check` so I can identify unformalized premises (Alpha targets)
+and ungrounded formal assertions without guessing.
+
+Typical flow:
+- Operator specifies a canonical research conversation ID and an active formal
+  specification file (e.g. `dashi_digital_esd/ITIRPNFAssessment.agda` or Lean 4
+  theorem file).
+- `itir.ao.gap_check` extracts the compiled PNF semantic multiset from the
+  research thread and the syntactic AST multiset from the formal file.
+- The multiset difference is computed, classifying factors into matched,
+  unmatched informal (missing premises), and unmatched formal (unaddressed
+  constraints).
+- The operator reviews top missing premise signatures and targets them for the
+  next formal proof step.
+
+Preferences:
+- Direct multiset accounting summary table with clear factor signatures.
+- Ranked list of top unformalized premises with recommended formalization
+  targets (e.g., add lemma constraint or hypothesis bound).
+- Fast execution over local or pre-compiled PNF world stores.
+
+Requirements:
+- Gap computation must be strictly read-only and deterministic.
+- Zero-residue provenance comparison doctrine: informal claims without formal
+  AST counterparts must never be marked verified.
+- Status must fail closed to `RESIDUAL GAP DETECTED` unless exact multiset
+  equality holds.
+
+Acceptance criteria:
+- `itir.ao.gap_check` returns structured reports and markdown summaries
+  matching the `ExactGapComparator` contract.
+- Missing informal factors are explicitly distinguished from unaddressed formal
+  invariants.
+- Zero proof authority is transferred without an AST-level match.
+
+### SLR-US-02 / ITIR-US-19: SLR Candidate-Only Proof Search Spine & Exploration Lattice
+As a mathematician or theorem search operator, I want to explore candidate proof
+paths through an SLR-backed candidate search lattice (AutoInAgda, Lean Mathlib
+cache, external prover runner) while ensuring that every proof step emits a
+verifiable receipt and candidate hold, so that no informal LLM step is mistaken
+for a kernel-checked theorem.
+
+Typical flow:
+- Operator initiates proof search over a formal target (e.g. Navier-Stokes,
+  Riemann Hypothesis reduction, or Quantum Mereology lemma).
+- Prover spine expands candidate proof branches, ranking tactics and candidate
+  lemmas.
+- Candidate steps are held as `candidate_only` until an independent kernel
+  verifier produces an execution receipt.
+- Negative results, dead ends, and syntax/sort errors are explicitly recorded in
+  the candidate ledger to prevent infinite search loops.
+
+Preferences:
+- Tree and branch visualization separating unverified explorations from
+  kernel-accepted nodes.
+- Explicit display of proof search budget, depth, and remaining open goals.
+- Direct link from search nodes to exact line/column AST coordinates.
+
+Requirements:
+- Kernel verifier receipts are strictly external: LLM output or search path
+  generation cannot self-certify correctness.
+- Incomplete proof trees or unproven `sorry`/`admit` postulates must be flagged
+  with open formal gap status.
+- Proof receipts must reference immutable artifact CIDs or SHA-256 digests.
+
+Acceptance criteria:
+- Candidate proof paths remain strictly partitioned from authoritative lemmas.
+- Invariant violations (e.g. serde in compiler crates or invalid sort signatures)
+  halt promotion and emit actionable diagnostic holds.
+- Full provenance trace is preserved from informal informal premise to formal
+  tactic.
+
+### SLR-US-03 / ITIR-US-20: Multi-Prover Bridge & Remote Prover Runner (Colab / GPU Container)
+As a prover pipeline operator, I want to dispatch bounded proof check jobs to a
+remote runner (Colab Agda/Lean runner or ITIR GPU container) and ingest
+verifiable execution receipts (`artifact-resolution-receipt/v1`, typecheck logs,
+AST factors) back into the canonical frontier without attaching unverified code
+to `main`.
+
+Typical flow:
+- Operator submits a batch of formal modules or proof patches for remote
+  typechecking.
+- Remote runner executes parallel checks (e.g., `run_agda29_parallel_check.sh`
+  or `lake build` against cached Mathlib oleans).
+- Runner returns a structured execution receipt with return code, elapsed time,
+  stderr diagnostics, and artifact hash.
+- Front-end imports the receipt into the candidate ledger, updating the status
+  of dependent candidate operations.
+
+Preferences:
+- Support for parallel execution across independent formal subtrees.
+- Transparent reuse of pre-compiled Mathlib caches and Agda libraries.
+- Headless, non-interactive batch execution with clear progress heartbeats.
+
+Requirements:
+- Remote runner must never execute arbitrary unreviewed shell code outside
+  sandboxed execution boundaries.
+- Stderr/stdout logs must be captured with exact line and column error bounds.
+- Typecheck failure must produce an explicit hold receipt rather than crashing
+  the orchestration loop.
+
+Acceptance criteria:
+- Bounded verification runs complete within configured timeout budgets.
+- Verification receipts satisfy `artifact-resolution-receipt/v1` schema.
+- Failed modules (such as sort mismatches) are isolated without contaminating
+  verified modules.
+
+### SLR-US-04 / ITIR-US-21: Spectral & Algebraic Invariant Packet Extraction
+As a formal methods researcher working on complex dynamics, fluid mechanics, or
+physics models, I want to extract candidate spectral packets
+(`itir.spectral.candidate_packet`) from algebraic structures to evaluate
+harmonic and topological invariants before formalizing them in Agda/Lean.
+
+Typical flow:
+- Researcher selects an algebraic system or triad complex.
+- `itir.spectral.candidate_packet` computes eigenvalues, spectral projections,
+  and candidate algebraic invariants.
+- The resulting candidate packet provides quantitative bounds that inform formal
+  lemma formulation.
+- The packet is attached as review-only evidence to the formalization work packet.
+
+Preferences:
+- Clean decomposition into spectral components, trace bounds, and energy
+  landscapes.
+- Explicit comparison between empirical/spectral data and formal constraints.
+
+Requirements:
+- Spectral packets are review surfaces and heuristic guides, not formal proofs.
+- Mathematical assumptions and precision tolerances must be documented in the
+  packet metadata.
+
+Acceptance criteria:
+- Tool returns valid candidate spectral packets without mutating canonical state.
+- Packets carry non-authoritative review boundaries and full computation receipts.
+
+---
+
+## Wiki and public-knowledge operator integration stories
+
+### WIKI-US-01 / SL-US-38: Wikidata Statement Review Packet & Batch Review Surface
+As a Wikidata contributor or ontology custodian, I want to inspect candidate
+statement edits and entity modifications through `itir.wikidata.review_packet`
+and `itir.wikidata.object_review_bundle` with strict validation and no silent
+repair, ensuring zero unreviewed mutations to live Wikidata.
+
+Typical flow:
+- Contributor imports an entity statement bundle or batch edit proposal.
+- `itir.wikidata.review_packet` validates statements, qualifiers, references,
+  and item links against strict schema constraints.
+- The operator inspects discrepancies, missing references, and qualifier drifts
+  in a structured review surface.
+- Edits are approved or rejected individually; approved candidates emit review
+  receipts for external batch transport.
+
+Preferences:
+- Clear separation between observed item state, candidate modification, and
+  validation receipt.
+- Fast drill-down into property datatypes, rank qualifiers, and reference URLs.
+- Bulk review queue grouping similar statement modifications.
+
+Requirements:
+- Review packet operations must be strictly read-only (`mutates: false`).
+- Validation mode must be strict: malformed statements must be rejected, not
+  silently repaired or normalized without provenance.
+- Tool must never execute autonomous writes to live Wikidata endpoints.
+
+Acceptance criteria:
+- Candidate entity edits produce review receipts adhering to
+  `itir.wikidata.review_packet.v1`.
+- Validation errors include exact property and statement IDs.
+- Canonical entity truth remains untouched.
+
+### WIKI-US-02 / SL-US-39: WikiProject Tooling & Governance Profiles
+As a WikiProject coordinator or community moderator, I want to evaluate external
+bot and batch tools (QuickStatements, OpenRefine, EntitySchemas, KrBot, Listeria,
+Property Constraints) against governed authority profiles
+(`itir.wikiproject.tooling_profile`), mapping tool capabilities and risk
+classes so that batch updates remain strictly diagnostic and candidate-only.
+
+Typical flow:
+- Coordinator reviews proposed automation or batch ingestion toolchain.
+- `itir.wikiproject.tooling_profile` returns the governance taxonomy, tool
+  capabilities ($\kappa$), output classes ($O$), and authority bounds ($B$).
+- System verifies that tools with high write impact (e.g. QuickStatements) are
+  constrained to `candidate_only: true` and `promotion_enabled: false`.
+- Diagnostic and repair tools (OpenRefine, Listeria) are assigned appropriate
+  review-only and receipt-mirroring profiles.
+
+Preferences:
+- Clear categorization of tools into batch transport, repair, schema, bot,
+  ingestion, and constraints.
+- Formal profile cards showing tool capabilities and promotion boundaries.
+
+Requirements:
+- Tool authority profiles must prevent autonomous promotion (`self_promotes: false`).
+- Outputs must be classified as `candidate` or `diagnostic`.
+- Governance profiles must be versioned and verifiable.
+
+Acceptance criteria:
+- `itir.wikiproject.tooling_profile` emits complete governance descriptors
+  matching `itir.wikiproject.tooling_profile.v1`.
+- All 6 core WikiProject tool families are accurately represented with their
+  operational boundaries.
+
+### WIKI-US-03 / SL-US-40: Ontology Constraint & Disjointness Violation Triaging
+As an ontology maintainer, I want to run disjointness audits (e.g., P2738
+disjoint union, Q24017414 second-order classes, P8225 metaclasses) across
+entity graphs, surfacing constraint violations and structural flatness
+diagnostics before proposing ontology migration candidates
+(`itir.wikidata.migration_candidate`).
+
+Typical flow:
+- Maintainer targets a contested ontology branch or high-violation property
+  (e.g., calendar year disjointness or metaclass hierarchies).
+- System executes constraint audit across entity slices, detecting pairwise
+  disjointness collisions and order confusion.
+- Maintainer inspects flatness diagnostics and evaluates whether statements
+  should be qualified, split, or migrated.
+- Migration proposals are exported as non-authoritative candidate bundles.
+
+Preferences:
+- Visual representation of disjointness clashes and ontology hierarchy depth.
+- Quantitative violation counts and hotspot ranking.
+- Export of candidate repair statements with source justification.
+
+Requirements:
+- Audits must preserve conflicting evidence rather than forcing false consensus.
+- Disjointness violations must be flagged as structural pressure, not deleted
+  unilaterally.
+- Migration candidates must carry provenance linking back to the audit run.
+
+Acceptance criteria:
+- Constraint audits accurately detect P2738 and class-order violations.
+- `itir.wikidata.migration_candidate` emits well-formed candidate migration
+  bundles without mutating live ontology.
+
+### WIKI-US-04 / SL-US-41: Cross-Corpus Wiki-to-SensibLaw Evidence Reconciliation
+As a legal or journalistic investigator, I want to project Wikipedia/Wikidata
+entity graphs into SensibLaw timeline and claim review surfaces
+(`sl.wikidata_signal_review_bundle.v0_1`) alongside transcripts and public
+filings, separating crowd-sourced assertions from primary source evidence
+without collapsing into single-narrative bias.
+
+Typical flow:
+- Investigator loads a contested public affair or litigation subject into
+  SensibLaw.
+- Wikipedia article revision history and Wikidata statements are ingested via
+  governed adapters into `sl.wikidata_signal_review_bundle.v0_1`.
+- Chronology overlay places wiki claims alongside primary documents, court
+  rulings, and verified corporate filings.
+- Investigator filters claims by source authority, distinguishing crowd-sourced
+  allegations from primary evidence.
+
+Preferences:
+- Source-weighted timeline ribbon highlighting contemporaneous vs retrospective
+  wiki edits.
+- Side-by-side comparison of wiki claim wording against primary source texts.
+- Defamation and reputational risk flags on weakly sourced public-figure claims.
+
+Requirements:
+- Wikipedia text must never be treated as legal proof or primary evidence.
+- Edit timestamps must be preserved to track narrative drift over time.
+- All wiki-derived claims must carry clear `candidate` or `review_surface`
+  authority tags.
+
+Acceptance criteria:
+- Wiki entities and claims integrate seamlessly into SensibLaw review bundles.
+- Primary evidence and crowd-sourced claims remain strictly segregated in the UI.
+- Narrative drift and retroactive edits are clearly surfaced on the timeline.
