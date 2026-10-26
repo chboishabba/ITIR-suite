@@ -308,6 +308,86 @@ def session_status(payload: Mapping[str, Any]) -> JsonDict:
     }
 
 
+def view_messages(payload: Mapping[str, Any]) -> JsonDict:
+    """Inspect recent or indexed messages in a conversation without raw SQLite queries."""
+    conversation_id = _required_text(payload, "conversation_id")
+    tail = payload.get("tail", 5)
+    if not isinstance(tail, int) or tail < 0 or tail > 100:
+        raise ToolInputError("Expected integer field: tail (0-100)")
+    message_index = payload.get("message_index")
+    if message_index is not None and not isinstance(message_index, int):
+        raise ToolInputError("Expected integer field: message_index")
+    author = payload.get("author")
+    if author is not None and not isinstance(author, str):
+        raise ToolInputError("Expected string field: author")
+    max_chars = payload.get("max_chars", 0)
+    if not isinstance(max_chars, int) or max_chars < 0:
+        raise ToolInputError("Expected non-negative integer field: max_chars")
+    db_path = _optional_db_path(payload)
+
+    return _worker_api().chatgpt_view(
+        conversation_id=conversation_id,
+        tail=tail,
+        message_index=message_index,
+        author=author,
+        max_chars=max_chars,
+        db_path=db_path,
+    )
+
+
+def fleet_status(payload: Mapping[str, Any]) -> JsonDict:
+    """Return cluster rollups, thread counts, and active leads across the multi-thread fleet."""
+    db_path = _optional_db_path(payload)
+    try:
+        fleet_mod = importlib.import_module("re_gpt.fleet")
+        orchestrator_cls = getattr(fleet_mod, "FleetOrchestrator")
+        orchestrator = orchestrator_cls(db_path=db_path) if db_path else orchestrator_cls()
+        summary = orchestrator.status_summary()
+        clusters_summary = {}
+        for c_id, c_data in summary.get("clusters", {}).items():
+            lead = c_data.get("active_lead")
+            clusters_summary[c_id] = {
+                "name": c_data.get("name"),
+                "thread_count": c_data.get("thread_count"),
+                "active_lead": {
+                    "conversation_id": lead.get("conversation_id"),
+                    "title": lead.get("title"),
+                    "message_count": lead.get("message_count"),
+                    "referenced_prs": lead.get("referenced_prs", []),
+                } if lead else None,
+            }
+        return {
+            "version": SCHEMA_VERSION,
+            "clusters": clusters_summary,
+        }
+    except Exception as exc:
+        raise ToolExecutionError(f"fleet status failed: {exc}") from exc
+
+
+def fleet_opportunities(payload: Mapping[str, Any]) -> JsonDict:
+    """Find highest-alpha research and derivation opportunities across the fleet."""
+    limit = payload.get("limit", 20)
+    if not isinstance(limit, int) or limit < 1 or limit > 100:
+        raise ToolInputError("Expected integer field: limit (1-100)")
+    min_score = payload.get("min_score", 20.0)
+    if not isinstance(min_score, (int, float)):
+        raise ToolInputError("Expected numeric field: min_score")
+    db_path = _optional_db_path(payload)
+    try:
+        import dataclasses
+        fleet_mod = importlib.import_module("re_gpt.fleet")
+        orchestrator_cls = getattr(fleet_mod, "FleetOrchestrator")
+        orchestrator = orchestrator_cls(db_path=db_path) if db_path else orchestrator_cls()
+        opps = orchestrator.find_high_alpha(limit=limit, min_score=float(min_score))
+        return {
+            "version": SCHEMA_VERSION,
+            "count": len(opps),
+            "opportunities": [dataclasses.asdict(o) for o in opps],
+        }
+    except Exception as exc:
+        raise ToolExecutionError(f"fleet opportunities failed: {exc}") from exc
+
+
 def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
     return [
         (
@@ -451,5 +531,64 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                 read_only=False,
             ),
             reconcile,
+        ),
+        (
+            ToolSpec(
+                name="itir.chatgpt.view_messages",
+                title="Inspect messages in ChatGPT conversation",
+                description="View recent tail or exact message index in a conversation from local SQLite archive without raw SQL.",
+                input_schema={
+                    "type": "object",
+                    "required": ["conversation_id"],
+                    "properties": {
+                        "conversation_id": {"type": "string"},
+                        "tail": {"type": "integer", "minimum": 0, "maximum": 100},
+                        "message_index": {"type": "integer"},
+                        "author": {"type": "string"},
+                        "max_chars": {"type": "integer", "minimum": 0},
+                        "db_path": {"type": "string"},
+                    },
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=True,
+            ),
+            view_messages,
+        ),
+        (
+            ToolSpec(
+                name="itir.chatgpt.fleet_status",
+                title="Read fleet status summary",
+                description="Summarize cluster rollups, thread counts, and active leads across the multi-thread fleet.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "db_path": {"type": "string"},
+                    },
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=True,
+            ),
+            fleet_status,
+        ),
+        (
+            ToolSpec(
+                name="itir.chatgpt.fleet_opportunities",
+                title="Find high-alpha fleet opportunities",
+                description="Scan the fleet for high-alpha research opportunities, target PRs, and recommended continuations.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "limit": {"type": "integer", "minimum": 1, "maximum": 100},
+                        "min_score": {"type": "number", "minimum": 0.0},
+                        "db_path": {"type": "string"},
+                    },
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=True,
+            ),
+            fleet_opportunities,
         ),
     ]

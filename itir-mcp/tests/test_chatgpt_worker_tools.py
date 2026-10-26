@@ -14,6 +14,9 @@ def test_registry_exposes_governed_chatgpt_worker_tools() -> None:
         "itir.chatgpt.dispatch_worker",
         "itir.chatgpt.operation_status",
         "itir.chatgpt.reconcile",
+        "itir.chatgpt.view_messages",
+        "itir.chatgpt.fleet_status",
+        "itir.chatgpt.fleet_opportunities",
     ):
         spec = registry.get_tool_spec(name)
         assert spec is not None
@@ -21,6 +24,9 @@ def test_registry_exposes_governed_chatgpt_worker_tools() -> None:
             "itir.chatgpt.operation_status",
             "itir.chatgpt.list_threads",
             "itir.chatgpt.session_status",
+            "itir.chatgpt.view_messages",
+            "itir.chatgpt.fleet_status",
+            "itir.chatgpt.fleet_opportunities",
         })
 
 
