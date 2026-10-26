@@ -2,11 +2,19 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 from pathlib import Path
 from typing import Any, Mapping
 
 from .frontier_reference_validation import FORMAL, formal_receipt_resolver
+
+def default_receipt_store():
+    path = os.environ.get("ITIR_FORMAL_RECEIPT_DB")
+    if path:
+        return LocalRefereeReceiptStore(Path(path).expanduser())
+    return LocalRefereeReceiptStore(Path.home() / ".local" / "state" / "itir-mcp" / "formal-receipts.sqlite3")
+
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS formal_referee_receipts (
