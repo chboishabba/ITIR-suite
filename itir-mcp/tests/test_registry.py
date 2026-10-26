@@ -60,6 +60,10 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.chatgpt.dispatch_worker",
         "itir.chatgpt.operation_status",
         "itir.chatgpt.reconcile",
+        "itir.ast.analyze_bundle",
+        "itir.har.inspect",
+        "itir.har.diff",
+        "itir.har.token_lineage",
     }
 
 
