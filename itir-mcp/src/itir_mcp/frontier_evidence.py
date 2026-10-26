@@ -12,6 +12,7 @@ from .comparison_tools import build_envelope, compare_observations, score_cohere
 from .pnf_work_packet_provider import canonical_archive_path
 from .frontier_reference_validation import (completed_operation_candidates,
                                             validate_typed_references)
+from .formal_receipt_store import default_receipt_store
 
 SCHEMA = "itir.ao.frontier_evidence.v1"
 MAX_EVALUATED = 64
@@ -186,6 +187,7 @@ def build_frontier(
         typed_refs = source.get("typed_refs", [])
         validation = validate_typed_references(
             tid, typed_refs, operation_candidates=operation_discovery,
+            formal_resolver=default_receipt_store().resolver(),
         )
         valid_ops = [record["ref"] for record in validation["records"]
                      if record["kind"] == "operation"
