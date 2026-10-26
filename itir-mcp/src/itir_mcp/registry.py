@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 
 from .autonomous_orchestrator_tools import get_autonomous_orchestrator_tools
 from .chatgpt_worker_tools import get_chatgpt_worker_tools
@@ -11,6 +11,7 @@ from .docstore_tools import get_docstore_tools
 from .export_tools import get_export_tools
 from .frontier_tools import get_frontier_tools
 from .formal_tools import get_formal_tools
+from .formal_receipt_store import default_receipt_store
 from .guardrails import safe_tool_call
 from .governance_tools import get_governance_tools
 from .promotion_tools import get_promotion_tools
@@ -90,7 +91,9 @@ class ToolRegistry:
             return error_payload(ToolExecutionError(str(exc), details={"tool": name}))
 
 
-def build_default_registry() -> ToolRegistry:
+def build_default_registry(
+    *, local_referee_context: Callable[[], Mapping[str, Any]] | None = None,
+) -> ToolRegistry:
     registry = ToolRegistry()
     for spec, handler in get_chatgpt_worker_tools():
         registry.register(spec, handler)
@@ -115,7 +118,17 @@ def build_default_registry() -> ToolRegistry:
             authority_profile_key=spec.name if spec.name in DEFAULT_REGISTRY_TOOL_AUTHORITY_PROFILES else None,
             authority_profile=DEFAULT_REGISTRY_TOOL_AUTHORITY_PROFILES.get(spec.name),
         )
-    for spec, handler in get_formal_tools():
+    def write_referee_receipt(result: Mapping[str, Any], trusted: Mapping[str, Any]) -> bool:
+        binding = result["reference_binding"]
+        return default_receipt_store().record_from_referee(
+            binding["repo"], binding["sha"], binding["path"],
+            binding["canonical_thread_id"], result, referee_verified=True,
+        )
+
+    for spec, handler in get_formal_tools(
+        referee_context=local_referee_context,
+        verified_receipt_writer=write_referee_receipt if local_referee_context is not None else None,
+    ):
         registry.register(spec, handler)
     for spec, handler in get_frontier_tools():
         registry.register(spec, handler)
