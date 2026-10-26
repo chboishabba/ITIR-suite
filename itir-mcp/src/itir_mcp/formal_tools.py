@@ -151,6 +151,7 @@ def get_formal_tools(
     handoff_validator: Callable[[dict[str, Any], dict[str, Any]], dict[str, Any]] | None = None,
     interactive_backend: Callable[[Mapping[str, Any]], Any] | None = None,
     referee_context: Callable[[], Mapping[str, Any]] | None = None,
+    verified_receipt_writer: Callable[[Mapping[str, Any], Mapping[str, Any]], bool] | None = None,
 ) -> list[tuple[ToolSpec, Callable[[Mapping[str, Any]], dict[str, Any]]]]:
     provider = tools_provider or _default_tools
 
@@ -246,6 +247,22 @@ def get_formal_tools(
             if not _handoff_eligible(kernel, artifact, handoff, trusted):
                 return _receipt_hold("stale-or-unverified-handoff",
                                      {"kernel": kernel, "artifact": artifact})
+            if verified_receipt_writer is not None:
+                bound = {
+                    "repo": trusted.get("repo"),
+                    "sha": trusted.get("subject_commit"),
+                    "path": trusted.get("path"),
+                    "canonical_thread_id": trusted.get("canonical_thread_id"),
+                    "authenticated_local_referee": True,
+                }
+                result = {
+                    "status": "verified", "kernel_handoff_eligible": True,
+                    "candidate_only": False, "establishes_proof": True,
+                    "authority_kind": "isolated_kernel_check",
+                    "handoff": handoff, "reference_binding": bound,
+                }
+                if not verified_receipt_writer(result, trusted):
+                    return _receipt_hold("referee-receipt-write-failed", result)
             return {
                 "status": "verified", "kernel_handoff_eligible": True,
                 "candidate_only": False, "establishes_proof": True,
