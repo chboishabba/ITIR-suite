@@ -8,6 +8,8 @@ def test_registry_exposes_governed_chatgpt_worker_tools() -> None:
     registry = build_default_registry()
 
     for name in (
+        "itir.chatgpt.list_threads",
+        "itir.chatgpt.session_status",
         "itir.chatgpt.hydrate",
         "itir.chatgpt.dispatch_worker",
         "itir.chatgpt.operation_status",
@@ -15,7 +17,11 @@ def test_registry_exposes_governed_chatgpt_worker_tools() -> None:
     ):
         spec = registry.get_tool_spec(name)
         assert spec is not None
-        assert spec.read_only is (name == "itir.chatgpt.operation_status")
+        assert spec.read_only is (name in {
+            "itir.chatgpt.operation_status",
+            "itir.chatgpt.list_threads",
+            "itir.chatgpt.session_status",
+        })
 
 
 def test_dispatch_forces_async_without_dom_fallback(monkeypatch) -> None:

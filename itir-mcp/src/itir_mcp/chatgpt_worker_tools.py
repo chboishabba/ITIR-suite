@@ -29,6 +29,16 @@ def _optional_db_path(payload: Mapping[str, Any]) -> str | None:
 
 def _worker_api() -> Any:
     try:
+        for mod_name in (
+            "re_gpt.proof_of_work",
+            "re_gpt.browser_session_replay",
+            "re_gpt.async_mutation_probe",
+            "re_gpt.mutation_receipt",
+            "re_gpt.mutation_service",
+            "re_gpt.mcp_server",
+        ):
+            if mod_name in importlib.sys.modules:
+                importlib.reload(importlib.sys.modules[mod_name])
         return importlib.import_module("re_gpt.mcp_server")
     except Exception as exc:  # pragma: no cover - environment-specific import failure
         raise ToolExecutionError("re-gpt worker adapter is unavailable") from exc
@@ -55,6 +65,8 @@ def dispatch_worker(payload: Mapping[str, Any]) -> JsonDict:
         dom_fallback=False,
         db_path=db_path,
     )
+    if isinstance(result, dict):
+        result = {k: v for k, v in result.items() if k != "read_diagnostic"}
     return {
         "version": SCHEMA_VERSION,
         "operation": result,
@@ -140,8 +152,72 @@ def hydrate(payload: Mapping[str, Any]) -> JsonDict:
     }
 
 
+def list_threads(payload: Mapping[str, Any]) -> JsonDict:
+    """List or search archived conversations in local SQLite without raw SQL."""
+    limit = payload.get("limit", 20)
+    if not isinstance(limit, int):
+        raise ToolInputError("Expected integer field: limit")
+    query = payload.get("query")
+    if query is not None and not isinstance(query, str):
+        raise ToolInputError("Expected string field: query")
+    db_path = _optional_db_path(payload)
+    rows = _worker_api().chatgpt_list(limit=limit, query=query, db_path=db_path)
+    return {
+        "version": SCHEMA_VERSION,
+        "count": len(rows),
+        "threads": rows,
+    }
+
+
+def session_status(payload: Mapping[str, Any]) -> JsonDict:
+    """Return redacted CFFI session and adapter health status."""
+    db_path = _optional_db_path(payload)
+    api = _worker_api()
+    return {
+        "version": SCHEMA_VERSION,
+        "session": api.chatgpt_session_status(),
+        "adapter_health": api.chatgpt_adapter_health(db_path=db_path, sample_limit=20),
+    }
+
+
 def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
     return [
+        (
+            ToolSpec(
+                name="itir.chatgpt.list_threads",
+                title="List or search archived ChatGPT conversations",
+                description="List recent conversations or search by title substring in local SQLite.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "limit": {"type": "integer", "minimum": 1, "maximum": 500},
+                        "query": {"type": "string"},
+                        "db_path": {"type": "string"},
+                    },
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=True,
+            ),
+            list_threads,
+        ),
+        (
+            ToolSpec(
+                name="itir.chatgpt.session_status",
+                title="Read CFFI session and adapter health status",
+                description="Check redacted local CFFI session freshness and adapter health telemetry.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "db_path": {"type": "string"},
+                    },
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=True,
+            ),
+            session_status,
+        ),
         (
             ToolSpec(
                 name="itir.chatgpt.hydrate",
