@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from itir_mcp.formal_tools import get_formal_tools
+from itir_mcp.formal_tools import _digest, get_formal_tools
 
 
 class FakePreflight:
@@ -82,19 +82,26 @@ def test_unavailable_interactive_backend_is_non_authoritative():
 
 def test_kernel_handoff_requires_independent_referee_and_exact_digests():
     artifact = {"schemaVersion": "artifact-resolution-receipt/v1",
-                "contentDigest": "artifact"}
-    kernel = {"certificationState": "kernel-certified",
+                "contentDigest": "artifact", "verified": True,
+                "authority": "transport-only", "establishesProof": False,
+                "logicalArtifactRef": "proof.agda"}
+    kernel = {"schemaVersion": "kernel-certification-receipt/v1",
+              "authority": "formal-checker-only", "certifiesFormalResult": True,
+              "createsLegalAuthority": False, "applicabilityPromoted": False,
+              "claimTruthPromoted": False, "certificationState": "kernel-certified",
               "sourceRevision": "git:" + "a" * 40,
-              "artifactDigest": "artifact"}
+              "artifactRef": "proof.agda", "artifactDigest": "artifact",
+              "checker": "agda", "checkerRevision": "2.9",
+              "dependencies": ["cubical@v1"]}
     normalized = {"artifact_digest": "artifact"}
     trusted = {
         "authenticated_local_referee": True,
         "independent_kernel_success": True,
         "subject_commit": "a" * 40,
-        "source_digest": "source",
+        "source_digest": "artifact",
         "artifact_digest": "artifact",
-        "checker_digest": "checker",
-        "dependency_digest": "deps",
+        "checker_digest": _digest({"checker": "agda", "revision": "2.9"}),
+        "dependency_digest": _digest(["cubical@v1"]),
     }
     def certifier(**kwargs):
         return kernel
@@ -114,7 +121,7 @@ def test_kernel_handoff_requires_independent_referee_and_exact_digests():
         "kernel_handoff_eligible"] is False
     trusted["dependency_digest"] = ""
     assert certify(payload)["kernel_handoff_eligible"] is False
-    trusted["dependency_digest"] = "deps"
+    trusted["dependency_digest"] = _digest(["cubical@v1"])
     trusted["authenticated_local_referee"] = False
     assert certify(payload)["kernel_handoff_eligible"] is False
 
@@ -140,3 +147,55 @@ def test_formal_evidence_routing_uses_keyword_only_identity():
         "statement_digest": "sha256:statement",
     }
     assert result["candidate_only"] is True
+
+
+def test_kernel_metadata_tampering_fails_closed():
+    artifact = {
+        "schemaVersion": "artifact-resolution-receipt/v1",
+        "contentDigest": "a", "verified": True,
+        "authority": "transport-only", "establishesProof": False,
+        "logicalArtifactRef": "file.agda",
+    }
+    kernel = {
+        "schemaVersion": "kernel-certification-receipt/v1",
+        "authority": "formal-checker-only", "certifiesFormalResult": True,
+        "createsLegalAuthority": False, "applicabilityPromoted": False,
+        "claimTruthPromoted": False, "certificationState": "kernel-certified",
+        "sourceRevision": "git:" + "b" * 40,
+        "artifactRef": "file.agda", "artifactDigest": "a",
+        "checker": "agda", "checkerRevision": "2.9",
+        "dependencies": ["lib-a"],
+    }
+    trusted = {
+        "authenticated_local_referee": True,
+        "independent_kernel_success": True,
+        "subject_commit": "b" * 40,
+        "source_digest": "a", "artifact_digest": "a",
+        "checker_digest": _digest({"checker": "agda", "revision": "2.9"}),
+        "dependency_digest": _digest(["lib-a"]),
+    }
+    def certifier(**kwargs):
+        return kernel
+
+    certify = handlers(
+        certifier=certifier,
+        handoff_validator=lambda *_: {"artifact_digest": "a"},
+        referee_context=lambda: trusted,
+    )["itir.formal.certify"]
+    request = {"artifact_resolution_receipt": artifact,
+               "demand_ref": "d", "obligation_ref": "o", "statement_digest": "s"}
+    assert certify(request)["kernel_handoff_eligible"] is True
+    for field, forged in (
+        ("checkerRevision", "2.8"),
+        ("dependencies", ["lib-b"]),
+        ("authority", "candidate-only"),
+        ("claimTruthPromoted", True),
+        ("artifactRef", "other.agda"),
+        ("sourceRevision", "git:" + "c" * 40),
+    ):
+        original = kernel[field]
+        kernel[field] = forged
+        assert certify(request)["kernel_handoff_eligible"] is False, field
+        kernel[field] = original
+    artifact["contentDigest"] = "stale"
+    assert certify(request)["kernel_handoff_eligible"] is False
