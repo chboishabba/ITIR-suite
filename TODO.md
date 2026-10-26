@@ -5967,6 +5967,7 @@ Canonical implementation note:
 
 ## Wiki and public-knowledge governance roadmap
 
+- [x] Bridge SensibLaw P2738 disjointness projector into candidate-only MCP tool (`itir.wikidata.disjointness_report`).
 - [ ] Connect `itir.wikidata.review_packet` and `itir.wikidata.object_review_bundle` to the Dioxus M10/M11 read-only inspection cockpit.
 - [ ] Surface disjointness violations (P2738) and metaclass hierarchy collisions in `sl.wikidata_signal_review_bundle.v0_1` before generating `itir.wikidata.migration_candidate` proposals.
 - [ ] Enforce `itir.wikiproject.tooling_profile` governance contracts on external batch runs (QuickStatements, OpenRefine, Listeria) to prevent unreviewed mutations to live Wikidata.
