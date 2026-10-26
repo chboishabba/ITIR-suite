@@ -88,3 +88,37 @@ def test_reconcile_never_constructs_re_gpt_service_with_none_db_path(monkeypatch
 
     assert result["ok"] is True
     assert result["result"]["policy"]["browser_fallback"] is False
+
+
+def test_dispatch_worker_expands_presets_and_strips_verbose_telemetry(monkeypatch) -> None:
+    calls = []
+
+    class FakeWorkerApi:
+        @staticmethod
+        def chatgpt_continue(**kwargs):
+            calls.append(kwargs)
+            return {
+                "operation_id": "op-2",
+                "state": "complete",
+                "assistant_text": "done",
+                "read_observations": [{"cookie_names": ["secret"]}],
+                "write_observations": [{"header_names": ["Authorization"]}],
+                "started_at": 1.0,
+            }
+
+    monkeypatch.setattr(chatgpt_worker_tools, "_worker_api", lambda: FakeWorkerApi)
+    res = build_default_registry().invoke(
+        "itir.chatgpt.dispatch_worker",
+        {
+            "conversation_id": "thread-1",
+            "prompt": "@max_cut @grug_ste100 @zkp_qa Focus on formal referee wiring.",
+        },
+    )
+    assert res["ok"] is True
+    op = res["result"]["operation"]
+    assert op == {"operation_id": "op-2", "state": "complete", "assistant_text": "done"}
+    sent_prompt = calls[0]["prompt"]
+    assert "pareto/snowball/ibrahim" in sent_prompt
+    assert "ASD-STE100" in sent_prompt
+    assert "O/R/C/S/L/P/G/F" in sent_prompt
+    assert sent_prompt.endswith("Focus on formal referee wiring.")

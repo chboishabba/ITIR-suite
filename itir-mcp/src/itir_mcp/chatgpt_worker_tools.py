@@ -10,6 +10,109 @@ from .contracts import JsonDict, ToolExecutionError, ToolInputError, ToolSpec
 
 SCHEMA_VERSION = "itir.chatgpt_worker.v1"
 
+WORKER_PROMPT_PRESETS: dict[str, str] = {
+    "max_cut": (
+        "Exactly complete all per max-cut and continue per pareto/snowball/ibrahim. "
+        "Check the web and latest PRs for inspiration and cross-pollination -- assume we "
+        "already have everything we need in-repo. Keep following your nose until you hit "
+        "a wall -- do not wait for approval, and remember our attribution rules."
+    ),
+    "grug_ste100": (
+        "Apply Grug-brain simplicity and ASD-STE100 Simplified Technical English: one "
+        "thought per sentence, active voice, approved unambiguous terms, zero speculative "
+        "abstraction, no inline code dumps in prose, and normalize onto existing in-repo surfaces."
+    ),
+    "grug": (
+        "Apply Grug-brain simplicity and ASD-STE100 Simplified Technical English: one "
+        "thought per sentence, active voice, approved unambiguous terms, zero speculative "
+        "abstraction, no inline code dumps in prose, and normalize onto existing in-repo surfaces."
+    ),
+    "zkp_qa": (
+        "Frame via ZKP (O/R/C/S/L/P/G/F) with explicit preconditions, invariants, and "
+        "postconditions. Converge toward normalized surfaces per ITIL, ISO 9000/42001/27001/"
+        "27701/23894/9241, NIST AI RMF, Six Sigma, and C4/PlantUML. Assign one disjoint "
+        "nonblocking lane per worker, no skeletons or stubs, and complete implementation + "
+        "deterministic verification within the turn."
+    ),
+    "zkp": (
+        "Frame via ZKP (O/R/C/S/L/P/G/F) with explicit preconditions, invariants, and "
+        "postconditions. Converge toward normalized surfaces per ITIL, ISO 9000/42001/27001/"
+        "27701/23894/9241, NIST AI RMF, Six Sigma, and C4/PlantUML. Assign one disjoint "
+        "nonblocking lane per worker, no skeletons or stubs, and complete implementation + "
+        "deterministic verification within the turn."
+    ),
+    "introspective_viz": (
+        "Apply the introspective method: 1. Model the theory accurately per actual "
+        "implementation. 2. Generate a plain-language, physically intuitive visual proof "
+        "(Python/HTML/SVG). 3. Inspect the visualization. 4. Formalize new findings in "
+        "Lean or Agda per repo convention."
+    ),
+    "referee_pass": (
+        "Local referee verification passed (0 errors, 0 warnings). Proceed immediately "
+        "to the next highest-alpha vertical slice per max-cut and pareto/snowball/ibrahim; "
+        "push commits and return SHAs + deterministic referee commands."
+    ),
+}
+
+_VERBOSE_OPERATION_KEYS = {
+    "read_diagnostic",
+    "write_diagnostic",
+    "read_diagnostics",
+    "read_observations",
+    "write_observations",
+    "started_at",
+    "authenticated_at",
+    "hydrated_at",
+    "attachment_ready_at",
+    "submitted_at",
+    "committed_at",
+    "completed_at",
+    "requested_parent_node_id",
+    "attachment_ids",
+    "attachments",
+    "attempted_read_adapters",
+    "rejected_read_adapters",
+}
+
+
+def _compact_operation(result: Any) -> Any:
+    if isinstance(result, dict):
+        return {k: v for k, v in result.items() if k not in _VERBOSE_OPERATION_KEYS}
+    return result
+
+
+def _resolve_prompt(payload: Mapping[str, Any]) -> str:
+    raw_prompt = payload.get("prompt")
+    if raw_prompt is not None and not isinstance(raw_prompt, str):
+        raise ToolInputError("Expected string field: prompt")
+    preset = payload.get("preset")
+    if preset is not None and not isinstance(preset, str):
+        raise ToolInputError("Expected string field: preset")
+    parts: list[str] = []
+    if preset:
+        for key in preset.replace(",", " ").split():
+            clean = key.lstrip("@").strip()
+            if clean not in WORKER_PROMPT_PRESETS:
+                raise ToolInputError(f"Unknown worker prompt preset: {clean}")
+            parts.append(WORKER_PROMPT_PRESETS[clean])
+    text = (raw_prompt or "").strip()
+    if text:
+        tokens = text.split()
+        consumed = 0
+        for tok in tokens:
+            if tok.startswith("@") and tok[1:] in WORKER_PROMPT_PRESETS:
+                parts.append(WORKER_PROMPT_PRESETS[tok[1:]])
+                consumed += 1
+            else:
+                break
+        remainder = "" if consumed == len(tokens) else (text.split(None, consumed)[-1] if consumed else text)
+        if remainder:
+            parts.append(remainder)
+    resolved = "\n\n".join(p for p in parts if p)
+    if not resolved:
+        raise ToolInputError("Expected non-empty string field: prompt (or preset)")
+    return resolved
+
 
 def _required_text(payload: Mapping[str, Any], key: str) -> str:
     value = payload.get(key)
@@ -47,7 +150,7 @@ def _worker_api() -> Any:
 def dispatch_worker(payload: Mapping[str, Any]) -> JsonDict:
     """Dispatch exactly one existing-thread worker turn through direct async re-gpt."""
     conversation_id = _required_text(payload, "conversation_id")
-    prompt = _required_text(payload, "prompt")
+    prompt = _resolve_prompt(payload)
     db_path = _optional_db_path(payload)
     follow = payload.get("follow", True)
     if not isinstance(follow, bool):
@@ -65,15 +168,9 @@ def dispatch_worker(payload: Mapping[str, Any]) -> JsonDict:
         dom_fallback=False,
         db_path=db_path,
     )
-    if isinstance(result, dict):
-        result = {
-            k: v
-            for k, v in result.items()
-            if k not in {"read_diagnostic", "read_observations", "write_observations"}
-        }
     return {
         "version": SCHEMA_VERSION,
-        "operation": result,
+        "operation": _compact_operation(result),
         "policy": {
             "write_transport": "async",
             "dom_fallback": False,
@@ -86,9 +183,11 @@ def operation_status(payload: Mapping[str, Any]) -> JsonDict:
     operation_id = _required_text(payload, "operation_id")
     return {
         "version": SCHEMA_VERSION,
-        "operation": _worker_api().chatgpt_operation_status(
-            operation_id=operation_id,
-            db_path=_optional_db_path(payload),
+        "operation": _compact_operation(
+            _worker_api().chatgpt_operation_status(
+                operation_id=operation_id,
+                db_path=_optional_db_path(payload),
+            )
         ),
     }
 
@@ -96,7 +195,7 @@ def operation_status(payload: Mapping[str, Any]) -> JsonDict:
 def reconcile(payload: Mapping[str, Any]) -> JsonDict:
     """Reconcile exactly one operation using direct reads only; never resubmit."""
     operation_id = _required_text(payload, "operation_id")
-    prompt = _required_text(payload, "prompt")
+    prompt = _resolve_prompt(payload)
     not_before = payload.get("not_before", 0.0)
     if not isinstance(not_before, (int, float)):
         raise ToolInputError("Expected numeric field: not_before")
@@ -122,7 +221,7 @@ def reconcile(payload: Mapping[str, Any]) -> JsonDict:
         raise ToolExecutionError("direct-only re-gpt reconciliation failed") from exc
     return {
         "version": SCHEMA_VERSION,
-        "operation": result,
+        "operation": _compact_operation(result),
         "policy": {"browser_fallback": False, "automatic_resend": False},
     }
 
@@ -266,13 +365,20 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
             ToolSpec(
                 name="itir.chatgpt.dispatch_worker",
                 title="Dispatch governed ChatGPT worker",
-                description="Dispatch one existing-thread re-gpt worker turn through direct async transport only.",
+                description=(
+                    "Dispatch one existing-thread re-gpt worker turn through direct async transport only. "
+                    "Supports @max_cut, @grug_ste100, @zkp_qa, @introspective_viz, and @referee_pass presets."
+                ),
                 input_schema={
                     "type": "object",
-                    "required": ["conversation_id", "prompt"],
+                    "required": ["conversation_id"],
                     "properties": {
                         "conversation_id": {"type": "string"},
                         "prompt": {"type": "string"},
+                        "preset": {
+                            "type": "string",
+                            "description": "Optional space/comma-separated presets: max_cut, grug_ste100, zkp_qa, introspective_viz, referee_pass",
+                        },
                         "attachments": {"type": "array", "items": {"type": "string"}},
                         "follow": {"type": "boolean"},
                         "db_path": {"type": "string"},
