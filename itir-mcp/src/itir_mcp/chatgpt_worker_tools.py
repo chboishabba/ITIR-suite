@@ -66,7 +66,11 @@ def dispatch_worker(payload: Mapping[str, Any]) -> JsonDict:
         db_path=db_path,
     )
     if isinstance(result, dict):
-        result = {k: v for k, v in result.items() if k != "read_diagnostic"}
+        result = {
+            k: v
+            for k, v in result.items()
+            if k not in {"read_diagnostic", "read_observations", "write_observations"}
+        }
     return {
         "version": SCHEMA_VERSION,
         "operation": result,
