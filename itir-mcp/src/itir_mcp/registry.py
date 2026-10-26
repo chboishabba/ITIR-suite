@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from .ast_deobfuscator_tools import get_ast_tools
 from .autonomous_orchestrator_tools import get_autonomous_orchestrator_tools
 from .chatgpt_worker_tools import get_chatgpt_worker_tools
 from .config_tools import get_config_tools
@@ -13,7 +12,6 @@ from .export_tools import get_export_tools
 from .frontier_tools import get_frontier_tools
 from .guardrails import safe_tool_call
 from .governance_tools import get_governance_tools
-from .har_tools import get_har_tools
 from .promotion_tools import get_promotion_tools
 from .pnf_tools import get_pnf_tools
 from .sensiblaw_tools import get_sensiblaw_tools
@@ -72,7 +70,7 @@ class ToolRegistry:
     def invoke(self, name: str, payload: Mapping[str, Any]) -> JsonDict:
         try:
             _, handler, _, _ = self._tools[name]
-        except KeyError:
+        except KeyError as exc:
             return error_payload(ToolError(f"Unknown tool: {name}"))
         try:
             return success_payload(handler(payload))
@@ -118,9 +116,5 @@ def build_default_registry() -> ToolRegistry:
     for spec, handler in get_frontier_tools():
         registry.register(spec, handler)
     for spec, handler in get_autonomous_orchestrator_tools():
-        registry.register(spec, handler)
-    for spec, handler in get_har_tools():
-        registry.register(spec, handler)
-    for spec, handler in get_ast_tools():
         registry.register(spec, handler)
     return registry
