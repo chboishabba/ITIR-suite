@@ -1237,6 +1237,120 @@ Acceptance criteria:
 - Tool returns valid candidate spectral packets without mutating canonical state.
 - Packets carry non-authoritative review boundaries and full computation receipts.
 
+### SLR-US-05 / ITIR-US-22: Governed Actor–Critic PR Lifecycle & Commit-Bound Verification
+As a repository maintainer, I want candidate commits from remote generative actors
+to pass an independently verified, commit-bound promotion protocol with typed
+restorative critiques so that generative exploration cannot self-certify or
+bypass local governance.
+
+Typical flow:
+- Remote generative actor explores candidate implementations/proofs and pushes an
+  immutable commit SHA to a feature branch or draft PR.
+- Local cooperative discriminator fetches the exact commit and executes
+  deterministic checks (`cargo test`, `agda`, `pytest`, `ruff`) plus scope and
+  sovereignty gates.
+- If checks fail, the discriminator emits a minimal, deterministic critique
+  residual (`slr.referee-critique.v1`) containing exact failing checks, source
+  coordinates, expected-vs-observed values, and an evidence digest.
+- If checks pass, the discriminator records a commit-bound verification receipt
+  binding the exact commit SHA, verifier identity, checker digest, and dependency
+  closure digest.
+
+Preferences:
+- Zero conversational filler in failure critiques; exact compiler/prover/test
+  coordinates and digests only.
+- Explicit separation between actor preliminary self-tests and independent
+  referee certification.
+
+Requirements:
+- Actor output is strictly candidate-only (`ActorGenerated(x) !=> Verified(x)`).
+- Verification receipts are bound to an immutable commit SHA; pushing a new commit
+  invalidates promotion eligibility unless an explicit verified reuse rule applies.
+- Merge eligibility requires all mandatory checks and policy gates (`TestsPass(c)`
+  alone does not imply `MergeSafe(c)` if unauthorized schema/policy changes exist).
+
+Acceptance criteria:
+- Every actor submission and referee receipt identifies an immutable commit SHA
+  and dependency closure digest.
+- Failed checks produce typed diagnostic holds and minimal critique residuals.
+- The actor cannot authorize its own promotion, and replaying identical receipts
+  does not create duplicate authoritative transitions.
+
+### SLR-US-06 / ITIR-US-23: Context-Insulated State Commons & Deterministic Snapshot Capsules
+As a distributed research agent, I want to receive compact, content-addressed
+state capsules projected from the single PostgreSQL semantic spine and retrieve
+supporting historical evidence on demand so that work can continue without
+transferring sprawling conversation histories.
+
+Typical flow:
+- Local coordinator queries the single PostgreSQL spine
+  (`sensiblaw_sparse_ready_20260818`) under a consistent snapshot (`REPEATABLE READ`)
+  to project a canonical `StateCapsule`.
+- Dispatcher transmits a compact event trigger (~100-200 tokens) referencing the
+  capsule's canonical digest, active frontier revision, and obligation ID.
+- Remote actor uses the state capsule to orient immediately and retrieves raw
+  source spans, logs, or proof artifacts by digest only when required.
+- Before promoting any resulting candidate, the referee verifies optimistic
+  concurrency compatibility between the capsule's frontier revision and the
+  current active frontier.
+
+Preferences:
+- Three-tier separation: (1) compact event trigger, (2) PostgreSQL state snapshot,
+  (3) on-demand historical evidence in canonical SQLite/source stores.
+- Preservation of pointers to relevant negative evidence and reopening history so
+  context compression never masks prior failed proof attempts or disputed premises.
+
+Requirements:
+- Do not introduce a second orchestration database; project directly from
+  existing `slr_world_v2_*`, `formal_bridge.*`, and `resolution.*` relations.
+- Original chat transcripts remain in canonical SQLite (`~/.chatgpt_history.sqlite3`);
+  PostgreSQL stores semantic references and evidence lineage without duplicating
+  raw transcript bodies.
+- Context compression must never erase active protected formal obligations
+  (`ActiveProtected(H, r) <= SnapshotFrontier(H, r)`).
+
+Acceptance criteria:
+- Every state capsule carries a protocol version and length-prefixed canonical
+  SHA-256 digest; reconstructing the same state produces the identical digest.
+- Concurrent frontier updates cannot silently invalidate promotion assumptions.
+- Protected singleton obligations and negative-evidence pointers survive snapshot
+  compression without loss.
+
+### SLR-US-07 / ITIR-US-24: Federated Capability & Local Machine Sovereignty Enforcement
+As a participating node operator in a federated mesh, I want to delegate bounded
+capabilities to remote generative agents while retaining strict local sovereignty
+over command execution, database persistence, and branch promotion.
+
+Typical flow:
+- Participating nodes advertise explicit capability sets (`generate`, `search`,
+  `propose` for remote actors; `verify`, `review`, `authorize`, `persist` for
+  local referees).
+- Remote actor proposes candidate branches and structured packets within its
+  scoped capability window.
+- Local sovereignty gate validates capability scope, expiry, and command
+  allowlists before running local verification or persisting approved receipts.
+
+Preferences:
+- Capability-constrained peer federation rather than a monolithic hidden
+  centralized supervisor.
+- Idempotent receipt ingestion with full provenance attribution.
+
+Requirements:
+- Repository and corpus content must be treated as untrusted data to defend
+  against prompt injection and malicious test commands.
+- Protected database operations and schema migrations require explicit local
+  authorization.
+- Duplicate, expired, revoked, or forged capability/receipt messages must fail
+  closed.
+
+Acceptance criteria:
+- Remote actors cannot execute unauthorized local commands or self-certify
+  promotions.
+- Every accepted state transition records an attributable actor, verifier
+  principal, and authorization receipt.
+- Nodes can contribute independently verified artifacts across the mesh without
+  surrendering local machine sovereignty.
+
 ---
 
 ## Wiki and public-knowledge operator integration stories
