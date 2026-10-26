@@ -1351,6 +1351,59 @@ Acceptance criteria:
 - Nodes can contribute independently verified artifacts across the mesh without
   surrendering local machine sovereignty.
 
+### SLR-US-08 / ITIR-US-25: Condensed Formal Preflight, Similarity Routing & Candidate-Only Interactive Proof States
+As a governed proof-search operator, I want a lean MCP facade over the existing
+dashi-agda-preflight diagnostic, similarity, routing and isolated kernel-check
+capabilities so that interactive proof exploration remains candidate-only while
+the local referee retains independent certification authority.
+
+Typical flow:
+- Actor requests `formal.inspect` for a module or obligation: the adapter
+  condenses `diagnose`, `next_error`, `affected`, `related_symbols`,
+  `discover`, and `round_lineage` into bounded diagnostics with exact
+  retrieval references for complete underlying evidence.
+- Actor requests `formal.route`: existing `proof_route_for_obligation` and
+  DA51 bridge produce exact target-prover demands without creating proof authority.
+- Actor optionally requests `formal.refine`: Agda interaction-JSON or Lean LSP
+  supplies goals, contexts and candidate hole refinements; every response is
+  `candidate_only=true`, `establishes_proof=false`.
+- Local discriminator invokes `formal.certify`: existing `certify_artifact`
+  and isolated Agda/Lean shadow runners verify an immutable artifact, and
+  `validate_kernel_handoff` checks the resulting handoff before any formal
+  evidence is considered for payment or promotion.
+- The native SLR referee receipt binds the exact commit, source digest,
+  checker/environment/dependency digests, authenticated verifier identity,
+  and check outcome. Critiques retain exact diagnostic evidence by digest.
+
+Requirements:
+- Public MCP surface remains four task-oriented operations
+  (`formal.inspect`, `formal.route`, `formal.refine`, `formal.certify`);
+  internal preflight tools are not individually re-exported.
+- Do not reimplement preflight indexing, similarity, proof routing or kernel
+  certification in `itir-mcp`; invoke the existing dashi-agda-preflight owner.
+- Interactive goal inspection and similarity matches are never kernel receipts;
+  `formal_resolver` must not interpret a Boolean or lexical match as proof.
+- No actor-controlled claim of successful certification can self-authorize
+  promotion; authenticated local referee evidence and policy gates are required.
+- Condensed payloads are bounded, deterministic, source-addressable and include
+  digests for lossless on-demand recovery; 90% reduction is a benchmark target,
+  not a license to drop blocking errors or protected obligations.
+- Local files, database schemas, runner commands and credentials remain within
+  the sovereign node's capability boundary.
+
+Acceptance criteria:
+- Candidate-only goal/refinement/similarity receipts cannot discharge formal
+  obligations even when they report success or exact signature equivalence.
+- Source changes after checking invalidate certification; stale commit,
+  environment or dependency digests fail closed.
+- Isolated kernel handoff validates artifact, statement, checker and dependency
+  identities; failures produce deterministic `slr.referee-critique.v1` holds.
+- Large diagnostics return bounded summaries plus retrievable immutable evidence
+  references; protected singleton obligations and negative evidence survive.
+- Replay and duplicate delivery are idempotent; no duplicate proof payment.
+- The local referee can run fixture tests with no external interactive MCP
+  installed; optional Lean/Agda interactive adapters fail closed to unavailable.
+
 ---
 
 ## Wiki and public-knowledge operator integration stories
