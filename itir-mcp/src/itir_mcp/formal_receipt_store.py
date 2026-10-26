@@ -23,19 +23,6 @@ class LocalRefereeReceiptStore:
     def __init__(self, db_path: Path) -> None:
         self.path = Path(db_path)
 
-    def record_verified(
-        self, repo: str, sha: str, path: str, canonical_thread_id: str,
-        receipt: Mapping[str, Any],
-    ) -> bool:
-        # This API is never registered as an MCP tool.
-        if FORMAL.fullmatch(f"{repo}@{sha}:{path}") is None or ".." in path.split("/"):
-            return False
-        if not isinstance(canonical_thread_id, str) or not canonical_thread_id:
-            return False
-        # Reject caller-supplied receipt claims unless the local referee has
-        # provided a trusted, independent verification of this exact receipt.
-        raise PermissionError("use record_from_referee with authenticated local verification")
-
     def record_from_referee(
         self, repo: str, sha: str, path: str, canonical_thread_id: str,
         receipt: Mapping[str, Any], *,
