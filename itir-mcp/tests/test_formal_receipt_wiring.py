@@ -60,11 +60,11 @@ def test_referee_verified_certification_persists_and_resolves(tmp_path, monkeypa
             binding["canonical_thread_id"], result, referee_verified=True,
         )
 
-    tools = dict(get_formal_tools(
+    tools = {spec.name: handler for spec, handler in get_formal_tools(
         certifier=lambda **_: kernel,
         handoff_validator=lambda *_: {"artifact_digest": "artifact"},
         referee_context=lambda: trusted, verified_receipt_writer=write,
-    ))
+    )}
     request = {
         "artifact_resolution_receipt": artifact,
         "demand_ref": "d", "obligation_ref": "o", "statement_digest": "s",
