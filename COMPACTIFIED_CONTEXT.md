@@ -1,5 +1,19 @@
 # Compactified Context
 
+## 2026-10-27 — `SensibLaw` Deprecation in Favour of `slr` & 5-Stage PNF Reduction to Core Knowledge + Gaps over Single PostgreSQL Spine
+
+- **Architectural Direction:**
+  - `SensibLaw` (Python) is deprecated in favour of `slr` (`/home/c/Documents/code/slr`, native Rust implementation).
+  - Do not create duplicate databases: canonical chat transcripts remain in `~/.chatgpt_history.sqlite3` / `~/chat_archive.sqlite` and are registered as reference-only coordinates (`sqlite:canonical#node` + `body_sha256`, `document_ref = NULL`) in `corpus.chat_archive_message` (`slr` PR #71 `register_chat_archive_reference`, `DASHI/Interop/SensibLawWorldBucketPostgresMaterialisationExact.agda`), while `postgresql://admin:admin@truenas.local:5432/sensiblaw_sparse_ready_20260818` serves as the single semantic world-model persistence spine.
+- **5-Stage PNF Reduction Funnel (`fleet_top200_iter1.slrw`, `319,211` `PNF1` candidates across `200` threads and `30,979` sentences):**
+  - **Stage R1 (`CandidateInvalidation.agda` + `AdmissibilityGate.agda`):** Eliminates `294,671` conversational/deictic/incomplete tokens (`78,131` light verbs, `35,626` modals/conjunctions/quantifiers, `21,231` deictic pronouns, `20,980` non-domain tokens, `138,703` incomplete structural signatures), leaving **`12,929` admissible multi-slot predicate frames (`AdmissiblePNF`)** (`95.95%` noise reduction).
+  - **Stage R2 (`SameHeckeCandidatePool` Fibred Quotient):** Collapses `12,929` frames into **`9,289` unique Hecke/Quotient fibres** and **`1,931` retained multi-occurrence/cross-thread/conflict fibres** (`99.40%` reduction) governed by the gap-preservation law $K_{\text{retained}} = K_{\text{spectral}} \cup K_{\text{formally\_required}} \cup K_{\text{reviewed}}$.
+  - **Stage R3 (Fibred Residual Lattice & DomainIR Projection):** `622` evaluated proposals -> `600` `resolved_unique` + `22` `blocked_conflict` -> **`1,112` `DomainIRProjection` rows (Core Knowledge)** + **`221` `ProjectionDemand` rows (Actionable Back-Demands)** + `1,112` `ProjectionLossReceipt`s.
+  - **Stage R4 (`PNFSpectralCoordinateRebuildability.agda` + Marchenko–Pastur Null-Band Shrinkage):** Over the $200 \times 120$ thread-by-fibre covariance matrix ($\gamma = 0.600$, $\sigma^2 = 0.8733$, $\lambda_+ = 2.7500$), `117 / 120` dimensions collapse into the bulk, leaving **3 macroscopic Core Knowledge Eigen-Motifs** ($\lambda_1 = 74.5526$, $\lambda_2 = 18.8350$, $\lambda_3 = 5.5865$), validated under `itir.pnf.spectral_numeric_abi.v0_2` (`parity_hash: 6853373e81e551aea8fca490ce2ad9f5264664d49bde8804edfc4e98e7517799`).
+  - **Stage R5 (`dashi_agda` Formal AST Subtraction + PostgreSQL Persistence):** Subtracting against `13,344` formal stem terms in `dashi_agda` yields **`584` Discharged Core Knowledge Fibres**, **`44` Polarity Contradiction Gaps**, and **`58` Unformalised Formal Gaps**, committed to `sensiblaw_sparse_ready_20260818` (`pnf-document-graph:d14f740cb5ec4b39f22998832691f5932bae5e527118280f648f607b57456fc7`).
+- **Next Execution Step:**
+  - Delegate native Rust implementation in `slr` (`crates/sl-world-compiler`, `crates/sl-consumer-residual`, `crates/sl-world-store`, `crates/sl-pg-source-store`) and Agda formalisation in `dashi_agda` to the governed MCP worker (`6ad357c7-406c-83ec-be12-6ae2b106a9a4`, *"Integrate Fleet Pipeline"*).
+
 ## 2026-07-18 — P0 structural-semantics diagnostic and declaration boundary
 
 - SensibLaw's next local-only compiler slice is not a target to lower one

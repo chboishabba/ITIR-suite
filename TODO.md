@@ -1,5 +1,22 @@
 # TODO (ITIR-suite)
 
+## SLR Migration & 5-Stage PNF Fleet Reduction Spine (2026-10-27)
+
+> **Deprecation Notice:** `SensibLaw` (Python) is deprecated in favour of `slr` (`/home/c/Documents/code/slr`, native Rust workspace). All new PNF reduction, world-compiler, residual-lattice, and PostgreSQL persistence work belongs in `slr` and `dashi_agda`.
+
+- [x] **Pure `curl_cffi` Headless Sentinel + Turnstile VM + Conduit Mutation Pipeline (`reverse-engineered-chatgpt` @ `95e3669`, `ITIR-suite` @ `7bf8e32`):**
+  - Replaced deprecated `/backend-api/conversation` with 5-step headless `curl_cffi` flow (`GET /backend-api/sentinel/chat-requirements/prepare` -> FNV-1a Murmur3 PoW + 82-opcode `solveDx` Turnstile VM -> `POST /backend-api/sentinel/chat-requirements/finalize` -> `POST /backend-api/f/conversation/prepare` -> `POST /backend-api/f/conversation`). Zero browser/DOM/CDP required.
+- [x] **5-Stage PNF Reduction & Single PostgreSQL Spine Verification (`fleet_top200_iter1.slrw` -> `sensiblaw_sparse_ready_20260818`):**
+  - Verified live reduction over `319,211` `PNF1` candidates / world atoms across `200` threads and `30,979` sentences:
+    - **Stage R0 -> R1 (`CandidateInvalidation.agda` + `AdmissibilityGate.agda`):** `319,211` raw candidates -> `294,671` invalidated (`78,131` light verbs/non-lexical heads, `35,626` conversational modals/conjunctions/quantifiers, `21,231` deictic pronouns, `20,980` non-domain tokens, `138,703` incomplete structural signatures) -> **`12,929` admissible multi-slot predicate frames (`AdmissiblePNF`)** (`95.95%` noise reduction).
+    - **Stage R2 (`SameHeckeCandidatePool` Fibred Quotient):** `12,929` frames -> **`9,289` unique Hecke/Quotient fibres** -> **`1,931` retained multi-occurrence/cross-thread/conflict fibres** (`99.40%` reduction) under $K_{\text{retained}} = K_{\text{spectral}} \cup K_{\text{formally\_required}} \cup K_{\text{reviewed}}$.
+    - **Stage R3 (Fibred Residual Lattice & Lifecycle Resolution):** `622` evaluated proposals -> `600` `resolved_unique` + `22` `blocked_conflict` -> **`1,112` `DomainIRProjection` rows (Core Knowledge)** + **`221` `ProjectionDemand` rows (Actionable Back-Demands)** + `1,112` `ProjectionLossReceipt`s.
+    - **Stage R4 (`PNFSpectralCoordinateRebuildability.agda` + Marchenko–Pastur Null-Band Shrinkage):** Over the $200 \times 120$ standardized covariance matrix ($\gamma = 0.600$, $\sigma^2 = 0.8733$, $\lambda_+ = 2.7500$), `117 / 120` dimensions collapse into the bulk, leaving **3 macroscopic Core Knowledge Eigen-Motifs** ($\lambda_1 = 74.5526$, $\lambda_2 = 18.8350$, $\lambda_3 = 5.5865$), validated under `itir.pnf.spectral_numeric_abi.v0_2` (`parity_hash: 6853373e81e551aea8fca490ce2ad9f5264664d49bde8804edfc4e98e7517799`).
+    - **Stage R5 (`dashi_agda` Formal AST Subtraction + Single PostgreSQL Persistence):** Partitioned into **`584` Discharged Core Knowledge Fibres**, **`44` Polarity Contradiction Gaps**, and **`58` Unformalised Formal Gaps`, persisted directly into `postgresql://admin:admin@truenas.local:5432/sensiblaw_sparse_ready_20260818` (`pnf-document-graph:d14f740cb5ec4b39f22998832691f5932bae5e527118280f648f607b57456fc7`) with reference-only canonical SQLite chat coordinates (`corpus.chat_archive_message`).
+- [ ] **Formalise & Implement Native 5-Stage PNF Reducer in `slr` + `dashi_agda` (Delegated via MCP to `6ad357c7-406c-83ec-be12-6ae2b106a9a4`):**
+  - Port the R1–R5 reduction funnel (`CandidateInvalidation`, `AdmissibilityGate`, `SameHeckeCandidatePool` fibre quotient, $K_{\text{retained}} = K_{\text{spectral}} \cup K_{\text{formally\_required}} \cup K_{\text{reviewed}}$ with zero singleton formal-obligation recall loss, Marchenko–Pastur spectral shrinkage, and `dashi_agda` AST subtraction) natively into Rust in `slr` (`crates/sl-world-compiler`, `crates/sl-consumer-residual`, `crates/sl-world-store`, `crates/sl-pg-source-store`).
+  - Expose unified PostgreSQL read-model views (`public.v_fleet_core_knowledge_spine`, `public.v_fleet_actionable_gap_frontier`) in `slr/crates/sl-world-store` over `public.slr_world_v2_*` + `corpus.chat_archive_message` so `StatiBaker/sb/ao_kanboard_control.py` and `itir-mcp` consume a single PostgreSQL spine without `SensibLaw` Python or duplicate SQLite world tables.
+
 ## Chat archive storage migration
 
 - [ ] Replace the implicit `~/.chatgpt_history.sqlite3` fallback in re-gpt
