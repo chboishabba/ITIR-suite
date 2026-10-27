@@ -28,6 +28,7 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.pnf.work_packet",
         "itir.pnf.governed_handoff",
         "itir.pnf.residual_cases",
+        "itir.pnf.eigen_motifs",
         "itir.archive.thread_view",
         "itir.ao.operation_review",
         "itir.chatgpt.operation_receipts",
