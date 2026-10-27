@@ -88,6 +88,7 @@ Continue per max-cut and converge toward DASHI TOE (`DASHI/EverythingTOESymmetry
 {domain_specific}- Fleet World-Model Context: 584 fibres are already discharged across the archive.
   Marchenko-Pastur bulk collapse isolates 3 macroscopic eigen-motifs (λ₁=74.55 Balaban RG, λ₂=18.84 NS BM2, λ₃=5.59 Quantum Mereology).
   Target ONLY the 58 unformalised formal gaps and cite existing discharged proofs.
+- Anti-Proliferation & Deduplication Rule: DO NOT create new versioned, numbered, or round-suffixed files (e.g. `*Round<N>*`, `*R<N>*`, `*v<N>*`). Reconcile and coalesce all findings directly into existing canonical domain files and the unified aggregates: `DASHI/EverythingTOESymmetryResolved369.agda` and `DASHI/Unifier.agda`. Treat historical round numbers as metadata/receipt provenance only, not new file names.
 - Assume all needed constructions already exist in-repo across `dashi_agda`, `casey-git-clone`, `zkSEC`, and meta-introspector repos (`zkperf`, `zos-server`, `erdfa-py`, `aristotle-cli-rs`).
 - Search first for existing/duplicate constructions via code search / preflight before writing any new code.
 - Strict constraint: DO NOT touch ESD surfaces (`dashi_digital_esd`, `*digital_esd*`, `*ESD*`); import only.

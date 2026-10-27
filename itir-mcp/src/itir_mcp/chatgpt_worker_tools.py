@@ -477,6 +477,36 @@ def fleet_opportunities(payload: Mapping[str, Any]) -> JsonDict:
         raise ToolExecutionError(f"fleet opportunities failed: {exc}") from exc
 
 
+def tranche_status(payload: Mapping[str, Any]) -> JsonDict:
+    """Query tranche candidates and completed attempt counts across the fleet archive."""
+    prefix = str(payload.get("prefix") or "6a")
+    min_turns = payload.get("min_turns", 50)
+    if not isinstance(min_turns, int) or min_turns < 1:
+        min_turns = 50
+    db_path = _optional_db_path(payload)
+    try:
+        from re_gpt.mcp_server import chatgpt_tranche_status
+        return chatgpt_tranche_status(prefix=prefix, min_turns=min_turns, db_path=db_path)
+    except Exception as exc:
+        raise ToolExecutionError(f"tranche status failed: {exc}") from exc
+
+
+def fleet_telemetry(payload: Mapping[str, Any]) -> JsonDict:
+    """Query live multi-thread fleet activity across the active operations window."""
+    window_seconds = payload.get("window_seconds", 120)
+    if not isinstance(window_seconds, int) or window_seconds < 1:
+        window_seconds = 120
+    limit = payload.get("limit", 20)
+    if not isinstance(limit, int) or limit < 1 or limit > 100:
+        limit = 20
+    db_path = _optional_db_path(payload)
+    try:
+        from re_gpt.mcp_server import chatgpt_fleet_telemetry
+        return chatgpt_fleet_telemetry(window_seconds=window_seconds, limit=limit, db_path=db_path)
+    except Exception as exc:
+        raise ToolExecutionError(f"fleet telemetry failed: {exc}") from exc
+
+
 def formal_latex_bridge(payload: Mapping[str, Any]) -> JsonDict:
     """Extract LaTeX math AST without regex, search in-repo formal definitions, and generate proof stub."""
     text = _required_text(payload, "text")
@@ -814,5 +844,43 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                 read_only=True,
             ),
             pnf_distill_prompt,
+        ),
+        (
+            ToolSpec(
+                name="itir.chatgpt.tranche_status",
+                title="Query tranche burndown candidates and counts",
+                description="Query tranche candidates and completed attempt counts across the fleet archive.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "prefix": {"type": "string", "default": "6a"},
+                        "min_turns": {"type": "integer", "default": 50},
+                        "db_path": {"type": "string"},
+                    },
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=True,
+            ),
+            tranche_status,
+        ),
+        (
+            ToolSpec(
+                name="itir.chatgpt.fleet_telemetry",
+                title="Query live multi-thread fleet telemetry",
+                description="Query live multi-thread fleet activity across the active operations window.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "window_seconds": {"type": "integer", "default": 120},
+                        "limit": {"type": "integer", "default": 20},
+                        "db_path": {"type": "string"},
+                    },
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=True,
+            ),
+            fleet_telemetry,
         ),
     ]

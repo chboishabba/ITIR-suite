@@ -72,6 +72,8 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.chatgpt.view_messages",
         "itir.chatgpt.fleet_status",
         "itir.chatgpt.fleet_opportunities",
+        "itir.chatgpt.tranche_status",
+        "itir.chatgpt.fleet_telemetry",
         "itir.formal.latex_bridge",
         "itir.pnf.distill_prompt",
         "itir.wikidata.disjointness_report",
