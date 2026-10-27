@@ -307,12 +307,56 @@ def list_threads(payload: Mapping[str, Any]) -> JsonDict:
     query = payload.get("query")
     if query is not None and not isinstance(query, str):
         raise ToolInputError("Expected string field: query")
+    keywords = payload.get("keywords")
+    if keywords is not None and (not isinstance(keywords, list) or not all(isinstance(k, str) for k in keywords)):
+        raise ToolInputError("Expected list of strings: keywords")
+    order_by = payload.get("order_by", "recent")
+    if not isinstance(order_by, str) or order_by not in {"recent", "turns"}:
+        raise ToolInputError("Expected order_by to be 'recent' or 'turns'")
+    min_turns = payload.get("min_turns", 0)
+    if not isinstance(min_turns, int) or min_turns < 0:
+        raise ToolInputError("Expected non-negative integer field: min_turns")
     db_path = _optional_db_path(payload)
-    rows = _worker_api().chatgpt_list(limit=limit, query=query, db_path=db_path)
+    rows = _worker_api().chatgpt_list(
+        limit=limit,
+        query=query,
+        keywords=keywords,
+        order_by=order_by,
+        min_turns=min_turns,
+        db_path=db_path,
+    )
     return {
         "version": SCHEMA_VERSION,
         "count": len(rows),
         "threads": rows,
+    }
+
+
+def revive(payload: Mapping[str, Any]) -> JsonDict:
+    """Revive an existing long-running thread into a fresh thread with clean context and recorded lineage."""
+    conversation_id = _required_text(payload, "conversation_id")
+    prompt = _resolve_prompt(payload)
+    attachments = payload.get("attachments", [])
+    if not isinstance(attachments, list) or not all(isinstance(p, str) for p in attachments):
+        raise ToolInputError("Expected list of string paths: attachments")
+    follow = payload.get("follow", False)
+    if not isinstance(follow, bool):
+        raise ToolInputError("Expected boolean field: follow")
+    output = payload.get("output")
+    if output is not None and not isinstance(output, str):
+        raise ToolInputError("Expected string field: output")
+    db_path = _optional_db_path(payload)
+    result = _worker_api().chatgpt_revive(
+        conversation_id=conversation_id,
+        prompt=prompt,
+        attachments=attachments,
+        follow=follow,
+        output=output,
+        db_path=db_path,
+    )
+    return {
+        "version": SCHEMA_VERSION,
+        "operation": _compact_operation(result),
     }
 
 
@@ -473,12 +517,27 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
             ToolSpec(
                 name="itir.chatgpt.list_threads",
                 title="List or search archived ChatGPT conversations",
-                description="List recent conversations or search by title substring in local SQLite.",
+                description="List recent conversations or search by query substring or multi-keywords in local SQLite, ordered by recency or turns.",
                 input_schema={
                     "type": "object",
                     "properties": {
                         "limit": {"type": "integer", "minimum": 1, "maximum": 500},
                         "query": {"type": "string"},
+                        "keywords": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Multi-keyword filter (matches any of the supplied keywords in title).",
+                        },
+                        "order_by": {
+                            "type": "string",
+                            "enum": ["recent", "turns"],
+                            "description": "Sort order: 'recent' (default) or 'turns' (descending message count).",
+                        },
+                        "min_turns": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "Minimum turns threshold (e.g. 50).",
+                        },
                         "db_path": {"type": "string"},
                     },
                     "additionalProperties": False,
@@ -487,6 +546,30 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                 read_only=True,
             ),
             list_threads,
+        ),
+        (
+            ToolSpec(
+                name="itir.chatgpt.revive",
+                title="Revive long-running thread with clean context and recorded lineage",
+                description="Revive a predecessor conversation into a fresh thread, attaching structured history memo and recording lineage.",
+                input_schema={
+                    "type": "object",
+                    "required": ["conversation_id"],
+                    "properties": {
+                        "conversation_id": {"type": "string"},
+                        "prompt": {"type": "string"},
+                        "preset": {"type": "string"},
+                        "attachments": {"type": "array", "items": {"type": "string"}},
+                        "follow": {"type": "boolean"},
+                        "output": {"type": "string"},
+                        "db_path": {"type": "string"},
+                    },
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=False,
+            ),
+            revive,
         ),
         (
             ToolSpec(
