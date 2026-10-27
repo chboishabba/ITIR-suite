@@ -103,3 +103,41 @@ def test_spectral_candidate_packet_safe_invoke_abstains_on_candidate_only_profil
     assert "profile_candidate_only" in payload["receipt"]["reason_codes"]
     assert "profile_non_authoritative" in payload["receipt"]["reason_codes"]
     assert payload["status_explanation"]["primary_reason_code"] == "profile_candidate_only"
+
+
+def test_default_registry_registers_pnf_eigen_motifs() -> None:
+    registry = build_default_registry()
+    spec = registry.get_tool_spec("itir.pnf.eigen_motifs")
+
+    assert spec is not None
+    assert spec.response_version == "itir.pnf.eigen_motifs.v1"
+    assert spec.read_only is True
+
+
+def test_pnf_eigen_motifs_direct_invoke_returns_non_promoting_analysis() -> None:
+    registry = build_default_registry()
+    result = registry.invoke(
+        "itir.pnf.eigen_motifs",
+        {
+            "thread_multisets": [
+                {"thread_id": "t1", "factors": {"alpha": 8, "beta": 7, "leaf": 0}},
+                {"thread_id": "t2", "factors": {"alpha": 7, "beta": 6, "leaf": 1}},
+                {"thread_id": "t3", "factors": {"alpha": 1, "beta": 0, "leaf": 5}},
+                {"thread_id": "t4", "factors": {"alpha": 0, "beta": 1, "leaf": 4}},
+            ],
+            "k_eigens": 3,
+            "pareto_factors": {
+                "scale_density": [1.0, 2.0, 4.0, 8.0],
+                "degree_counts": [80, 40, 27, 20],
+            },
+        },
+    )
+
+    assert result["ok"] is True
+    packet = result["result"]
+    assert packet["version"] == "itir.pnf.eigen_motifs.v1"
+    assert packet["eigen_coordinates"]["thread_count"] == 4
+    assert len(packet["eigen_coordinates"]["components"]) == 3
+    assert packet["pareto_analysis"]["factors"]["scale_density"]["continuous_pareto"]["status"] == "fit"
+    assert packet["pareto_analysis"]["factors"]["degree_counts"]["discrete_zipf"]["status"] == "fit"
+    assert packet["authority_boundary"]["zipf_rank_creates_mathematical_theorem_truth"] is False
