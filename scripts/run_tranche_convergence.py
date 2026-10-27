@@ -127,13 +127,28 @@ def run_tranche_pass(
             continue
 
         try:
-            res = chatgpt_continue(
-                conversation_id=cid,
-                prompt=prompt,
-                follow=False,
-                write_transport="async",
-                dom_fallback=False,
-            )
+            try:
+                res = chatgpt_continue(
+                    conversation_id=cid,
+                    prompt=prompt,
+                    follow=False,
+                    write_transport="async",
+                    dom_fallback=False,
+                )
+            except Exception as inner_exc:
+                if "stale" in str(inner_exc).lower():
+                    print("  Session stale detected; auto-refreshing session...")
+                    from re_gpt.session_lifecycle import SessionLifecycle
+                    SessionLifecycle().refresh(browser_mode="displayless")
+                    res = chatgpt_continue(
+                        conversation_id=cid,
+                        prompt=prompt,
+                        follow=False,
+                        write_transport="async",
+                        dom_fallback=False,
+                    )
+                else:
+                    raise
             status = res.get("status") or res.get("state") or "submitted"
             op_id = res.get("operation_id")
             print(f"  Dispatched: status={status}, op_id={op_id}")

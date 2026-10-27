@@ -63,6 +63,7 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.ao.operator_workflow",
         "itir.chatgpt.list_threads",
         "itir.chatgpt.session_status",
+        "itir.chatgpt.session_refresh",
         "itir.chatgpt.hydrate",
         "itir.chatgpt.dispatch_worker",
         "itir.chatgpt.operation_status",
