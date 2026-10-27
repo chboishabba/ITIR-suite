@@ -186,6 +186,9 @@ def dispatch_worker(payload: Mapping[str, Any]) -> JsonDict:
     pnf_mode = payload.get("pnf_mode", False)
     if not isinstance(pnf_mode, bool):
         raise ToolInputError("Expected boolean field: pnf_mode")
+    reconcile_attempts = payload.get("reconcile_attempts", 3)
+    if not isinstance(reconcile_attempts, int) or reconcile_attempts < 0:
+        raise ToolInputError("Expected non-negative integer field: reconcile_attempts")
 
     bridge_capsule: dict[str, Any] | None = None
     if pnf_mode or auto_latex_bridge:
@@ -204,6 +207,7 @@ def dispatch_worker(payload: Mapping[str, Any]) -> JsonDict:
         write_transport="async",
         dom_fallback=False,
         db_path=db_path,
+        reconcile_attempts=reconcile_attempts,
     )
     ret = {
         "version": SCHEMA_VERSION,
@@ -582,6 +586,7 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                         "follow": {"type": "boolean"},
                         "auto_latex_bridge": {"type": "boolean", "description": "Auto-extract LaTeX math and link to in-repo formal symbols."},
                         "pnf_mode": {"type": "boolean", "description": "Distill prompt through PNF reduction before dispatch (~99% token reduction)."},
+                        "reconcile_attempts": {"type": "integer", "minimum": 0, "maximum": 10, "description": "Number of full-graph reconciliation attempts. Set 0 for fast submission mode without multi-MB graph pulls."},
                         "db_path": {"type": "string"},
                     },
                     "additionalProperties": False,

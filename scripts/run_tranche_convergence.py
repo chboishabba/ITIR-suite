@@ -92,6 +92,7 @@ def run_tranche_pass(
     batch_size: int = 10,
     dry_run: bool = False,
     pause_seconds: float = 3.0,
+    fast: bool = False,
     ledger_path: Path = DEFAULT_LEDGER_PATH,
 ) -> dict[str, Any]:
     fo = FleetOrchestrator()
@@ -113,7 +114,7 @@ def run_tranche_pass(
     print(f"Total tranche members: {len(members)}")
     print(f"Already dispatched (ledger or db): {len(members) - len(candidates)}")
     print(f"Candidates remaining: {len(candidates)}")
-    print(f"Executing batch of up to {batch_size}...")
+    print(f"Executing batch of up to {batch_size} (fast={fast}, pause={pause_seconds}s)...")
 
     results = []
     for i, m in enumerate(candidates[:batch_size], 1):
@@ -127,6 +128,7 @@ def run_tranche_pass(
             continue
 
         try:
+            reconcile_attempts = 0 if fast else 3
             try:
                 res = chatgpt_continue(
                     conversation_id=cid,
@@ -134,6 +136,7 @@ def run_tranche_pass(
                     follow=False,
                     write_transport="async",
                     dom_fallback=False,
+                    reconcile_attempts=reconcile_attempts,
                 )
             except Exception as inner_exc:
                 if "stale" in str(inner_exc).lower():
@@ -146,6 +149,7 @@ def run_tranche_pass(
                         follow=False,
                         write_transport="async",
                         dom_fallback=False,
+                        reconcile_attempts=reconcile_attempts,
                     )
                 else:
                     raise
@@ -182,7 +186,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run 200+ tranche convergence pass")
     parser.add_argument("--batch-size", type=int, default=5, help="Number of conversations to dispatch in this batch")
     parser.add_argument("--dry-run", action="store_true", help="Print actions without submitting")
-    parser.add_argument("--pause", type=float, default=2.0, help="Pause between dispatches")
+    parser.add_argument("--pause", "--stagger", dest="pause", type=float, default=3.0, help="Pause/stagger between dispatches (seconds)")
+    parser.add_argument("--fast", action="store_true", help="Fast submission mode: submit without pulling full multi-MB graph")
     parser.add_argument("--ledger", type=Path, default=DEFAULT_LEDGER_PATH, help="Path to convergence ledger")
     args = parser.parse_args()
 
@@ -190,6 +195,7 @@ def main() -> None:
         batch_size=args.batch_size,
         dry_run=args.dry_run,
         pause_seconds=args.pause,
+        fast=args.fast,
         ledger_path=args.ledger,
     )
     print("\nBatch Summary:", json.dumps(res, indent=2))
