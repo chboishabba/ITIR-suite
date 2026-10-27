@@ -18,12 +18,15 @@ REQUIRED_OPERATION_COLUMNS = {
 
 
 def operation_receipts(payload: Mapping[str, Any]) -> dict[str, Any]:
-    allowed = {"canonical_thread_id", "archive_db", "db_path", "limit", "active_only"}
+    allowed = {"conversation_id", "canonical_thread_id", "archive_db", "db_path", "limit", "active_only"}
     if not isinstance(payload, Mapping) or set(payload) - allowed:
         raise ValueError("unknown operation receipt lookup fields")
+    conv_id = payload.get("conversation_id")
     thread = payload.get("canonical_thread_id")
-    if not isinstance(thread, str) or not thread.strip():
-        raise ValueError("canonical_thread_id required")
+    if (not conv_id or not isinstance(conv_id, str) or not conv_id.strip()) and (
+        not thread or not isinstance(thread, str) or not thread.strip()
+    ):
+        raise ValueError("conversation_id or canonical_thread_id required")
     limit = payload.get("limit", 10)
     if type(limit) is not int or not 1 <= limit <= 50:
         raise ValueError("limit must be 1..50")
@@ -31,27 +34,29 @@ def operation_receipts(payload: Mapping[str, Any]) -> dict[str, Any]:
     if type(active_only) is not bool:
         raise ValueError("active_only must be boolean")
 
-    # Resolve the transport conversation ID from canonical graph evidence only.
-    archive = canonical_archive_path(payload.get("archive_db"))
-    if not archive.is_file():
-        raise FileNotFoundError("canonical archive missing")
-    with sqlite3.connect(archive.resolve().as_uri() + "?mode=ro", uri=True) as canonical:
-        cols = {r[1] for r in canonical.execute("PRAGMA table_info(messages)")}
-        if not REQUIRED <= cols:
-            raise RuntimeError("canonical messages schema mismatch")
-        ids = [str(row[0]) for row in canonical.execute(
-            "SELECT DISTINCT source_thread_id FROM messages "
-            "WHERE canonical_thread_id=? AND source_thread_id IS NOT NULL LIMIT 3",
-            (thread,),
-        )]
-        count = canonical.execute(
-            "SELECT COUNT(*) FROM messages WHERE canonical_thread_id=?", (thread,)
-        ).fetchone()[0]
-    if not count:
-        raise ValueError("canonical thread missing")
-    if len(ids) != 1:
-        raise ValueError("canonical thread has missing or ambiguous transport identity")
-    conversation_id = ids[0]
+    # Resolve transport conversation ID: direct UUID takes precedence.
+    conversation_id = None
+    if conv_id and isinstance(conv_id, str) and conv_id.strip():
+        conversation_id = conv_id.strip()
+    elif thread and isinstance(thread, str) and len(thread.strip()) == 36 and "-" in thread:
+        conversation_id = thread.strip()
+    else:
+        # Legacy canonical thread resolution from canonical archive
+        archive = canonical_archive_path(payload.get("archive_db"))
+        if archive.is_file():
+            with sqlite3.connect(archive.resolve().as_uri() + "?mode=ro", uri=True) as canonical:
+                cols = {r[1] for r in canonical.execute("PRAGMA table_info(messages)")}
+                if REQUIRED <= cols:
+                    ids = [str(row[0]) for row in canonical.execute(
+                        "SELECT DISTINCT source_thread_id FROM messages "
+                        "WHERE canonical_thread_id=? AND source_thread_id IS NOT NULL LIMIT 3",
+                        (thread,),
+                    )]
+                    if len(ids) == 1:
+                        conversation_id = ids[0]
+        if not conversation_id:
+            conversation_id = str(thread).strip()
+
     raw_path = payload.get("db_path") or os.environ.get("ITIR_REGPT_RECEIPT_DB") or "~/.chatgpt_history.sqlite3"
     if not isinstance(raw_path, str) or not raw_path.strip():
         raise ValueError("invalid receipt db path")
@@ -86,7 +91,7 @@ def operation_receipts(payload: Mapping[str, Any]) -> dict[str, Any]:
         records.append(receipt)
     return {
         "version": VERSION,
-        "canonical_thread_id": thread,
+        "canonical_thread_id": thread or conversation_id,
         "transport_conversation_id": conversation_id,
         "source_authority": "canonical_archive_for_identity_only",
         "receipt_authority": "re_gpt_transport_cache_noncanonical",

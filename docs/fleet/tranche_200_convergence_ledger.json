@@ -1,0 +1,543 @@
+{
+  "version": "1.0",
+  "description": "200+ Fleet Tranche TOE Convergence Ledger",
+  "updated_at": "2026-10-27T04:19:33.889828+00:00",
+  "dispatches": {
+    "6aa3259a-440c-83ec-bcf2-f16f301d40ab": {
+      "title": "YM RH Unification Audit",
+      "cluster": "research",
+      "turns": 1879,
+      "dispatched_at": "2026-10-27T00:25:43.043238+00:00",
+      "status": "commit_unknown",
+      "operation_id": "4db9232d-6faf-4c65-9ca6-921781fb32fd"
+    },
+    "6ab4c1aa-4e14-83ec-8540-0d2c28f37dca": {
+      "title": "YM Firewall Updates",
+      "cluster": "yang_mills",
+      "turns": 1854,
+      "dispatched_at": "2026-10-27T00:29:00.341380+00:00",
+      "status": "commit_unknown",
+      "operation_id": "d88563d2-6c5f-4336-9ee8-8375afc38f2d"
+    },
+    "6ab5eb53-91dc-83ec-94f1-61a426e67187": {
+      "title": "Compare Ogg Multiplicities J Gluing",
+      "cluster": "sensiblaw",
+      "turns": 1789,
+      "dispatched_at": "2026-10-27T00:32:18.121073+00:00",
+      "status": "committed_pending",
+      "operation_id": "ae1ffbae-854b-43e4-ab7c-b20b50d135d0"
+    },
+    "6abf2e18-093c-83ec-9bdf-5bf0bc9c5f1a": {
+      "title": "Formalise Ternary Machinery",
+      "cluster": "yang_mills",
+      "turns": 1776,
+      "dispatched_at": "2026-10-27T00:36:27.553666+00:00",
+      "status": "complete",
+      "operation_id": "3becdd5b-1236-465c-b439-4f60aa4d7f85"
+    },
+    "6a9ed438-fad8-83ec-9dc0-9aad65a39dda": {
+      "title": "RH Proof Search Reduction",
+      "cluster": "yang_mills",
+      "turns": 1743,
+      "dispatched_at": "2026-10-27T00:39:54.531237+00:00",
+      "status": "complete",
+      "operation_id": "b7e28a2e-9241-48c9-9b18-e19c44ccb3ab"
+    },
+    "6aade03f-f4a4-83ec-bb5f-2915282eacaa": {
+      "title": "Repo plaquette audit",
+      "cluster": "research",
+      "turns": 1549,
+      "dispatched_at": "2026-10-27T00:43:06.461853+00:00",
+      "status": "complete",
+      "operation_id": "687cf582-2d95-4679-a35d-d88deaca1b40"
+    },
+    "6ab366d3-eb4c-83ec-a22e-dfa8f0fd3a0a": {
+      "title": "Continue YM Implementation",
+      "cluster": "max_cut",
+      "turns": 1519,
+      "dispatched_at": "2026-10-27T00:47:42.472026+00:00",
+      "status": "complete",
+      "operation_id": "0fdae28a-897c-4bef-836f-2c484fede09a"
+    },
+    "6ab9c563-7b40-83ec-993b-c9f640986934": {
+      "title": "Agda Normalization Update",
+      "cluster": "yang_mills",
+      "turns": 1512,
+      "dispatched_at": "2026-10-27T00:50:55.436821+00:00",
+      "status": "complete",
+      "operation_id": "a20b84ae-b919-4d59-aeca-c426a5ca5f1b"
+    },
+    "6aae78dd-e0b0-83ec-ae49-314a93e25d9a": {
+      "title": "Explain BSD in dashi_agda",
+      "cluster": "yang_mills",
+      "turns": 1511,
+      "dispatched_at": "2026-10-27T00:54:16.246446+00:00",
+      "status": "complete",
+      "operation_id": "2714a625-3f91-43af-9bb1-ee6a26bd1765"
+    },
+    "6ab20e43-68a4-83ec-a5a4-b483ba6d80ee": {
+      "title": "Branch convergence update",
+      "cluster": "research",
+      "turns": 1497,
+      "dispatched_at": "2026-10-27T00:58:30.507224+00:00",
+      "status": "complete",
+      "operation_id": "5c2a4de5-9c76-42d7-970e-c3dfc32250f2"
+    },
+    "6ac6dc29-1d08-83ec-990e-a1ca076ccc3d": {
+      "title": "Branch \u00b7 Check Antigravity PRs",
+      "cluster": "infrastructure",
+      "turns": 1471,
+      "dispatched_at": "2026-10-27T01:01:48.392526+00:00",
+      "status": "commit_unknown",
+      "operation_id": "b64722d0-08b3-4275-9d95-c5ece0888c93"
+    },
+    "6acc80dc-6f2c-83ec-961b-0df581615fcc": {
+      "title": "Review Eisenstein Content",
+      "cluster": "research",
+      "turns": 1440,
+      "dispatched_at": "2026-10-27T01:05:08.138358+00:00",
+      "status": "complete",
+      "operation_id": "f55603d3-a129-4ce9-8014-5b41770c6b46"
+    },
+    "6abc6eb1-8974-83ec-adaa-273176a52d5d": {
+      "title": "Continue Implementation",
+      "cluster": "research",
+      "turns": 1357,
+      "dispatched_at": "2026-10-27T01:09:10.187406+00:00",
+      "status": "complete",
+      "operation_id": "a4ea5ec6-70c8-4916-a116-c39a2f296b4d"
+    },
+    "6ab64e16-a4e0-83ec-94a7-0bb99bff501c": {
+      "title": "Formalise Psychological Warfare Detection",
+      "cluster": "yang_mills",
+      "turns": 1350,
+      "dispatched_at": "2026-10-27T01:12:29.829592+00:00",
+      "status": "complete",
+      "operation_id": "3ed5a393-e851-4604-a074-15fbb67132a9"
+    },
+    "6adc876d-1658-83ec-b2e1-f858799e62c2": {
+      "title": "Complete Max Cut Analysis",
+      "cluster": "max_cut",
+      "turns": 1343,
+      "dispatched_at": "2026-10-27T01:15:53.233773+00:00",
+      "status": "complete",
+      "operation_id": "2354ebfd-e8e1-4c0d-a141-cf97e85c6891"
+    },
+    "6ab453fc-5a58-83ec-a45a-80b371283b01": {
+      "title": "Formalise Dashi Agda",
+      "cluster": "yang_mills",
+      "turns": 1307,
+      "dispatched_at": "2026-10-27T01:19:58.709039+00:00",
+      "status": "complete",
+      "operation_id": "ffb4d95c-e607-4515-87d2-de8a1ec502a7"
+    },
+    "6abcce84-6138-83ec-95ef-ec467883edf8": {
+      "title": "Formalise IRGC Letter Analysis",
+      "cluster": "yang_mills",
+      "turns": 1292,
+      "dispatched_at": "2026-10-27T01:23:24.479263+00:00",
+      "status": "commit_unknown",
+      "operation_id": "07a770b8-4c7a-4133-b7f4-5a4cd2ec8365"
+    },
+    "6aab2491-2bfc-83ec-bd96-e9646e31353d": {
+      "title": "Review Disability And Sustainability",
+      "cluster": "sensiblaw",
+      "turns": 1263,
+      "dispatched_at": "2026-10-27T01:26:53.637773+00:00",
+      "status": "commit_unknown",
+      "operation_id": "57628577-68ad-4c2e-9c41-f1d83f245162"
+    },
+    "6ab9b485-6f08-83ec-aff9-491653b4e9e2": {
+      "title": "Summarise Residual Width Results",
+      "cluster": "research",
+      "turns": 1208,
+      "dispatched_at": "2026-10-27T01:31:56.896107+00:00",
+      "status": "committed_pending",
+      "operation_id": "0ff6c59a-697c-425c-b818-e3350b945680"
+    },
+    "6acc1f2c-f2bc-83ec-990c-f287f10fe3c0": {
+      "title": "Formalise Quantum Birthmarks",
+      "cluster": "yang_mills",
+      "turns": 1174,
+      "dispatched_at": "2026-10-27T01:35:25.301927+00:00",
+      "status": "complete",
+      "operation_id": "cb36919d-0eee-4b0f-842a-c2fd142e5374"
+    },
+    "6ab61a0a-d8d8-83ec-9e03-bbd21a2c54a1": {
+      "title": "Source attribution summary",
+      "cluster": "sensiblaw",
+      "turns": 1171,
+      "dispatched_at": "2026-10-27T01:38:36.516656+00:00",
+      "status": "complete",
+      "operation_id": "8fbaa594-6a68-4c4e-8394-40fe69c6bc21"
+    },
+    "6ab09cfa-e238-83ec-bc60-03d83a12b1c6": {
+      "title": "Goal 1 Proof Update",
+      "cluster": "sensiblaw",
+      "turns": 1160,
+      "dispatched_at": "2026-10-27T01:43:04.052158+00:00",
+      "status": "complete",
+      "operation_id": "0eacdb42-5598-40a3-b890-3662f7125bb6"
+    },
+    "6abf28f9-af5c-83ec-bfa6-4a932cd7124d": {
+      "title": "Check repository 279 occurrences",
+      "cluster": "sensiblaw",
+      "turns": 1142,
+      "dispatched_at": "2026-10-27T01:46:20.652822+00:00",
+      "status": "complete",
+      "operation_id": "b8668806-2e0b-47e1-a6e2-2f1ced27a8d2"
+    },
+    "6ab3930a-c3f4-83ec-b212-d7636e4af9b3": {
+      "title": "Continue Agda implementation",
+      "cluster": "yang_mills",
+      "turns": 1108,
+      "dispatched_at": "2026-10-27T01:49:33.817478+00:00",
+      "status": "complete",
+      "operation_id": "4ce63be4-a354-4e0c-849d-e4acd3bed0db"
+    },
+    "6aafc419-fea0-83ec-9e99-97fa847c029d": {
+      "title": "Continue implementation summary",
+      "cluster": "infrastructure",
+      "turns": 1102,
+      "dispatched_at": "2026-10-27T01:54:36.897797+00:00",
+      "status": "commit_unknown",
+      "operation_id": "d5d155ef-9008-4e1d-b4d1-6eff0007673a"
+    },
+    "6ab51a5e-792c-83ec-aea5-beb04a25f6af": {
+      "title": "Continue implementation",
+      "cluster": "research",
+      "turns": 1088,
+      "dispatched_at": "2026-10-27T01:57:52.735571+00:00",
+      "status": "complete",
+      "operation_id": "f30c9e4c-19fc-499a-9cef-80ddac5bd69e"
+    },
+    "6aafec0c-a044-83ec-9403-5a61c0a6129c": {
+      "title": "YM Proof Recuts",
+      "cluster": "research",
+      "turns": 1087,
+      "dispatched_at": "2026-10-27T02:01:04.342013+00:00",
+      "status": "complete",
+      "operation_id": "30c4df68-a2b5-4251-b2a8-a3d390c3408a"
+    },
+    "6ab4a234-8540-83ec-86ed-e10d9452b54b": {
+      "title": "Continue Implementation Update",
+      "cluster": "yang_mills",
+      "turns": 1060,
+      "dispatched_at": "2026-10-27T02:05:38.046204+00:00",
+      "status": "complete",
+      "operation_id": "138ead65-7e23-453c-a22b-1819a07cbae7"
+    },
+    "6acd82a5-edd4-83ec-a889-6a6dc886d74c": {
+      "title": "Branch \u00b7 MAPS Epstein Connection Review",
+      "cluster": "research",
+      "turns": 1048,
+      "dispatched_at": "2026-10-27T02:09:00.024906+00:00",
+      "status": "committed_pending",
+      "operation_id": "af87ea15-66f9-4051-8ee8-2fc5fde16431"
+    },
+    "6ac075a2-1ff0-83ec-b398-8a1b42a196d2": {
+      "title": "Pareto Frontier Update",
+      "cluster": "sensiblaw",
+      "turns": 1031,
+      "dispatched_at": "2026-10-27T02:12:25.659839+00:00",
+      "status": "complete",
+      "operation_id": "75755626-4129-4400-95c1-9d0354b3f510"
+    },
+    "6ab36efa-c748-83ec-89b3-99743f81626d": {
+      "title": "Investigate Agda Typing Bug",
+      "cluster": "yang_mills",
+      "turns": 1025,
+      "dispatched_at": "2026-10-27T02:16:50.539902+00:00",
+      "status": "commit_unknown",
+      "operation_id": "7dca16e7-352a-46aa-8303-1d47dee10d62"
+    },
+    "6adcbbd6-e058-83ec-a555-57bbd3730a65": {
+      "title": "Fact check BOM scandal",
+      "cluster": "research",
+      "turns": 1016,
+      "dispatched_at": "2026-10-27T02:20:16.194862+00:00",
+      "status": "complete",
+      "operation_id": "5adc7e05-72e9-46f7-97bc-3ecd0508f17d"
+    },
+    "6ab9b4a7-84a8-83ec-a946-e0278bf80ad3": {
+      "title": "Continue Implementation Findings",
+      "cluster": "sensiblaw",
+      "turns": 1014,
+      "dispatched_at": "2026-10-27T02:23:34.779024+00:00",
+      "status": "commit_unknown",
+      "operation_id": "777cdb71-c9ca-441c-a30c-31a946bada7a"
+    },
+    "6ab5ddd7-efa4-83ec-a9a6-46d662acd4aa": {
+      "title": "Implement Attached Modules",
+      "cluster": "research",
+      "turns": 998,
+      "dispatched_at": "2026-10-27T02:27:55.549045+00:00",
+      "status": "commit_unknown",
+      "operation_id": "55a102bb-4f70-4525-b301-42ae26cb40ee"
+    },
+    "6ab5cb92-7298-83ec-a938-1a85557d4dd3": {
+      "title": "Continue implementation",
+      "cluster": "sensiblaw",
+      "turns": 986,
+      "dispatched_at": "2026-10-27T02:31:09.596568+00:00",
+      "status": "complete",
+      "operation_id": "6bd6bc8d-8788-4eac-afe6-f38cf6bcaf68"
+    },
+    "6ac326ef-28a4-83ec-9f47-39a396290745": {
+      "title": "Unpack geometric reasoning",
+      "cluster": "sensiblaw",
+      "turns": 985,
+      "dispatched_at": "2026-10-27T02:34:38.015131+00:00",
+      "status": "complete",
+      "operation_id": "62d6f4ce-1522-4ef0-be40-3f5598632ac2"
+    },
+    "6aae73f6-4534-83ec-84ca-d32c7b65cffc": {
+      "title": "Relate 369 Hyperfabric Pants Gluing",
+      "cluster": "research",
+      "turns": 985,
+      "dispatched_at": "2026-10-27T02:38:54.802823+00:00",
+      "status": "complete",
+      "operation_id": "5aa8f3c9-a36c-47f3-9918-7df57425fe29"
+    },
+    "6ab86bc3-8958-83ec-a9a7-a310bcfbeed0": {
+      "title": "Quantum metrology repo summary",
+      "cluster": "research",
+      "turns": 983,
+      "dispatched_at": "2026-10-27T02:42:07.315603+00:00",
+      "status": "complete",
+      "operation_id": "1af95e59-4a5a-4a5a-9b2d-675946b322e7"
+    },
+    "6ab11e2e-85dc-83ec-afc9-05d5e828d20e": {
+      "title": "Repo Content Check",
+      "cluster": "yang_mills",
+      "turns": 981,
+      "dispatched_at": "2026-10-27T02:48:00.902226+00:00",
+      "status": "complete",
+      "operation_id": "494022fb-6b6a-4421-aba5-afdbaec15e30"
+    },
+    "6ab9f3d1-b824-83ec-bbd1-b2134b202a6b": {
+      "title": "Continue H1 Implementation",
+      "cluster": "research",
+      "turns": 945,
+      "dispatched_at": "2026-10-27T02:51:52.752954+00:00",
+      "status": "complete",
+      "operation_id": "b75278c0-e309-4dd4-8fe1-b7ecc48f3591"
+    },
+    "6ab5ce56-0684-83ec-8c32-a7b7956c2a1f": {
+      "title": "Implementation update across repos",
+      "cluster": "yang_mills",
+      "turns": 944,
+      "dispatched_at": "2026-10-27T02:55:10.870412+00:00",
+      "status": "committed_pending",
+      "operation_id": "6c8b8a90-6f3d-4bbe-9d7c-efb6acf0540d"
+    },
+    "6aaf576d-04a8-83ec-b1e0-558d007c3553": {
+      "title": "Agda Interaction Weld",
+      "cluster": "yang_mills",
+      "turns": 942,
+      "dispatched_at": "2026-10-27T02:58:45.511674+00:00",
+      "status": "complete",
+      "operation_id": "47420788-7e0f-475f-a6de-e69ce7833aed"
+    },
+    "6ab9fcbd-b788-83ec-9566-8202343214ba": {
+      "title": "P3G Physical Core Update",
+      "cluster": "yang_mills",
+      "turns": 936,
+      "dispatched_at": "2026-10-27T03:02:04.408170+00:00",
+      "status": "commit_unknown",
+      "operation_id": "05322bad-9f77-4072-9dbd-26a83feefcfb"
+    },
+    "6aafc9e3-ab68-83ec-84ac-f499a501362b": {
+      "title": "Continue A1 Proof Implementation",
+      "cluster": "yang_mills",
+      "turns": 936,
+      "dispatched_at": "2026-10-27T03:05:15.101652+00:00",
+      "status": "complete",
+      "operation_id": "05bbc18a-cb91-4762-a513-8b2546e8285d"
+    },
+    "6a9d240e-a20c-83ec-8357-2ef5c470edc5": {
+      "title": "Legal Recognition And Remedies",
+      "cluster": "sensiblaw",
+      "turns": 935,
+      "dispatched_at": "2026-10-27T03:09:07.622381+00:00",
+      "status": "complete",
+      "operation_id": "72abd121-ddf1-427f-b93a-788755405e50"
+    },
+    "6abf33c7-bdfc-83ec-944f-6756ef1df1fc": {
+      "title": "Implemented YM Max Cut",
+      "cluster": "max_cut",
+      "turns": 930,
+      "dispatched_at": "2026-10-27T03:12:32.116694+00:00",
+      "status": "complete",
+      "operation_id": "c6ccf917-0cc2-473b-892a-307c9d1087d1"
+    },
+    "6acdce8d-bb78-83ec-a049-5c5d29b2912d": {
+      "title": "Compare Phi Content",
+      "cluster": "sensiblaw",
+      "turns": 921,
+      "dispatched_at": "2026-10-27T03:14:11.902534+00:00",
+      "status": "complete",
+      "operation_id": "479e5cc5-6dc9-42a8-b4df-1505ed6faaa0"
+    },
+    "6ad18543-fce0-83ec-9c43-1bccc55925f3": {
+      "title": "Branch \u00b7 Compare Phi Content",
+      "cluster": "research",
+      "turns": 917,
+      "dispatched_at": "2026-10-27T03:16:38.859339+00:00",
+      "status": "complete",
+      "operation_id": "90f59e87-e4c2-46c3-8b4f-e8b1983ae504"
+    },
+    "6ab204f5-e500-83ec-85a9-16eb8365d66a": {
+      "title": "R423 Canonical Cutset Update",
+      "cluster": "max_cut",
+      "turns": 915,
+      "dispatched_at": "2026-10-27T03:19:54.567563+00:00",
+      "status": "complete",
+      "operation_id": "300f79cb-dfee-4124-a096-b2de186ccaef"
+    },
+    "6ab4dade-90cc-83ec-86be-d4d52808df22": {
+      "title": "Agda SLR Status Check",
+      "cluster": "yang_mills",
+      "turns": 912,
+      "dispatched_at": "2026-10-27T03:23:09.068560+00:00",
+      "status": "complete",
+      "operation_id": "aac72e2d-9bd7-49cb-9d61-68839cfa6024"
+    },
+    "6acedbf4-3590-83ec-982b-a71d82cc83cc": {
+      "title": "Formalise Magnotherm Research",
+      "cluster": "yang_mills",
+      "turns": 900,
+      "dispatched_at": "2026-10-27T03:25:42.438449+00:00",
+      "status": "complete",
+      "operation_id": "48029e2c-3fdd-4834-8d72-6d3ff8edc2d5"
+    },
+    "6ac32646-0abc-83ec-93ce-cc4cb41858d0": {
+      "title": "Formalise Framework Layers",
+      "cluster": "yang_mills",
+      "turns": 878,
+      "dispatched_at": "2026-10-27T03:29:06.349910+00:00",
+      "status": "complete",
+      "operation_id": "6fa5a40a-9f40-42eb-9c54-ffa157790226"
+    },
+    "6aafb63c-2c04-83ec-ab8b-63af797deb3d": {
+      "title": "B M2 Dissipation Fold",
+      "cluster": "research",
+      "turns": 863,
+      "dispatched_at": "2026-10-27T03:32:20.291518+00:00",
+      "status": "complete",
+      "operation_id": "5e68148e-5a22-4dd1-af96-af8c61651d99"
+    },
+    "6ab0b48d-3048-83ec-b878-22939c44c974": {
+      "title": "Repo State Space Formalisation",
+      "cluster": "infrastructure",
+      "turns": 861,
+      "dispatched_at": "2026-10-27T03:35:28.623435+00:00",
+      "status": "complete",
+      "operation_id": "053962aa-8a55-4354-a6d6-6646490201a4"
+    },
+    "6abb06d4-8bc0-83ec-a431-0fbfd727f802": {
+      "title": "SCALE Evidence Review",
+      "cluster": "research",
+      "turns": 850,
+      "dispatched_at": "2026-10-27T03:38:50.940967+00:00",
+      "status": "commit_unknown",
+      "operation_id": "f0a3365a-8d35-414c-b5b5-618b8a53c5af"
+    },
+    "6abf3528-a134-83ec-b126-f426461c92c3": {
+      "title": "Implemented Max Cut",
+      "cluster": "max_cut",
+      "turns": 840,
+      "dispatched_at": "2026-10-27T03:42:08.308282+00:00",
+      "status": "complete",
+      "operation_id": "e7ffccad-9c0f-4b6c-9d2b-22d789bf7a25"
+    },
+    "6adc939d-0cc0-83ec-8422-66be5d77ff87": {
+      "title": "Web Fact Check",
+      "cluster": "sensiblaw",
+      "turns": 819,
+      "dispatched_at": "2026-10-27T03:45:28.933370+00:00",
+      "status": "complete",
+      "operation_id": "d968a826-e75e-4936-bea0-a95e368fc7d9"
+    },
+    "6acecb94-b3d0-83ec-a2c7-f6ba29f6ee65": {
+      "title": "Repo progress check",
+      "cluster": "research",
+      "turns": 809,
+      "dispatched_at": "2026-10-27T03:47:35.535130+00:00",
+      "status": "complete",
+      "operation_id": "9d247928-2136-42a1-bd37-9acff6d4459c"
+    },
+    "6ab4a3df-e908-83ec-8492-826bca238f47": {
+      "title": "Implement Agda SLR Spine",
+      "cluster": "yang_mills",
+      "turns": 803,
+      "dispatched_at": "2026-10-27T03:50:48.960395+00:00",
+      "status": "complete",
+      "operation_id": "d7515517-625d-496c-a1eb-42cf5c029392"
+    },
+    "6adc852d-593c-83ec-a34d-6b582e1ee6e5": {
+      "title": "Continue Max Cut Investigation",
+      "cluster": "max_cut",
+      "turns": 757,
+      "dispatched_at": "2026-10-27T03:54:13.432672+00:00",
+      "status": "commit_unknown",
+      "operation_id": "6f612ffd-d97b-47a4-8064-c24edf7e74fd"
+    },
+    "6ab9dd13-b3b0-83ec-8dad-e0fd07793ec3": {
+      "title": "Continued Wilson reduction",
+      "cluster": "yang_mills",
+      "turns": 748,
+      "dispatched_at": "2026-10-27T03:57:24.295531+00:00",
+      "status": "complete",
+      "operation_id": "2b5e53e5-bb44-484d-a79d-142422b7d8f1"
+    },
+    "6ab5199a-d64c-83ec-beb0-e14859c7f922": {
+      "title": "M13 Empirical Acceptance\ud8f9\udfc2",
+      "cluster": "sensiblaw",
+      "turns": 746,
+      "dispatched_at": "2026-10-27T04:01:20.541691+00:00",
+      "status": "commit_unknown",
+      "operation_id": "ffac9b7c-8cc7-4bbe-a3d5-1e42ceca0988"
+    },
+    "6ab503de-8598-83ec-b1ce-cde8b18d1b84": {
+      "title": "Simplify NS Roadmap",
+      "cluster": "infrastructure",
+      "turns": 736,
+      "dispatched_at": "2026-10-27T04:04:39.448726+00:00",
+      "status": "complete",
+      "operation_id": "6b80485a-f566-4321-bcc4-44d0ecab77c3"
+    },
+    "6ab4c264-f344-83ec-8a2c-a6d66cadbc16": {
+      "title": "PR 1039 recut progress",
+      "cluster": "research",
+      "turns": 695,
+      "dispatched_at": "2026-10-27T04:07:51.143400+00:00",
+      "status": "complete",
+      "operation_id": "bc64f16c-c981-43e0-ac4b-40164ccb1856"
+    },
+    "6adc97da-71c4-83ec-a677-ea65a84b3d19": {
+      "title": "Source Audit Research",
+      "cluster": "research",
+      "turns": 662,
+      "dispatched_at": "2026-10-27T04:11:24.511453+00:00",
+      "status": "commit_unknown",
+      "operation_id": "1f03b08c-7c3d-42fe-8787-a107afb5d26f"
+    },
+    "6acc17ac-21d8-83ec-8acb-bca91cbef240": {
+      "title": "MAPS Epstein Connection Review",
+      "cluster": "research",
+      "turns": 662,
+      "dispatched_at": "2026-10-27T04:14:23.771335+00:00",
+      "status": "submission_observed",
+      "operation_id": "0fe8c6a0-76f1-49e8-aa48-a766ef3a6ab3"
+    },
+    "6ade0b7f-4c68-83ec-b336-d952b03d9fa8": {
+      "title": "Formalise Quantum Work",
+      "cluster": "yang_mills",
+      "turns": 656,
+      "dispatched_at": "2026-10-27T04:19:33.889763+00:00",
+      "status": "submission_observed",
+      "operation_id": "c491348d-4ef2-4bc1-b774-ae08c037293a"
+    }
+  }
+}

@@ -632,9 +632,10 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                 title="Read recent canonical-thread operation receipts",
                 description="Resolve canonical conversation to bounded re-gpt transport receipt state; no SQL or dispatch.",
                 input_schema={
-                    "type": "object", "required": ["canonical_thread_id"],
+                    "type": "object",
                     "additionalProperties": False,
                     "properties": {
+                        "conversation_id": {"type": "string", "minLength": 1},
                         "canonical_thread_id": {"type": "string", "minLength": 1},
                         "archive_db": {"type": "string"},
                         "db_path": {"type": "string"},
