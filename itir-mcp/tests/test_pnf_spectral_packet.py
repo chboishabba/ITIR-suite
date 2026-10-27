@@ -6,7 +6,12 @@ from pathlib import Path
 import pytest
 
 from itir_mcp.pnf_spectral_numeric_abi import spectral_parity_hash
-from itir_mcp.pnf_spectral_packet import VERSION, build_candidate_spectral_packet
+from itir_mcp.pnf_spectral_packet import (
+    VERSION,
+    analyze_pareto_distribution,
+    build_candidate_spectral_packet,
+    compute_hierarchical_eigen_coordinates,
+)
 
 
 FIXTURE_PATH = (
@@ -139,3 +144,40 @@ def test_build_candidate_spectral_packet_omits_full_receipts_and_span_fields_fro
     packet = build_candidate_spectral_packet(_partial_view(), payload)
 
     _assert_no_bulky_fields(packet)
+
+
+def test_hierarchical_eigen_coordinates_are_deterministic() -> None:
+    rows = [
+        {"thread_id": "t1", "factors": {"f_a": 5, "f_b": 4, "f_c": 0}},
+        {"thread_id": "t2", "factors": {"f_a": 4, "f_b": 3, "f_c": 1}},
+        {"thread_id": "t3", "factors": {"f_a": 3, "f_b": 2, "f_c": 0}},
+        {"thread_id": "t4", "factors": {"f_a": 0, "f_b": 1, "f_c": 4}},
+        {"thread_id": "t5", "factors": {"f_a": 1, "f_b": 0, "f_c": 5}},
+    ]
+
+    first = compute_hierarchical_eigen_coordinates(rows, k_eigens=3)
+    second = compute_hierarchical_eigen_coordinates(rows, k_eigens=3)
+
+    assert first == second
+    assert first["components"][0]["motif_name"] == second["components"][0]["motif_name"]
+    assert first["components"][0]["top_loadings"][0]["loading"] >= 0
+    assert first["concept_coordinates"][0]["concept"] == "f_a"
+
+
+def test_pareto_analysis_fits_continuous_and_discrete_models() -> None:
+    result = analyze_pareto_distribution(
+        {
+            "dissipation": {"values": [1.0, 1.5, 2.5, 5.0, 10.0]},
+            "degree_counts": {"values": [120, 60, 40, 30, 24, 20]},
+        }
+    )
+
+    continuous = result["factors"]["dissipation"]["continuous_pareto"]
+    discrete = result["factors"]["degree_counts"]["discrete_zipf"]
+
+    assert continuous["status"] == "fit"
+    assert continuous["alpha"] > 0
+    assert continuous["density_exponent_alpha_plus_one"] > 1
+    assert discrete["status"] == "fit"
+    assert discrete["nu"] > 0
+    assert result["non_promotion_receipt"]["rank_frequency_fit_creates_proof_authority"] is False
