@@ -67,6 +67,7 @@ def test_dispatch_forces_async_without_dom_fallback(monkeypatch) -> None:
         "write_transport": "async",
         "dom_fallback": False,
         "db_path": None,
+        "reconcile_attempts": 3,
     }]
 
 
