@@ -59,6 +59,7 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.ao.heartbeat",
         "itir.ao.report_result",
         "itir.ao.gap_check",
+        "itir.ao.spawn_parallel_lanes",
         "itir.ao.frontier_evidence",
         "itir.ao.completed_operation_candidates",
         "itir.ao.operator_workflow",
