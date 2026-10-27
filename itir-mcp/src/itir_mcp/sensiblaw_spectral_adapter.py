@@ -6,8 +6,30 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, Mapping
 
+from .pnf_spectral_packet import (
+    analyze_pareto_distribution as _analyze_pareto_distribution,
+    compute_hierarchical_eigen_coordinates as _compute_hierarchical_eigen_coordinates,
+)
+
 
 UNAVAILABLE = "UNAVAILABLE"
+
+
+def compute_hierarchical_eigen_coordinates(
+    thread_multisets: Sequence[Mapping[str, Any]],
+    k_eigens: int = 5,
+) -> dict[str, Any]:
+    """Expose the generic dependency-free eigen decomposition at the SensibLaw adapter boundary."""
+
+    return _compute_hierarchical_eigen_coordinates(thread_multisets, k_eigens=k_eigens)
+
+
+def analyze_pareto_distribution(
+    factors: Mapping[str, Any] | Sequence[float | int],
+) -> dict[str, Any]:
+    """Expose generic Pareto/Zipf diagnostics without granting semantic authority."""
+
+    return _analyze_pareto_distribution(factors)
 
 
 def materialize_sensiblaw_spectral_payload(
