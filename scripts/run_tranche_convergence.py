@@ -109,7 +109,7 @@ def dispatch_single_member(
     ledger_path: Path,
     stagger_delay: float = 0.0,
 ) -> dict[str, Any]:
-    if stagger_delay > 0:
+    if stagger_delay > 0 and not dry_run:
         time.sleep(stagger_delay)
 
     cid = member.conversation_id
@@ -183,7 +183,7 @@ def run_tranche_pass(
 ) -> dict[str, Any]:
     fo = FleetOrchestrator()
     prefix_val = None if (prefix == "" or prefix.lower() in {"all", "none"}) else prefix
-    members = fo.iterate_tranche(prefix=prefix_val, min_turns=min_turns, sort_by="turns")
+    members = fo.iterate_tranche(prefix=prefix_val, min_turns=min_turns, sort_by="turns", limit=limit_candidates)
     if limit_candidates and len(members) > limit_candidates:
         members = members[:limit_candidates]
 

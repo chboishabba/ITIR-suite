@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "description": "200+ Fleet Tranche TOE Convergence Ledger",
-  "updated_at": "2026-10-27T04:58:26.020761+00:00",
+  "updated_at": "2026-10-27T05:13:24.692308+00:00",
   "dispatches": {
     "6aa3259a-440c-83ec-bcf2-f16f301d40ab": {
       "title": "YM RH Unification Audit",
@@ -1570,6 +1570,206 @@
       "dispatched_at": "2026-10-27T04:58:26.017429+00:00",
       "status": "commit_unknown",
       "operation_id": "d9c70ba0-ced1-45ed-b3df-624399d88089"
+    },
+    "69719a75-e538-8320-b5cc-1da13392b090": {
+      "title": "Branch \u00b7 Visualising Collapse and Sparsity - RTX - light transport",
+      "cluster": "yang_mills",
+      "turns": 94,
+      "dispatched_at": "2026-10-27T05:03:58.378708+00:00",
+      "status": "submission_observed",
+      "operation_id": "56fc7ff1-8215-4e72-ad24-fbe98e8371ae"
+    },
+    "696edf60-9784-8322-95ce-8aac370e28bc": {
+      "title": "3D voxel shape mismatch",
+      "cluster": "research",
+      "turns": 38,
+      "dispatched_at": "2026-10-27T05:04:20.350875+00:00",
+      "status": "submission_observed",
+      "operation_id": "62961dbd-d6e6-4a16-a882-8659147d93d4"
+    },
+    "696783b4-b818-8323-8a3a-bbd0fdf9b6e1": {
+      "title": "Chrome MCP Setup for Codex",
+      "cluster": "infrastructure",
+      "turns": 16,
+      "dispatched_at": "2026-10-27T05:05:09.690028+00:00",
+      "status": "submission_observed",
+      "operation_id": "796767ef-2a93-4146-97e5-7e10072b103d"
+    },
+    "692fcc02-5974-8332-9837-cdc47fee7aa6": {
+      "title": "Find Breville BB400 manual",
+      "cluster": "research",
+      "turns": 16,
+      "dispatched_at": "2026-10-27T05:05:21.491529+00:00",
+      "status": "submission_observed",
+      "operation_id": "26be0e19-20ca-4cb3-b748-40fe9458183c"
+    },
+    "6addda05-6188-83ec-8528-3296a7ced246": {
+      "title": "Solar Inverter Tinnitus Assessment",
+      "cluster": "yang_mills",
+      "turns": 43,
+      "dispatched_at": "2026-10-27T05:05:39.209726+00:00",
+      "status": "submission_observed",
+      "operation_id": "ef06fc04-93a4-4d05-993a-7506139f6a85"
+    },
+    "6acdb578-c988-83ec-a959-ffa19e636d2a": {
+      "title": "Ontology Crosswalk Review",
+      "cluster": "yang_mills",
+      "turns": 34,
+      "dispatched_at": "2026-10-27T05:05:43.017769+00:00",
+      "status": "submission_observed",
+      "operation_id": "fe6c7d93-3d59-4d62-9f27-1fefb75d04b2"
+    },
+    "6acd5a68-787c-83ec-bed0-faa2019f4702": {
+      "title": "Review Call Transcripts",
+      "cluster": "sensiblaw",
+      "turns": 25,
+      "dispatched_at": "2026-10-27T05:05:48.911661+00:00",
+      "status": "submission_observed",
+      "operation_id": "5f81e688-4ff2-4f3f-8c5e-16586db5e7e4"
+    },
+    "696dbd54-8818-8324-b66b-70e7bdf32d2b": {
+      "title": "Branch \u00b7 Formalism Bridging GR and MDL - LES",
+      "cluster": "sensiblaw",
+      "turns": 102,
+      "dispatched_at": "2026-10-27T05:06:05.732658+00:00",
+      "status": "submission_observed",
+      "operation_id": "1032f9d5-33a3-4609-bb2f-38098387046a"
+    },
+    "6ac0a20e-f880-83ec-873c-f661343c3d35": {
+      "title": "New chat",
+      "cluster": "research",
+      "turns": 40,
+      "dispatched_at": "2026-10-27T05:06:46.558402+00:00",
+      "status": "commit_unknown",
+      "operation_id": "c3312d13-007a-48da-bc8d-d31870d8ede6"
+    },
+    "6ac5c04a-68cc-83ec-a235-39671c15f0c0": {
+      "title": "CLI ChatGPT Access History",
+      "cluster": "infrastructure",
+      "turns": 38,
+      "dispatched_at": "2026-10-27T05:06:48.029733+00:00",
+      "status": "commit_unknown",
+      "operation_id": "7e8747a0-d4cc-482b-bbe0-0e94c129fd79"
+    },
+    "6ad1fe25-71c8-83ec-bf53-d450d66e422d": {
+      "title": "Review Geolocation Archive",
+      "cluster": "research",
+      "turns": 23,
+      "dispatched_at": "2026-10-27T05:06:53.145994+00:00",
+      "status": "submission_observed",
+      "operation_id": "8b369067-8c36-4e04-b811-11908d4525c8"
+    },
+    "6ab64511-6df4-83ec-a837-e11ebbc4b0cd": {
+      "title": "AI agent hack summary",
+      "cluster": "yang_mills",
+      "turns": 34,
+      "dispatched_at": "2026-10-27T05:07:00.874786+00:00",
+      "status": "commit_unknown",
+      "operation_id": "5e182b6b-fc60-492d-aeb5-cdc9fa8df8ed"
+    },
+    "6a802bf3-e970-83ec-a98d-88c3f7b26211": {
+      "title": "Solar Battery Arbitrage Feasibility",
+      "cluster": "research",
+      "turns": 32,
+      "dispatched_at": "2026-10-27T05:07:05.723486+00:00",
+      "status": "commit_unknown",
+      "operation_id": "d9264f78-1266-4173-8100-0663c2b49661"
+    },
+    "6ab676f2-8aa4-83ec-9160-c64581ffbec2": {
+      "title": "Review Linguistic Implementation",
+      "cluster": "yang_mills",
+      "turns": 27,
+      "dispatched_at": "2026-10-27T05:07:10.838280+00:00",
+      "status": "commit_unknown",
+      "operation_id": "e182db26-5386-4d2e-b99d-039a5478d36f"
+    },
+    "6ac59809-8c8c-83ec-adfd-0670c9413bdd": {
+      "title": "Indoor Hose Splitter Advice",
+      "cluster": "research",
+      "turns": 26,
+      "dispatched_at": "2026-10-27T05:07:16.129540+00:00",
+      "status": "commit_unknown",
+      "operation_id": "43e5b3fe-78ad-4921-8992-f52beed383fa"
+    },
+    "6aae9385-5ea8-83ec-83e5-8f6c0550d860": {
+      "title": "Schedule Fusion Briefing",
+      "cluster": "sensiblaw",
+      "turns": 25,
+      "dispatched_at": "2026-10-27T05:07:27.424654+00:00",
+      "status": "commit_unknown",
+      "operation_id": "68d09029-2f94-40bb-bc35-fe2c7d6b9f4b"
+    },
+    "6ac9cee5-0150-83ec-bf2c-96281172c215": {
+      "title": "Formalise laser antenna results",
+      "cluster": "yang_mills",
+      "turns": 21,
+      "dispatched_at": "2026-10-27T05:07:31.073314+00:00",
+      "status": "submission_observed",
+      "operation_id": "01491f6a-50c7-4e06-8d7d-558fa205a82f"
+    },
+    "6ab1d633-981c-83ec-b4f3-d62e45c0f469": {
+      "title": "Check Mabo Formalism",
+      "cluster": "sensiblaw",
+      "turns": 23,
+      "dispatched_at": "2026-10-27T05:07:31.511395+00:00",
+      "status": "commit_unknown",
+      "operation_id": "412fe068-ff78-4313-88cf-d24ae02bb03d"
+    },
+    "6a9ed5bd-f8ac-83ec-a91a-51157b85cd71": {
+      "title": "Uniform RH Adapter Update",
+      "cluster": "yang_mills",
+      "turns": 21,
+      "dispatched_at": "2026-10-27T05:07:46.861812+00:00",
+      "status": "commit_unknown",
+      "operation_id": "79440e09-558e-4266-826f-73cfe4a45019"
+    },
+    "6ab848a0-6094-83ec-bb88-285782b12cd1": {
+      "title": "Ear Wetness Advice",
+      "cluster": "yang_mills",
+      "turns": 14,
+      "dispatched_at": "2026-10-27T05:08:01.336790+00:00",
+      "status": "commit_unknown",
+      "operation_id": "f5e7646f-45d0-4ecb-8d2e-fdeb80a8c9bb"
+    },
+    "69d652fa-bba8-839e-aa75-62b304969525": {
+      "title": "Cheap Wine and IBS",
+      "cluster": "yang_mills",
+      "turns": 11,
+      "dispatched_at": "2026-10-27T05:10:39.716716+00:00",
+      "status": "submission_observed",
+      "operation_id": "20d97096-f580-4c23-93fb-02da620cd921"
+    },
+    "696dc9cb-ccf0-8320-a76f-6c0729d9e6ca": {
+      "title": "AI and IP Erosion",
+      "cluster": "sensiblaw",
+      "turns": 12,
+      "dispatched_at": "2026-10-27T05:10:42.752431+00:00",
+      "status": "submission_observed",
+      "operation_id": "07f17945-3609-4ca2-8188-925843e7c115"
+    },
+    "6ac825f6-f5dc-83ec-b7e1-22f4aa32708b": {
+      "title": "Fact check AI pricing",
+      "cluster": "yang_mills",
+      "turns": 13,
+      "dispatched_at": "2026-10-27T05:11:26.302903+00:00",
+      "status": "submission_observed",
+      "operation_id": "b11d8858-b294-47d5-a162-47914549d8c3"
+    },
+    "6ac09dd1-4a2c-83ec-92ad-ef05e6be2a51": {
+      "title": "New chat",
+      "cluster": "research",
+      "turns": 12,
+      "dispatched_at": "2026-10-27T05:13:16.615107+00:00",
+      "status": "commit_unknown",
+      "operation_id": "02b4bec6-7220-4142-954b-f0dbf7922aeb"
+    },
+    "6ab123fa-e250-83ec-ba63-ca1f5661a1a4": {
+      "title": "Sourdough starter instructions",
+      "cluster": "research",
+      "turns": 11,
+      "dispatched_at": "2026-10-27T05:13:24.689390+00:00",
+      "status": "commit_unknown",
+      "operation_id": "a089da84-aaa2-4ae8-a7b8-31f7b7e36aa5"
     }
   }
 }
