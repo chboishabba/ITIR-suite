@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from .contracts import JsonDict, ToolHandler, ToolInputError, ToolSpec
+from .fleet_round_runner import spawn_parallel_lanes
 
 SCHEMA_VERSION = "itir.ao_mcp_control.v1"
 CONTROL_PLANE_DIRNAME = ".autonomous-orchestrator"
@@ -224,8 +225,78 @@ def ao_gap_check(payload: Mapping[str, Any]) -> JsonDict:
     }
 
 
+
+def ao_spawn_parallel_lanes(payload: Mapping[str, Any]) -> JsonDict:
+    lanes = payload.get("lanes")
+    workers = payload.get("workers")
+    if not isinstance(lanes, list) or not all(isinstance(item, Mapping) for item in lanes):
+        raise ToolInputError("lanes must be an array of lane objects")
+    if not isinstance(workers, list):
+        raise ToolInputError("workers must be an array of conversation IDs or worker objects")
+    if len(lanes) != len(workers):
+        raise ToolInputError("lanes and workers must have equal length")
+    db_path = payload.get("db_path")
+    if db_path is not None and (not isinstance(db_path, str) or not db_path.strip()):
+        raise ToolInputError("db_path must be a non-empty string when provided")
+    try:
+        result = spawn_parallel_lanes(
+            lanes,
+            workers,
+            db_path=db_path.strip() if isinstance(db_path, str) else None,
+        )
+    except (TypeError, ValueError, FileNotFoundError) as exc:
+        raise ToolInputError(str(exc)) from exc
+    return {
+        "version": SCHEMA_VERSION,
+        "ok": True,
+        "result": result,
+    }
+
+
 def get_autonomous_orchestrator_tools() -> list[tuple[ToolSpec, ToolHandler]]:
     return [
+
+        (
+            ToolSpec(
+                name="itir.ao.spawn_parallel_lanes",
+                title="Spawn independent AO Fleet lanes",
+                description=(
+                    "Dispatch one pairwise-independent AO lane per explicit Fleet worker using direct async "
+                    "fast mode. Requires noTypedMeet-safe typed supports and never enables DOM fallback or automatic resend."
+                ),
+                input_schema={
+                    "type": "object",
+                    "required": ["lanes", "workers"],
+                    "properties": {
+                        "lanes": {
+                            "type": "array",
+                            "items": {"type": "object"},
+                            "description": "Independent lane claim objects produced by compute_dynamic_lane_descent.",
+                        },
+                        "workers": {
+                            "type": "array",
+                            "items": {
+                                "oneOf": [
+                                    {"type": "string"},
+                                    {
+                                        "type": "object",
+                                        "required": ["conversation_id"],
+                                        "properties": {"conversation_id": {"type": "string"}},
+                                        "additionalProperties": True,
+                                    },
+                                ]
+                            },
+                            "description": "One explicit ChatGPT conversation worker per lane.",
+                        },
+                        "db_path": {"type": "string"},
+                    },
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=False,
+            ),
+            ao_spawn_parallel_lanes,
+        ),
         (
             ToolSpec(
                 name="itir.ao.status",
