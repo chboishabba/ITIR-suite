@@ -214,7 +214,10 @@ def ao_gap_check(payload: Mapping[str, Any]) -> JsonDict:
         raise ToolInputError("conversation_id and formal_file are required")
 
     from re_gpt.gap_comparator import ExactGapComparator
-    comparator = ExactGapComparator()
+    database_url = payload.get("database_url")
+    if database_url is not None and (not isinstance(database_url, str) or not database_url.strip()):
+        raise ToolInputError("database_url must be a non-empty string")
+    comparator = ExactGapComparator(database_url=database_url)
     report = comparator.compare(cid, formal_file)
     return {
         "version": SCHEMA_VERSION,
@@ -330,6 +333,7 @@ def get_autonomous_orchestrator_tools() -> list[tuple[ToolSpec, ToolHandler]]:
                     "properties": {
                         "conversation_id": {"type": "string"},
                         "formal_file": {"type": "string"},
+                        "database_url": {"type": "string"},
                     },
                     "required": ["conversation_id", "formal_file"],
                     "additionalProperties": False,
