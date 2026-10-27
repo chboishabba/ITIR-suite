@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "description": "200+ Fleet Tranche TOE Convergence Ledger",
-  "updated_at": "2026-10-27T04:33:49.527746+00:00",
+  "updated_at": "2026-10-27T04:58:26.020761+00:00",
   "dispatches": {
     "6aa3259a-440c-83ec-bcf2-f16f301d40ab": {
       "title": "YM RH Unification Audit",
@@ -1010,6 +1010,566 @@
       "dispatched_at": "2026-10-27T04:33:49.521348+00:00",
       "status": "commit_unknown",
       "operation_id": "9820078d-6306-44fa-9ee6-64a256931274"
+    },
+    "6ade3067-86d0-83ec-958e-dcfa1ddf7af5": {
+      "title": "Web check formalisation",
+      "cluster": "max_cut",
+      "turns": 297,
+      "dispatched_at": "2026-10-27T04:40:41.810599+00:00",
+      "status": "submission_observed",
+      "operation_id": "473fff4b-005a-48fb-a3e9-08cefc614b34"
+    },
+    "6ad1ecd7-18f0-83ec-bb08-3c8d07e3a1c9": {
+      "title": "View Post And Replies",
+      "cluster": "sensiblaw",
+      "turns": 313,
+      "dispatched_at": "2026-10-27T04:40:42.450195+00:00",
+      "status": "complete",
+      "operation_id": "aab85d48-420e-46ca-8d1c-1bd7df0edbdf"
+    },
+    "6ac07326-c37c-83ec-b72f-bde9743db677": {
+      "title": "Implement Preflight Diagnostics",
+      "cluster": "yang_mills",
+      "turns": 312,
+      "dispatched_at": "2026-10-27T04:40:43.993737+00:00",
+      "status": "complete",
+      "operation_id": "71398fc6-2354-49f6-a272-4c85bf39d7d6"
+    },
+    "6ab9a939-c734-83ec-8c74-0cbc51c237cd": {
+      "title": "Berkeley Diffraction Imaging",
+      "cluster": "sensiblaw",
+      "turns": 312,
+      "dispatched_at": "2026-10-27T04:40:55.071218+00:00",
+      "status": "complete",
+      "operation_id": "7af3269f-22ba-4e24-ac19-74245ad33bed"
+    },
+    "6adee046-0bdc-83ec-af54-24523bc3316f": {
+      "title": "Formalise Web Audit",
+      "cluster": "yang_mills",
+      "turns": 247,
+      "dispatched_at": "2026-10-27T04:40:57.675908+00:00",
+      "status": "submission_observed",
+      "operation_id": "66993489-9947-4fbd-84f6-7b13228bd4e6"
+    },
+    "6adcc24d-ab24-83ec-be84-a6220bac415b": {
+      "title": "Complete PR Max Cut",
+      "cluster": "max_cut",
+      "turns": 307,
+      "dispatched_at": "2026-10-27T04:41:02.950374+00:00",
+      "status": "committed_pending",
+      "operation_id": "c2003865-42d9-4dbc-9481-67d4f237a802"
+    },
+    "6ad4177b-593c-83ec-a3ba-5582292855c4": {
+      "title": "DASHI versus 254 State Machine",
+      "cluster": "yang_mills",
+      "turns": 227,
+      "dispatched_at": "2026-10-27T04:41:06.594304+00:00",
+      "status": "submission_observed",
+      "operation_id": "dbc0caa8-beb7-4456-b78c-d5e7004e4ef1"
+    },
+    "6ac03af0-ad38-83ec-9629-16b17f6f5686": {
+      "title": "Fact check transcript",
+      "cluster": "sensiblaw",
+      "turns": 299,
+      "dispatched_at": "2026-10-27T04:41:06.856579+00:00",
+      "status": "complete",
+      "operation_id": "849bbefe-d78c-4e31-ab72-9f3db67fd1e2"
+    },
+    "6adf435b-4520-83ec-b4b0-d4f9212c09a9": {
+      "title": "Complete Max Cut Continuation",
+      "cluster": "max_cut",
+      "turns": 300,
+      "dispatched_at": "2026-10-27T04:41:07.578905+00:00",
+      "status": "complete",
+      "operation_id": "e72d7db2-8d2e-4a99-a28d-87d7edd08df6"
+    },
+    "6adf433a-000c-83ec-9cf6-576f660081eb": {
+      "title": "Max cut continuation",
+      "cluster": "max_cut",
+      "turns": 298,
+      "dispatched_at": "2026-10-27T04:41:20.802640+00:00",
+      "status": "complete",
+      "operation_id": "920e5db1-37a4-419f-88ac-1e62adac4575"
+    },
+    "6ac0a89a-d81c-83ec-affe-e155906037d8": {
+      "title": "Implement Max Cut",
+      "cluster": "max_cut",
+      "turns": 286,
+      "dispatched_at": "2026-10-27T04:41:23.742077+00:00",
+      "status": "complete",
+      "operation_id": "6eff4d2f-e5c1-467e-ad00-18fd01e16dc7"
+    },
+    "6adcdb9d-a9f8-83ec-b798-7405f9f63ade": {
+      "title": "Max Cut Validation",
+      "cluster": "max_cut",
+      "turns": 288,
+      "dispatched_at": "2026-10-27T04:41:25.021702+00:00",
+      "status": "complete",
+      "operation_id": "177e2a89-ec19-4a96-94ad-c86878f02071"
+    },
+    "6ad01c62-68b0-83ec-b4a5-4da4f9dce9e2": {
+      "title": "SensibLaw Agda Test Case",
+      "cluster": "sensiblaw",
+      "turns": 279,
+      "dispatched_at": "2026-10-27T04:41:31.980086+00:00",
+      "status": "complete",
+      "operation_id": "2753a351-65b5-4bfd-aadf-2a5b380b0483"
+    },
+    "6a83f27f-0104-83ec-b6bb-75b9a424abe3": {
+      "title": "New theorem patterns identified in PR 584",
+      "cluster": "sensiblaw",
+      "turns": 282,
+      "dispatched_at": "2026-10-27T04:41:35.287090+00:00",
+      "status": "complete",
+      "operation_id": "4b31ae56-8f77-4cd5-8113-0bacb9cdde68"
+    },
+    "6abc5064-0354-83ec-96dc-c3a24bc469ff": {
+      "title": "Check Agda 369 Dialectic",
+      "cluster": "yang_mills",
+      "turns": 254,
+      "dispatched_at": "2026-10-27T04:41:40.709033+00:00",
+      "status": "complete",
+      "operation_id": "db7bf029-ebef-4818-bd9c-78c406b4d972"
+    },
+    "6a959ed2-7248-83ec-a210-076da86b79e6": {
+      "title": "BIDI Compiler Update",
+      "cluster": "yang_mills",
+      "turns": 259,
+      "dispatched_at": "2026-10-27T04:41:42.161373+00:00",
+      "status": "complete",
+      "operation_id": "e0ffdcf2-4da4-4f33-8751-cd216d5fca1c"
+    },
+    "6abc7161-354c-83ec-8389-94c395ce9f68": {
+      "title": "Compare transformed prime response",
+      "cluster": "research",
+      "turns": 253,
+      "dispatched_at": "2026-10-27T04:41:51.268088+00:00",
+      "status": "complete",
+      "operation_id": "efd79fb0-3291-4303-99f2-9d374a7ef89b"
+    },
+    "6abb95db-ab6c-83ec-b587-f997b257ca43": {
+      "title": "Compare NetDocuments Actionstep",
+      "cluster": "sensiblaw",
+      "turns": 253,
+      "dispatched_at": "2026-10-27T04:41:51.710833+00:00",
+      "status": "complete",
+      "operation_id": "64cf13c0-19a5-4713-bb5b-8bed92da19ae"
+    },
+    "6ad19388-fedc-83ec-be01-c8e1c9245239": {
+      "title": "Integrate OpenAI Proofs",
+      "cluster": "sensiblaw",
+      "turns": 251,
+      "dispatched_at": "2026-10-27T04:42:02.422749+00:00",
+      "status": "complete",
+      "operation_id": "96b5d535-9db2-457e-99fe-7e3c0002bbb4"
+    },
+    "6ac06599-9758-83ec-a651-bc9ab4daf67a": {
+      "title": "Transcript Fact Check",
+      "cluster": "sensiblaw",
+      "turns": 242,
+      "dispatched_at": "2026-10-27T04:42:12.120528+00:00",
+      "status": "complete",
+      "operation_id": "adc5c288-7044-411d-9dcf-a47bc9b68014"
+    },
+    "6adf52a8-f8f8-83ec-a234-e3775e2bbdb7": {
+      "title": "Formalise Fourier Pixel Research",
+      "cluster": "yang_mills",
+      "turns": 164,
+      "dispatched_at": "2026-10-27T04:45:59.286258+00:00",
+      "status": "submission_observed",
+      "operation_id": "2c2ec991-fe0a-4362-9b54-270950f8c413"
+    },
+    "6ac09e96-e100-83ec-8969-6c3216449a03": {
+      "title": "Max cut proof update",
+      "cluster": "max_cut",
+      "turns": 227,
+      "dispatched_at": "2026-10-27T04:46:12.847762+00:00",
+      "status": "commit_unknown",
+      "operation_id": "6d5147a5-f5dd-4ad9-94d6-0371d304d8e8"
+    },
+    "6a92e6ff-6f48-83ec-973a-fcc567d9727a": {
+      "title": "Remember BIDI Method",
+      "cluster": "research",
+      "turns": 226,
+      "dispatched_at": "2026-10-27T04:46:16.113187+00:00",
+      "status": "commit_unknown",
+      "operation_id": "c8526d69-37d7-4a53-94f1-c95ec2012864"
+    },
+    "6ac5bf2b-3f7c-83ec-85e2-fe81312a8355": {
+      "title": "Complete Max Cut Agda Proof",
+      "cluster": "max_cut",
+      "turns": 222,
+      "dispatched_at": "2026-10-27T04:46:23.622307+00:00",
+      "status": "commit_unknown",
+      "operation_id": "e96fe085-af27-485c-a925-a73bff2b26b4"
+    },
+    "6acc67a2-d538-83ec-8adf-e692f2ced8d9": {
+      "title": "Explore Ogg Prime Fourier Geometry",
+      "cluster": "max_cut",
+      "turns": 210,
+      "dispatched_at": "2026-10-27T04:46:26.382972+00:00",
+      "status": "commit_unknown",
+      "operation_id": "157837ff-c9b4-48a7-b58a-f66ef4a62a5b"
+    },
+    "6adf23dd-9598-83ec-85f9-e562104b39b2": {
+      "title": "Formalise Diamond Quantum Paper",
+      "cluster": "yang_mills",
+      "turns": 201,
+      "dispatched_at": "2026-10-27T04:46:30.261356+00:00",
+      "status": "submission_observed",
+      "operation_id": "30c551c9-c663-4ce4-a772-c8a19678b74b"
+    },
+    "6ac0a8d7-2480-83ec-afa1-fc8f3d6deaa8": {
+      "title": "Complete Max Cut Partition",
+      "cluster": "max_cut",
+      "turns": 210,
+      "dispatched_at": "2026-10-27T04:46:31.816623+00:00",
+      "status": "commit_unknown",
+      "operation_id": "01162c75-14bc-4370-a935-fb8ae61697e5"
+    },
+    "6adec41d-ec14-83ec-a6c5-b6572a321551": {
+      "title": "Web check and formalise",
+      "cluster": "yang_mills",
+      "turns": 157,
+      "dispatched_at": "2026-10-27T04:46:33.938618+00:00",
+      "status": "submission_observed",
+      "operation_id": "1da9034e-ee79-4fb0-84e6-8e3411607ebb"
+    },
+    "6a903331-0084-83ec-b6fb-87a794d34ccf": {
+      "title": "Direct TOE Worker",
+      "cluster": "sensiblaw",
+      "turns": 194,
+      "dispatched_at": "2026-10-27T04:46:46.018092+00:00",
+      "status": "commit_unknown",
+      "operation_id": "b9023abe-9aca-41f8-88c7-752a118a58ab"
+    },
+    "6aaf59bb-5a00-83ec-b7f6-1ff20cfa2a90": {
+      "title": "Continue RH implementation",
+      "cluster": "yang_mills",
+      "turns": 189,
+      "dispatched_at": "2026-10-27T04:46:47.542321+00:00",
+      "status": "commit_unknown",
+      "operation_id": "b122897d-0931-4db3-afe2-ee3658554f56"
+    },
+    "6ab08700-6bb0-83ec-a4d5-39360b790c90": {
+      "title": "Implementation update",
+      "cluster": "yang_mills",
+      "turns": 181,
+      "dispatched_at": "2026-10-27T04:46:50.172919+00:00",
+      "status": "commit_unknown",
+      "operation_id": "43c320e5-1ffc-4dec-a606-c0a345de135a"
+    },
+    "6ab0add9-03a4-83ec-8c87-e91fd23ac01e": {
+      "title": "Audit overview",
+      "cluster": "yang_mills",
+      "turns": 177,
+      "dispatched_at": "2026-10-27T04:46:55.002633+00:00",
+      "status": "commit_unknown",
+      "operation_id": "7456b506-089f-40db-8fea-88e4c13f0c9a"
+    },
+    "6ac5bee4-0a74-83ec-bc89-8eec1e9b464b": {
+      "title": "Compare Two PRs",
+      "cluster": "infrastructure",
+      "turns": 177,
+      "dispatched_at": "2026-10-27T04:47:01.263408+00:00",
+      "status": "commit_unknown",
+      "operation_id": "885657d6-f833-4e39-89a2-cb79d1739942"
+    },
+    "6add06f1-2b34-83ec-92bb-1a8d0a3d863c": {
+      "title": "Analyze Patent And PRs",
+      "cluster": "sensiblaw",
+      "turns": 157,
+      "dispatched_at": "2026-10-27T04:47:06.742740+00:00",
+      "status": "submission_observed",
+      "operation_id": "8a8579c1-e0c3-4a3a-aebf-cedca74b4438"
+    },
+    "6aaf5717-e7d4-83ec-9de2-8b88b6b3a914": {
+      "title": "Implement Concrete Native Proofs",
+      "cluster": "research",
+      "turns": 173,
+      "dispatched_at": "2026-10-27T04:47:09.902203+00:00",
+      "status": "commit_unknown",
+      "operation_id": "e7b94e8f-7aad-4283-8388-8ef870562aa7"
+    },
+    "6ac4674e-e460-83ec-8019-ec99bad5623d": {
+      "title": "Branch \u00b7 Lean Millennium Problems Repo",
+      "cluster": "research",
+      "turns": 148,
+      "dispatched_at": "2026-10-27T04:47:30.835359+00:00",
+      "status": "commit_unknown",
+      "operation_id": "a9069632-f0a7-478e-9fac-a2339ac2ad3f"
+    },
+    "6abf0a04-dc64-83ec-9735-fd136c9da0ed": {
+      "title": "Formalise Latest PRs",
+      "cluster": "yang_mills",
+      "turns": 153,
+      "dispatched_at": "2026-10-27T04:47:32.287411+00:00",
+      "status": "commit_unknown",
+      "operation_id": "1b60a276-5dc2-4aa2-be6e-d577352d9591"
+    },
+    "6aa3d50f-8414-83ec-a665-b286bbc95449": {
+      "title": "Explain Meme Concept",
+      "cluster": "sensiblaw",
+      "turns": 144,
+      "dispatched_at": "2026-10-27T04:47:36.323157+00:00",
+      "status": "commit_unknown",
+      "operation_id": "b8a13745-d021-449e-8420-549fa66cf180"
+    },
+    "6aa68652-d8f8-83ec-b55c-421450bfb238": {
+      "title": "Legal Unreasonableness Summary",
+      "cluster": "sensiblaw",
+      "turns": 140,
+      "dispatched_at": "2026-10-27T04:47:43.837677+00:00",
+      "status": "commit_unknown",
+      "operation_id": "476ba819-07ce-4da7-a7f7-20030269b76a"
+    },
+    "6abf11c1-1788-83ec-928f-1551f2e05e3f": {
+      "title": "Formalise Evidence Review",
+      "cluster": "yang_mills",
+      "turns": 138,
+      "dispatched_at": "2026-10-27T04:47:45.034453+00:00",
+      "status": "commit_unknown",
+      "operation_id": "f3a82855-b8e6-4dce-ad57-72574cda8f32"
+    },
+    "6ade2331-cfc8-83ec-9f5d-c96cbd8396e1": {
+      "title": "DASHI PR Watch",
+      "cluster": "yang_mills",
+      "turns": 122,
+      "dispatched_at": "2026-10-27T04:51:09.701372+00:00",
+      "status": "submission_observed",
+      "operation_id": "86449212-98af-4766-b79c-9c3c93070274"
+    },
+    "6ab877d0-0c04-83ec-8c8f-3f5f5c41c9f2": {
+      "title": "Formalise Systemic Risk Mechanism",
+      "cluster": "yang_mills",
+      "turns": 130,
+      "dispatched_at": "2026-10-27T04:51:44.026488+00:00",
+      "status": "commit_unknown",
+      "operation_id": "39329ad8-bf90-4867-808d-936fbad91c1d"
+    },
+    "6aafccec-61e8-83ec-a1b7-19e9550d8b4e": {
+      "title": "RH Programme Remaining Obligations",
+      "cluster": "yang_mills",
+      "turns": 126,
+      "dispatched_at": "2026-10-27T04:51:46.927837+00:00",
+      "status": "commit_unknown",
+      "operation_id": "4881ed8f-111c-42d1-b627-19fbfecf0ba0"
+    },
+    "6ac0758b-63fc-83ec-a2c1-1a05b799ff5e": {
+      "title": "Agda Pareto Max Cut Update",
+      "cluster": "sensiblaw",
+      "turns": 126,
+      "dispatched_at": "2026-10-27T04:51:51.878485+00:00",
+      "status": "commit_unknown",
+      "operation_id": "9f331bab-62d4-4b01-bb80-f7bdb35f00a4"
+    },
+    "6add7b63-7464-83ec-95bb-798d7f59f842": {
+      "title": "Formalise Whale Phonology",
+      "cluster": "yang_mills",
+      "turns": 114,
+      "dispatched_at": "2026-10-27T04:51:51.896228+00:00",
+      "status": "submission_observed",
+      "operation_id": "0f221447-99e6-4886-ac57-7da7ca1959b9"
+    },
+    "6ac5c2ee-8ab8-83ec-ab08-b07024176ae6": {
+      "title": "Max cut implementation update",
+      "cluster": "max_cut",
+      "turns": 124,
+      "dispatched_at": "2026-10-27T04:51:56.892111+00:00",
+      "status": "commit_unknown",
+      "operation_id": "547988e9-e49b-455b-90f6-9d603402023b"
+    },
+    "6ac5bc43-e0b8-83ec-baf1-a8a3bb339e6a": {
+      "title": "Repo state review",
+      "cluster": "infrastructure",
+      "turns": 121,
+      "dispatched_at": "2026-10-27T04:52:07.125098+00:00",
+      "status": "commit_unknown",
+      "operation_id": "72eaa0a1-bb0f-4e47-a588-ed43f45a3ae5"
+    },
+    "6ac058c4-fca4-83ec-8f8d-a31525052f9f": {
+      "title": "Audit Security Findings",
+      "cluster": "yang_mills",
+      "turns": 117,
+      "dispatched_at": "2026-10-27T04:52:11.818368+00:00",
+      "status": "commit_unknown",
+      "operation_id": "82a15c38-384b-4791-8bbf-9f2f3558f3d7"
+    },
+    "6ad2b734-ad7c-83ec-ae2b-cecb85ad48a7": {
+      "title": "Formalise Repo Evidence",
+      "cluster": "yang_mills",
+      "turns": 71,
+      "dispatched_at": "2026-10-27T04:52:16.624717+00:00",
+      "status": "submission_observed",
+      "operation_id": "fa1bd901-4b66-49ba-93db-6dd4e406a2cb"
+    },
+    "6abf4490-8ca0-83ec-9093-cdc4796bcfe3": {
+      "title": "Formalise Repo Machinery",
+      "cluster": "yang_mills",
+      "turns": 117,
+      "dispatched_at": "2026-10-27T04:52:18.052538+00:00",
+      "status": "commit_unknown",
+      "operation_id": "2a4e96a3-92c0-4e39-97bf-89c50776d813"
+    },
+    "6ab09253-2904-83ec-825e-62aee193c36a": {
+      "title": "Implemented C D Submission Cut",
+      "cluster": "yang_mills",
+      "turns": 109,
+      "dispatched_at": "2026-10-27T04:52:29.031975+00:00",
+      "status": "commit_unknown",
+      "operation_id": "4c28653d-925c-4246-a431-5af67dc7a70c"
+    },
+    "6ac06d6d-0ce0-83ec-8bc5-77ed7c39f71e": {
+      "title": "Implemented Route A Optimization",
+      "cluster": "research",
+      "turns": 101,
+      "dispatched_at": "2026-10-27T04:52:32.088232+00:00",
+      "status": "commit_unknown",
+      "operation_id": "cd1e97a8-f82f-4544-9743-e45d1c231845"
+    },
+    "6ab9a9eb-6cc0-83ec-a849-f66e40b619f1": {
+      "title": "Formalise imaging model",
+      "cluster": "yang_mills",
+      "turns": 100,
+      "dispatched_at": "2026-10-27T04:52:36.726035+00:00",
+      "status": "commit_unknown",
+      "operation_id": "4b5a4af4-e0c3-42bb-8dc7-222b229e6f86"
+    },
+    "6add069d-aa5c-83ec-878f-6d08b30b9660": {
+      "title": "Cross Pollinate PRs and Evidence",
+      "cluster": "sensiblaw",
+      "turns": 99,
+      "dispatched_at": "2026-10-27T04:52:43.601101+00:00",
+      "status": "commit_unknown",
+      "operation_id": "d879dae2-4d0c-49ce-bae1-0ffc95cd334d"
+    },
+    "6aa67ad9-386c-83ec-b0ba-7d27af8ca46c": {
+      "title": "Geneva LAWS Update",
+      "cluster": "sensiblaw",
+      "turns": 99,
+      "dispatched_at": "2026-10-27T04:52:47.538871+00:00",
+      "status": "commit_unknown",
+      "operation_id": "11060884-37d4-4340-afeb-cdda1ea99e0c"
+    },
+    "6add0733-2dbc-83ec-a672-501c1e1441c4": {
+      "title": "Formalise Base 12 Geometry",
+      "cluster": "yang_mills",
+      "turns": 88,
+      "dispatched_at": "2026-10-27T04:52:51.876392+00:00",
+      "status": "submission_observed",
+      "operation_id": "1f508bb7-013f-4be3-8057-3e4dac0d932e"
+    },
+    "6abb8e86-1fd0-83ec-86a4-4f3cd3a12c31": {
+      "title": "Formalise AlphaEarth Research",
+      "cluster": "yang_mills",
+      "turns": 93,
+      "dispatched_at": "2026-10-27T04:52:52.907534+00:00",
+      "status": "commit_unknown",
+      "operation_id": "5ebec87a-d450-4027-978f-b79b4235fc4c"
+    },
+    "6ab1c177-7b14-83ec-940e-9379f0070969": {
+      "title": "Formalise Mathematical Foundations",
+      "cluster": "yang_mills",
+      "turns": 76,
+      "dispatched_at": "2026-10-27T04:53:01.827603+00:00",
+      "status": "commit_unknown",
+      "operation_id": "82d0c1dd-ce7f-42bc-826c-eef20b2d695f"
+    },
+    "6ab06c40-aea0-83ec-9779-e5b962b6e894": {
+      "title": "Human flight energy comparison",
+      "cluster": "sensiblaw",
+      "turns": 76,
+      "dispatched_at": "2026-10-27T04:53:06.761827+00:00",
+      "status": "commit_unknown",
+      "operation_id": "58c23522-2211-4c8b-9d1e-0143019de0cf"
+    },
+    "6ad19207-2218-83ec-af51-7713ba5e9b28": {
+      "title": "Compare RH Frontiers",
+      "cluster": "research",
+      "turns": 73,
+      "dispatched_at": "2026-10-27T04:53:11.331768+00:00",
+      "status": "submission_observed",
+      "operation_id": "a0f91555-7dad-46c5-8206-38feb88c78e3"
+    },
+    "6ac7346d-4b04-83ec-8ae8-f6a50a8808d1": {
+      "title": "Formalise Chemistry Biology Content",
+      "cluster": "yang_mills",
+      "turns": 65,
+      "dispatched_at": "2026-10-27T04:56:16.289292+00:00",
+      "status": "submission_observed",
+      "operation_id": "6ca84625-f85e-4ffc-bf2d-19c3ed928021"
+    },
+    "6ac73418-a408-83ec-993f-696422ddffe6": {
+      "title": "Formalise Attachment",
+      "cluster": "yang_mills",
+      "turns": 57,
+      "dispatched_at": "2026-10-27T04:56:56.880713+00:00",
+      "status": "submission_observed",
+      "operation_id": "c7b106fa-c718-4e8a-8a03-50f06b0fe49d"
+    },
+    "6ac45909-a140-83ec-8ebd-2e73210075c9": {
+      "title": "Lean Millennium Problems Repo",
+      "cluster": "research",
+      "turns": 66,
+      "dispatched_at": "2026-10-27T04:57:43.334299+00:00",
+      "status": "commit_unknown",
+      "operation_id": "6b2cd2fc-3cd0-4d82-b785-462d850a28b4"
+    },
+    "6ab66ee9-47a0-83ec-9b5c-2db78effeccf": {
+      "title": "Histamine PMDD Evidence Review",
+      "cluster": "yang_mills",
+      "turns": 59,
+      "dispatched_at": "2026-10-27T04:57:50.679095+00:00",
+      "status": "commit_unknown",
+      "operation_id": "68fd55cb-c720-4f9c-ac48-455c7d601be3"
+    },
+    "6ac5bf94-3b10-83ec-8b27-9faee423be8e": {
+      "title": "Lean Max Cut Update",
+      "cluster": "max_cut",
+      "turns": 57,
+      "dispatched_at": "2026-10-27T04:58:00.831261+00:00",
+      "status": "commit_unknown",
+      "operation_id": "fa05c126-e04d-4111-8acc-6880acd060a3"
+    },
+    "6ab9bbc5-28d0-83ec-a44a-b4c628ba3c6c": {
+      "title": "Agda S4 Seam Proof Update",
+      "cluster": "yang_mills",
+      "turns": 54,
+      "dispatched_at": "2026-10-27T04:58:06.453834+00:00",
+      "status": "commit_unknown",
+      "operation_id": "85f197dd-4a31-4680-a6e1-c2c77837bd1f"
+    },
+    "6ac44ac4-da44-83ec-a44d-546b92f88bd0": {
+      "title": "Compare E8 Models",
+      "cluster": "research",
+      "turns": 53,
+      "dispatched_at": "2026-10-27T04:58:10.691297+00:00",
+      "status": "commit_unknown",
+      "operation_id": "27b63a86-7cc2-4cb7-a3f0-83c01c0a04d9"
+    },
+    "6ab1e2ff-7648-83ec-af37-4d9fe97ad797": {
+      "title": "Summarise Bulu Conversation",
+      "cluster": "yang_mills",
+      "turns": 51,
+      "dispatched_at": "2026-10-27T04:58:15.775696+00:00",
+      "status": "commit_unknown",
+      "operation_id": "ec1cbb95-156a-4138-b004-0bb1217bd797"
+    },
+    "6ab674b1-cfa0-83ec-b1d3-10dddae2064f": {
+      "title": "Formalisation Summary",
+      "cluster": "sensiblaw",
+      "turns": 51,
+      "dispatched_at": "2026-10-27T04:58:20.823244+00:00",
+      "status": "commit_unknown",
+      "operation_id": "ef53bc20-883c-4cb2-a73d-01fc693d61ce"
+    },
+    "6abf36d4-b514-83ec-bd7f-e011739507d0": {
+      "title": "R829 Vector Status",
+      "cluster": "infrastructure",
+      "turns": 50,
+      "dispatched_at": "2026-10-27T04:58:26.017429+00:00",
+      "status": "commit_unknown",
+      "operation_id": "d9c70ba0-ced1-45ed-b3df-624399d88089"
     }
   }
 }

@@ -175,10 +175,18 @@ def run_tranche_pass(
     fast: bool = False,
     concurrent_mode: bool = True,
     workers: int = 20,
+    prefix: str = "6a",
+    min_turns: int = 10,
+    loop: bool = False,
+    limit_candidates: int = 1000,
     ledger_path: Path = DEFAULT_LEDGER_PATH,
 ) -> dict[str, Any]:
     fo = FleetOrchestrator()
-    members = fo.iterate_tranche(prefix="6a", min_turns=50, sort_by="turns")
+    prefix_val = None if (prefix == "" or prefix.lower() in {"all", "none"}) else prefix
+    members = fo.iterate_tranche(prefix=prefix_val, min_turns=min_turns, sort_by="turns")
+    if limit_candidates and len(members) > limit_candidates:
+        members = members[:limit_candidates]
+
     ledger = load_tranche_ledger(ledger_path)
     dispatches = ledger.get("dispatches", {})
 
@@ -193,9 +201,13 @@ def run_tranche_pass(
         if m.conversation_id not in dispatches and m.conversation_id not in mutated_cids
     ]
 
+    if not candidates and loop:
+        print("Tranche fully traversed; looping back around to top leads for Stage R5 AST Subtraction convergence...")
+        candidates = list(members)
+
     batch = candidates[:batch_size]
 
-    print(f"Total tranche members: {len(members)}")
+    print(f"Total tranche members: {len(members)} (prefix={prefix_val or 'ALL'}, min_turns={min_turns})")
     print(f"Already dispatched (ledger or db): {len(members) - len(candidates)}")
     print(f"Candidates remaining: {len(candidates)}")
     print(f"Executing batch of up to {len(batch)} (concurrent={concurrent_mode}, workers={workers}, fast={fast}, stagger={pause_seconds}s)...")
@@ -269,6 +281,11 @@ def main() -> None:
     parser.add_argument("--workers", type=int, default=20, help="Max concurrent worker threads")
     parser.add_argument("--concurrent", dest="concurrent", action="store_true", default=True, help="Run workers concurrently (default: True)")
     parser.add_argument("--no-concurrent", dest="concurrent", action="store_false", help="Run workers sequentially")
+    parser.add_argument("--prefix", type=str, default="6a", help="Prefix filter for conversation IDs (or empty/all for entire catalog)")
+    parser.add_argument("--all", dest="prefix", action="store_const", const="", help="Target all conversations regardless of prefix")
+    parser.add_argument("--min-turns", type=int, default=10, help="Minimum cached turns for candidate selection")
+    parser.add_argument("--limit-candidates", type=int, default=1000, help="Max candidate conversations to consider")
+    parser.add_argument("--loop", action="store_true", default=False, help="Loop back around to top leads for Stage R5 AST subtraction when queue depleted")
     parser.add_argument("--ledger", type=Path, default=DEFAULT_LEDGER_PATH, help="Path to convergence ledger")
     args = parser.parse_args()
 
@@ -279,6 +296,10 @@ def main() -> None:
         fast=args.fast,
         concurrent_mode=args.concurrent,
         workers=args.workers,
+        prefix=args.prefix,
+        min_turns=args.min_turns,
+        loop=args.loop,
+        limit_candidates=args.limit_candidates,
         ledger_path=args.ledger,
     )
     print("\nBatch Summary:", json.dumps(res, indent=2))
