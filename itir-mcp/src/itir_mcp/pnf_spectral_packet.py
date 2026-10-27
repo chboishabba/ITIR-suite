@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from collections.abc import Mapping, Sequence
 from typing import Any
 
@@ -74,6 +75,387 @@ def build_candidate_spectral_packet(
     if parity_hash is not None:
         packet["parity_hash"] = parity_hash
     return packet
+
+
+
+def compute_hierarchical_eigen_coordinates(
+    thread_multisets: Sequence[Mapping[str, Any]],
+    k_eigens: int = 5,
+) -> dict[str, Any]:
+    """Compute deterministic covariance-SVD coordinates and MP motif selection.
+
+    A covariance matrix is symmetric positive semidefinite, so its Jacobi
+    eigendecomposition is its singular-value decomposition. The implementation
+    stays dependency-free and fixes eigenvector signs from the largest loading
+    so repeated runs have stable coordinates and motif names.
+    """
+
+    if isinstance(k_eigens, bool) or not isinstance(k_eigens, int) or k_eigens < 1:
+        raise ValueError("k_eigens must be a positive integer")
+    rows, thread_ids, factor_names = _normalise_thread_multisets(thread_multisets)
+    if not rows or not factor_names:
+        raise ValueError("thread_multisets must contain at least one numeric factor")
+
+    n_threads = len(rows)
+    n_factors = len(factor_names)
+    means = [sum(row[j] for row in rows) / n_threads for j in range(n_factors)]
+    centered = [[row[j] - means[j] for j in range(n_factors)] for row in rows]
+    denom = max(n_threads - 1, 1)
+    covariance = [
+        [
+            sum(centered[i][j] * centered[i][k] for i in range(n_threads)) / denom
+            for k in range(n_factors)
+        ]
+        for j in range(n_factors)
+    ]
+
+    eigenvalues, eigenvectors = _symmetric_svd(covariance)
+    k = min(k_eigens, n_factors)
+    singular_values = [max(0.0, value) for value in eigenvalues[:k]]
+    vectors = eigenvectors[:k]
+
+    diagonal_variances = [max(0.0, covariance[i][i]) for i in range(n_factors)]
+    sigma2 = _median(diagonal_variances)
+    gamma = n_factors / n_threads
+    lambda_plus = sigma2 * (1.0 + math.sqrt(gamma)) ** 2
+
+    components: list[dict[str, Any]] = []
+    for index, (value, vector) in enumerate(zip(singular_values, vectors, strict=True)):
+        ordered = sorted(
+            ((abs(vector[j]), factor_names[j], vector[j]) for j in range(n_factors)),
+            key=lambda item: (-item[0], item[1]),
+        )
+        top = ordered[: min(3, len(ordered))]
+        motif_name = " · ".join(name for _, name, _ in top)
+        components.append(
+            {
+                "index": index,
+                "singular_value": value,
+                "macroscopic": value > lambda_plus,
+                "motif_name": motif_name,
+                "top_loadings": [
+                    {"factor": name, "loading": loading, "abs_loading": magnitude}
+                    for magnitude, name, loading in top
+                ],
+            }
+        )
+
+    thread_coordinates: list[dict[str, Any]] = []
+    for thread_id, row in zip(thread_ids, centered, strict=True):
+        coordinates = [sum(row[j] * vector[j] for j in range(n_factors)) for vector in vectors]
+        thread_coordinates.append(
+            {
+                "thread_id": thread_id,
+                "eigen": coordinates,
+                "hierarchical": _hierarchical_coordinate(coordinates),
+            }
+        )
+
+    concept_coordinates: list[dict[str, Any]] = []
+    for factor_index, factor_name in enumerate(factor_names):
+        coordinates = [
+            vector[factor_index] * math.sqrt(max(0.0, value))
+            for value, vector in zip(singular_values, vectors, strict=True)
+        ]
+        concept_coordinates.append(
+            {
+                "concept": factor_name,
+                "eigen": coordinates,
+                "hierarchical": _hierarchical_coordinate(coordinates),
+            }
+        )
+
+    return {
+        "schema": "itir.pnf.eigen_coordinates.v1",
+        "method": "symmetric_covariance_svd_jacobi",
+        "thread_count": n_threads,
+        "factor_count": n_factors,
+        "factor_names": factor_names,
+        "k_eigens": k,
+        "singular_values": singular_values,
+        "marchenko_pastur": {
+            "sigma_squared": sigma2,
+            "gamma": gamma,
+            "lambda_plus": lambda_plus,
+            "macroscopic_component_count": sum(value > lambda_plus for value in singular_values),
+        },
+        "components": components,
+        "eigen_motifs": [component for component in components if component["macroscopic"]],
+        "thread_coordinates": thread_coordinates,
+        "concept_coordinates": concept_coordinates,
+        "authority_boundary": {
+            "candidate_only": True,
+            "diagnostic_only": True,
+            "eigenvalue_magnitude_creates_proof_authority": False,
+            "motif_name_creates_semantic_identity": False,
+        },
+    }
+
+
+def analyze_pareto_distribution(factors: Mapping[str, Any] | Sequence[float | int]) -> dict[str, Any]:
+    """Fit continuous Pareto and truncated discrete Zipf rank models.
+
+    Continuous fits use the Pareto MLE above xmin=min(positive values).
+    Discrete fits interpret descending positive factor magnitudes as rank
+    frequencies and solve the finite Zipf MLE by deterministic bisection.
+    """
+
+    normalised = _normalise_pareto_factors(factors)
+    results: dict[str, Any] = {}
+    for name, values in normalised.items():
+        positive = sorted(float(value) for value in values if float(value) > 0.0)
+        results[name] = {
+            "continuous_pareto": _fit_continuous_pareto(positive),
+            "discrete_zipf": _fit_discrete_zipf(positive),
+        }
+
+    receipt = {
+        "receipt_type": "itir.pnf.discrete_zipf_non_promotion.v1",
+        "candidate_only": True,
+        "diagnostic_only": True,
+        "discrete_zipf_rank_creates_mathematical_theorem_truth": False,
+        "rank_frequency_fit_creates_proof_authority": False,
+        "mathematical_theorem_truth_requires_independent_formal_verification": True,
+        "assertion": (
+            "Discrete Zipf rank is a descriptive distribution fit only and cannot pay "
+            "for mathematical theorem truth or proof authority."
+        ),
+    }
+    return {
+        "schema": "itir.pnf.pareto_distribution.v1",
+        "factors": results,
+        "non_promotion_receipt": receipt,
+    }
+
+
+def _normalise_thread_multisets(
+    thread_multisets: Sequence[Mapping[str, Any]],
+) -> tuple[list[list[float]], list[str], list[str]]:
+    if not isinstance(thread_multisets, Sequence) or isinstance(thread_multisets, (str, bytes, bytearray)):
+        raise ValueError("thread_multisets must be an array of objects")
+    if not thread_multisets:
+        raise ValueError("thread_multisets must not be empty")
+
+    extracted: list[tuple[str, dict[str, float]]] = []
+    all_factors: set[str] = set()
+    for index, item in enumerate(thread_multisets):
+        if not isinstance(item, Mapping):
+            raise ValueError("thread_multisets entries must be objects")
+        thread_id = _text(item.get("thread_id")) or f"thread:{index}"
+        raw_factors = item.get("factors")
+        factor_mapping = raw_factors if isinstance(raw_factors, Mapping) else item
+        factors: dict[str, float] = {}
+        for key, value in factor_mapping.items():
+            if key == "thread_id":
+                continue
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                if isinstance(raw_factors, Mapping):
+                    raise ValueError(f"factor {key!r} must be numeric")
+                continue
+            number = float(value)
+            if not math.isfinite(number) or number < 0.0:
+                raise ValueError(f"factor {key!r} must be finite and non-negative")
+            name = str(key).strip()
+            if not name:
+                raise ValueError("factor names must be non-empty")
+            factors[name] = number
+            all_factors.add(name)
+        extracted.append((thread_id, factors))
+
+    factor_names = sorted(all_factors)
+    rows = [[factors.get(name, 0.0) for name in factor_names] for _, factors in extracted]
+    return rows, [thread_id for thread_id, _ in extracted], factor_names
+
+
+def _symmetric_svd(matrix: Sequence[Sequence[float]]) -> tuple[list[float], list[list[float]]]:
+    size = len(matrix)
+    if size == 0:
+        return [], []
+    a = [list(map(float, row)) for row in matrix]
+    if any(len(row) != size for row in a):
+        raise ValueError("covariance matrix must be square")
+    vectors = [[1.0 if i == j else 0.0 for j in range(size)] for i in range(size)]
+    tolerance = 1e-12
+    max_steps = max(32, 50 * size * size)
+
+    for _ in range(max_steps):
+        p, q = 0, 0
+        largest = 0.0
+        for i in range(size):
+            for j in range(i + 1, size):
+                candidate = abs(a[i][j])
+                if candidate > largest:
+                    largest = candidate
+                    p, q = i, j
+        if largest <= tolerance:
+            break
+
+        app = a[p][p]
+        aqq = a[q][q]
+        apq = a[p][q]
+        angle = 0.5 * math.atan2(2.0 * apq, aqq - app)
+        cosine = math.cos(angle)
+        sine = math.sin(angle)
+
+        for i in range(size):
+            if i in (p, q):
+                continue
+            aip = a[i][p]
+            aiq = a[i][q]
+            a[i][p] = a[p][i] = cosine * aip - sine * aiq
+            a[i][q] = a[q][i] = sine * aip + cosine * aiq
+
+        a[p][p] = cosine * cosine * app - 2.0 * sine * cosine * apq + sine * sine * aqq
+        a[q][q] = sine * sine * app + 2.0 * sine * cosine * apq + cosine * cosine * aqq
+        a[p][q] = a[q][p] = 0.0
+
+        for i in range(size):
+            vip = vectors[i][p]
+            viq = vectors[i][q]
+            vectors[i][p] = cosine * vip - sine * viq
+            vectors[i][q] = sine * vip + cosine * viq
+
+    pairs: list[tuple[float, list[float]]] = []
+    for column in range(size):
+        vector = [vectors[row][column] for row in range(size)]
+        pairs.append((max(0.0, a[column][column]), _orient_vector(vector)))
+    pairs.sort(key=lambda pair: pair[0], reverse=True)
+    return [value for value, _ in pairs], [vector for _, vector in pairs]
+
+
+def _orient_vector(vector: list[float]) -> list[float]:
+    if not vector:
+        return vector
+    pivot = max(range(len(vector)), key=lambda index: (abs(vector[index]), -index))
+    if vector[pivot] < 0.0:
+        return [-value for value in vector]
+    return vector
+
+
+def _hierarchical_coordinate(values: Sequence[float]) -> dict[str, float]:
+    padded = list(values[:3]) + [0.0] * max(0, 3 - len(values))
+    return {
+        "x_main_eigen": padded[0],
+        "y_sub_eigen": padded[1],
+        "z_leaf": padded[2],
+    }
+
+
+def _median(values: Sequence[float]) -> float:
+    if not values:
+        return 0.0
+    ordered = sorted(values)
+    middle = len(ordered) // 2
+    if len(ordered) % 2:
+        return ordered[middle]
+    return 0.5 * (ordered[middle - 1] + ordered[middle])
+
+
+def _normalise_pareto_factors(
+    factors: Mapping[str, Any] | Sequence[float | int],
+) -> dict[str, list[float]]:
+    if isinstance(factors, Mapping):
+        result: dict[str, list[float]] = {}
+        for raw_name, raw_values in factors.items():
+            name = str(raw_name).strip()
+            if not name:
+                raise ValueError("factor names must be non-empty")
+            values = raw_values.get("values") if isinstance(raw_values, Mapping) else raw_values
+            if isinstance(values, Sequence) and not isinstance(values, (str, bytes, bytearray)):
+                result[name] = [_finite_number(value, name) for value in values]
+            else:
+                result[name] = [_finite_number(values, name)]
+        return result
+    if isinstance(factors, Sequence) and not isinstance(factors, (str, bytes, bytearray)):
+        return {"factor": [_finite_number(value, "factor") for value in factors]}
+    raise ValueError("factors must be an object or numeric array")
+
+
+def _finite_number(value: Any, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{label} values must be numeric")
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError(f"{label} values must be finite")
+    return number
+
+
+def _fit_continuous_pareto(values: Sequence[float]) -> dict[str, Any]:
+    if len(values) < 2:
+        return {"status": "insufficient_data", "sample_count": len(values)}
+    xmin = min(values)
+    log_sum = sum(math.log(value / xmin) for value in values)
+    if log_sum <= 0.0:
+        return {
+            "status": "insufficient_variation",
+            "sample_count": len(values),
+            "xmin": xmin,
+        }
+    alpha = len(values) / log_sum
+    empirical = sorted(values)
+    ks = 0.0
+    count = len(empirical)
+    for index, value in enumerate(empirical, start=1):
+        empirical_cdf = index / count
+        model_cdf = 1.0 - (xmin / value) ** alpha
+        ks = max(ks, abs(empirical_cdf - model_cdf))
+    return {
+        "status": "fit",
+        "sample_count": len(values),
+        "xmin": xmin,
+        "alpha": alpha,
+        "density_exponent_alpha_plus_one": alpha + 1.0,
+        "ks_distance": ks,
+        "model": "continuous_pareto",
+    }
+
+
+def _fit_discrete_zipf(values: Sequence[float]) -> dict[str, Any]:
+    weights = sorted((value for value in values if value > 0.0), reverse=True)
+    if len(weights) < 2:
+        return {"status": "insufficient_data", "rank_count": len(weights)}
+    total = sum(weights)
+    observed_log_rank = sum(weight * math.log(rank) for rank, weight in enumerate(weights, start=1)) / total
+
+    def expected_log_rank(nu: float) -> float:
+        probs = [rank ** (-nu) for rank in range(1, len(weights) + 1)]
+        norm = sum(probs)
+        return sum(prob * math.log(rank) for rank, prob in enumerate(probs, start=1)) / norm
+
+    low, high = 0.0, 20.0
+    if observed_log_rank >= expected_log_rank(low):
+        nu = low
+    elif observed_log_rank <= expected_log_rank(high):
+        nu = high
+    else:
+        for _ in range(80):
+            mid = 0.5 * (low + high)
+            if expected_log_rank(mid) > observed_log_rank:
+                low = mid
+            else:
+                high = mid
+        nu = 0.5 * (low + high)
+
+    model_weights = [rank ** (-nu) for rank in range(1, len(weights) + 1)]
+    model_norm = sum(model_weights)
+    empirical_cumulative = 0.0
+    model_cumulative = 0.0
+    ks = 0.0
+    for weight, model_weight in zip(weights, model_weights, strict=True):
+        empirical_cumulative += weight / total
+        model_cumulative += model_weight / model_norm
+        ks = max(ks, abs(empirical_cumulative - model_cumulative))
+
+    return {
+        "status": "fit",
+        "rank_count": len(weights),
+        "total_weight": total,
+        "nu": nu,
+        "ks_distance": ks,
+        "model": "truncated_discrete_zipf",
+        "rank_interpretation": "descending_positive_factor_magnitude",
+    }
+
 
 
 def _looks_like_full_spectral_payload(payload: Mapping[str, Any]) -> bool:
