@@ -14,6 +14,7 @@ PNF_CONTEXT_INDEX_VERSION = "itir.pnf.context_index.v1"
 PNF_TASK_MEMORY_PREVIEW_VERSION = "itir.pnf.task_memory_preview.v1"
 PNF_OBSERVER_EVIDENCE_VERSION = "itir.pnf.observer_evidence.v1"
 PNF_RESIDUAL_CASES_VERSION = "itir.pnf_agda_receipt_export.v0_1"
+PNF_EIGEN_MOTIFS_VERSION = "itir.pnf.eigen_motifs.v1"
 
 
 def _repo_root() -> Path:
@@ -309,8 +310,120 @@ def pnf_residual_cases(payload: Mapping[str, Any]) -> JsonDict:
         raise ToolInputError(str(exc)) from exc
 
 
+def pnf_eigen_motifs(payload: Mapping[str, Any]) -> JsonDict:
+    from .pnf_spectral_packet import analyze_pareto_distribution, compute_hierarchical_eigen_coordinates
+
+    allowed = {"thread_multisets", "k_eigens", "pareto_factors"}
+    unknown = set(payload) - allowed
+    if unknown or "thread_multisets" not in payload:
+        raise ToolInputError("thread_multisets and known eigen-motif fields required")
+
+    thread_multisets = _sequence(payload, "thread_multisets")
+    if not thread_multisets or any(not isinstance(item, Mapping) for item in thread_multisets):
+        raise ToolInputError("thread_multisets must contain object entries")
+
+    k_eigens = payload.get("k_eigens", 5)
+    if isinstance(k_eigens, bool) or not isinstance(k_eigens, int) or not 1 <= k_eigens <= 32:
+        raise ToolInputError("k_eigens must be an integer between 1 and 32")
+
+    pareto_factors = payload.get("pareto_factors")
+    if pareto_factors is None:
+        derived: dict[str, list[float]] = {}
+        for item in thread_multisets:
+            factors = item.get("factors")
+            if not isinstance(factors, Mapping):
+                raise ToolInputError("each thread_multisets entry must contain a factors object")
+            for name, value in factors.items():
+                if isinstance(value, bool) or not isinstance(value, (int, float)):
+                    raise ToolInputError(f"factor {name!r} must be numeric")
+                derived.setdefault(str(name), []).append(float(value))
+        pareto_factors = derived
+    elif not isinstance(pareto_factors, (Mapping, Sequence)) or isinstance(
+        pareto_factors, (str, bytes, bytearray)
+    ):
+        raise ToolInputError("pareto_factors must be an object or numeric array")
+
+    try:
+        eigen = compute_hierarchical_eigen_coordinates(
+            [dict(item) for item in thread_multisets],
+            k_eigens=k_eigens,
+        )
+        pareto = analyze_pareto_distribution(pareto_factors)
+    except (TypeError, ValueError) as exc:
+        raise ToolInputError(str(exc)) from exc
+
+    return {
+        "version": PNF_EIGEN_MOTIFS_VERSION,
+        "eigen_coordinates": eigen,
+        "pareto_analysis": pareto,
+        "authority_boundary": {
+            "read_only": True,
+            "candidate_only": True,
+            "diagnostic_only": True,
+            "canonical_truth_mutated": False,
+            "eigenvalue_magnitude_creates_proof_authority": False,
+            "zipf_rank_creates_mathematical_theorem_truth": False,
+            "motif_name_creates_semantic_identity": False,
+        },
+    }
+
+
 def get_pnf_tools() -> list[tuple[ToolSpec, ToolHandler]]:
     return [
+        (
+            ToolSpec(
+                name="itir.pnf.eigen_motifs",
+                title="Dynamic PNF eigen motifs and Pareto diagnostics",
+                description=(
+                    "Compute dependency-free covariance-SVD eigen coordinates, Marchenko-Pastur "
+                    "macroscopic motifs, and continuous/discrete Pareto fits without promotion."
+                ),
+                input_schema={
+                    "type": "object",
+                    "required": ["thread_multisets"],
+                    "additionalProperties": False,
+                    "properties": {
+                        "thread_multisets": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "object",
+                                "required": ["thread_id", "factors"],
+                                "additionalProperties": False,
+                                "properties": {
+                                    "thread_id": {"type": "string", "minLength": 1},
+                                    "factors": {
+                                        "type": "object",
+                                        "minProperties": 1,
+                                        "additionalProperties": {"type": "number", "minimum": 0},
+                                    },
+                                },
+                            },
+                        },
+                        "k_eigens": {"type": "integer", "minimum": 1, "maximum": 32},
+                        "pareto_factors": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "oneOf": [
+                                    {"type": "array", "items": {"type": "number"}},
+                                    {
+                                        "type": "object",
+                                        "required": ["values"],
+                                        "additionalProperties": True,
+                                        "properties": {
+                                            "values": {"type": "array", "items": {"type": "number"}}
+                                        },
+                                    },
+                                ]
+                            },
+                        },
+                    },
+                },
+                response_version=PNF_EIGEN_MOTIFS_VERSION,
+                read_only=True,
+            ),
+            pnf_eigen_motifs,
+        ),
         (
             ToolSpec(
                 name="itir.pnf.residual_cases",
