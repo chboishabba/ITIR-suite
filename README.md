@@ -594,6 +594,31 @@ and [chat-export-structurer/README.md](chat-export-structurer/README.md).
   [docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md](docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md)
 - legal graph relation taxonomy:
   [docs/planning/legal_graph_relation_taxonomy_20260417.md](docs/planning/legal_graph_relation_taxonomy_20260417.md)
+
+### Current legal graph alignment
+
+The bounded legal graph path is:
+
+`Phi -> composed candidate -> admissibility -> promoted record -> derived graph`.
+
+The current downstream graph notes must preserve these rules:
+
+- source anchors remain canonical;
+- composed nodes remain challengeable candidates until admissibility returns
+  `promote`, `audit`, or `abstain`;
+- promoted `review_relation` rows may project to promoted `legal_claim` nodes;
+- legal-claim role edges stay typed as `grounds_claim`, `claim_subject`, and
+  `claim_object`;
+- derived `asserts_*` edge summaries consume typed
+  `legal_edge_admissibility` results;
+- free-text markers do not determine relation kind or contradiction;
+- graph density, clustering, and MDL naming do not create admissibility or
+  promotion.
+
+The verification/docs lane does not add a new truth-bearing fixture. It keeps
+the existing contract and regression fixtures aligned with the same boundary.
+The detailed status is recorded in `TODO.md` and `COMPACTIFIED_CONTEXT.md`.
+
 - JMD x SensibLaw truth-construction boundary:
   [docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md](docs/planning/jmd_sensiblaw_truth_construction_boundary_20260327.md)
 - motif candidate / promotion / legal-tree boundary:

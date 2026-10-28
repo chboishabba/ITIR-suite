@@ -2358,7 +2358,23 @@ Canonical implementation note:
     - lane 4: MDL / latent owner
       - keep compression derived and non-promotive
     - lane 5: verification/docs owner
-      - keep fixtures, README/TODO/context, and downstream graph notes aligned
+      - DONE: keep fixtures, README/TODO/context, and downstream graph notes aligned
+      - canonical alignment:
+        `Phi -> composed candidate -> admissibility -> promoted record -> derived graph`
+      - fixture/test contract remains non-promotive:
+        - fixture and regression surfaces test reversibility, admissibility, and
+          downstream projection behavior
+        - no fixture becomes a canonical fact, relation, or promotion receipt
+      - downstream graph note alignment:
+        - promoted `review_relation` ownership remains upstream of derived graph use
+        - promoted `legal_claim` role edges remain
+          `grounds_claim | claim_subject | claim_object`
+        - derived `asserts_*` summaries consume typed
+          `legal_edge_admissibility` output
+        - lexical relation inference remains forbidden
+        - graph density, clustering, and MDL naming remain non-authoritative
+      - root `README.md` and `COMPACTIFIED_CONTEXT.md` now carry the same
+        boundary and current downstream consumer wording
     - lane 8: relation taxonomy owner
       - define the first bounded structural relation set for graphable edges
       - keep relation semantics typed, structural, and non-lexical
