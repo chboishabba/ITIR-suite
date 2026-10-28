@@ -31,6 +31,12 @@ class _FakeCursor:
         if "pnf.statement_candidate_factor" in sql:
             self.rows = [(row,) for row in self.tables["pnf.statement_candidate_factor"]]
             return
+        if "pnf.candidate_semantic_product" in sql:
+            self.rows = [
+                (row,)
+                for row in self.tables.get("pnf.candidate_semantic_product", [])
+            ]
+            return
         if "pnf.graph" in sql:
             self.rows = [(row,) for row in self.tables.get("pnf.graph", [])]
             return
@@ -531,3 +537,86 @@ def test_reference_registrar_abstains_when_slr_reference_columns_are_missing(
     assert result["status"] == "abstained_reference_schema_not_installed"
     assert "body_sha256" in result["missing_columns"]
     assert result["raw_body_persisted"] is False
+
+
+def test_semantic_product_exact_fields_drive_frame_grouping_when_available() -> None:
+    factor_columns = [
+        "candidate_ref",
+        "batch_ref",
+        "statement_ref",
+        "role_ref",
+        "source_start_char",
+        "source_end_char",
+        "surface",
+        "lemma",
+        "dependency_ref",
+        "candidate_only",
+    ]
+    tables = {
+        "pnf.statement_candidate_factor:columns": factor_columns,
+        "pnf.statement_candidate_factor": [
+            {
+                "candidate_ref": "cand-a",
+                "batch_ref": "batch-legacy",
+                "statement_ref": "statement:s1",
+                "role_ref": "legacy-role",
+                "source_start_char": 0,
+                "source_end_char": 6,
+                "surface": "System",
+                "lemma": "system",
+                "dependency_ref": "legacy-dependency",
+                "candidate_only": True,
+            },
+            {
+                "candidate_ref": "cand-b",
+                "batch_ref": "batch-legacy",
+                "statement_ref": "statement:s1",
+                "role_ref": "legacy-role",
+                "source_start_char": 7,
+                "source_end_char": 18,
+                "surface": "Consistency",
+                "lemma": "consistency",
+                "dependency_ref": "legacy-dependency",
+                "candidate_only": True,
+            },
+        ],
+        "pnf.candidate_semantic_product:columns": [
+            "candidate_ref",
+            "sentence_id",
+            "head_lemma",
+            "argument_role",
+        ],
+        "pnf.candidate_semantic_product": [
+            {
+                "candidate_ref": "cand-a",
+                "sentence_id": 42,
+                "head_lemma": "prove",
+                "argument_role": "actor",
+            },
+            {
+                "candidate_ref": "cand-b",
+                "sentence_id": 42,
+                "head_lemma": "prove",
+                "argument_role": "theme",
+            },
+        ],
+        "pnf.graph": [],
+    }
+
+    result = load_postgres_semantic_corpus(
+        "postgresql://example",
+        connect=lambda _url: _FakeConnection(tables),
+    )
+
+    assert result["conversations"]["statement:s1"]["frame_counts"] == {
+        "prove(actor:system,theme:consistency)": 1
+    }
+    assert result["conversations"]["statement:s1"]["factor_counts"] == {
+        "prove|actor|system": 1,
+        "prove|theme|consistency": 1,
+    }
+    contract = result["source_contract"]
+    assert contract["semantic_product_enrichment"] is True
+    assert contract["frame_grouping"] == ["sentence_id", "head_lemma"]
+    assert contract["typed_argument_fields"] == ["argument_role", "lemma"]
+    assert contract["unavailable_fields_not_inferred"] == ["conversation_ref"]
