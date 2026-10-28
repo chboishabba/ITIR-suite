@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import math
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -628,6 +629,45 @@ def generate_hierarchical_corpus_visualizations(
         "version": VERSION,
         "conversation_count": len(hierarchy.get("conversation_rows") or ()),
         "artifacts": artifacts,
+        "candidate_only": True,
+        "non_authoritative": True,
+        "canonical_truth_mutated": False,
+    }
+
+
+def project_slrw_hierarchy_to_docs(
+    slrw_path: str | Path,
+    output_dir: str | Path = "docs/fleet",
+    *,
+    ontology_edges: Sequence[Mapping[str, Any]] | None = None,
+    alpha_signals: Mapping[str, Mapping[str, Any]] | None = None,
+    max_features: int = 256,
+    max_spectral_dimensions: int = 16,
+) -> dict[str, Any]:
+    """Run SLRW -> dynamic hierarchy -> PNG/SVG corpus artifacts."""
+    from .pnf_spectral_packet import build_hierarchical_pnf_topics
+
+    hierarchy = build_hierarchical_pnf_topics(
+        slrw_path,
+        ontology_edges=ontology_edges,
+        alpha_signals=alpha_signals,
+        max_features=max_features,
+        max_spectral_dimensions=max_spectral_dimensions,
+    )
+    target = Path(output_dir).expanduser().resolve()
+    target.mkdir(parents=True, exist_ok=True)
+    hierarchy_path = target / "fleet_hierarchy.json"
+    hierarchy_path.write_text(
+        json.dumps(hierarchy, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    visualization = generate_hierarchical_corpus_visualizations(hierarchy, target)
+    return {
+        "version": VERSION,
+        "source_path": str(Path(slrw_path).expanduser().resolve()),
+        "hierarchy_path": str(hierarchy_path),
+        "conversation_count": len(hierarchy.get("conversation_rows") or ()),
+        "visualization": visualization,
         "candidate_only": True,
         "non_authoritative": True,
         "canonical_truth_mutated": False,
