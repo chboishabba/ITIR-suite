@@ -1,11 +1,13 @@
 import { loadNarrativeComparison } from '$lib/server/narrativeCompare';
 import { narrativeCompareReviewState } from '$lib/workbench/reviewState';
 
-const DEFAULT_MACROSCOPIC_EIGEN_MOTIF_SELECTOR = [
+const MACROSCOPIC_EIGEN_MOTIF_PROPERTIES = [
   'property:chboishabba:NominalModifier',
   'property:repos:NominalModifier',
   'property:dashi_agda:NominalModifier'
-].join('|');
+] as const;
+
+const DEFAULT_MACROSCOPIC_EIGEN_MOTIF_SELECTOR = MACROSCOPIC_EIGEN_MOTIF_PROPERTIES.join('|');
 
 type EigenMotifProperty = {
   id: string;
@@ -41,11 +43,15 @@ function buildMacroscopicEigenMotif(selector: string) {
     .filter(Boolean);
 
   const uniqueIds = Array.from(new Set(ids));
-  if (uniqueIds.length !== 3) {
-    throw new Error('macroscopic eigen-motif requires exactly three distinct properties');
+  const expectedIds = [...MACROSCOPIC_EIGEN_MOTIF_PROPERTIES];
+  if (
+    uniqueIds.length !== expectedIds.length
+    || expectedIds.some((propertyId) => !uniqueIds.includes(propertyId))
+  ) {
+    throw new Error('macroscopic eigen-motif selector is outside this lane typed support');
   }
 
-  const properties = uniqueIds.map(parseEigenMotifProperty);
+  const properties = expectedIds.map(parseEigenMotifProperty);
   const edges: EigenMotifEdge[] = [];
   for (let left = 0; left < properties.length; left += 1) {
     for (let right = left + 1; right < properties.length; right += 1) {
@@ -64,7 +70,7 @@ function buildMacroscopicEigenMotif(selector: string) {
   return {
     motif_id: `macroscopic-eigen-motif:${properties.map((row) => row.namespace).join('+')}:NominalModifier`,
     label: 'Macroscopic Eigen-Motif',
-    selector: uniqueIds.join('|'),
+    selector: expectedIds.join('|'),
     properties,
     edges,
     invariants: {
