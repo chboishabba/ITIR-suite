@@ -1,0 +1,116 @@
+{
+  "schema": "itir.pnf.spectral_corpus_visualization.v1",
+  "generated_at": 1793195549.2209425,
+  "elapsed_seconds": 32.27,
+  "corpus_entities": 449,
+  "singular_values": [
+    1637.401381271011,
+    1475.2753251212748,
+    1168.518042509335,
+    851.5619533631854,
+    728.7617883726425,
+    682.4280668219009,
+    593.8874946600018,
+    570.0226046116056
+  ],
+  "marchenko_pastur": {
+    "sigma_squared": 5.0096142876275636,
+    "gamma": 2.6726057906458798,
+    "lambda_plus": 34.777879804582845,
+    "macroscopic_component_count": 82
+  },
+  "scatter_plot_path": "docs/fleet/fleet_corpus_spectral_scatter.png",
+  "heatmap_plot_path": "docs/fleet/fleet_domain_spectral_heatmap.png",
+  "domain_labels": [
+    "slr World Store",
+    "SensibLaw Projection",
+    "Balaban Yang-Mills",
+    "Quantum Metrology",
+    "Navier-Stokes BM2",
+    "SeaMeInIt ROM",
+    "FRACTRAN / FracDash",
+    "Lila E8 Lie Algebra"
+  ],
+  "similarity_matrix": [
+    [
+      1.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      1.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.3833,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.3833,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ]
+}
