@@ -11,6 +11,7 @@ from itir_mcp.pnf_spectral_packet import (
 )
 from itir_mcp.spectral_plot_tools import (
     generate_hierarchical_corpus_visualizations,
+    project_slrw_hierarchy_to_docs,
     render_hierarchical_spectral_manifold,
 )
 
@@ -271,3 +272,37 @@ def test_manifold_renderer_accepts_full_500_conversation_surface(tmp_path: Path)
     assert receipt["primary_cluster_count"] == 7
     assert output.is_file()
     assert output.stat().st_size > 0
+
+
+def test_end_to_end_slrw_to_docs_fleet_artifacts(tmp_path: Path) -> None:
+    corpus_path = tmp_path / "fleet_top500_iter1.slrw"
+    conversations = _write_fixture(corpus_path)
+    output_dir = tmp_path / "docs" / "fleet"
+
+    receipt = project_slrw_hierarchy_to_docs(
+        corpus_path,
+        output_dir,
+        ontology_edges=[
+            {"conversation_ids": conversations[:3], "label": "proof ontology"},
+            {"conversation_ids": conversations[3:], "label": "measurement ontology"},
+        ],
+        max_features=32,
+        max_spectral_dimensions=8,
+    )
+
+    assert receipt["conversation_count"] == 6
+    hierarchy_path = Path(receipt["hierarchy_path"])
+    assert hierarchy_path.is_file()
+    assert hierarchy_path.stat().st_size > 0
+    artifact_names = {
+        Path(item["output_path"]).name
+        for item in receipt["visualization"]["artifacts"]
+    }
+    assert artifact_names == {
+        "fleet_manifold.png",
+        "fleet_manifold.svg",
+        "fleet_topic_heatmap.png",
+        "fleet_topic_heatmap.svg",
+        "fleet_topic_dendrogram.png",
+        "fleet_topic_dendrogram.svg",
+    }
