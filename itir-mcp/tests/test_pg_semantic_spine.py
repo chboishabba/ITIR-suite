@@ -227,24 +227,127 @@ def test_reference_registrar_abstains_without_canonical_node_identity(tmp_path: 
             "INSERT INTO messages VALUES ('c1', 0, 'user', 'secret body', 'cache.user.0000')"
         )
 
-    class _NeverConnect:
-        def __call__(self, _url):
-            raise AssertionError("PostgreSQL must not be contacted before node identity validation")
-
-    # The registrar opens PG before SQLite schema validation by design, so use a
-    # benign fake connection; no cursor must be requested on the abstention path.
-    class _UnusedConnection:
-        def cursor(self):
-            raise AssertionError("no PG query expected")
-        def close(self):
-            pass
+    def never_connect(_url):
+        raise AssertionError("PostgreSQL must not be contacted before node identity validation")
 
     result = register_sqlite_chat_coordinates(
         "postgresql://example",
         sqlite_path=sqlite_path,
-        connect=lambda _url: _UnusedConnection(),
+        connect=never_connect,
     )
 
     assert result["status"] == "abstained_no_canonical_node_id"
     assert result["inserted"] == 0
     assert result["raw_body_persisted"] is False
+
+
+class _RegistrarCursor:
+    def __init__(self, owner):
+        self.owner = owner
+        self.rows = []
+
+    def execute(self, sql, params=None):
+        self.owner.statements.append((sql, params))
+        if "to_regclass" in sql:
+            table = params[0]
+            present = table in {
+                "corpus.chat_archive_message",
+                "corpus.chat_archive_reference_conflict",
+            }
+            self.rows = [(table if present else None,)]
+        elif "SELECT body_sha256" in sql:
+            self.rows = []
+        else:
+            self.rows = []
+
+    def fetchone(self):
+        if not self.rows:
+            return None
+        row = self.rows[0]
+        self.rows = self.rows[1:]
+        return row
+
+    def close(self):
+        pass
+
+
+class _RegistrarConnection:
+    def __init__(self):
+        self.statements = []
+        self.committed = False
+
+    def cursor(self):
+        return _RegistrarCursor(self)
+
+    def commit(self):
+        self.committed = True
+
+    def close(self):
+        pass
+
+
+def test_reference_registrar_inserts_only_coordinates_and_digest(tmp_path: Path) -> None:
+    sqlite_path = tmp_path / "history-with-node.sqlite3"
+    with sqlite3.connect(sqlite_path) as db:
+        db.execute(
+            """
+            CREATE TABLE conversations (
+                conversation_id TEXT PRIMARY KEY,
+                title TEXT
+            )
+            """
+        )
+        db.execute(
+            """
+            CREATE TABLE messages (
+                conversation_id TEXT,
+                message_index INTEGER,
+                author TEXT,
+                content TEXT,
+                message_key TEXT,
+                source_message_id TEXT,
+                node_id TEXT,
+                parent_node_id TEXT,
+                create_time REAL
+            )
+            """
+        )
+        db.execute("INSERT INTO conversations VALUES ('c1', 'Thread')")
+        db.execute(
+            """
+            INSERT INTO messages VALUES
+            ('c1', 0, 'user', 'body stays in sqlite', 'cache.user.0000',
+             'm1', 'node-1', NULL, 1760000000.0)
+            """
+        )
+
+    pg = _RegistrarConnection()
+    result = register_sqlite_chat_coordinates(
+        "postgresql://example",
+        sqlite_path=sqlite_path,
+        connect=lambda _url: pg,
+    )
+
+    assert result["status"] == "complete"
+    assert result["inserted"] == 1
+    assert result["raw_body_persisted"] is False
+    assert result["document_ref"] is None
+    assert pg.committed is True
+
+    inserts = [
+        (sql, params)
+        for sql, params in pg.statements
+        if "INSERT INTO corpus.chat_archive_message" in sql
+    ]
+    assert len(inserts) == 1
+    sql, params = inserts[0]
+    assert "document_ref" in sql
+    assert "NULL" in sql
+    assert "body stays in sqlite" not in repr(params)
+    assert "sqlite:canonical#node-1" in params
+    assert any(
+        isinstance(value, str)
+        and len(value) == 64
+        and all(ch in "0123456789abcdef" for ch in value)
+        for value in params
+    )
