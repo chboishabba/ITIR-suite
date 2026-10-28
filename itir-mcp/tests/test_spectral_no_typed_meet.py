@@ -50,7 +50,7 @@ def _real_world_graph() -> dict:
         {"edge_ref": "e14", "relation_kind": "ontology_relation", "from_node_ref": "ontology:metric", "to_node_ref": "ontology:riemannian", "provenance_ref": "revision-pinned-external-graph"},
         {"edge_ref": "e15", "relation_kind": "ontology_relation", "from_node_ref": "ontology:gauge", "to_node_ref": "ontology:riemannian", "provenance_ref": "revision-pinned-external-graph"},
         {"edge_ref": "e16", "relation_kind": "ontology_relation", "from_node_ref": "ontology:curvature", "to_node_ref": "ontology:gauge", "provenance_ref": "revision-pinned-external-graph"},
-        {"edge_ref": "e17", "relation_kind": "reviewed_cross_bridge", "from_node_ref": "ontology:two-point", "to_node_ref": "ontology:fisher", "weight": 0.7, "provenance_ref": "reviewed-world-bridge"},
+        {"edge_ref": "e17", "relation_kind": "reviewed_cross_bridge", "from_node_ref": "ontology:two-point", "to_node_ref": "ontology:fisher", "provenance_ref": "reviewed-world-bridge"},
     ]
     return {"nodes": nodes, "edges": edges}
 
@@ -149,7 +149,7 @@ def test_balaban_and_quantum_metrology_coupling_comes_from_real_graph_paths() ->
 
     receipt = spectral_no_typed_meet(ym, metrology)
 
-    assert abs(receipt["cosine_similarity"] - 0.46685265099248735) < 1e-9
+    assert abs(receipt["cosine_similarity"] - 0.45414567507874104) < 1e-9
     assert abs(receipt["cosine_similarity"] - 0.5) > 1e-3
     assert receipt["orbit_relation"] == "shared_quotient_orbit"
     assert receipt["sub_eigen_meet"] == "noTypedMeet"
