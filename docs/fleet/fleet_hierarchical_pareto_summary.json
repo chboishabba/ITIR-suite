@@ -1,205 +1,205 @@
 {
   "version": "itir.pnf.hierarchical_pareto_corpus.v1",
-  "generated_at": 1793196697.598495,
-  "elapsed_seconds": 18.49,
+  "generated_at": 1793197603.0001369,
+  "elapsed_seconds": 24.25,
   "corpus_entity_count": 455,
   "marchenko_pastur": {
-    "sigma_squared": 13.770916555971512,
+    "sigma_squared": 12.46235478806899,
     "gamma": 3.2967032967032965,
-    "lambda_plus": 109.17676966322041,
-    "macroscopic_modes": 100,
-    "spectral_dimensions": 100
+    "lambda_plus": 98.80240234033954,
+    "macroscopic_modes": 99,
+    "spectral_dimensions": 99
   },
   "primary_topics": [
     {
       "topic_id": 1,
-      "name": "Explain torque better [\u2b50 Lead]",
-      "member_count": 74,
-      "top_motif": "entry \u00b7 budget \u00b7 exhaust",
+      "name": "Topic 1: collapse(property: auto) \u00b7 collapse(property: last) \u00b7 expand(temporal: now)",
+      "member_count": 10,
+      "top_motif": "collapse(property: auto) \u00b7 collapse(property: last) \u00b7 expand(temporal: now)",
       "sub_topic_count": 1,
       "sub_topics": [
         {
           "sub_id": 1,
-          "sub_motif": "entry \u00b7 budget",
-          "member_count": 74
+          "sub_motif": "text(parsed) \u00b7 collapse(auto)",
+          "member_count": 10
         }
       ]
     },
     {
       "topic_id": 2,
-      "name": "SensibLaw Agda Test Case [\u2b50 Lead]",
-      "member_count": 48,
-      "top_motif": "redact \u00b7 output \u00b7 space",
-      "sub_topic_count": 2,
+      "name": "Explain torque better [\u2b50 Lead]",
+      "member_count": 71,
+      "top_motif": "result(property: compact) \u00b7 entry(property: full) \u00b7 entry(clause_attachment: omit)",
+      "sub_topic_count": 1,
       "sub_topics": [
         {
           "sub_id": 2,
-          "sub_motif": "redact \u00b7 output",
-          "member_count": 16
-        },
-        {
-          "sub_id": 3,
-          "sub_motif": "space \u00b7 invariant",
-          "member_count": 32
+          "sub_motif": "marker(citation) \u00b7 result(compact)",
+          "member_count": 71
         }
       ]
     },
     {
       "topic_id": 3,
-      "name": "Assess Round Modules [Ancestor]",
-      "member_count": 115,
-      "top_motif": "theorem \u00b7 prove \u00b7 source",
-      "sub_topic_count": 7,
+      "name": "Implement Max Cut Changes [\u2b50 Lead]",
+      "member_count": 29,
+      "top_motif": "dashi_agda\\\",\\\"description\\\"() \u00b7 repos(property: chboishabba) \u00b7 repos(property: repos)",
+      "sub_topic_count": 1,
       "sub_topics": [
         {
-          "sub_id": 4,
-          "sub_motif": "closure \u00b7 physics",
-          "member_count": 5
-        },
-        {
-          "sub_id": 5,
-          "sub_motif": "state \u00b7 give",
-          "member_count": 28
-        },
-        {
-          "sub_id": 6,
-          "sub_motif": "axiom \u00b7 build",
-          "member_count": 3
-        },
-        {
-          "sub_id": 7,
-          "sub_motif": "theorem \u00b7 prove",
-          "member_count": 61
-        },
-        {
-          "sub_id": 8,
-          "sub_motif": "\u2193 \u00b7 review",
-          "member_count": 10
-        },
-        {
-          "sub_id": 9,
-          "sub_motif": "change \u00b7 add",
-          "member_count": 2
-        },
-        {
-          "sub_id": 10,
-          "sub_motif": "test \u00b7 text",
-          "member_count": 6
+          "sub_id": 3,
+          "sub_motif": "repos \u00b7 content",
+          "member_count": 29
         }
       ]
     },
     {
       "topic_id": 4,
-      "name": "Assess Round Modules [\u2b50 Lead]",
-      "member_count": 175,
-      "top_motif": "want \u00b7 \u2019 \u00b7 need",
-      "sub_topic_count": 10,
+      "name": "SensibLaw Agda Test Case [\u2b50 Lead]",
+      "member_count": 53,
+      "top_motif": "redact(actor: output) \u00b7 redact() \u00b7 flow(property: branched)",
+      "sub_topic_count": 2,
       "sub_topics": [
         {
-          "sub_id": 11,
-          "sub_motif": "return \u00b7 =",
-          "member_count": 7
+          "sub_id": 4,
+          "sub_motif": "redact(output) \u00b7 redact",
+          "member_count": 13
         },
         {
-          "sub_id": 12,
-          "sub_motif": "| \u00b7 prove",
-          "member_count": 2
-        },
-        {
-          "sub_id": 13,
-          "sub_motif": "\u2019 \u00b7 want",
-          "member_count": 95
-        },
-        {
-          "sub_id": 14,
-          "sub_motif": "act \u00b7 technology",
-          "member_count": 1
-        },
-        {
-          "sub_id": 15,
-          "sub_motif": "fingerprint \u00b7 null",
-          "member_count": 1
-        },
-        {
-          "sub_id": 16,
-          "sub_motif": "support \u00b7 mcp",
-          "member_count": 9
-        },
-        {
-          "sub_id": 17,
-          "sub_motif": "run \u00b7 \u2019",
-          "member_count": 39
-        },
-        {
-          "sub_id": 18,
-          "sub_motif": "go \u00b7 think",
-          "member_count": 19
-        },
-        {
-          "sub_id": 19,
-          "sub_motif": "hose \u00b7 tap",
-          "member_count": 1
-        },
-        {
-          "sub_id": 20,
-          "sub_motif": "bread \u00b7 press",
-          "member_count": 1
+          "sub_id": 5,
+          "sub_motif": "redact(output) \u00b7 space",
+          "member_count": 40
         }
       ]
     },
     {
       "topic_id": 5,
-      "name": "Topic 5: 0xffff1000 \u00b7 version \u00b7 0xffff1000",
-      "member_count": 1,
-      "top_motif": "0xffff1000 \u00b7 version \u00b7 0xffff1000",
-      "sub_topic_count": 1,
+      "name": "Assess Round Modules [Ancestor]",
+      "member_count": 7,
+      "top_motif": "closure(property: physics) \u00b7 closure(property: dashi) \u00b7 url(property: request)",
+      "sub_topic_count": 2,
       "sub_topics": [
         {
-          "sub_id": 21,
-          "sub_motif": "0xffff1000 \u00b7 version",
-          "member_count": 1
+          "sub_id": 6,
+          "sub_motif": "closure \u00b7 closure(physics)",
+          "member_count": 4
+        },
+        {
+          "sub_id": 7,
+          "sub_motif": "file \u00b7 url(request)",
+          "member_count": 3
         }
       ]
     },
     {
       "topic_id": 6,
-      "name": "Topic 6: package \u00b7 satisfy \u00b7 site",
-      "member_count": 1,
-      "top_motif": "package \u00b7 satisfy \u00b7 site",
-      "sub_topic_count": 1,
+      "name": "Branch \u00b7 Compare E8 Models [\u2b50 Lead]",
+      "member_count": 94,
+      "top_motif": "theorem() \u00b7 dashi.physic(property: yangmill) \u00b7 dashi.physic()",
+      "sub_topic_count": 3,
       "sub_topics": [
         {
-          "sub_id": 22,
-          "sub_motif": "package \u00b7 satisfy",
-          "member_count": 1
+          "sub_id": 8,
+          "sub_motif": "review \u00b7 receipt",
+          "member_count": 10
+        },
+        {
+          "sub_id": 9,
+          "sub_motif": "prove \u00b7 rfl(rfl)",
+          "member_count": 2
+        },
+        {
+          "sub_id": 10,
+          "sub_motif": "theorem \u00b7 prove",
+          "member_count": 82
         }
       ]
     },
     {
       "topic_id": 7,
-      "name": "Topic 7: keep \u00b7 collapse \u00b7 expand",
-      "member_count": 12,
-      "top_motif": "keep \u00b7 collapse \u00b7 expand",
-      "sub_topic_count": 1,
+      "name": "Assess Round Modules [\u2b50 Lead]",
+      "member_count": 190,
+      "top_motif": "package(property: site) \u00b7 package(property: lib) \u00b7 satisfy(temporal: already)",
+      "sub_topic_count": 13,
       "sub_topics": [
         {
+          "sub_id": 11,
+          "sub_motif": "estimate \u00b7 ratio",
+          "member_count": 2
+        },
+        {
+          "sub_id": 12,
+          "sub_motif": "ago \u00b7 ago(day)",
+          "member_count": 3
+        },
+        {
+          "sub_id": 13,
+          "sub_motif": "text \u00b7 test",
+          "member_count": 17
+        },
+        {
+          "sub_id": 14,
+          "sub_motif": "log \u00b7 profile(strict)",
+          "member_count": 2
+        },
+        {
+          "sub_id": 15,
+          "sub_motif": "kernel \u00b7 buffer",
+          "member_count": 7
+        },
+        {
+          "sub_id": 16,
+          "sub_motif": "support \u00b7 fp16",
+          "member_count": 1
+        },
+        {
+          "sub_id": 17,
+          "sub_motif": "hose \u00b7 machine(washing)",
+          "member_count": 1
+        },
+        {
+          "sub_id": 18,
+          "sub_motif": "bread \u00b7 press",
+          "member_count": 1
+        },
+        {
+          "sub_id": 19,
+          "sub_motif": "package \u00b7 satisfy",
+          "member_count": 9
+        },
+        {
+          "sub_id": 20,
+          "sub_motif": "than(rather) \u00b7 state",
+          "member_count": 14
+        },
+        {
+          "sub_id": 21,
+          "sub_motif": "than(rather) \u00b7 change",
+          "member_count": 131
+        },
+        {
+          "sub_id": 22,
+          "sub_motif": "technology(reproductive) \u00b7 act",
+          "member_count": 1
+        },
+        {
           "sub_id": 23,
-          "sub_motif": "keep \u00b7 collapse",
-          "member_count": 12
+          "sub_motif": "fingerprint \u00b7 fingerprint(patch_byte)",
+          "member_count": 1
         }
       ]
     },
     {
       "topic_id": 8,
-      "name": "Implement Max Cut Changes [\u2b50 Lead]",
-      "member_count": 29,
-      "top_motif": "repos \u00b7 content \u00b7 chboishabba",
+      "name": "Topic 8: 0xffff1000() \u00b7 0xffff1000(temporal: 0xffff1000) \u00b7 0xffff1000(property: 0xffff1000)",
+      "member_count": 1,
+      "top_motif": "0xffff1000() \u00b7 0xffff1000(temporal: 0xffff1000) \u00b7 0xffff1000(property: 0xffff1000)",
       "sub_topic_count": 1,
       "sub_topics": [
         {
           "sub_id": 24,
-          "sub_motif": "repos \u00b7 content",
-          "member_count": 29
+          "sub_motif": "0xffff1000 \u00b7 version",
+          "member_count": 1
         }
       ]
     }
@@ -209,46 +209,58 @@
       {
         "worker_slot": 1,
         "mode": "primary_roll",
-        "lead_thread_id": "chat:6983f602-8a3c-839c-be69-c24b2d8",
+        "lead_thread_id": "chat:69846625-710c-839a-86de-ce695e7",
         "lead_title": "Assess Round Modules [\u2b50 Lead]",
         "primary_cluster": "Assess Round Modules [\u2b50 Lead]",
-        "rolled_subtopics_count": 10,
+        "rolled_subtopics_count": 13,
         "rolled_subtopic_motifs": [
-          "return \u00b7 =",
-          "| \u00b7 prove",
-          "\u2019 \u00b7 want",
-          "act \u00b7 technology",
-          "fingerprint \u00b7 null",
-          "support \u00b7 mcp",
-          "run \u00b7 \u2019",
-          "go \u00b7 think",
-          "hose \u00b7 tap",
-          "bread \u00b7 press"
+          "estimate \u00b7 ratio",
+          "ago \u00b7 ago(day)",
+          "text \u00b7 test",
+          "log \u00b7 profile(strict)",
+          "kernel \u00b7 buffer",
+          "support \u00b7 fp16",
+          "hose \u00b7 machine(washing)",
+          "bread \u00b7 press",
+          "package \u00b7 satisfy",
+          "than(rather) \u00b7 state",
+          "than(rather) \u00b7 change",
+          "technology(reproductive) \u00b7 act",
+          "fingerprint \u00b7 fingerprint(patch_byte)"
         ],
-        "aggregate_alpha": 41707.77,
+        "aggregate_alpha": 43420.7,
         "action": "execute_subtopics_as_internal_work_packets"
       },
       {
         "worker_slot": 2,
         "mode": "primary_roll",
         "lead_thread_id": "chat:6ab4c264-f344-83ec-8a2c-a6d66ca",
-        "lead_title": "Assess Round Modules [Ancestor]",
-        "primary_cluster": "Assess Round Modules [Ancestor]",
-        "rolled_subtopics_count": 7,
+        "lead_title": "Branch \u00b7 Compare E8 Models [\u2b50 Lead]",
+        "primary_cluster": "Branch \u00b7 Compare E8 Models [\u2b50 Lead]",
+        "rolled_subtopics_count": 3,
         "rolled_subtopic_motifs": [
-          "closure \u00b7 physics",
-          "state \u00b7 give",
-          "axiom \u00b7 build",
-          "theorem \u00b7 prove",
-          "\u2193 \u00b7 review",
-          "change \u00b7 add",
-          "test \u00b7 text"
+          "review \u00b7 receipt",
+          "prove \u00b7 rfl(rfl)",
+          "theorem \u00b7 prove"
         ],
-        "aggregate_alpha": 30956.64,
+        "aggregate_alpha": 26521.64,
         "action": "execute_subtopics_as_internal_work_packets"
       },
       {
         "worker_slot": 3,
+        "mode": "primary_roll",
+        "lead_thread_id": "chat:6ab4715f-7418-83ec-a16e-0fa63bb",
+        "lead_title": "Explain torque better [\u2b50 Lead]",
+        "primary_cluster": "Explain torque better [\u2b50 Lead]",
+        "rolled_subtopics_count": 1,
+        "rolled_subtopic_motifs": [
+          "marker(citation) \u00b7 result(compact)"
+        ],
+        "aggregate_alpha": 23894.98,
+        "action": "execute_subtopics_as_internal_work_packets"
+      },
+      {
+        "worker_slot": 4,
         "mode": "primary_roll",
         "lead_thread_id": "chat:6a92e6ff-6f48-83ec-973a-fcc567d",
         "lead_title": "Implement Max Cut Changes [\u2b50 Lead]",
@@ -257,20 +269,7 @@
         "rolled_subtopic_motifs": [
           "repos \u00b7 content"
         ],
-        "aggregate_alpha": 20142.36,
-        "action": "execute_subtopics_as_internal_work_packets"
-      },
-      {
-        "worker_slot": 4,
-        "mode": "primary_roll",
-        "lead_thread_id": "chat:6ab4715f-7418-83ec-a16e-0fa63bb",
-        "lead_title": "Explain torque better [\u2b50 Lead]",
-        "primary_cluster": "Explain torque better [\u2b50 Lead]",
-        "rolled_subtopics_count": 1,
-        "rolled_subtopic_motifs": [
-          "entry \u00b7 budget"
-        ],
-        "aggregate_alpha": 18997.28,
+        "aggregate_alpha": 21794.97,
         "action": "execute_subtopics_as_internal_work_packets"
       },
       {
@@ -281,10 +280,10 @@
         "primary_cluster": "SensibLaw Agda Test Case [\u2b50 Lead]",
         "rolled_subtopics_count": 2,
         "rolled_subtopic_motifs": [
-          "redact \u00b7 output",
-          "space \u00b7 invariant"
+          "redact(output) \u00b7 redact",
+          "redact(output) \u00b7 space"
         ],
-        "aggregate_alpha": 16778.75,
+        "aggregate_alpha": 19911.37,
         "action": "execute_subtopics_as_internal_work_packets"
       }
     ],
@@ -292,21 +291,21 @@
       {
         "worker_slot": 1,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6a92e6ff-6f48-83ec-973a-fcc567d",
-        "lead_title": "Sub-topic: repos \u00b7 content",
-        "primary_parent": "Implement Max Cut Changes [\u2b50 Lead]",
-        "sub_motif": "repos \u00b7 content",
-        "subtopic_alpha": 20142.36,
+        "lead_thread_id": "chat:696783b4-b818-8323-8a3a-bbd0fdf",
+        "lead_title": "Sub-topic: than(rather) \u00b7 change",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "than(rather) \u00b7 change",
+        "subtopic_alpha": 23938.89,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 2,
         "mode": "independent_subtopic",
         "lead_thread_id": "chat:6ab4715f-7418-83ec-a16e-0fa63bb",
-        "lead_title": "Sub-topic: entry \u00b7 budget",
+        "lead_title": "Sub-topic: marker(citation) \u00b7 result(compact)",
         "primary_parent": "Explain torque better [\u2b50 Lead]",
-        "sub_motif": "entry \u00b7 budget",
-        "subtopic_alpha": 18997.28,
+        "sub_motif": "marker(citation) \u00b7 result(compact)",
+        "subtopic_alpha": 23894.98,
         "action": "dispatch_independent_worker_lane"
       },
       {
@@ -314,79 +313,79 @@
         "mode": "independent_subtopic",
         "lead_thread_id": "chat:6ab4c264-f344-83ec-8a2c-a6d66ca",
         "lead_title": "Sub-topic: theorem \u00b7 prove",
-        "primary_parent": "Assess Round Modules [Ancestor]",
+        "primary_parent": "Branch \u00b7 Compare E8 Models [\u2b50 Lead]",
         "sub_motif": "theorem \u00b7 prove",
-        "subtopic_alpha": 15987.39,
+        "subtopic_alpha": 22661.42,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 4,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6981f4db-a598-839c-a3bf-7af2067",
-        "lead_title": "Sub-topic: \u2019 \u00b7 want",
-        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "\u2019 \u00b7 want",
-        "subtopic_alpha": 15066.97,
+        "lead_thread_id": "chat:6a92e6ff-6f48-83ec-973a-fcc567d",
+        "lead_title": "Sub-topic: repos \u00b7 content",
+        "primary_parent": "Implement Max Cut Changes [\u2b50 Lead]",
+        "sub_motif": "repos \u00b7 content",
+        "subtopic_alpha": 21794.97,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 5,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6983f602-8a3c-839c-be69-c24b2d8",
-        "lead_title": "Sub-topic: run \u00b7 \u2019",
-        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "run \u00b7 \u2019",
-        "subtopic_alpha": 13623.73,
+        "lead_thread_id": "chat:69744862-2608-8322-af06-7117f50",
+        "lead_title": "Sub-topic: redact(output) \u00b7 space",
+        "primary_parent": "SensibLaw Agda Test Case [\u2b50 Lead]",
+        "sub_motif": "redact(output) \u00b7 space",
+        "subtopic_alpha": 12962.81,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 6,
         "mode": "independent_subtopic",
         "lead_thread_id": "chat:696d865d-79a8-8321-a88c-2e37b96",
-        "lead_title": "Sub-topic: keep \u00b7 collapse",
-        "primary_parent": "Topic 7: keep \u00b7 collapse \u00b7 expand",
-        "sub_motif": "keep \u00b7 collapse",
-        "subtopic_alpha": 11889.49,
+        "lead_title": "Sub-topic: text(parsed) \u00b7 collapse(auto)",
+        "primary_parent": "Topic 1: collapse(property: auto) \u00b7 collapse(property: last) \u00b7 expand(temporal: now)",
+        "sub_motif": "text(parsed) \u00b7 collapse(auto)",
+        "subtopic_alpha": 8974.48,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 7,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6973527b-ed34-8322-a41e-26d6bf7",
-        "lead_title": "Sub-topic: space \u00b7 invariant",
+        "lead_thread_id": "chat:6ac6dc29-1d08-83ec-990e-a1ca076",
+        "lead_title": "Sub-topic: redact(output) \u00b7 redact",
         "primary_parent": "SensibLaw Agda Test Case [\u2b50 Lead]",
-        "sub_motif": "space \u00b7 invariant",
-        "subtopic_alpha": 9755.33,
+        "sub_motif": "redact(output) \u00b7 redact",
+        "subtopic_alpha": 6948.56,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 8,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6ac6dc29-1d08-83ec-990e-a1ca076",
-        "lead_title": "Sub-topic: redact \u00b7 output",
-        "primary_parent": "SensibLaw Agda Test Case [\u2b50 Lead]",
-        "sub_motif": "redact \u00b7 output",
-        "subtopic_alpha": 7023.41,
+        "lead_thread_id": "chat:698020f3-2004-83a0-b762-8b1ecad",
+        "lead_title": "Sub-topic: text \u00b7 test",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "text \u00b7 test",
+        "subtopic_alpha": 5302.19,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 9,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6a83f27f-0104-83ec-b6bb-75b9a42",
-        "lead_title": "Sub-topic: state \u00b7 give",
-        "primary_parent": "Assess Round Modules [Ancestor]",
-        "sub_motif": "state \u00b7 give",
-        "subtopic_alpha": 6559.42,
+        "lead_thread_id": "chat:69846625-710c-839a-86de-ce695e7",
+        "lead_title": "Sub-topic: package \u00b7 satisfy",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "package \u00b7 satisfy",
+        "subtopic_alpha": 4359.89,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 10,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:697c4c95-e1cc-839e-ac27-c262a27",
-        "lead_title": "Sub-topic: go \u00b7 think",
-        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "go \u00b7 think",
-        "subtopic_alpha": 5964.13,
+        "lead_thread_id": "chat:6ac1b6c9-1600-83ec-a8ca-26adc5e",
+        "lead_title": "Persistence Authority Implementation [\u2b50 Lead]",
+        "primary_parent": "Branch \u00b7 Compare E8 Models [\u2b50 Lead]",
+        "sub_motif": "review \u00b7 receipt",
+        "subtopic_alpha": 3315.08,
         "action": "dispatch_independent_worker_lane"
       }
     ],
@@ -394,21 +393,21 @@
       {
         "worker_slot": 1,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6a92e6ff-6f48-83ec-973a-fcc567d",
-        "lead_title": "Sub-topic: repos \u00b7 content",
-        "primary_parent": "Implement Max Cut Changes [\u2b50 Lead]",
-        "sub_motif": "repos \u00b7 content",
-        "subtopic_alpha": 20142.36,
+        "lead_thread_id": "chat:696783b4-b818-8323-8a3a-bbd0fdf",
+        "lead_title": "Sub-topic: than(rather) \u00b7 change",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "than(rather) \u00b7 change",
+        "subtopic_alpha": 23938.89,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 2,
         "mode": "independent_subtopic",
         "lead_thread_id": "chat:6ab4715f-7418-83ec-a16e-0fa63bb",
-        "lead_title": "Sub-topic: entry \u00b7 budget",
+        "lead_title": "Sub-topic: marker(citation) \u00b7 result(compact)",
         "primary_parent": "Explain torque better [\u2b50 Lead]",
-        "sub_motif": "entry \u00b7 budget",
-        "subtopic_alpha": 18997.28,
+        "sub_motif": "marker(citation) \u00b7 result(compact)",
+        "subtopic_alpha": 23894.98,
         "action": "dispatch_independent_worker_lane"
       },
       {
@@ -416,179 +415,179 @@
         "mode": "independent_subtopic",
         "lead_thread_id": "chat:6ab4c264-f344-83ec-8a2c-a6d66ca",
         "lead_title": "Sub-topic: theorem \u00b7 prove",
-        "primary_parent": "Assess Round Modules [Ancestor]",
+        "primary_parent": "Branch \u00b7 Compare E8 Models [\u2b50 Lead]",
         "sub_motif": "theorem \u00b7 prove",
-        "subtopic_alpha": 15987.39,
+        "subtopic_alpha": 22661.42,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 4,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6981f4db-a598-839c-a3bf-7af2067",
-        "lead_title": "Sub-topic: \u2019 \u00b7 want",
-        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "\u2019 \u00b7 want",
-        "subtopic_alpha": 15066.97,
+        "lead_thread_id": "chat:6a92e6ff-6f48-83ec-973a-fcc567d",
+        "lead_title": "Sub-topic: repos \u00b7 content",
+        "primary_parent": "Implement Max Cut Changes [\u2b50 Lead]",
+        "sub_motif": "repos \u00b7 content",
+        "subtopic_alpha": 21794.97,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 5,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6983f602-8a3c-839c-be69-c24b2d8",
-        "lead_title": "Sub-topic: run \u00b7 \u2019",
-        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "run \u00b7 \u2019",
-        "subtopic_alpha": 13623.73,
+        "lead_thread_id": "chat:69744862-2608-8322-af06-7117f50",
+        "lead_title": "Sub-topic: redact(output) \u00b7 space",
+        "primary_parent": "SensibLaw Agda Test Case [\u2b50 Lead]",
+        "sub_motif": "redact(output) \u00b7 space",
+        "subtopic_alpha": 12962.81,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 6,
         "mode": "independent_subtopic",
         "lead_thread_id": "chat:696d865d-79a8-8321-a88c-2e37b96",
-        "lead_title": "Sub-topic: keep \u00b7 collapse",
-        "primary_parent": "Topic 7: keep \u00b7 collapse \u00b7 expand",
-        "sub_motif": "keep \u00b7 collapse",
-        "subtopic_alpha": 11889.49,
+        "lead_title": "Sub-topic: text(parsed) \u00b7 collapse(auto)",
+        "primary_parent": "Topic 1: collapse(property: auto) \u00b7 collapse(property: last) \u00b7 expand(temporal: now)",
+        "sub_motif": "text(parsed) \u00b7 collapse(auto)",
+        "subtopic_alpha": 8974.48,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 7,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6973527b-ed34-8322-a41e-26d6bf7",
-        "lead_title": "Sub-topic: space \u00b7 invariant",
+        "lead_thread_id": "chat:6ac6dc29-1d08-83ec-990e-a1ca076",
+        "lead_title": "Sub-topic: redact(output) \u00b7 redact",
         "primary_parent": "SensibLaw Agda Test Case [\u2b50 Lead]",
-        "sub_motif": "space \u00b7 invariant",
-        "subtopic_alpha": 9755.33,
+        "sub_motif": "redact(output) \u00b7 redact",
+        "subtopic_alpha": 6948.56,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 8,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6ac6dc29-1d08-83ec-990e-a1ca076",
-        "lead_title": "Sub-topic: redact \u00b7 output",
-        "primary_parent": "SensibLaw Agda Test Case [\u2b50 Lead]",
-        "sub_motif": "redact \u00b7 output",
-        "subtopic_alpha": 7023.41,
+        "lead_thread_id": "chat:698020f3-2004-83a0-b762-8b1ecad",
+        "lead_title": "Sub-topic: text \u00b7 test",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "text \u00b7 test",
+        "subtopic_alpha": 5302.19,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 9,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6a83f27f-0104-83ec-b6bb-75b9a42",
-        "lead_title": "Sub-topic: state \u00b7 give",
-        "primary_parent": "Assess Round Modules [Ancestor]",
-        "sub_motif": "state \u00b7 give",
-        "subtopic_alpha": 6559.42,
+        "lead_thread_id": "chat:69846625-710c-839a-86de-ce695e7",
+        "lead_title": "Sub-topic: package \u00b7 satisfy",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "package \u00b7 satisfy",
+        "subtopic_alpha": 4359.89,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 10,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:697c4c95-e1cc-839e-ac27-c262a27",
-        "lead_title": "Sub-topic: go \u00b7 think",
-        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "go \u00b7 think",
-        "subtopic_alpha": 5964.13,
+        "lead_thread_id": "chat:6ac1b6c9-1600-83ec-a8ca-26adc5e",
+        "lead_title": "Persistence Authority Implementation [\u2b50 Lead]",
+        "primary_parent": "Branch \u00b7 Compare E8 Models [\u2b50 Lead]",
+        "sub_motif": "review \u00b7 receipt",
+        "subtopic_alpha": 3315.08,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 11,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6ac1b6c9-1600-83ec-a8ca-26adc5e",
-        "lead_title": "Persistence Authority Implementation [\u2b50 Lead]",
-        "primary_parent": "Assess Round Modules [Ancestor]",
-        "sub_motif": "\u2193 \u00b7 review",
-        "subtopic_alpha": 3062.2,
+        "lead_thread_id": "chat:6acc17ac-21d8-83ec-8acb-bca91cb",
+        "lead_title": "Sub-topic: than(rather) \u00b7 state",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "than(rather) \u00b7 state",
+        "subtopic_alpha": 3293.47,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 12,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:696783b4-b818-8323-8a3a-bbd0fdf",
-        "lead_title": "Sub-topic: support \u00b7 mcp",
+        "lead_thread_id": "chat:6978944d-f0f8-8321-b9ca-a4e6aee",
+        "lead_title": "Sub-topic: kernel \u00b7 buffer",
         "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "support \u00b7 mcp",
-        "subtopic_alpha": 2781.68,
+        "sub_motif": "kernel \u00b7 buffer",
+        "subtopic_alpha": 2273.24,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 13,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:69846049-524c-83a0-90d9-7b70213",
-        "lead_title": "Sub-topic: return \u00b7 =",
-        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "return \u00b7 =",
-        "subtopic_alpha": 2304.38,
+        "lead_thread_id": "chat:6ab9f3df-1684-83ec-b030-317a18e",
+        "lead_title": "Sub-topic: closure \u00b7 closure(physics)",
+        "primary_parent": "Assess Round Modules [Ancestor]",
+        "sub_motif": "closure \u00b7 closure(physics)",
+        "subtopic_alpha": 1500.77,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 14,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:698020f3-2004-83a0-b762-8b1ecad",
-        "lead_title": "Sub-topic: test \u00b7 text",
+        "lead_thread_id": "chat:69846049-524c-83a0-90d9-7b70213",
+        "lead_title": "Sub-topic: file \u00b7 url(request)",
         "primary_parent": "Assess Round Modules [Ancestor]",
-        "sub_motif": "test \u00b7 text",
-        "subtopic_alpha": 2062.31,
+        "sub_motif": "file \u00b7 url(request)",
+        "subtopic_alpha": 1015.05,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 15,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6ab9f3df-1684-83ec-b030-317a18e",
-        "lead_title": "Sub-topic: closure \u00b7 physics",
-        "primary_parent": "Assess Round Modules [Ancestor]",
-        "sub_motif": "closure \u00b7 physics",
-        "subtopic_alpha": 1705.94,
+        "lead_thread_id": "chat:69783f78-2d14-8323-a515-c74ded9",
+        "lead_title": "Sub-topic: ago \u00b7 ago(day)",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "ago \u00b7 ago(day)",
+        "subtopic_alpha": 976.19,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 16,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6a903331-0084-83ec-b6fb-87a794d",
-        "lead_title": "Sub-topic: axiom \u00b7 build",
-        "primary_parent": "Assess Round Modules [Ancestor]",
-        "sub_motif": "axiom \u00b7 build",
-        "subtopic_alpha": 1072.25,
+        "lead_thread_id": "chat:69846e75-c24c-83a1-9926-2c42ca6",
+        "lead_title": "Sub-topic: 0xffff1000 \u00b7 version",
+        "primary_parent": "Topic 8: 0xffff1000() \u00b7 0xffff1000(temporal: 0xffff1000) \u00b7 0xffff1000(property: 0xffff1000)",
+        "sub_motif": "0xffff1000 \u00b7 version",
+        "subtopic_alpha": 770.32,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 17,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:69846625-710c-839a-86de-ce695e7",
-        "lead_title": "Sub-topic: package \u00b7 satisfy",
-        "primary_parent": "Topic 6: package \u00b7 satisfy \u00b7 site",
-        "sub_motif": "package \u00b7 satisfy",
-        "subtopic_alpha": 831.19,
+        "lead_thread_id": "chat:69684f1e-6d08-8322-9023-f9567b9",
+        "lead_title": "Sub-topic: log \u00b7 profile(strict)",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "log \u00b7 profile(strict)",
+        "subtopic_alpha": 762.63,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 18,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:69846e75-c24c-83a1-9926-2c42ca6",
-        "lead_title": "Sub-topic: 0xffff1000 \u00b7 version",
-        "primary_parent": "Topic 5: 0xffff1000 \u00b7 version \u00b7 0xffff1000",
-        "sub_motif": "0xffff1000 \u00b7 version",
-        "subtopic_alpha": 677.03,
+        "lead_thread_id": "chat:69822baf-d0c4-839a-8af0-191e5cb",
+        "lead_title": "Sub-topic: estimate \u00b7 ratio",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "estimate \u00b7 ratio",
+        "subtopic_alpha": 577.22,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 19,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6ad2a6f0-b99c-83ec-8aa1-e64481a",
-        "lead_title": "Atlas coordinates format [\u2b50 Lead]",
-        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "| \u00b7 prove",
-        "subtopic_alpha": 522.81,
+        "lead_thread_id": "chat:6ad2ba96-82fc-83ec-a5d0-9a5ac68",
+        "lead_title": "Branch \u00b7 Atlas coordinates format [\u2b50 Lead]",
+        "primary_parent": "Branch \u00b7 Compare E8 Models [\u2b50 Lead]",
+        "sub_motif": "prove \u00b7 rfl(rfl)",
+        "subtopic_alpha": 545.14,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 20,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6ab33182-722c-83ec-b5e3-acb330a",
-        "lead_title": "Sub-topic: change \u00b7 add",
-        "primary_parent": "Assess Round Modules [Ancestor]",
-        "sub_motif": "change \u00b7 add",
-        "subtopic_alpha": 507.13,
+        "lead_thread_id": "chat:68ae744b-ab2c-8329-a93f-64385ff",
+        "lead_title": "Sub-topic: support \u00b7 fp16",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "support \u00b7 fp16",
+        "subtopic_alpha": 482.37,
         "action": "dispatch_independent_worker_lane"
       }
     ],
@@ -596,21 +595,21 @@
       {
         "worker_slot": 1,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6a92e6ff-6f48-83ec-973a-fcc567d",
-        "lead_title": "Sub-topic: repos \u00b7 content",
-        "primary_parent": "Implement Max Cut Changes [\u2b50 Lead]",
-        "sub_motif": "repos \u00b7 content",
-        "subtopic_alpha": 20142.36,
+        "lead_thread_id": "chat:696783b4-b818-8323-8a3a-bbd0fdf",
+        "lead_title": "Sub-topic: than(rather) \u00b7 change",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "than(rather) \u00b7 change",
+        "subtopic_alpha": 23938.89,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 2,
         "mode": "independent_subtopic",
         "lead_thread_id": "chat:6ab4715f-7418-83ec-a16e-0fa63bb",
-        "lead_title": "Sub-topic: entry \u00b7 budget",
+        "lead_title": "Sub-topic: marker(citation) \u00b7 result(compact)",
         "primary_parent": "Explain torque better [\u2b50 Lead]",
-        "sub_motif": "entry \u00b7 budget",
-        "subtopic_alpha": 18997.28,
+        "sub_motif": "marker(citation) \u00b7 result(compact)",
+        "subtopic_alpha": 23894.98,
         "action": "dispatch_independent_worker_lane"
       },
       {
@@ -618,179 +617,179 @@
         "mode": "independent_subtopic",
         "lead_thread_id": "chat:6ab4c264-f344-83ec-8a2c-a6d66ca",
         "lead_title": "Sub-topic: theorem \u00b7 prove",
-        "primary_parent": "Assess Round Modules [Ancestor]",
+        "primary_parent": "Branch \u00b7 Compare E8 Models [\u2b50 Lead]",
         "sub_motif": "theorem \u00b7 prove",
-        "subtopic_alpha": 15987.39,
+        "subtopic_alpha": 22661.42,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 4,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6981f4db-a598-839c-a3bf-7af2067",
-        "lead_title": "Sub-topic: \u2019 \u00b7 want",
-        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "\u2019 \u00b7 want",
-        "subtopic_alpha": 15066.97,
+        "lead_thread_id": "chat:6a92e6ff-6f48-83ec-973a-fcc567d",
+        "lead_title": "Sub-topic: repos \u00b7 content",
+        "primary_parent": "Implement Max Cut Changes [\u2b50 Lead]",
+        "sub_motif": "repos \u00b7 content",
+        "subtopic_alpha": 21794.97,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 5,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6983f602-8a3c-839c-be69-c24b2d8",
-        "lead_title": "Sub-topic: run \u00b7 \u2019",
-        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "run \u00b7 \u2019",
-        "subtopic_alpha": 13623.73,
+        "lead_thread_id": "chat:69744862-2608-8322-af06-7117f50",
+        "lead_title": "Sub-topic: redact(output) \u00b7 space",
+        "primary_parent": "SensibLaw Agda Test Case [\u2b50 Lead]",
+        "sub_motif": "redact(output) \u00b7 space",
+        "subtopic_alpha": 12962.81,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 6,
         "mode": "independent_subtopic",
         "lead_thread_id": "chat:696d865d-79a8-8321-a88c-2e37b96",
-        "lead_title": "Sub-topic: keep \u00b7 collapse",
-        "primary_parent": "Topic 7: keep \u00b7 collapse \u00b7 expand",
-        "sub_motif": "keep \u00b7 collapse",
-        "subtopic_alpha": 11889.49,
+        "lead_title": "Sub-topic: text(parsed) \u00b7 collapse(auto)",
+        "primary_parent": "Topic 1: collapse(property: auto) \u00b7 collapse(property: last) \u00b7 expand(temporal: now)",
+        "sub_motif": "text(parsed) \u00b7 collapse(auto)",
+        "subtopic_alpha": 8974.48,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 7,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6973527b-ed34-8322-a41e-26d6bf7",
-        "lead_title": "Sub-topic: space \u00b7 invariant",
+        "lead_thread_id": "chat:6ac6dc29-1d08-83ec-990e-a1ca076",
+        "lead_title": "Sub-topic: redact(output) \u00b7 redact",
         "primary_parent": "SensibLaw Agda Test Case [\u2b50 Lead]",
-        "sub_motif": "space \u00b7 invariant",
-        "subtopic_alpha": 9755.33,
+        "sub_motif": "redact(output) \u00b7 redact",
+        "subtopic_alpha": 6948.56,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 8,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6ac6dc29-1d08-83ec-990e-a1ca076",
-        "lead_title": "Sub-topic: redact \u00b7 output",
-        "primary_parent": "SensibLaw Agda Test Case [\u2b50 Lead]",
-        "sub_motif": "redact \u00b7 output",
-        "subtopic_alpha": 7023.41,
+        "lead_thread_id": "chat:698020f3-2004-83a0-b762-8b1ecad",
+        "lead_title": "Sub-topic: text \u00b7 test",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "text \u00b7 test",
+        "subtopic_alpha": 5302.19,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 9,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6a83f27f-0104-83ec-b6bb-75b9a42",
-        "lead_title": "Sub-topic: state \u00b7 give",
-        "primary_parent": "Assess Round Modules [Ancestor]",
-        "sub_motif": "state \u00b7 give",
-        "subtopic_alpha": 6559.42,
+        "lead_thread_id": "chat:69846625-710c-839a-86de-ce695e7",
+        "lead_title": "Sub-topic: package \u00b7 satisfy",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "package \u00b7 satisfy",
+        "subtopic_alpha": 4359.89,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 10,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:697c4c95-e1cc-839e-ac27-c262a27",
-        "lead_title": "Sub-topic: go \u00b7 think",
-        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "go \u00b7 think",
-        "subtopic_alpha": 5964.13,
+        "lead_thread_id": "chat:6ac1b6c9-1600-83ec-a8ca-26adc5e",
+        "lead_title": "Persistence Authority Implementation [\u2b50 Lead]",
+        "primary_parent": "Branch \u00b7 Compare E8 Models [\u2b50 Lead]",
+        "sub_motif": "review \u00b7 receipt",
+        "subtopic_alpha": 3315.08,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 11,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6ac1b6c9-1600-83ec-a8ca-26adc5e",
-        "lead_title": "Persistence Authority Implementation [\u2b50 Lead]",
-        "primary_parent": "Assess Round Modules [Ancestor]",
-        "sub_motif": "\u2193 \u00b7 review",
-        "subtopic_alpha": 3062.2,
+        "lead_thread_id": "chat:6acc17ac-21d8-83ec-8acb-bca91cb",
+        "lead_title": "Sub-topic: than(rather) \u00b7 state",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "than(rather) \u00b7 state",
+        "subtopic_alpha": 3293.47,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 12,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:696783b4-b818-8323-8a3a-bbd0fdf",
-        "lead_title": "Sub-topic: support \u00b7 mcp",
+        "lead_thread_id": "chat:6978944d-f0f8-8321-b9ca-a4e6aee",
+        "lead_title": "Sub-topic: kernel \u00b7 buffer",
         "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "support \u00b7 mcp",
-        "subtopic_alpha": 2781.68,
+        "sub_motif": "kernel \u00b7 buffer",
+        "subtopic_alpha": 2273.24,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 13,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:69846049-524c-83a0-90d9-7b70213",
-        "lead_title": "Sub-topic: return \u00b7 =",
-        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "return \u00b7 =",
-        "subtopic_alpha": 2304.38,
+        "lead_thread_id": "chat:6ab9f3df-1684-83ec-b030-317a18e",
+        "lead_title": "Sub-topic: closure \u00b7 closure(physics)",
+        "primary_parent": "Assess Round Modules [Ancestor]",
+        "sub_motif": "closure \u00b7 closure(physics)",
+        "subtopic_alpha": 1500.77,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 14,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:698020f3-2004-83a0-b762-8b1ecad",
-        "lead_title": "Sub-topic: test \u00b7 text",
+        "lead_thread_id": "chat:69846049-524c-83a0-90d9-7b70213",
+        "lead_title": "Sub-topic: file \u00b7 url(request)",
         "primary_parent": "Assess Round Modules [Ancestor]",
-        "sub_motif": "test \u00b7 text",
-        "subtopic_alpha": 2062.31,
+        "sub_motif": "file \u00b7 url(request)",
+        "subtopic_alpha": 1015.05,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 15,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6ab9f3df-1684-83ec-b030-317a18e",
-        "lead_title": "Sub-topic: closure \u00b7 physics",
-        "primary_parent": "Assess Round Modules [Ancestor]",
-        "sub_motif": "closure \u00b7 physics",
-        "subtopic_alpha": 1705.94,
+        "lead_thread_id": "chat:69783f78-2d14-8323-a515-c74ded9",
+        "lead_title": "Sub-topic: ago \u00b7 ago(day)",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "ago \u00b7 ago(day)",
+        "subtopic_alpha": 976.19,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 16,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6a903331-0084-83ec-b6fb-87a794d",
-        "lead_title": "Sub-topic: axiom \u00b7 build",
-        "primary_parent": "Assess Round Modules [Ancestor]",
-        "sub_motif": "axiom \u00b7 build",
-        "subtopic_alpha": 1072.25,
+        "lead_thread_id": "chat:69846e75-c24c-83a1-9926-2c42ca6",
+        "lead_title": "Sub-topic: 0xffff1000 \u00b7 version",
+        "primary_parent": "Topic 8: 0xffff1000() \u00b7 0xffff1000(temporal: 0xffff1000) \u00b7 0xffff1000(property: 0xffff1000)",
+        "sub_motif": "0xffff1000 \u00b7 version",
+        "subtopic_alpha": 770.32,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 17,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:69846625-710c-839a-86de-ce695e7",
-        "lead_title": "Sub-topic: package \u00b7 satisfy",
-        "primary_parent": "Topic 6: package \u00b7 satisfy \u00b7 site",
-        "sub_motif": "package \u00b7 satisfy",
-        "subtopic_alpha": 831.19,
+        "lead_thread_id": "chat:69684f1e-6d08-8322-9023-f9567b9",
+        "lead_title": "Sub-topic: log \u00b7 profile(strict)",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "log \u00b7 profile(strict)",
+        "subtopic_alpha": 762.63,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 18,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:69846e75-c24c-83a1-9926-2c42ca6",
-        "lead_title": "Sub-topic: 0xffff1000 \u00b7 version",
-        "primary_parent": "Topic 5: 0xffff1000 \u00b7 version \u00b7 0xffff1000",
-        "sub_motif": "0xffff1000 \u00b7 version",
-        "subtopic_alpha": 677.03,
+        "lead_thread_id": "chat:69822baf-d0c4-839a-8af0-191e5cb",
+        "lead_title": "Sub-topic: estimate \u00b7 ratio",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "estimate \u00b7 ratio",
+        "subtopic_alpha": 577.22,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 19,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6ad2a6f0-b99c-83ec-8aa1-e64481a",
-        "lead_title": "Atlas coordinates format [\u2b50 Lead]",
-        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "| \u00b7 prove",
-        "subtopic_alpha": 522.81,
+        "lead_thread_id": "chat:6ad2ba96-82fc-83ec-a5d0-9a5ac68",
+        "lead_title": "Branch \u00b7 Atlas coordinates format [\u2b50 Lead]",
+        "primary_parent": "Branch \u00b7 Compare E8 Models [\u2b50 Lead]",
+        "sub_motif": "prove \u00b7 rfl(rfl)",
+        "subtopic_alpha": 545.14,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 20,
         "mode": "independent_subtopic",
-        "lead_thread_id": "chat:6ab33182-722c-83ec-b5e3-acb330a",
-        "lead_title": "Sub-topic: change \u00b7 add",
-        "primary_parent": "Assess Round Modules [Ancestor]",
-        "sub_motif": "change \u00b7 add",
-        "subtopic_alpha": 507.13,
+        "lead_thread_id": "chat:68ae744b-ab2c-8329-a93f-64385ff",
+        "lead_title": "Sub-topic: support \u00b7 fp16",
+        "primary_parent": "Assess Round Modules [\u2b50 Lead]",
+        "sub_motif": "support \u00b7 fp16",
+        "subtopic_alpha": 482.37,
         "action": "dispatch_independent_worker_lane"
       },
       {
@@ -799,18 +798,18 @@
         "lead_thread_id": "chat:6ac59809-8c8c-83ec-adfd-0670c94",
         "lead_title": "Indoor Hose Splitter Advice [\u2b50 Lead]",
         "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "hose \u00b7 tap",
-        "subtopic_alpha": 451.96,
+        "sub_motif": "hose \u00b7 machine(washing)",
+        "subtopic_alpha": 429.97,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 22,
         "mode": "independent_subtopic",
         "lead_thread_id": "chat:696ae294-b7bc-8324-846c-b1bd570",
-        "lead_title": "Sub-topic: fingerprint \u00b7 null",
+        "lead_title": "Sub-topic: fingerprint \u00b7 fingerprint(patch_byte)",
         "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "fingerprint \u00b7 null",
-        "subtopic_alpha": 382.79,
+        "sub_motif": "fingerprint \u00b7 fingerprint(patch_byte)",
+        "subtopic_alpha": 379.82,
         "action": "dispatch_independent_worker_lane"
       },
       {
@@ -820,17 +819,17 @@
         "lead_title": "Sub-topic: bread \u00b7 press",
         "primary_parent": "Assess Round Modules [\u2b50 Lead]",
         "sub_motif": "bread \u00b7 press",
-        "subtopic_alpha": 324.71,
+        "subtopic_alpha": 344.41,
         "action": "dispatch_independent_worker_lane"
       },
       {
         "worker_slot": 24,
         "mode": "independent_subtopic",
         "lead_thread_id": "chat:6ad01c62-68b0-83ec-b4a5-4da4f9d",
-        "lead_title": "Sub-topic: act \u00b7 technology",
+        "lead_title": "Sub-topic: technology(reproductive) \u00b7 act",
         "primary_parent": "Assess Round Modules [\u2b50 Lead]",
-        "sub_motif": "act \u00b7 technology",
-        "subtopic_alpha": 284.61,
+        "sub_motif": "technology(reproductive) \u00b7 act",
+        "subtopic_alpha": 300.43,
         "action": "dispatch_independent_worker_lane"
       }
     ]

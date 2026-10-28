@@ -52,7 +52,12 @@ STOP_LEMMAS = {
     "could", "not", "it", "this", "that", "there", "which", "what", "all",
     "one", "two", "more", "other", "such", "also", "then", "so", "as", "at",
     "by", "for", "from", "in", "into", "of", "on", "to", "with", "you", "i",
-    "we", "they", "he", "she", "\\", "\\\\", "t", "s",
+    "we", "they", "he", "she", "\\", "\\\\", "t", "s", "’", "\"", "'", "\n",
+    "want", "need", "return", "keep", "think", "know", "see", "go", "try",
+    "look", "come", "give", "take", "run", "work", "tell", "ask", "let",
+    "call", "seem", "feel", "leave", "put", "mean", "show", "hear", "move",
+    "believe", "bring", "happen", "provide", "allow", "add", "consider",
+    "expect", "stay", "fall", "reach", "remain", "null", "true", "false",
 }
 
 
@@ -261,19 +266,49 @@ def discover_hierarchical_topics(
     hierarchy: dict[int, dict[str, Any]] = {}
     primary_names: dict[int, str] = {}
 
-    for c_id in np.unique(primary_labels):
+    unique_c_ids = np.unique(primary_labels)
+    K = len(unique_c_ids)
+    cluster_doc_freq = collections.Counter()
+    for c_id in unique_c_ids:
         members = np.where(primary_labels == c_id)[0]
-        # Find top factors for this cluster
+        seen_in_cluster = set()
+        for idx in members:
+            for k in multisets[idx]:
+                seen_in_cluster.add(k)
+        for k in seen_in_cluster:
+            cluster_doc_freq[k] += 1
+
+    for c_id in unique_c_ids:
+        members = np.where(primary_labels == c_id)[0]
         cluster_cnt = collections.Counter()
         for idx in members:
             for k, v in multisets[idx].items():
                 cluster_cnt[k] += v
 
-        # Top 3 most characteristic factors
-        top_factors = [k for k, _ in cluster_cnt.most_common(4)]
-        motif = " · ".join(f.split(":")[-1] for f in top_factors[:3])
+        # Compute TF-IDF discriminative factor scores
+        tfidf_scores = {}
+        for k, v in cluster_cnt.items():
+            parts = k.split(":")
+            if any(p in STOP_LEMMAS or len(p) <= 2 or not any(c.isalnum() for c in p) for p in parts[1:]):
+                continue
+            bonus = 3.0 if k.startswith("frame:") else (1.5 if k.startswith("arg:") else 1.0)
+            idf = math.log((K + 1) / (1 + cluster_doc_freq[k]))
+            tfidf_scores[k] = v * idf * bonus
 
-        # Check if known title matches any thread in this cluster
+        top_items = sorted(tfidf_scores.items(), key=lambda x: -x[1])[:3]
+        formatted_motifs = []
+        for feat, _ in top_items:
+            parts = feat.split(":")
+            if feat.startswith("frame:") and len(parts) >= 4:
+                formatted_motifs.append(f"{parts[1]}({parts[2]}: {parts[3]})")
+            elif feat.startswith("arg:") and len(parts) >= 3:
+                formatted_motifs.append(f"{parts[1]}:{parts[2]}")
+            elif feat.startswith("pred:") and len(parts) >= 2:
+                formatted_motifs.append(f"{parts[1]}()")
+            else:
+                formatted_motifs.append(parts[-1])
+        motif = " · ".join(formatted_motifs) if formatted_motifs else "general"
+
         matched_title = ""
         for idx in members:
             tid = thread_ids[idx].replace("chat:", "")[:8].lower()
@@ -284,7 +319,6 @@ def discover_hierarchical_topics(
         display_name = matched_title or f"Topic {c_id}: {motif}"
         primary_names[c_id] = display_name
 
-        # Sub-clusters in this primary
         subs_in_cluster = np.unique(sub_labels[members])
         sub_list = []
         for s_id in subs_in_cluster:
@@ -293,7 +327,24 @@ def discover_hierarchical_topics(
             for idx in sub_members:
                 for k, v in multisets[idx].items():
                     sub_cnt[k] += v
-            sub_motif = " · ".join(f.split(":")[-1] for f, _ in sub_cnt.most_common(2))
+
+            sub_tfidf = {}
+            for k, v in sub_cnt.items():
+                parts = k.split(":")
+                if any(p in STOP_LEMMAS or len(p) <= 2 or not any(c.isalnum() for c in p) for p in parts[1:]):
+                    continue
+                bonus = 3.0 if k.startswith("frame:") else 1.0
+                sub_tfidf[k] = v * bonus
+
+            top_sub = sorted(sub_tfidf.items(), key=lambda x: -x[1])[:2]
+            sub_formatted = []
+            for feat, _ in top_sub:
+                parts = feat.split(":")
+                if feat.startswith("frame:") and len(parts) >= 4:
+                    sub_formatted.append(f"{parts[1]}({parts[3]})")
+                else:
+                    sub_formatted.append(parts[-1])
+            sub_motif = " · ".join(sub_formatted) if sub_formatted else f"sub_{s_id}"
             sub_list.append({
                 "sub_cluster_id": int(s_id),
                 "member_count": len(sub_members),
