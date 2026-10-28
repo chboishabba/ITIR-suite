@@ -495,15 +495,25 @@ def build_pareto_conductor_plan(
         worker_capacity,
         parallel_admissibility=None,
     )
+    thresholds = hierarchy.get("thresholds")
+    threshold_map = thresholds if isinstance(thresholds, Mapping) else {}
+    primary_tau = float(threshold_map.get("primary_tau", allocation["selected_tau"]))
+    subtopic_tau = float(threshold_map.get("subtopic_tau", allocation["selected_tau"]))
+
     if worker_capacity <= 10:
         mode = "primary_roll"
         topics = _hierarchy_topics(hierarchy, "primary_topics")
+        conductor_tau = max(float(allocation["selected_tau"]), primary_tau)
     elif worker_capacity == 20:
         mode = "independent_subtopics"
         topics = _hierarchy_topics(hierarchy, "subtopics")
+        conductor_tau = max(float(allocation["selected_tau"]), subtopic_tau)
     else:
         mode = "adaptive_subtopics"
         topics = _hierarchy_topics(hierarchy, "subtopics")
+        fraction = float(worker_capacity - 10) / 10.0
+        interpolated_tau = primary_tau - fraction * (primary_tau - subtopic_tau)
+        conductor_tau = max(float(allocation["selected_tau"]), interpolated_tau)
 
     ordered_topics = _pareto_order_topic_rows(topics)
     selected_topics = ordered_topics[:worker_capacity]
@@ -549,7 +559,7 @@ def build_pareto_conductor_plan(
                 )
         lane["internal_work_packets"] = internal_packets
         lane["conductor_mode"] = mode
-        lane["selected_tau"] = float(allocation["selected_tau"])
+        lane["selected_tau"] = conductor_tau
         lane["prompt"] = _pareto_lane_prompt(lane, internal_packets)
         prepared_lanes.append(lane)
 
@@ -571,7 +581,7 @@ def build_pareto_conductor_plan(
         "schema": "itir.ao.pnf_pareto_conductor.v1",
         "worker_capacity": worker_capacity,
         "mode": mode,
-        "selected_tau": float(allocation["selected_tau"]),
+        "selected_tau": conductor_tau,
         "spectral_resolution": allocation["resolution"],
         "selected_topic_count": len(selected_topics),
         "prepared_lane_count": len(prepared_lanes),
