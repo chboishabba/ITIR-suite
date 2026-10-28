@@ -182,38 +182,79 @@ def load_postgres_semantic_corpus(
             for (_group_ref, dependency_ref), members in groups.items():
                 target[_factor_frame_label(dependency_ref, members)] += 1
 
+        statement_to_conversation: dict[str, str] = {}
+        graph_payloads: list[dict[str, Any]] = []
         if _table_present(connection, "pnf.graph"):
             for row in _stream_json_rows(connection, "pnf.graph"):
                 graph_rows += 1
+                graph_payloads.append(row)
                 statement_ref = str(row.get("statement_ref") or "").strip()
                 conversation_ref = str(row.get("conversation_ref") or "").strip()
-                target_id = statement_ref or conversation_ref
-                if not target_id or target_id not in entities:
-                    continue
-                label = str(
-                    row.get("label")
-                    or row.get("edge_label")
-                    or row.get("target_label")
-                    or row.get("relation_ref")
-                    or ""
-                ).strip()
-                if not label:
-                    continue
-                weight = row.get("weight", 1.0)
-                if isinstance(weight, bool) or not isinstance(weight, (int, float)):
-                    weight = 1.0
-                ontology_edges.append(
+                if statement_ref and conversation_ref:
+                    statement_to_conversation[statement_ref] = (
+                        conversation_ref[5:]
+                        if conversation_ref.startswith("chat:")
+                        else conversation_ref
+                    )
+
+        if statement_to_conversation:
+            remapped: dict[str, dict[str, Any]] = {}
+            for statement_ref, entry in entities.items():
+                target_id = statement_to_conversation.get(statement_ref, statement_ref)
+                target = remapped.setdefault(
+                    target_id,
                     {
-                        "conversation_ids": [target_id],
-                        "label": label,
-                        "weight": float(weight),
-                        "provenance_ref": str(
-                            row.get("provenance_ref")
-                            or row.get("graph_revision")
-                            or "pnf.graph"
+                        **{key: value for key, value in entry.items() if key not in {"factor_counts", "frame_counts"}},
+                        "conversation_id": target_id,
+                        "document_ref": (
+                            f"chat:{target_id}"
+                            if target_id != statement_ref
+                            else entry.get("document_ref")
                         ),
-                    }
+                        "factor_counts": Counter(),
+                        "frame_counts": Counter(),
+                        "pnf_candidate_count": 0,
+                    },
                 )
+                target["factor_counts"].update(entry["factor_counts"])
+                target["frame_counts"].update(entry["frame_counts"])
+                target["pnf_candidate_count"] += int(entry["pnf_candidate_count"])
+            entities = remapped
+
+        for row in graph_payloads:
+            statement_ref = str(row.get("statement_ref") or "").strip()
+            conversation_ref = str(row.get("conversation_ref") or "").strip()
+            target_id = (
+                conversation_ref[5:]
+                if conversation_ref.startswith("chat:")
+                else conversation_ref
+            ) or statement_to_conversation.get(statement_ref, statement_ref)
+            if not target_id or target_id not in entities:
+                continue
+            label = str(
+                row.get("label")
+                or row.get("edge_label")
+                or row.get("target_label")
+                or row.get("relation_ref")
+                or ""
+            ).strip()
+            if not label:
+                continue
+            weight = row.get("weight", 1.0)
+            if isinstance(weight, bool) or not isinstance(weight, (int, float)):
+                weight = 1.0
+            ontology_edges.append(
+                {
+                    "conversation_ids": [target_id],
+                    "label": label,
+                    "weight": float(weight),
+                    "provenance_ref": str(
+                        row.get("provenance_ref")
+                        or row.get("graph_revision")
+                        or "pnf.graph"
+                    ),
+                }
+            )
     finally:
         try:
             connection.close()
@@ -248,7 +289,9 @@ def load_postgres_semantic_corpus(
         "source_contract": {
             "factor_table": "pnf.statement_candidate_factor",
             "graph_table": "pnf.graph",
-            "grouping_identity": "statement_ref",
+            "grouping_identity": (
+                "pnf.graph conversation_ref when explicit; otherwise statement_ref"
+            ),
             "frame_grouping": ["batch_ref", "dependency_ref"],
             "typed_argument_fields": ["role_ref", "lemma"],
             "unavailable_fields_not_inferred": [
