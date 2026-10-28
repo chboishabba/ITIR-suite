@@ -9,6 +9,7 @@ from itir_mcp.pg_semantic_spine import (
     load_preferred_semantic_corpus,
     register_sqlite_chat_coordinates,
 )
+from itir_mcp.spectral_plot_tools import stream_preferred_corpus
 
 
 class _FakeCursor:
@@ -351,3 +352,152 @@ def test_reference_registrar_inserts_only_coordinates_and_digest(tmp_path: Path)
         and all(ch in "0123456789abcdef" for ch in value)
         for value in params
     )
+
+
+def test_postgres_graph_explicitly_maps_statement_to_conversation() -> None:
+    columns = [
+        "candidate_ref", "batch_ref", "statement_ref", "role_ref",
+        "source_start_char", "source_end_char", "surface", "lemma",
+        "dependency_ref", "candidate_only",
+    ]
+    tables = {
+        "pnf.statement_candidate_factor:columns": columns,
+        "pnf.statement_candidate_factor": [
+            {
+                "candidate_ref": "cand-1",
+                "batch_ref": "batch-1",
+                "statement_ref": "statement:s1",
+                "role_ref": "actor",
+                "source_start_char": 0,
+                "source_end_char": 4,
+                "surface": "node",
+                "lemma": "node",
+                "dependency_ref": "link",
+                "candidate_only": True,
+            }
+        ],
+        "pnf.graph": [
+            {
+                "statement_ref": "statement:s1",
+                "conversation_ref": "chat:conversation-1",
+                "label": "relational schema",
+            }
+        ],
+    }
+
+    result = load_postgres_semantic_corpus(
+        "postgresql://example",
+        connect=lambda _url: _FakeConnection(tables),
+    )
+
+    assert set(result["conversations"]) == {"conversation-1"}
+    assert result["conversations"]["conversation-1"]["statement_ref"] == "statement:s1"
+    assert result["ontology_edges"][0]["conversation_ids"] == ["conversation-1"]
+
+
+def test_public_preferred_stream_uses_slrw_fallback(tmp_path: Path) -> None:
+    slrw = tmp_path / "fallback.slrw"
+    slrw.write_bytes(b"placeholder")
+
+    def offline(_url):
+        raise OSError("offline")
+
+    from itir_mcp import pnf_spectral_packet
+
+    original = pnf_spectral_packet.load_slrw_conversation_factors
+    pnf_spectral_packet.load_slrw_conversation_factors = lambda _path: {
+        "schema": "itir.pnf.slrw_corpus_factors.v1",
+        "conversations": {
+            "fallback": {
+                "conversation_id": "fallback",
+                "factor_counts": {"x|actor|y": 1},
+                "frame_counts": {"x(actor:y)": 1},
+                "pnf_candidate_count": 1,
+            }
+        },
+    }
+    try:
+        result = stream_preferred_corpus(
+            database_url="postgresql://offline",
+            slrw_fallback_path=slrw,
+            connect=offline,
+        )
+    finally:
+        pnf_spectral_packet.load_slrw_conversation_factors = original
+
+    assert result["source"] == "slrw"
+    assert result["fallback_used"] is True
+    assert "offline" in result["postgres_error"]
+
+
+def test_reference_registrar_abstains_when_slr_reference_columns_are_missing(
+    tmp_path: Path,
+) -> None:
+    sqlite_path = tmp_path / "canonical.sqlite3"
+    with sqlite3.connect(sqlite_path) as db:
+        db.execute("CREATE TABLE conversations (conversation_id TEXT PRIMARY KEY, title TEXT)")
+        db.execute(
+            """
+            CREATE TABLE messages (
+                conversation_id TEXT,
+                message_index INTEGER,
+                author TEXT,
+                content TEXT,
+                message_key TEXT,
+                node_id TEXT,
+                parent_node_id TEXT,
+                source_message_id TEXT,
+                create_time REAL
+            )
+            """
+        )
+        db.execute("INSERT INTO conversations VALUES ('c1', 'Thread')")
+        db.execute(
+            """
+            INSERT INTO messages VALUES
+            ('c1',0,'user','body','m1','node-1',NULL,'msg-1',1.0)
+            """
+        )
+
+    class Cursor:
+        def __init__(self):
+            self.rows = []
+
+        def execute(self, sql, params=None):
+            if "to_regclass" in sql:
+                self.rows = [("corpus.chat_archive_message",)]
+            elif "information_schema.columns" in sql:
+                self.rows = [
+                    ("message_ref",), ("conversation_ref",), ("node_ref",),
+                    ("document_ref",), ("source_revision_ref",),
+                ]
+            else:
+                raise AssertionError(sql)
+
+        def fetchone(self):
+            return self.rows.pop(0) if self.rows else None
+
+        def fetchall(self):
+            rows = list(self.rows)
+            self.rows = []
+            return rows
+
+        def close(self):
+            pass
+
+    class Connection:
+        def cursor(self):
+            return Cursor()
+
+        def close(self):
+            pass
+
+    result = register_sqlite_chat_coordinates(
+        "postgresql://example",
+        sqlite_path=sqlite_path,
+        connect=lambda _url: Connection(),
+    )
+
+    assert result["status"] == "abstained_reference_schema_not_installed"
+    assert "body_sha256" in result["missing_columns"]
+    assert result["raw_body_persisted"] is False
