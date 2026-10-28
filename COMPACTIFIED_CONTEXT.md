@@ -272,6 +272,35 @@
     - dedupe repeated `Q10403939` narrative down to links
     - implement one bounded runtime demonstrator over the existing real
       Akademiska Hus packet + climate text artifacts
+- 2026-10-28 verification/docs legal graph alignment:
+  - lane:
+    `ao.fleet.dynamic.2b4c8532044d`
+  - scope:
+    documentation/context alignment only
+  - canonical flow remains:
+    `Phi -> composed candidate -> admissibility -> promoted record -> derived graph`
+  - fixture/test interpretation:
+    - fixtures and regression tests are contract evidence only
+    - they test reversibility, admissibility, and downstream projection behavior
+    - they do not create canonical facts, relation identity, or promotion authority
+  - current downstream graph interpretation:
+    - promoted `review_relation` rows remain the promoted relation owner
+    - their graph projection may emit promoted `legal_claim` nodes with typed
+      `grounds_claim`, `claim_subject`, and `claim_object` role edges
+    - derived `asserts_*` summaries consume typed
+      `legal_edge_admissibility` output
+    - relation kind and contradiction are never inferred from free text
+    - graph density, clustering, and MDL naming remain derived and non-promotive
+  - aligned surfaces:
+    - root `README.md`
+    - root `TODO.md`
+    - `COMPACTIFIED_CONTEXT.md`
+  - downstream planning owners remain:
+    - `docs/planning/legal_ir_phi_composition_admissibility_boundary_20260417.md`
+    - `docs/planning/legal_graph_relation_taxonomy_20260417.md`
+    - `docs/planning/phi_mapping_and_latent_graph_schema_20260328.md`
+  - this lane changes no source, schema, fixture payload, workflow, or ESD surface
+
 - 2026-04-17 legal IR `Phi` composition / admissibility boundary:
   - source:
     - internal planning/archive note, sanitized for repo-facing context
