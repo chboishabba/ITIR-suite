@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from itir_mcp import fleet_round_runner
 from itir_mcp.pnf_spectral_packet import extract_relational_frames, spectral_no_typed_meet
 
 
@@ -151,3 +152,16 @@ def test_relational_frames_keep_domain_arguments_and_move_wrappers_to_boundary_m
         "dialogue_deictic",
         "auxiliary",
     ]
+
+
+def test_fleet_verifier_rejects_shared_quotient_orbit_with_disjoint_flat_keys() -> None:
+    shared = _frame("persist", "world_store", "relational_schema")
+    left = _lane("left", shared, support="src/left.py")
+    right = _lane("right", shared, support="src/right.py")
+
+    try:
+        fleet_round_runner._verify_pairwise_no_typed_meet([left, right])
+    except ValueError as exc:
+        assert "spectral noTypedMeet violation" in str(exc)
+    else:
+        raise AssertionError("shared quotient orbit must block parallel dispatch")
