@@ -542,6 +542,10 @@ def _world_graph_spectral_pair(
         "graph_refs": list(graph.get("graph_refs") or ()),
         "spectral_dimensions": len(dimensions),
         "singular_values": [singular_values[index] for index in dimensions],
+        "laplacian_eigenvalues": [
+            1.0 - singular_values[index] * singular_values[index]
+            for index in dimensions
+        ],
         "left_anchors": anchors_a,
         "right_anchors": anchors_b,
         "connecting_path": path,
@@ -695,7 +699,7 @@ def _normalised_hypergraph_incidence(
         for member in members:
             index = node_index[member]
             raw[index][edge_index] = entry
-            degree[index] += edge_mass
+            degree[index] += weight
     return [
         [
             value / math.sqrt(degree[row_index])
