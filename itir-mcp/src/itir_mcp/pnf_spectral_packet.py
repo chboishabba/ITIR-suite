@@ -768,13 +768,21 @@ def spectral_no_typed_meet(
 
     frames_a = _lane_relational_frames(lane_a)
     frames_b = _lane_relational_frames(lane_b)
-    vector_a, vector_b = _lane_embedding_pair(
-        lane_a,
-        lane_b,
-        frames_a,
-        frames_b,
-        spectral_model=spectral_model,
-    )
+    if spectral_model is None:
+        vector_a, vector_b, graph_receipt = _world_graph_spectral_pair(lane_a, lane_b)
+    else:
+        vector_a, vector_b = _lane_embedding_pair(
+            lane_a,
+            lane_b,
+            frames_a,
+            frames_b,
+            spectral_model=spectral_model,
+        )
+        graph_receipt = _world_graph_receipt(
+            lane_a,
+            lane_b,
+            spectral_model=spectral_model,
+        )
     cosine = abs(_cosine_similarity(vector_a, vector_b))
     shared_quotient_orbit = cosine > threshold_value
     meet_macro_disjoint = not shared_quotient_orbit
@@ -792,9 +800,6 @@ def spectral_no_typed_meet(
     signatures_b = _sub_eigen_signatures(lane_b, frames_b)
     sub_eigen_meet = _sub_eigen_meet(signatures_a, signatures_b)
     orbit_relation = "shared_quotient_orbit" if shared_quotient_orbit else "orthogonal_domains"
-    shared_world_features = sorted(
-        set(_world_feature_ids(lane_a)) & set(_world_feature_ids(lane_b))
-    )
     residual_status = "contradiction" if prod_invariant_violation else (
         sub_eigen_meet if shared_quotient_orbit else "not_applicable"
     )
@@ -807,7 +812,7 @@ def spectral_no_typed_meet(
         "orbit_relation": orbit_relation,
         "sub_eigen_meet": sub_eigen_meet,
         "sub_eigen_applicable": shared_quotient_orbit,
-        "shared_world_features": shared_world_features,
+        "spectral_grounding": graph_receipt,
         "carrier_scale_delta": carrier_scale_delta,
         "prod_invariant_violation": prod_invariant_violation,
         "defect_status": defect_status,
@@ -844,74 +849,6 @@ def _lane_relational_frames(lane: Mapping[str, Any]) -> list[dict[str, Any]]:
     return []
 
 
-def _default_lane_embedding(
-    lane: Mapping[str, Any],
-    frames: Sequence[Mapping[str, Any]],
-) -> Counter[str]:
-    features: Counter[str] = Counter()
-    for frame in frames:
-        predicate = _text(frame.get("predicate")).casefold()
-        if predicate:
-            features[f"predicate:{predicate}"] += 1
-        arguments = frame.get("arguments")
-        if isinstance(arguments, Mapping):
-            for role, values in arguments.items():
-                role_text = _text(role)
-                if not role_text or not isinstance(values, Sequence) or isinstance(values, (str, bytes, bytearray)):
-                    continue
-                for value in values:
-                    lemma = _text(value).casefold()
-                    if not lemma:
-                        continue
-                    features[f"argument:{role_text}:{lemma}"] += 1
-                    if predicate:
-                        features[f"edge:{predicate}:{role_text}:{lemma}"] += 1
-
-    typed_support = lane.get("typed_support")
-    if isinstance(typed_support, Mapping):
-        for support_kind, values in typed_support.items():
-            kind = _text(support_kind)
-            if not kind or not isinstance(values, Sequence) or isinstance(values, (str, bytes, bytearray)):
-                continue
-            for value in values:
-                support_value = _text(value)
-                if support_value:
-                    features[f"support:{kind}:{support_value}"] += 1
-
-    for feature_id, weight in _world_feature_vector(lane).items():
-        features[f"world:{feature_id}"] += weight
-    return features
-
-
-
-def _world_feature_vector(lane: Mapping[str, Any]) -> dict[str, float]:
-    features = lane.get("world_features")
-    if features is None:
-        features = lane.get("wikidata_features")
-    if not isinstance(features, Sequence) or isinstance(features, (str, bytes, bytearray)):
-        return {}
-
-    vector: dict[str, float] = {}
-    for item in features:
-        if isinstance(item, Mapping):
-            feature_id = _text(item.get("feature_id") or item.get("id")).casefold()
-            raw_weight = item.get("weight", 1.0)
-            if isinstance(raw_weight, bool) or not isinstance(raw_weight, (int, float)):
-                raise ValueError("world feature weight must be numeric")
-            weight = float(raw_weight)
-            if not math.isfinite(weight) or weight <= 0.0:
-                raise ValueError("world feature weight must be finite and positive")
-        else:
-            feature_id = _text(item).casefold()
-            weight = 1.0
-        if feature_id:
-            vector[feature_id] = vector.get(feature_id, 0.0) + weight
-    return vector
-
-
-def _world_feature_ids(lane: Mapping[str, Any]) -> list[str]:
-    return sorted(_world_feature_vector(lane))
-
 
 def _sub_eigen_signatures(
     lane: Mapping[str, Any],
@@ -942,6 +879,42 @@ def _sub_eigen_meet(left: set[str], right: set[str]) -> str:
     return "noTypedMeet"
 
 
+def _default_lane_embedding(
+    lane: Mapping[str, Any],
+    frames: Sequence[Mapping[str, Any]],
+) -> Counter[str]:
+    features: Counter[str] = Counter()
+    for frame in frames:
+        predicate = _text(frame.get("predicate")).casefold()
+        if predicate:
+            features[f"predicate:{predicate}"] += 1
+        arguments = frame.get("arguments")
+        if isinstance(arguments, Mapping):
+            for role, values in arguments.items():
+                role_text = _text(role)
+                if not role_text or not isinstance(values, Sequence) or isinstance(values, (str, bytes, bytearray)):
+                    continue
+                for value in values:
+                    lemma = _text(value).casefold()
+                    if not lemma:
+                        continue
+                    features[f"argument:{role_text}:{lemma}"] += 1
+                    if predicate:
+                        features[f"edge:{predicate}:{role_text}:{lemma}"] += 1
+
+    typed_support = lane.get("typed_support")
+    if isinstance(typed_support, Mapping):
+        for support_kind, values in typed_support.items():
+            kind_text = _text(support_kind)
+            if not kind_text or not isinstance(values, Sequence) or isinstance(values, (str, bytes, bytearray)):
+                continue
+            for value in values:
+                norm = _text(value)
+                if norm:
+                    features[f"support:{kind_text}:{norm}"] += 1
+    return features
+
+
 def _lane_embedding_pair(
     lane_a: Mapping[str, Any],
     lane_b: Mapping[str, Any],
@@ -951,13 +924,611 @@ def _lane_embedding_pair(
     spectral_model: Any,
 ) -> tuple[Mapping[str, float] | Sequence[float], Mapping[str, float] | Sequence[float]]:
     if spectral_model is None:
-        return _default_lane_embedding(lane_a, frames_a), _default_lane_embedding(lane_b, frames_b)
+        left, right, _ = _world_graph_spectral_pair(lane_a, lane_b)
+        return left, right
     if callable(spectral_model):
         return spectral_model(lane_a, frames_a), spectral_model(lane_b, frames_b)
     embed_lane = getattr(spectral_model, "embed_lane", None)
     if callable(embed_lane):
         return embed_lane(lane_a, frames_a), embed_lane(lane_b, frames_b)
     raise ValueError("spectral_model must be callable or provide embed_lane")
+
+
+def _world_graph_receipt(
+    lane_a: Mapping[str, Any],
+    lane_b: Mapping[str, Any],
+    *,
+    spectral_model: Any,
+) -> dict[str, Any]:
+    if spectral_model is not None:
+        return {
+            "source": "external_spectral_model",
+            "real_world_graph": False,
+            "singular_values": [],
+            "connecting_path": [],
+        }
+    _, _, receipt = _world_graph_spectral_pair(lane_a, lane_b)
+    return receipt
+
+
+def _world_graph_spectral_pair(
+    lane_a: Mapping[str, Any],
+    lane_b: Mapping[str, Any],
+) -> tuple[list[float], list[float], dict[str, Any]]:
+    graph = _merge_world_graphs(lane_a.get("world_graph"), lane_b.get("world_graph"))
+    node_ids, hyperedges = _normalise_world_graph(graph)
+    anchors_a = _graph_anchor_ids(lane_a, node_ids)
+    anchors_b = _graph_anchor_ids(lane_b, node_ids)
+
+    operator = build_typed_hyperfabric_operator(graph, node_ids=node_ids, hyperedges=hyperedges)
+    coboundary = operator["coboundary"]
+    transposed = _transpose_matrix(coboundary)
+    singular_values, stalk_vectors = _jacobi_svd_left(transposed)
+
+    usable = [
+        index
+        for index, value in enumerate(singular_values)
+        if value > 1e-12
+    ]
+    dimensions = usable[-8:] if len(usable) > 8 else usable
+    coordinate_offsets = operator["node_coordinate_offsets"]
+    coordinates: dict[str, list[float]] = {}
+    for node_id in node_ids:
+        start, stop = coordinate_offsets[node_id]
+        width = max(1, stop - start)
+        coordinates[node_id] = [
+            sum(stalk_vectors[row][dimension] for row in range(start, stop)) / width
+            for dimension in dimensions
+        ]
+
+    left = _mean_anchor_coordinate(anchors_a, coordinates)
+    right = _mean_anchor_coordinate(anchors_b, coordinates)
+    path = _shortest_hypergraph_path(node_ids, hyperedges, anchors_a, anchors_b)
+    selected_singular = [singular_values[index] for index in dimensions]
+    return left, right, {
+        "source": "real_pnf_typed_hyperfabric",
+        "real_world_graph": True,
+        "typed_hyperfabric": True,
+        "node_count": len(node_ids),
+        "hyperedge_count": len(hyperedges),
+        "stalk_coordinate_count": operator["stalk_coordinate_count"],
+        "restriction_row_count": operator["restriction_row_count"],
+        "graph_refs": list(graph.get("graph_refs") or ()),
+        "spectral_dimensions": len(dimensions),
+        "singular_values": selected_singular,
+        "sheaf_laplacian_eigenvalues": [value * value for value in selected_singular],
+        "left_anchors": anchors_a,
+        "right_anchors": anchors_b,
+        "connecting_path": path,
+        "operator": "normalized_typed_hyperfabric_coboundary_delta_then_deltaT_delta",
+        "decomposition": "deterministic_one_sided_jacobi_svd",
+        "restriction_maps_explicit": operator["restriction_maps_explicit"],
+        "scalar_identity_lifts": operator["scalar_identity_lifts"],
+        "wave_synthesis": operator["wave_synthesis"],
+        "formal_boundary": {
+            "typed_hyperfabric_owner": "DASHI/Reasoning/TypedHyperfabricCore.agda",
+            "local_fibre_owner": "DASHI/Reasoning/LocalFibreHyperfabricExact.agda",
+            "wave_owner": "DASHI/Reasoning/PNFWaveSynthesisCommutatorExact.agda",
+            "spectral_owner": "DASHI/Interop/PNFSpectralFieldGraph.agda",
+            "every_pnf_synthesis_rule_is_wave_addition": False,
+            "semantic_truth_promotion": False,
+        },
+    }
+
+
+def _merge_world_graphs(left: Any, right: Any) -> dict[str, Any]:
+    if not isinstance(left, Mapping) and not isinstance(right, Mapping):
+        raise ValueError(
+            "real world_graph is required for default spectral geometry; "
+            "synthetic feature vectors are not accepted"
+        )
+    graphs = [graph for graph in (left, right) if isinstance(graph, Mapping)]
+    nodes: dict[str, dict[str, Any]] = {}
+    edges: dict[str, dict[str, Any]] = {}
+    for graph in graphs:
+        for raw_node in graph.get("nodes") or ():
+            if not isinstance(raw_node, Mapping):
+                raise ValueError("world_graph nodes must be objects")
+            node_id = _text(raw_node.get("id") or raw_node.get("node_ref"))
+            if not node_id:
+                raise ValueError("world_graph node requires id or node_ref")
+            candidate = dict(raw_node)
+            candidate["id"] = node_id
+            prior = nodes.get(node_id)
+            if prior is not None and prior != candidate:
+                raise ValueError(f"world_graph node {node_id} disagrees across lane inputs")
+            nodes[node_id] = candidate
+
+        raw_edges = graph.get("hyperedges")
+        if raw_edges is None:
+            raw_edges = graph.get("edges")
+        for ordinal, raw_edge in enumerate(raw_edges or ()):
+            if not isinstance(raw_edge, Mapping):
+                raise ValueError("world_graph hyperedges must be objects")
+            edge_id = _text(raw_edge.get("id") or raw_edge.get("edge_ref"))
+            if not edge_id:
+                raise ValueError("world_graph edge requires id or edge_ref")
+            candidate = dict(raw_edge)
+            candidate["id"] = edge_id
+            prior = edges.get(edge_id)
+            if prior is not None and prior != candidate:
+                raise ValueError(f"world_graph edge {edge_id} disagrees across lane inputs")
+            edges[edge_id] = candidate
+
+    if not nodes or not edges:
+        raise ValueError("world_graph must contain nodes and hyperedges/edges")
+    graph_refs = {
+        _text(graph.get("projection_ref") or graph.get("graph_ref") or graph.get("revision_ref"))
+        for graph in graphs
+    }
+    graph_refs.discard("")
+    if not graph_refs:
+        raise ValueError(
+            "world_graph requires projection_ref, graph_ref, or revision_ref "
+            "from a revision-bound graph projection"
+        )
+    return {
+        "nodes": [nodes[key] for key in sorted(nodes)],
+        "hyperedges": [edges[key] for key in sorted(edges)],
+        "graph_refs": sorted(graph_refs),
+    }
+
+
+def _normalise_world_graph(
+    graph: Mapping[str, Any],
+) -> tuple[list[str], list[dict[str, Any]]]:
+    node_ids = sorted(
+        _text(node.get("id"))
+        for node in graph.get("nodes") or ()
+        if isinstance(node, Mapping) and _text(node.get("id"))
+    )
+    node_set = set(node_ids)
+    if len(node_set) != len(node_ids):
+        raise ValueError("world_graph node ids must be unique")
+
+    hyperedges: list[dict[str, Any]] = []
+    for raw_edge in graph.get("hyperedges") or ():
+        state = _text(raw_edge.get("admissibility_state")).casefold()
+        if state in {"blocked", "rejected"}:
+            continue
+        members = raw_edge.get("members")
+        if members is None:
+            members = [
+                raw_edge.get("from_node_ref") or raw_edge.get("source_ref"),
+                raw_edge.get("to_node_ref") or raw_edge.get("target_ref"),
+            ]
+        if not isinstance(members, Sequence) or isinstance(members, (str, bytes, bytearray)):
+            raise ValueError("world_graph edge members must be an array")
+        normalised_members = sorted(
+            {
+                _text(member)
+                for member in members
+                if _text(member)
+            }
+        )
+        if len(normalised_members) < 2:
+            continue
+        unknown = [member for member in normalised_members if member not in node_set]
+        if unknown:
+            raise ValueError(f"world_graph edge references unknown nodes: {unknown}")
+        raw_weight = raw_edge.get("weight", 1.0)
+        if isinstance(raw_weight, bool) or not isinstance(raw_weight, (int, float)):
+            raise ValueError("world_graph edge weight must be numeric")
+        weight = float(raw_weight)
+        if not math.isfinite(weight) or weight <= 0.0:
+            raise ValueError("world_graph edge weight must be finite and positive")
+        edge_stalk = raw_edge.get("edge_stalk")
+        restrictions = raw_edge.get("restrictions")
+        hyperedges.append(
+            {
+                "id": _text(raw_edge.get("id")),
+                "kind": _text(raw_edge.get("kind") or raw_edge.get("relation_kind")),
+                "members": normalised_members,
+                "weight": weight,
+                "provenance_ref": _text(raw_edge.get("provenance_ref")),
+                "edge_stalk": dict(edge_stalk) if isinstance(edge_stalk, Mapping) else {},
+                "restrictions": dict(restrictions) if isinstance(restrictions, Mapping) else {},
+            }
+        )
+    if not hyperedges:
+        raise ValueError("world_graph has no usable hyperedges")
+    return node_ids, hyperedges
+
+
+def _graph_anchor_ids(lane: Mapping[str, Any], node_ids: Sequence[str]) -> list[str]:
+    raw = lane.get("graph_anchor_ids")
+    if raw is None:
+        raw = lane.get("world_graph_anchor_ids")
+    if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes, bytearray)):
+        raise ValueError("lane requires graph_anchor_ids for real graph spectral projection")
+    anchors = sorted({_text(value) for value in raw if _text(value)})
+    unknown = [value for value in anchors if value not in set(node_ids)]
+    if unknown:
+        raise ValueError(f"graph anchors are not present in world_graph: {unknown}")
+    if not anchors:
+        raise ValueError("graph_anchor_ids must not be empty")
+    return anchors
+
+
+def apply_stalk_restriction(
+    restriction: Sequence[Sequence[float]],
+    value: Sequence[float],
+) -> list[float]:
+    if not isinstance(restriction, Sequence) or isinstance(restriction, (str, bytes, bytearray)):
+        raise ValueError("restriction must be a matrix")
+    vector = [float(item) for item in value]
+    rows: list[list[float]] = []
+    for row in restriction:
+        if not isinstance(row, Sequence) or isinstance(row, (str, bytes, bytearray)):
+            raise ValueError("restriction rows must be arrays")
+        numeric = [float(item) for item in row]
+        if len(numeric) != len(vector):
+            raise ValueError("restriction row width must match stalk dimension")
+        if any(not math.isfinite(item) for item in numeric):
+            raise ValueError("restriction coefficients must be finite")
+        rows.append(numeric)
+    return [sum(coefficient * coordinate for coefficient, coordinate in zip(row, vector, strict=True)) for row in rows]
+
+
+def add_discrete_waves(waves: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    if not isinstance(waves, Sequence) or isinstance(waves, (str, bytes, bytearray)):
+        raise ValueError("waves must be an array")
+    real: list[int] | None = None
+    imag: list[int] | None = None
+    for wave in waves:
+        if not isinstance(wave, Mapping):
+            raise ValueError("wave entries must be objects")
+        re_values = _integer_wave_vector(wave.get("re"), "re")
+        im_values = _integer_wave_vector(wave.get("im"), "im")
+        if len(re_values) != len(im_values):
+            raise ValueError("wave real and imaginary dimensions must match")
+        if real is None:
+            real = [0] * len(re_values)
+            imag = [0] * len(im_values)
+        if len(re_values) != len(real):
+            raise ValueError("all waves must have the same dimension")
+        for index, value in enumerate(re_values):
+            real[index] += value
+        for index, value in enumerate(im_values):
+            imag[index] += value
+    result_re = real or []
+    result_im = imag or []
+    if len(result_re) == 1:
+        return {"re": result_re[0], "im": result_im[0]}
+    return {"re": result_re, "im": result_im}
+
+
+def _integer_wave_vector(value: Any, label: str) -> list[int]:
+    if isinstance(value, bool):
+        raise ValueError(f"wave {label} must be integer-valued")
+    if isinstance(value, int):
+        return [value]
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        result: list[int] = []
+        for item in value:
+            if isinstance(item, bool) or not isinstance(item, int):
+                raise ValueError(f"wave {label} must be integer-valued")
+            result.append(item)
+        if result:
+            return result
+    raise ValueError(f"wave {label} must be an integer or integer array")
+
+
+def build_typed_hyperfabric_operator(
+    graph: Mapping[str, Any],
+    *,
+    node_ids: Sequence[str] | None = None,
+    hyperedges: Sequence[Mapping[str, Any]] | None = None,
+) -> dict[str, Any]:
+    if node_ids is None or hyperedges is None:
+        node_ids, hyperedges = _normalise_world_graph(graph)
+    nodes = {
+        _text(node.get("id")): node
+        for node in graph.get("nodes") or ()
+        if isinstance(node, Mapping) and _text(node.get("id"))
+    }
+    if set(node_ids) != set(nodes):
+        raise ValueError("typed hyperfabric node registry disagrees with normalized world graph")
+
+    dimensions: dict[str, int] = {}
+    offsets: dict[str, tuple[int, int]] = {}
+    cursor = 0
+    for node_id in node_ids:
+        stalk = nodes[node_id].get("stalk")
+        stalk_map = stalk if isinstance(stalk, Mapping) else {}
+        raw_dimension = stalk_map.get("dimension", 1)
+        if isinstance(raw_dimension, bool) or not isinstance(raw_dimension, int) or raw_dimension < 1:
+            raise ValueError(f"node stalk dimension must be a positive integer: {node_id}")
+        dimensions[node_id] = raw_dimension
+        offsets[node_id] = (cursor, cursor + raw_dimension)
+        cursor += raw_dimension
+
+    degree = {node_id: 0.0 for node_id in node_ids}
+    for edge in hyperedges:
+        for member in edge["members"]:
+            degree[member] += float(edge["weight"])
+
+    coboundary: list[list[float]] = []
+    explicit_restrictions = 0
+    identity_lifts = 0
+    wave_edges: list[dict[str, Any]] = []
+
+    for edge in hyperedges:
+        members = list(edge["members"])
+        edge_stalk = edge.get("edge_stalk")
+        edge_stalk_map = edge_stalk if isinstance(edge_stalk, Mapping) else {}
+        raw_edge_dimension = edge_stalk_map.get("dimension", 1)
+        if isinstance(raw_edge_dimension, bool) or not isinstance(raw_edge_dimension, int) or raw_edge_dimension < 1:
+            raise ValueError(f"edge stalk dimension must be a positive integer: {edge['id']}")
+        edge_dimension = raw_edge_dimension
+        restrictions = edge.get("restrictions")
+        restriction_map = restrictions if isinstance(restrictions, Mapping) else {}
+
+        resolved: dict[str, list[list[float]]] = {}
+        for member in members:
+            raw_matrix = restriction_map.get(member)
+            if raw_matrix is None:
+                if dimensions[member] != 1 or edge_dimension != 1:
+                    raise ValueError(
+                        f"explicit restriction required for non-scalar incidence {member}->{edge['id']}"
+                    )
+                matrix = [[1.0]]
+                identity_lifts += 1
+            else:
+                matrix = _restriction_matrix(
+                    raw_matrix,
+                    edge_dimension=edge_dimension,
+                    node_dimension=dimensions[member],
+                    edge_id=str(edge["id"]),
+                    node_id=member,
+                )
+                explicit_restrictions += 1
+            resolved[member] = matrix
+
+        pivot = members[0]
+        scale = math.sqrt(float(edge["weight"]))
+        for member in members[1:]:
+            for edge_coordinate in range(edge_dimension):
+                row = [0.0] * cursor
+                pivot_start, _ = offsets[pivot]
+                member_start, _ = offsets[member]
+                pivot_norm = math.sqrt(degree[pivot]) if degree[pivot] > 0.0 else 1.0
+                member_norm = math.sqrt(degree[member]) if degree[member] > 0.0 else 1.0
+                for local, coefficient in enumerate(resolved[pivot][edge_coordinate]):
+                    row[pivot_start + local] -= scale * coefficient / pivot_norm
+                for local, coefficient in enumerate(resolved[member][edge_coordinate]):
+                    row[member_start + local] += scale * coefficient / member_norm
+                coboundary.append(row)
+
+        wave_receipt = _edge_wave_superposition(
+            edge=edge,
+            members=members,
+            nodes=nodes,
+            restrictions=resolved,
+            dimensions=dimensions,
+        )
+        if wave_receipt is not None:
+            wave_edges.append(wave_receipt)
+
+    if not coboundary:
+        raise ValueError("typed hyperfabric requires at least one restriction compatibility row")
+    return {
+        "coboundary": coboundary,
+        "node_coordinate_offsets": offsets,
+        "stalk_coordinate_count": cursor,
+        "restriction_row_count": len(coboundary),
+        "restriction_maps_explicit": explicit_restrictions,
+        "scalar_identity_lifts": identity_lifts,
+        "wave_synthesis": {
+            "edge_count": len(wave_edges),
+            "edges": wave_edges,
+            "additive_superposition": True,
+            "formal_owner": "DASHI/Reasoning/PNFWaveSynthesisCommutatorExact.agda",
+            "every_pnf_synthesis_rule_identified_with_wave_addition": False,
+        },
+    }
+
+
+def _restriction_matrix(
+    value: Any,
+    *,
+    edge_dimension: int,
+    node_dimension: int,
+    edge_id: str,
+    node_id: str,
+) -> list[list[float]]:
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes, bytearray)):
+        raise ValueError(f"restriction {node_id}->{edge_id} must be a matrix")
+    rows: list[list[float]] = []
+    for raw_row in value:
+        if not isinstance(raw_row, Sequence) or isinstance(raw_row, (str, bytes, bytearray)):
+            raise ValueError(f"restriction {node_id}->{edge_id} rows must be arrays")
+        row = [float(item) for item in raw_row]
+        if len(row) != node_dimension:
+            raise ValueError(f"restriction {node_id}->{edge_id} width must match node stalk")
+        if any(not math.isfinite(item) for item in row):
+            raise ValueError(f"restriction {node_id}->{edge_id} must be finite")
+        rows.append(row)
+    if len(rows) != edge_dimension:
+        raise ValueError(f"restriction {node_id}->{edge_id} height must match edge stalk")
+    return rows
+
+
+def _edge_wave_superposition(
+    *,
+    edge: Mapping[str, Any],
+    members: Sequence[str],
+    nodes: Mapping[str, Mapping[str, Any]],
+    restrictions: Mapping[str, Sequence[Sequence[float]]],
+    dimensions: Mapping[str, int],
+) -> dict[str, Any] | None:
+    restricted_waves: list[dict[str, Any]] = []
+    integral_transport = True
+    for member in members:
+        stalk = nodes[member].get("stalk")
+        stalk_map = stalk if isinstance(stalk, Mapping) else {}
+        wave = stalk_map.get("discrete_wave")
+        if wave is None:
+            wave = nodes[member].get("discrete_wave")
+        if wave is None:
+            continue
+        if not isinstance(wave, Mapping):
+            raise ValueError(f"discrete_wave for {member} must be an object")
+        re_values = _integer_wave_vector(wave.get("re"), "re")
+        im_values = _integer_wave_vector(wave.get("im"), "im")
+        if len(re_values) != dimensions[member] or len(im_values) != dimensions[member]:
+            raise ValueError(f"discrete_wave dimension must match node stalk: {member}")
+        matrix = restrictions[member]
+        if any(float(value) != int(float(value)) for row in matrix for value in row):
+            integral_transport = False
+        restricted_re = apply_stalk_restriction(matrix, re_values)
+        restricted_im = apply_stalk_restriction(matrix, im_values)
+        if any(value != int(value) for value in restricted_re + restricted_im):
+            integral_transport = False
+        restricted_waves.append(
+            {
+                "re": [int(value) if value == int(value) else value for value in restricted_re],
+                "im": [int(value) if value == int(value) else value for value in restricted_im],
+            }
+        )
+    if not restricted_waves:
+        return None
+    if not integral_transport:
+        return {
+            "edge_id": _text(edge.get("id")),
+            "formal_discrete_wave_commutator_applicable": False,
+            "reason": "restriction transport leaves the integer DiscreteWave carrier",
+        }
+    total = add_discrete_waves(restricted_waves)
+    return {
+        "edge_id": _text(edge.get("id")),
+        "restricted_incidence_count": len(restricted_waves),
+        "superposition": total,
+        "formal_discrete_wave_commutator_applicable": True,
+        "synthesis_defect": {"re": 0, "im": 0},
+    }
+
+
+def _transpose_matrix(matrix: Sequence[Sequence[float]]) -> list[list[float]]:
+    if not matrix:
+        return []
+    width = len(matrix[0])
+    if any(len(row) != width for row in matrix):
+        raise ValueError("matrix rows must have equal length")
+    return [[float(matrix[row][column]) for row in range(len(matrix))] for column in range(width)]
+
+
+def _jacobi_svd_left(
+    matrix: Sequence[Sequence[float]],
+    *,
+    tolerance: float = 1e-12,
+    max_sweeps: int = 64,
+) -> tuple[list[float], list[list[float]]]:
+    if not matrix:
+        return [], []
+    row_count = len(matrix)
+    column_count = len(matrix[0])
+    if column_count == 0:
+        return [], [[] for _ in range(row_count)]
+    if any(len(row) != column_count for row in matrix):
+        raise ValueError("incidence matrix rows must have equal length")
+
+    rotated = [[float(value) for value in row] for row in matrix]
+    for _ in range(max_sweeps):
+        changed = False
+        for left_col in range(column_count - 1):
+            for right_col in range(left_col + 1, column_count):
+                alpha = sum(row[left_col] * row[left_col] for row in rotated)
+                beta = sum(row[right_col] * row[right_col] for row in rotated)
+                gamma = sum(row[left_col] * row[right_col] for row in rotated)
+                if alpha == 0.0 or beta == 0.0:
+                    continue
+                if abs(gamma) <= tolerance * math.sqrt(alpha * beta):
+                    continue
+                zeta = (beta - alpha) / (2.0 * gamma)
+                sign = 1.0 if zeta >= 0.0 else -1.0
+                tangent = sign / (abs(zeta) + math.sqrt(1.0 + zeta * zeta))
+                cosine = 1.0 / math.sqrt(1.0 + tangent * tangent)
+                sine = cosine * tangent
+                for row in rotated:
+                    left_value = row[left_col]
+                    right_value = row[right_col]
+                    row[left_col] = cosine * left_value - sine * right_value
+                    row[right_col] = sine * left_value + cosine * right_value
+                changed = True
+        if not changed:
+            break
+
+    singular_values_unsorted = [
+        math.sqrt(sum(row[column] * row[column] for row in rotated))
+        for column in range(column_count)
+    ]
+    order = sorted(
+        range(column_count),
+        key=lambda column: (-singular_values_unsorted[column], column),
+    )
+    singular_values = [singular_values_unsorted[column] for column in order]
+    left_vectors = [
+        [
+            (
+                rotated[row_index][column] / singular_values_unsorted[column]
+                if singular_values_unsorted[column] > tolerance
+                else 0.0
+            )
+            for column in order
+        ]
+        for row_index in range(row_count)
+    ]
+    return singular_values, left_vectors
+
+
+def _mean_anchor_coordinate(
+    anchors: Sequence[str],
+    coordinates: Mapping[str, Sequence[float]],
+) -> list[float]:
+    width = len(next(iter(coordinates.values()), ()))
+    return [
+        sum(float(coordinates[anchor][dimension]) for anchor in anchors) / len(anchors)
+        for dimension in range(width)
+    ]
+
+
+def _shortest_hypergraph_path(
+    node_ids: Sequence[str],
+    hyperedges: Sequence[Mapping[str, Any]],
+    left_anchors: Sequence[str],
+    right_anchors: Sequence[str],
+) -> list[str]:
+    adjacency: dict[str, set[str]] = {node_id: set() for node_id in node_ids}
+    for edge in hyperedges:
+        members = list(edge["members"])
+        for left in members:
+            adjacency[left].update(member for member in members if member != left)
+
+    targets = set(right_anchors)
+    queue: list[str] = list(left_anchors)
+    parent: dict[str, str | None] = {anchor: None for anchor in left_anchors}
+    cursor = 0
+    found: str | None = None
+    while cursor < len(queue):
+        current = queue[cursor]
+        cursor += 1
+        if current in targets:
+            found = current
+            break
+        for neighbour in sorted(adjacency[current]):
+            if neighbour not in parent:
+                parent[neighbour] = current
+                queue.append(neighbour)
+    if found is None:
+        return []
+    path: list[str] = []
+    current: str | None = found
+    while current is not None:
+        path.append(current)
+        current = parent[current]
+    path.reverse()
+    return path
 
 
 def _cosine_similarity(

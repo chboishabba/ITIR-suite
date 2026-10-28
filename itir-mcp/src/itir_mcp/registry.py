@@ -17,6 +17,7 @@ from .governance_tools import get_governance_tools
 from .promotion_tools import get_promotion_tools
 from .pnf_tools import get_pnf_tools
 from .sensiblaw_tools import get_sensiblaw_tools
+from .spectral_plot_tools import get_spectral_plot_tools
 from .tool_authority_profiles import DEFAULT_REGISTRY_TOOL_AUTHORITY_PROFILES, validate_tool_authority_profile
 from .wikidata_disjointness_tool import get_wikidata_disjointness_tools
 
@@ -111,6 +112,13 @@ def build_default_registry(
         registry.register(spec, handler)
     for spec, handler in get_config_tools():
         registry.register(spec, handler)
+    for spec, handler in get_spectral_plot_tools():
+        registry.register(
+            spec,
+            handler,
+            authority_profile_key=spec.name if spec.name in DEFAULT_REGISTRY_TOOL_AUTHORITY_PROFILES else None,
+            authority_profile=DEFAULT_REGISTRY_TOOL_AUTHORITY_PROFILES.get(spec.name),
+        )
     for spec, handler in get_governance_tools():
         registry.register(
             spec,

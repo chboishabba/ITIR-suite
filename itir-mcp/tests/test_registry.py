@@ -79,6 +79,9 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.formal.latex_bridge",
         "itir.pnf.distill_prompt",
         "itir.wikidata.disjointness_report",
+        "itir.spectral.visualize_corpus",
+        "itir.spectral.render_heatmap",
+        "itir.spectral.render_scatter",
     }
 
 
@@ -128,6 +131,9 @@ def test_default_registry_exposes_stable_authority_profiles_for_governance_and_s
         "itir.shard.partial_graph_view",
         "itir.shard.bounded_graph_slice_plan",
         "itir.shard.payload_probe",
+        "itir.spectral.visualize_corpus",
+        "itir.spectral.render_heatmap",
+        "itir.spectral.render_scatter",
     }
 
     assert set(registry.list_tool_authority_profiles()) == expected_tools

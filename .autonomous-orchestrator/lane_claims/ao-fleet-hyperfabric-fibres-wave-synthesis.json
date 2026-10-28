@@ -1,0 +1,19 @@
+{
+  "heartbeat_file": "heartbeat.ao-fleet-hyperfabric-fibres-wave-synthesis.json",
+  "lane": "ao.fleet.hyperfabric-fibres-wave-synthesis",
+  "lane_claim": "Lift real PNF spectral geometry onto TypedHyperfabric stalks/restriction maps, finite additive DiscreteWave synthesis receipts, and non-authoritative corpus spectral visualizations.",
+  "orchestrator_id": "ao-fleet-hyperfabric-fibres-wave-synthesis",
+  "parent_orchestrator_id": "ao-fleet-rectify-real-pnf-world-graph",
+  "status_file": "status.ao-fleet-hyperfabric-fibres-wave-synthesis.json",
+  "invariants": {
+    "revision_bound_world_graph_required": true,
+    "typed_stalks_and_restrictions": true,
+    "higher_rank_requires_explicit_restriction": true,
+    "sheaf_laplacian_candidate_only": true,
+    "discrete_wave_superposition_additive_only": true,
+    "every_pnf_synthesis_rule_is_wave_addition": false,
+    "plots_are_non_authoritative_artifacts": true,
+    "zero_trust_escapes": true,
+    "esd_read_only": true
+  }
+}

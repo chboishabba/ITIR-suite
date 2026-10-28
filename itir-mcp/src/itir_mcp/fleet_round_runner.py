@@ -86,6 +86,8 @@ def _verify_pairwise_no_typed_meet(lanes: Sequence[Mapping[str, Any]]) -> None:
         left_id = str(left.get("orchestrator_id") or left.get("lane") or "").strip()
         for right in lane_rows[index + 1 :]:
             right_id = str(right.get("orchestrator_id") or right.get("lane") or "").strip()
+            if not left.get("world_graph") and not right.get("world_graph"):
+                continue
             receipt = spectral_no_typed_meet(left, right)
             if not receipt["admissible"]:
                 raise ValueError(
