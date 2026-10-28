@@ -163,6 +163,8 @@ def test_balaban_and_quantum_metrology_coupling_comes_from_real_graph_paths() ->
     assert grounding["node_count"] == 15
     assert grounding["hyperedge_count"] == 17
     assert grounding["decomposition"] == "deterministic_one_sided_jacobi_svd"
+    assert all(0.0 <= value <= 1.0 + 1e-12 for value in grounding["singular_values"])
+    assert all(-1e-12 <= value <= 1.0 + 1e-12 for value in grounding["laplacian_eigenvalues"])
     assert grounding["connecting_path"][0] == "atom:ym"
     assert grounding["connecting_path"][-1] == "atom:metrology"
     assert len(grounding["singular_values"]) >= 4
