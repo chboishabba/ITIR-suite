@@ -387,13 +387,21 @@ def spectral_no_typed_meet(
 
     frames_a = _lane_relational_frames(lane_a)
     frames_b = _lane_relational_frames(lane_b)
-    vector_a, vector_b = _lane_embedding_pair(
-        lane_a,
-        lane_b,
-        frames_a,
-        frames_b,
-        spectral_model=spectral_model,
-    )
+    if spectral_model is None:
+        vector_a, vector_b, graph_receipt = _world_graph_spectral_pair(lane_a, lane_b)
+    else:
+        vector_a, vector_b = _lane_embedding_pair(
+            lane_a,
+            lane_b,
+            frames_a,
+            frames_b,
+            spectral_model=spectral_model,
+        )
+        graph_receipt = _world_graph_receipt(
+            lane_a,
+            lane_b,
+            spectral_model=spectral_model,
+        )
     cosine = abs(_cosine_similarity(vector_a, vector_b))
     shared_quotient_orbit = cosine > threshold_value
     meet_macro_disjoint = not shared_quotient_orbit
@@ -411,7 +419,6 @@ def spectral_no_typed_meet(
     signatures_b = _sub_eigen_signatures(lane_b, frames_b)
     sub_eigen_meet = _sub_eigen_meet(signatures_a, signatures_b)
     orbit_relation = "shared_quotient_orbit" if shared_quotient_orbit else "orthogonal_domains"
-    graph_receipt = _world_graph_receipt(lane_a, lane_b, spectral_model=spectral_model)
     residual_status = "contradiction" if prod_invariant_violation else (
         sub_eigen_meet if shared_quotient_orbit else "not_applicable"
     )
@@ -571,11 +578,9 @@ def _merge_world_graphs(left: Any, right: Any) -> dict[str, Any]:
         for ordinal, raw_edge in enumerate(raw_edges or ()):
             if not isinstance(raw_edge, Mapping):
                 raise ValueError("world_graph hyperedges must be objects")
-            edge_id = _text(
-                raw_edge.get("id")
-                or raw_edge.get("edge_ref")
-                or f"edge:{ordinal}:{len(edges)}"
-            )
+            edge_id = _text(raw_edge.get("id") or raw_edge.get("edge_ref"))
+            if not edge_id:
+                raise ValueError("world_graph edge requires id or edge_ref")
             candidate = dict(raw_edge)
             candidate["id"] = edge_id
             prior = edges.get(edge_id)
