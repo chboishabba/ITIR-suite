@@ -25,6 +25,7 @@ def test_sheaf_stalk_restriction_and_block_coboundary() -> None:
                 "stalk": {
                     "dimension": 2,
                     "type_ref": "stalk:actor-state",
+                    "state": [5, 1],
                     "discrete_wave": {"re": [1, 2], "im": [0, 1]},
                 },
             },
@@ -34,6 +35,7 @@ def test_sheaf_stalk_restriction_and_block_coboundary() -> None:
                 "stalk": {
                     "dimension": 2,
                     "type_ref": "stalk:theme-state",
+                    "state": [4, 1],
                     "discrete_wave": {"re": [3, 4], "im": [1, 0]},
                 },
             },
@@ -43,7 +45,11 @@ def test_sheaf_stalk_restriction_and_block_coboundary() -> None:
                 "id": "edge:predicate",
                 "kind": "predicate_frame",
                 "members": ["node:a", "node:b"],
-                "edge_stalk": {"dimension": 2, "type_ref": "stalk:predicate"},
+                "edge_stalk": {
+                    "dimension": 2,
+                    "type_ref": "stalk:predicate",
+                    "state": [5, 1],
+                },
                 "restrictions": {
                     "node:a": [[1, 0], [0, 1]],
                     "node:b": [[1, 1], [0, 1]],
@@ -61,6 +67,11 @@ def test_sheaf_stalk_restriction_and_block_coboundary() -> None:
     assert operator["restriction_row_count"] == 2
     assert operator["restriction_maps_explicit"] == 2
     assert operator["scalar_identity_lifts"] == 0
+    assert operator["stalk_type_refs"] == ["stalk:actor-state", "stalk:theme-state"]
+    section = operator["section_compatibility"]
+    assert section["evaluated_edge_count"] == 1
+    assert section["obstruction_count"] == 0
+    assert section["global_section_compatible"] is True
     assert len(operator["coboundary"]) == 2
     assert all(len(row) == 4 for row in operator["coboundary"])
 
@@ -160,3 +171,29 @@ def test_spectral_plot_tools_are_registered_with_receipt_authority() -> None:
         assert profile["max_authority"] == "receipt"
         assert profile["mutates"] is True
         assert profile["authority_notes"]["non_authoritative"] is True
+
+
+def test_hyperfabric_section_obstruction_is_explicit() -> None:
+    graph = {
+        "projection_ref": "pnf-follow:test:typed-fibre-obstruction:revision-1",
+        "nodes": [
+            {"id": "node:a", "stalk": {"dimension": 1, "state": [2]}},
+            {"id": "node:b", "stalk": {"dimension": 1, "state": [5]}},
+        ],
+        "hyperedges": [
+            {
+                "id": "edge:mismatch",
+                "members": ["node:a", "node:b"],
+                "edge_stalk": {"dimension": 1},
+                "restrictions": {"node:a": [[1]], "node:b": [[1]]},
+            }
+        ],
+    }
+
+    operator = build_typed_hyperfabric_operator(graph)
+    section = operator["section_compatibility"]
+
+    assert section["evaluated_edge_count"] == 1
+    assert section["obstruction_count"] == 1
+    assert section["global_section_compatible"] is False
+    assert section["edges"][0]["max_residual_l2"] == 3.0
