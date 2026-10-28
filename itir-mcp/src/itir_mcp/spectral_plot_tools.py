@@ -291,11 +291,6 @@ def generate_corpus_spectral_visualizations_tool(payload: Mapping[str, Any]) -> 
 
 
 def get_spectral_plot_tools() -> list[tuple[ToolSpec, ToolHandler]]:
-    common_boundary = {
-        "candidate_only": True,
-        "non_authoritative": True,
-        "canonical_truth_mutated": False,
-    }
     return [
         (
             ToolSpec(
