@@ -44,6 +44,8 @@ CREATE TABLE name_routes (
     chunk_index INTEGER NOT NULL,
     PRIMARY KEY (lang, name, chunk_index)
 ) WITHOUT ROWID;
+CREATE INDEX node_routes_by_node
+    ON node_routes(node, section, lang, chunk_index);
 """
 
 
