@@ -384,6 +384,11 @@ def render_hierarchical_spectral_manifold(
 
     primary_ids = sorted({row["primary_id"] for row in parsed})
     primary_index = {topic_id: index for index, topic_id in enumerate(primary_ids)}
+    primary_name_by_id = {
+        str(topic.get("topic_id") or ""): str(topic.get("name") or topic.get("topic_id") or "")
+        for topic in hierarchy.get("primary_topics") or ()
+        if isinstance(topic, Mapping)
+    }
     x = [row["x"] for row in parsed]
     y = [row["y"] for row in parsed]
     colors = [primary_index[row["primary_id"]] for row in parsed]
@@ -420,7 +425,13 @@ def render_hierarchical_spectral_manifold(
 
     if len(primary_ids) <= 20 and len(primary_ids) > 1:
         handles, _ = scatter.legend_elements(num=len(primary_ids))
-        axis.legend(handles, primary_ids, title="Primary topic", loc="best", fontsize=7)
+        axis.legend(
+            handles,
+            [primary_name_by_id.get(topic_id, topic_id) for topic_id in primary_ids],
+            title="Primary topic motif",
+            loc="best",
+            fontsize=7,
+        )
 
     mp = hierarchy.get("marchenko_pastur")
     if isinstance(mp, Mapping):
