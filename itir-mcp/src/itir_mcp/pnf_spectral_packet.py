@@ -407,23 +407,45 @@ def spectral_no_typed_meet(
         shared_quotient_orbit=shared_quotient_orbit,
     )
     defect_status = "illegalDefect" if prod_invariant_violation else "lawful"
+    signatures_a = _sub_eigen_signatures(lane_a, frames_a)
+    signatures_b = _sub_eigen_signatures(lane_b, frames_b)
+    sub_eigen_meet = _sub_eigen_meet(signatures_a, signatures_b)
+    orbit_relation = "shared_quotient_orbit" if shared_quotient_orbit else "orthogonal_domains"
+    shared_world_features = sorted(
+        set(_world_feature_ids(lane_a)) & set(_world_feature_ids(lane_b))
+    )
+    residual_status = "contradiction" if prod_invariant_violation else (
+        sub_eigen_meet if shared_quotient_orbit else "exact"
+    )
 
     return {
         "schema": SPECTRAL_NO_TYPED_MEET_SCHEMA,
         "meet_macro_disjoint": meet_macro_disjoint,
         "cosine_similarity": cosine,
         "shared_quotient_orbit": shared_quotient_orbit,
+        "orbit_relation": orbit_relation,
+        "sub_eigen_meet": sub_eigen_meet,
+        "sub_eigen_applicable": shared_quotient_orbit,
+        "shared_world_features": shared_world_features,
         "carrier_scale_delta": carrier_scale_delta,
         "prod_invariant_violation": prod_invariant_violation,
         "defect_status": defect_status,
+        "residual_status": residual_status,
+        "pressure_status": "critical" if prod_invariant_violation else "noncritical",
+        "zoom_out_accommodates": not prod_invariant_violation,
         "admissible": meet_macro_disjoint and not prod_invariant_violation,
         "threshold": threshold_value,
         "frame_counts": {"lane_a": len(frames_a), "lane_b": len(frames_b)},
         "formal_boundary": {
             "quotient_projection_equality_proved": False,
             "spectral_overlap_is_candidate_fibre_only": True,
+            "no_typed_meet_is_sub_eigen_residual": True,
             "illegal_defect_maps_to_contradiction_and_critical_pressure_in_agda": True,
-            "agda_owner": "Ontology/Hecke/PNFResidualBridge.agda",
+            "world_invalidation_cannot_factor_through_collapsed_quotient": True,
+            "agda_owners": [
+                "Ontology/Hecke/PNFResidualBridge.agda",
+                "DASHI/Interop/WorldEigenResidualStratification.agda",
+            ],
         },
     }
 
@@ -474,7 +496,69 @@ def _default_lane_embedding(
                 support_value = _text(value)
                 if support_value:
                     features[f"support:{kind}:{support_value}"] += 1
+
+    for feature_id, weight in _world_feature_vector(lane).items():
+        features[f"world:{feature_id}"] += weight
     return features
+
+
+
+def _world_feature_vector(lane: Mapping[str, Any]) -> dict[str, float]:
+    features = lane.get("world_features")
+    if features is None:
+        features = lane.get("wikidata_features")
+    if not isinstance(features, Sequence) or isinstance(features, (str, bytes, bytearray)):
+        return {}
+
+    vector: dict[str, float] = {}
+    for item in features:
+        if isinstance(item, Mapping):
+            feature_id = _text(item.get("feature_id") or item.get("id")).casefold()
+            raw_weight = item.get("weight", 1.0)
+            if isinstance(raw_weight, bool) or not isinstance(raw_weight, (int, float)):
+                raise ValueError("world feature weight must be numeric")
+            weight = float(raw_weight)
+            if not math.isfinite(weight) or weight <= 0.0:
+                raise ValueError("world feature weight must be finite and positive")
+        else:
+            feature_id = _text(item).casefold()
+            weight = 1.0
+        if feature_id:
+            vector[feature_id] = vector.get(feature_id, 0.0) + weight
+    return vector
+
+
+def _world_feature_ids(lane: Mapping[str, Any]) -> list[str]:
+    return sorted(_world_feature_vector(lane))
+
+
+def _sub_eigen_signatures(
+    lane: Mapping[str, Any],
+    frames: Sequence[Mapping[str, Any]],
+) -> set[str]:
+    explicit = lane.get("typed_signatures")
+    if isinstance(explicit, Sequence) and not isinstance(explicit, (str, bytes, bytearray)):
+        values = {_text(value) for value in explicit if _text(value)}
+        if values:
+            return values
+
+    signatures: set[str] = set()
+    for frame in frames:
+        predicate = _text(frame.get("predicate")).casefold()
+        arguments = frame.get("arguments")
+        if not predicate or not isinstance(arguments, Mapping):
+            continue
+        roles = sorted(_text(role) for role in arguments if _text(role))
+        signatures.add(predicate + "|" + ",".join(roles))
+    return signatures
+
+
+def _sub_eigen_meet(left: set[str], right: set[str]) -> str:
+    if left and left == right:
+        return "exact"
+    if left & right:
+        return "partial"
+    return "noTypedMeet"
 
 
 def _lane_embedding_pair(
