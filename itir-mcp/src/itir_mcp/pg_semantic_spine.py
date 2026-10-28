@@ -130,6 +130,9 @@ def load_postgres_semantic_corpus(
     factor_rows = 0
     graph_rows = 0
     ontology_edges: list[dict[str, Any]] = []
+    semantic_product_by_candidate: dict[str, dict[str, Any]] = {}
+    semantic_product_enrichment = False
+    semantic_product_missing_fields: list[str] = []
 
     required_factor_fields = {
         "candidate_ref",
@@ -145,6 +148,27 @@ def load_postgres_semantic_corpus(
     }
 
     try:
+        if _table_present(connection, "pnf.candidate_semantic_product"):
+            product_columns = _table_columns(connection, "pnf", "candidate_semantic_product")
+            product_required = {
+                "candidate_ref",
+                "sentence_id",
+                "head_lemma",
+                "argument_role",
+            }
+            semantic_product_missing_fields = sorted(product_required.difference(product_columns))
+            if not semantic_product_missing_fields:
+                for product_row in _stream_json_rows(connection, "pnf.candidate_semantic_product"):
+                    candidate_ref = str(product_row.get("candidate_ref") or "").strip()
+                    if not candidate_ref:
+                        continue
+                    semantic_product_by_candidate[candidate_ref] = {
+                        "sentence_id": product_row.get("sentence_id"),
+                        "head_lemma": str(product_row.get("head_lemma") or "").strip().casefold(),
+                        "argument_role": str(product_row.get("argument_role") or "").strip(),
+                    }
+                semantic_product_enrichment = bool(semantic_product_by_candidate)
+
         factor_columns = _table_columns(connection, "pnf", "statement_candidate_factor")
         missing = required_factor_fields.difference(factor_columns)
         if missing:
@@ -178,13 +202,26 @@ def load_postgres_semantic_corpus(
                     "source_kind": "postgres_statement_candidate_factor",
                 },
             )
-            factor_key = f"{dependency_ref}|{role_ref}|{lemma}"
+            enriched = semantic_product_by_candidate.get(candidate_ref)
+            if enriched is not None:
+                predicate = str(enriched.get("head_lemma") or "").strip()
+                argument_role = str(enriched.get("argument_role") or "").strip()
+                sentence_id = str(enriched.get("sentence_id"))
+                if not predicate or not argument_role:
+                    enriched = None
+            if enriched is not None:
+                factor_key = f"{predicate}|{argument_role}|{lemma}"
+                frame_key = (sentence_id, predicate)
+                frame_member = (argument_role, lemma)
+            else:
+                factor_key = f"{dependency_ref}|{role_ref}|{lemma}"
+                frame_key = (batch_ref or statement_ref, dependency_ref)
+                frame_member = (role_ref, lemma)
+
             entry["factor_counts"][factor_key] += 1
             entry["pnf_candidate_count"] += 1
             factor_rows += 1
-
-            frame_key = (batch_ref or statement_ref, dependency_ref)
-            frame_groups[entity_id].setdefault(frame_key, []).append((role_ref, lemma))
+            frame_groups[entity_id].setdefault(frame_key, []).append(frame_member)
 
         for entity_id, groups in frame_groups.items():
             target = entities[entity_id]["frame_counts"]
@@ -295,14 +332,24 @@ def load_postgres_semantic_corpus(
             "grouping_identity": (
                 "pnf.graph conversation_ref when explicit; otherwise statement_ref"
             ),
-            "frame_grouping": ["batch_ref", "dependency_ref"],
-            "typed_argument_fields": ["role_ref", "lemma"],
-            "unavailable_fields_not_inferred": [
-                "conversation_ref",
-                "sentence_id",
-                "head_lemma",
-                "argument_role",
-            ],
+            "frame_grouping": (
+                ["sentence_id", "head_lemma"]
+                if semantic_product_enrichment
+                else ["batch_ref", "dependency_ref"]
+            ),
+            "typed_argument_fields": (
+                ["argument_role", "lemma"]
+                if semantic_product_enrichment
+                else ["role_ref", "lemma"]
+            ),
+            "semantic_product_table": "pnf.candidate_semantic_product",
+            "semantic_product_enrichment": semantic_product_enrichment,
+            "semantic_product_missing_fields": semantic_product_missing_fields,
+            "unavailable_fields_not_inferred": (
+                ["conversation_ref"]
+                if semantic_product_enrichment
+                else ["conversation_ref", "sentence_id", "head_lemma", "argument_role"]
+            ),
             "raw_chat_body_persisted": False,
         },
     }
