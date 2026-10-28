@@ -50,7 +50,8 @@ def test_contrastive_tfidf_prefers_typed_frames_and_filters_generic_predicates()
     assert first["name"].startswith("prove(actor:system,patient:consistency)")
     assert all(item["predicate"] != "want" for item in typed)
     assert abs(typed[0]["contrastive_score"] - expected) < 1e-12
-    assert typed[0]["stalk_label"] == "predicate:prove"
+    assert typed[0]["stalk_label"] == "frame:prove(actor:system,patient:consistency)"
+    assert typed[0]["predicate_stalk_label"] == "predicate:prove"
     assert external[0]["stalk_label"] == "external:quantum Fisher information"
     assert first["motif_name_source"] == "contrastive_typed_pnf_frames_and_explicit_ontology"
     assert first["semantic_centroid"]["motif_scoring"]["typed_frames_prioritized"] is True
