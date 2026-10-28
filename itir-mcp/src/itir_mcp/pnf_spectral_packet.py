@@ -1484,13 +1484,37 @@ def build_hierarchical_pnf_topics(
     coordinates = spectral["coordinates"]
     distance_matrix = _cosine_distance_matrix(coordinates)
     mst_edges = _minimum_spanning_tree(conversation_ids, distance_matrix)
-    thresholds = _dynamic_hierarchy_thresholds([edge["distance"] for edge in mst_edges])
+    residual_thresholds = _dynamic_hierarchy_thresholds([edge["distance"] for edge in mst_edges])
 
-    primary_components = _threshold_components(
-        conversation_ids,
-        distance_matrix,
-        thresholds["primary_tau"],
-    )
+    macro_coordinates = spectral["macro_coordinates"]
+    if spectral["macro_mode_count"] > 0:
+        macro_distance_matrix = _cosine_distance_matrix(macro_coordinates)
+        macro_mst_edges = _minimum_spanning_tree(conversation_ids, macro_distance_matrix)
+        macro_thresholds = _dynamic_hierarchy_thresholds(
+            [edge["distance"] for edge in macro_mst_edges]
+        )
+        primary_tau = max(
+            float(macro_thresholds["primary_tau"]),
+            float(residual_thresholds["subtopic_tau"]),
+        )
+        primary_components = _threshold_components(
+            conversation_ids,
+            macro_distance_matrix,
+            primary_tau,
+        )
+    else:
+        macro_mst_edges = []
+        primary_tau = max(2.0, float(residual_thresholds["subtopic_tau"]))
+        primary_components = [conversation_ids]
+
+    thresholds = {
+        "fibre_tau": float(residual_thresholds["fibre_tau"]),
+        "subtopic_tau": float(residual_thresholds["subtopic_tau"]),
+        "primary_tau": primary_tau,
+        "primary_metric": "mp_retained_macro_coordinates",
+        "subtopic_metric": "full_spectral_coordinates",
+        "fibre_metric": "full_spectral_coordinates_complete_link",
+    }
     sub_components: list[list[str]] = []
     fibre_components: list[list[str]] = []
     primary_of: dict[str, str] = {}
@@ -1615,6 +1639,7 @@ def build_hierarchical_pnf_topics(
         },
         "thresholds": thresholds,
         "mst_edges": mst_edges,
+        "macro_mst_edges": macro_mst_edges,
         "primary_topics": primary_topics,
         "subtopics": sub_topics,
         "fibre_cliques": fibre_topics,
@@ -1743,14 +1768,21 @@ def _mp_spectral_coordinates(
 
     dimension_count = min(max_spectral_dimensions, d)
     coordinates = matrix @ eigenvectors[:, :dimension_count]
+    retained_limited = [index for index in retained if index < dimension_count]
+    macro_coordinates = (
+        matrix @ eigenvectors[:, retained_limited]
+        if retained_limited
+        else np.zeros((n, 1), dtype=float)
+    )
     return {
         "coordinates": coordinates,
+        "macro_coordinates": macro_coordinates,
         "eigenvalues": [float(value) for value in eigenvalues[:dimension_count]],
         "gamma": gamma,
         "sigma2": sigma2,
         "lambda_plus": lambda_plus,
-        "macro_mode_count": len(retained),
-        "retained_macro_indices": retained,
+        "macro_mode_count": len(retained_limited),
+        "retained_macro_indices": retained_limited,
     }
 
 
