@@ -5,10 +5,35 @@
 
   export let data: {
     selectedFixture: string;
+    selectedMotif: string;
+    macroscopicEigenMotif: {
+      motif_id: string;
+      label: string;
+      selector: string;
+      properties: Array<{ id: string; namespace: string; property: string; modifier: 'NominalModifier' }>;
+      edges: Array<{ id: string; source: string; target: string; relation: 'noTypedMeet' }>;
+      invariants: {
+        property_count: number;
+        pairwise_no_typed_meet_count: number;
+        pairwise_no_typed_meet_complete: boolean;
+      };
+      authority: {
+        candidate_only: boolean;
+        diagnostic_only: boolean;
+        truth: boolean;
+        support: boolean;
+        admissibility: boolean;
+        runtime: boolean;
+        promoted: boolean;
+        routing: boolean;
+        vector: boolean;
+      };
+    };
     fixtureMeta?: { fixture_id?: string; label?: string };
     comparison: any;
     availableFixtures: Array<{ key: string; label: string }>;
     stateReason?: string;
+    comparisonStateReason?: string;
     error: string | null;
   };
 
@@ -26,10 +51,14 @@
   };
 
   function changeFixture(fixture: string) {
-    window.location.href = `/graphs/narrative-compare?fixture=${encodeURIComponent(fixture)}`;
+    const params = new URLSearchParams();
+    params.set('fixture', fixture);
+    params.set('motif', data.selectedMotif);
+    window.location.href = `/graphs/narrative-compare?${params.toString()}`;
   }
 
   const comparison = data.comparison;
+  const macroscopicEigenMotif = data.macroscopicEigenMotif;
   const sources = comparison?.sources ?? [];
   const reports = comparison?.reports ?? {};
 
@@ -43,6 +72,7 @@
   $: corroborationBySource = comparison?.corroboration_refs ?? {};
   $: abstentionsBySource = comparison?.abstentions ?? {};
   $: comparisonLinks = comparison?.comparison_links ?? [];
+  $: motifGraph = buildMacroscopicEigenMotifGraph();
 
   $: selectionItems = buildSelectionItems();
   $: reviewState = data.stateReason ?? (data.error ? 'load_error' : selectionItems.length ? 'ready' : 'empty');
@@ -53,6 +83,32 @@
   $: selectedItem = selectionItems.find((row) => row.key === selectedKey) ?? null;
   $: scopedGraph = buildScopedGraph(selectedItem);
   $: graphViewportKey = `${selectedKey}:${scopedGraph.layers.map((row) => row.nodes.length).join(',')}:${scopedGraph.edges.length}`;
+
+
+  function buildMacroscopicEigenMotifGraph(): { layers: Array<{ id: string; title: string; nodes: LayerNode[] }>; edges: LayeredEdge[] } {
+    const layers = macroscopicEigenMotif.properties.map((property, index) => ({
+      id: `motif-property-${index}`,
+      title: `Property ${index + 1}`,
+      nodes: [
+        {
+          id: property.id,
+          label: property.namespace,
+          fullLabel: property.id,
+          tooltip: `${property.id} · ${property.modifier}`,
+          color: '#ede9fe',
+          scale: 1.05
+        }
+      ]
+    }));
+    const edges: LayeredEdge[] = macroscopicEigenMotif.edges.map((edge) => ({
+      id: edge.id,
+      from: edge.source,
+      to: edge.target,
+      label: edge.relation,
+      kind: 'context'
+    }));
+    return { layers, edges };
+  }
 
   function keyFor(kind: SelectionKind, idx: number, sourceId?: string): string {
     return sourceId ? `${kind}:${sourceId}:${idx}` : `${kind}:${idx}`;
@@ -253,6 +309,58 @@
     <div class="mt-3 flex items-center gap-2">
       <span class="text-xs uppercase tracking-[0.24em] text-ink-800/70">state</span>
       <span class="rounded bg-paper-100 px-2 py-1 font-mono text-[11px]">{reviewState}</span>
+      <span class="text-xs uppercase tracking-[0.2em] text-ink-800/50">fixture</span>
+      <span class="rounded bg-paper-100 px-2 py-1 font-mono text-[11px]">{data.comparisonStateReason ?? 'unknown'}</span>
+    </div>
+  </Panel>
+
+  <Panel>
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <div class="text-xs uppercase tracking-[0.28em] text-violet-800/70">Macroscopic Eigen-Motif</div>
+        <div class="mt-2 text-xl font-semibold text-ink-950">{macroscopicEigenMotif.label}</div>
+        <div class="mt-2 max-w-3xl text-sm text-ink-800/70">
+          The three typed properties stay pairwise independent. Each connecting relation is <span class="font-mono">noTypedMeet</span>.
+          This spectral surface is candidate-only and does not grant truth, support, admissibility, runtime, routing, vector, or promotion authority.
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <span class="rounded-full border border-violet-200 bg-violet-50 px-2 py-1 text-[11px] text-violet-900">candidate only</span>
+        <span class="rounded-full border border-violet-200 bg-violet-50 px-2 py-1 text-[11px] text-violet-900">diagnostic only</span>
+        <span class="rounded-full border border-ink-950/10 bg-paper-100 px-2 py-1 font-mono text-[11px]">
+          noTypedMeet {macroscopicEigenMotif.invariants.pairwise_no_typed_meet_count}/3
+        </span>
+      </div>
+    </div>
+
+    <div class="mt-4 grid gap-3 md:grid-cols-3">
+      {#each macroscopicEigenMotif.properties as property}
+        <div class="rounded-lg border border-violet-200 bg-violet-50/50 p-3">
+          <div class="text-[10px] uppercase tracking-[0.2em] text-violet-900/70">Property</div>
+          <div class="mt-1 font-mono text-xs text-ink-950">{property.id}</div>
+          <div class="mt-2 text-xs text-ink-800/70">{property.modifier}</div>
+        </div>
+      {/each}
+    </div>
+
+    <div class="mt-4">
+      <LayeredGraph
+        layers={motifGraph.layers}
+        edges={motifGraph.edges}
+        width={1100}
+        height={260}
+        fitToWidth={true}
+        scrollWhenOverflow={false}
+        viewportResetKey={macroscopicEigenMotif.motif_id}
+      />
+    </div>
+
+    <div class="mt-3 flex flex-wrap gap-2 text-[11px] text-ink-800/70">
+      <span class="rounded border border-ink-950/10 bg-paper-100 px-2 py-1">properties: {macroscopicEigenMotif.invariants.property_count}</span>
+      <span class="rounded border border-ink-950/10 bg-paper-100 px-2 py-1">pairwise complete: {String(macroscopicEigenMotif.invariants.pairwise_no_typed_meet_complete)}</span>
+      <span class="rounded border border-ink-950/10 bg-paper-100 px-2 py-1">promotion: {String(macroscopicEigenMotif.authority.promoted)}</span>
+      <span class="rounded border border-ink-950/10 bg-paper-100 px-2 py-1">truth: {String(macroscopicEigenMotif.authority.truth)}</span>
+      <span class="rounded border border-ink-950/10 bg-paper-100 px-2 py-1">support: {String(macroscopicEigenMotif.authority.support)}</span>
     </div>
   </Panel>
 
