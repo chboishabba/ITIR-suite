@@ -507,16 +507,16 @@ def build_pareto_conductor_plan(
     elif worker_capacity == 20:
         mode = "independent_subtopics"
         topics = _hierarchy_topics(hierarchy, "subtopics")
-        conductor_tau = max(float(allocation["selected_tau"]), subtopic_tau)
+        conductor_tau = subtopic_tau
     else:
         mode = "adaptive_subtopics"
         topics = _hierarchy_topics(hierarchy, "subtopics")
         fraction = float(worker_capacity - 10) / 10.0
-        interpolated_tau = primary_tau - fraction * (primary_tau - subtopic_tau)
-        conductor_tau = max(float(allocation["selected_tau"]), interpolated_tau)
+        conductor_tau = primary_tau - fraction * (primary_tau - subtopic_tau)
 
     ordered_topics = _pareto_order_topic_rows(topics)
     selected_topics = ordered_topics[:worker_capacity]
+    deferred_topics = ordered_topics[worker_capacity:]
     subtopics = _hierarchy_topics(hierarchy, "subtopics")
     subtopics_by_primary: dict[str, list[dict[str, Any]]] = {}
     for subtopic in subtopics:
@@ -586,6 +586,7 @@ def build_pareto_conductor_plan(
         "selected_topic_count": len(selected_topics),
         "prepared_lane_count": len(prepared_lanes),
         "dispatchable_lane_count": len(dispatchable_lanes),
+        "capacity_cut_tau": float(allocation["selected_tau"]),
         "selected_topics": [
             {
                 "topic_id": str(topic.get("topic_id") or ""),
@@ -594,6 +595,15 @@ def build_pareto_conductor_plan(
                 "pareto_rank": int(topic.get("pareto_rank", 0)),
             }
             for topic in selected_topics
+        ],
+        "deferred_topics": [
+            {
+                "topic_id": str(topic.get("topic_id") or ""),
+                "name": str(topic.get("name") or topic.get("topic_id") or ""),
+                "alpha": _topic_alpha(topic),
+                "pareto_rank": int(topic.get("pareto_rank", 0)),
+            }
+            for topic in deferred_topics
         ],
         "lanes": dispatchable_lanes,
         "missing_lane_topics": missing_lane_topics,
