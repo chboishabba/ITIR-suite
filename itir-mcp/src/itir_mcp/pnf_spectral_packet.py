@@ -558,6 +558,8 @@ def _world_graph_spectral_pair(
         "decomposition": "deterministic_one_sided_jacobi_svd",
         "restriction_maps_explicit": operator["restriction_maps_explicit"],
         "scalar_identity_lifts": operator["scalar_identity_lifts"],
+        "stalk_type_refs": operator["stalk_type_refs"],
+        "section_compatibility": operator["section_compatibility"],
         "wave_synthesis": operator["wave_synthesis"],
         "formal_boundary": {
             "typed_hyperfabric_owner": "DASHI/Reasoning/TypedHyperfabricCore.agda",
@@ -806,6 +808,14 @@ def build_typed_hyperfabric_operator(
     explicit_restrictions = 0
     identity_lifts = 0
     wave_edges: list[dict[str, Any]] = []
+    section_edges: list[dict[str, Any]] = []
+    stalk_type_refs: set[str] = set()
+    for node_id in node_ids:
+        stalk = nodes[node_id].get("stalk")
+        stalk_map = stalk if isinstance(stalk, Mapping) else {}
+        type_ref = _text(stalk_map.get("type_ref"))
+        if type_ref:
+            stalk_type_refs.add(type_ref)
 
     for edge in hyperedges:
         members = list(edge["members"])
@@ -864,6 +874,16 @@ def build_typed_hyperfabric_operator(
         if wave_receipt is not None:
             wave_edges.append(wave_receipt)
 
+        section_receipt = _edge_section_compatibility(
+            edge=edge,
+            members=members,
+            nodes=nodes,
+            restrictions=resolved,
+            dimensions=dimensions,
+            edge_dimension=edge_dimension,
+        )
+        section_edges.append(section_receipt)
+
     if not coboundary:
         raise ValueError("typed hyperfabric requires at least one restriction compatibility row")
     return {
@@ -873,6 +893,18 @@ def build_typed_hyperfabric_operator(
         "restriction_row_count": len(coboundary),
         "restriction_maps_explicit": explicit_restrictions,
         "scalar_identity_lifts": identity_lifts,
+        "stalk_type_refs": sorted(stalk_type_refs),
+        "section_compatibility": {
+            "evaluated_edge_count": sum(edge["evaluated"] for edge in section_edges),
+            "obstruction_count": sum(1 for edge in section_edges if edge["obstructed"]),
+            "global_section_compatible": (
+                all(not edge["obstructed"] for edge in section_edges)
+                if section_edges and all(edge["evaluated"] for edge in section_edges)
+                else None
+            ),
+            "edges": section_edges,
+            "formal_owner": "DASHI/Reasoning/TypedHyperfabricCore.agda",
+        },
         "wave_synthesis": {
             "edge_count": len(wave_edges),
             "edges": wave_edges,
@@ -906,6 +938,71 @@ def _restriction_matrix(
     if len(rows) != edge_dimension:
         raise ValueError(f"restriction {node_id}->{edge_id} height must match edge stalk")
     return rows
+
+
+def _edge_section_compatibility(
+    *,
+    edge: Mapping[str, Any],
+    members: Sequence[str],
+    nodes: Mapping[str, Mapping[str, Any]],
+    restrictions: Mapping[str, Sequence[Sequence[float]]],
+    dimensions: Mapping[str, int],
+    edge_dimension: int,
+    tolerance: float = 1e-12,
+) -> dict[str, Any]:
+    projected: dict[str, list[float]] = {}
+    for member in members:
+        stalk = nodes[member].get("stalk")
+        stalk_map = stalk if isinstance(stalk, Mapping) else {}
+        state = stalk_map.get("state")
+        if state is None:
+            continue
+        if not isinstance(state, Sequence) or isinstance(state, (str, bytes, bytearray)):
+            raise ValueError(f"stalk state for {member} must be a numeric array")
+        numeric = [float(value) for value in state]
+        if len(numeric) != dimensions[member] or any(not math.isfinite(value) for value in numeric):
+            raise ValueError(f"stalk state dimension/values invalid for {member}")
+        projected[member] = apply_stalk_restriction(restrictions[member], numeric)
+
+    if len(projected) != len(members):
+        return {
+            "edge_id": _text(edge.get("id")),
+            "evaluated": False,
+            "obstructed": False,
+            "reason": "not all incident node stalk states are supplied",
+        }
+
+    edge_stalk = edge.get("edge_stalk")
+    edge_stalk_map = edge_stalk if isinstance(edge_stalk, Mapping) else {}
+    edge_state = edge_stalk_map.get("state")
+    targets: dict[str, list[float]] = {}
+    if edge_state is not None:
+        if not isinstance(edge_state, Sequence) or isinstance(edge_state, (str, bytes, bytearray)):
+            raise ValueError(f"edge stalk state for {edge['id']} must be a numeric array")
+        target = [float(value) for value in edge_state]
+        if len(target) != edge_dimension or any(not math.isfinite(value) for value in target):
+            raise ValueError(f"edge stalk state dimension/values invalid for {edge['id']}")
+        targets = {member: target for member in members}
+    else:
+        pivot = members[0]
+        target = projected[pivot]
+        targets = {member: target for member in members}
+
+    residuals: dict[str, float] = {}
+    for member in members:
+        delta = [
+            value - target
+            for value, target in zip(projected[member], targets[member], strict=True)
+        ]
+        residuals[member] = math.sqrt(sum(value * value for value in delta))
+    max_residual = max(residuals.values(), default=0.0)
+    return {
+        "edge_id": _text(edge.get("id")),
+        "evaluated": True,
+        "obstructed": max_residual > tolerance,
+        "max_residual_l2": max_residual,
+        "incident_residual_l2": residuals,
+    }
 
 
 def _edge_wave_superposition(
