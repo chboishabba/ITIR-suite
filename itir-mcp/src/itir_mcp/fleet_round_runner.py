@@ -238,11 +238,13 @@ def allocate_hierarchical_spectral_workers(
         }
     conversation_ids = sorted(set(conversation_ids))
 
-    tau = _capacity_threshold_from_mst(
+    capacity_tau = _capacity_threshold_from_mst(
         conversation_count=len(conversation_ids),
         mst_edges=mst_edges,
         worker_capacity=worker_capacity,
     )
+    fibre_floor = float(thresholds.get("fibre_tau", 0.0))
+    tau = max(capacity_tau, fibre_floor)
     components = _mst_components_at_threshold(conversation_ids, mst_edges, tau)
     component_rows = [
         _scheduled_component_summary(index, members, alpha_by_conversation)
