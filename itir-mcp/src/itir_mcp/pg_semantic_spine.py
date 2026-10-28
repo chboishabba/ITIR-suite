@@ -329,8 +329,6 @@ def register_sqlite_chat_coordinates(
     if not path.is_file():
         raise FileNotFoundError(path)
 
-    connector = connect or _default_connect
-    pg = connector(database_url or os.environ.get("DATABASE_URL") or None)
     inserted = replayed = conflicts = 0
 
     with sqlite3.connect(path) as sqlite:
@@ -371,6 +369,8 @@ def register_sqlite_chat_coordinates(
             params = (max(0, int(limit)),)
         rows = sqlite.execute(sql, params).fetchall()
 
+    connector = connect or _default_connect
+    pg = connector(database_url or os.environ.get("DATABASE_URL") or None)
     try:
         if not _table_present(pg, "corpus.chat_archive_message"):
             raise PostgresSemanticSpineIncompatible(
@@ -431,6 +431,26 @@ def register_sqlite_chat_coordinates(
                         replayed += 1
                     else:
                         conflicts += 1
+                        if _table_present(pg, "corpus.chat_archive_reference_conflict"):
+                            prior_sha = str(prior[0] or "")
+                            receipt_ref = "chat-reference-conflict:sha256:" + hashlib.sha256(
+                                f"{message_ref}\n{prior_sha}\n{body_sha256}".encode("utf-8")
+                            ).hexdigest()
+                            cursor.execute(
+                                """
+                                INSERT INTO corpus.chat_archive_reference_conflict
+                                (receipt_ref,message_ref,prior_sha256,proposed_sha256,proposed_locator)
+                                VALUES (%s,%s,%s,%s,%s)
+                                ON CONFLICT (receipt_ref) DO NOTHING
+                                """,
+                                (
+                                    receipt_ref,
+                                    message_ref,
+                                    prior_sha,
+                                    body_sha256,
+                                    archive_locator,
+                                ),
+                            )
                     continue
                 cursor.execute(
                     """
