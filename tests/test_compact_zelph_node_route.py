@@ -69,16 +69,19 @@ def test_compact_route_roundtrip_and_keyed_lookup(tmp_path: Path) -> None:
 
     assert stats["routeVersion"] == "zelph-node-route/sqlite-v1"
     assert stats["sourceRouteVersion"] == "zelph-node-route/v1"
-    assert stats["nodeRouteRows"] == 8
-    assert stats["nameRouteRows"] == 3
+    assert stats["encoding"] == "sqlite-chunk-zlib-delta-varint"
+    assert stats["nodeChunkRows"] == 5
+    assert stats["nameChunkRows"] == 2
+    assert stats["nodeMemberships"] == 8
+    assert stats["nameMemberships"] == 3
     assert verified == {
-        "ok": True,
         "integrityCheck": "ok",
-        "nodeRoutesMatch": True,
-        "nameRoutesMatch": True,
+        "nodeChunksMatch": True,
+        "nameChunksMatch": True,
         "sourceDigestMatch": True,
-        "nodeRouteRows": 8,
-        "nameRouteRows": 3,
+        "nodeChunkRows": 5,
+        "nameChunkRows": 2,
+        "ok": True,
     }
 
     assert tool.lookup_node(compact, 42, section="left") == [
@@ -104,6 +107,45 @@ def test_compact_route_is_byte_deterministic(tmp_path: Path) -> None:
 
     assert first.read_bytes() == second.read_bytes()
     assert first_stats["outputSha256"] == second_stats["outputSha256"]
+
+
+def test_compact_route_is_materially_denser_for_large_numeric_membership(tmp_path: Path) -> None:
+    tool = _load_tool()
+    source = tmp_path / "large.route.json"
+    compact = tmp_path / "large.route.sqlite"
+
+    chunks = []
+    for chunk_index in range(8):
+        start = chunk_index * 5000
+        nodes = list(range(start, start + 5000))
+        chunks.append(
+            {
+                "chunkIndex": chunk_index,
+                "which": "left",
+                "entryCount": len(nodes),
+                "nodes": nodes,
+            }
+        )
+    source.write_text(
+        json.dumps(
+            {
+                "routeVersion": "zelph-node-route/v1",
+                "source": {"binPath": "/data/large.bin"},
+                "routing": {
+                    "left": chunks,
+                    "right": [],
+                    "nameOfNode": [],
+                    "nodeOfName": [],
+                },
+            },
+            separators=(",", ":"),
+        ),
+        encoding="utf-8",
+    )
+
+    stats = tool.compact(source, compact)
+    assert tool.verify(source, compact)["ok"] is True
+    assert stats["outputBytes"] < stats["sourceBytes"] // 2
 
 
 def test_compact_route_rejects_non_v1_source(tmp_path: Path) -> None:
@@ -135,5 +177,5 @@ def test_verify_detects_source_drift(tmp_path: Path) -> None:
 
     result = tool.verify(source, compact)
     assert result["ok"] is False
-    assert result["nodeRoutesMatch"] is False
+    assert result["nodeChunksMatch"] is False
     assert result["sourceDigestMatch"] is False
