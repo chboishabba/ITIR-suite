@@ -47,23 +47,62 @@ def test_slr_and_sensiblaw_shared_frames_have_macroscopic_meet_without_name_rule
     assert receipt["formal_boundary"]["quotient_projection_equality_proved"] is False
 
 
-def test_orthogonal_balaban_and_quantum_metrology_frames_are_no_typed_meet() -> None:
-    ym = _lane(
-        "balaban-ym",
-        _frame("renormalize", "polymer", "gauge_block"),
-        support="DASHI/Physics/YM.agda",
-    )
-    metrology = _lane(
-        "quantum-metrology",
-        _frame("estimate", "sensor", "fisher_metric"),
-        support="DASHI/Physics/QuantumMetrology.agda",
-    )
+def test_balaban_and_quantum_metrology_share_world_geometric_coupling() -> None:
+    ym = {
+        "orchestrator_id": "balaban-ym",
+        "typed_support": {"files": ["DASHI/Physics/YM.agda"], "symbols": [], "lemmas": []},
+        "typed_signatures": ["renormalize|actor,theme"],
+        "world_features": [
+            {"feature_id": "gauge_connection", "source": "dashi"},
+            {"feature_id": "metric_tensor", "source": "wikidata"},
+            {"feature_id": "curvature_2_form", "source": "dashi"},
+            {"feature_id": "effective_action", "source": "dashi"},
+            {"feature_id": "renormalization_flow", "source": "dashi"},
+        ],
+    }
+    metrology = {
+        "orchestrator_id": "quantum-metrology",
+        "typed_support": {"files": ["DASHI/Physics/QuantumMetrology.agda"], "symbols": [], "lemmas": []},
+        "typed_signatures": ["estimate|actor,theme"],
+        "world_features": [
+            {"feature_id": "gauge_connection", "source": "wikidata"},
+            {"feature_id": "metric_tensor", "source": "wikidata"},
+            {"feature_id": "quantum_fisher_information", "source": "wikidata_join"},
+            {"feature_id": "information_geometry", "source": "wikidata"},
+            {"feature_id": "nv_center", "source": "wikidata_join"},
+        ],
+    }
 
     receipt = spectral_no_typed_meet(ym, metrology)
 
+    assert 0.3 <= receipt["cosine_similarity"] <= 0.5
+    assert receipt["orbit_relation"] == "shared_quotient_orbit"
+    assert receipt["shared_world_features"] == ["gauge_connection", "metric_tensor"]
+    assert receipt["sub_eigen_meet"] == "noTypedMeet"
+    assert receipt["sub_eigen_applicable"] is True
+    assert receipt["admissible"] is False
+
+
+def test_fractran_and_fluid_enstrophy_remain_macro_orthogonal() -> None:
+    fractran = {
+        "orchestrator_id": "fractran",
+        "typed_support": {"files": ["DASHI/Computation/FRACTRAN.agda"], "symbols": [], "lemmas": []},
+        "typed_signatures": ["multiply|register"],
+        "world_features": ["integer_register", "prime_exponent"],
+    }
+    fluid = {
+        "orchestrator_id": "fluid-enstrophy",
+        "typed_support": {"files": ["DASHI/Physics/Fluid.agda"], "symbols": [], "lemmas": []},
+        "typed_signatures": ["transport|vorticity"],
+        "world_features": ["vorticity", "enstrophy"],
+    }
+
+    receipt = spectral_no_typed_meet(fractran, fluid)
+
     assert receipt["cosine_similarity"] == 0.0
-    assert receipt["shared_quotient_orbit"] is False
+    assert receipt["orbit_relation"] == "orthogonal_domains"
     assert receipt["meet_macro_disjoint"] is True
+    assert receipt["sub_eigen_applicable"] is False
     assert receipt["admissible"] is True
 
 
@@ -89,6 +128,9 @@ def test_prod_carrier_schema_mutation_is_illegal_defect() -> None:
     assert receipt["carrier_scale_delta"] == 2.0
     assert receipt["prod_invariant_violation"] is True
     assert receipt["defect_status"] == "illegalDefect"
+    assert receipt["residual_status"] == "contradiction"
+    assert receipt["pressure_status"] == "critical"
+    assert receipt["zoom_out_accommodates"] is False
     assert receipt["admissible"] is False
     assert receipt["formal_boundary"]["illegal_defect_maps_to_contradiction_and_critical_pressure_in_agda"] is True
 
@@ -167,38 +209,23 @@ def test_fleet_verifier_rejects_shared_quotient_orbit_with_disjoint_flat_keys() 
         raise AssertionError("shared quotient orbit must block parallel dispatch")
 
 
-def test_balaban_and_quantum_metrology_wikidata_bridge_coupling() -> None:
-    ym_bridged = {
-        "orchestrator_id": "balaban-ym",
-        "typed_support": {"files": ["DASHI/Physics/YM.agda"], "symbols": [], "lemmas": []},
-        "relational_frames": [_frame("renormalize", "polymer", "gauge_block")],
-        "wikidata_features": [
-            "Q208227",  # gauge theory / connection form
-            "Q171448",  # metric tensor / Riemannian metric
-            "information_geometry:fisher_metric_flow",
-        ],
+def test_no_typed_meet_is_sub_eigen_not_macro_orthogonality() -> None:
+    left = {
+        "orchestrator_id": "left",
+        "typed_support": {"files": ["src/left.py"], "symbols": [], "lemmas": []},
+        "typed_signatures": ["prove|actor"],
+        "world_features": ["shared_geometry", "shared_metric"],
+    }
+    right = {
+        "orchestrator_id": "right",
+        "typed_support": {"files": ["src/right.py"], "symbols": [], "lemmas": []},
+        "typed_signatures": ["measure|theme"],
+        "world_features": ["shared_geometry", "shared_metric"],
     }
 
-    qm_bridged = {
-        "orchestrator_id": "quantum-metrology",
-        "typed_support": {"files": ["DASHI/Physics/QuantumMetrology.agda"], "symbols": [], "lemmas": []},
-        "relational_frames": [_frame("estimate", "sensor", "fisher_metric")],
-        "wikidata_features": [
-            "Q11455",   # Quantum Fisher Information
-            "Q11108",   # Nitrogen-vacancy center
-            "Q171448",  # metric tensor / Fubini-Study
-            "information_geometry:fisher_metric_flow",
-        ],
-    }
+    receipt = spectral_no_typed_meet(left, right)
 
-    receipt = spectral_no_typed_meet(ym_bridged, qm_bridged)
-
-    assert receipt["cosine_similarity"] > 0.15
     assert receipt["orbit_relation"] == "shared_quotient_orbit"
-    assert "q171448" in receipt["shared_world_features"]
-    assert "information_geometry:fisher_metric_flow" in receipt["shared_world_features"]
-    assert receipt["sub_eigen_applicable"] is True
     assert receipt["sub_eigen_meet"] == "noTypedMeet"
+    assert receipt["meet_macro_disjoint"] is False
     assert receipt["residual_status"] == "noTypedMeet"
-    assert receipt["formal_boundary"]["no_typed_meet_is_sub_eigen_residual"] is True
-
