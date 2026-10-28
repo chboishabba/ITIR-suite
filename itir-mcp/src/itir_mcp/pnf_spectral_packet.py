@@ -2165,6 +2165,7 @@ def _apply_discriminative_topic_motifs(
                     "cluster_tf": float(count) / float(total_frames),
                     "cluster_df": int(frame_df[motif]),
                     "contrastive_score": score,
+                    "weight": score,
                     "stalk_label": f"predicate:{_frame_predicate(motif)}",
                 })
 
@@ -2182,6 +2183,7 @@ def _apply_discriminative_topic_motifs(
                     "cluster_tf": float(count) / float(total_ontology),
                     "cluster_df": int(ontology_df[feature]),
                     "contrastive_score": score,
+                    "weight": score,
                     "stalk_label": f"external:{label}",
                 })
 
