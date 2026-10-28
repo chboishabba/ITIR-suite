@@ -72,15 +72,41 @@ def _stream_json_rows(connection: Any, table_name: str, *, batch_size: int = 409
         cursor.close()
 
 
+def _table_columns(connection: Any, schema: str, table: str) -> set[str]:
+    cursor = connection.cursor()
+    try:
+        cursor.execute(
+            """
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_schema=%s AND table_name=%s
+            """,
+            (schema, table),
+        )
+        return {str(row[0]) for row in cursor.fetchall()}
+    finally:
+        cursor.close()
+
+
+def _factor_frame_label(
+    dependency_ref: str,
+    members: Sequence[tuple[str, str]],
+) -> str:
+    typed_members = sorted({(str(role), str(lemma)) for role, lemma in members})
+    args = ",".join(f"{role}:{lemma}" for role, lemma in typed_members)
+    return f"{dependency_ref}({args})" if dependency_ref else f"frame({args})"
+
+
 def load_postgres_semantic_corpus(
     database_url: str | None = None,
     *,
     connect: Callable[[str | None], Any] | None = None,
 ) -> dict[str, Any]:
-    """Stream the canonical semantic PNF spine into hierarchy-ready counters.
+    """Stream the verified PostgreSQL PNF factor table into hierarchy-ready counters.
 
-    The adapter consumes semantic fields already produced by the PG compiler.
-    It does not infer roles, predicates, or conversation identity from strings.
+    The live factor schema does not expose conversation_ref, sentence_id, head_lemma,
+    or argument_role. This adapter therefore uses only durable fields that exist:
+    statement/batch identity, role_ref, lemma, dependency_ref, and source spans.
     """
     connector = connect or _default_connect
     try:
@@ -90,110 +116,117 @@ def load_postgres_semantic_corpus(
             raise
         raise PostgresSemanticSpineUnavailable(str(exc)) from exc
 
-    conversations: dict[str, dict[str, Any]] = {}
+    entities: dict[str, dict[str, Any]] = {}
     frame_groups: dict[str, dict[tuple[str, str], list[tuple[str, str]]]] = defaultdict(dict)
     factor_rows = 0
     graph_rows = 0
     ontology_edges: list[dict[str, Any]] = []
 
     required_factor_fields = {
-        "conversation_ref",
-        "sentence_id",
-        "head_lemma",
-        "argument_role",
+        "candidate_ref",
+        "batch_ref",
+        "statement_ref",
+        "role_ref",
+        "source_start_char",
+        "source_end_char",
+        "surface",
         "lemma",
+        "dependency_ref",
+        "candidate_only",
     }
 
     try:
-        for row in _stream_json_rows(connection, "pnf.statement_candidate_factor"):
-            missing = required_factor_fields.difference(row)
-            if missing:
-                raise PostgresSemanticSpineIncompatible(
-                    "pnf.statement_candidate_factor missing required semantic fields: "
-                    + ",".join(sorted(missing))
-                )
-            conversation_ref = str(row["conversation_ref"] or "").strip()
-            head_lemma = str(row["head_lemma"] or "").strip().casefold()
-            role = str(row["argument_role"] or "").strip()
-            lemma = str(row["lemma"] or "").strip().casefold()
-            sentence_id = str(row["sentence_id"])
-            if not conversation_ref or not head_lemma or not role or not lemma:
-                continue
-            conversation_id = (
-                conversation_ref[5:]
-                if conversation_ref.startswith("chat:")
-                else conversation_ref
+        factor_columns = _table_columns(connection, "pnf", "statement_candidate_factor")
+        missing = required_factor_fields.difference(factor_columns)
+        if missing:
+            raise PostgresSemanticSpineIncompatible(
+                "pnf.statement_candidate_factor missing verified fields: "
+                + ",".join(sorted(missing))
             )
-            entry = conversations.setdefault(
-                conversation_id,
+
+        for row in _stream_json_rows(connection, "pnf.statement_candidate_factor"):
+            if not bool(row.get("candidate_only")):
+                continue
+            statement_ref = str(row.get("statement_ref") or "").strip()
+            batch_ref = str(row.get("batch_ref") or "").strip()
+            role_ref = str(row.get("role_ref") or "").strip()
+            lemma = str(row.get("lemma") or "").strip().casefold()
+            dependency_ref = str(row.get("dependency_ref") or "").strip()
+            candidate_ref = str(row.get("candidate_ref") or "").strip()
+            if not statement_ref or not role_ref or not lemma:
+                continue
+
+            entity_id = statement_ref
+            entry = entities.setdefault(
+                entity_id,
                 {
-                    "conversation_id": conversation_id,
-                    "document_ref": conversation_ref,
+                    "conversation_id": entity_id,
+                    "document_ref": None,
+                    "statement_ref": statement_ref,
                     "factor_counts": Counter(),
                     "frame_counts": Counter(),
                     "pnf_candidate_count": 0,
+                    "source_kind": "postgres_statement_candidate_factor",
                 },
             )
-            factor_key = f"{head_lemma}|{role}|{lemma}"
+            factor_key = f"{dependency_ref}|{role_ref}|{lemma}"
             entry["factor_counts"][factor_key] += 1
             entry["pnf_candidate_count"] += 1
             factor_rows += 1
-            key = (sentence_id, head_lemma)
-            frame_groups[conversation_id].setdefault(key, []).append((role, lemma))
 
-        for conversation_id, groups in frame_groups.items():
-            target = conversations[conversation_id]["frame_counts"]
-            for (_sentence_id, predicate), members in groups.items():
-                typed_members = sorted(set(members))
-                args = ",".join(f"{role}:{lemma}" for role, lemma in typed_members)
-                target[f"{predicate}({args})"] += 1
+            frame_key = (batch_ref or statement_ref, dependency_ref)
+            frame_groups[entity_id].setdefault(frame_key, []).append((role_ref, lemma))
 
-        for row in _stream_json_rows(connection, "pnf.graph"):
-            graph_rows += 1
-            conversation_ref = str(row.get("conversation_ref") or "").strip()
-            label = str(
-                row.get("label")
-                or row.get("edge_label")
-                or row.get("target_label")
-                or ""
-            ).strip()
-            if not conversation_ref or not label:
-                continue
-            conversation_id = (
-                conversation_ref[5:]
-                if conversation_ref.startswith("chat:")
-                else conversation_ref
-            )
-            if conversation_id not in conversations:
-                continue
-            weight = row.get("weight", 1.0)
-            if isinstance(weight, bool) or not isinstance(weight, (int, float)):
-                weight = 1.0
-            ontology_edges.append(
-                {
-                    "conversation_ids": [conversation_id],
-                    "label": label,
-                    "weight": float(weight),
-                    "provenance_ref": str(
-                        row.get("provenance_ref")
-                        or row.get("graph_revision")
-                        or "pnf.graph"
-                    ),
-                }
-            )
+        for entity_id, groups in frame_groups.items():
+            target = entities[entity_id]["frame_counts"]
+            for (_group_ref, dependency_ref), members in groups.items():
+                target[_factor_frame_label(dependency_ref, members)] += 1
+
+        if _table_present(connection, "pnf.graph"):
+            for row in _stream_json_rows(connection, "pnf.graph"):
+                graph_rows += 1
+                statement_ref = str(row.get("statement_ref") or "").strip()
+                conversation_ref = str(row.get("conversation_ref") or "").strip()
+                target_id = statement_ref or conversation_ref
+                if not target_id or target_id not in entities:
+                    continue
+                label = str(
+                    row.get("label")
+                    or row.get("edge_label")
+                    or row.get("target_label")
+                    or row.get("relation_ref")
+                    or ""
+                ).strip()
+                if not label:
+                    continue
+                weight = row.get("weight", 1.0)
+                if isinstance(weight, bool) or not isinstance(weight, (int, float)):
+                    weight = 1.0
+                ontology_edges.append(
+                    {
+                        "conversation_ids": [target_id],
+                        "label": label,
+                        "weight": float(weight),
+                        "provenance_ref": str(
+                            row.get("provenance_ref")
+                            or row.get("graph_revision")
+                            or "pnf.graph"
+                        ),
+                    }
+                )
     finally:
         try:
             connection.close()
         except Exception:
             pass
 
-    if not conversations:
+    if not entities:
         raise PostgresSemanticSpineIncompatible(
-            "PostgreSQL semantic spine returned no conversation-bound PNF factors"
+            "PostgreSQL semantic spine returned no candidate-only statement factors"
         )
 
     normalized = {
-        conversation_id: {
+        entity_id: {
             **{
                 key: value
                 for key, value in entry.items()
@@ -202,10 +235,10 @@ def load_postgres_semantic_corpus(
             "factor_counts": dict(sorted(entry["factor_counts"].items())),
             "frame_counts": dict(sorted(entry["frame_counts"].items())),
         }
-        for conversation_id, entry in sorted(conversations.items())
+        for entity_id, entry in sorted(entities.items())
     }
     return {
-        "schema": "itir.pnf.postgres_semantic_corpus.v1",
+        "schema": "itir.pnf.postgres_semantic_corpus.v2",
         "source": "postgresql_semantic_spine",
         "conversation_count": len(normalized),
         "pnf_candidate_count": factor_rows,
@@ -215,12 +248,14 @@ def load_postgres_semantic_corpus(
         "source_contract": {
             "factor_table": "pnf.statement_candidate_factor",
             "graph_table": "pnf.graph",
-            "semantic_fields": [
+            "grouping_identity": "statement_ref",
+            "frame_grouping": ["batch_ref", "dependency_ref"],
+            "typed_argument_fields": ["role_ref", "lemma"],
+            "unavailable_fields_not_inferred": [
                 "conversation_ref",
                 "sentence_id",
                 "head_lemma",
                 "argument_role",
-                "lemma",
             ],
             "raw_chat_body_persisted": False,
         },
@@ -341,6 +376,27 @@ def register_sqlite_chat_coordinates(
             raise PostgresSemanticSpineIncompatible(
                 "missing corpus.chat_archive_message; install the slr reference-only schema first"
             )
+        chat_columns = _table_columns(pg, "corpus", "chat_archive_message")
+        required_reference_columns = {
+            "source_thread_ref",
+            "archive_locator",
+            "body_sha256",
+            "attachment_refs_json",
+            "provenance_ref",
+        }
+        missing_reference_columns = required_reference_columns.difference(chat_columns)
+        if missing_reference_columns:
+            return {
+                "schema": "itir.pg.chat_coordinate_registration.v1",
+                "sqlite_path": str(path),
+                "inserted": 0,
+                "replayed": 0,
+                "conflicts": 0,
+                "status": "abstained_reference_schema_not_installed",
+                "missing_columns": sorted(missing_reference_columns),
+                "raw_body_persisted": False,
+                "document_ref": None,
+            }
         cursor = pg.cursor()
         try:
             for (
