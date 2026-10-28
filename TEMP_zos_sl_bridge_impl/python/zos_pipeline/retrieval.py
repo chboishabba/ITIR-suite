@@ -69,8 +69,13 @@ def _query_domain(
 ) -> Optional[Hashable]:
     if not centroids:
         return None
+
+    # Fail closed when the query has no positive structured affinity to any
+    # learned/explicit domain centroid.  Starting below zero would otherwise
+    # assign the first domain to a completely unrelated query merely because
+    # cosine(q, centroid) == 0 for every domain.
     best_domain = None
-    best_score = -1.0
+    best_score = 0.0
     for domain, centroid in centroids.items():
         score = _cosine(q_vec, centroid)
         if score > best_score:
