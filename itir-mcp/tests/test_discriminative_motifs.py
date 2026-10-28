@@ -240,6 +240,7 @@ def test_conductor_primary_roll_for_constrained_workers() -> None:
 
     assert plan["mode"] == "primary_roll"
     assert plan["worker_capacity"] == 2
+    assert plan["selected_tau"] >= _hierarchy()["thresholds"]["primary_tau"]
     assert plan["prepared_lane_count"] == 2
     assert plan["pairwise_noTypedMeet_verified"] is True
     assert plan["selected_topics"][0]["topic_id"] == "primary-000"
@@ -260,6 +261,8 @@ def test_conductor_w20_branches_independent_subtopics_in_alpha_pareto_order() ->
 
     assert plan["mode"] == "independent_subtopics"
     assert plan["worker_capacity"] == 20
+    assert plan["selected_tau"] >= _hierarchy()["thresholds"]["subtopic_tau"]
+    assert plan["selected_tau"] < _hierarchy()["thresholds"]["primary_tau"]
     assert plan["pairwise_noTypedMeet_verified"] is True
     assert plan["dispatchable_lane_count"] == 3
     assert [topic["topic_id"] for topic in plan["selected_topics"]] == [
