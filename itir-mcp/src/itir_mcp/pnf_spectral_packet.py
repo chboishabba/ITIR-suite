@@ -513,44 +513,60 @@ def _world_graph_spectral_pair(
     node_ids, hyperedges = _normalise_world_graph(graph)
     anchors_a = _graph_anchor_ids(lane_a, node_ids)
     anchors_b = _graph_anchor_ids(lane_b, node_ids)
-    incidence = _normalised_hypergraph_incidence(node_ids, hyperedges)
-    singular_values, left_vectors = _jacobi_svd_left(incidence)
+
+    operator = build_typed_hyperfabric_operator(graph, node_ids=node_ids, hyperedges=hyperedges)
+    coboundary = operator["coboundary"]
+    transposed = _transpose_matrix(coboundary)
+    singular_values, stalk_vectors = _jacobi_svd_left(transposed)
 
     usable = [
         index
         for index, value in enumerate(singular_values)
         if value > 1e-12
     ]
-    # The leading mode is the coarse degree/common-mass mode. Spectral geometry
-    # uses the following rebuildable modes, matching the graph-Laplacian view.
-    dimensions = usable[1:9] if len(usable) > 1 else usable[:1]
-    coordinates = {
-        node_id: [
-            left_vectors[row_index][dimension] * singular_values[dimension]
+    dimensions = usable[-8:] if len(usable) > 8 else usable
+    coordinate_offsets = operator["node_coordinate_offsets"]
+    coordinates: dict[str, list[float]] = {}
+    for node_id in node_ids:
+        start, stop = coordinate_offsets[node_id]
+        width = max(1, stop - start)
+        coordinates[node_id] = [
+            sum(stalk_vectors[row][dimension] for row in range(start, stop)) / width
             for dimension in dimensions
         ]
-        for row_index, node_id in enumerate(node_ids)
-    }
+
     left = _mean_anchor_coordinate(anchors_a, coordinates)
     right = _mean_anchor_coordinate(anchors_b, coordinates)
     path = _shortest_hypergraph_path(node_ids, hyperedges, anchors_a, anchors_b)
+    selected_singular = [singular_values[index] for index in dimensions]
     return left, right, {
-        "source": "real_pnf_world_graph",
+        "source": "real_pnf_typed_hyperfabric",
         "real_world_graph": True,
+        "typed_hyperfabric": True,
         "node_count": len(node_ids),
         "hyperedge_count": len(hyperedges),
+        "stalk_coordinate_count": operator["stalk_coordinate_count"],
+        "restriction_row_count": operator["restriction_row_count"],
         "graph_refs": list(graph.get("graph_refs") or ()),
         "spectral_dimensions": len(dimensions),
-        "singular_values": [singular_values[index] for index in dimensions],
-        "laplacian_eigenvalues": [
-            1.0 - singular_values[index] * singular_values[index]
-            for index in dimensions
-        ],
+        "singular_values": selected_singular,
+        "sheaf_laplacian_eigenvalues": [value * value for value in selected_singular],
         "left_anchors": anchors_a,
         "right_anchors": anchors_b,
         "connecting_path": path,
-        "incidence_normalisation": "node-degree-and-hyperedge-cardinality",
+        "operator": "normalized_typed_hyperfabric_coboundary_delta_then_deltaT_delta",
         "decomposition": "deterministic_one_sided_jacobi_svd",
+        "restriction_maps_explicit": operator["restriction_maps_explicit"],
+        "scalar_identity_lifts": operator["scalar_identity_lifts"],
+        "wave_synthesis": operator["wave_synthesis"],
+        "formal_boundary": {
+            "typed_hyperfabric_owner": "DASHI/Reasoning/TypedHyperfabricCore.agda",
+            "local_fibre_owner": "DASHI/Reasoning/LocalFibreHyperfabricExact.agda",
+            "wave_owner": "DASHI/Reasoning/PNFWaveSynthesisCommutatorExact.agda",
+            "spectral_owner": "DASHI/Interop/PNFSpectralFieldGraph.agda",
+            "every_pnf_synthesis_rule_is_wave_addition": False,
+            "semantic_truth_promotion": False,
+        },
     }
 
 
@@ -655,6 +671,8 @@ def _normalise_world_graph(
         weight = float(raw_weight)
         if not math.isfinite(weight) or weight <= 0.0:
             raise ValueError("world_graph edge weight must be finite and positive")
+        edge_stalk = raw_edge.get("edge_stalk")
+        restrictions = raw_edge.get("restrictions")
         hyperedges.append(
             {
                 "id": _text(raw_edge.get("id")),
@@ -662,6 +680,8 @@ def _normalise_world_graph(
                 "members": normalised_members,
                 "weight": weight,
                 "provenance_ref": _text(raw_edge.get("provenance_ref")),
+                "edge_stalk": dict(edge_stalk) if isinstance(edge_stalk, Mapping) else {},
+                "restrictions": dict(restrictions) if isinstance(restrictions, Mapping) else {},
             }
         )
     if not hyperedges:
@@ -682,6 +702,274 @@ def _graph_anchor_ids(lane: Mapping[str, Any], node_ids: Sequence[str]) -> list[
     if not anchors:
         raise ValueError("graph_anchor_ids must not be empty")
     return anchors
+
+
+def apply_stalk_restriction(
+    restriction: Sequence[Sequence[float]],
+    value: Sequence[float],
+) -> list[float]:
+    if not isinstance(restriction, Sequence) or isinstance(restriction, (str, bytes, bytearray)):
+        raise ValueError("restriction must be a matrix")
+    vector = [float(item) for item in value]
+    rows: list[list[float]] = []
+    for row in restriction:
+        if not isinstance(row, Sequence) or isinstance(row, (str, bytes, bytearray)):
+            raise ValueError("restriction rows must be arrays")
+        numeric = [float(item) for item in row]
+        if len(numeric) != len(vector):
+            raise ValueError("restriction row width must match stalk dimension")
+        if any(not math.isfinite(item) for item in numeric):
+            raise ValueError("restriction coefficients must be finite")
+        rows.append(numeric)
+    return [sum(coefficient * coordinate for coefficient, coordinate in zip(row, vector, strict=True)) for row in rows]
+
+
+def add_discrete_waves(waves: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    if not isinstance(waves, Sequence) or isinstance(waves, (str, bytes, bytearray)):
+        raise ValueError("waves must be an array")
+    real: list[int] | None = None
+    imag: list[int] | None = None
+    for wave in waves:
+        if not isinstance(wave, Mapping):
+            raise ValueError("wave entries must be objects")
+        re_values = _integer_wave_vector(wave.get("re"), "re")
+        im_values = _integer_wave_vector(wave.get("im"), "im")
+        if len(re_values) != len(im_values):
+            raise ValueError("wave real and imaginary dimensions must match")
+        if real is None:
+            real = [0] * len(re_values)
+            imag = [0] * len(im_values)
+        if len(re_values) != len(real):
+            raise ValueError("all waves must have the same dimension")
+        for index, value in enumerate(re_values):
+            real[index] += value
+        for index, value in enumerate(im_values):
+            imag[index] += value
+    result_re = real or []
+    result_im = imag or []
+    if len(result_re) == 1:
+        return {"re": result_re[0], "im": result_im[0]}
+    return {"re": result_re, "im": result_im}
+
+
+def _integer_wave_vector(value: Any, label: str) -> list[int]:
+    if isinstance(value, bool):
+        raise ValueError(f"wave {label} must be integer-valued")
+    if isinstance(value, int):
+        return [value]
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        result: list[int] = []
+        for item in value:
+            if isinstance(item, bool) or not isinstance(item, int):
+                raise ValueError(f"wave {label} must be integer-valued")
+            result.append(item)
+        if result:
+            return result
+    raise ValueError(f"wave {label} must be an integer or integer array")
+
+
+def build_typed_hyperfabric_operator(
+    graph: Mapping[str, Any],
+    *,
+    node_ids: Sequence[str] | None = None,
+    hyperedges: Sequence[Mapping[str, Any]] | None = None,
+) -> dict[str, Any]:
+    if node_ids is None or hyperedges is None:
+        node_ids, hyperedges = _normalise_world_graph(graph)
+    nodes = {
+        _text(node.get("id")): node
+        for node in graph.get("nodes") or ()
+        if isinstance(node, Mapping) and _text(node.get("id"))
+    }
+    if set(node_ids) != set(nodes):
+        raise ValueError("typed hyperfabric node registry disagrees with normalized world graph")
+
+    dimensions: dict[str, int] = {}
+    offsets: dict[str, tuple[int, int]] = {}
+    cursor = 0
+    for node_id in node_ids:
+        stalk = nodes[node_id].get("stalk")
+        stalk_map = stalk if isinstance(stalk, Mapping) else {}
+        raw_dimension = stalk_map.get("dimension", 1)
+        if isinstance(raw_dimension, bool) or not isinstance(raw_dimension, int) or raw_dimension < 1:
+            raise ValueError(f"node stalk dimension must be a positive integer: {node_id}")
+        dimensions[node_id] = raw_dimension
+        offsets[node_id] = (cursor, cursor + raw_dimension)
+        cursor += raw_dimension
+
+    degree = {node_id: 0.0 for node_id in node_ids}
+    for edge in hyperedges:
+        for member in edge["members"]:
+            degree[member] += float(edge["weight"])
+
+    coboundary: list[list[float]] = []
+    explicit_restrictions = 0
+    identity_lifts = 0
+    wave_edges: list[dict[str, Any]] = []
+
+    for edge in hyperedges:
+        members = list(edge["members"])
+        edge_stalk = edge.get("edge_stalk")
+        edge_stalk_map = edge_stalk if isinstance(edge_stalk, Mapping) else {}
+        raw_edge_dimension = edge_stalk_map.get("dimension", 1)
+        if isinstance(raw_edge_dimension, bool) or not isinstance(raw_edge_dimension, int) or raw_edge_dimension < 1:
+            raise ValueError(f"edge stalk dimension must be a positive integer: {edge['id']}")
+        edge_dimension = raw_edge_dimension
+        restrictions = edge.get("restrictions")
+        restriction_map = restrictions if isinstance(restrictions, Mapping) else {}
+
+        resolved: dict[str, list[list[float]]] = {}
+        for member in members:
+            raw_matrix = restriction_map.get(member)
+            if raw_matrix is None:
+                if dimensions[member] != 1 or edge_dimension != 1:
+                    raise ValueError(
+                        f"explicit restriction required for non-scalar incidence {member}->{edge['id']}"
+                    )
+                matrix = [[1.0]]
+                identity_lifts += 1
+            else:
+                matrix = _restriction_matrix(
+                    raw_matrix,
+                    edge_dimension=edge_dimension,
+                    node_dimension=dimensions[member],
+                    edge_id=str(edge["id"]),
+                    node_id=member,
+                )
+                explicit_restrictions += 1
+            resolved[member] = matrix
+
+        pivot = members[0]
+        scale = math.sqrt(float(edge["weight"]))
+        for member in members[1:]:
+            for edge_coordinate in range(edge_dimension):
+                row = [0.0] * cursor
+                pivot_start, _ = offsets[pivot]
+                member_start, _ = offsets[member]
+                pivot_norm = math.sqrt(degree[pivot]) if degree[pivot] > 0.0 else 1.0
+                member_norm = math.sqrt(degree[member]) if degree[member] > 0.0 else 1.0
+                for local, coefficient in enumerate(resolved[pivot][edge_coordinate]):
+                    row[pivot_start + local] -= scale * coefficient / pivot_norm
+                for local, coefficient in enumerate(resolved[member][edge_coordinate]):
+                    row[member_start + local] += scale * coefficient / member_norm
+                coboundary.append(row)
+
+        wave_receipt = _edge_wave_superposition(
+            edge=edge,
+            members=members,
+            nodes=nodes,
+            restrictions=resolved,
+            dimensions=dimensions,
+        )
+        if wave_receipt is not None:
+            wave_edges.append(wave_receipt)
+
+    if not coboundary:
+        raise ValueError("typed hyperfabric requires at least one restriction compatibility row")
+    return {
+        "coboundary": coboundary,
+        "node_coordinate_offsets": offsets,
+        "stalk_coordinate_count": cursor,
+        "restriction_row_count": len(coboundary),
+        "restriction_maps_explicit": explicit_restrictions,
+        "scalar_identity_lifts": identity_lifts,
+        "wave_synthesis": {
+            "edge_count": len(wave_edges),
+            "edges": wave_edges,
+            "additive_superposition": True,
+            "formal_owner": "DASHI/Reasoning/PNFWaveSynthesisCommutatorExact.agda",
+            "every_pnf_synthesis_rule_identified_with_wave_addition": False,
+        },
+    }
+
+
+def _restriction_matrix(
+    value: Any,
+    *,
+    edge_dimension: int,
+    node_dimension: int,
+    edge_id: str,
+    node_id: str,
+) -> list[list[float]]:
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes, bytearray)):
+        raise ValueError(f"restriction {node_id}->{edge_id} must be a matrix")
+    rows: list[list[float]] = []
+    for raw_row in value:
+        if not isinstance(raw_row, Sequence) or isinstance(raw_row, (str, bytes, bytearray)):
+            raise ValueError(f"restriction {node_id}->{edge_id} rows must be arrays")
+        row = [float(item) for item in raw_row]
+        if len(row) != node_dimension:
+            raise ValueError(f"restriction {node_id}->{edge_id} width must match node stalk")
+        if any(not math.isfinite(item) for item in row):
+            raise ValueError(f"restriction {node_id}->{edge_id} must be finite")
+        rows.append(row)
+    if len(rows) != edge_dimension:
+        raise ValueError(f"restriction {node_id}->{edge_id} height must match edge stalk")
+    return rows
+
+
+def _edge_wave_superposition(
+    *,
+    edge: Mapping[str, Any],
+    members: Sequence[str],
+    nodes: Mapping[str, Mapping[str, Any]],
+    restrictions: Mapping[str, Sequence[Sequence[float]]],
+    dimensions: Mapping[str, int],
+) -> dict[str, Any] | None:
+    restricted_waves: list[dict[str, Any]] = []
+    integral_transport = True
+    for member in members:
+        stalk = nodes[member].get("stalk")
+        stalk_map = stalk if isinstance(stalk, Mapping) else {}
+        wave = stalk_map.get("discrete_wave")
+        if wave is None:
+            wave = nodes[member].get("discrete_wave")
+        if wave is None:
+            continue
+        if not isinstance(wave, Mapping):
+            raise ValueError(f"discrete_wave for {member} must be an object")
+        re_values = _integer_wave_vector(wave.get("re"), "re")
+        im_values = _integer_wave_vector(wave.get("im"), "im")
+        if len(re_values) != dimensions[member] or len(im_values) != dimensions[member]:
+            raise ValueError(f"discrete_wave dimension must match node stalk: {member}")
+        matrix = restrictions[member]
+        if any(float(value) != int(float(value)) for row in matrix for value in row):
+            integral_transport = False
+        restricted_re = apply_stalk_restriction(matrix, re_values)
+        restricted_im = apply_stalk_restriction(matrix, im_values)
+        if any(value != int(value) for value in restricted_re + restricted_im):
+            integral_transport = False
+        restricted_waves.append(
+            {
+                "re": [int(value) if value == int(value) else value for value in restricted_re],
+                "im": [int(value) if value == int(value) else value for value in restricted_im],
+            }
+        )
+    if not restricted_waves:
+        return None
+    if not integral_transport:
+        return {
+            "edge_id": _text(edge.get("id")),
+            "formal_discrete_wave_commutator_applicable": False,
+            "reason": "restriction transport leaves the integer DiscreteWave carrier",
+        }
+    total = add_discrete_waves(restricted_waves)
+    return {
+        "edge_id": _text(edge.get("id")),
+        "restricted_incidence_count": len(restricted_waves),
+        "superposition": total,
+        "formal_discrete_wave_commutator_applicable": True,
+        "synthesis_defect": {"re": 0, "im": 0},
+    }
+
+
+def _transpose_matrix(matrix: Sequence[Sequence[float]]) -> list[list[float]]:
+    if not matrix:
+        return []
+    width = len(matrix[0])
+    if any(len(row) != width for row in matrix):
+        raise ValueError("matrix rows must have equal length")
+    return [[float(matrix[row][column]) for row in range(len(matrix))] for column in range(width)]
 
 
 def _normalised_hypergraph_incidence(
