@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import math
+from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
 from typing import Any
 
@@ -299,3 +301,264 @@ def _int(value: Any, label: str) -> int:
         except (TypeError, ValueError) as exc:
             raise ValueError(f"{label} must be an integer") from exc
     return value
+
+
+RELATIONAL_FRAME_SCHEMA = "itir.pnf.relational_frame.v1"
+SPECTRAL_NO_TYPED_MEET_SCHEMA = "itir.ao.spectral_no_typed_meet.v1"
+
+
+def extract_relational_frames(slots: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    """Group structural PNF slots into predicate-argument factor frames."""
+    if not isinstance(slots, Sequence) or isinstance(slots, (str, bytes, bytearray)):
+        raise ValueError("slots must be an array of objects")
+
+    grouped: dict[tuple[str, int, str], list[Mapping[str, Any]]] = defaultdict(list)
+    for slot in slots:
+        if not isinstance(slot, Mapping):
+            raise ValueError("slot entries must be objects")
+        sentence_id = _text(slot.get("sentence_id"))
+        head_lemma = _text(slot.get("head_lemma")).casefold()
+        if not sentence_id or not head_lemma:
+            raise ValueError("every slot requires sentence_id and head_lemma")
+        try:
+            head_ordinal = int(slot.get("head_ordinal"))
+        except (TypeError, ValueError) as exc:
+            raise ValueError("every slot requires an integer head_ordinal") from exc
+        grouped[(sentence_id, head_ordinal, head_lemma)].append(slot)
+
+    frames: list[dict[str, Any]] = []
+    for (sentence_id, head_ordinal, head_lemma), rows in sorted(grouped.items()):
+        arguments: dict[str, list[str]] = defaultdict(list)
+        boundary_metadata: list[dict[str, Any]] = []
+        source_slot_ids: list[str] = []
+        for slot in rows:
+            slot_id = _text(slot.get("slot_id"))
+            if slot_id:
+                source_slot_ids.append(slot_id)
+
+            boundary = slot.get("boundary_metadata")
+            boundary_kind = _text(slot.get("boundary_kind"))
+            if bool(slot.get("is_boundary")) or boundary_kind or isinstance(boundary, Mapping):
+                entry: dict[str, Any] = {
+                    "lemma": _text(slot.get("lemma")).casefold(),
+                    "boundary_kind": boundary_kind,
+                }
+                role = _text(slot.get("argument_role") or slot.get("slot_role"))
+                if role:
+                    entry["slot_role"] = role
+                if isinstance(boundary, Mapping):
+                    entry["metadata"] = dict(boundary)
+                boundary_metadata.append(entry)
+                continue
+
+            role = _text(slot.get("argument_role"))
+            lemma = _text(slot.get("lemma")).casefold()
+            if role and lemma and lemma not in arguments[role]:
+                arguments[role].append(lemma)
+
+        frames.append(
+            {
+                "schema": RELATIONAL_FRAME_SCHEMA,
+                "sentence_id": sentence_id,
+                "head_ordinal": head_ordinal,
+                "predicate": head_lemma,
+                "arguments": {role: sorted(values) for role, values in sorted(arguments.items())},
+                "boundary_metadata": boundary_metadata,
+                "source_slot_ids": sorted(set(source_slot_ids)),
+            }
+        )
+    return frames
+
+
+def spectral_no_typed_meet(
+    lane_a: Mapping[str, Any],
+    lane_b: Mapping[str, Any],
+    spectral_model: Any = None,
+    threshold: float = 0.15,
+) -> dict[str, Any]:
+    """Classify multiscale lane overlap without promoting geometry to theorem authority."""
+    if not isinstance(lane_a, Mapping) or not isinstance(lane_b, Mapping):
+        raise ValueError("lane_a and lane_b must be objects")
+    if isinstance(threshold, bool) or not isinstance(threshold, (int, float)):
+        raise ValueError("threshold must be numeric")
+    threshold_value = float(threshold)
+    if not math.isfinite(threshold_value) or not 0.0 <= threshold_value <= 1.0:
+        raise ValueError("threshold must be finite and within [0, 1]")
+
+    frames_a = _lane_relational_frames(lane_a)
+    frames_b = _lane_relational_frames(lane_b)
+    vector_a, vector_b = _lane_embedding_pair(
+        lane_a,
+        lane_b,
+        frames_a,
+        frames_b,
+        spectral_model=spectral_model,
+    )
+    cosine = abs(_cosine_similarity(vector_a, vector_b))
+    shared_quotient_orbit = cosine > threshold_value
+    meet_macro_disjoint = not shared_quotient_orbit
+
+    carrier_a = _carrier_state(lane_a)
+    carrier_b = _carrier_state(lane_b)
+    carrier_scale_delta = abs(carrier_a["scale"] - carrier_b["scale"])
+    prod_invariant_violation = _prod_invariant_violation(
+        carrier_a,
+        carrier_b,
+        shared_quotient_orbit=shared_quotient_orbit,
+    )
+    defect_status = "illegalDefect" if prod_invariant_violation else "lawful"
+
+    return {
+        "schema": SPECTRAL_NO_TYPED_MEET_SCHEMA,
+        "meet_macro_disjoint": meet_macro_disjoint,
+        "cosine_similarity": cosine,
+        "shared_quotient_orbit": shared_quotient_orbit,
+        "carrier_scale_delta": carrier_scale_delta,
+        "prod_invariant_violation": prod_invariant_violation,
+        "defect_status": defect_status,
+        "admissible": meet_macro_disjoint and not prod_invariant_violation,
+        "threshold": threshold_value,
+        "frame_counts": {"lane_a": len(frames_a), "lane_b": len(frames_b)},
+        "formal_boundary": {
+            "quotient_projection_equality_proved": False,
+            "spectral_overlap_is_candidate_fibre_only": True,
+            "illegal_defect_maps_to_contradiction_and_critical_pressure_in_agda": True,
+            "agda_owner": "Ontology/Hecke/PNFResidualBridge.agda",
+        },
+    }
+
+
+def _lane_relational_frames(lane: Mapping[str, Any]) -> list[dict[str, Any]]:
+    frames = lane.get("relational_frames")
+    if isinstance(frames, Sequence) and not isinstance(frames, (str, bytes, bytearray)):
+        return [dict(frame) for frame in frames if isinstance(frame, Mapping)]
+
+    slots = lane.get("pnf_slots")
+    if slots is None:
+        slots = lane.get("slots")
+    if isinstance(slots, Sequence) and not isinstance(slots, (str, bytes, bytearray)):
+        return extract_relational_frames([slot for slot in slots if isinstance(slot, Mapping)])
+    return []
+
+
+def _default_lane_embedding(
+    lane: Mapping[str, Any],
+    frames: Sequence[Mapping[str, Any]],
+) -> Counter[str]:
+    features: Counter[str] = Counter()
+    for frame in frames:
+        predicate = _text(frame.get("predicate")).casefold()
+        if predicate:
+            features[f"predicate:{predicate}"] += 1
+        arguments = frame.get("arguments")
+        if isinstance(arguments, Mapping):
+            for role, values in arguments.items():
+                role_text = _text(role)
+                if not role_text or not isinstance(values, Sequence) or isinstance(values, (str, bytes, bytearray)):
+                    continue
+                for value in values:
+                    lemma = _text(value).casefold()
+                    if not lemma:
+                        continue
+                    features[f"argument:{role_text}:{lemma}"] += 1
+                    if predicate:
+                        features[f"edge:{predicate}:{role_text}:{lemma}"] += 1
+
+    typed_support = lane.get("typed_support")
+    if isinstance(typed_support, Mapping):
+        for support_kind, values in typed_support.items():
+            kind = _text(support_kind)
+            if not kind or not isinstance(values, Sequence) or isinstance(values, (str, bytes, bytearray)):
+                continue
+            for value in values:
+                support_value = _text(value)
+                if support_value:
+                    features[f"support:{kind}:{support_value}"] += 1
+    return features
+
+
+def _lane_embedding_pair(
+    lane_a: Mapping[str, Any],
+    lane_b: Mapping[str, Any],
+    frames_a: Sequence[Mapping[str, Any]],
+    frames_b: Sequence[Mapping[str, Any]],
+    *,
+    spectral_model: Any,
+) -> tuple[Mapping[str, float] | Sequence[float], Mapping[str, float] | Sequence[float]]:
+    if spectral_model is None:
+        return _default_lane_embedding(lane_a, frames_a), _default_lane_embedding(lane_b, frames_b)
+    if callable(spectral_model):
+        return spectral_model(lane_a, frames_a), spectral_model(lane_b, frames_b)
+    embed_lane = getattr(spectral_model, "embed_lane", None)
+    if callable(embed_lane):
+        return embed_lane(lane_a, frames_a), embed_lane(lane_b, frames_b)
+    raise ValueError("spectral_model must be callable or provide embed_lane")
+
+
+def _cosine_similarity(
+    vector_a: Mapping[str, float] | Sequence[float],
+    vector_b: Mapping[str, float] | Sequence[float],
+) -> float:
+    if isinstance(vector_a, Mapping) and isinstance(vector_b, Mapping):
+        keys = set(vector_a) | set(vector_b)
+        dot = sum(float(vector_a.get(key, 0.0)) * float(vector_b.get(key, 0.0)) for key in keys)
+        norm_a = math.sqrt(sum(float(value) ** 2 for value in vector_a.values()))
+        norm_b = math.sqrt(sum(float(value) ** 2 for value in vector_b.values()))
+    elif (
+        isinstance(vector_a, Sequence)
+        and isinstance(vector_b, Sequence)
+        and not isinstance(vector_a, (str, bytes, bytearray))
+        and not isinstance(vector_b, (str, bytes, bytearray))
+    ):
+        if len(vector_a) != len(vector_b):
+            raise ValueError("spectral model vectors must have equal length")
+        values_a = [float(value) for value in vector_a]
+        values_b = [float(value) for value in vector_b]
+        dot = sum(left * right for left, right in zip(values_a, values_b, strict=True))
+        norm_a = math.sqrt(sum(value * value for value in values_a))
+        norm_b = math.sqrt(sum(value * value for value in values_b))
+    else:
+        raise ValueError("spectral model must return two mappings or two numeric sequences")
+
+    if norm_a == 0.0 or norm_b == 0.0:
+        return 0.0
+    return dot / (norm_a * norm_b)
+
+
+def _carrier_state(lane: Mapping[str, Any]) -> dict[str, Any]:
+    carrier = lane.get("carrier")
+    carrier_map = carrier if isinstance(carrier, Mapping) else {}
+    raw_scale = carrier_map.get("scale", lane.get("carrier_scale", 0))
+    if isinstance(raw_scale, bool) or not isinstance(raw_scale, (int, float)):
+        raise ValueError("carrier scale must be numeric")
+    scale = float(raw_scale)
+    if not math.isfinite(scale):
+        raise ValueError("carrier scale must be finite")
+
+    mutation = lane.get("mutation")
+    mutation_map = mutation if isinstance(mutation, Mapping) else {}
+    return {
+        "status": _text(carrier_map.get("status", lane.get("carrier_status"))).casefold(),
+        "scale": scale,
+        "schema_altering": bool(
+            mutation_map.get("schema_altering", lane.get("schema_altering", False))
+        ),
+    }
+
+
+def _prod_invariant_violation(
+    carrier_a: Mapping[str, Any],
+    carrier_b: Mapping[str, Any],
+    *,
+    shared_quotient_orbit: bool,
+) -> bool:
+    if not shared_quotient_orbit:
+        return False
+    for root, downstream in ((carrier_a, carrier_b), (carrier_b, carrier_a)):
+        if (
+            _text(root.get("status")).casefold() == "prod"
+            and float(downstream.get("scale", 0.0)) > float(root.get("scale", 0.0))
+            and bool(downstream.get("schema_altering"))
+        ):
+            return True
+    return False

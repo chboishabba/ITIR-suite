@@ -11,6 +11,8 @@ from typing import Any, Mapping, Sequence
 from re_gpt.fleet import FleetOrchestrator
 from re_gpt.mcp_server import chatgpt_continue, chatgpt_view
 
+from .pnf_spectral_packet import spectral_no_typed_meet
+
 logger = logging.getLogger(__name__)
 
 CONVERGENCE_PROMPT = """@converge_toe @max_cut @grug_ste100 @zkp_qa
@@ -66,7 +68,8 @@ def _lane_support_keys(lane: Mapping[str, Any]) -> set[str]:
 
 def _verify_pairwise_no_typed_meet(lanes: Sequence[Mapping[str, Any]]) -> None:
     occupied: dict[str, str] = {}
-    for lane in lanes:
+    lane_rows = [dict(lane) for lane in lanes]
+    for lane in lane_rows:
         lane_id = str(lane.get("orchestrator_id") or lane.get("lane") or "").strip()
         if not lane_id:
             raise ValueError("Every lane requires orchestrator_id or lane")
@@ -78,6 +81,19 @@ def _verify_pairwise_no_typed_meet(lanes: Sequence[Mapping[str, Any]]) -> None:
             if prior is not None:
                 raise ValueError(f"noTypedMeet violation: {lane_id} collides with {prior} on {key}")
             occupied[key] = lane_id
+
+    for index, left in enumerate(lane_rows):
+        left_id = str(left.get("orchestrator_id") or left.get("lane") or "").strip()
+        for right in lane_rows[index + 1 :]:
+            right_id = str(right.get("orchestrator_id") or right.get("lane") or "").strip()
+            receipt = spectral_no_typed_meet(left, right)
+            if not receipt["admissible"]:
+                raise ValueError(
+                    "spectral noTypedMeet violation: "
+                    f"{left_id} and {right_id} share quotient geometry "
+                    f"(cosine={receipt['cosine_similarity']:.6f}, "
+                    f"defect={receipt['defect_status']})"
+                )
 
 
 def _worker_conversation_id(worker: Any) -> str:
