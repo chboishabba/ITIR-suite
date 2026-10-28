@@ -240,13 +240,7 @@ def load_postgres_semantic_corpus(
             ) or statement_to_conversation.get(statement_ref, statement_ref)
             if not target_id or target_id not in entities:
                 continue
-            label = str(
-                row.get("label")
-                or row.get("edge_label")
-                or row.get("target_label")
-                or row.get("relation_ref")
-                or ""
-            ).strip()
+            label = str(row.get("label") or "").strip()
             if not label:
                 continue
             weight = row.get("weight", 1.0)
