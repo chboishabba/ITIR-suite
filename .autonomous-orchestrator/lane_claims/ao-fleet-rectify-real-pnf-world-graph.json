@@ -1,0 +1,17 @@
+{
+  "heartbeat_file": "heartbeat.ao-fleet-rectify-real-pnf-world-graph.json",
+  "lane": "ao.fleet.rectify-real-pnf-world-graph",
+  "lane_claim": "Compute spectral lane geometry from canonical PNF world-graph incidence and deterministic Jacobi SVD; reject synthetic feature-list geometry.",
+  "orchestrator_id": "ao-fleet-rectify-real-pnf-world-graph",
+  "parent_orchestrator_id": "ao-fleet-spectral-world-eigen-wikidata",
+  "status_file": "status.ao-fleet-rectify-real-pnf-world-graph.json",
+  "invariants": {
+    "canonical_world_graph_required": true,
+    "synthetic_feature_vectors_rejected": true,
+    "normalized_hypergraph_incidence": true,
+    "deterministic_jacobi_svd": true,
+    "noTypedMeet_is_sub_eigen": true,
+    "zero_trust_escapes": true,
+    "esd_read_only": true
+  }
+}

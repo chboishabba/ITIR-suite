@@ -387,13 +387,21 @@ def spectral_no_typed_meet(
 
     frames_a = _lane_relational_frames(lane_a)
     frames_b = _lane_relational_frames(lane_b)
-    vector_a, vector_b = _lane_embedding_pair(
-        lane_a,
-        lane_b,
-        frames_a,
-        frames_b,
-        spectral_model=spectral_model,
-    )
+    if spectral_model is None:
+        vector_a, vector_b, graph_receipt = _world_graph_spectral_pair(lane_a, lane_b)
+    else:
+        vector_a, vector_b = _lane_embedding_pair(
+            lane_a,
+            lane_b,
+            frames_a,
+            frames_b,
+            spectral_model=spectral_model,
+        )
+        graph_receipt = _world_graph_receipt(
+            lane_a,
+            lane_b,
+            spectral_model=spectral_model,
+        )
     cosine = abs(_cosine_similarity(vector_a, vector_b))
     shared_quotient_orbit = cosine > threshold_value
     meet_macro_disjoint = not shared_quotient_orbit
@@ -407,23 +415,42 @@ def spectral_no_typed_meet(
         shared_quotient_orbit=shared_quotient_orbit,
     )
     defect_status = "illegalDefect" if prod_invariant_violation else "lawful"
+    signatures_a = _sub_eigen_signatures(lane_a, frames_a)
+    signatures_b = _sub_eigen_signatures(lane_b, frames_b)
+    sub_eigen_meet = _sub_eigen_meet(signatures_a, signatures_b)
+    orbit_relation = "shared_quotient_orbit" if shared_quotient_orbit else "orthogonal_domains"
+    residual_status = "contradiction" if prod_invariant_violation else (
+        sub_eigen_meet if shared_quotient_orbit else "not_applicable"
+    )
 
     return {
         "schema": SPECTRAL_NO_TYPED_MEET_SCHEMA,
         "meet_macro_disjoint": meet_macro_disjoint,
         "cosine_similarity": cosine,
         "shared_quotient_orbit": shared_quotient_orbit,
+        "orbit_relation": orbit_relation,
+        "sub_eigen_meet": sub_eigen_meet,
+        "sub_eigen_applicable": shared_quotient_orbit,
+        "spectral_grounding": graph_receipt,
         "carrier_scale_delta": carrier_scale_delta,
         "prod_invariant_violation": prod_invariant_violation,
         "defect_status": defect_status,
+        "residual_status": residual_status,
+        "pressure_status": "critical" if prod_invariant_violation else "noncritical",
+        "zoom_out_accommodates": not prod_invariant_violation,
         "admissible": meet_macro_disjoint and not prod_invariant_violation,
         "threshold": threshold_value,
         "frame_counts": {"lane_a": len(frames_a), "lane_b": len(frames_b)},
         "formal_boundary": {
             "quotient_projection_equality_proved": False,
             "spectral_overlap_is_candidate_fibre_only": True,
+            "no_typed_meet_is_sub_eigen_residual": True,
             "illegal_defect_maps_to_contradiction_and_critical_pressure_in_agda": True,
-            "agda_owner": "Ontology/Hecke/PNFResidualBridge.agda",
+            "world_invalidation_cannot_factor_through_collapsed_quotient": True,
+            "agda_owners": [
+                "Ontology/Hecke/PNFResidualBridge.agda",
+                "DASHI/Interop/WorldEigenResidualStratification.agda",
+            ],
         },
     }
 
@@ -441,41 +468,6 @@ def _lane_relational_frames(lane: Mapping[str, Any]) -> list[dict[str, Any]]:
     return []
 
 
-def _default_lane_embedding(
-    lane: Mapping[str, Any],
-    frames: Sequence[Mapping[str, Any]],
-) -> Counter[str]:
-    features: Counter[str] = Counter()
-    for frame in frames:
-        predicate = _text(frame.get("predicate")).casefold()
-        if predicate:
-            features[f"predicate:{predicate}"] += 1
-        arguments = frame.get("arguments")
-        if isinstance(arguments, Mapping):
-            for role, values in arguments.items():
-                role_text = _text(role)
-                if not role_text or not isinstance(values, Sequence) or isinstance(values, (str, bytes, bytearray)):
-                    continue
-                for value in values:
-                    lemma = _text(value).casefold()
-                    if not lemma:
-                        continue
-                    features[f"argument:{role_text}:{lemma}"] += 1
-                    if predicate:
-                        features[f"edge:{predicate}:{role_text}:{lemma}"] += 1
-
-    typed_support = lane.get("typed_support")
-    if isinstance(typed_support, Mapping):
-        for support_kind, values in typed_support.items():
-            kind = _text(support_kind)
-            if not kind or not isinstance(values, Sequence) or isinstance(values, (str, bytes, bytearray)):
-                continue
-            for value in values:
-                support_value = _text(value)
-                if support_value:
-                    features[f"support:{kind}:{support_value}"] += 1
-    return features
-
 
 def _lane_embedding_pair(
     lane_a: Mapping[str, Any],
@@ -486,13 +478,350 @@ def _lane_embedding_pair(
     spectral_model: Any,
 ) -> tuple[Mapping[str, float] | Sequence[float], Mapping[str, float] | Sequence[float]]:
     if spectral_model is None:
-        return _default_lane_embedding(lane_a, frames_a), _default_lane_embedding(lane_b, frames_b)
+        left, right, _ = _world_graph_spectral_pair(lane_a, lane_b)
+        return left, right
     if callable(spectral_model):
         return spectral_model(lane_a, frames_a), spectral_model(lane_b, frames_b)
     embed_lane = getattr(spectral_model, "embed_lane", None)
     if callable(embed_lane):
         return embed_lane(lane_a, frames_a), embed_lane(lane_b, frames_b)
     raise ValueError("spectral_model must be callable or provide embed_lane")
+
+
+def _world_graph_receipt(
+    lane_a: Mapping[str, Any],
+    lane_b: Mapping[str, Any],
+    *,
+    spectral_model: Any,
+) -> dict[str, Any]:
+    if spectral_model is not None:
+        return {
+            "source": "external_spectral_model",
+            "real_world_graph": False,
+            "singular_values": [],
+            "connecting_path": [],
+        }
+    _, _, receipt = _world_graph_spectral_pair(lane_a, lane_b)
+    return receipt
+
+
+def _world_graph_spectral_pair(
+    lane_a: Mapping[str, Any],
+    lane_b: Mapping[str, Any],
+) -> tuple[list[float], list[float], dict[str, Any]]:
+    graph = _merge_world_graphs(lane_a.get("world_graph"), lane_b.get("world_graph"))
+    node_ids, hyperedges = _normalise_world_graph(graph)
+    anchors_a = _graph_anchor_ids(lane_a, node_ids)
+    anchors_b = _graph_anchor_ids(lane_b, node_ids)
+    incidence = _normalised_hypergraph_incidence(node_ids, hyperedges)
+    singular_values, left_vectors = _jacobi_svd_left(incidence)
+
+    usable = [
+        index
+        for index, value in enumerate(singular_values)
+        if value > 1e-12
+    ]
+    # The leading mode is the coarse degree/common-mass mode. Spectral geometry
+    # uses the following rebuildable modes, matching the graph-Laplacian view.
+    dimensions = usable[1:9] if len(usable) > 1 else usable[:1]
+    coordinates = {
+        node_id: [
+            left_vectors[row_index][dimension] * singular_values[dimension]
+            for dimension in dimensions
+        ]
+        for row_index, node_id in enumerate(node_ids)
+    }
+    left = _mean_anchor_coordinate(anchors_a, coordinates)
+    right = _mean_anchor_coordinate(anchors_b, coordinates)
+    path = _shortest_hypergraph_path(node_ids, hyperedges, anchors_a, anchors_b)
+    return left, right, {
+        "source": "real_pnf_world_graph",
+        "real_world_graph": True,
+        "node_count": len(node_ids),
+        "hyperedge_count": len(hyperedges),
+        "graph_refs": list(graph.get("graph_refs") or ()),
+        "spectral_dimensions": len(dimensions),
+        "singular_values": [singular_values[index] for index in dimensions],
+        "laplacian_eigenvalues": [
+            1.0 - singular_values[index] * singular_values[index]
+            for index in dimensions
+        ],
+        "left_anchors": anchors_a,
+        "right_anchors": anchors_b,
+        "connecting_path": path,
+        "incidence_normalisation": "node-degree-and-hyperedge-cardinality",
+        "decomposition": "deterministic_one_sided_jacobi_svd",
+    }
+
+
+def _merge_world_graphs(left: Any, right: Any) -> dict[str, Any]:
+    if not isinstance(left, Mapping) and not isinstance(right, Mapping):
+        raise ValueError(
+            "real world_graph is required for default spectral geometry; "
+            "synthetic feature vectors are not accepted"
+        )
+    graphs = [graph for graph in (left, right) if isinstance(graph, Mapping)]
+    nodes: dict[str, dict[str, Any]] = {}
+    edges: dict[str, dict[str, Any]] = {}
+    for graph in graphs:
+        for raw_node in graph.get("nodes") or ():
+            if not isinstance(raw_node, Mapping):
+                raise ValueError("world_graph nodes must be objects")
+            node_id = _text(raw_node.get("id") or raw_node.get("node_ref"))
+            if not node_id:
+                raise ValueError("world_graph node requires id or node_ref")
+            candidate = dict(raw_node)
+            candidate["id"] = node_id
+            prior = nodes.get(node_id)
+            if prior is not None and prior != candidate:
+                raise ValueError(f"world_graph node {node_id} disagrees across lane inputs")
+            nodes[node_id] = candidate
+
+        raw_edges = graph.get("hyperedges")
+        if raw_edges is None:
+            raw_edges = graph.get("edges")
+        for ordinal, raw_edge in enumerate(raw_edges or ()):
+            if not isinstance(raw_edge, Mapping):
+                raise ValueError("world_graph hyperedges must be objects")
+            edge_id = _text(raw_edge.get("id") or raw_edge.get("edge_ref"))
+            if not edge_id:
+                raise ValueError("world_graph edge requires id or edge_ref")
+            candidate = dict(raw_edge)
+            candidate["id"] = edge_id
+            prior = edges.get(edge_id)
+            if prior is not None and prior != candidate:
+                raise ValueError(f"world_graph edge {edge_id} disagrees across lane inputs")
+            edges[edge_id] = candidate
+
+    if not nodes or not edges:
+        raise ValueError("world_graph must contain nodes and hyperedges/edges")
+    graph_refs = {
+        _text(graph.get("projection_ref") or graph.get("graph_ref") or graph.get("revision_ref"))
+        for graph in graphs
+    }
+    graph_refs.discard("")
+    if not graph_refs:
+        raise ValueError(
+            "world_graph requires projection_ref, graph_ref, or revision_ref "
+            "from a revision-bound graph projection"
+        )
+    return {
+        "nodes": [nodes[key] for key in sorted(nodes)],
+        "hyperedges": [edges[key] for key in sorted(edges)],
+        "graph_refs": sorted(graph_refs),
+    }
+
+
+def _normalise_world_graph(
+    graph: Mapping[str, Any],
+) -> tuple[list[str], list[dict[str, Any]]]:
+    node_ids = sorted(
+        _text(node.get("id"))
+        for node in graph.get("nodes") or ()
+        if isinstance(node, Mapping) and _text(node.get("id"))
+    )
+    node_set = set(node_ids)
+    if len(node_set) != len(node_ids):
+        raise ValueError("world_graph node ids must be unique")
+
+    hyperedges: list[dict[str, Any]] = []
+    for raw_edge in graph.get("hyperedges") or ():
+        state = _text(raw_edge.get("admissibility_state")).casefold()
+        if state in {"blocked", "rejected"}:
+            continue
+        members = raw_edge.get("members")
+        if members is None:
+            members = [
+                raw_edge.get("from_node_ref") or raw_edge.get("source_ref"),
+                raw_edge.get("to_node_ref") or raw_edge.get("target_ref"),
+            ]
+        if not isinstance(members, Sequence) or isinstance(members, (str, bytes, bytearray)):
+            raise ValueError("world_graph edge members must be an array")
+        normalised_members = sorted(
+            {
+                _text(member)
+                for member in members
+                if _text(member)
+            }
+        )
+        if len(normalised_members) < 2:
+            continue
+        unknown = [member for member in normalised_members if member not in node_set]
+        if unknown:
+            raise ValueError(f"world_graph edge references unknown nodes: {unknown}")
+        raw_weight = raw_edge.get("weight", 1.0)
+        if isinstance(raw_weight, bool) or not isinstance(raw_weight, (int, float)):
+            raise ValueError("world_graph edge weight must be numeric")
+        weight = float(raw_weight)
+        if not math.isfinite(weight) or weight <= 0.0:
+            raise ValueError("world_graph edge weight must be finite and positive")
+        hyperedges.append(
+            {
+                "id": _text(raw_edge.get("id")),
+                "kind": _text(raw_edge.get("kind") or raw_edge.get("relation_kind")),
+                "members": normalised_members,
+                "weight": weight,
+                "provenance_ref": _text(raw_edge.get("provenance_ref")),
+            }
+        )
+    if not hyperedges:
+        raise ValueError("world_graph has no usable hyperedges")
+    return node_ids, hyperedges
+
+
+def _graph_anchor_ids(lane: Mapping[str, Any], node_ids: Sequence[str]) -> list[str]:
+    raw = lane.get("graph_anchor_ids")
+    if raw is None:
+        raw = lane.get("world_graph_anchor_ids")
+    if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes, bytearray)):
+        raise ValueError("lane requires graph_anchor_ids for real graph spectral projection")
+    anchors = sorted({_text(value) for value in raw if _text(value)})
+    unknown = [value for value in anchors if value not in set(node_ids)]
+    if unknown:
+        raise ValueError(f"graph anchors are not present in world_graph: {unknown}")
+    if not anchors:
+        raise ValueError("graph_anchor_ids must not be empty")
+    return anchors
+
+
+def _normalised_hypergraph_incidence(
+    node_ids: Sequence[str],
+    hyperedges: Sequence[Mapping[str, Any]],
+) -> list[list[float]]:
+    node_index = {node_id: index for index, node_id in enumerate(node_ids)}
+    raw = [[0.0 for _ in hyperedges] for _ in node_ids]
+    degree = [0.0 for _ in node_ids]
+    for edge_index, edge in enumerate(hyperedges):
+        members = list(edge["members"])
+        weight = float(edge["weight"])
+        edge_mass = weight / float(len(members))
+        entry = math.sqrt(edge_mass)
+        for member in members:
+            index = node_index[member]
+            raw[index][edge_index] = entry
+            degree[index] += weight
+    return [
+        [
+            value / math.sqrt(degree[row_index])
+            if degree[row_index] > 0.0
+            else 0.0
+            for value in row
+        ]
+        for row_index, row in enumerate(raw)
+    ]
+
+
+def _jacobi_svd_left(
+    matrix: Sequence[Sequence[float]],
+    *,
+    tolerance: float = 1e-12,
+    max_sweeps: int = 64,
+) -> tuple[list[float], list[list[float]]]:
+    if not matrix:
+        return [], []
+    row_count = len(matrix)
+    column_count = len(matrix[0])
+    if column_count == 0:
+        return [], [[] for _ in range(row_count)]
+    if any(len(row) != column_count for row in matrix):
+        raise ValueError("incidence matrix rows must have equal length")
+
+    rotated = [[float(value) for value in row] for row in matrix]
+    for _ in range(max_sweeps):
+        changed = False
+        for left_col in range(column_count - 1):
+            for right_col in range(left_col + 1, column_count):
+                alpha = sum(row[left_col] * row[left_col] for row in rotated)
+                beta = sum(row[right_col] * row[right_col] for row in rotated)
+                gamma = sum(row[left_col] * row[right_col] for row in rotated)
+                if alpha == 0.0 or beta == 0.0:
+                    continue
+                if abs(gamma) <= tolerance * math.sqrt(alpha * beta):
+                    continue
+                zeta = (beta - alpha) / (2.0 * gamma)
+                sign = 1.0 if zeta >= 0.0 else -1.0
+                tangent = sign / (abs(zeta) + math.sqrt(1.0 + zeta * zeta))
+                cosine = 1.0 / math.sqrt(1.0 + tangent * tangent)
+                sine = cosine * tangent
+                for row in rotated:
+                    left_value = row[left_col]
+                    right_value = row[right_col]
+                    row[left_col] = cosine * left_value - sine * right_value
+                    row[right_col] = sine * left_value + cosine * right_value
+                changed = True
+        if not changed:
+            break
+
+    singular_values_unsorted = [
+        math.sqrt(sum(row[column] * row[column] for row in rotated))
+        for column in range(column_count)
+    ]
+    order = sorted(
+        range(column_count),
+        key=lambda column: (-singular_values_unsorted[column], column),
+    )
+    singular_values = [singular_values_unsorted[column] for column in order]
+    left_vectors = [
+        [
+            (
+                rotated[row_index][column] / singular_values_unsorted[column]
+                if singular_values_unsorted[column] > tolerance
+                else 0.0
+            )
+            for column in order
+        ]
+        for row_index in range(row_count)
+    ]
+    return singular_values, left_vectors
+
+
+def _mean_anchor_coordinate(
+    anchors: Sequence[str],
+    coordinates: Mapping[str, Sequence[float]],
+) -> list[float]:
+    width = len(next(iter(coordinates.values()), ()))
+    return [
+        sum(float(coordinates[anchor][dimension]) for anchor in anchors) / len(anchors)
+        for dimension in range(width)
+    ]
+
+
+def _shortest_hypergraph_path(
+    node_ids: Sequence[str],
+    hyperedges: Sequence[Mapping[str, Any]],
+    left_anchors: Sequence[str],
+    right_anchors: Sequence[str],
+) -> list[str]:
+    adjacency: dict[str, set[str]] = {node_id: set() for node_id in node_ids}
+    for edge in hyperedges:
+        members = list(edge["members"])
+        for left in members:
+            adjacency[left].update(member for member in members if member != left)
+
+    targets = set(right_anchors)
+    queue: list[str] = list(left_anchors)
+    parent: dict[str, str | None] = {anchor: None for anchor in left_anchors}
+    cursor = 0
+    found: str | None = None
+    while cursor < len(queue):
+        current = queue[cursor]
+        cursor += 1
+        if current in targets:
+            found = current
+            break
+        for neighbour in sorted(adjacency[current]):
+            if neighbour not in parent:
+                parent[neighbour] = current
+                queue.append(neighbour)
+    if found is None:
+        return []
+    path: list[str] = []
+    current: str | None = found
+    while current is not None:
+        path.append(current)
+        current = parent[current]
+    path.reverse()
+    return path
 
 
 def _cosine_similarity(
