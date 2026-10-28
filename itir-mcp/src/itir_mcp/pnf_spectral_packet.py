@@ -972,33 +972,6 @@ def _transpose_matrix(matrix: Sequence[Sequence[float]]) -> list[list[float]]:
     return [[float(matrix[row][column]) for row in range(len(matrix))] for column in range(width)]
 
 
-def _normalised_hypergraph_incidence(
-    node_ids: Sequence[str],
-    hyperedges: Sequence[Mapping[str, Any]],
-) -> list[list[float]]:
-    node_index = {node_id: index for index, node_id in enumerate(node_ids)}
-    raw = [[0.0 for _ in hyperedges] for _ in node_ids]
-    degree = [0.0 for _ in node_ids]
-    for edge_index, edge in enumerate(hyperedges):
-        members = list(edge["members"])
-        weight = float(edge["weight"])
-        edge_mass = weight / float(len(members))
-        entry = math.sqrt(edge_mass)
-        for member in members:
-            index = node_index[member]
-            raw[index][edge_index] = entry
-            degree[index] += weight
-    return [
-        [
-            value / math.sqrt(degree[row_index])
-            if degree[row_index] > 0.0
-            else 0.0
-            for value in row
-        ]
-        for row_index, row in enumerate(raw)
-    ]
-
-
 def _jacobi_svd_left(
     matrix: Sequence[Sequence[float]],
     *,
