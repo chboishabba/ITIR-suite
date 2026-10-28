@@ -390,7 +390,7 @@ def register_sqlite_chat_coordinates(
         optional = {
             "parent_node_id": "parent_node_id" if "parent_node_id" in message_columns else "NULL",
             "create_time": "create_time" if "create_time" in message_columns else "NULL",
-            "message_ref": "source_message_id" if "source_message_id" in message_columns else "message_key",
+            "message_ref": "source_message_id" if "source_message_id" in message_columns else "node_id",
         }
         sql = f"""
             SELECT m.conversation_id,
