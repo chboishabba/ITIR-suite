@@ -415,7 +415,7 @@ def spectral_no_typed_meet(
         set(_world_feature_ids(lane_a)) & set(_world_feature_ids(lane_b))
     )
     residual_status = "contradiction" if prod_invariant_violation else (
-        sub_eigen_meet if shared_quotient_orbit else "exact"
+        sub_eigen_meet if shared_quotient_orbit else "not_applicable"
     )
 
     return {
