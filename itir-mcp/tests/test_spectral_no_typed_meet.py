@@ -165,3 +165,40 @@ def test_fleet_verifier_rejects_shared_quotient_orbit_with_disjoint_flat_keys() 
         assert "spectral noTypedMeet violation" in str(exc)
     else:
         raise AssertionError("shared quotient orbit must block parallel dispatch")
+
+
+def test_balaban_and_quantum_metrology_wikidata_bridge_coupling() -> None:
+    ym_bridged = {
+        "orchestrator_id": "balaban-ym",
+        "typed_support": {"files": ["DASHI/Physics/YM.agda"], "symbols": [], "lemmas": []},
+        "relational_frames": [_frame("renormalize", "polymer", "gauge_block")],
+        "wikidata_features": [
+            "Q208227",  # gauge theory / connection form
+            "Q171448",  # metric tensor / Riemannian metric
+            "information_geometry:fisher_metric_flow",
+        ],
+    }
+
+    qm_bridged = {
+        "orchestrator_id": "quantum-metrology",
+        "typed_support": {"files": ["DASHI/Physics/QuantumMetrology.agda"], "symbols": [], "lemmas": []},
+        "relational_frames": [_frame("estimate", "sensor", "fisher_metric")],
+        "wikidata_features": [
+            "Q11455",   # Quantum Fisher Information
+            "Q11108",   # Nitrogen-vacancy center
+            "Q171448",  # metric tensor / Fubini-Study
+            "information_geometry:fisher_metric_flow",
+        ],
+    }
+
+    receipt = spectral_no_typed_meet(ym_bridged, qm_bridged)
+
+    assert receipt["cosine_similarity"] > 0.15
+    assert receipt["orbit_relation"] == "shared_quotient_orbit"
+    assert "q171448" in receipt["shared_world_features"]
+    assert "information_geometry:fisher_metric_flow" in receipt["shared_world_features"]
+    assert receipt["sub_eigen_applicable"] is True
+    assert receipt["sub_eigen_meet"] == "noTypedMeet"
+    assert receipt["residual_status"] == "noTypedMeet"
+    assert receipt["formal_boundary"]["no_typed_meet_is_sub_eigen_residual"] is True
+
