@@ -597,3 +597,158 @@ This is a follow-on to the first six steps, not a prerequisite for the initial
 WD/ITIR/SL integration. Smaller or query-oriented shards, route indexes, cache
 metrics, and cold/hot performance benchmarks should be selected from measured
 workloads rather than assumed globally optimal shard sizes.
+
+
+## AO Fleet Leaf 066dda81af3b: Roadmap Normalisation
+
+Lane: `ao.fleet.dynamic.066dda81af3b`
+
+Orchestrator: `ao-fleet-conductor-leaf-066dda81af3b`
+
+Typed support is this roadmap file only. This leaf does not edit runtime code,
+formal proof surfaces, ESD surfaces, lane-owned entities, or provider-specific
+adapters. It normalizes the execution contract already defined by Phase H and
+the compiler-convergence control note.
+
+### ZKP frame
+
+#### O — Observations
+
+- The provider-neutral graph-view, bridge, pressure, projection, and receipt
+  carriers already exist in the roadmap's Phase H checkpoint.
+- A bounded remote selection is not a completeness claim.
+- Query-shaped plans can still select physically large legacy shards.
+- The first reviewed entity/event attachment path and one bounded type-pressure
+  path are already recorded.
+- Generic replay across GWB, AU, Brexit, and Affidavit remains the next
+  convergence step.
+
+#### R — Requirements
+
+- Reuse the shared world-model and receipt carrier for every adopter.
+- Preserve manifest revision, selected chunks, selected bytes, coverage state,
+  unresolved residuals, review decisions, and pressure diagnostics.
+- Keep local candidates distinct from external WD identities.
+- Keep pressure results diagnostic until an explicit review decision promotes
+  a local result.
+- Surface physical fetch cost before execution.
+- Replay one accepted generic context through each wrapper before adding new
+  lane-local bridge semantics.
+
+#### C — Constraints
+
+- Do not add WD fields directly to local entities, events, claims, or legal
+  authority records.
+- Do not infer completeness from successful loading.
+- Do not let wrappers define bridge semantics. Wrappers may add only source
+  anchors and profile defaults.
+- Do not hide stale revisions, fallback transport, unresolved coverage, or
+  physically large shard selections.
+- Do not treat popularity, hosting, graph density, parser output, embeddings,
+  or external identity as truth authority.
+- Do not edit `dashi_digital_esd`, `*digital_esd*`, or `*ESD*` surfaces.
+
+#### S — State
+
+The normalized executable state is:
+
+```text
+revision-bound manifest
+→ query-shaped bounded slice plan
+→ declared byte cost
+→ accepted partial load
+→ explicit coverage state
+→ local entity/event candidate
+→ external bridge proposal
+→ review decision
+→ bounded pressure diagnostic
+→ generic ITIR/SL review surface
+→ receipt
+→ wrapper replay
+```
+
+The first adopter remains the revision-pinned `Q1785637@2443793937` path
+already recorded above. The historical synthetic missing-`P31` fixture remains
+an abstention regression and must not be replaced by the positive current
+fixture.
+
+#### L — Invariants
+
+The following invariants hold across every replay:
+
+1. `incomplete != complete`.
+2. External identity does not replace the local candidate.
+3. External type pressure does not assign a local formal role.
+4. Pressure does not grant legal, evidentiary, or promotion authority.
+5. A rejected, conflicted, stale, or incomplete bridge remains reconstructable.
+6. Manifest revision and selected coverage remain attached to every result.
+7. Query planning reports selected sections, chunks, and declared bytes before
+   fetch.
+8. A wrapper cannot change the generic bridge decision model.
+9. A renderer cannot repair missing source linkage depth.
+10. A successful transport does not prove semantic closure.
+
+#### P — Preconditions
+
+A replay may start only when all of these inputs exist:
+
+- one local entity or event candidate with a source anchor;
+- one revision-pinned external evidence source;
+- a bounded logical selector set;
+- a declared coverage policy;
+- a query-shaped slice plan with selected-byte cost;
+- a review policy that distinguishes proposal, acceptance, rejection,
+  conflict, stale evidence, and abstention;
+- a pressure profile whose output is explicitly diagnostic.
+
+If any precondition is absent, the replay remains candidate-only and records the
+missing input as an unresolved residual.
+
+#### G — Goal and postconditions
+
+This leaf is complete when the roadmap exposes one unambiguous convergence
+contract for the next implementation tranche.
+
+The postconditions are:
+
+- all adopters use the same generic carrier and decision semantics;
+- incomplete coverage remains fail-closed;
+- cost is visible before shard fetch;
+- source, external evidence, decision, pressure, and receipt provenance remain
+  separable;
+- GWB, AU, Brexit, and Affidavit replay can differ only by source anchors,
+  profile defaults, and readiness;
+- renderer work remains downstream of source-graph linkage-depth evidence;
+- optimisation work remains driven by measured workloads;
+- no provider, wrapper, or external graph becomes an authority oracle.
+
+#### F — Failure gates
+
+Stop and record a failed leaf or unresolved residual if any implementation:
+
+- marks an incomplete view complete without a query-bound completeness receipt;
+- promotes a WD identity or pressure result without review;
+- loses the source span, revision, selected coverage, or review decision;
+- hides fallback transport or shard byte cost;
+- introduces lane-specific bridge semantics into the generic carrier;
+- requires a renderer change to compensate for absent graph structure;
+- mutates protected ESD surfaces;
+- claims global graph closure from a bounded slice.
+
+### Deterministic verification
+
+The roadmap leaf is deterministic if all of the following checks pass:
+
+1. the only edited path is
+   `docs/planning/itir_wd_zelph_sensiblaw_flatness_optimisation_roadmap_20260702.md`;
+2. the lane and orchestrator identifiers appear exactly once in this file;
+3. the ZKP frame contains all eight sections `O/R/C/S/L/P/G/F`;
+4. the invariant list contains the explicit `incomplete != complete` rule;
+5. the failure gates reject authority promotion, hidden coverage, hidden cost,
+   and protected ESD mutation;
+6. no code, formal proof, adapter, wrapper, or ESD path changes as part of this
+   leaf.
+
+This leaf therefore changes roadmap control text only. It does not claim that
+the runtime replay, large-query executor, v3 shard layout, completeness
+certification, or downstream compiler convergence is finished.
