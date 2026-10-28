@@ -293,6 +293,11 @@ class _RegistrarCursor:
         self.rows = self.rows[1:]
         return row
 
+    def fetchall(self):
+        rows = list(self.rows)
+        self.rows = []
+        return rows
+
     def close(self):
         pass
 
