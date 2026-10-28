@@ -1,0 +1,504 @@
+{
+  "version": "itir.ao.dynamic_autonomous_rounds.v1",
+  "completed_at": 1793150595.10827,
+  "total_rounds": 5,
+  "total_workers_dispatched": 50,
+  "mode": "autonomous_pnf_steer",
+  "rounds": [
+    {
+      "round": 1,
+      "timestamp": 1793149662.0263617,
+      "duration_seconds": 215.54498344898457,
+      "lane_count": 10,
+      "success_count": 10,
+      "error_count": 0,
+      "lanes": [
+        {
+          "lane": "ao.fleet.dynamic.0103e2a4e0fc",
+          "orchestrator_id": "ao-fleet-conductor-leaf-0103e2a4e0fc",
+          "conversation_id": "6add9b99-44d4-83ec-80f3-ccd80bea0f56",
+          "lane_claim": "candidate repo/workflow surface collection",
+          "operation_status": "submitted",
+          "operation_id": "67747abb-75e0-4bfc-b191-65fab53ea659"
+        },
+        {
+          "lane": "ao.fleet.dynamic.03761893b842",
+          "orchestrator_id": "ao-fleet-conductor-leaf-03761893b842",
+          "conversation_id": "6abf2e18-093c-83ec-9bdf-5bf0bc9c5f1a",
+          "lane_claim": "move `zelph-node-route/v1` from large JSON prototype toward a denser",
+          "operation_status": "submitted",
+          "operation_id": "858d54cc-446a-4264-bb0f-bf261b612fb8"
+        },
+        {
+          "lane": "ao.fleet.dynamic.048de098571f",
+          "orchestrator_id": "ao-fleet-conductor-leaf-048de098571f",
+          "conversation_id": "6a9ed438-fad8-83ec-9dc0-9aad65a39dda",
+          "lane_claim": "emits deterministic `ipfs://` refs for all logical shards plus the",
+          "operation_status": "submitted",
+          "operation_id": "3d0b7873-8089-4b83-82ce-2293793ee5f0"
+        },
+        {
+          "lane": "ao.fleet.dynamic.04bddd60108c",
+          "orchestrator_id": "ao-fleet-conductor-leaf-04bddd60108c",
+          "conversation_id": "6aade03f-f4a4-83ec-bb5f-2915282eacaa",
+          "lane_claim": "PDA seam optimizer stack (kernels, MDL prior, moves, PDA controller) shipped in `smii/seams/{kernels,mdl,moves,pda}.py`; next: tune weights, add visual/debug outputs, and wire CLI/driver.",
+          "operation_status": "submitted",
+          "operation_id": "0a42e590-dd4b-4951-a56d-fd2cc7cd9f37"
+        },
+        {
+          "lane": "ao.fleet.dynamic.066dda81af3b",
+          "orchestrator_id": "ao-fleet-conductor-leaf-066dda81af3b",
+          "conversation_id": "6ab5eb53-91dc-83ec-94f1-61a426e67187",
+          "lane_claim": "roadmap: `../docs/planning/itir_wd_zelph_sensiblaw_flatness_optimisation_roadmap_20260702.md`",
+          "operation_status": "submitted",
+          "operation_id": "bcec45ef-0658-49d9-acf7-5dd55e00c893"
+        },
+        {
+          "lane": "ao.fleet.dynamic.0794c03c15cd",
+          "orchestrator_id": "ao-fleet-conductor-leaf-0794c03c15cd",
+          "conversation_id": "6ab9c563-7b40-83ec-993b-c9f640986934",
+          "lane_claim": "Add a field inspection/offline-capture lane:",
+          "operation_status": "submitted",
+          "operation_id": "cdc40db0-17d6-4b4a-a7a2-c05ccd9807c4"
+        },
+        {
+          "lane": "ao.fleet.dynamic.083b19d25f58",
+          "orchestrator_id": "ao-fleet-conductor-leaf-083b19d25f58",
+          "conversation_id": "6aae78dd-e0b0-83ec-ae49-314a93e25d9a",
+          "lane_claim": "NEXT: emit a dependency-group/family-geometry inventory for the hydrated",
+          "operation_status": "submitted",
+          "operation_id": "9dc5bc24-d865-47dd-8128-d468be2d1428"
+        },
+        {
+          "lane": "ao.fleet.dynamic.08a2bab17012",
+          "orchestrator_id": "ao-fleet-conductor-leaf-08a2bab17012",
+          "conversation_id": "6ab366d3-eb4c-83ec-a22e-dfa8f0fd3a0a",
+          "lane_claim": "one-receipt form backed by `query_fact_review.py feedback-add`",
+          "operation_status": "submitted",
+          "operation_id": "3abb73a9-adaa-4af9-9939-af124f3aba27"
+        },
+        {
+          "lane": "ao.fleet.dynamic.0a0bc861c3ef",
+          "orchestrator_id": "ao-fleet-conductor-leaf-0a0bc861c3ef",
+          "conversation_id": "6ab3930a-c3f4-83ec-b212-d7636e4af9b3",
+          "lane_claim": "extend the new `/graphs/narrative-compare` workbench from fixture-first to",
+          "operation_status": "submitted",
+          "operation_id": "83b1b2de-033d-4c3f-bb74-84b5d1d8c7f7"
+        },
+        {
+          "lane": "ao.fleet.dynamic.0b395e057cd3",
+          "orchestrator_id": "ao-fleet-conductor-leaf-0b395e057cd3",
+          "conversation_id": "6abf28f9-af5c-83ec-bfa6-4a932cd7124d",
+          "lane_claim": "capture/intake/transcription adapters",
+          "operation_status": "submitted",
+          "operation_id": "4c1e0134-e7cd-4081-9ea8-a01a78c529e8"
+        }
+      ],
+      "policy": {
+        "pairwise_noTypedMeet": true,
+        "one_lane_per_worker": true,
+        "write_transport": "async",
+        "dom_fallback": false,
+        "follow": false,
+        "reconcile_attempts": 0,
+        "automatic_resend": false
+      }
+    },
+    {
+      "round": 2,
+      "timestamp": 1793149884.026028,
+      "duration_seconds": 219.99927935999585,
+      "lane_count": 10,
+      "success_count": 10,
+      "error_count": 0,
+      "lanes": [
+        {
+          "lane": "ao.fleet.dynamic.0b8574965d8c",
+          "orchestrator_id": "ao-fleet-conductor-leaf-0b8574965d8c",
+          "conversation_id": "6ab64e16-a4e0-83ec-94a7-0bb99bff501c",
+          "lane_claim": "NEXT: generate/licence spans lazily through the public parser/reducer",
+          "operation_status": "submitted",
+          "operation_id": "2b2478ec-094c-43fb-ac94-4f8cc7da88c9"
+        },
+        {
+          "lane": "ao.fleet.dynamic.0c1bd0636b08",
+          "orchestrator_id": "ao-fleet-conductor-leaf-0c1bd0636b08",
+          "conversation_id": "6ab453fc-5a58-83ec-a45a-80b371283b01",
+          "lane_claim": "Add stronger general non-legal participant/context roles to the",
+          "operation_status": "submitted",
+          "operation_id": "1e179058-d64c-4425-b0f2-efa8ea28fcb1"
+        },
+        {
+          "lane": "ao.fleet.dynamic.0d1671aabf00",
+          "orchestrator_id": "ao-fleet-conductor-leaf-0d1671aabf00",
+          "conversation_id": "6ab20e43-68a4-83ec-a5a4-b483ba6d80ee",
+          "lane_claim": "`docs/planning/response_to_duncan_emma_itir_hospital_advocacy_20260208.md` missed the intended mark (needs a better synthesis/voice and should be evaluated against the actual posting context).",
+          "operation_status": "submitted",
+          "operation_id": "f4a7b554-fee3-46f7-b73a-01c4f69f572a"
+        },
+        {
+          "lane": "ao.fleet.dynamic.0e3a8eac9adc",
+          "orchestrator_id": "ao-fleet-conductor-leaf-0e3a8eac9adc",
+          "conversation_id": "6acc80dc-6f2c-83ec-961b-0df581615fcc",
+          "lane_claim": "Regime layer: extend PDA state with fabric assignments and grain rotations; add moves (`switch_fabric`, `rotate_grain`), manufacturability/MDL modifiers.",
+          "operation_status": "submitted",
+          "operation_id": "e78affa2-8b8f-470f-bce8-67ce930d7529"
+        },
+        {
+          "lane": "ao.fleet.dynamic.0ec3ba464edc",
+          "orchestrator_id": "ao-fleet-conductor-leaf-0ec3ba464edc",
+          "conversation_id": "6ac6dc29-1d08-83ec-990e-a1ca076ccc3d",
+          "lane_claim": "use bounded excerpt packs and fixture-quality/reuse review rather than",
+          "operation_status": "submitted",
+          "operation_id": "3d0a3a8e-c037-4a8e-b189-efb3f28235d5"
+        },
+        {
+          "lane": "ao.fleet.dynamic.0f1df303b50c",
+          "orchestrator_id": "ao-fleet-conductor-leaf-0f1df303b50c",
+          "conversation_id": "6ab61a0a-d8d8-83ec-9e03-bbd21a2c54a1",
+          "lane_claim": "Install/verify SMPL-X runtime extras (`smplx`, torch backend) in the active venv so `python -m smii.rom.sampler_real` can regenerate ROM artifacts (currently blocked by `ModuleNotFoundError: smplx` in this environment).",
+          "operation_status": "submitted",
+          "operation_id": "e803ddd7-e509-4053-b3c1-be19190c239e"
+        },
+        {
+          "lane": "ao.fleet.dynamic.0f5da8ca8544",
+          "orchestrator_id": "ao-fleet-conductor-leaf-0f5da8ca8544",
+          "conversation_id": "6aae73f6-4534-83ec-84ca-d32c7b65cffc",
+          "lane_claim": "docs/UML/commit thresholds only when state justifies",
+          "operation_status": "submitted",
+          "operation_id": "7efe84ba-ce7d-4669-8a8d-50a3b96fdb85"
+        },
+        {
+          "lane": "ao.fleet.dynamic.0fea9dc3ba90",
+          "orchestrator_id": "ao-fleet-conductor-leaf-0fea9dc3ba90",
+          "conversation_id": "6aafec0c-a044-83ec-9403-5a61c0a6129c",
+          "lane_claim": "DONE: added a manifest builder for `.bin + sidecar index` at",
+          "operation_status": "submitted",
+          "operation_id": "551b8340-cade-4d70-b497-aef299abe7ed"
+        },
+        {
+          "lane": "ao.fleet.dynamic.0ff4fa16ae76",
+          "orchestrator_id": "ao-fleet-conductor-leaf-0ff4fa16ae76",
+          "conversation_id": "6ab20409-5784-83ec-acf6-846f42420a6b",
+          "lane_claim": "add bounded switching criteria between crisis/adversarial mode and",
+          "operation_status": "submitted",
+          "operation_id": "b3545e04-dcd8-4b26-9219-66fc03321180"
+        },
+        {
+          "lane": "ao.fleet.dynamic.10846cec9329",
+          "orchestrator_id": "ao-fleet-conductor-leaf-10846cec9329",
+          "conversation_id": "6adcb7ab-5454-83ec-8798-9c5de03d2488",
+          "lane_claim": "DONE: implement the bounded `--discover-company-direct` materializer path.",
+          "operation_status": "submitted",
+          "operation_id": "4f017028-100d-41d8-8042-f00894396e9c"
+        }
+      ],
+      "policy": {
+        "pairwise_noTypedMeet": true,
+        "one_lane_per_worker": true,
+        "write_transport": "async",
+        "dom_fallback": false,
+        "follow": false,
+        "reconcile_attempts": 0,
+        "automatic_resend": false
+      }
+    },
+    {
+      "round": 3,
+      "timestamp": 1793150134.7949028,
+      "duration_seconds": 248.76483103598002,
+      "lane_count": 10,
+      "success_count": 10,
+      "error_count": 0,
+      "lanes": [
+        {
+          "lane": "ao.fleet.dynamic.10e52afab8c1",
+          "orchestrator_id": "ao-fleet-conductor-leaf-10e52afab8c1",
+          "conversation_id": "6abc6eb1-8974-83ec-adaa-273176a52d5d",
+          "lane_claim": "Strategy 2 bundles should emit this run page automatically and refresh both per-root indexes and one unified `outputs/index.html` catalog with timestamps and run-type labels,",
+          "operation_status": "submitted",
+          "operation_id": "24ca90c3-f9ba-4396-a514-0f0ba4e70768"
+        },
+        {
+          "lane": "ao.fleet.dynamic.1146077a0e0b",
+          "orchestrator_id": "ao-fleet-conductor-leaf-1146077a0e0b",
+          "conversation_id": "6adc876d-1658-83ec-b2e1-f858799e62c2",
+          "lane_claim": "Specify temporal reduction rules (carryover/new/resolved sets, age_days counters) for atoms and threads",
+          "operation_status": "submitted",
+          "operation_id": "92a14286-29b6-49b1-b5f6-d09b28bdb849"
+        },
+        {
+          "lane": "ao.fleet.dynamic.13a279b051ef",
+          "orchestrator_id": "ao-fleet-conductor-leaf-13a279b051ef",
+          "conversation_id": "6ad0696c-c59c-83ec-99dc-e47c98f46575",
+          "lane_claim": "implement Frame Compiler hard-fail checks for missing thesis/receipt/action",
+          "operation_status": "submitted",
+          "operation_id": "e2b62e5c-ffce-4ec8-9ddc-29d01bc2b95b"
+        },
+        {
+          "lane": "ao.fleet.dynamic.144d9cc0a64e",
+          "orchestrator_id": "ao-fleet-conductor-leaf-144d9cc0a64e",
+          "conversation_id": "6abcce84-6138-83ec-95ef-ec467883edf8",
+          "lane_claim": "bounded query/read-model helpers and JSON CLI",
+          "operation_status": "submitted",
+          "operation_id": "71fc1aaa-dd06-4439-9ad4-042dea0e30fa"
+        },
+        {
+          "lane": "ao.fleet.dynamic.151491422dcc",
+          "orchestrator_id": "ao-fleet-conductor-leaf-151491422dcc",
+          "conversation_id": "6ab51a5e-792c-83ec-aea5-beb04a25f6af",
+          "lane_claim": "[P0d] Make the shared targeting/promotion layer consume resolved or explicitly",
+          "operation_status": "submitted",
+          "operation_id": "4ef88add-0760-4a62-b1d3-87c946d93edb"
+        },
+        {
+          "lane": "ao.fleet.dynamic.15e3cb879d30",
+          "orchestrator_id": "ao-fleet-conductor-leaf-15e3cb879d30",
+          "conversation_id": "6ad0648b-fd5c-83ec-a713-8b30db520c20",
+          "lane_claim": "add one axe-based browser smoke for `/viewers/hca-case` and primary graph routes",
+          "operation_status": "submitted",
+          "operation_id": "2cce21ad-0170-4489-9a73-13381c96d5db"
+        },
+        {
+          "lane": "ao.fleet.dynamic.172aad488928",
+          "orchestrator_id": "ao-fleet-conductor-leaf-172aad488928",
+          "conversation_id": "6ab09cfa-e238-83ec-bc60-03d83a12b1c6",
+          "lane_claim": "Define snapshot event schema for screen/app capture (append-only, content-addressed)",
+          "operation_status": "submitted",
+          "operation_id": "41d7b985-f29b-4e27-a2ab-f5d07a61f4c3"
+        },
+        {
+          "lane": "ao.fleet.dynamic.177f17a1c58e",
+          "orchestrator_id": "ao-fleet-conductor-leaf-177f17a1c58e",
+          "conversation_id": "6acc1f2c-f2bc-83ec-990c-f287f10fe3c0",
+          "lane_claim": "TIRC event adapter (trajectory/open/closed signals as SB events)",
+          "operation_status": "submitted",
+          "operation_id": "ec177710-3d3f-4f15-b156-4055db9361e6"
+        },
+        {
+          "lane": "ao.fleet.dynamic.191202c807ad",
+          "orchestrator_id": "ao-fleet-conductor-leaf-191202c807ad",
+          "conversation_id": "6ab11e2e-85dc-83ec-afc9-05d5e828d20e",
+          "lane_claim": "Add reprojection quality gates (`max_distance`, `mean_distance`, edge-retention ratio) so seam transfer fails loudly when source/target meshes are not geometrically compatible.",
+          "operation_status": "submitted",
+          "operation_id": "6af87508-ccc4-4860-be92-2fae14f3ccad"
+        },
+        {
+          "lane": "ao.fleet.dynamic.19f08965fc4d",
+          "orchestrator_id": "ao-fleet-conductor-leaf-19f08965fc4d",
+          "conversation_id": "6ab9b485-6f08-83ec-aff9-491653b4e9e2",
+          "lane_claim": "DONE: shared CLI runtime/progress now reaches the deeper Wikidata and",
+          "operation_status": "submitted",
+          "operation_id": "820b8ac2-d877-46e2-a008-02c74358a1e5"
+        }
+      ],
+      "policy": {
+        "pairwise_noTypedMeet": true,
+        "one_lane_per_worker": true,
+        "write_transport": "async",
+        "dom_fallback": false,
+        "follow": false,
+        "reconcile_attempts": 0,
+        "automatic_resend": false
+      }
+    },
+    {
+      "round": 4,
+      "timestamp": 1793150366.9012542,
+      "duration_seconds": 230.10599836299662,
+      "lane_count": 10,
+      "success_count": 10,
+      "error_count": 0,
+      "lanes": [
+        {
+          "lane": "ao.fleet.dynamic.1c3962bf5e2f",
+          "orchestrator_id": "ao-fleet-conductor-leaf-1c3962bf5e2f",
+          "conversation_id": "6ac48b02-54d0-83ec-a52c-9a8123b2d27c",
+          "lane_claim": "root join/composition now emits structured named incompatibility",
+          "operation_status": "submitted",
+          "operation_id": "2f2140ab-4278-4e59-9791-1354d5352c16"
+        },
+        {
+          "lane": "ao.fleet.dynamic.1ced9e0b3d0f",
+          "orchestrator_id": "ao-fleet-conductor-leaf-1ced9e0b3d0f",
+          "conversation_id": "6ab86bc3-8958-83ec-a9a7-a310bcfbeed0",
+          "lane_claim": "emit canonical artifact JSONL records with idempotency/provenance fields",
+          "operation_status": "submitted",
+          "operation_id": "5ecf8af6-0399-44e3-8596-b727610d85fc"
+        },
+        {
+          "lane": "ao.fleet.dynamic.1d3b7de52a85",
+          "orchestrator_id": "ao-fleet-conductor-leaf-1d3b7de52a85",
+          "conversation_id": "6adc80b9-29b4-83ec-b34f-8384315e85b6",
+          "lane_claim": "correct `hf://` -> `resolve/main/...` raw-file URL mapping",
+          "operation_status": "submitted",
+          "operation_id": "0e800b90-a33b-469c-96c9-dd75711d20f6"
+        },
+        {
+          "lane": "ao.fleet.dynamic.1d3cc8bffcd1",
+          "orchestrator_id": "ao-fleet-conductor-leaf-1d3cc8bffcd1",
+          "conversation_id": "6abf3cd7-b3a4-83ec-b394-53bcc69f452d",
+          "lane_claim": "baseline graph/overlay emits provenance and is replayable",
+          "operation_status": "submitted",
+          "operation_id": "cec31b16-8480-43c4-b61f-a4b0af87670d"
+        },
+        {
+          "lane": "ao.fleet.dynamic.1da5fa711fcd",
+          "orchestrator_id": "ao-fleet-conductor-leaf-1da5fa711fcd",
+          "conversation_id": "6ab664a6-6518-83ec-bd82-b8a374261538",
+          "lane_claim": "`rehearse-selector-fetch` and `rehearse-selector-local-tar-fetch` now accept an optional container fixture; when absent, member paths are inferred (`shardId.cbor` or `payload/shardId.cbor`)",
+          "operation_status": "submitted",
+          "operation_id": "30ae59d6-e58d-4d1d-8bde-e1cf038bac51"
+        },
+        {
+          "lane": "ao.fleet.dynamic.1ec43298f7a2",
+          "orchestrator_id": "ao-fleet-conductor-leaf-1ec43298f7a2",
+          "conversation_id": "6ab4a234-8540-83ec-86ed-e10d9452b54b",
+          "lane_claim": "DONE (2026-03-08): surface transcript/freeform `mission_observer` payloads in",
+          "operation_status": "submitted",
+          "operation_id": "548d7517-c9b2-41cc-bee7-2388b7401bf4"
+        },
+        {
+          "lane": "ao.fleet.dynamic.20a872f8d2b1",
+          "orchestrator_id": "ao-fleet-conductor-leaf-20a872f8d2b1",
+          "conversation_id": "6ac075a2-1ff0-83ec-b398-8a1b42a196d2",
+          "lane_claim": "Add quantitative A/B comparison metrics to Strategy 2 bundles and use them as acceptance gates (edge retention/collision, mesh-edge validity, length collapse).",
+          "operation_status": "submitted",
+          "operation_id": "fa863d16-98ae-4818-87ec-8349811e404d"
+        },
+        {
+          "lane": "ao.fleet.dynamic.22b47df14591",
+          "orchestrator_id": "ao-fleet-conductor-leaf-22b47df14591",
+          "conversation_id": "6abf33c7-bdfc-83ec-944f-6756ef1df1fc",
+          "lane_claim": "Add a required \u201cvertex-map orbit\u201d renderer for correspondence debugging (target colored by map distance; optional source overlay + subsampled correspondence lines) so claims about collision/retention have viewable artifacts.",
+          "operation_status": "submitted",
+          "operation_id": "0508b775-a76b-4f73-b18b-ef697f724ecf"
+        },
+        {
+          "lane": "ao.fleet.dynamic.2328be3c1177",
+          "orchestrator_id": "ao-fleet-conductor-leaf-2328be3c1177",
+          "conversation_id": "6ac5b02d-0620-83ec-bdb8-ed00c7bc04e6",
+          "lane_claim": "Keep domain logic in server loaders/adapters; keep components prop-driven.",
+          "operation_status": "submitted",
+          "operation_id": "a69cd8d5-5a2c-4ef8-b2d4-b45f823f3b55"
+        },
+        {
+          "lane": "ao.fleet.dynamic.23a1b2790b5c",
+          "orchestrator_id": "ao-fleet-conductor-leaf-23a1b2790b5c",
+          "conversation_id": "6ab5cb92-7298-83ec-a938-1a85557d4dd3",
+          "lane_claim": "Add warning/assumption text that costing is indicative and non-authoritative",
+          "operation_status": "submitted",
+          "operation_id": "a3efe67f-3109-48f0-bdb3-a5c9006a7ea5"
+        }
+      ],
+      "policy": {
+        "pairwise_noTypedMeet": true,
+        "one_lane_per_worker": true,
+        "write_transport": "async",
+        "dom_fallback": false,
+        "follow": false,
+        "reconcile_attempts": 0,
+        "automatic_resend": false
+      }
+    },
+    {
+      "round": 5,
+      "timestamp": 1793150593.1071188,
+      "duration_seconds": 224.20200727402698,
+      "lane_count": 10,
+      "success_count": 10,
+      "error_count": 0,
+      "lanes": [
+        {
+          "lane": "ao.fleet.dynamic.23f9f98dc4df",
+          "orchestrator_id": "ao-fleet-conductor-leaf-23f9f98dc4df",
+          "conversation_id": "6ad2dfec-c32c-83ec-8e93-9c5fc160ba5b",
+          "lane_claim": "DONE (2026-02-11): route NotebookLM rows into `/thread/<id>` and render",
+          "operation_status": "submitted",
+          "operation_id": "2471c19d-1954-4d20-af22-c4847549a487"
+        },
+        {
+          "lane": "ao.fleet.dynamic.24e771af2ea0",
+          "orchestrator_id": "ao-fleet-conductor-leaf-24e771af2ea0",
+          "conversation_id": "6a9d240e-a20c-83ec-8357-2ef5c470edc5",
+          "lane_claim": "define a bounded normative-docset ingestion/extraction contract that",
+          "operation_status": "submitted",
+          "operation_id": "974983bc-939b-4c55-a04c-51ca6c1b0846"
+        },
+        {
+          "lane": "ao.fleet.dynamic.25ba15944423",
+          "orchestrator_id": "ao-fleet-conductor-leaf-25ba15944423",
+          "conversation_id": "6ac5af2d-d290-83ec-82f8-9cb301b6f1c6",
+          "lane_claim": "DONE: make domain/manifold scoring real and query-sensitive",
+          "operation_status": "submitted",
+          "operation_id": "50c4dd47-92d5-489e-b343-c16909ec8b22"
+        },
+        {
+          "lane": "ao.fleet.dynamic.27dfb71b9cdf",
+          "orchestrator_id": "ao-fleet-conductor-leaf-27dfb71b9cdf",
+          "conversation_id": "6ab4a3df-e908-83ec-8492-826bca238f47",
+          "lane_claim": "**Stage R5 (`dashi_agda` Formal AST Subtraction + Single PostgreSQL Persistence):** Partitioned into **`584` Discharged Core Knowledge Fibres**, **`44` Polarity Contradiction Gaps**, and **`58` Unformalised Formal Gaps`, persisted directly into `postgresql://admin:admin@truenas.local:5432/sensiblaw_sparse_ready_20260818` (`pnf-document-graph:d14f740cb5ec4b39f22998832691f5932bae5e527118280f648f607b57456fc7`) with reference-only canonical SQLite chat coordinates (`corpus.chat_archive_message`).",
+          "operation_status": "submitted",
+          "operation_id": "18ddc363-ea1a-493d-ade9-009fe27c2fe6"
+        },
+        {
+          "lane": "ao.fleet.dynamic.29431b937c1a",
+          "orchestrator_id": "ao-fleet-conductor-leaf-29431b937c1a",
+          "conversation_id": "6acd82a5-edd4-83ec-a889-6a6dc886d74c",
+          "lane_claim": "Module boundaries: `docs/web_module_map.md`",
+          "operation_status": "submitted",
+          "operation_id": "90fc93f7-5e35-4e22-8a50-7f6e96245e8d"
+        },
+        {
+          "lane": "ao.fleet.dynamic.2b3a9c395009",
+          "orchestrator_id": "ao-fleet-conductor-leaf-2b3a9c395009",
+          "conversation_id": "6ab21815-364c-83ec-997d-ec05bae93370",
+          "lane_claim": "wiki-timeline runtime is now split: `itir-svelte/src/lib/server/wiki_timeline/` hosts runtime, normalize, overlay, and adapter helpers and `wikiTimelineAoo.ts` reduced to a thin loader/adapter",
+          "operation_status": "submitted",
+          "operation_id": "b2cd4097-81cc-4b32-8dbd-dbd55a4e915c"
+        },
+        {
+          "lane": "ao.fleet.dynamic.2b4c8532044d",
+          "orchestrator_id": "ao-fleet-conductor-leaf-2b4c8532044d",
+          "conversation_id": "6ab4dade-90cc-83ec-86be-d4d52808df22",
+          "lane_claim": "keep fixtures, README/TODO/context, and downstream graph notes aligned",
+          "operation_status": "submitted",
+          "operation_id": "308d6af2-c307-42fa-b66a-93be4ff0191f"
+        },
+        {
+          "lane": "ao.fleet.dynamic.2ccf6f55f98f",
+          "orchestrator_id": "ao-fleet-conductor-leaf-2ccf6f55f98f",
+          "conversation_id": "6aaf576d-04a8-83ec-b1e0-558d007c3553",
+          "lane_claim": "add content/profile/version cache keys before large-corpus resolution",
+          "operation_status": "submitted",
+          "operation_id": "47f5fdf1-844f-4cc4-8f2d-5e8bdb36714e"
+        },
+        {
+          "lane": "ao.fleet.dynamic.2d5bc8df8a64",
+          "orchestrator_id": "ao-fleet-conductor-leaf-2d5bc8df8a64",
+          "conversation_id": "6ac06d93-9108-83ec-b30f-6e3896387b19",
+          "lane_claim": "Document acceptance metrics and a hard pass/fail checkpoint.",
+          "operation_status": "submitted",
+          "operation_id": "14a470f3-c017-4723-b407-8f2391e869d3"
+        },
+        {
+          "lane": "ao.fleet.dynamic.2dee61619e5f",
+          "orchestrator_id": "ao-fleet-conductor-leaf-2dee61619e5f",
+          "conversation_id": "6adcbbd6-e058-83ec-a555-57bbd3730a65",
+          "lane_claim": "keep any internal/identity compiler surfaces bounded, user-sovereign, and",
+          "operation_status": "submitted",
+          "operation_id": "8045033f-ee65-448c-95b4-0edb61db7d09"
+        }
+      ],
+      "policy": {
+        "pairwise_noTypedMeet": true,
+        "one_lane_per_worker": true,
+        "write_transport": "async",
+        "dom_fallback": false,
+        "follow": false,
+        "reconcile_attempts": 0,
+        "automatic_resend": false
+      }
+    }
+  ]
+}
