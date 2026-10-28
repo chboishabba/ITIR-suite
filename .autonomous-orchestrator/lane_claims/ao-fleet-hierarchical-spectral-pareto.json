@@ -1,0 +1,20 @@
+{
+  "heartbeat_file": "heartbeat.ao-fleet-hierarchical-spectral-pareto.json",
+  "lane": "ao.fleet.hierarchical-spectral-pareto",
+  "lane_claim": "Discover PNF topics dynamically from full SLRW spectral geometry, coarsen quotient thresholds by worker capacity, and allocate Pareto-prioritized lanes under explicit noTypedMeet admission.",
+  "orchestrator_id": "ao-fleet-hierarchical-spectral-pareto",
+  "parent_orchestrator_id": "ao-fleet-hyperfabric-fibres-wave-synthesis",
+  "status_file": "status.ao-fleet-hierarchical-spectral-pareto.json",
+  "invariants": {
+    "no_hardcoded_topic_count": true,
+    "primary_topics_use_mp_retained_modes": true,
+    "subtopics_refine_within_primary": true,
+    "fibre_cliques_use_complete_link": true,
+    "threshold_coarsening_monotone": true,
+    "worker_capacity_discrete": true,
+    "alpha_priority_not_authority": true,
+    "parallel_requires_noTypedMeet": true,
+    "zero_trust_escapes": true,
+    "esd_read_only": true
+  }
+}

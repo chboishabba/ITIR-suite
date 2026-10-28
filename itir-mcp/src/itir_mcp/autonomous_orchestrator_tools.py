@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from .contracts import JsonDict, ToolHandler, ToolInputError, ToolSpec
-from .fleet_round_runner import spawn_parallel_lanes
+from .fleet_round_runner import execute_pareto_conductor, spawn_parallel_lanes
 
 SCHEMA_VERSION = "itir.ao_mcp_control.v1"
 CONTROL_PLANE_DIRNAME = ".autonomous-orchestrator"
@@ -256,9 +256,95 @@ def ao_spawn_parallel_lanes(payload: Mapping[str, Any]) -> JsonDict:
     }
 
 
+
+def ao_pareto_conductor(payload: Mapping[str, Any]) -> JsonDict:
+    hierarchy = payload.get("hierarchy")
+    candidate_lanes = payload.get("candidate_lanes")
+    workers = payload.get("workers", [])
+    worker_capacity = payload.get("worker_capacity")
+    dispatch = bool(payload.get("dispatch", False))
+    if not isinstance(hierarchy, Mapping):
+        raise ToolInputError("hierarchy must be an object")
+    if not isinstance(candidate_lanes, Mapping) or not all(
+        isinstance(key, str) and isinstance(value, Mapping)
+        for key, value in candidate_lanes.items()
+    ):
+        raise ToolInputError("candidate_lanes must map topic_id strings to lane objects")
+    if isinstance(worker_capacity, bool) or not isinstance(worker_capacity, int):
+        raise ToolInputError("worker_capacity must be an integer")
+    if not 1 <= worker_capacity <= 20:
+        raise ToolInputError("worker_capacity must be within [1, 20]")
+    if not isinstance(workers, list):
+        raise ToolInputError("workers must be an array")
+    if dispatch and not workers:
+        raise ToolInputError("workers are required when dispatch=true")
+    db_path = payload.get("db_path")
+    if db_path is not None and (not isinstance(db_path, str) or not db_path.strip()):
+        raise ToolInputError("db_path must be a non-empty string when provided")
+    try:
+        result = execute_pareto_conductor(
+            hierarchy,
+            worker_capacity,
+            candidate_lanes,
+            workers,
+            db_path=db_path.strip() if isinstance(db_path, str) else None,
+            dispatch=dispatch,
+        )
+    except (TypeError, ValueError, FileNotFoundError) as exc:
+        raise ToolInputError(str(exc)) from exc
+    return {
+        "version": SCHEMA_VERSION,
+        "ok": True,
+        "result": result,
+    }
+
+
 def get_autonomous_orchestrator_tools() -> list[tuple[ToolSpec, ToolHandler]]:
     return [
 
+        (
+            ToolSpec(
+                name="itir.ao.pareto_conductor",
+                title="AO hierarchical spectral Pareto conductor",
+                description=(
+                    "Plan or dispatch up to 20 AO workers from a dynamic PNF hierarchy. "
+                    "W<=10 rolls subtopics into primary worker turns; W=20 branches high-alpha "
+                    "subtopics only after pairwise noTypedMeet verification."
+                ),
+                input_schema={
+                    "type": "object",
+                    "required": ["hierarchy", "worker_capacity", "candidate_lanes"],
+                    "properties": {
+                        "hierarchy": {"type": "object"},
+                        "worker_capacity": {"type": "integer", "minimum": 1, "maximum": 20},
+                        "candidate_lanes": {
+                            "type": "object",
+                            "additionalProperties": {"type": "object"},
+                        },
+                        "workers": {
+                            "type": "array",
+                            "items": {
+                                "oneOf": [
+                                    {"type": "string"},
+                                    {
+                                        "type": "object",
+                                        "required": ["conversation_id"],
+                                        "properties": {"conversation_id": {"type": "string"}},
+                                        "additionalProperties": True,
+                                    },
+                                ]
+                            },
+                        },
+                        "dispatch": {"type": "boolean"},
+                        "db_path": {"type": "string"},
+                    },
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=False,
+            ),
+            ao_pareto_conductor,
+        ),
         (
             ToolSpec(
                 name="itir.ao.spawn_parallel_lanes",
