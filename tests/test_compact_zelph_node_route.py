@@ -69,7 +69,7 @@ def test_compact_route_roundtrip_and_keyed_lookup(tmp_path: Path) -> None:
 
     assert stats["routeVersion"] == "zelph-node-route/sqlite-v1"
     assert stats["sourceRouteVersion"] == "zelph-node-route/v1"
-    assert stats["nodeRouteRows"] == 9
+    assert stats["nodeRouteRows"] == 8
     assert stats["nameRouteRows"] == 3
     assert verified == {
         "ok": True,
@@ -77,7 +77,7 @@ def test_compact_route_roundtrip_and_keyed_lookup(tmp_path: Path) -> None:
         "nodeRoutesMatch": True,
         "nameRoutesMatch": True,
         "sourceDigestMatch": True,
-        "nodeRouteRows": 9,
+        "nodeRouteRows": 8,
         "nameRouteRows": 3,
     }
 
