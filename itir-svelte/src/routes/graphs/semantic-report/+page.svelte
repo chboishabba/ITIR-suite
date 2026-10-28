@@ -92,7 +92,7 @@
   const reviewCueSurfaces = Object.entries(reviewSummary?.top_cue_surfaces ?? {}).slice(0, 6) as Array<[string, Array<[string, number]>]>;
   const reviewFamilyCounts = Object.entries(reviewSummary?.family_counts ?? {}).sort((a, b) => Number(b[1]) - Number(a[1]) || String(a[0]).localeCompare(String(b[0]))) as Array<[string, number]>;
   const reviewTextDebug = reviewSummary?.text_debug ?? {};
-  const missionObserver = data.report?.mission_observer ?? null;
+  const missionObserver = data.source === 'transcript' ? data.report?.mission_observer ?? null : null;
   const missionSummary = missionObserver?.summary ?? {};
   const missionMissions = missionObserver?.missions ?? [];
   const missionFollowups = missionObserver?.followups ?? [];
