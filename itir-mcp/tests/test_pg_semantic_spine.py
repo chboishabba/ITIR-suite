@@ -161,7 +161,7 @@ def test_postgres_semantic_loader_builds_relational_frames_directly() -> None:
         == 1
     )
     assert result["ontology_edges"][0]["label"] == "Riemannian metric tensor"
-    assert result["source_contract"]["grouping_identity"] == "statement_ref"
+    assert "statement_ref" in result["source_contract"]["grouping_identity"]
     assert "head_lemma" in result["source_contract"]["unavailable_fields_not_inferred"]
     assert result["source_contract"]["raw_chat_body_persisted"] is False
 
@@ -249,7 +249,32 @@ class _RegistrarCursor:
 
     def execute(self, sql, params=None):
         self.owner.statements.append((sql, params))
-        if "to_regclass" in sql:
+        if "information_schema.columns" in sql:
+            self.rows = [
+                ("message_ref",),
+                ("conversation_ref",),
+                ("node_ref",),
+                ("parent_node_ref",),
+                ("branch_membership_ref",),
+                ("message_time_ref",),
+                ("role_ref",),
+                ("thread_title",),
+                ("content_kind_ref",),
+                ("document_ref",),
+                ("source_revision_ref",),
+                ("full_message_span_ref",),
+                ("identity_verified",),
+                ("candidate_only",),
+                ("creates_semantic_authority",),
+                ("applicability_promoted",),
+                ("claim_truth_promoted",),
+                ("source_thread_ref",),
+                ("archive_locator",),
+                ("body_sha256",),
+                ("attachment_refs_json",),
+                ("provenance_ref",),
+            ]
+        elif "to_regclass" in sql:
             table = params[0]
             present = table in {
                 "corpus.chat_archive_message",
