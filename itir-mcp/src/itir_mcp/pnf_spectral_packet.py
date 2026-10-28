@@ -2086,6 +2086,21 @@ def _is_generic_frame_motif(motif: str) -> bool:
     return _frame_predicate(motif) in GENERIC_CONVERSATIONAL_PREDICATES
 
 
+def rank_discriminative_topic_motifs(
+    topics: Sequence[Mapping[str, Any]],
+    *,
+    frame_counts: Mapping[str, Counter[str]],
+    ontology_counts: Mapping[str, Counter[str]],
+    limit: int = 8,
+) -> list[dict[str, Any]]:
+    return _apply_discriminative_topic_motifs(
+        topics,
+        frame_counts=frame_counts,
+        ontology_counts=ontology_counts,
+        limit=limit,
+    )
+
+
 def _apply_discriminative_topic_motifs(
     topics: Sequence[Mapping[str, Any]],
     *,
