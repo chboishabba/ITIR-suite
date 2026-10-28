@@ -67,9 +67,9 @@ def test_balaban_and_quantum_metrology_share_world_geometric_coupling() -> None:
         "world_features": [
             {"feature_id": "gauge_connection", "source": "wikidata"},
             {"feature_id": "metric_tensor", "source": "wikidata"},
-            {"feature_id": "quantum_fisher_information", "qid": "Q11455"},
+            {"feature_id": "quantum_fisher_information", "source": "wikidata_join"},
             {"feature_id": "information_geometry", "source": "wikidata"},
-            {"feature_id": "nv_center", "qid": "Q11108"},
+            {"feature_id": "nv_center", "source": "wikidata_join"},
         ],
     }
 
