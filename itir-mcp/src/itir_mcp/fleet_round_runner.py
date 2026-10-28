@@ -472,6 +472,238 @@ def _component_pair_key(left: str, right: str) -> str:
     first, second = sorted((left, right))
     return f"{first}|{second}"
 
+
+def build_pareto_conductor_plan(
+    hierarchy: Mapping[str, Any],
+    worker_capacity: int,
+    *,
+    candidate_lanes: Mapping[str, Mapping[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Build an AO conductor plan from the continuous hierarchy.
+
+    W <= 10 uses primary-roll mode. W == 20 branches subtopics. Intermediate
+    capacities use adaptive subtopic mode. All modes expose the continuous
+    threshold selected by the same capacity-aware spectral scheduler.
+    """
+    if isinstance(worker_capacity, bool) or not isinstance(worker_capacity, int):
+        raise ValueError("worker_capacity must be an integer")
+    if worker_capacity < 1 or worker_capacity > 20:
+        raise ValueError("worker_capacity must be within [1, 20]")
+
+    allocation = allocate_hierarchical_spectral_workers(
+        hierarchy,
+        worker_capacity,
+        parallel_admissibility=None,
+    )
+    if worker_capacity <= 10:
+        mode = "primary_roll"
+        topics = _hierarchy_topics(hierarchy, "primary_topics")
+    elif worker_capacity == 20:
+        mode = "independent_subtopics"
+        topics = _hierarchy_topics(hierarchy, "subtopics")
+    else:
+        mode = "adaptive_subtopics"
+        topics = _hierarchy_topics(hierarchy, "subtopics")
+
+    ordered_topics = _pareto_order_topic_rows(topics)
+    selected_topics = ordered_topics[:worker_capacity]
+    subtopics = _hierarchy_topics(hierarchy, "subtopics")
+    subtopics_by_primary: dict[str, list[dict[str, Any]]] = {}
+    for subtopic in subtopics:
+        subtopics_by_primary.setdefault(str(subtopic.get("parent_id") or ""), []).append(subtopic)
+    for rows in subtopics_by_primary.values():
+        rows.sort(
+            key=lambda topic: (
+                int(topic.get("pareto_rank", 0)),
+                -float(_topic_alpha(topic).get("mean", 0.0)),
+                str(topic.get("topic_id") or ""),
+            )
+        )
+
+    prepared_lanes: list[dict[str, Any]] = []
+    missing_lane_topics: list[str] = []
+    lane_map = candidate_lanes if isinstance(candidate_lanes, Mapping) else {}
+    for topic in selected_topics:
+        topic_id = str(topic.get("topic_id") or "")
+        raw_lane = lane_map.get(topic_id)
+        if not isinstance(raw_lane, Mapping):
+            missing_lane_topics.append(topic_id)
+            continue
+        lane = dict(raw_lane)
+        lane["topic_id"] = topic_id
+        lane["topic_name"] = str(topic.get("name") or topic_id)
+        lane["alpha"] = _topic_alpha(topic)
+        lane["pareto_rank"] = int(topic.get("pareto_rank", 0))
+
+        internal_packets: list[dict[str, Any]] = []
+        if mode == "primary_roll":
+            children = subtopics_by_primary.get(topic_id, [])
+            for sequence, child in enumerate(_pareto_order_topic_rows(children)):
+                internal_packets.append(
+                    {
+                        "sequence": sequence,
+                        "topic_id": str(child.get("topic_id") or ""),
+                        "topic_name": str(child.get("name") or child.get("topic_id") or ""),
+                        "alpha": _topic_alpha(child),
+                    }
+                )
+        lane["internal_work_packets"] = internal_packets
+        lane["conductor_mode"] = mode
+        lane["selected_tau"] = float(allocation["selected_tau"])
+        lane["prompt"] = _pareto_lane_prompt(lane, internal_packets)
+        prepared_lanes.append(lane)
+
+    no_typed_meet_verified = False
+    verification_error: str | None = None
+    if prepared_lanes:
+        try:
+            _verify_pairwise_no_typed_meet(prepared_lanes)
+            no_typed_meet_verified = True
+        except ValueError as exc:
+            verification_error = str(exc)
+
+    if mode == "independent_subtopics" and prepared_lanes and not no_typed_meet_verified:
+        dispatchable_lanes: list[dict[str, Any]] = []
+    else:
+        dispatchable_lanes = prepared_lanes if no_typed_meet_verified else []
+
+    return {
+        "schema": "itir.ao.pnf_pareto_conductor.v1",
+        "worker_capacity": worker_capacity,
+        "mode": mode,
+        "selected_tau": float(allocation["selected_tau"]),
+        "spectral_resolution": allocation["resolution"],
+        "selected_topic_count": len(selected_topics),
+        "prepared_lane_count": len(prepared_lanes),
+        "dispatchable_lane_count": len(dispatchable_lanes),
+        "selected_topics": [
+            {
+                "topic_id": str(topic.get("topic_id") or ""),
+                "name": str(topic.get("name") or topic.get("topic_id") or ""),
+                "alpha": _topic_alpha(topic),
+                "pareto_rank": int(topic.get("pareto_rank", 0)),
+            }
+            for topic in selected_topics
+        ],
+        "lanes": dispatchable_lanes,
+        "missing_lane_topics": missing_lane_topics,
+        "pairwise_noTypedMeet_verified": no_typed_meet_verified,
+        "verification_error": verification_error,
+        "allocation": allocation,
+        "policy": {
+            "max_workers": 20,
+            "constrained_primary_roll_at_or_below": 10,
+            "expanded_independent_subtopics_at": 20,
+            "continuous_tau_controls_discrete_concurrency": True,
+            "alpha_pareto_order_is_strict": True,
+            "parallel_requires_pairwise_noTypedMeet": True,
+            "dispatch_uses_existing_exactly_once_transport": True,
+        },
+    }
+
+
+def _hierarchy_topics(hierarchy: Mapping[str, Any], key: str) -> list[dict[str, Any]]:
+    raw = hierarchy.get(key)
+    if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes, bytearray)):
+        raise ValueError(f"hierarchy requires {key}")
+    return [dict(topic) for topic in raw if isinstance(topic, Mapping)]
+
+
+def _topic_alpha(topic: Mapping[str, Any]) -> dict[str, float]:
+    raw = topic.get("alpha")
+    alpha = raw if isinstance(raw, Mapping) else {}
+    return {
+        "mean": float(alpha.get("mean", 0.0)),
+        "max": float(alpha.get("max", 0.0)),
+        "spectral_energy_mean": float(alpha.get("spectral_energy_mean", 0.0)),
+        "theorem_density_mean": float(alpha.get("theorem_density_mean", 0.0)),
+        "formal_gap_reduction_mean": float(alpha.get("formal_gap_reduction_mean", 0.0)),
+    }
+
+
+def _pareto_order_topic_rows(topics: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    rows = [dict(topic) for topic in topics]
+    pseudo_components = [
+        {
+            "component_id": str(topic.get("topic_id") or f"topic-{index:03d}"),
+            "alpha": _topic_alpha(topic),
+        }
+        for index, topic in enumerate(rows)
+    ]
+    layers = _pareto_layers(pseudo_components) if pseudo_components else []
+    rank: dict[str, int] = {}
+    for layer_index, layer in enumerate(layers):
+        for topic_id in layer:
+            rank[topic_id] = layer_index
+    for topic in rows:
+        topic_id = str(topic.get("topic_id") or "")
+        topic["pareto_rank"] = rank.get(topic_id, len(layers))
+    return sorted(
+        rows,
+        key=lambda topic: (
+            int(topic.get("pareto_rank", 0)),
+            -_topic_alpha(topic)["mean"],
+            -_topic_alpha(topic)["spectral_energy_mean"],
+            str(topic.get("topic_id") or ""),
+        ),
+    )
+
+
+def _pareto_lane_prompt(
+    lane: Mapping[str, Any],
+    internal_packets: Sequence[Mapping[str, Any]],
+) -> str:
+    base = str(lane.get("prompt") or lane.get("lane_claim") or "").strip()
+    if not base:
+        raise ValueError("candidate lane requires prompt or lane_claim")
+    if not internal_packets:
+        return base
+    packet_lines = [
+        "",
+        "AO conductor internal work packets. Execute in this order within this worker turn:",
+    ]
+    for packet in internal_packets:
+        packet_lines.append(
+            f"{int(packet['sequence']) + 1}. {packet['topic_id']} — {packet['topic_name']}"
+        )
+    return base + "\n" + "\n".join(packet_lines)
+
+
+def execute_pareto_conductor(
+    hierarchy: Mapping[str, Any],
+    worker_capacity: int,
+    candidate_lanes: Mapping[str, Mapping[str, Any]],
+    workers: Sequence[Any],
+    *,
+    db_path: str | Path | None = None,
+    dispatch: bool = False,
+) -> dict[str, Any]:
+    plan = build_pareto_conductor_plan(
+        hierarchy,
+        worker_capacity,
+        candidate_lanes=candidate_lanes,
+    )
+    if not dispatch:
+        return {"plan": plan, "dispatch": None}
+    lanes = plan["lanes"]
+    if not lanes:
+        raise ValueError(
+            plan.get("verification_error")
+            or "no pairwise-noTypedMeet-verified lanes are dispatchable"
+        )
+    worker_rows = list(workers)
+    if len(worker_rows) < len(lanes):
+        raise ValueError("workers must provide at least one worker per dispatchable lane")
+    dispatch_receipt = spawn_parallel_lanes(
+        lanes,
+        worker_rows[: len(lanes)],
+        db_path=db_path,
+    )
+    return {
+        "plan": plan,
+        "dispatch": dispatch_receipt,
+    }
+
 def execute_fleet_lead_round(*, max_leads: int = 5) -> list[dict[str, Any]]:
     fo = FleetOrchestrator()
     summary = fo.status_summary()
