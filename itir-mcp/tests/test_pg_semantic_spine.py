@@ -15,10 +15,14 @@ class _FakeCursor:
     def __init__(self, tables):
         self.tables = tables
         self.rows = []
-        self.index = 0
 
     def execute(self, sql, params=None):
-        self.index = 0
+        if "information_schema.columns" in sql:
+            schema, table = params
+            key = f"{schema}.{table}"
+            columns = self.tables.get(f"{key}:columns", [])
+            self.rows = [(column,) for column in columns]
+            return
         if "to_regclass" in sql:
             table = params[0]
             self.rows = [(table if table in self.tables else None,)]
@@ -27,7 +31,7 @@ class _FakeCursor:
             self.rows = [(row,) for row in self.tables["pnf.statement_candidate_factor"]]
             return
         if "pnf.graph" in sql:
-            self.rows = [(row,) for row in self.tables["pnf.graph"]]
+            self.rows = [(row,) for row in self.tables.get("pnf.graph", [])]
             return
         raise AssertionError(sql)
 
@@ -43,6 +47,11 @@ class _FakeCursor:
             return []
         rows = self.rows[:size]
         self.rows = self.rows[size:]
+        return rows
+
+    def fetchall(self):
+        rows = list(self.rows)
+        self.rows = []
         return rows
 
     def close(self):
@@ -62,40 +71,73 @@ class _FakeConnection:
 
 
 def test_postgres_semantic_loader_builds_relational_frames_directly() -> None:
+    factor_columns = [
+        "candidate_ref",
+        "batch_ref",
+        "statement_ref",
+        "role_ref",
+        "source_start_char",
+        "source_end_char",
+        "surface",
+        "lemma",
+        "dependency_ref",
+        "candidate_only",
+    ]
     tables = {
+        "pnf.statement_candidate_factor:columns": factor_columns,
         "pnf.statement_candidate_factor": [
             {
-                "conversation_ref": "chat:c1",
-                "sentence_id": 1,
-                "head_lemma": "prove",
-                "argument_role": "actor",
+                "candidate_ref": "cand-1",
+                "batch_ref": "batch-1",
+                "statement_ref": "statement:c1",
+                "role_ref": "actor",
+                "source_start_char": 0,
+                "source_end_char": 6,
+                "surface": "System",
                 "lemma": "system",
+                "dependency_ref": "prove",
+                "candidate_only": True,
             },
             {
-                "conversation_ref": "chat:c1",
-                "sentence_id": 1,
-                "head_lemma": "prove",
-                "argument_role": "theme",
+                "candidate_ref": "cand-2",
+                "batch_ref": "batch-1",
+                "statement_ref": "statement:c1",
+                "role_ref": "theme",
+                "source_start_char": 7,
+                "source_end_char": 18,
+                "surface": "consistency",
                 "lemma": "consistency",
+                "dependency_ref": "prove",
+                "candidate_only": True,
             },
             {
-                "conversation_ref": "chat:c2",
-                "sentence_id": 2,
-                "head_lemma": "measure",
-                "argument_role": "actor",
+                "candidate_ref": "cand-3",
+                "batch_ref": "batch-2",
+                "statement_ref": "statement:c2",
+                "role_ref": "actor",
+                "source_start_char": 0,
+                "source_end_char": 6,
+                "surface": "Sensor",
                 "lemma": "sensor",
+                "dependency_ref": "measure",
+                "candidate_only": True,
             },
             {
-                "conversation_ref": "chat:c2",
-                "sentence_id": 2,
-                "head_lemma": "measure",
-                "argument_role": "theme",
+                "candidate_ref": "cand-4",
+                "batch_ref": "batch-2",
+                "statement_ref": "statement:c2",
+                "role_ref": "theme",
+                "source_start_char": 7,
+                "source_end_char": 13,
+                "surface": "metric",
                 "lemma": "metric",
+                "dependency_ref": "measure",
+                "candidate_only": True,
             },
         ],
         "pnf.graph": [
             {
-                "conversation_ref": "chat:c2",
+                "statement_ref": "statement:c2",
                 "label": "Riemannian metric tensor",
                 "weight": 1.5,
                 "graph_revision": "g:1",
@@ -110,11 +152,16 @@ def test_postgres_semantic_loader_builds_relational_frames_directly() -> None:
 
     assert result["source"] == "postgresql_semantic_spine"
     assert result["conversation_count"] == 2
-    assert result["conversations"]["c1"]["frame_counts"] == {
+    assert result["conversations"]["statement:c1"]["frame_counts"] == {
         "prove(actor:system,theme:consistency)": 1
     }
-    assert result["conversations"]["c2"]["factor_counts"]["measure|theme|metric"] == 1
+    assert (
+        result["conversations"]["statement:c2"]["factor_counts"]["measure|theme|metric"]
+        == 1
+    )
     assert result["ontology_edges"][0]["label"] == "Riemannian metric tensor"
+    assert result["source_contract"]["grouping_identity"] == "statement_ref"
+    assert "head_lemma" in result["source_contract"]["unavailable_fields_not_inferred"]
     assert result["source_contract"]["raw_chat_body_persisted"] is False
 
 
