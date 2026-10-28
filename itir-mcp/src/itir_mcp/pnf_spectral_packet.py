@@ -2160,13 +2160,15 @@ def _apply_discriminative_topic_motifs(
                 scored.append({
                     "kind": "typed_frame",
                     "label": motif,
+                    "motif": motif,
                     "predicate": _frame_predicate(motif),
                     "count": float(count),
                     "cluster_tf": float(count) / float(total_frames),
                     "cluster_df": int(frame_df[motif]),
                     "contrastive_score": score,
                     "weight": score,
-                    "stalk_label": f"predicate:{_frame_predicate(motif)}",
+                    "stalk_label": f"frame:{motif}",
+                    "predicate_stalk_label": f"predicate:{_frame_predicate(motif)}",
                 })
 
         if total_ontology > 0:
@@ -2179,6 +2181,7 @@ def _apply_discriminative_topic_motifs(
                 scored.append({
                     "kind": "ontology_bridge",
                     "label": label,
+                    "feature": label,
                     "count": float(count),
                     "cluster_tf": float(count) / float(total_ontology),
                     "cluster_df": int(ontology_df[feature]),
