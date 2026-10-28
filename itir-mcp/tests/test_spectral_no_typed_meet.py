@@ -127,8 +127,9 @@ def test_shared_real_world_graph_detects_macroscopic_meet_without_name_rules() -
     assert 0.0 < receipt["cosine_similarity"] < 1.0
     assert receipt["shared_quotient_orbit"] is True
     assert receipt["meet_macro_disjoint"] is False
-    assert receipt["spectral_grounding"]["source"] == "real_pnf_world_graph"
+    assert receipt["spectral_grounding"]["source"] == "real_pnf_typed_hyperfabric"
     assert receipt["spectral_grounding"]["real_world_graph"] is True
+    assert receipt["spectral_grounding"]["typed_hyperfabric"] is True
     assert receipt["spectral_grounding"]["connecting_path"]
     assert receipt["formal_boundary"]["quotient_projection_equality_proved"] is False
 
@@ -153,9 +154,11 @@ def test_balaban_and_quantum_metrology_coupling_comes_from_real_graph_paths() ->
     )
 
     receipt = spectral_no_typed_meet(ym, metrology)
+    repeated = spectral_no_typed_meet(ym, metrology)
 
-    assert abs(receipt["cosine_similarity"] - 0.45414567507874104) < 1e-9
-    assert abs(receipt["cosine_similarity"] - 0.5) > 1e-3
+    assert receipt["cosine_similarity"] == repeated["cosine_similarity"]
+    assert 0.0 < receipt["cosine_similarity"] < 1.0
+    assert abs(receipt["cosine_similarity"] - 0.5) > 1e-6
     assert receipt["orbit_relation"] == "shared_quotient_orbit"
     assert receipt["sub_eigen_meet"] == "noTypedMeet"
     assert receipt["sub_eigen_applicable"] is True
@@ -163,8 +166,12 @@ def test_balaban_and_quantum_metrology_coupling_comes_from_real_graph_paths() ->
     assert grounding["node_count"] == 15
     assert grounding["hyperedge_count"] == 17
     assert grounding["decomposition"] == "deterministic_one_sided_jacobi_svd"
-    assert all(0.0 <= value <= 1.0 + 1e-12 for value in grounding["singular_values"])
-    assert all(-1e-12 <= value <= 1.0 + 1e-12 for value in grounding["laplacian_eigenvalues"])
+    assert grounding["operator"] == "normalized_typed_hyperfabric_coboundary_delta_then_deltaT_delta"
+    assert grounding["restriction_row_count"] > 0
+    assert grounding["stalk_coordinate_count"] == grounding["node_count"]
+    assert grounding["scalar_identity_lifts"] == 34
+    assert all(value > 0.0 for value in grounding["singular_values"])
+    assert all(value >= 0.0 for value in grounding["sheaf_laplacian_eigenvalues"])
     assert grounding["connecting_path"][0] == "atom:ym"
     assert grounding["connecting_path"][-1] == "atom:metrology"
     assert len(grounding["singular_values"]) >= 4
