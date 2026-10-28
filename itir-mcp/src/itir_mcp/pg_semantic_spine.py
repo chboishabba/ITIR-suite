@@ -21,15 +21,24 @@ class PostgresSemanticSpineIncompatible(RuntimeError):
 
 
 def _default_connect(database_url: str | None):
+    timeout = max(1, int(os.environ.get("PGCONNECT_TIMEOUT", "3")))
     try:
         import psycopg  # type: ignore
 
-        return psycopg.connect(database_url) if database_url else psycopg.connect()
+        return (
+            psycopg.connect(database_url, connect_timeout=timeout)
+            if database_url
+            else psycopg.connect(connect_timeout=timeout)
+        )
     except ImportError:
         try:
             import psycopg2  # type: ignore
 
-            return psycopg2.connect(database_url) if database_url else psycopg2.connect("")
+            return (
+                psycopg2.connect(database_url, connect_timeout=timeout)
+                if database_url
+                else psycopg2.connect("", connect_timeout=timeout)
+            )
         except ImportError as exc:
             raise PostgresSemanticSpineUnavailable(
                 "psycopg/psycopg2 is unavailable"
