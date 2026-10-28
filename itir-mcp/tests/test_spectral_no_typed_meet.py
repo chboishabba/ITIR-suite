@@ -52,11 +52,16 @@ def _real_world_graph() -> dict:
         {"edge_ref": "e16", "relation_kind": "ontology_relation", "from_node_ref": "ontology:curvature", "to_node_ref": "ontology:gauge", "provenance_ref": "revision-pinned-external-graph"},
         {"edge_ref": "e17", "relation_kind": "reviewed_cross_bridge", "from_node_ref": "ontology:two-point", "to_node_ref": "ontology:fisher", "provenance_ref": "reviewed-world-bridge"},
     ]
-    return {"nodes": nodes, "edges": edges}
+    return {
+        "projection_ref": "pnf-follow:test:ym-metrology:revision-1",
+        "nodes": nodes,
+        "edges": edges,
+    }
 
 
 def _disconnected_world_graph() -> dict:
     return {
+        "projection_ref": "pnf-follow:test:fractran-fluid:revision-1",
         "nodes": [
             {"id": "source:fractran", "kind": "source_manifestation"},
             {"id": "pnf:fractran", "kind": "pnf_candidate"},
