@@ -4,7 +4,13 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+ITIR_SRC = REPO_ROOT / "itir-mcp" / "src"
+if str(ITIR_SRC) not in sys.path:
+    sys.path.insert(0, str(ITIR_SRC))
 
 from itir_mcp.spectral_plot_tools import project_semantic_spine_hierarchy_to_docs
 
