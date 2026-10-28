@@ -539,6 +539,7 @@ def _world_graph_spectral_pair(
         "real_world_graph": True,
         "node_count": len(node_ids),
         "hyperedge_count": len(hyperedges),
+        "graph_refs": list(graph.get("graph_refs") or ()),
         "spectral_dimensions": len(dimensions),
         "singular_values": [singular_values[index] for index in dimensions],
         "left_anchors": anchors_a,
@@ -590,9 +591,20 @@ def _merge_world_graphs(left: Any, right: Any) -> dict[str, Any]:
 
     if not nodes or not edges:
         raise ValueError("world_graph must contain nodes and hyperedges/edges")
+    graph_refs = {
+        _text(graph.get("projection_ref") or graph.get("graph_ref") or graph.get("revision_ref"))
+        for graph in graphs
+    }
+    graph_refs.discard("")
+    if not graph_refs:
+        raise ValueError(
+            "world_graph requires projection_ref, graph_ref, or revision_ref "
+            "from a revision-bound graph projection"
+        )
     return {
         "nodes": [nodes[key] for key in sorted(nodes)],
         "hyperedges": [edges[key] for key in sorted(edges)],
+        "graph_refs": sorted(graph_refs),
     }
 
 
