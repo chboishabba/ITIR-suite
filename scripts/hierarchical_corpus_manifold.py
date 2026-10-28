@@ -12,11 +12,26 @@ ITIR_SRC = REPO_ROOT / "itir-mcp" / "src"
 if str(ITIR_SRC) not in sys.path:
     sys.path.insert(0, str(ITIR_SRC))
 
-from itir_mcp.spectral_plot_tools import project_semantic_spine_hierarchy_to_docs
+from itir_mcp.spectral_plot_tools import (
+    project_semantic_spine_hierarchy_to_docs,
+    stream_postgres_corpus as _stream_postgres_corpus,
+    stream_slrw_corpus as _stream_slrw_corpus,
+)
 
 
 DEFAULT_WORLD_DIR = Path.home() / ".chatgpt_fleet_world"
 DEFAULT_SLRW = DEFAULT_WORLD_DIR / "fleet_top500_iter1.slrw"
+
+
+def stream_postgres_corpus(database_url: str | None = None):
+    """Public script-level PostgreSQL semantic-spine stream."""
+    return _stream_postgres_corpus(database_url)
+
+
+def stream_slrw_corpus(path: str | Path = DEFAULT_SLRW):
+    """Public script-level offline SLRW fallback stream."""
+    return _stream_slrw_corpus(path)
+
 
 
 def main() -> None:
