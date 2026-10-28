@@ -15,6 +15,7 @@ from __future__ import annotations
 import collections
 import json
 import math
+import os
 from pathlib import Path
 import re
 import struct
@@ -180,6 +181,31 @@ def stream_slrw_corpus() -> tuple[list[dict[str, float]], list[str], dict[str, l
                 thread_frames[p.name] = []
 
     return thread_multisets, thread_ids, thread_frames
+
+
+def stream_preferred_corpus(
+    database_url: str | None = None,
+) -> tuple[list[dict[str, float]], list[str], dict[str, list[dict]]]:
+    """Stream from PostgreSQL if DATABASE_URL is set and reachable, otherwise fallback to SLRW."""
+    db_url = database_url or os.environ.get("DATABASE_URL")
+    if db_url:
+        try:
+            from itir_mcp.pg_semantic_spine import load_postgres_semantic_corpus
+            pg_data = load_postgres_semantic_corpus(db_url)
+            if pg_data.get("conversations"):
+                print(f"Streaming PNF records from PostgreSQL ({len(pg_data['conversations'])} conversations)...")
+                thread_multisets = []
+                thread_ids = []
+                thread_frames = {}
+                for cid, entry in pg_data["conversations"].items():
+                    thread_ids.append(cid)
+                    thread_multisets.append(dict(entry["factor_counts"]))
+                    thread_frames[cid] = entry.get("relational_frames", [])
+                return thread_multisets, thread_ids, thread_frames
+        except Exception as exc:
+            print(f"PostgreSQL preferred stream unavailable ({exc}); falling back to SLRW...")
+
+    return stream_slrw_corpus()
 
 
 def compute_continuous_spectral_embedding(
@@ -590,11 +616,19 @@ def render_visualizations(
 
 def main() -> None:
     t0 = time.perf_counter()
-    out_dir = REPO_ROOT / "docs" / "fleet"
+    import argparse
+    parser = argparse.ArgumentParser(
+        description="Hierarchical PNF Topic Extraction, Continuous/Discrete Pareto Worker Allocation, and Manifold Projection."
+    )
+    parser.add_argument("--database-url", default=os.environ.get("DATABASE_URL"))
+    parser.add_argument("--output-dir", type=Path, default=REPO_ROOT / "docs" / "fleet")
+    args, _ = parser.parse_known_args()
+
+    out_dir = args.output_dir
     out_dir.mkdir(parents=True, exist_ok=True)
 
     roster_titles = load_roster_titles()
-    multisets, thread_ids, thread_frames = stream_slrw_corpus()
+    multisets, thread_ids, thread_frames = stream_preferred_corpus(args.database_url)
     if not multisets:
         print("No multisets extracted. Aborting.")
         return

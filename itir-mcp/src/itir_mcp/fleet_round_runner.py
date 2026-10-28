@@ -497,18 +497,28 @@ def build_pareto_conductor_plan(
         worker_capacity,
         parallel_admissibility=None,
     )
+    thresholds = hierarchy.get("thresholds")
+    threshold_map = thresholds if isinstance(thresholds, Mapping) else {}
+    primary_tau = float(threshold_map.get("primary_tau", allocation["selected_tau"]))
+    subtopic_tau = float(threshold_map.get("subtopic_tau", allocation["selected_tau"]))
+
     if worker_capacity <= 10:
         mode = "primary_roll"
         topics = _hierarchy_topics(hierarchy, "primary_topics")
+        conductor_tau = max(float(allocation["selected_tau"]), primary_tau)
     elif worker_capacity == 20:
         mode = "independent_subtopics"
         topics = _hierarchy_topics(hierarchy, "subtopics")
+        conductor_tau = subtopic_tau
     else:
         mode = "adaptive_subtopics"
         topics = _hierarchy_topics(hierarchy, "subtopics")
+        fraction = float(worker_capacity - 10) / 10.0
+        conductor_tau = primary_tau - fraction * (primary_tau - subtopic_tau)
 
     ordered_topics = _pareto_order_topic_rows(topics)
     selected_topics = ordered_topics[:worker_capacity]
+    deferred_topics = ordered_topics[worker_capacity:]
     subtopics = _hierarchy_topics(hierarchy, "subtopics")
     subtopics_by_primary: dict[str, list[dict[str, Any]]] = {}
     for subtopic in subtopics:
@@ -551,7 +561,7 @@ def build_pareto_conductor_plan(
                 )
         lane["internal_work_packets"] = internal_packets
         lane["conductor_mode"] = mode
-        lane["selected_tau"] = float(allocation["selected_tau"])
+        lane["selected_tau"] = conductor_tau
         lane["prompt"] = _pareto_lane_prompt(lane, internal_packets)
         prepared_lanes.append(lane)
 
@@ -573,11 +583,12 @@ def build_pareto_conductor_plan(
         "schema": "itir.ao.pnf_pareto_conductor.v1",
         "worker_capacity": worker_capacity,
         "mode": mode,
-        "selected_tau": float(allocation["selected_tau"]),
+        "selected_tau": conductor_tau,
         "spectral_resolution": allocation["resolution"],
         "selected_topic_count": len(selected_topics),
         "prepared_lane_count": len(prepared_lanes),
         "dispatchable_lane_count": len(dispatchable_lanes),
+        "capacity_cut_tau": float(allocation["selected_tau"]),
         "selected_topics": [
             {
                 "topic_id": str(topic.get("topic_id") or ""),
@@ -586,6 +597,15 @@ def build_pareto_conductor_plan(
                 "pareto_rank": int(topic.get("pareto_rank", 0)),
             }
             for topic in selected_topics
+        ],
+        "deferred_topics": [
+            {
+                "topic_id": str(topic.get("topic_id") or ""),
+                "name": str(topic.get("name") or topic.get("topic_id") or ""),
+                "alpha": _topic_alpha(topic),
+                "pareto_rank": int(topic.get("pareto_rank", 0)),
+            }
+            for topic in deferred_topics
         ],
         "lanes": dispatchable_lanes,
         "missing_lane_topics": missing_lane_topics,

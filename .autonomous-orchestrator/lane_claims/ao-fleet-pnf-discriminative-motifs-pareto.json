@@ -1,0 +1,20 @@
+{
+  "heartbeat_file": "heartbeat.ao-fleet-pnf-discriminative-motifs-pareto.json",
+  "lane": "ao.fleet.pnf-discriminative-motifs-pareto",
+  "lane_claim": "Use contrastive typed PNF frame motifs and bounded continuous-to-discrete Pareto scheduling for AO workers.",
+  "orchestrator_id": "ao-fleet-pnf-discriminative-motifs-pareto",
+  "parent_orchestrator_id": "ao-fleet-hierarchical-spectral-pareto",
+  "status_file": "status.ao-fleet-pnf-discriminative-motifs-pareto.json",
+  "invariants": {
+    "generic_predicates_filtered_only_in_predicate_position": true,
+    "typed_relational_frames_preferred": true,
+    "ontology_labels_require_explicit_bridge": true,
+    "worker_capacity_max": 20,
+    "constrained_primary_roll_at_or_below": 10,
+    "expanded_subtopic_mode_at": 20,
+    "parallel_requires_pairwise_noTypedMeet": true,
+    "alpha_priority_not_authority": true,
+    "zero_trust_escapes": true,
+    "esd_read_only": true
+  }
+}
