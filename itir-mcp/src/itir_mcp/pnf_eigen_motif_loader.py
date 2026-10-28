@@ -12,7 +12,7 @@ class EigenMotifLoadError(ValueError):
     """Raised when a spectral motif payload violates the loader contract."""
 
 
-def load_macroscopic_eigen_motifs(payload: Mapping[str, Any]) -> dict[str, Any]:
+def load_records(payload: Mapping[str, Any]) -> dict[str, Any]:
     """Normalize macroscopic PNF eigen-motifs from a server-side spectral payload.
 
     The loader owns the Marchenko-Pastur/macroscopic selection rule. Consumers
