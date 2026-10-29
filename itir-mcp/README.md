@@ -196,3 +196,9 @@ Doctrine: all tool outputs are proposals until verified.
 - `dioxus/web` should call a backend/native seam that talks to this adapter
 - existing internal Dioxus MCP-like registries remain useful UI/debug surfaces
   but are not the canonical suite transport layer
+
+## AO PNF hierarchy and fleet round planner
+
+The AO PNF discriminator is documented in `docs/planning/ao_pnf_spectral_fleet_v1.md`. `itir_mcp.pnf_spectral_packet` now exposes `classify_pnf_head` and `validate_pnf_hierarchy_metadata`: the former rejects hex/memory dumps, raw UI/DOM tokens, comparative particles and grammatical noise; the latter validates distinct eigenspace/primary-topic/subtopic/fibre/goal metadata for K=50 or K=100. Both remain candidate-only and do not compute eigenvectors or grant authority.
+
+`itir_mcp.fleet_round_runner.build_fleet_round_plan` treats each round as a simultaneous tranche of up to 20 lanes, with at most 20 rounds (up to 400 planned worker calls). It requires explicit pairwise `noTypedMeet` receipts and rejects overlapping typed support. It produces a plan only; it does not dispatch workers or establish formal proof. Golden formal claims remain owned by safe Agda in `dashi_agda`, with `dashi_lean4` following.
