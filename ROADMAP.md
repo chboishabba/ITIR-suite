@@ -124,10 +124,20 @@ SQLite-backed corpus with TIRC and SL-style views.
     **sole and only database** for the entire ITIR suite. No SQLite, no SLRW. All three transitional
     SQLite databases (`~/chat_archive.sqlite`, `~/.chatgpt_history.sqlite3`, `~/.chat_archive.sqlite`)
     and binary `.slrw` files are fully deprecated, backfilled into PostgreSQL, and slated for deletion.
-  - Unified Schema Coverage: Transcripts (`corpus.chat_archive_message`), mutation ops (`ops.mutation_operation`),
-    PNF relational factors (`pnf.statement_candidate_factor`, `pnf.graph`), docs & user stories (`corpus.document_manifest`),
-    StatiBaker deliverables (`task.candidate`, `goal.timeline`), Wikidata entities (`wikidata.claim_entity`),
-    and formal proof gaps (`formal.proof_gap`) reside exclusively in PostgreSQL.
+  - **Convergent Manifold Rejuvenation & Thread Coalescence**: Candidates from the PostgreSQL processing
+    queue (`corpus.chat_archive_message`, `operational.rejuvenation_job`) are evaluated against the Marchenko-Pastur
+    spectral manifold ($\lambda_1, \lambda_2, \lambda_3$) and TrueNAS PostgreSQL PNF factors (`pnf.statement_candidate_factor`).
+    Complete-link agglomeration identifies clusters of related disjoint threads tackling the same deliverable
+    (e.g., 20 disparate UI threads or 15 separate fluid flux chats). High-overlap threads are yanked from the queue,
+    documented with source lineage in `operational.conversation_lineage`, and coalesced into unified, world-enhanced
+    joined threads to end infinite loops of disconnected tidbits and converge sublinearly toward completion.
+  - **Golden Sublinear Topic Width Law ($W=20$)**: Wire `itir_mcp.fleet_round_runner.execute_pareto_conductor`
+    directly against PostgreSQL to size allocations across topics ($\mathcal{C}(T_k, W) = \alpha(T_k) \cdot \frac{\text{unblocked}}{\text{total}} \cdot \min(20, \dim(\text{SubEigens}), W)$)
+    and allocate workers to topic deliverables rather than raw thread IDs.
+  - Unified Schema Coverage: Transcripts (`corpus.chat_archive_message`), mutation ops (`operational.rejuvenation_job`),
+    PNF relational factors (`pnf.statement_candidate_factor`, `pnf.candidate_semantic_product`, `pnf.graph`),
+    docs & user stories (`corpus.document_manifest`), StatiBaker deliverables (`task.candidate`, `goal.timeline`),
+    Wikidata entities (`wikidata.claim_entity`), and formal proof gaps (`formal.proof_gap`) reside exclusively in PostgreSQL.
   - Headless CFFI Direct-to-PG: Wire `MutationService` directly to PostgreSQL for turns and SSE receipts.
   - Full-World Pareto Conductor Allocation: Run the autonomous orchestrator (AO) dynamic cost function
     $\mathcal{C}(T_k, W)$ directly against PostgreSQL across the unified cross-project world model.
