@@ -100,3 +100,13 @@ SQLite-backed corpus with TIRC and SL-style views.
 - Cross-project contract note covering how Corkysoft and other operator-facing
   tools submit audio, poll jobs, and consume reviewed transcript completions
   from WhisperX-WebUI.
+
+
+## Milestone M7: AO PNF Spectral Hierarchy and True Fleet Rounds (Oct 2026)
+
+- Contract: `docs/planning/ao_pnf_spectral_fleet_v1.md`.
+- Preserve five separate levels: producer-backed eigenspace, primary-topic macro-quotients, local subtopics, complete-link fibres, and typed unblocked goals. K is restricted to 50 or 100; the adapter must not fabricate MP eigenvectors or spectral authority.
+- Filter hexadecimal/memory dumps, raw UI/DOM tokens, comparative particles, and function-word noise from candidate heads; retain substantive ontology/domain labels and formal AST symbols as candidate-only evidence.
+- Define round as a simultaneous tranche, with up to W=20 concurrently independent lanes per round. Twenty rounds may yield up to 400 worker calls, subject to frontier size, worker availability, and explicit pairwise `noTypedMeet` support proofs.
+- Formal authority remains in `dashi_agda` safe modules; `dashi_lean4` follows. The ITIR Python scheduler is an operational plan, not a proof. Discrete Max Cut, Yang–Mills gauge dynamics, and Navier–Stokes commutator expansions remain distinct unless an exact typed bridge theorem is proved.
+- Acceptance: deterministic focused tests, stable planning, explicit fail-closed holds, and local lint. No claim of kernel verification or live parallel execution without those checks.
