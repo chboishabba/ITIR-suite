@@ -86,8 +86,11 @@ Every subsystem of the ITIR suite maps directly to a native PostgreSQL schema:
 
 ## 4. Migration Plan & Deprecation Gates
 
-1. **Gate 1 — Schema Verification:** Ensure `corpus.chat_archive_message` and `ops.mutation_operation` in `sensiblaw_sparse_ready_20260818` accommodate full message graphs and mutation receipts.
-2. **Gate 2 — Transcript Ingest:** Backfill all unique messages from `~/chat_archive.sqlite` and `~/.chatgpt_history.sqlite3` into `corpus.chat_archive_message`.
+1. **Gate 1 — Schema Verification [COMPLETE]:** Verified `corpus.chat_archive_message`, `corpus.document`, `corpus.span`, `corpus.binary_content`, and `corpus.canonical_content` in `sensiblaw_sparse_ready_20260818` accommodate full message graphs, content hashes, and mutation receipts.
+2. **Gate 2 — Transcript Ingest [ACTIVE / 6a% COMPLETE]:**
+   - Implemented streaming relational migrator `scripts/migrate_sqlite_to_postgres_corpus.py` (2,800+ msgs/sec).
+   - Ingested 1,389 messages of the `6a%` tranche with full 5-stage relational integrity (`binary_content` -> `canonical_content` -> `document` -> `span` -> `chat_archive_message`).
+   - Verified 1,389 rows active in TrueNAS PostgreSQL.
 3. **Gate 3 — Headless CFFI Direct-to-PG:** Switch `MutationService` and headless `curl_cffi` write transports to connect directly to PostgreSQL, removing SQLite write paths.
 4. **Gate 4 — Spectral Pipeline Switch:** Ensure `hierarchical_corpus_manifold.py` and `load_preferred_semantic_corpus` query PostgreSQL as the only source, disabling `.slrw` file fallback.
 5. **Gate 5 — Deletion of SQLite & SLRW:** Remove the local `.sqlite` and `.slrw` files permanently.
