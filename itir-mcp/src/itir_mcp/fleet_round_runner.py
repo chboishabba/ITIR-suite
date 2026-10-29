@@ -660,6 +660,11 @@ def build_pareto_conductor_plan(
         worker_capacity,
         parallel_admissibility=None,
     )
+    thresholds = hierarchy.get("thresholds")
+    threshold_map = thresholds if isinstance(thresholds, Mapping) else {}
+    primary_tau = float(threshold_map.get("primary_tau", allocation["selected_tau"]))
+    conductor_tau = max(float(allocation["selected_tau"]), primary_tau)
+
     primary_topics = _pareto_order_topic_rows(_hierarchy_topics(hierarchy, "primary_topics"))
     subtopics = _hierarchy_topics(hierarchy, "subtopics")
     subtopics_by_primary: dict[str, list[dict[str, Any]]] = {}
@@ -769,7 +774,7 @@ def build_pareto_conductor_plan(
             lane["pareto_rank"] = int(topic.get("pareto_rank", 0))
             lane["internal_work_packets"] = internal_packets if worker_ordinal == 0 else []
             lane["conductor_mode"] = "dynamic_costed"
-            lane["selected_tau"] = float(allocation["selected_tau"])
+            lane["selected_tau"] = conductor_tau
             lane["prompt"] = _pareto_lane_prompt(lane, lane["internal_work_packets"])
             prepared_lanes.append(lane)
 
@@ -788,7 +793,7 @@ def build_pareto_conductor_plan(
         "schema": "itir.ao.sublinear_topic_conductor.v1",
         "worker_capacity": worker_capacity,
         "mode": "dynamic_costed",
-        "selected_tau": float(allocation["selected_tau"]),
+        "selected_tau": conductor_tau,
         "spectral_resolution": allocation["resolution"],
         "selected_topic_count": len(selected_topics),
         "prepared_lane_count": len(prepared_lanes),
