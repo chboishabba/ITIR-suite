@@ -103,8 +103,9 @@ SQLite-backed corpus with TIRC and SL-style views.
     perplexity, frontier obstruction counts (e.g. 4 unblocked workers on 4 lemmas), and
     sub-eigen dimensionality, preventing blind overspawning up to capacity $W=20$.
   - Canonical Presets: Updated all worker prompt presets (`@max_cut`, `@grug_ste100`, `@zkp_qa`,
-    `@introspective_viz`, `@converge_toe`, `@referee_pass`) to mandate checking `dashi_lean4`
-    and `dashi_agda` before generating code.
+    `@introspective_viz`, `@converge_toe`, `@referee_pass`, `@rpd`, `@steelman`, `@lemmas`,
+    `@surrounds`, `@docs`) to unconditionally mandate checking `dashi_lean4` and `dashi_agda`
+    golden formalisms before generating code.
 
 ## Milestone M5: `itir-dioxus` Interactive Graph & Sankey UI (Jun 2026)
 - Deliverables:
@@ -116,6 +117,21 @@ SQLite-backed corpus with TIRC and SL-style views.
     with dynamic metric toggling (Continuous $\alpha$, Perplexity, Frontier Blockers, Task Priority).
   - StatiBaker Kanban Integration: Direct projection of topic deliverables into StatiBaker
     Kanban boards linked with Wikidata entity relations.
+
+## Milestone M6: Unified Single Semantic Spine & Full-Corpus AO Allocation (Jul 2026)
+- Deliverables:
+  - PostgreSQL Single Canonical Spine: Unify storage onto TrueNAS PostgreSQL (`sensiblaw_sparse_ready_20260818`),
+    housing transcripts (`corpus.chat_archive_message`), PNF relational world models (`pnf.statement_candidate_factor`, `pnf.graph`),
+    planning/docs/user stories (`corpus.document_manifest`), StatiBaker kanban deliverables (`task.candidate`),
+    Wikidata entity alignments (`wikidata.claim_entity`), and formal proof gaps (`formal.proof_gap`).
+  - Edge Cache & WAL Separation: Local SQLite (`~/.chatgpt_history.sqlite3`) transitions to an edge cache
+    and write-ahead log for fast headless `curl_cffi` streaming, registered immutably into PG via
+    `register_sqlite_chat_coordinates` (`archive_locator="sqlite:canonical#<node_id>"`).
+  - 1,000+ Conversation Tranche Expansion: Hydrate the 500 next-oldest threads below the top-500 tranche,
+    expanding the manifold to 1,000+ conversations and compiling unified PNF spectra.
+  - Full-World Pareto Conductor Allocation: Run the autonomous orchestrator (AO) dynamic cost function
+    $\mathcal{C}(T_k, W)$ over the entire consolidated world model, cross-pollinating goals across
+    ITIR, SensibLaw, StatiBaker, and Wikidata.
 
 ## Next Candidate Deliverables
 - Python ingest script for `conversations.json`.

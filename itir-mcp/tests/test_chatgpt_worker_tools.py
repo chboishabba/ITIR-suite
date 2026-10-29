@@ -61,7 +61,7 @@ def test_dispatch_forces_async_without_dom_fallback(monkeypatch) -> None:
     assert result["result"]["operation"]["operation_id"] == "op-1"
     assert calls == [{
         "conversation_id": "thread-1",
-        "prompt": "implement this",
+        "prompt": f"{chatgpt_worker_tools.GOLDEN_AGDA_REMINDER}\n\nimplement this",
         "attachments": [],
         "follow": False,
         "write_transport": "async",
@@ -129,3 +129,30 @@ def test_dispatch_worker_expands_presets_and_strips_verbose_telemetry(monkeypatc
     assert "ASD-STE100" in sent_prompt
     assert "O/R/C/S/L/P/G/F" in sent_prompt
     assert sent_prompt.endswith("Focus on formal referee wiring.")
+
+
+def test_dispatch_worker_new_presets_and_golden_reminder(monkeypatch) -> None:
+    calls = []
+
+    class FakeWorkerApi:
+        @staticmethod
+        def chatgpt_continue(**kwargs):
+            calls.append(kwargs)
+            return {"operation_id": "op-3", "state": "complete", "assistant_text": "done"}
+
+    monkeypatch.setattr(chatgpt_worker_tools, "_worker_api", lambda: FakeWorkerApi)
+
+    for preset_name in ("rpd", "steelman", "lemmas", "surrounds", "docs"):
+        calls.clear()
+        res = build_default_registry().invoke(
+            "itir.chatgpt.dispatch_worker",
+            {
+                "conversation_id": "thread-1",
+                "prompt": f"@{preset_name}",
+            },
+        )
+        assert res["ok"] is True
+        sent = calls[0]["prompt"]
+        assert chatgpt_worker_tools.GOLDEN_AGDA_REMINDER in sent
+        assert sent.startswith(chatgpt_worker_tools.GOLDEN_AGDA_REMINDER)
+
