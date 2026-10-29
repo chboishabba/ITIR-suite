@@ -183,7 +183,7 @@ def run_tranche_pass(
 ) -> dict[str, Any]:
     fo = FleetOrchestrator()
     prefix_val = None if (prefix == "" or prefix.lower() in {"all", "none"}) else prefix
-    members = fo.iterate_tranche(prefix=prefix_val, min_turns=min_turns, sort_by="turns", limit=limit_candidates)
+    members = fo.iterate_tranche(prefix=prefix_val, min_turns=min_turns, sort_by="turns")
     if limit_candidates and len(members) > limit_candidates:
         members = members[:limit_candidates]
 

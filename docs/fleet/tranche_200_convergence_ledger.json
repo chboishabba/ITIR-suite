@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "description": "200+ Fleet Tranche TOE Convergence Ledger",
-  "updated_at": "2026-10-27T05:13:24.692308+00:00",
+  "updated_at": "2026-10-29T04:34:54.664605+00:00",
   "dispatches": {
     "6aa3259a-440c-83ec-bcf2-f16f301d40ab": {
       "title": "YM RH Unification Audit",
@@ -1770,6 +1770,166 @@
       "dispatched_at": "2026-10-27T05:13:24.689390+00:00",
       "status": "commit_unknown",
       "operation_id": "a089da84-aaa2-4ae8-a7b8-31f7b7e36aa5"
+    },
+    "6aafc50d-647c-83ec-a6b8-9419a0921eea": {
+      "title": "Smooth Window Domination Update",
+      "cluster": "yang_mills",
+      "turns": 33,
+      "dispatched_at": "2026-10-29T04:12:44.310958+00:00",
+      "status": "submission_observed",
+      "operation_id": "341b2506-b98a-4277-83b5-006f8b4e77ba"
+    },
+    "6aafc873-75a0-83ec-a753-cd963d3d4f18": {
+      "title": "Check Dashi Agda Structure",
+      "cluster": "yang_mills",
+      "turns": 131,
+      "dispatched_at": "2026-10-29T04:15:06.845454+00:00",
+      "status": "submission_observed",
+      "operation_id": "16a1ce7c-1149-45c1-870c-9b5305ec4f56"
+    },
+    "6a912a43-b480-83ec-a8d6-89d52aa51f5c": {
+      "title": "Reconciliation Integration Plan",
+      "cluster": "sensiblaw",
+      "turns": 73,
+      "dispatched_at": "2026-10-29T04:17:03.016555+00:00",
+      "status": "submission_observed",
+      "operation_id": "34d92611-f153-49d3-8d98-058369dae14e"
+    },
+    "6a8ee81e-98f4-83ec-9132-42e6777d6d8b": {
+      "title": "Topic Flow Overview",
+      "cluster": "sensiblaw",
+      "turns": 725,
+      "dispatched_at": "2026-10-29T04:17:21.833471+00:00",
+      "status": "commit_unknown",
+      "operation_id": "6ed2e543-5e41-47c3-b29a-f7aa6429d603"
+    },
+    "6a890673-09d0-83ec-9b6b-dca1eeb33bbc": {
+      "title": "Explaining The Plus 53",
+      "cluster": "research",
+      "turns": 316,
+      "dispatched_at": "2026-10-29T04:17:44.255700+00:00",
+      "status": "submission_observed",
+      "operation_id": "3389d17f-12db-4b96-a2a5-6dfab8b7794a"
+    },
+    "6a9031aa-2ae0-83ec-aa89-d0298482fb56": {
+      "title": "Branch \u00b7 Find the paper",
+      "cluster": "sensiblaw",
+      "turns": 163,
+      "dispatched_at": "2026-10-29T04:18:12.104628+00:00",
+      "status": "submission_observed",
+      "operation_id": "284b771a-d90d-4c29-b2f5-b908a3cea681"
+    },
+    "6a8f9e90-bc9c-83ec-99a0-5e814bb68307": {
+      "title": "Braid Structure Comparison",
+      "cluster": "yang_mills",
+      "turns": 227,
+      "dispatched_at": "2026-10-29T04:18:41.674018+00:00",
+      "status": "submission_observed",
+      "operation_id": "5c4d7ef3-9d70-411c-a4ce-313a0460ac68"
+    },
+    "6a8ee99c-1ed4-83ec-b996-86cdd0f7a849": {
+      "title": "Branch \u00b7 Topic Flow Overview",
+      "cluster": "sensiblaw",
+      "turns": 137,
+      "dispatched_at": "2026-10-29T04:18:43.787921+00:00",
+      "status": "submission_observed",
+      "operation_id": "c83ed4ae-d45f-48ee-821c-d677d25db5d0"
+    },
+    "6a886c54-6574-83ec-a193-6b5d30fbef35": {
+      "title": "Sparse Frontier Reducer Review",
+      "cluster": "research",
+      "turns": 1425,
+      "dispatched_at": "2026-10-29T04:19:15.814267+00:00",
+      "status": "submission_observed",
+      "operation_id": "59ad907d-c059-4650-94d3-99a3ae5fce90"
+    },
+    "6a86b85f-d444-83ec-a577-aa87b84a08fa": {
+      "title": "Implement Frontier Math",
+      "cluster": "research",
+      "turns": 1793,
+      "dispatched_at": "2026-10-29T04:19:32.040483+00:00",
+      "status": "submission_observed",
+      "operation_id": "6dd9cb31-0d91-4740-bcdd-2df7f4a29f96"
+    },
+    "6aaf9758-b56c-83ec-8094-b6b7ed025532": {
+      "title": "Summarize Market Volatility",
+      "cluster": "sensiblaw",
+      "turns": 88,
+      "dispatched_at": "2026-10-29T04:19:43.162259+00:00",
+      "status": "submission_observed",
+      "operation_id": "2d4ae00a-9fc7-45a5-979a-2d75c741efcb"
+    },
+    "6aafa893-0b1c-83ec-86cd-04c42fba2ba6": {
+      "title": "Completed Four Lane Update",
+      "cluster": "yang_mills",
+      "turns": 499,
+      "dispatched_at": "2026-10-29T04:20:21.260741+00:00",
+      "status": "submission_observed",
+      "operation_id": "9c5f0de7-77de-4feb-840a-05e6a347854d"
+    },
+    "6a8ff831-f284-83ec-8ebd-e1b5ff14a107": {
+      "title": "E0d implementation status",
+      "cluster": "research",
+      "turns": 1049,
+      "dispatched_at": "2026-10-29T04:21:36.573453+00:00",
+      "status": "submission_observed",
+      "operation_id": "7fafac4c-44dc-4d10-919e-0fdf9d4695b4"
+    },
+    "6a8ebf86-0414-83ec-8552-c29567def063": {
+      "title": "Formalise Article Discussion",
+      "cluster": "yang_mills",
+      "turns": 266,
+      "dispatched_at": "2026-10-29T04:26:08.900429+00:00",
+      "status": "submission_observed",
+      "operation_id": "eafea5b3-b6f9-4f74-848d-865a243deb05"
+    },
+    "6aaf518f-c02c-83ec-8a0f-8800e2ec3092": {
+      "title": "Complete Sprints 6 and 7",
+      "cluster": "infrastructure",
+      "turns": 1046,
+      "dispatched_at": "2026-10-29T04:30:17.069470+00:00",
+      "status": "submission_observed",
+      "operation_id": "4ce8986f-40dc-4b05-9f35-1a566633d47c"
+    },
+    "6a869945-fdd0-83ec-a15f-2d3cc0a78a2b": {
+      "title": "Implemented Radial Flux Identity",
+      "cluster": "research",
+      "turns": 2067,
+      "dispatched_at": "2026-10-29T04:31:14.126621+00:00",
+      "status": "submission_observed",
+      "operation_id": "fc0c7a97-07df-487d-9c29-224977c8cda2"
+    },
+    "6aaea379-d484-83ec-8a3a-cd7440fa79c7": {
+      "title": "Cook Levin Roadmap Update",
+      "cluster": "infrastructure",
+      "turns": 2242,
+      "dispatched_at": "2026-10-29T04:34:04.165693+00:00",
+      "status": "commit_unknown",
+      "operation_id": "13a42684-ba51-4dbb-8a8a-3e9994a44b22"
+    },
+    "6a9128f8-fc24-83ec-ad9a-7babe58a3fd3": {
+      "title": "Branch \u00b7 E0d implementation status",
+      "cluster": "research",
+      "turns": 1198,
+      "dispatched_at": "2026-10-29T04:34:20.645186+00:00",
+      "status": "commit_unknown",
+      "operation_id": "515beffe-e581-4ac0-8197-85b98beb163d"
+    },
+    "6a8a4bfa-f218-83ec-a0de-5df469fbc8a2": {
+      "title": "Constructive Foundations Critique",
+      "cluster": "research",
+      "turns": 1079,
+      "dispatched_at": "2026-10-29T04:34:30.000969+00:00",
+      "status": "commit_unknown",
+      "operation_id": "bb58b29a-5eb1-4836-8935-ec6d7fc814c0"
+    },
+    "6a8f87d4-f674-83ec-9961-5221d17741ab": {
+      "title": "Summarize Feynman experiment",
+      "cluster": "research",
+      "turns": 660,
+      "dispatched_at": "2026-10-29T04:34:44.837177+00:00",
+      "status": "commit_unknown",
+      "operation_id": "23aeb750-909e-411d-9659-3e6797194de5"
     }
   }
 }
