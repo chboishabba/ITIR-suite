@@ -186,6 +186,8 @@ def test_real_slrw_loader_and_dynamic_hierarchy(tmp_path: Path) -> None:
         topic["name_source"] in {
             "sensiblaw_propn_relational_frames",
             "explicit_ontology_incidence",
+            "formal_ast_symbol_incidence",
+            "explicit_external_incidence",
             "opaque_topic_id",
         }
         for topic in hierarchy["primary_topics"]
@@ -234,6 +236,32 @@ def test_motif_pos_gate_requires_predicate_head_propn(monkeypatch) -> None:
     monkeypatch.setitem(sys.modules, "sensiblaw.interfaces", interface)
     assert packet._motif_has_propn_evidence("YangMillsMassGap(arg:change)") is True
     assert packet._motif_has_propn_evidence("change(arg:day)") is False
+
+
+def test_formal_ast_symbol_incidence_is_explicit_and_provenance_bearing(tmp_path: Path) -> None:
+    corpus_path = tmp_path / "fleet_top500_iter1.slrw"
+    conversations = _write_fixture(corpus_path)
+    corpus = load_slrw_conversation_factors(corpus_path)
+    hierarchy = build_hierarchical_pnf_topics(
+        corpus,
+        formal_ast_symbols=[{
+            "conversation_ids": conversations[:3],
+            "symbol": "lemmaFoo",
+            "source_ref": "dashi_agda:DASHI/Example.agda#lemmaFoo",
+        }],
+        max_features=32,
+        max_spectral_dimensions=8,
+    )
+    evidence = [
+        item
+        for topic in hierarchy["primary_topics"]
+        for item in topic["semantic_centroid"]["top_ontology_incidence"]
+        if item["evidence"] == "formal_ast_symbol_incidence"
+    ]
+    assert evidence
+    assert all(item["feature"] == "lemmaFoo" for item in evidence)
+    assert all(item["source_ref"] == "dashi_agda:DASHI/Example.agda#lemmaFoo" for item in evidence)
+
 
 def test_capacity_threshold_is_monotone_and_pareto_prioritizes_alpha(tmp_path: Path) -> None:
     hierarchy = _hierarchy(tmp_path)
