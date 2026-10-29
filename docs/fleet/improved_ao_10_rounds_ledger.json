@@ -1,0 +1,388 @@
+{
+  "version": "itir.ao.improved_10_rounds.v1",
+  "completed_at": 1793253844.9445808,
+  "total_rounds": 10,
+  "total_elapsed_seconds": 366.81,
+  "database_target": "truenas.local:5432/sensiblaw_sparse_ready_20260818",
+  "rounds": [
+    {
+      "round": 1,
+      "topic_id": "1",
+      "topic_name": "Topic 1: collapse(property: auto) \u00b7 collapse(property: last) \u00b7 expand(temporal: now)",
+      "elapsed_seconds": 34.48,
+      "conductor_cost": {
+        "alpha": 0.85,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 10,
+        "sub_eigen_dimension": 1,
+        "spectral_width": 1,
+        "benefit": 0.68,
+        "token_cost": 0.05,
+        "net_cost": 0.63,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "079eb6a5-ea5f-4e15-bfb7-835978228c5b",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 2,
+      "topic_id": "2",
+      "topic_name": "Explain torque better [\u2b50 Lead]",
+      "elapsed_seconds": 28.68,
+      "conductor_cost": {
+        "alpha": 0.85,
+        "total_goals": 71,
+        "unblocked_goals": 69,
+        "unblocked_ratio": 0.971830985915493,
+        "worker_count": 1,
+        "worker_cap": 10,
+        "sub_eigen_dimension": 1,
+        "spectral_width": 1,
+        "benefit": 0.826056338028169,
+        "token_cost": 0.05,
+        "net_cost": 0.776056338028169,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": {
+        "family_name": "Topic_2_Family",
+        "analyzed_count": 5,
+        "shared_invariants_count": 1,
+        "shared_invariants": [
+          "round191CompleteProductionEnergyLedgerClosed"
+        ],
+        "divergent_count": 0,
+        "unresolved_gaps_count": 2,
+        "unresolved_gaps": [
+          "round193ClayPromotion",
+          "round193PackageAClosed"
+        ],
+        "frontier_deliverables": [
+          "Discharge universal blocker: round193ClayPromotion",
+          "Discharge universal blocker: round193PackageAClosed"
+        ]
+      },
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "e77028bd-71bd-4990-8c1f-85afb27b5a21",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 3,
+      "topic_id": "3",
+      "topic_name": "Implement Max Cut Changes [\u2b50 Lead]",
+      "elapsed_seconds": 31.41,
+      "conductor_cost": {
+        "alpha": 0.85,
+        "total_goals": 29,
+        "unblocked_goals": 27,
+        "unblocked_ratio": 0.9310344827586207,
+        "worker_count": 1,
+        "worker_cap": 10,
+        "sub_eigen_dimension": 1,
+        "spectral_width": 1,
+        "benefit": 0.7913793103448276,
+        "token_cost": 0.05,
+        "net_cost": 0.7413793103448275,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": {
+        "family_name": "Topic_3_Family",
+        "analyzed_count": 5,
+        "shared_invariants_count": 0,
+        "shared_invariants": [],
+        "divergent_count": 0,
+        "unresolved_gaps_count": 0,
+        "unresolved_gaps": [],
+        "frontier_deliverables": []
+      },
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "def3b689-851b-43f5-8c39-93e83d9da14a",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 4,
+      "topic_id": "4",
+      "topic_name": "SensibLaw Agda Test Case [\u2b50 Lead]",
+      "elapsed_seconds": 28.17,
+      "conductor_cost": {
+        "alpha": 0.85,
+        "total_goals": 53,
+        "unblocked_goals": 51,
+        "unblocked_ratio": 0.9622641509433962,
+        "worker_count": 2,
+        "worker_cap": 10,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 1.6358490566037736,
+        "token_cost": 0.1,
+        "net_cost": 1.5358490566037735,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 2,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "a0b38907-16ff-4c35-b6d1-800f0c1f9aa1",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 5,
+      "topic_id": "5",
+      "topic_name": "Assess Round Modules [Ancestor]",
+      "elapsed_seconds": 29.38,
+      "conductor_cost": {
+        "alpha": 0.85,
+        "total_goals": 7,
+        "unblocked_goals": 5,
+        "unblocked_ratio": 0.7142857142857143,
+        "worker_count": 2,
+        "worker_cap": 10,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 1.2142857142857142,
+        "token_cost": 0.1,
+        "net_cost": 1.114285714285714,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 2,
+      "triangulation": {
+        "family_name": "Topic_5_Family",
+        "analyzed_count": 5,
+        "shared_invariants_count": 2,
+        "shared_invariants": [
+          "KPEntropyFromL2BlockingOrientations",
+          "PolymerDefinedOnBlockedLattice"
+        ],
+        "divergent_count": 0,
+        "unresolved_gaps_count": 9,
+        "unresolved_gaps": [
+          "KPEntropyFromL2BlockingOrientationsGate",
+          "clayPromoted",
+          "clayYangMillsPromoted",
+          "effectiveActionPolymersSpatialOnlyForA1",
+          "kpEntropyAtBlockedScaleL2"
+        ],
+        "frontier_deliverables": [
+          "Discharge universal blocker: KPEntropyFromL2BlockingOrientationsGate",
+          "Discharge universal blocker: clayPromoted",
+          "Discharge universal blocker: clayYangMillsPromoted"
+        ]
+      },
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "649ca992-ff14-4b30-acec-010e4679fe01",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 6,
+      "topic_id": "6",
+      "topic_name": "Branch \u00b7 Compare E8 Models [\u2b50 Lead]",
+      "elapsed_seconds": 34.65,
+      "conductor_cost": {
+        "alpha": 0.85,
+        "total_goals": 94,
+        "unblocked_goals": 92,
+        "unblocked_ratio": 0.9787234042553191,
+        "worker_count": 3,
+        "worker_cap": 10,
+        "sub_eigen_dimension": 3,
+        "spectral_width": 3,
+        "benefit": 2.4957446808510637,
+        "token_cost": 0.15000000000000002,
+        "net_cost": 2.345744680851064,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 3,
+      "triangulation": {
+        "family_name": "Topic_6_Family",
+        "analyzed_count": 5,
+        "shared_invariants_count": 2,
+        "shared_invariants": [
+          "KPEntropyFromL2BlockingOrientations",
+          "PolymerDefinedOnBlockedLattice"
+        ],
+        "divergent_count": 0,
+        "unresolved_gaps_count": 9,
+        "unresolved_gaps": [
+          "KPEntropyFromL2BlockingOrientationsGate",
+          "clayPromoted",
+          "clayYangMillsPromoted",
+          "effectiveActionPolymersSpatialOnlyForA1",
+          "kpEntropyAtBlockedScaleL2"
+        ],
+        "frontier_deliverables": [
+          "Discharge universal blocker: KPEntropyFromL2BlockingOrientationsGate",
+          "Discharge universal blocker: clayPromoted",
+          "Discharge universal blocker: clayYangMillsPromoted"
+        ]
+      },
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "9cce1899-1259-4b82-9a76-c61765a116a4",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 7,
+      "topic_id": "7",
+      "topic_name": "Assess Round Modules [\u2b50 Lead]",
+      "elapsed_seconds": 38.76,
+      "conductor_cost": {
+        "alpha": 0.85,
+        "total_goals": 190,
+        "unblocked_goals": 188,
+        "unblocked_ratio": 0.9894736842105263,
+        "worker_count": 10,
+        "worker_cap": 10,
+        "sub_eigen_dimension": 13,
+        "spectral_width": 10,
+        "benefit": 8.410526315789472,
+        "token_cost": 0.5,
+        "net_cost": 7.910526315789472,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 10,
+      "triangulation": {
+        "family_name": "Topic_7_Family",
+        "analyzed_count": 5,
+        "shared_invariants_count": 2,
+        "shared_invariants": [
+          "KPEntropyFromL2BlockingOrientations",
+          "PolymerDefinedOnBlockedLattice"
+        ],
+        "divergent_count": 0,
+        "unresolved_gaps_count": 9,
+        "unresolved_gaps": [
+          "KPEntropyFromL2BlockingOrientationsGate",
+          "clayPromoted",
+          "clayYangMillsPromoted",
+          "effectiveActionPolymersSpatialOnlyForA1",
+          "kpEntropyAtBlockedScaleL2"
+        ],
+        "frontier_deliverables": [
+          "Discharge universal blocker: KPEntropyFromL2BlockingOrientationsGate",
+          "Discharge universal blocker: clayPromoted",
+          "Discharge universal blocker: clayYangMillsPromoted"
+        ]
+      },
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "f4bf8ef2-e236-4aff-8052-6adb80af51f3",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 8,
+      "topic_id": "8",
+      "topic_name": "Topic 8: 0xffff1000() \u00b7 0xffff1000(temporal: 0xffff1000) \u00b7 0xffff1000(property: 0xffff1000)",
+      "elapsed_seconds": 37.79,
+      "conductor_cost": {
+        "alpha": 0.85,
+        "total_goals": 1,
+        "unblocked_goals": 1,
+        "unblocked_ratio": 1.0,
+        "worker_count": 1,
+        "worker_cap": 10,
+        "sub_eigen_dimension": 1,
+        "spectral_width": 1,
+        "benefit": 0.85,
+        "token_cost": 0.05,
+        "net_cost": 0.7999999999999999,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "359010ad-d42d-4da5-bcbd-5aa94751f822",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 9,
+      "topic_id": "1",
+      "topic_name": "Topic 1: collapse(property: auto) \u00b7 collapse(property: last) \u00b7 expand(temporal: now)",
+      "elapsed_seconds": 44.36,
+      "conductor_cost": {
+        "alpha": 0.85,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 10,
+        "sub_eigen_dimension": 1,
+        "spectral_width": 1,
+        "benefit": 0.68,
+        "token_cost": 0.05,
+        "net_cost": 0.63,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "724fb237-a82e-45a4-a00f-5a7dd07ee2c5",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 10,
+      "topic_id": "2",
+      "topic_name": "Explain torque better [\u2b50 Lead]",
+      "elapsed_seconds": 44.14,
+      "conductor_cost": {
+        "alpha": 0.85,
+        "total_goals": 71,
+        "unblocked_goals": 69,
+        "unblocked_ratio": 0.971830985915493,
+        "worker_count": 1,
+        "worker_cap": 10,
+        "sub_eigen_dimension": 1,
+        "spectral_width": 1,
+        "benefit": 0.826056338028169,
+        "token_cost": 0.05,
+        "net_cost": 0.776056338028169,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": {
+        "family_name": "Topic_2_Family",
+        "analyzed_count": 5,
+        "shared_invariants_count": 1,
+        "shared_invariants": [
+          "round191CompleteProductionEnergyLedgerClosed"
+        ],
+        "divergent_count": 0,
+        "unresolved_gaps_count": 2,
+        "unresolved_gaps": [
+          "round193ClayPromotion",
+          "round193PackageAClosed"
+        ],
+        "frontier_deliverables": [
+          "Discharge universal blocker: round193ClayPromotion",
+          "Discharge universal blocker: round193PackageAClosed"
+        ]
+      },
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "d738aa43-ad3f-4732-b544-6ce4408715e2",
+        "state": "submission_observed"
+      }
+    }
+  ]
+}
