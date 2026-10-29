@@ -220,18 +220,18 @@ def test_motif_pos_gate_abstains_without_sensiblaw(monkeypatch) -> None:
 def test_motif_pos_gate_requires_predicate_head_propn(monkeypatch) -> None:
     from itir_mcp import pnf_spectral_packet as packet
 
-    monkeypatch.setitem(
-        __import__("sys").modules,
-        "sensiblaw.interfaces",
-        type("SensibLawInterface", (), {
-            "collect_canonical_relational_bundle": staticmethod(
-                lambda _text: {"atoms": [
-                    {"text": "YangMillsMassGap", "lemma": "yangmillsmassgap", "pos": "PROPN"},
-                    {"text": "changes", "lemma": "change", "pos": "VERB"},
-                ]}
-            )
-        })(),
-    )
+    import sys
+    from types import ModuleType
+
+    interface = ModuleType("sensiblaw.interfaces")
+    interface.collect_canonical_relational_bundle = lambda _text: {"atoms": [
+        {"text": "YangMillsMassGap", "lemma": "yangmillsmassgap", "pos": "PROPN"},
+        {"text": "changes", "lemma": "change", "pos": "VERB"},
+    ]}
+    package = ModuleType("sensiblaw")
+    package.interfaces = interface
+    monkeypatch.setitem(sys.modules, "sensiblaw", package)
+    monkeypatch.setitem(sys.modules, "sensiblaw.interfaces", interface)
     assert packet._motif_has_propn_evidence("YangMillsMassGap(arg:change)") is True
     assert packet._motif_has_propn_evidence("change(arg:day)") is False
 
