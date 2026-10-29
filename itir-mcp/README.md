@@ -269,3 +269,8 @@ Canonical operator UI: `chboishabba/itir-dioxus` M10/M11, **not** legacy `itir-s
 **Cross-project acceptance:** deterministic replay and stable selection IDs, unknown versus unavailable versus redacted visually distinct, bounded raw-source drill-down, identical GPU/shell selection reducer outcome, no implicit promotion and no new semantic write by UI. Verified-progress metrics require producer-owned proof/test receipts; match evaluation budgets before claiming improvements from Cogentic-style prover populations or self-improving harnesses.
 
 See `docs/planning/user_story_alignment_and_reprioritization_20260402.md` (superseding UI note), `docs/planning/governed_revival_handoff_v1.md`, `itir-dioxus/docs/M10_UNIFIED_WORKBENCH.md` and `slr/docs/ROADMAP.md`. External research inputs: https://arxiv.org/abs/2609.40324 (Cogentic), https://arxiv.org/abs/2609.00006 (harness taxonomy), https://arxiv.org/abs/2606.09498 (Self-Harness), https://arxiv.org/abs/2610.05300 (MESH). **Planning only; no new runtime/kernel/test acceptance claimed.**
+
+
+### Generic-first PNF motif admission
+
+The hierarchical PNF spectral path does not use lane-local English predicate stoplists. `pnf_spectral_packet` consults the public `sensiblaw.interfaces` relational bundle for `PROPN` evidence before using a frame predicate as a topic name. If that interface or matching evidence is absent, it abstains from frame-based naming; it does not fall back to regexes or a hardcoded wordlist. Explicitly supplied ontology incidence remains a separate provenance-bearing source, and otherwise the topic keeps an opaque ID. TF-IDF/document frequency and the Marchenko–Pastur edge are data-driven signals, not substitutes for semantic admission. Outputs remain candidate-only.
