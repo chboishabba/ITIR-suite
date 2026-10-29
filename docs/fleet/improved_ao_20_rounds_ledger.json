@@ -1,0 +1,719 @@
+{
+  "version": "itir.ao.improved_20_rounds.v2",
+  "completed_at": 1793256659.36783,
+  "total_rounds": 20,
+  "total_elapsed_seconds": 1238.46,
+  "database_target": "truenas.local:5432/sensiblaw_sparse_ready_20260818",
+  "rounds": [
+    {
+      "round": 1,
+      "worker_slot": 1,
+      "lead_thread_id": "chat:696783b4-b818-8323-8a3a-bbd0fdf",
+      "raw_title": "Sub-topic: than(rather) \u00b7 change",
+      "parent_cluster": "Assess Round Modules [\u2b50 Lead]",
+      "sub_motif": "than(rather) \u00b7 change",
+      "domain_name": "Assess Round Modules [\u2b50 Lead] \u2014 than(rather) / change",
+      "alpha_score": 23938.89,
+      "elapsed_seconds": 47.86,
+      "conductor_cost": {
+        "alpha": 0.9575556,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 3,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 1.53208896,
+        "token_cost": 0.15000000000000002,
+        "net_cost": 1.38208896,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 3,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "a9a99aa1-e6c7-4634-8853-e21f8e849824",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 2,
+      "worker_slot": 2,
+      "lead_thread_id": "chat:6ab4715f-7418-83ec-a16e-0fa63bb",
+      "raw_title": "Sub-topic: marker(citation) \u00b7 result(compact)",
+      "parent_cluster": "Explain torque better [\u2b50 Lead]",
+      "sub_motif": "marker(citation) \u00b7 result(compact)",
+      "domain_name": "Angular Dynamics & Continuum Mechanics (marker(citation) / result(compact))",
+      "alpha_score": 23894.98,
+      "elapsed_seconds": 56.1,
+      "conductor_cost": {
+        "alpha": 0.9557992,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 3,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 1.52927872,
+        "token_cost": 0.15000000000000002,
+        "net_cost": 1.3792787199999998,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 3,
+      "triangulation": {
+        "family_name": "Slot_02_Family",
+        "analyzed_count": 4,
+        "shared_invariants_count": 1,
+        "shared_invariants": [
+          "round191CompleteProductionEnergyLedgerClosed"
+        ],
+        "divergent_count": 0,
+        "unresolved_gaps_count": 2,
+        "unresolved_gaps": [
+          "round193ClayPromotion",
+          "round193PackageAClosed"
+        ],
+        "frontier_deliverables": [
+          "Discharge universal blocker: round193ClayPromotion",
+          "Discharge universal blocker: round193PackageAClosed"
+        ]
+      },
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "8635b413-cad9-4175-a4ce-29823a7f7fb3",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 3,
+      "worker_slot": 3,
+      "lead_thread_id": "chat:6ab4c264-f344-83ec-8a2c-a6d66ca",
+      "raw_title": "Sub-topic: theorem \u00b7 prove",
+      "parent_cluster": "Branch \u00b7 Compare E8 Models [\u2b50 Lead]",
+      "sub_motif": "theorem \u00b7 prove",
+      "domain_name": "E8 Lattices & Moonshine Vertex Algebras (theorem / prove)",
+      "alpha_score": 22661.42,
+      "elapsed_seconds": 44.29,
+      "conductor_cost": {
+        "alpha": 0.9064568,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 3,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 1.45033088,
+        "token_cost": 0.15000000000000002,
+        "net_cost": 1.3003308800000002,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 3,
+      "triangulation": {
+        "family_name": "Slot_03_Family",
+        "analyzed_count": 4,
+        "shared_invariants_count": 0,
+        "shared_invariants": [],
+        "divergent_count": 0,
+        "unresolved_gaps_count": 0,
+        "unresolved_gaps": [],
+        "frontier_deliverables": []
+      },
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "66ec5ae2-bc6a-4b68-86a9-e13e8d63fa2d",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 4,
+      "worker_slot": 4,
+      "lead_thread_id": "chat:6a92e6ff-6f48-83ec-973a-fcc567d",
+      "raw_title": "Sub-topic: repos \u00b7 content",
+      "parent_cluster": "Implement Max Cut Changes [\u2b50 Lead]",
+      "sub_motif": "repos \u00b7 content",
+      "domain_name": "Max Cut Combinatorial Partitioning (repos / content)",
+      "alpha_score": 21794.97,
+      "elapsed_seconds": 43.66,
+      "conductor_cost": {
+        "alpha": 0.8717988000000001,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 3,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 1.3948780800000002,
+        "token_cost": 0.15000000000000002,
+        "net_cost": 1.2448780800000003,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 3,
+      "triangulation": {
+        "family_name": "Slot_04_Family",
+        "analyzed_count": 4,
+        "shared_invariants_count": 0,
+        "shared_invariants": [],
+        "divergent_count": 0,
+        "unresolved_gaps_count": 0,
+        "unresolved_gaps": [],
+        "frontier_deliverables": []
+      },
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "4e926789-6437-4583-b587-a7a0cf4fba9d",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 5,
+      "worker_slot": 5,
+      "lead_thread_id": "chat:69744862-2608-8322-af06-7117f50",
+      "raw_title": "Sub-topic: redact(output) \u00b7 space",
+      "parent_cluster": "SensibLaw Agda Test Case [\u2b50 Lead]",
+      "sub_motif": "redact(output) \u00b7 space",
+      "domain_name": "Deontic Obligation Redaction & Privacy Calculus (redact(output) / space)",
+      "alpha_score": 12962.81,
+      "elapsed_seconds": 52.7,
+      "conductor_cost": {
+        "alpha": 0.5185124,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.82961984,
+        "token_cost": 0.05,
+        "net_cost": 0.77961984,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "35841552-6343-4823-9a03-2d729c49aaa1",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 6,
+      "worker_slot": 6,
+      "lead_thread_id": "chat:696d865d-79a8-8321-a88c-2e37b96",
+      "raw_title": "Sub-topic: text(parsed) \u00b7 collapse(auto)",
+      "parent_cluster": "Topic 1: collapse(property: auto) \u00b7 collapse(property: last) \u00b7 expand(temporal: now)",
+      "sub_motif": "text(parsed) \u00b7 collapse(auto)",
+      "domain_name": "UI State Transitions & Layout Collapsible Reactive Tree",
+      "alpha_score": 8974.48,
+      "elapsed_seconds": 49.57,
+      "conductor_cost": {
+        "alpha": 0.4,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.6400000000000001,
+        "token_cost": 0.05,
+        "net_cost": 0.5900000000000001,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "0773f3bb-eef8-4fc8-8941-b701a17a0900",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 7,
+      "worker_slot": 7,
+      "lead_thread_id": "chat:6ac6dc29-1d08-83ec-990e-a1ca076",
+      "raw_title": "Sub-topic: redact(output) \u00b7 redact",
+      "parent_cluster": "SensibLaw Agda Test Case [\u2b50 Lead]",
+      "sub_motif": "redact(output) \u00b7 redact",
+      "domain_name": "Deontic Obligation Redaction & Privacy Calculus (redact(output) / redact)",
+      "alpha_score": 6948.56,
+      "elapsed_seconds": 71.59,
+      "conductor_cost": {
+        "alpha": 0.4,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.6400000000000001,
+        "token_cost": 0.05,
+        "net_cost": 0.5900000000000001,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "20c1b210-8c6b-4384-a743-b9f3acc8e5dd",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 8,
+      "worker_slot": 8,
+      "lead_thread_id": "chat:698020f3-2004-83a0-b762-8b1ecad",
+      "raw_title": "Sub-topic: text \u00b7 test",
+      "parent_cluster": "Assess Round Modules [\u2b50 Lead]",
+      "sub_motif": "text \u00b7 test",
+      "domain_name": "Assess Round Modules [\u2b50 Lead] \u2014 text / test",
+      "alpha_score": 5302.19,
+      "elapsed_seconds": 50.14,
+      "conductor_cost": {
+        "alpha": 0.4,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.6400000000000001,
+        "token_cost": 0.05,
+        "net_cost": 0.5900000000000001,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "1e766c88-d1b7-4e3d-b57f-19040589c1b4",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 9,
+      "worker_slot": 9,
+      "lead_thread_id": "chat:69846625-710c-839a-86de-ce695e7",
+      "raw_title": "Sub-topic: package \u00b7 satisfy",
+      "parent_cluster": "Assess Round Modules [\u2b50 Lead]",
+      "sub_motif": "package \u00b7 satisfy",
+      "domain_name": "Assess Round Modules [\u2b50 Lead] \u2014 package / satisfy",
+      "alpha_score": 4359.89,
+      "elapsed_seconds": 56.3,
+      "conductor_cost": {
+        "alpha": 0.4,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.6400000000000001,
+        "token_cost": 0.05,
+        "net_cost": 0.5900000000000001,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "fcdcf937-977b-459a-80e1-b34a8e10c662",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 10,
+      "worker_slot": 10,
+      "lead_thread_id": "chat:6ac1b6c9-1600-83ec-a8ca-26adc5e",
+      "raw_title": "Persistence Authority Implementation [\u2b50 Lead]",
+      "parent_cluster": "Branch \u00b7 Compare E8 Models [\u2b50 Lead]",
+      "sub_motif": "review \u00b7 receipt",
+      "domain_name": "E8 Lattices & Moonshine Vertex Algebras (review / receipt)",
+      "alpha_score": 3315.08,
+      "elapsed_seconds": 43.6,
+      "conductor_cost": {
+        "alpha": 0.4,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.6400000000000001,
+        "token_cost": 0.05,
+        "net_cost": 0.5900000000000001,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": {
+        "family_name": "Slot_10_Family",
+        "analyzed_count": 4,
+        "shared_invariants_count": 0,
+        "shared_invariants": [],
+        "divergent_count": 0,
+        "unresolved_gaps_count": 0,
+        "unresolved_gaps": [],
+        "frontier_deliverables": []
+      },
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "b37123a3-51ac-4194-a54a-abe2587c3c61",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 11,
+      "worker_slot": 11,
+      "lead_thread_id": "chat:6acc17ac-21d8-83ec-8acb-bca91cb",
+      "raw_title": "Sub-topic: than(rather) \u00b7 state",
+      "parent_cluster": "Assess Round Modules [\u2b50 Lead]",
+      "sub_motif": "than(rather) \u00b7 state",
+      "domain_name": "Assess Round Modules [\u2b50 Lead] \u2014 than(rather) / state",
+      "alpha_score": 3293.47,
+      "elapsed_seconds": 45.65,
+      "conductor_cost": {
+        "alpha": 0.4,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.6400000000000001,
+        "token_cost": 0.05,
+        "net_cost": 0.5900000000000001,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "1d12e7b9-9da0-4687-80c3-f8b44a1e7a26",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 12,
+      "worker_slot": 12,
+      "lead_thread_id": "chat:6978944d-f0f8-8321-b9ca-a4e6aee",
+      "raw_title": "Sub-topic: kernel \u00b7 buffer",
+      "parent_cluster": "Assess Round Modules [\u2b50 Lead]",
+      "sub_motif": "kernel \u00b7 buffer",
+      "domain_name": "Assess Round Modules [\u2b50 Lead] \u2014 kernel / buffer",
+      "alpha_score": 2273.24,
+      "elapsed_seconds": 69.37,
+      "conductor_cost": {
+        "alpha": 0.4,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.6400000000000001,
+        "token_cost": 0.05,
+        "net_cost": 0.5900000000000001,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "43d5f5d4-8ba0-4c23-abb3-889e407ab37e",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 13,
+      "worker_slot": 13,
+      "lead_thread_id": "chat:6ab9f3df-1684-83ec-b030-317a18e",
+      "raw_title": "Sub-topic: closure \u00b7 closure(physics)",
+      "parent_cluster": "Assess Round Modules [Ancestor]",
+      "sub_motif": "closure \u00b7 closure(physics)",
+      "domain_name": "Assess Round Modules [Ancestor] \u2014 closure / closure(physics)",
+      "alpha_score": 1500.77,
+      "elapsed_seconds": 69.53,
+      "conductor_cost": {
+        "alpha": 0.4,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.6400000000000001,
+        "token_cost": 0.05,
+        "net_cost": 0.5900000000000001,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": {
+        "family_name": "Slot_13_Family",
+        "analyzed_count": 4,
+        "shared_invariants_count": 1,
+        "shared_invariants": [
+          "round191CompleteProductionEnergyLedgerClosed"
+        ],
+        "divergent_count": 0,
+        "unresolved_gaps_count": 2,
+        "unresolved_gaps": [
+          "round193ClayPromotion",
+          "round193PackageAClosed"
+        ],
+        "frontier_deliverables": [
+          "Discharge universal blocker: round193ClayPromotion",
+          "Discharge universal blocker: round193PackageAClosed"
+        ]
+      },
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "9673bdfa-8815-4ea2-87e6-56f6275d5e9d",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 14,
+      "worker_slot": 14,
+      "lead_thread_id": "chat:69846049-524c-83a0-90d9-7b70213",
+      "raw_title": "Sub-topic: file \u00b7 url(request)",
+      "parent_cluster": "Assess Round Modules [Ancestor]",
+      "sub_motif": "file \u00b7 url(request)",
+      "domain_name": "Assess Round Modules [Ancestor] \u2014 file / url(request)",
+      "alpha_score": 1015.05,
+      "elapsed_seconds": 74.48,
+      "conductor_cost": {
+        "alpha": 0.4,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.6400000000000001,
+        "token_cost": 0.05,
+        "net_cost": 0.5900000000000001,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "5ef4a2b7-f8d1-4abb-b895-e6d30ebfe8ae",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 15,
+      "worker_slot": 15,
+      "lead_thread_id": "chat:69783f78-2d14-8323-a515-c74ded9",
+      "raw_title": "Sub-topic: ago \u00b7 ago(day)",
+      "parent_cluster": "Assess Round Modules [\u2b50 Lead]",
+      "sub_motif": "ago \u00b7 ago(day)",
+      "domain_name": "Assess Round Modules [\u2b50 Lead] \u2014 ago / ago(day)",
+      "alpha_score": 976.19,
+      "elapsed_seconds": 79.85,
+      "conductor_cost": {
+        "alpha": 0.4,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.6400000000000001,
+        "token_cost": 0.05,
+        "net_cost": 0.5900000000000001,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "84474eb8-2b93-4ac0-b727-99e2fd3ac76a",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 16,
+      "worker_slot": 16,
+      "lead_thread_id": "chat:69846e75-c24c-83a1-9926-2c42ca6",
+      "raw_title": "Sub-topic: 0xffff1000 \u00b7 version",
+      "parent_cluster": "Topic 8: 0xffff1000() \u00b7 0xffff1000(temporal: 0xffff1000) \u00b7 0xffff1000(property: 0xffff1000)",
+      "sub_motif": "0xffff1000 \u00b7 version",
+      "domain_name": "Low-Level Runtime & Binary Architecture",
+      "alpha_score": 770.32,
+      "elapsed_seconds": 81.85,
+      "conductor_cost": {
+        "alpha": 0.4,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.6400000000000001,
+        "token_cost": 0.05,
+        "net_cost": 0.5900000000000001,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "0c85ea81-9148-43e7-bed2-3f534e99fa21",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 17,
+      "worker_slot": 17,
+      "lead_thread_id": "chat:69684f1e-6d08-8322-9023-f9567b9",
+      "raw_title": "Sub-topic: log \u00b7 profile(strict)",
+      "parent_cluster": "Assess Round Modules [\u2b50 Lead]",
+      "sub_motif": "log \u00b7 profile(strict)",
+      "domain_name": "Assess Round Modules [\u2b50 Lead] \u2014 log / profile(strict)",
+      "alpha_score": 762.63,
+      "elapsed_seconds": 72.2,
+      "conductor_cost": {
+        "alpha": 0.4,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.6400000000000001,
+        "token_cost": 0.05,
+        "net_cost": 0.5900000000000001,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "8ddf470a-dd7b-414d-8e3d-8bd4959fd798",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 18,
+      "worker_slot": 18,
+      "lead_thread_id": "chat:69822baf-d0c4-839a-8af0-191e5cb",
+      "raw_title": "Sub-topic: estimate \u00b7 ratio",
+      "parent_cluster": "Assess Round Modules [\u2b50 Lead]",
+      "sub_motif": "estimate \u00b7 ratio",
+      "domain_name": "Assess Round Modules [\u2b50 Lead] \u2014 estimate / ratio",
+      "alpha_score": 577.22,
+      "elapsed_seconds": 68.13,
+      "conductor_cost": {
+        "alpha": 0.4,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.6400000000000001,
+        "token_cost": 0.05,
+        "net_cost": 0.5900000000000001,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "913498f7-5d32-46b3-b97d-2e2bdc7a3f85",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 19,
+      "worker_slot": 19,
+      "lead_thread_id": "chat:6ad2ba96-82fc-83ec-a5d0-9a5ac68",
+      "raw_title": "Branch \u00b7 Atlas coordinates format [\u2b50 Lead]",
+      "parent_cluster": "Branch \u00b7 Compare E8 Models [\u2b50 Lead]",
+      "sub_motif": "prove \u00b7 rfl(rfl)",
+      "domain_name": "E8 Lattices & Moonshine Vertex Algebras (prove / rfl(rfl))",
+      "alpha_score": 545.14,
+      "elapsed_seconds": 67.14,
+      "conductor_cost": {
+        "alpha": 0.4,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.6400000000000001,
+        "token_cost": 0.05,
+        "net_cost": 0.5900000000000001,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": {
+        "family_name": "Slot_19_Family",
+        "analyzed_count": 4,
+        "shared_invariants_count": 0,
+        "shared_invariants": [],
+        "divergent_count": 0,
+        "unresolved_gaps_count": 0,
+        "unresolved_gaps": [],
+        "frontier_deliverables": []
+      },
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "e3e68138-64f0-428e-978e-183918223d62",
+        "state": "submission_observed"
+      }
+    },
+    {
+      "round": 20,
+      "worker_slot": 20,
+      "lead_thread_id": "chat:68ae744b-ab2c-8329-a93f-64385ff",
+      "raw_title": "Sub-topic: support \u00b7 fp16",
+      "parent_cluster": "Assess Round Modules [\u2b50 Lead]",
+      "sub_motif": "support \u00b7 fp16",
+      "domain_name": "Assess Round Modules [\u2b50 Lead] \u2014 support / fp16",
+      "alpha_score": 482.37,
+      "elapsed_seconds": 74.43,
+      "conductor_cost": {
+        "alpha": 0.4,
+        "total_goals": 10,
+        "unblocked_goals": 8,
+        "unblocked_ratio": 0.8,
+        "worker_count": 1,
+        "worker_cap": 20,
+        "sub_eigen_dimension": 2,
+        "spectral_width": 2,
+        "benefit": 0.6400000000000001,
+        "token_cost": 0.05,
+        "net_cost": 0.5900000000000001,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)"
+      },
+      "allocated_workers": 1,
+      "triangulation": null,
+      "dispatch": {
+        "target_conversation_id": "6ae2b44f-4240-83ec-8a45-d83880b6193c",
+        "operation_id": "0906c2d7-e75e-4ad9-aab2-4e67798dd88e",
+        "state": "submission_observed"
+      }
+    }
+  ]
+}
