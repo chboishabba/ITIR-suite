@@ -646,6 +646,45 @@ def generate_hierarchical_corpus_visualizations(
     }
 
 
+def stream_postgres_corpus(
+    database_url: str | None = None,
+    *,
+    connect: Any = None,
+) -> dict[str, Any]:
+    """Stream the PostgreSQL semantic spine without materializing raw chat bodies."""
+    from .pg_semantic_spine import load_postgres_semantic_corpus
+
+    return load_postgres_semantic_corpus(
+        database_url=database_url,
+        connect=connect,
+    )
+
+
+def stream_slrw_corpus(
+    slrw_path: str | Path,
+) -> dict[str, Any]:
+    """Stream the offline SLRW fallback corpus."""
+    from .pnf_spectral_packet import load_slrw_conversation_factors
+
+    return load_slrw_conversation_factors(slrw_path)
+
+
+def stream_preferred_corpus(
+    *,
+    database_url: str | None = None,
+    slrw_fallback_path: str | Path | None = None,
+    connect: Any = None,
+) -> dict[str, Any]:
+    """Prefer PostgreSQL semantic factors and fall back to SLRW when unavailable."""
+    from .pg_semantic_spine import load_preferred_semantic_corpus
+
+    return load_preferred_semantic_corpus(
+        database_url=database_url,
+        slrw_path=slrw_fallback_path,
+        connect=connect,
+    )
+
+
 def project_slrw_hierarchy_to_docs(
     slrw_path: str | Path,
     output_dir: str | Path = "docs/fleet",

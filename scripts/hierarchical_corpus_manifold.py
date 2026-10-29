@@ -16,6 +16,7 @@ import collections
 import json
 import math
 import os
+import sys
 from pathlib import Path
 import re
 import struct
@@ -612,6 +613,17 @@ def render_visualizations(
     print(f"Saved hierarchical topic heatmap to {heatmap_path}")
 
     return scatter_path, heatmap_path
+
+
+def stream_postgres_corpus(database_url: str | None = None):
+    """Public script-level PostgreSQL semantic-spine stream."""
+    return _stream_postgres_corpus(database_url)
+
+
+def stream_slrw_corpus(path: str | Path = DEFAULT_SLRW):
+    """Public script-level offline SLRW fallback stream."""
+    return _stream_slrw_corpus(path)
+
 
 
 def main() -> None:
