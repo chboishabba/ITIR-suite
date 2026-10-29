@@ -3,7 +3,7 @@
 ## Unreleased
 - Added candidate-only AO PNF hierarchy metadata validation for K=50/100 and deterministic head filtering for hexadecimal/memory dumps, raw UI/DOM tokens, comparative particles, and grammatical noise.
 - Added a deterministic fleet-round planner that distinguishes up to 20 simultaneous lanes per round from up to 20 rounds (400 potential planned worker calls), requires explicit pairwise noTypedMeet receipts, and fails closed on overlapping typed support. Planning only; no worker dispatch or formal authority.
-- Added deterministic regression coverage in `itir-mcp/tests/test_ao_pnf_spectral_fleet.py` and documented formal follow-up obligations; safe Agda remains golden and Lean follows.
+- Added deterministic regression coverage in `itir-mcp/tests/test_ao_pnf_spectral_fleet.py` and documented formal follow-up obligations; safe Agda remains golden and Lean follows. Tests have not been executed in this GitHub-only environment.
 - Added `itir.shard.bounded_graph_slice_plan`, a generic non-fetching plan
   surface that reports selected logical coverage and declared payload cost
   before a consumer decides to retrieve graph shard bytes.
