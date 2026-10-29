@@ -1993,21 +1993,32 @@ def _topic_summary(
         aggregate_frames.update(frame_counts[member])
         aggregate_ontology.update(ontology_counts[member])
 
+    # A lexical frame is eligible as a world head only when the public
+    # SensibLaw parser/reducer supplies PROPN evidence. Missing producer
+    # capability abstains; no lane-local English wordlist or regex fallback.
     top_frames = [
-        {"motif": motif, "weight": float(weight)}
-        for motif, weight in aggregate_frames.most_common(5)
-    ]
+        {"motif": motif, "weight": float(weight), "evidence": "sensiblaw_propn"}
+        for motif, weight in aggregate_frames.most_common()
+        if weight > 0 and _motif_has_propn_evidence(motif)
+    ][:5]
+    # Ontology features are admitted only because their incidence was explicitly
+    # supplied by the caller; they are not inferred from lexical resemblance.
     top_ontology = [
-        {"feature": feature.removeprefix("ontology:"), "weight": float(weight)}
+        {"feature": feature.removeprefix("ontology:"), "weight": float(weight),
+         "evidence": "explicit_ontology_incidence"}
         for feature, weight in aggregate_ontology.most_common(5)
     ]
     if top_frames:
         name = " + ".join(item["motif"] for item in top_frames[:2])
+        name_source = "sensiblaw_propn_relational_frames"
     elif top_ontology:
         name = " + ".join(item["feature"] for item in top_ontology[:2])
+        name_source = "explicit_ontology_incidence"
     else:
-        top_factors = aggregate_factors.most_common(2)
-        name = " + ".join(_factor_display_name(feature) for feature, _ in top_factors) or topic_id
+        # Do not promote raw factors into topic heads. topic_id is an opaque
+        # stable identifier, not a semantic label.
+        name = topic_id
+        name_source = "opaque_topic_id"
 
     width = len(coordinates[0])
     centroid = [
@@ -2022,6 +2033,7 @@ def _topic_summary(
         "topic_id": topic_id,
         "level": level,
         "name": name,
+        "name_source": name_source,
         "member_count": len(members),
         "members": sorted(members),
         "semantic_centroid": {
@@ -2037,6 +2049,36 @@ def _topic_summary(
             "formal_gap_reduction_mean": sum(gap_values) / len(gap_values),
         },
     }
+
+
+def _motif_has_propn_evidence(motif: str) -> bool:
+    """Use SensibLaw's public parser/reducer; missing interface means abstain."""
+    try:
+        from sensiblaw.interfaces import collect_canonical_relational_bundle
+    except (ImportError, ModuleNotFoundError):
+        try:
+            from sensiblaw.interfaces.shared_reducer import collect_canonical_relational_bundle
+        except (ImportError, ModuleNotFoundError):
+            return False
+    try:
+        bundle = collect_canonical_relational_bundle(motif)
+    except Exception:
+        return False
+    atoms = bundle.get("atoms", []) if isinstance(bundle, Mapping) else []
+    if not isinstance(atoms, Sequence) or isinstance(atoms, (str, bytes, bytearray)):
+        return False
+    # The interface emits POS-tagged atom observations. Require a PROPN tag
+    # on the predicate head itself, not merely somewhere in an argument.
+    predicate = motif.split("(", 1)[0].strip().casefold()
+    for atom in atoms:
+        if not isinstance(atom, Mapping):
+            continue
+        text = str(atom.get("text") or "").strip().casefold()
+        lemma = str(atom.get("lemma") or "").strip().casefold()
+        pos = str(atom.get("pos") or "").strip().upper()
+        if pos == "PROPN" and (text == predicate or lemma == predicate):
+            return True
+    return False
 
 
 def _factor_display_name(feature: str) -> str:
