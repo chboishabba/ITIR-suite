@@ -301,13 +301,9 @@ def _int(value: Any, label: str) -> int:
     return value
 
 
-# Deterministic head discriminator. These labels are candidate-only and never
-# create semantic, routing, support, or promotion authority.
-import re as _re
 
-_HEAD_HEX = _re.compile(r"(?i)0x[0-9a-f]+")
-_HEAD_UI = _re.compile(r"(?i)(document\\.|window\\.|innerhtml|outerhtml|classlist|queryselector|onclick\\s*=)")
-_HEAD_WORD = _re.compile(r"[A-Za-z][A-Za-z0-9_./:-]*")
+# Candidate-only lexical gate. Ontology labels and AST symbols must be supplied
+# by the owning producer; this adapter deliberately has no hard-coded topic map.
 _HEAD_PARTICLES = frozenset({"than", "rather", "ago", "also"})
 _HEAD_FUNCTION_WORDS = frozenset({
     "a", "an", "the", "and", "or", "but", "if", "then", "else", "of",
@@ -315,32 +311,37 @@ _HEAD_FUNCTION_WORDS = frozenset({
     "is", "are", "was", "were", "be", "been", "being", "change", "support",
     "package", "satisfy", "day", "fp16",
 })
-_DOMAIN_HEADS = frozenset({
-    "YangMillsMassGap", "NavierStokesTriadKN", "GoemansWilliamsonMaxCut",
-    "DeonticObligationCalculus", "DioxusReactiveTree", "E8LatticeMoonshine",
-    "BalabanRenormalization",
+_HEAD_UI_TOKENS = frozenset({
+    "document", "window", "innerhtml", "outerhtml", "classlist",
+    "queryselector", "getelementbyid", "node_modules",
 })
 
 
 def classify_pnf_head(value: str, *, ontology_labels: Sequence[str] = (),
                       ast_symbols: Sequence[str] = ()) -> dict[str, Any]:
-    """Reject particle/dump/UI noise; return accepted heads as unverified candidates."""
+    """Reject obvious noise; admitted labels remain unverified candidates."""
     if not isinstance(value, str) or not value.strip():
-        return {"accepted": False, "status": "rejected", "reasons": ["empty"]}
+        return {"accepted": False, "status": "rejected", "reasons": ["empty"], "authority": "none"}
     head = value.strip()
-    words = [word.lower() for word in _HEAD_WORD.findall(head)]
+    normalized = head.lower()
+    tokens = [part.strip(".,:;()[]{}<>/\\\\|·-_") for part in normalized.split()]
+    tokens = [token for token in tokens if token]
     reasons: list[str] = []
-    if _HEAD_HEX.search(head):
+    if any(token.startswith("0x") and len(token) > 2 and
+           all(ch in "0123456789abcdef" for ch in token[2:]) for token in tokens):
         reasons.append("hex_literal_or_memory_dump")
-    if _HEAD_UI.search(head):
+    if any(token in _HEAD_UI_TOKENS for token in tokens) or any(
+        fragment in normalized for fragment in ("document.", "window.", "innerhtml", "outerhtml", "queryselector", "onclick=")
+    ):
         reasons.append("raw_ui_dom_token")
-    if any(word in _HEAD_PARTICLES for word in words):
+    if any(token in _HEAD_PARTICLES for token in tokens):
         reasons.append("comparative_particle")
-    known = head in _DOMAIN_HEADS or head in set(ontology_labels) or head in set(ast_symbols)
-    substantive_capitalization = any(any(c.isupper() for c in word[1:]) for word in _HEAD_WORD.findall(head))
-    if words and all(word in _HEAD_FUNCTION_WORDS or word in _HEAD_PARTICLES for word in words):
+    known = head in set(ontology_labels) or head in set(ast_symbols)
+    words = [word for word in head.replace("·", " ").split() if word]
+    proper_noun_shape = any(word[:1].isupper() and any(ch.islower() for ch in word[1:]) for word in words)
+    if tokens and all(token in _HEAD_FUNCTION_WORDS or token in _HEAD_PARTICLES for token in tokens):
         reasons.append("grammatical_noise")
-    if not known and not substantive_capitalization:
+    if not known and not proper_noun_shape:
         reasons.append("no_substantive_entity_evidence")
     accepted = not reasons
     return {
@@ -348,7 +349,7 @@ def classify_pnf_head(value: str, *, ontology_labels: Sequence[str] = (),
         "status": "candidate_unverified" if accepted else "rejected",
         "head": head if accepted else None,
         "reasons": sorted(set(reasons)),
-        "evidence_kind": "domain_or_ontology_or_ast" if known else "capitalization_heuristic",
+        "evidence_kind": "ontology_or_ast" if known else "proper_noun_shape",
         "authority": "none",
     }
 
