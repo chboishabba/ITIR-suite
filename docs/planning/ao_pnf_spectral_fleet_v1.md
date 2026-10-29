@@ -45,8 +45,7 @@ Thus R=20 rounds and W=20 available lanes can permit up to 400 worker calls, but
 From repository root:
 
 ```bash
-python -m unittest discover -s tests -p 'test_pnf_spectral_packet.py' -v
-python -m unittest discover -s tests -p 'test_fleet_round_runner.py' -v
+python -m unittest discover -s itir-mcp/tests -p 'test_ao_pnf_spectral_fleet.py' -v
 ```
 
 Acceptance covers deterministic filtering, K validation, complete-link semantics, round-versus-worker accounting, W cap, pairwise proof fail-closed behavior, Pareto frontier selection, and bounded 20×20 planning. It does not constitute Agda/Lean kernel verification or a live concurrency test.
