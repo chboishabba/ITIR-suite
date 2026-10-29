@@ -384,6 +384,11 @@ def render_hierarchical_spectral_manifold(
 
     primary_ids = sorted({row["primary_id"] for row in parsed})
     primary_index = {topic_id: index for index, topic_id in enumerate(primary_ids)}
+    primary_name_by_id = {
+        str(topic.get("topic_id") or ""): str(topic.get("name") or topic.get("topic_id") or "")
+        for topic in hierarchy.get("primary_topics") or ()
+        if isinstance(topic, Mapping)
+    }
     x = [row["x"] for row in parsed]
     y = [row["y"] for row in parsed]
     colors = [primary_index[row["primary_id"]] for row in parsed]
@@ -420,7 +425,13 @@ def render_hierarchical_spectral_manifold(
 
     if len(primary_ids) <= 20 and len(primary_ids) > 1:
         handles, _ = scatter.legend_elements(num=len(primary_ids))
-        axis.legend(handles, primary_ids, title="Primary topic", loc="best", fontsize=7)
+        axis.legend(
+            handles,
+            [primary_name_by_id.get(topic_id, topic_id) for topic_id in primary_ids],
+            title="Primary topic motif",
+            loc="best",
+            fontsize=7,
+        )
 
     mp = hierarchy.get("marchenko_pastur")
     if isinstance(mp, Mapping):
@@ -635,6 +646,45 @@ def generate_hierarchical_corpus_visualizations(
     }
 
 
+def stream_postgres_corpus(
+    database_url: str | None = None,
+    *,
+    connect: Any = None,
+) -> dict[str, Any]:
+    """Stream the PostgreSQL semantic spine without materializing raw chat bodies."""
+    from .pg_semantic_spine import load_postgres_semantic_corpus
+
+    return load_postgres_semantic_corpus(
+        database_url=database_url,
+        connect=connect,
+    )
+
+
+def stream_slrw_corpus(
+    slrw_path: str | Path,
+) -> dict[str, Any]:
+    """Stream the offline SLRW fallback corpus."""
+    from .pnf_spectral_packet import load_slrw_conversation_factors
+
+    return load_slrw_conversation_factors(slrw_path)
+
+
+def stream_preferred_corpus(
+    *,
+    database_url: str | None = None,
+    slrw_fallback_path: str | Path | None = None,
+    connect: Any = None,
+) -> dict[str, Any]:
+    """Prefer PostgreSQL semantic factors and fall back to SLRW when unavailable."""
+    from .pg_semantic_spine import load_preferred_semantic_corpus
+
+    return load_preferred_semantic_corpus(
+        database_url=database_url,
+        slrw_path=slrw_fallback_path,
+        connect=connect,
+    )
+
+
 def project_slrw_hierarchy_to_docs(
     slrw_path: str | Path,
     output_dir: str | Path = "docs/fleet",
@@ -665,6 +715,81 @@ def project_slrw_hierarchy_to_docs(
     return {
         "version": VERSION,
         "source_path": str(Path(slrw_path).expanduser().resolve()),
+        "hierarchy_path": str(hierarchy_path),
+        "conversation_count": len(hierarchy.get("conversation_rows") or ()),
+        "visualization": visualization,
+        "candidate_only": True,
+        "non_authoritative": True,
+        "canonical_truth_mutated": False,
+    }
+
+
+def project_semantic_spine_hierarchy_to_docs(
+    output_dir: str | Path = "docs/fleet",
+    *,
+    database_url: str | None = None,
+    slrw_fallback_path: str | Path | None = None,
+    sqlite_history_path: str | Path | None = None,
+    register_chat_coordinates: bool = True,
+    max_features: int = 256,
+    max_spectral_dimensions: int = 16,
+    pg_connect: Any = None,
+) -> dict[str, Any]:
+    """Prefer PostgreSQL semantic factors; use SLRW only when PG is unavailable."""
+    from .pg_semantic_spine import (
+        DEFAULT_SQLITE_HISTORY,
+        load_preferred_semantic_corpus,
+        register_sqlite_chat_coordinates,
+    )
+    from .pnf_spectral_packet import build_hierarchical_pnf_topics
+
+    registration: dict[str, Any] | None = None
+    if register_chat_coordinates:
+        history = (
+            Path(sqlite_history_path).expanduser()
+            if sqlite_history_path is not None
+            else DEFAULT_SQLITE_HISTORY
+        )
+        if history.is_file():
+            try:
+                registration = register_sqlite_chat_coordinates(
+                    database_url,
+                    sqlite_path=history,
+                    connect=pg_connect,
+                )
+            except Exception as exc:
+                registration = {
+                    "status": "deferred",
+                    "error_class": exc.__class__.__name__,
+                    "error": str(exc),
+                    "raw_body_persisted": False,
+                }
+
+    selected = load_preferred_semantic_corpus(
+        database_url=database_url,
+        slrw_path=slrw_fallback_path,
+        connect=pg_connect,
+    )
+    hierarchy = build_hierarchical_pnf_topics(
+        selected["corpus"],
+        ontology_edges=selected.get("ontology_edges") or (),
+        max_features=max_features,
+        max_spectral_dimensions=max_spectral_dimensions,
+    )
+    target = Path(output_dir).expanduser().resolve()
+    target.mkdir(parents=True, exist_ok=True)
+    hierarchy_path = target / "fleet_hierarchy.json"
+    hierarchy_path.write_text(
+        json.dumps(hierarchy, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    visualization = generate_hierarchical_corpus_visualizations(hierarchy, target)
+    return {
+        "version": VERSION,
+        "semantic_source": selected["source"],
+        "fallback_used": bool(selected["fallback_used"]),
+        "postgres_error": selected.get("postgres_error"),
+        "chat_coordinate_registration": registration,
         "hierarchy_path": str(hierarchy_path),
         "conversation_count": len(hierarchy.get("conversation_rows") or ()),
         "visualization": visualization,

@@ -472,6 +472,474 @@ def _component_pair_key(left: str, right: str) -> str:
     first, second = sorted((left, right))
     return f"{first}|{second}"
 
+
+def _topic_goal_counts(topic: Mapping[str, Any]) -> tuple[int, int]:
+    total = topic.get("total_goals")
+    unblocked = topic.get("unblocked_goals")
+    if isinstance(total, int) and not isinstance(total, bool) and total >= 0:
+        total_goals = total
+    else:
+        goals = topic.get("goals")
+        if isinstance(goals, Sequence) and not isinstance(goals, (str, bytes, bytearray)):
+            total_goals = len(goals)
+        else:
+            total_goals = 1
+
+    if isinstance(unblocked, int) and not isinstance(unblocked, bool) and unblocked >= 0:
+        unblocked_goals = min(unblocked, total_goals)
+    else:
+        goals = topic.get("goals")
+        if isinstance(goals, Sequence) and not isinstance(goals, (str, bytes, bytearray)):
+            unblocked_goals = sum(
+                1
+                for goal in goals
+                if isinstance(goal, Mapping) and goal.get("blocked") is not True
+            )
+        else:
+            unblocked_goals = total_goals
+    return total_goals, unblocked_goals
+
+
+def _topic_blockers(topic: Mapping[str, Any]) -> list[dict[str, Any]]:
+    raw = topic.get("frontier_blockers")
+    if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes, bytearray)):
+        return []
+    blockers: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for index, item in enumerate(raw):
+        row = dict(item) if isinstance(item, Mapping) else {"blocker_id": str(item)}
+        blocker_id = str(row.get("blocker_id") or row.get("lemma_ref") or row.get("id") or "").strip()
+        if not blocker_id:
+            raise ValueError(f"frontier blocker {index} requires blocker_id, lemma_ref, or id")
+        if blocker_id in seen:
+            continue
+        seen.add(blocker_id)
+        row["blocker_id"] = blocker_id
+        blockers.append(row)
+    return blockers
+
+
+def _topic_sub_eigen_dimension(topic: Mapping[str, Any]) -> int:
+    raw_dimension = topic.get("sub_eigen_dimension")
+    if isinstance(raw_dimension, int) and not isinstance(raw_dimension, bool) and raw_dimension >= 0:
+        return raw_dimension
+    raw = topic.get("sub_eigens")
+    if isinstance(raw, Sequence) and not isinstance(raw, (str, bytes, bytearray)):
+        return len(raw)
+    return 1
+
+
+def _topic_token_cost(topic: Mapping[str, Any], worker_count: int) -> float:
+    schedule = topic.get("token_cost_by_workers")
+    if isinstance(schedule, Mapping):
+        value = schedule.get(worker_count)
+        if value is None:
+            value = schedule.get(str(worker_count))
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            cost = float(value)
+            if not math.isfinite(cost) or cost < 0.0:
+                raise ValueError("token cost must be finite and non-negative")
+            return cost
+
+    per_worker = topic.get("token_cost_per_worker", 0.0)
+    if isinstance(per_worker, bool) or not isinstance(per_worker, (int, float)):
+        raise ValueError("token_cost_per_worker must be numeric")
+    cost = float(per_worker) * worker_count
+    if not math.isfinite(cost) or cost < 0.0:
+        raise ValueError("token cost must be finite and non-negative")
+    return cost
+
+
+def conductor_topic_cost(
+    topic: Mapping[str, Any],
+    worker_count: int,
+    *,
+    worker_cap: int,
+) -> dict[str, Any]:
+    """Evaluate C(T_k, W) for one explicit worker bundle.
+
+    C(T_k, W) = alpha(T_k) * (unblocked_goals / total_goals)
+                * min(W_cap, dim(SubEigens)) - TokenCost(W)
+    """
+    if isinstance(worker_count, bool) or not isinstance(worker_count, int) or worker_count < 1:
+        raise ValueError("worker_count must be a positive integer")
+    if isinstance(worker_cap, bool) or not isinstance(worker_cap, int) or worker_cap < 1:
+        raise ValueError("worker_cap must be a positive integer")
+    total_goals, unblocked_goals = _topic_goal_counts(topic)
+    ratio = (float(unblocked_goals) / float(total_goals)) if total_goals else 0.0
+    sub_eigen_dimension = _topic_sub_eigen_dimension(topic)
+    spectral_width = min(worker_cap, sub_eigen_dimension)
+    alpha = _topic_alpha(topic)["mean"]
+    token_cost = _topic_token_cost(topic, worker_count)
+    benefit = alpha * ratio * float(spectral_width)
+    return {
+        "alpha": alpha,
+        "total_goals": total_goals,
+        "unblocked_goals": unblocked_goals,
+        "unblocked_ratio": ratio,
+        "worker_count": worker_count,
+        "worker_cap": worker_cap,
+        "sub_eigen_dimension": sub_eigen_dimension,
+        "spectral_width": spectral_width,
+        "benefit": benefit,
+        "token_cost": token_cost,
+        "net_cost": benefit - token_cost,
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)",
+    }
+
+
+def _topic_worker_shape(topic: Mapping[str, Any]) -> dict[str, Any]:
+    blockers = _topic_blockers(topic)
+    if blockers:
+        return {
+            "kind": "frontier_blocked",
+            "requested_workers": len(blockers),
+            "frontier_blockers": blockers,
+            "sub_eigen_dimension": _topic_sub_eigen_dimension(topic),
+        }
+
+    execution_kind = str(topic.get("execution_kind") or "").strip()
+    if execution_kind == "parallel":
+        dimension = _topic_sub_eigen_dimension(topic)
+        return {
+            "kind": "parallel",
+            "requested_workers": max(1, dimension),
+            "frontier_blockers": [],
+            "sub_eigen_dimension": dimension,
+        }
+
+    return {
+        "kind": "sequential",
+        "requested_workers": 1,
+        "frontier_blockers": [],
+        "sub_eigen_dimension": _topic_sub_eigen_dimension(topic),
+    }
+
+
+def _worker_lane_ids_for_topic(
+    topic: Mapping[str, Any],
+    shape: Mapping[str, Any],
+    worker_count: int,
+) -> list[str]:
+    topic_id = str(topic.get("topic_id") or "")
+    kind = str(shape.get("kind") or "")
+    if kind == "frontier_blocked":
+        rows = shape.get("frontier_blockers")
+        lane_ids: list[str] = []
+        for blocker in rows if isinstance(rows, Sequence) else ():
+            if not isinstance(blocker, Mapping):
+                continue
+            lane_id = str(blocker.get("lane_topic_id") or "").strip()
+            if lane_id:
+                lane_ids.append(lane_id)
+        return lane_ids[:worker_count]
+    if kind == "parallel":
+        raw = topic.get("worker_lane_ids")
+        if isinstance(raw, Sequence) and not isinstance(raw, (str, bytes, bytearray)):
+            return [str(item).strip() for item in raw if str(item).strip()][:worker_count]
+        return []
+    return [topic_id] if topic_id else []
+
+
+def build_pareto_conductor_plan(
+    hierarchy: Mapping[str, Any],
+    worker_capacity: int,
+    *,
+    candidate_lanes: Mapping[str, Mapping[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Build a dynamic costed conductor plan without capacity-triggered overspawn."""
+    if isinstance(worker_capacity, bool) or not isinstance(worker_capacity, int):
+        raise ValueError("worker_capacity must be an integer")
+    if worker_capacity < 1 or worker_capacity > 20:
+        raise ValueError("worker_capacity must be within [1, 20]")
+
+    allocation = allocate_hierarchical_spectral_workers(
+        hierarchy,
+        worker_capacity,
+        parallel_admissibility=None,
+    )
+    primary_topics = _pareto_order_topic_rows(_hierarchy_topics(hierarchy, "primary_topics"))
+    subtopics = _hierarchy_topics(hierarchy, "subtopics")
+    subtopics_by_primary: dict[str, list[dict[str, Any]]] = {}
+    for subtopic in subtopics:
+        subtopics_by_primary.setdefault(str(subtopic.get("parent_id") or ""), []).append(subtopic)
+    for rows in subtopics_by_primary.values():
+        rows[:] = _pareto_order_topic_rows(rows)
+
+    scored_topics: list[dict[str, Any]] = []
+    for topic in primary_topics:
+        shape = _topic_worker_shape(topic)
+        requested = int(shape["requested_workers"])
+        preview_workers = min(worker_capacity, requested)
+        cost = conductor_topic_cost(topic, max(1, preview_workers), worker_cap=worker_capacity)
+        scored = dict(topic)
+        scored["worker_shape"] = shape
+        scored["requested_workers"] = requested
+        scored["conductor_cost"] = cost
+        scored_topics.append(scored)
+
+    scored_topics.sort(
+        key=lambda topic: (
+            -float(topic["conductor_cost"]["net_cost"]),
+            int(topic.get("pareto_rank", 0)),
+            -_topic_alpha(topic)["mean"],
+            str(topic.get("topic_id") or ""),
+        )
+    )
+
+    remaining = worker_capacity
+    selected_topics: list[dict[str, Any]] = []
+    deferred_topics: list[dict[str, Any]] = []
+    for topic in scored_topics:
+        if remaining <= 0:
+            deferred_topics.append(topic)
+            continue
+        requested = int(topic["requested_workers"])
+        allocated = min(requested, remaining)
+        if allocated < 1:
+            deferred_topics.append(topic)
+            continue
+        row = dict(topic)
+        row["allocated_workers"] = allocated
+        row["capacity_truncated"] = allocated < requested
+        row["conductor_cost"] = conductor_topic_cost(
+            row,
+            allocated,
+            worker_cap=worker_capacity,
+        )
+        selected_topics.append(row)
+        remaining -= allocated
+
+    lane_map = candidate_lanes if isinstance(candidate_lanes, Mapping) else {}
+    prepared_lanes: list[dict[str, Any]] = []
+    missing_lane_topics: list[str] = []
+    worker_allocations: list[dict[str, Any]] = []
+
+    for topic in selected_topics:
+        topic_id = str(topic.get("topic_id") or "")
+        allocated_workers = int(topic["allocated_workers"])
+        shape = topic["worker_shape"]
+        children = subtopics_by_primary.get(topic_id, [])
+        internal_packets = [
+            {
+                "sequence": sequence,
+                "topic_id": str(child.get("topic_id") or ""),
+                "topic_name": str(child.get("name") or child.get("topic_id") or ""),
+                "alpha": _topic_alpha(child),
+                "preserved": True,
+                "cross_pollination_parent": topic_id,
+                "promotion_state": "sequenced_internal_work",
+            }
+            for sequence, child in enumerate(children)
+        ]
+
+        lane_ids = _worker_lane_ids_for_topic(topic, shape, allocated_workers)
+        allocation_row = {
+            "topic_id": topic_id,
+            "topic_name": str(topic.get("name") or topic_id),
+            "shape": shape["kind"],
+            "requested_workers": int(topic["requested_workers"]),
+            "allocated_workers": allocated_workers,
+            "frontier_blocker_count": len(shape.get("frontier_blockers") or ()),
+            "sub_eigen_dimension": int(shape.get("sub_eigen_dimension") or 0),
+            "conductor_cost": topic["conductor_cost"],
+            "internal_work_packets": internal_packets,
+            "worker_lane_ids": lane_ids,
+        }
+        worker_allocations.append(allocation_row)
+
+        if len(lane_ids) != allocated_workers:
+            missing_lane_topics.append(topic_id)
+            continue
+
+        for worker_ordinal, lane_id in enumerate(lane_ids):
+            raw_lane = lane_map.get(lane_id)
+            if not isinstance(raw_lane, Mapping):
+                missing_lane_topics.append(lane_id)
+                continue
+            lane = dict(raw_lane)
+            lane["topic_id"] = topic_id
+            lane["topic_name"] = str(topic.get("name") or topic_id)
+            lane["worker_ordinal"] = worker_ordinal
+            lane["worker_shape"] = shape["kind"]
+            lane["conductor_cost"] = topic["conductor_cost"]
+            lane["alpha"] = _topic_alpha(topic)
+            lane["pareto_rank"] = int(topic.get("pareto_rank", 0))
+            lane["internal_work_packets"] = internal_packets if worker_ordinal == 0 else []
+            lane["conductor_mode"] = "dynamic_costed"
+            lane["selected_tau"] = float(allocation["selected_tau"])
+            lane["prompt"] = _pareto_lane_prompt(lane, lane["internal_work_packets"])
+            prepared_lanes.append(lane)
+
+    no_typed_meet_verified = False
+    verification_error: str | None = None
+    if prepared_lanes:
+        try:
+            _verify_pairwise_no_typed_meet(prepared_lanes)
+            no_typed_meet_verified = True
+        except ValueError as exc:
+            verification_error = str(exc)
+
+    dispatchable_lanes = prepared_lanes if no_typed_meet_verified else []
+
+    return {
+        "schema": "itir.ao.sublinear_topic_conductor.v1",
+        "worker_capacity": worker_capacity,
+        "mode": "dynamic_costed",
+        "selected_tau": float(allocation["selected_tau"]),
+        "spectral_resolution": allocation["resolution"],
+        "selected_topic_count": len(selected_topics),
+        "prepared_lane_count": len(prepared_lanes),
+        "dispatchable_lane_count": len(dispatchable_lanes),
+        "unused_worker_capacity": remaining,
+        "selected_topics": [
+            {
+                "topic_id": str(topic.get("topic_id") or ""),
+                "name": str(topic.get("name") or topic.get("topic_id") or ""),
+                "alpha": _topic_alpha(topic),
+                "pareto_rank": int(topic.get("pareto_rank", 0)),
+                "requested_workers": int(topic["requested_workers"]),
+                "allocated_workers": int(topic["allocated_workers"]),
+                "capacity_truncated": bool(topic["capacity_truncated"]),
+                "conductor_cost": topic["conductor_cost"],
+                "worker_shape": topic["worker_shape"]["kind"],
+            }
+            for topic in selected_topics
+        ],
+        "deferred_topics": [
+            {
+                "topic_id": str(topic.get("topic_id") or ""),
+                "name": str(topic.get("name") or topic.get("topic_id") or ""),
+                "alpha": _topic_alpha(topic),
+                "pareto_rank": int(topic.get("pareto_rank", 0)),
+                "requested_workers": int(topic["requested_workers"]),
+                "conductor_cost": topic["conductor_cost"],
+            }
+            for topic in deferred_topics
+        ],
+        "worker_allocations": worker_allocations,
+        "lanes": dispatchable_lanes,
+        "missing_lane_topics": sorted(set(missing_lane_topics)),
+        "pairwise_noTypedMeet_verified": no_typed_meet_verified,
+        "verification_error": verification_error,
+        "allocation": allocation,
+        "policy": {
+            "max_workers": 20,
+            "worker_capacity_is_budget_not_mode_selector": True,
+            "frontier_blocked_width_equals_explicit_blockers": True,
+            "sequential_width_is_one": True,
+            "parallel_width_is_sub_eigen_dimension_bounded_by_capacity": True,
+            "lower_alpha_subtopics_roll_into_parent_packets": True,
+            "internal_packets_are_preserved": True,
+            "alpha_is_priority_not_authority": True,
+            "parallel_requires_pairwise_noTypedMeet": True,
+            "dispatch_uses_existing_exactly_once_transport": True,
+        },
+    }
+
+
+def _hierarchy_topics(hierarchy: Mapping[str, Any], key: str) -> list[dict[str, Any]]:
+    raw = hierarchy.get(key)
+    if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes, bytearray)):
+        raise ValueError(f"hierarchy requires {key}")
+    return [dict(topic) for topic in raw if isinstance(topic, Mapping)]
+
+
+def _topic_alpha(topic: Mapping[str, Any]) -> dict[str, float]:
+    raw = topic.get("alpha")
+    alpha = raw if isinstance(raw, Mapping) else {}
+    return {
+        "mean": float(alpha.get("mean", 0.0)),
+        "max": float(alpha.get("max", 0.0)),
+        "spectral_energy_mean": float(alpha.get("spectral_energy_mean", 0.0)),
+        "theorem_density_mean": float(alpha.get("theorem_density_mean", 0.0)),
+        "formal_gap_reduction_mean": float(alpha.get("formal_gap_reduction_mean", 0.0)),
+    }
+
+
+def _pareto_order_topic_rows(topics: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    rows = [dict(topic) for topic in topics]
+    pseudo_components = [
+        {
+            "component_id": str(topic.get("topic_id") or f"topic-{index:03d}"),
+            "alpha": _topic_alpha(topic),
+        }
+        for index, topic in enumerate(rows)
+    ]
+    layers = _pareto_layers(pseudo_components) if pseudo_components else []
+    rank: dict[str, int] = {}
+    for layer_index, layer in enumerate(layers):
+        for topic_id in layer:
+            rank[topic_id] = layer_index
+    for topic in rows:
+        topic_id = str(topic.get("topic_id") or "")
+        topic["pareto_rank"] = rank.get(topic_id, len(layers))
+    return sorted(
+        rows,
+        key=lambda topic: (
+            int(topic.get("pareto_rank", 0)),
+            -_topic_alpha(topic)["mean"],
+            -_topic_alpha(topic)["spectral_energy_mean"],
+            str(topic.get("topic_id") or ""),
+        ),
+    )
+
+
+def _pareto_lane_prompt(
+    lane: Mapping[str, Any],
+    internal_packets: Sequence[Mapping[str, Any]],
+) -> str:
+    base = str(lane.get("prompt") or lane.get("lane_claim") or "").strip()
+    if not base:
+        raise ValueError("candidate lane requires prompt or lane_claim")
+    if not internal_packets:
+        return base
+    packet_lines = [
+        "",
+        "AO conductor internal work packets. Execute in this order within this worker turn:",
+    ]
+    for packet in internal_packets:
+        packet_lines.append(
+            f"{int(packet['sequence']) + 1}. {packet['topic_id']} — {packet['topic_name']}"
+        )
+    return base + "\n" + "\n".join(packet_lines)
+
+
+def execute_pareto_conductor(
+    hierarchy: Mapping[str, Any],
+    worker_capacity: int,
+    candidate_lanes: Mapping[str, Mapping[str, Any]],
+    workers: Sequence[Any],
+    *,
+    db_path: str | Path | None = None,
+    dispatch: bool = False,
+) -> dict[str, Any]:
+    plan = build_pareto_conductor_plan(
+        hierarchy,
+        worker_capacity,
+        candidate_lanes=candidate_lanes,
+    )
+    if not dispatch:
+        return {"plan": plan, "dispatch": None}
+    lanes = plan["lanes"]
+    if not lanes:
+        raise ValueError(
+            plan.get("verification_error")
+            or "no pairwise-noTypedMeet-verified lanes are dispatchable"
+        )
+    worker_rows = list(workers)
+    if len(worker_rows) < len(lanes):
+        raise ValueError("workers must provide at least one worker per dispatchable lane")
+    dispatch_receipt = spawn_parallel_lanes(
+        lanes,
+        worker_rows[: len(lanes)],
+        db_path=db_path,
+    )
+    return {
+        "plan": plan,
+        "dispatch": dispatch_receipt,
+    }
+
 def execute_fleet_lead_round(*, max_leads: int = 5) -> list[dict[str, Any]]:
     fo = FleetOrchestrator()
     summary = fo.status_summary()

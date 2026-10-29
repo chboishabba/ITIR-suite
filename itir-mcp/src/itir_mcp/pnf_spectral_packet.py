@@ -1255,6 +1255,22 @@ def _prod_invariant_violation(
 
 HIERARCHICAL_SPECTRAL_SCHEMA = "itir.pnf.hierarchical_spectral_pareto.v1"
 
+GENERIC_CONVERSATIONAL_PREDICATES = frozenset({
+    "want",
+    "need",
+    "return",
+    "keep",
+    "get",
+    "think",
+    "go",
+    "see",
+    "make",
+    "do",
+    "have",
+    "be",
+})
+
+
 
 def load_slrw_conversation_factors(
     slrw_path: str | Path,
@@ -1598,6 +1614,22 @@ def build_hierarchical_pnf_topics(
                 )
                 fibre_summary["parent_id"] = sub_id
                 fibre_topics.append(fibre_summary)
+
+    primary_topics = _apply_discriminative_topic_motifs(
+        primary_topics,
+        frame_counts=frame_counts,
+        ontology_counts=ontology_feature_counts,
+    )
+    sub_topics = _apply_discriminative_topic_motifs(
+        sub_topics,
+        frame_counts=frame_counts,
+        ontology_counts=ontology_feature_counts,
+    )
+    fibre_topics = _apply_discriminative_topic_motifs(
+        fibre_topics,
+        frame_counts=frame_counts,
+        ontology_counts=ontology_feature_counts,
+    )
 
     conversation_rows = []
     for index, conversation_id in enumerate(conversation_ids):
@@ -1994,20 +2026,25 @@ def _topic_summary(
         aggregate_ontology.update(ontology_counts[member])
 
     top_frames = [
-        {"motif": motif, "weight": float(weight)}
-        for motif, weight in aggregate_frames.most_common(5)
+        {
+            "motif": motif,
+            "count": float(weight),
+            "typed": True,
+            "predicate": _frame_predicate(motif),
+        }
+        for motif, weight in aggregate_frames.most_common(8)
+        if not _is_generic_frame_motif(motif)
     ]
     top_ontology = [
-        {"feature": feature.removeprefix("ontology:"), "weight": float(weight)}
-        for feature, weight in aggregate_ontology.most_common(5)
+        {
+            "feature": feature.removeprefix("ontology:"),
+            "count": float(weight),
+            "typed": True,
+            "stalk_label": f"external:{feature.removeprefix('ontology:')}",
+        }
+        for feature, weight in aggregate_ontology.most_common(8)
     ]
-    if top_frames:
-        name = " + ".join(item["motif"] for item in top_frames[:2])
-    elif top_ontology:
-        name = " + ".join(item["feature"] for item in top_ontology[:2])
-    else:
-        top_factors = aggregate_factors.most_common(2)
-        name = " + ".join(_factor_display_name(feature) for feature, _ in top_factors) or topic_id
+    name = topic_id
 
     width = len(coordinates[0])
     centroid = [
@@ -2028,6 +2065,7 @@ def _topic_summary(
             "spectral_coordinates": centroid,
             "top_relational_frames": top_frames,
             "top_ontology_incidence": top_ontology,
+            "discriminative_motifs": [],
         },
         "alpha": {
             "mean": sum(alpha_values) / len(alpha_values),
@@ -2037,6 +2075,158 @@ def _topic_summary(
             "formal_gap_reduction_mean": sum(gap_values) / len(gap_values),
         },
     }
+
+
+
+def _frame_predicate(motif: str) -> str:
+    return motif.split("(", 1)[0].strip().casefold()
+
+
+def _is_generic_frame_motif(motif: str) -> bool:
+    return _frame_predicate(motif) in GENERIC_CONVERSATIONAL_PREDICATES
+
+
+def rank_discriminative_topic_motifs(
+    topics: Sequence[Mapping[str, Any]],
+    *,
+    frame_counts: Mapping[str, Counter[str]],
+    ontology_counts: Mapping[str, Counter[str]],
+    limit: int = 8,
+) -> list[dict[str, Any]]:
+    return _apply_discriminative_topic_motifs(
+        topics,
+        frame_counts=frame_counts,
+        ontology_counts=ontology_counts,
+        limit=limit,
+    )
+
+
+def _apply_discriminative_topic_motifs(
+    topics: Sequence[Mapping[str, Any]],
+    *,
+    frame_counts: Mapping[str, Counter[str]],
+    ontology_counts: Mapping[str, Counter[str]],
+    limit: int = 8,
+) -> list[dict[str, Any]]:
+    rows = [dict(topic) for topic in topics]
+    if not rows:
+        return rows
+
+    cluster_frames: list[Counter[str]] = []
+    cluster_ontology: list[Counter[str]] = []
+    frame_df: Counter[str] = Counter()
+    ontology_df: Counter[str] = Counter()
+
+    for topic in rows:
+        members = [
+            str(member)
+            for member in topic.get("members") or ()
+            if str(member)
+        ]
+        frames: Counter[str] = Counter()
+        ontology: Counter[str] = Counter()
+        for member in members:
+            frames.update(frame_counts.get(member, Counter()))
+            ontology.update(ontology_counts.get(member, Counter()))
+        frames = Counter({
+            motif: count
+            for motif, count in frames.items()
+            if count > 0 and not _is_generic_frame_motif(motif)
+        })
+        ontology = Counter({
+            feature: count
+            for feature, count in ontology.items()
+            if count > 0
+        })
+        cluster_frames.append(frames)
+        cluster_ontology.append(ontology)
+        frame_df.update(frames.keys())
+        ontology_df.update(ontology.keys())
+
+    total_clusters = len(rows)
+    for index, topic in enumerate(rows):
+        frames = cluster_frames[index]
+        ontology = cluster_ontology[index]
+        total_frames = sum(frames.values())
+        total_ontology = sum(ontology.values())
+
+        scored: list[dict[str, Any]] = []
+        if total_frames > 0:
+            for motif, count in frames.items():
+                score = (
+                    (float(count) / float(total_frames))
+                    * math.log(float(total_clusters) / float(1 + frame_df[motif]))
+                )
+                scored.append({
+                    "kind": "typed_frame",
+                    "label": motif,
+                    "motif": motif,
+                    "predicate": _frame_predicate(motif),
+                    "count": float(count),
+                    "cluster_tf": float(count) / float(total_frames),
+                    "cluster_df": int(frame_df[motif]),
+                    "contrastive_score": score,
+                    "weight": score,
+                    "stalk_label": f"frame:{motif}",
+                    "predicate_stalk_label": f"predicate:{_frame_predicate(motif)}",
+                })
+
+        if total_ontology > 0:
+            for feature, count in ontology.items():
+                label = feature.removeprefix("ontology:")
+                score = (
+                    (float(count) / float(total_ontology))
+                    * math.log(float(total_clusters) / float(1 + ontology_df[feature]))
+                )
+                scored.append({
+                    "kind": "ontology_bridge",
+                    "label": label,
+                    "feature": label,
+                    "count": float(count),
+                    "cluster_tf": float(count) / float(total_ontology),
+                    "cluster_df": int(ontology_df[feature]),
+                    "contrastive_score": score,
+                    "weight": score,
+                    "stalk_label": f"external:{label}",
+                })
+
+        scored.sort(
+            key=lambda item: (
+                -float(item["contrastive_score"]),
+                0 if item["kind"] == "typed_frame" else 1,
+                -float(item["count"]),
+                str(item["label"]),
+            )
+        )
+        positive = [item for item in scored if float(item["contrastive_score"]) > 0.0]
+        selected = (positive or scored)[:limit]
+
+        centroid = topic.get("semantic_centroid")
+        centroid_map = dict(centroid) if isinstance(centroid, Mapping) else {}
+        centroid_map["discriminative_motifs"] = selected
+        centroid_map["motif_scoring"] = {
+            "formula": "(count_in_cluster/total_cluster_frames)*log(total_clusters/(1+cluster_document_frequency))",
+            "total_clusters": total_clusters,
+            "generic_predicate_filter": sorted(GENERIC_CONVERSATIONAL_PREDICATES),
+            "typed_frames_prioritized": True,
+            "ontology_labels_require_explicit_incidence": True,
+        }
+        centroid_map["top_relational_frames"] = [
+            item for item in selected if item["kind"] == "typed_frame"
+        ]
+        centroid_map["top_ontology_incidence"] = [
+            item for item in selected if item["kind"] == "ontology_bridge"
+        ]
+        topic["semantic_centroid"] = centroid_map
+
+        typed = [item for item in selected if item["kind"] == "typed_frame"]
+        external = [item for item in selected if item["kind"] == "ontology_bridge"]
+        name_parts = [str(item["label"]) for item in typed[:2]]
+        if len(name_parts) < 2:
+            name_parts.extend(str(item["label"]) for item in external[: 2 - len(name_parts)])
+        topic["name"] = " + ".join(name_parts) if name_parts else str(topic.get("topic_id"))
+        topic["motif_name_source"] = "contrastive_typed_pnf_frames_and_explicit_ontology"
+    return rows
 
 
 def _factor_display_name(feature: str) -> str:
