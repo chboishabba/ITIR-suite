@@ -640,6 +640,7 @@ def project_slrw_hierarchy_to_docs(
     output_dir: str | Path = "docs/fleet",
     *,
     ontology_edges: Sequence[Mapping[str, Any]] | None = None,
+    formal_ast_symbols: Sequence[Mapping[str, Any]] | None = None,
     alpha_signals: Mapping[str, Mapping[str, Any]] | None = None,
     max_features: int = 256,
     max_spectral_dimensions: int = 16,
@@ -650,6 +651,7 @@ def project_slrw_hierarchy_to_docs(
     hierarchy = build_hierarchical_pnf_topics(
         slrw_path,
         ontology_edges=ontology_edges,
+        formal_ast_symbols=formal_ast_symbols,
         alpha_signals=alpha_signals,
         max_features=max_features,
         max_spectral_dimensions=max_spectral_dimensions,
