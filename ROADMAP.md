@@ -131,6 +131,11 @@ SQLite-backed corpus with TIRC and SL-style views.
     (e.g., 20 disparate UI threads or 15 separate fluid flux chats). High-overlap threads are yanked from the queue,
     documented with source lineage in `operational.conversation_lineage`, and coalesced into unified, world-enhanced
     joined threads to end infinite loops of disconnected tidbits and converge sublinearly toward completion.
+  - **Bounded Formal Slicing & AST Symbol Similarity Engine**: Rather than basic text grep fragments or
+    whole-file context dumps, automatically isolate the transitive dependency closure of target lemmas
+    (signatures, defining clauses, helper types, and referenced lemmas) via `re_gpt.formal_slicer.build_pruned_formal_slice`
+    and `related_symbol_candidates`. Embeds the self-contained pruned Agda slice into the world-enhanced capsule
+    and lists exact symbol coordinates (`file:line`), preventing workers from re-inventing existing in-repo constructions.
   - **Golden Sublinear Topic Width Law ($W=20$)**: Wire `itir_mcp.fleet_round_runner.execute_pareto_conductor`
     directly against PostgreSQL to size allocations across topics ($\mathcal{C}(T_k, W) = \alpha(T_k) \cdot \frac{\text{unblocked}}{\text{total}} \cdot \min(20, \dim(\text{SubEigens}), W)$)
     and allocate workers to topic deliverables rather than raw thread IDs.
