@@ -179,11 +179,61 @@ def test_real_slrw_loader_and_dynamic_hierarchy(tmp_path: Path) -> None:
         assert set(fibre["members"]) <= sub_members[fibre["parent_id"]]
 
     assert all(topic["name"] for topic in hierarchy["primary_topics"])
+    # Topic heads may only use SensibLaw PROPN evidence or explicitly
+    # supplied ontology incidence. The test fixture's verb-like PNF frames
+    # must not be promoted merely because they are frequent.
+    assert all(
+        topic["name_source"] in {
+            "sensiblaw_propn_relational_frames",
+            "explicit_ontology_incidence",
+            "opaque_topic_id",
+        }
+        for topic in hierarchy["primary_topics"]
+    )
+    assert all(
+        frame.get("evidence") == "sensiblaw_propn"
+        for topic in hierarchy["primary_topics"]
+        for frame in topic["semantic_centroid"]["top_relational_frames"]
+    )
     assert any(
-        topic["semantic_centroid"]["top_relational_frames"]
+        topic["semantic_centroid"]["top_ontology_incidence"]
         for topic in hierarchy["primary_topics"]
     )
 
+
+
+def test_motif_pos_gate_abstains_without_sensiblaw(monkeypatch) -> None:
+    import builtins
+    from itir_mcp import pnf_spectral_packet as packet
+
+    original_import = builtins.__import__
+
+    def blocked_import(name, *args, **kwargs):
+        if name == "sensiblaw.interfaces" or name.startswith("sensiblaw.interfaces."):
+            raise ModuleNotFoundError(name)
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", blocked_import)
+    assert packet._motif_has_propn_evidence("want(arg:change)") is False
+
+
+def test_motif_pos_gate_requires_predicate_head_propn(monkeypatch) -> None:
+    from itir_mcp import pnf_spectral_packet as packet
+
+    monkeypatch.setitem(
+        __import__("sys").modules,
+        "sensiblaw.interfaces",
+        type("SensibLawInterface", (), {
+            "collect_canonical_relational_bundle": staticmethod(
+                lambda _text: {"atoms": [
+                    {"text": "YangMillsMassGap", "lemma": "yangmillsmassgap", "pos": "PROPN"},
+                    {"text": "changes", "lemma": "change", "pos": "VERB"},
+                ]}
+            )
+        })(),
+    )
+    assert packet._motif_has_propn_evidence("YangMillsMassGap(arg:change)") is True
+    assert packet._motif_has_propn_evidence("change(arg:day)") is False
 
 def test_capacity_threshold_is_monotone_and_pareto_prioritizes_alpha(tmp_path: Path) -> None:
     hierarchy = _hierarchy(tmp_path)
