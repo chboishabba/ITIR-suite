@@ -1,6 +1,14 @@
-# Chat archive storage roles v1
+# Chat archive storage roles v1 [DEPRECATED]
 
-## Decision
+> [!WARNING]
+> **SUPERSEDED BY SOLE POSTGRESQL MANDATE (2026-10-29)**
+> This document describes legacy multi-SQLite transitional arrangements.
+> Per repository architecture directive ([SINGLE_CANONICAL_STORE_AND_PG_SPINE_ROADMAP.md](../architecture/SINGLE_CANONICAL_STORE_AND_PG_SPINE_ROADMAP.md)),
+> **PostgreSQL (`sensiblaw_sparse_ready_20260818` on TrueNAS) is the SOLE AND ONLY DATABASE.**
+> All three SQLite databases (`~/chat_archive.sqlite`, `~/.chatgpt_history.sqlite3`, `~/.chat_archive.sqlite`)
+> and `.slrw` files are deprecated transitional shims slated for complete backfill, retirement, and deletion.
+
+## Historical Decision (Superseded)
 
 `~/chat_archive.sqlite` is the sole canonical chat corpus. Its structured
 `messages` records, canonical-thread coordinates, provenance and hydration

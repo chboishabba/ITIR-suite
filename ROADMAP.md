@@ -118,20 +118,19 @@ SQLite-backed corpus with TIRC and SL-style views.
   - StatiBaker Kanban Integration: Direct projection of topic deliverables into StatiBaker
     Kanban boards linked with Wikidata entity relations.
 
-## Milestone M6: Unified Single Semantic Spine & Full-Corpus AO Allocation (Jul 2026)
+## Milestone M6: Sole PostgreSQL Store Migration & Deprecation of SQLite/SLRW (Jul 2026)
 - Deliverables:
-  - PostgreSQL Single Canonical Spine: Unify storage onto TrueNAS PostgreSQL (`sensiblaw_sparse_ready_20260818`),
-    housing transcripts (`corpus.chat_archive_message`), PNF relational world models (`pnf.statement_candidate_factor`, `pnf.graph`),
-    planning/docs/user stories (`corpus.document_manifest`), StatiBaker kanban deliverables (`task.candidate`),
-    Wikidata entity alignments (`wikidata.claim_entity`), and formal proof gaps (`formal.proof_gap`).
-  - Edge Cache & WAL Separation: Local SQLite (`~/.chatgpt_history.sqlite3`) transitions to an edge cache
-    and write-ahead log for fast headless `curl_cffi` streaming, registered immutably into PG via
-    `register_sqlite_chat_coordinates` (`archive_locator="sqlite:canonical#<node_id>"`).
-  - 1,000+ Conversation Tranche Expansion: Hydrate the 500 next-oldest threads below the top-500 tranche,
-    expanding the manifold to 1,000+ conversations and compiling unified PNF spectra.
+  - **Sole PostgreSQL Store Mandate**: TrueNAS PostgreSQL (`sensiblaw_sparse_ready_20260818`) is the
+    **sole and only database** for the entire ITIR suite. No SQLite, no SLRW. All three transitional
+    SQLite databases (`~/chat_archive.sqlite`, `~/.chatgpt_history.sqlite3`, `~/.chat_archive.sqlite`)
+    and binary `.slrw` files are fully deprecated, backfilled into PostgreSQL, and slated for deletion.
+  - Unified Schema Coverage: Transcripts (`corpus.chat_archive_message`), mutation ops (`ops.mutation_operation`),
+    PNF relational factors (`pnf.statement_candidate_factor`, `pnf.graph`), docs & user stories (`corpus.document_manifest`),
+    StatiBaker deliverables (`task.candidate`, `goal.timeline`), Wikidata entities (`wikidata.claim_entity`),
+    and formal proof gaps (`formal.proof_gap`) reside exclusively in PostgreSQL.
+  - Headless CFFI Direct-to-PG: Wire `MutationService` directly to PostgreSQL for turns and SSE receipts.
   - Full-World Pareto Conductor Allocation: Run the autonomous orchestrator (AO) dynamic cost function
-    $\mathcal{C}(T_k, W)$ over the entire consolidated world model, cross-pollinating goals across
-    ITIR, SensibLaw, StatiBaker, and Wikidata.
+    $\mathcal{C}(T_k, W)$ directly against PostgreSQL across the unified cross-project world model.
 
 ## Next Candidate Deliverables
 - Python ingest script for `conversations.json`.

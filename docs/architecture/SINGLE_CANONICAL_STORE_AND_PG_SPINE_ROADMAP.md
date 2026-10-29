@@ -1,109 +1,93 @@
-# Unified Single Semantic Spine: PostgreSQL Canonical Store & Full-World AO Allocation
+# Architecture Directive: Sole PostgreSQL Store Mandate & Full Deprecation of SQLite and SLRW
 
-**Status:** Approved Architecture & Phase Roadmap  
-**Target Milestone:** M6 (Jul 2026)  
-**Cross-Project Scope:** `ITIR-suite` $\leftrightarrow$ `SensibLaw` $\leftrightarrow$ `StatiBaker` $\leftrightarrow$ `reverse-engineered-chatgpt` $\leftrightarrow$ `DASHI`
-
----
-
-## 1. Executive Summary & Problem Framing
-
-Currently, conversation and semantic assets span two local SQLite databases (`~/.chatgpt_history.sqlite3` for re-gpt operational turns, and `~/chat_archive.sqlite` with 814k messages and 6.9k threads for structured canonical archives) alongside a high-capacity TrueNAS PostgreSQL cluster (`postgresql://admin:admin@truenas.local:5432/sensiblaw_sparse_ready_20260818`, housing 124 tables, 157k PNF factor rows, and semantic product lattices).
-
-To resolve fragmentation and enable the **Autonomous Orchestrator (AO)** to allocate resources across the **entire universe of repository knowledge** (chats, docs, planning, user stories, Wikidata relations, proof gaps, and golden formalisms), we define the migration to a **single canonical PostgreSQL semantic spine**, with local SQLite operating strictly as a fast edge write-ahead log (WAL) and local execution cache.
+**Status:** MANDATORY SOLE DATABASE ARCHITECTURE DIRECTIVE  
+**Authority:** System Ground-Truth Invariant  
+**Target Cluster:** TrueNAS PostgreSQL (`postgresql://admin:admin@truenas.local:5432/sensiblaw_sparse_ready_20260818`)  
+**Scope:** Complete deprecation, migration, and retirement of all SQLite files (`~/chat_archive.sqlite`, `~/.chatgpt_history.sqlite3`, `~/.chat_archive.sqlite`) and offline binary `.slrw` / `.slro` files.
 
 ---
 
-## 2. Store Topology: Canonical PostgreSQL Spine + Local Edge Cache
+## 1. Absolute Rule: The Sole Database Mandate
+
+> **POSTGRESQL IS THE SOLE AND ONLY DATABASE. PERIOD. FULL STOP. END OF STORY.**
+> 
+> No SQLite. No SLRW. No edge/split-database compromise.
+> All repository knowledge, operational state, and analytical models reside exclusively in PostgreSQL.
+
+Any past documentation, notes, or code implying a permanent two-tier split (e.g. SQLite as a permanent edge cache alongside PostgreSQL) is **EXPLICITLY REJECTED AND SUPERSEDED**. The existence of three separate SQLite databases and offline `.slrw` files was an accidental transitional duplication in contradiction with the true architecture.
 
 ```mermaid
 flowchart TD
-    subgraph Edge ["Local Developer Environment (Edge)"]
-        CFFI["Headless curl_cffi / Async Engine"]
-        SQLite["~/.chatgpt_history.sqlite3<br/>(Local Edge WAL & Fast Turn Cache)"]
-        LocalCLI["Local Referees & Preflight<br/>(dashi-agda-preflight / pytest)"]
+    subgraph Deprecated ["DEPRECATED & SCHEDULED FOR DELETION"]
+        D1["~/chat_archive.sqlite (814k msgs)"]
+        D2["~/.chatgpt_history.sqlite3 (230k msgs)"]
+        D3["~/.chat_archive.sqlite (Legacy)"]
+        D4["*.slrw / *.slro (Offline Binary World Models)"]
     end
 
-    subgraph Spine ["TrueNAS PostgreSQL Cluster (sensiblaw_sparse_ready_20260818)"]
-        PG_Chat["corpus.chat_archive_message<br/>(Unified Transcripts & Turn Digests)"]
+    subgraph SoleStore ["THE ONLY DATABASE: TrueNAS PostgreSQL (sensiblaw_sparse_ready_20260818)"]
+        PG_Chat["corpus.chat_archive_message<br/>(ALL Chat Transcripts, Turns, and Coordinates)"]
+        PG_Ops["ops.mutation_operation & ops.receipt<br/>(Worker Turns, Mutation State, SSE Streams)"]
         PG_PNF["pnf.statement_candidate_factor & pnf.graph<br/>(Relational PNF Candidates & World Atoms)"]
-        PG_Docs["corpus.document_manifest<br/>(Markdown, Architecture Specs, User Stories)"]
-        PG_Stati["task.candidate & goal.timeline<br/>(StatiBaker Kanban Cards & Roadmap Milestones)"]
-        PG_Wiki["wikidata.claim_entity & disjointness<br/>(Wikidata Relations & Ontologies)"]
-        PG_Formal["formal.proof_gap & theorem_manifest<br/>(Lean 4 / Golden Agda Formalisms)"]
+        PG_Docs["corpus.document_manifest<br/>(Markdown Specs, ADRs, User Stories)"]
+        PG_Stati["task.candidate & goal.timeline<br/>(StatiBaker Deliverables & Kanban Boards)"]
+        PG_Wiki["wikidata.claim_entity & disjointness<br/>(Wikidata Relations & Ontological Graphs)"]
+        PG_Formal["formal.proof_gap & theorem_manifest<br/>(Lean 4 & Golden Agda Proofs/Lemmas)"]
     end
 
-    subgraph Orchestration ["Autonomous Orchestrator (AO) & Dynamic Conductor"]
-        Spectral["Continuous/Discrete Pareto Manifold<br/>(t-SNE / Eigenspace Spectral Decomposition)"]
-        CostFunc["Dynamic Conductor Sizing:<br/>C(T_k, W) = α · (unblocked/total) · min(W_cap, dim(SubEigens), W)"]
-        Workers["Governed Worker Fleet (Max W=20)<br/>Dispatched across Sublinear Topic Manifolds"]
+    subgraph AO ["Autonomous Orchestrator (AO) & Pareto Conductor"]
+        Conductor["Dynamic Sizing & Sublinear Topic Rotation<br/>Directly Querying Sole PostgreSQL Spine"]
     end
 
-    CFFI -->|Fast Local Write| SQLite
-    SQLite -->|One-Way Immutable Sync<br/>register_sqlite_chat_coordinates| PG_Chat
-    LocalCLI -->|Proof Gap Analysis| PG_Formal
+    D1 -->|One-Way Backfill & Migrate| SoleStore
+    D2 -->|One-Way Backfill & Migrate| SoleStore
+    D3 -->|One-Way Backfill & Migrate| SoleStore
+    D4 -->|Ingest Candidates into PG| SoleStore
 
-    PG_Chat --> Spectral
-    PG_PNF --> Spectral
-    PG_Docs --> Spectral
-    PG_Stati --> Spectral
-    PG_Wiki --> Spectral
-    PG_Formal --> Spectral
-
-    Spectral --> CostFunc
-    CostFunc --> Workers
-    Workers -->|Golden Agda + Code PRs| Edge
+    SoleStore --> Conductor
 ```
 
-### 2.1 Why Not Pure SQLite?
-- **Global Cross-Project Joins:** SQLite cannot easily cross-join across 157k PNF relational factor products, distributed Wikidata entities, and live proof gaps without mounting gigabyte SQLite files across machines.
-- **Concurrent Worker Ingest:** Multiple remote workers and local background pipelines require robust MVCC (Multi-Version Concurrency Control) and row-level locking provided natively by PostgreSQL.
-- **Single Source of Truth:** Unifying everything in PostgreSQL allows a single SQL query or view to trace:
-  $$\text{User Story} \longrightarrow \text{StatiBaker Task} \longrightarrow \text{Chat Turn} \longrightarrow \text{PNF Factor} \longrightarrow \text{Proof Gap} \longrightarrow \text{Golden Agda Lemma}$$
+---
 
-### 2.2 Why Keep Local SQLite as Edge WAL?
-- **Zero-Latency Headless Turns:** Headless `curl_cffi` writes immediately to local SQLite in milliseconds, insulating conversational turns from network spikes to the TrueNAS storage pool.
-- **Fail-Closed Offline Operation:** If TrueNAS is undergoing ZFS scrubbing or network maintenance, local development, tests, and CLI continuation continue uninterrupted.
-- **Immutable Registration:** Synchronization to PostgreSQL uses `register_sqlite_chat_coordinates()` with `archive_locator="sqlite:canonical#<node_id>"` and `body_sha256` hashing—never destructive overwrites.
+## 2. Inventory of Deprecated Stores to Delete
+
+All data currently trapped in transitional stores must be migrated into PostgreSQL, after which these files will be retired and deleted:
+
+1. **`~/chat_archive.sqlite` (2.1 GB, 814,612 messages, 6,961 threads):**
+   - *Target:* Ingest all canonical transcripts into `corpus.chat_archive_message` in PostgreSQL.
+   - *Disposition:* Delete SQLite database upon migration verification.
+2. **`~/.chatgpt_history.sqlite3` (896 MB, 229,735 messages, 2,389 threads):**
+   - *Target:* Reconcile operational mutation tables into `ops.mutation_operation` and merge novel thread message trees into `corpus.chat_archive_message`.
+   - *Disposition:* Delete SQLite database upon migration verification.
+3. **`~/.chat_archive.sqlite` (1.4 MB, historical legacy):**
+   - *Target:* Verify no orphan threads remain; discard.
+   - *Disposition:* Delete SQLite database.
+4. **Offline `.slrw` / `.slro` files (`/home/c/.chatgpt_fleet_world/*`):**
+   - *Target:* Ingest any remaining PNF statement factors into `pnf.statement_candidate_factor` and `pnf.graph` in PostgreSQL.
+   - *Disposition:* Delete binary files; all spectral graph computations run directly against PostgreSQL views and materialized tables.
 
 ---
 
-## 3. The 6 Dimensions of the Unified World Model
+## 3. The 7 Schemas of the Sole PostgreSQL Database
 
-Rather than running the AO over an isolated 500-chat slice, the entire corpus will be ingested into the unified semantic spine:
+Every subsystem of the ITIR suite maps directly to a native PostgreSQL schema:
 
-| Domain Layer | Canonical PostgreSQL Table / Schema | Role in AO Dynamic Scheduling |
+| Subsystem | PostgreSQL Tables / Views | Responsibility |
 | :--- | :--- | :--- |
-| **1. Conversations** | `corpus.chat_archive_message` | 2,389+ threads providing historical theory evolution, reasoning logs, and past design decisions. |
-| **2. PNF World Model** | `pnf.statement_candidate_factor`, `pnf.graph` | Relational dependency frames ($S \to V \to O$), extracting motifs and thematic centroids. |
-| **3. Project Docs & RFCs** | `corpus.document_manifest` | READMEs, ADRs, user stories, and specs defining system requirements. |
-| **4. StatiBaker Planning** | `task.candidate`, `goal.timeline` | Kanban deliverables, unblocked milestones, and deliverable sequencing. |
-| **5. Wikidata & Ontologies** | `wikidata.claim_entity`, `wikidata.disjointness` | External entity grounding, structural disjointness, and superclass pressure. |
-| **6. Formal Proof Gaps** | `formal.proof_gap`, `formal.theorem_manifest` | Unproven lemmas, postulate boundaries, and golden Agda/Lean theorem interfaces. |
+| **Conversations** | `corpus.chat_archive_message`, `corpus.conversation` | Transcripts, turns, timestamps, author roles, parent/child branches. |
+| **Operations** | `ops.mutation_operation`, `ops.receipt` | Governed worker execution receipts, SSE activity digests, reconcile states. |
+| **PNF World Model** | `pnf.statement_candidate_factor`, `pnf.graph`, `pnf.candidate_semantic_product` | 157k+ relational dependency factors ($S \to V \to O$), semantic product lattices. |
+| **Project Docs & RFCs** | `corpus.document_manifest`, `corpus.doc_section` | In-repo documentation, architecture specs, user stories, decision records. |
+| **StatiBaker Planning** | `task.candidate`, `goal.timeline`, `task.kanban_card` | Roadmap deliverables, milestone timelines, goal dependencies. |
+| **Wikidata & Ontologies** | `wikidata.claim_entity`, `wikidata.disjointness` | External entity grounding, structural disjointness, ontology alignments. |
+| **Formal Verification** | `formal.proof_gap`, `formal.theorem_manifest` | Unproven lemmas, theorem hashes, golden Agda/Lean interface contracts. |
 
 ---
 
-## 4. Sublinear Topic Scaling & Dynamic AO Allocation
+## 4. Migration Plan & Deprecation Gates
 
-### 4.1 Sublinear Manifold Collapse Law
-As conversation volume expands from 500 to 3,000+ chats, topics do not grow linearly:
-$$\mathcal{T}(N) \sim C \cdot N^\gamma \quad (\gamma < 0.5)$$
-- 500 conversations collapse into $\approx 30$–$50$ primary topic clusters.
-- 3,000 conversations collapse into $\approx 250$–$350$ primary topic manifolds.
-- Each primary topic manifold aggregates $20$–$50$ temporal deliverables sourced across dozens of separate conversations over months.
-
-### 4.2 Dynamic Worker Sizing Function
-Naive rotation through 3,000 individual threads starves low-$\alpha$ topics. The AO rotates through **topics**, utilizing the dynamic cost function:
-$$\mathcal{C}(T_k, W) = \alpha(T_k) \cdot \frac{\text{unblocked\_goals}}{\text{total\_goals}} \cdot \min\left(W_{\text{cap}}, \dim(\text{SubEigens}), W\right) - \text{TokenCost}(W)$$
-
-- **Low-$\alpha$ Sub-Topics:** Automatically rolled into their parent topic manifold as sequenced internal work packets (preventing starvation while preserving cross-pollination promotion).
-- **Worker Allocation:** Sequential theorem chains receive 1 worker; parallelizable frontier blockers receive workers matched to the unblocked lemma count up to $W=20$.
-
----
-
-## 5. Mandatory Golden Agda Invariant on All Worker Turns
-
-Every dispatch to remote MCP workers unconditionally mandates:
-> **"Check dashi_lean4 and dashi_agda and formalise the current problem in terms of relevant in-repo machinery. and ensure to keep the formalism in-step with the impl. recall the agdas are the golden."**
-
-All prompt presets (`@rpd`, `@steelman`, `@lemmas`, `@surrounds`, `@docs`, `@max_cut`, `@grug_ste100`, `@zkp_qa`, `@introspective_viz`, `@converge_toe`, `@referee_pass`) enforce this rule. Any implementation returned by a remote worker is validated against local Agda/Lean referees (`dashi-agda-preflight`, `ExactGapComparator`) with **strictly zero postulates, zero unsolved metas, and zero TERMINATING pragmas**.
+1. **Gate 1 — Schema Verification:** Ensure `corpus.chat_archive_message` and `ops.mutation_operation` in `sensiblaw_sparse_ready_20260818` accommodate full message graphs and mutation receipts.
+2. **Gate 2 — Transcript Ingest:** Backfill all unique messages from `~/chat_archive.sqlite` and `~/.chatgpt_history.sqlite3` into `corpus.chat_archive_message`.
+3. **Gate 3 — Headless CFFI Direct-to-PG:** Switch `MutationService` and headless `curl_cffi` write transports to connect directly to PostgreSQL, removing SQLite write paths.
+4. **Gate 4 — Spectral Pipeline Switch:** Ensure `hierarchical_corpus_manifold.py` and `load_preferred_semantic_corpus` query PostgreSQL as the only source, disabling `.slrw` file fallback.
+5. **Gate 5 — Deletion of SQLite & SLRW:** Remove the local `.sqlite` and `.slrw` files permanently.

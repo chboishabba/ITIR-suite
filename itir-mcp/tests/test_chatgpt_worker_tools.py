@@ -142,7 +142,7 @@ def test_dispatch_worker_new_presets_and_golden_reminder(monkeypatch) -> None:
 
     monkeypatch.setattr(chatgpt_worker_tools, "_worker_api", lambda: FakeWorkerApi)
 
-    for preset_name in ("rpd", "steelman", "lemmas", "surrounds", "docs"):
+    for preset_name in ("rpd", "steelman", "lemmas", "surrounds", "docs", "snowball"):
         calls.clear()
         res = build_default_registry().invoke(
             "itir.chatgpt.dispatch_worker",
