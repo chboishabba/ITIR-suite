@@ -1419,6 +1419,7 @@ def build_hierarchical_pnf_topics(
     corpus: Mapping[str, Any] | str | Path,
     *,
     ontology_edges: Sequence[Mapping[str, Any]] | None = None,
+    formal_ast_symbols: Sequence[Mapping[str, Any]] | None = None,
     alpha_signals: Mapping[str, Mapping[str, Any]] | None = None,
     max_features: int = 256,
     max_spectral_dimensions: int = 16,
@@ -1469,7 +1470,9 @@ def build_hierarchical_pnf_topics(
         )
 
     ontology_feature_counts = _ontology_feature_counts(conversation_ids, ontology_edges or ())
+    ast_feature_counts = _formal_ast_feature_counts(conversation_ids, formal_ast_symbols or ())
     for conversation_id in conversation_ids:
+        ontology_feature_counts[conversation_id].update(ast_feature_counts[conversation_id])
         factor_counts[conversation_id].update(ontology_feature_counts[conversation_id])
 
     matrix_receipt = _corpus_factor_matrix(
@@ -1683,6 +1686,37 @@ def _ontology_feature_counts(
         if not math.isfinite(weight) or weight <= 0.0:
             raise ValueError("ontology edge weight must be finite and positive")
         feature = f"ontology:{label}"
+        for member in members:
+            conversation_id = _text(member)
+            if conversation_id in known:
+                result[conversation_id][feature] += weight
+    return result
+
+
+def _formal_ast_feature_counts(
+    conversation_ids: Sequence[str],
+    symbols: Sequence[Mapping[str, Any]],
+) -> dict[str, Counter[str]]:
+    """Project explicit AST symbol references onto conversation incidence."""
+    known = set(conversation_ids)
+    result = {conversation_id: Counter() for conversation_id in conversation_ids}
+    for item in symbols:
+        if not isinstance(item, Mapping):
+            raise ValueError("formal_ast_symbols entries must be objects")
+        symbol = _text(item.get("symbol"))
+        source_ref = _text(item.get("source_ref"))
+        members = item.get("conversation_ids")
+        if not symbol or not source_ref:
+            raise ValueError("formal AST symbol requires symbol and source_ref")
+        if not isinstance(members, Sequence) or isinstance(members, (str, bytes, bytearray)):
+            raise ValueError("formal AST symbol requires conversation_ids array")
+        raw_weight = item.get("weight", 1.0)
+        if isinstance(raw_weight, bool) or not isinstance(raw_weight, (int, float)):
+            raise ValueError("formal AST symbol weight must be numeric")
+        weight = float(raw_weight)
+        if not math.isfinite(weight) or weight <= 0.0:
+            raise ValueError("formal AST symbol weight must be finite and positive")
+        feature = f"ast:{symbol}@{source_ref}"
         for member in members:
             conversation_id = _text(member)
             if conversation_id in known:
@@ -2004,8 +2038,13 @@ def _topic_summary(
     # Ontology features are admitted only because their incidence was explicitly
     # supplied by the caller; they are not inferred from lexical resemblance.
     top_ontology = [
-        {"feature": feature.removeprefix("ontology:"), "weight": float(weight),
-         "evidence": "explicit_ontology_incidence"}
+        {
+            "feature": feature.removeprefix("ontology:").split("@", 1)[0].removeprefix("ast:"),
+            "weight": float(weight),
+            "evidence": "formal_ast_symbol_incidence" if feature.startswith("ast:")
+                       else "explicit_ontology_incidence",
+            **({"source_ref": feature.split("@", 1)[1]} if feature.startswith("ast:") and "@" in feature else {}),
+        }
         for feature, weight in aggregate_ontology.most_common(5)
     ]
     if top_frames:
@@ -2013,7 +2052,8 @@ def _topic_summary(
         name_source = "sensiblaw_propn_relational_frames"
     elif top_ontology:
         name = " + ".join(item["feature"] for item in top_ontology[:2])
-        name_source = "explicit_ontology_incidence"
+        evidence_kinds = {item["evidence"] for item in top_ontology[:2]}
+        name_source = next(iter(evidence_kinds)) if len(evidence_kinds) == 1 else "explicit_external_incidence"
     else:
         # Do not promote raw factors into topic heads. topic_id is an opaque
         # stable identifier, not a semantic label.
