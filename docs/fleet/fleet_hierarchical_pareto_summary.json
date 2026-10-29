@@ -1,7 +1,7 @@
 {
   "version": "itir.pnf.hierarchical_pareto_corpus.v1",
-  "generated_at": 1793197603.0001369,
-  "elapsed_seconds": 24.25,
+  "generated_at": 1793199603.109105,
+  "elapsed_seconds": 23.47,
   "corpus_entity_count": 455,
   "marchenko_pastur": {
     "sigma_squared": 12.46235478806899,
