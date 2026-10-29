@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "description": "200+ Fleet Tranche TOE Convergence Ledger",
-  "updated_at": "2026-10-29T04:34:54.664605+00:00",
+  "updated_at": "2026-10-29T04:43:57.892524+00:00",
   "dispatches": {
     "6aa3259a-440c-83ec-bcf2-f16f301d40ab": {
       "title": "YM RH Unification Audit",
@@ -1930,6 +1930,38 @@
       "dispatched_at": "2026-10-29T04:34:44.837177+00:00",
       "status": "commit_unknown",
       "operation_id": "23aeb750-909e-411d-9659-3e6797194de5"
+    },
+    "6a90d87c-168c-83ec-bf67-99c61f7d1e29": {
+      "title": "Plant Nutrient Transport",
+      "cluster": "research",
+      "turns": 12,
+      "dispatched_at": "2026-10-29T04:40:36.951325+00:00",
+      "status": "submission_observed",
+      "operation_id": "51c2739f-f4cc-47bd-8eba-ae767398777b"
+    },
+    "6aaf9cbd-ca04-83ec-941b-bd27caab0918": {
+      "title": "Cannabinoid Breakdown Comparison",
+      "cluster": "sensiblaw",
+      "turns": 27,
+      "dispatched_at": "2026-10-29T04:41:13.152610+00:00",
+      "status": "submission_observed",
+      "operation_id": "cfe704c7-eb2e-4ca5-b670-de1581af6c24"
+    },
+    "6a903003-2cf0-83ec-99a7-2262fc5fd36b": {
+      "title": "Branch \u00b7 Find the paper",
+      "cluster": "sensiblaw",
+      "turns": 13,
+      "dispatched_at": "2026-10-29T04:43:02.615782+00:00",
+      "status": "submission_observed",
+      "operation_id": "4ce9b628-d3d6-4cd1-843d-52d2e99ca87c"
+    },
+    "6a902d03-fd0c-83ec-b810-9a56d3735afd": {
+      "title": "Find the paper",
+      "cluster": "research",
+      "turns": 10,
+      "dispatched_at": "2026-10-29T04:43:57.889985+00:00",
+      "status": "submission_observed",
+      "operation_id": "ac68f9e0-50f7-4b29-b025-9e0e01e79858"
     }
   }
 }
