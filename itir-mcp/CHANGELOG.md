@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Replaced raw PNF frame naming with SensibLaw public-interface `PROPN` evidence gating; unavailable parser/POS evidence abstains, explicit ontology incidence retains provenance, and unsupported raw factors fall back to opaque topic IDs. No arbitrary English predicate wordlist or regex fallback is used by the active hierarchy path.
+- Added tests for interface absence, predicate-head PROPN evidence, and ontology-backed topic naming; updated roadmap, TODO, README, and convergence planning. Local pytest/lint remain pending; no Agda/Lean kernel theorem is claimed.
 - Added `itir.shard.bounded_graph_slice_plan`, a generic non-fetching plan
   surface that reports selected logical coverage and declared payload cost
   before a consumer decides to retrieve graph shard bytes.
