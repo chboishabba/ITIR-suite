@@ -100,3 +100,13 @@ SQLite-backed corpus with TIRC and SL-style views.
 - Cross-project contract note covering how Corkysoft and other operator-facing
   tools submit audio, poll jobs, and consume reviewed transcript completions
   from WhisperX-WebUI.
+
+
+## Milestone M8: Generic-First PNF Motif Admission (Oct 2026)
+
+- Remove arbitrary English predicate wordlists from downstream PNF spectral/motif code; semantic policy must not live in lane-local lexical sets.
+- Use SensibLaw public parser/reducer interfaces for tokenization, relational bundles, and POS evidence. Only admit a frame head as a semantic name when its predicate has producer-supplied `PROPN` evidence; missing interface or missing evidence means abstention.
+- Preserve explicit ontology incidence and explicit formal AST symbol incidence (with source references) as separate provenance-bearing naming paths. Do not promote raw factor strings; use an opaque topic ID when neither PROPN nor ontology/AST evidence exists.
+- Keep TF-IDF/document frequency and Marchenko–Pastur `λᵢ > λ+` as data-driven filtering/retention signals, not substitutes for semantic admission.
+- Formal boundary: Python output is candidate-only; residual/quotient formal owners are `dashi_agda` `Ontology/Hecke/PNFResidualBridge.agda` and `DASHI/Interop/WorldEigenResidualStratification.agda`; Lean mirrors Agda. No ESD edits and no new theorem claim.
+- Acceptance: interface-present/absent tests, PROPN-positive/negative tests, ontology provenance tests, wordlist absence audit, and focused pytest.

@@ -1,6 +1,11 @@
 # Changelog
 
 ## Unreleased
+- Propagated explicit formal AST symbol incidence through `project_slrw_hierarchy_to_docs`, preserving source references in generated hierarchy artifacts; planning now links existing Agda PRs #1415/#1437 and Lean mirror PR #90 as formal owners, not as proof of the Python gate.
+- Added explicit formal AST symbol incidence as a provenance-bearing topic-head source (`symbol` + `source_ref` + conversation incidence), alongside explicit ontology incidence and parser-confirmed PROPN frames.
+- Expanded regression coverage to ensure AST symbol labels retain source references and are not confused with raw lexical factors.
+- Replaced raw PNF frame naming with SensibLaw public-interface `PROPN` evidence gating; unavailable parser/POS evidence abstains, explicit ontology incidence retains provenance, and unsupported raw factors fall back to opaque topic IDs. No arbitrary English predicate wordlist or regex fallback is used by the active hierarchy path.
+- Added tests for interface absence, predicate-head PROPN evidence, and ontology-backed topic naming; updated roadmap, TODO, README, and convergence planning. Local pytest/lint remain pending; no Agda/Lean kernel theorem is claimed.
 - Added `itir.shard.bounded_graph_slice_plan`, a generic non-fetching plan
   surface that reports selected logical coverage and declared payload cost
   before a consumer decides to retrieve graph shard bytes.

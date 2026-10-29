@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import math
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -351,3 +352,325 @@ def get_spectral_plot_tools() -> list[tuple[ToolSpec, ToolHandler]]:
             generate_corpus_spectral_visualizations_tool,
         ),
     ]
+
+
+def render_hierarchical_spectral_manifold(
+    hierarchy: Mapping[str, Any],
+    output_path: str | Path,
+) -> dict[str, Any]:
+    rows = hierarchy.get("conversation_rows")
+    if not isinstance(rows, Sequence) or isinstance(rows, (str, bytes, bytearray)) or not rows:
+        raise ValueError("hierarchy requires conversation_rows")
+    path = _output_path(output_path)
+    plt = _pyplot()
+
+    parsed: list[dict[str, Any]] = []
+    for index, row in enumerate(rows):
+        if not isinstance(row, Mapping):
+            raise ValueError("conversation_rows entries must be objects")
+        xy = row.get("xy")
+        if not isinstance(xy, Sequence) or isinstance(xy, (str, bytes, bytearray)) or len(xy) < 2:
+            raise ValueError(f"conversation row {index} requires xy coordinates")
+        parsed.append(
+            {
+                "conversation_id": str(row.get("conversation_id") or f"row:{index}"),
+                "x": float(xy[0]),
+                "y": float(xy[1]),
+                "primary_id": str(row.get("primary_id") or "primary-unknown"),
+                "subtopic_id": str(row.get("subtopic_id") or "subtopic-unknown"),
+                "alpha": max(0.0, float(row.get("alpha", 0.0))),
+            }
+        )
+
+    primary_ids = sorted({row["primary_id"] for row in parsed})
+    primary_index = {topic_id: index for index, topic_id in enumerate(primary_ids)}
+    x = [row["x"] for row in parsed]
+    y = [row["y"] for row in parsed]
+    colors = [primary_index[row["primary_id"]] for row in parsed]
+    alpha_values = [row["alpha"] for row in parsed]
+    max_alpha = max(alpha_values, default=1.0) or 1.0
+    sizes = [18.0 + 110.0 * (value / max_alpha) ** 0.5 for value in alpha_values]
+
+    figure, axis = plt.subplots(figsize=(11, 8))
+    scatter = axis.scatter(x, y, c=colors, s=sizes, alpha=0.78)
+    axis.set_xlabel("Spectral Eigen 0")
+    axis.set_ylabel("Spectral Eigen 1")
+    axis.set_title(f"PNF conversation manifold ({len(parsed)} conversations)")
+    axis.grid(True, alpha=0.2)
+
+    subtopic_rows: dict[str, list[tuple[float, float]]] = {}
+    for row in parsed:
+        subtopic_rows.setdefault(row["subtopic_id"], []).append((row["x"], row["y"]))
+    hull_count = 0
+    for subtopic_id in sorted(subtopic_rows):
+        points = subtopic_rows[subtopic_id]
+        if len(points) < 3:
+            continue
+        hull = _convex_hull(points)
+        if len(hull) < 3:
+            continue
+        closed = hull + [hull[0]]
+        axis.plot(
+            [point[0] for point in closed],
+            [point[1] for point in closed],
+            linewidth=0.7,
+            alpha=0.35,
+        )
+        hull_count += 1
+
+    if len(primary_ids) <= 20 and len(primary_ids) > 1:
+        handles, _ = scatter.legend_elements(num=len(primary_ids))
+        axis.legend(handles, primary_ids, title="Primary topic", loc="best", fontsize=7)
+
+    mp = hierarchy.get("marchenko_pastur")
+    if isinstance(mp, Mapping):
+        lambda_plus = mp.get("lambda_plus")
+        macro_count = mp.get("macro_mode_count")
+        if isinstance(lambda_plus, (int, float)) and not isinstance(lambda_plus, bool):
+            note = f"MP λ+={float(lambda_plus):.6g}"
+            if isinstance(macro_count, int):
+                note += f" · macro modes={macro_count}"
+            axis.text(0.01, 0.99, note, transform=axis.transAxes, va="top", ha="left", fontsize=9)
+
+    figure.tight_layout()
+    figure.savefig(path)
+    plt.close(figure)
+    return {
+        "version": VERSION,
+        "artifact_kind": "hierarchical_spectral_manifold",
+        "output_path": str(path),
+        "format": path.suffix.lower().lstrip("."),
+        "conversation_count": len(parsed),
+        "primary_cluster_count": len(primary_ids),
+        "subtopic_hull_count": hull_count,
+        "candidate_only": True,
+        "non_authoritative": True,
+    }
+
+
+def _convex_hull(points: Sequence[tuple[float, float]]) -> list[tuple[float, float]]:
+    unique = sorted(set((float(x), float(y)) for x, y in points))
+    if len(unique) <= 2:
+        return unique
+
+    def cross(
+        origin: tuple[float, float],
+        left: tuple[float, float],
+        right: tuple[float, float],
+    ) -> float:
+        return (
+            (left[0] - origin[0]) * (right[1] - origin[1])
+            - (left[1] - origin[1]) * (right[0] - origin[0])
+        )
+
+    lower: list[tuple[float, float]] = []
+    for point in unique:
+        while len(lower) >= 2 and cross(lower[-2], lower[-1], point) <= 0.0:
+            lower.pop()
+        lower.append(point)
+
+    upper: list[tuple[float, float]] = []
+    for point in reversed(unique):
+        while len(upper) >= 2 and cross(upper[-2], upper[-1], point) <= 0.0:
+            upper.pop()
+        upper.append(point)
+    return lower[:-1] + upper[:-1]
+
+
+def _topic_centroid_rows(hierarchy: Mapping[str, Any]) -> tuple[list[str], list[list[float]]]:
+    topics = hierarchy.get("primary_topics")
+    if not isinstance(topics, Sequence) or isinstance(topics, (str, bytes, bytearray)) or not topics:
+        raise ValueError("hierarchy requires primary_topics")
+    labels: list[str] = []
+    centroids: list[list[float]] = []
+    for topic in topics:
+        if not isinstance(topic, Mapping):
+            raise ValueError("primary topic entries must be objects")
+        centroid = topic.get("semantic_centroid")
+        if not isinstance(centroid, Mapping):
+            raise ValueError("primary topic requires semantic_centroid")
+        values = centroid.get("spectral_coordinates")
+        if not isinstance(values, Sequence) or isinstance(values, (str, bytes, bytearray)):
+            raise ValueError("primary topic centroid requires spectral_coordinates")
+        vector = [float(value) for value in values]
+        if not vector or any(not math.isfinite(value) for value in vector):
+            raise ValueError("primary topic centroid coordinates must be finite")
+        labels.append(str(topic.get("name") or topic.get("topic_id") or f"topic:{len(labels)}"))
+        centroids.append(vector)
+    return labels, centroids
+
+
+def _pairwise_cosine_matrix(vectors: Sequence[Sequence[float]]) -> list[list[float]]:
+    return [[_cosine(left, right) for right in vectors] for left in vectors]
+
+
+def render_hierarchical_topic_heatmap(
+    hierarchy: Mapping[str, Any],
+    output_path: str | Path,
+) -> dict[str, Any]:
+    labels, centroids = _topic_centroid_rows(hierarchy)
+    return render_spectral_heatmap(_pairwise_cosine_matrix(centroids), labels, output_path)
+
+
+def render_hierarchical_topic_dendrogram(
+    hierarchy: Mapping[str, Any],
+    output_path: str | Path,
+) -> dict[str, Any]:
+    primary = hierarchy.get("primary_topics")
+    subtopics = hierarchy.get("subtopics")
+    fibres = hierarchy.get("fibre_cliques")
+    if not all(
+        isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray))
+        for value in (primary, subtopics, fibres)
+    ):
+        raise ValueError("hierarchy requires primary_topics, subtopics, and fibre_cliques")
+    path = _output_path(output_path)
+    plt = _pyplot()
+
+    primary_rows = [topic for topic in primary if isinstance(topic, Mapping)]
+    sub_rows = [topic for topic in subtopics if isinstance(topic, Mapping)]
+    fibre_rows = [topic for topic in fibres if isinstance(topic, Mapping)]
+
+    leaf_order = sorted(
+        fibre_rows,
+        key=lambda topic: (
+            str(topic.get("parent_id") or ""),
+            str(topic.get("topic_id") or ""),
+        ),
+    )
+    leaf_x = {
+        str(topic.get("topic_id")): float(index)
+        for index, topic in enumerate(leaf_order)
+    }
+    sub_children: dict[str, list[str]] = {}
+    for fibre in fibre_rows:
+        sub_children.setdefault(str(fibre.get("parent_id") or ""), []).append(str(fibre.get("topic_id") or ""))
+    primary_children: dict[str, list[str]] = {}
+    for subtopic in sub_rows:
+        primary_children.setdefault(str(subtopic.get("parent_id") or ""), []).append(str(subtopic.get("topic_id") or ""))
+
+    sub_x: dict[str, float] = {}
+    for subtopic in sub_rows:
+        sub_id = str(subtopic.get("topic_id") or "")
+        children = [leaf_x[child] for child in sub_children.get(sub_id, []) if child in leaf_x]
+        if children:
+            sub_x[sub_id] = sum(children) / len(children)
+
+    primary_x: dict[str, float] = {}
+    for topic in primary_rows:
+        topic_id = str(topic.get("topic_id") or "")
+        children = [sub_x[child] for child in primary_children.get(topic_id, []) if child in sub_x]
+        if children:
+            primary_x[topic_id] = sum(children) / len(children)
+
+    thresholds = hierarchy.get("thresholds")
+    threshold_map = thresholds if isinstance(thresholds, Mapping) else {}
+    fibre_y = float(threshold_map.get("fibre_tau", 0.0))
+    sub_y = float(threshold_map.get("subtopic_tau", fibre_y + 1.0))
+    primary_y = float(threshold_map.get("primary_tau", sub_y + 1.0))
+
+    figure, axis = plt.subplots(figsize=(max(10.0, len(leaf_order) / 6.0), 7))
+    for sub_id, children in sorted(sub_children.items()):
+        xs = [leaf_x[child] for child in children if child in leaf_x]
+        if not xs or sub_id not in sub_x:
+            continue
+        for x_value in xs:
+            axis.plot([x_value, x_value, sub_x[sub_id]], [0.0, fibre_y, sub_y], linewidth=0.7)
+    for primary_id, children in sorted(primary_children.items()):
+        xs = [sub_x[child] for child in children if child in sub_x]
+        if not xs or primary_id not in primary_x:
+            continue
+        for x_value in xs:
+            axis.plot([x_value, x_value, primary_x[primary_id]], [sub_y, sub_y, primary_y], linewidth=0.9)
+
+    axis.set_ylabel("Spectral quotient threshold τ")
+    axis.set_xlabel("Dynamically discovered fibre leaves")
+    axis.set_title("PNF hierarchical quotient dendrogram")
+    if len(leaf_order) <= 80:
+        axis.set_xticks(
+            [leaf_x[str(topic.get("topic_id"))] for topic in leaf_order],
+            labels=[str(topic.get("name") or topic.get("topic_id")) for topic in leaf_order],
+            rotation=90,
+            fontsize=5,
+        )
+    else:
+        axis.set_xticks([])
+    figure.tight_layout()
+    figure.savefig(path)
+    plt.close(figure)
+    return {
+        "version": VERSION,
+        "artifact_kind": "hierarchical_topic_dendrogram",
+        "output_path": str(path),
+        "format": path.suffix.lower().lstrip("."),
+        "primary_topic_count": len(primary_rows),
+        "subtopic_count": len(sub_rows),
+        "fibre_count": len(fibre_rows),
+        "candidate_only": True,
+        "non_authoritative": True,
+    }
+
+
+def generate_hierarchical_corpus_visualizations(
+    hierarchy: Mapping[str, Any],
+    output_dir: str | Path,
+) -> dict[str, Any]:
+    target = Path(output_dir).expanduser().resolve()
+    target.mkdir(parents=True, exist_ok=True)
+    artifacts = [
+        render_hierarchical_spectral_manifold(hierarchy, target / "fleet_manifold.png"),
+        render_hierarchical_spectral_manifold(hierarchy, target / "fleet_manifold.svg"),
+        render_hierarchical_topic_heatmap(hierarchy, target / "fleet_topic_heatmap.png"),
+        render_hierarchical_topic_heatmap(hierarchy, target / "fleet_topic_heatmap.svg"),
+        render_hierarchical_topic_dendrogram(hierarchy, target / "fleet_topic_dendrogram.png"),
+        render_hierarchical_topic_dendrogram(hierarchy, target / "fleet_topic_dendrogram.svg"),
+    ]
+    return {
+        "version": VERSION,
+        "conversation_count": len(hierarchy.get("conversation_rows") or ()),
+        "artifacts": artifacts,
+        "candidate_only": True,
+        "non_authoritative": True,
+        "canonical_truth_mutated": False,
+    }
+
+
+def project_slrw_hierarchy_to_docs(
+    slrw_path: str | Path,
+    output_dir: str | Path = "docs/fleet",
+    *,
+    ontology_edges: Sequence[Mapping[str, Any]] | None = None,
+    formal_ast_symbols: Sequence[Mapping[str, Any]] | None = None,
+    alpha_signals: Mapping[str, Mapping[str, Any]] | None = None,
+    max_features: int = 256,
+    max_spectral_dimensions: int = 16,
+) -> dict[str, Any]:
+    """Run SLRW -> dynamic hierarchy -> PNG/SVG corpus artifacts."""
+    from .pnf_spectral_packet import build_hierarchical_pnf_topics
+
+    hierarchy = build_hierarchical_pnf_topics(
+        slrw_path,
+        ontology_edges=ontology_edges,
+        formal_ast_symbols=formal_ast_symbols,
+        alpha_signals=alpha_signals,
+        max_features=max_features,
+        max_spectral_dimensions=max_spectral_dimensions,
+    )
+    target = Path(output_dir).expanduser().resolve()
+    target.mkdir(parents=True, exist_ok=True)
+    hierarchy_path = target / "fleet_hierarchy.json"
+    hierarchy_path.write_text(
+        json.dumps(hierarchy, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    visualization = generate_hierarchical_corpus_visualizations(hierarchy, target)
+    return {
+        "version": VERSION,
+        "source_path": str(Path(slrw_path).expanduser().resolve()),
+        "hierarchy_path": str(hierarchy_path),
+        "conversation_count": len(hierarchy.get("conversation_rows") or ()),
+        "visualization": visualization,
+        "candidate_only": True,
+        "non_authoritative": True,
+        "canonical_truth_mutated": False,
+    }

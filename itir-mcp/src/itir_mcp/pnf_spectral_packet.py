@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import math
+import struct
+from pathlib import Path
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
 from typing import Any
@@ -1249,3 +1251,880 @@ def _prod_invariant_violation(
         ):
             return True
     return False
+
+
+HIERARCHICAL_SPECTRAL_SCHEMA = "itir.pnf.hierarchical_spectral_pareto.v1"
+
+
+def load_slrw_conversation_factors(
+    slrw_path: str | Path,
+    *,
+    conversation_limit: int | None = None,
+) -> dict[str, Any]:
+    """Load all PNF candidate factors from one revision-bound SLRW stream.
+
+    The parser follows sl-world-compiler's WireRecord and PNF1 layouts. It
+    scans once and groups candidates by the exact document_ref carried in aux1.
+    """
+    path = Path(slrw_path).expanduser().resolve()
+    if not path.is_file():
+        raise FileNotFoundError(f"SLRW corpus not found: {path}")
+    if conversation_limit is not None and conversation_limit < 1:
+        raise ValueError("conversation_limit must be positive")
+
+    try:
+        from re_gpt.pnf_compiler import FRAGMENT_NAMES, SHAPE_NAMES
+    except Exception:
+        FRAGMENT_NAMES = {}
+        SHAPE_NAMES = {}
+
+    conversations: dict[str, dict[str, Any]] = {}
+    frame_members: dict[str, dict[tuple[int, int, str], list[tuple[str, str, str]]]] = defaultdict(dict)
+    record_count = 0
+    pnf_count = 0
+
+    with path.open("rb") as handle:
+        while True:
+            magic = handle.read(4)
+            if not magic:
+                break
+            if magic != b"SLRW":
+                raise ValueError(f"invalid SLRW magic at record {record_count}: {magic!r}")
+            version_raw = handle.read(2)
+            header = handle.read(2)
+            lengths = handle.read(12)
+            iteration_raw = handle.read(8)
+            if len(version_raw) != 2 or len(header) != 2 or len(lengths) != 12 or len(iteration_raw) != 8:
+                raise ValueError("truncated SLRW record header")
+            version = struct.unpack("<H", version_raw)[0]
+            if version != 1:
+                raise ValueError(f"unsupported SLRW version: {version}")
+            kind_u8 = header[0]
+            id_len, aux_len, payload_len = struct.unpack("<III", lengths)
+            rec_id_raw = handle.read(id_len)
+            aux_raw = handle.read(aux_len)
+            payload = handle.read(payload_len)
+            if len(rec_id_raw) != id_len or len(aux_raw) != aux_len or len(payload) != payload_len:
+                raise ValueError("truncated SLRW record body")
+            record_count += 1
+            if kind_u8 != 2 or not payload.startswith(b"PNF1"):
+                continue
+
+            document_ref = aux_raw.decode("utf-8", errors="replace")
+            if not document_ref:
+                continue
+            conversation_id = document_ref[5:] if document_ref.startswith("chat:") else document_ref
+            if conversation_id not in conversations:
+                if conversation_limit is not None and len(conversations) >= conversation_limit:
+                    continue
+                conversations[conversation_id] = {
+                    "conversation_id": conversation_id,
+                    "document_ref": document_ref,
+                    "factor_counts": Counter(),
+                    "frame_counts": Counter(),
+                    "pnf_candidate_count": 0,
+                }
+                frame_members[conversation_id] = {}
+            elif conversation_limit is not None and conversation_id not in conversations:
+                continue
+
+            decoded = _decode_slrw_pnf1(payload)
+            fragment = str(FRAGMENT_NAMES.get(decoded["fragment"], f"fragment-{decoded['fragment']}"))
+            shape = str(SHAPE_NAMES.get(decoded["shape"], f"shape-{decoded['shape']}"))
+            lemma = decoded["lemma"].casefold()
+            head_lemma = decoded["head_lemma"].casefold() or lemma
+            factor_key = f"{head_lemma}|{fragment}|{lemma}|{shape}"
+            row = conversations[conversation_id]
+            row["factor_counts"][factor_key] += 1
+            row["pnf_candidate_count"] += 1
+            pnf_count += 1
+
+            frame_key = (
+                decoded["sentence_id"],
+                decoded["head_ordinal"],
+                head_lemma,
+            )
+            members = frame_members[conversation_id].setdefault(frame_key, [])
+            members.append((fragment, lemma, shape))
+
+    for conversation_id, groups in frame_members.items():
+        target = conversations[conversation_id]["frame_counts"]
+        for (_, _, predicate), members in groups.items():
+            ordered = sorted(set(members))
+            args = ",".join(f"{role}:{lemma}" for role, lemma, _shape in ordered)
+            target[f"{predicate}({args})"] += 1
+
+    normalized = {
+        conversation_id: {
+            **{key: value for key, value in row.items() if key not in {"factor_counts", "frame_counts"}},
+            "factor_counts": dict(sorted(row["factor_counts"].items())),
+            "frame_counts": dict(sorted(row["frame_counts"].items())),
+        }
+        for conversation_id, row in sorted(conversations.items())
+    }
+    return {
+        "schema": "itir.pnf.slrw_corpus_factors.v1",
+        "source_path": str(path),
+        "record_count": record_count,
+        "pnf_candidate_count": pnf_count,
+        "conversation_count": len(normalized),
+        "conversations": normalized,
+        "source_contract": {
+            "wire_owner": "slr/crates/sl-world-store",
+            "pnf_owner": "slr/crates/sl-world-compiler",
+            "record_kind": "PnfCandidate",
+            "payload_magic": "PNF1",
+        },
+    }
+
+
+def _decode_slrw_pnf1(payload: bytes) -> dict[str, Any]:
+    if len(payload) < 32 or payload[:4] != b"PNF1":
+        raise ValueError("invalid PNF1 payload")
+    fragment = payload[4]
+    shape = payload[5]
+    sentence_id = struct.unpack("<Q", payload[8:16])[0]
+    local_ordinal = struct.unpack("<I", payload[16:20])[0]
+    head_ordinal = struct.unpack("<I", payload[20:24])[0]
+    start_char = struct.unpack("<I", payload[24:28])[0]
+    end_char = struct.unpack("<I", payload[28:32])[0]
+    position = 32
+    texts: list[str] = []
+    for _ in range(4):
+        if position + 4 > len(payload):
+            raise ValueError("truncated PNF1 text length")
+        length = struct.unpack("<I", payload[position : position + 4])[0]
+        position += 4
+        if position + length > len(payload):
+            raise ValueError("truncated PNF1 text payload")
+        texts.append(payload[position : position + length].decode("utf-8", errors="replace"))
+        position += length
+    orth, lemma, head_orth, head_lemma = texts
+    return {
+        "fragment": fragment,
+        "shape": shape,
+        "sentence_id": sentence_id,
+        "local_ordinal": local_ordinal,
+        "head_ordinal": head_ordinal,
+        "start_char": start_char,
+        "end_char": end_char,
+        "orth": orth,
+        "lemma": lemma,
+        "head_orth": head_orth,
+        "head_lemma": head_lemma,
+    }
+
+
+def build_hierarchical_pnf_topics(
+    corpus: Mapping[str, Any] | str | Path,
+    *,
+    ontology_edges: Sequence[Mapping[str, Any]] | None = None,
+    formal_ast_symbols: Sequence[Mapping[str, Any]] | None = None,
+    alpha_signals: Mapping[str, Mapping[str, Any]] | None = None,
+    max_features: int = 256,
+    max_spectral_dimensions: int = 16,
+) -> dict[str, Any]:
+    """Discover a nested topic hierarchy directly from corpus PNF incidence.
+
+    No topic names or cluster count are predefined. Primary, sub-topic, and
+    fibre partitions are induced by deterministic thresholds over continuous
+    spectral coordinates.
+    """
+    if isinstance(corpus, (str, Path)):
+        loaded = load_slrw_conversation_factors(corpus)
+    elif isinstance(corpus, Mapping):
+        loaded = dict(corpus)
+    else:
+        raise ValueError("corpus must be an SLRW path or corpus mapping")
+
+    raw_conversations = loaded.get("conversations")
+    if not isinstance(raw_conversations, Mapping):
+        raise ValueError("corpus requires conversations mapping")
+    conversation_ids = sorted(str(key) for key in raw_conversations)
+    if len(conversation_ids) < 2:
+        raise ValueError("hierarchical spectral analysis requires at least two conversations")
+    if max_features < 2 or max_spectral_dimensions < 2:
+        raise ValueError("spectral feature/dimension caps must be at least two")
+
+    factor_counts: dict[str, Counter[str]] = {}
+    frame_counts: dict[str, Counter[str]] = {}
+    for conversation_id in conversation_ids:
+        row = raw_conversations[conversation_id]
+        if not isinstance(row, Mapping):
+            raise ValueError(f"conversation row must be an object: {conversation_id}")
+        factors = row.get("factor_counts")
+        frames = row.get("frame_counts")
+        factor_counts[conversation_id] = Counter(
+            {
+                str(key): float(value)
+                for key, value in (factors.items() if isinstance(factors, Mapping) else [])
+                if isinstance(value, (int, float)) and not isinstance(value, bool) and float(value) > 0.0
+            }
+        )
+        frame_counts[conversation_id] = Counter(
+            {
+                str(key): float(value)
+                for key, value in (frames.items() if isinstance(frames, Mapping) else [])
+                if isinstance(value, (int, float)) and not isinstance(value, bool) and float(value) > 0.0
+            }
+        )
+
+    ontology_feature_counts = _ontology_feature_counts(conversation_ids, ontology_edges or ())
+    ast_feature_counts = _formal_ast_feature_counts(conversation_ids, formal_ast_symbols or ())
+    for conversation_id in conversation_ids:
+        ontology_feature_counts[conversation_id].update(ast_feature_counts[conversation_id])
+        factor_counts[conversation_id].update(ontology_feature_counts[conversation_id])
+
+    matrix_receipt = _corpus_factor_matrix(
+        conversation_ids,
+        factor_counts,
+        max_features=max_features,
+    )
+    spectral = _mp_spectral_coordinates(
+        matrix_receipt["matrix"],
+        max_spectral_dimensions=max_spectral_dimensions,
+    )
+    coordinates = spectral["coordinates"]
+    distance_matrix = _cosine_distance_matrix(coordinates)
+    mst_edges = _minimum_spanning_tree(conversation_ids, distance_matrix)
+    residual_thresholds = _dynamic_hierarchy_thresholds([edge["distance"] for edge in mst_edges])
+
+    macro_coordinates = spectral["macro_coordinates"]
+    if spectral["macro_mode_count"] > 0:
+        macro_distance_matrix = _cosine_distance_matrix(macro_coordinates)
+        macro_mst_edges = _minimum_spanning_tree(conversation_ids, macro_distance_matrix)
+        macro_thresholds = _dynamic_hierarchy_thresholds(
+            [edge["distance"] for edge in macro_mst_edges]
+        )
+        primary_tau = max(
+            float(macro_thresholds["primary_tau"]),
+            float(residual_thresholds["subtopic_tau"]),
+        )
+        primary_components = _threshold_components(
+            conversation_ids,
+            macro_distance_matrix,
+            primary_tau,
+        )
+    else:
+        macro_mst_edges = []
+        primary_tau = max(2.0, float(residual_thresholds["subtopic_tau"]))
+        primary_components = [conversation_ids]
+
+    thresholds = {
+        "fibre_tau": float(residual_thresholds["fibre_tau"]),
+        "subtopic_tau": float(residual_thresholds["subtopic_tau"]),
+        "primary_tau": primary_tau,
+        "primary_metric": "mp_retained_macro_coordinates",
+        "subtopic_metric": "full_spectral_coordinates",
+        "fibre_metric": "full_spectral_coordinates_complete_link",
+    }
+    sub_components: list[list[str]] = []
+    fibre_components: list[list[str]] = []
+    primary_of: dict[str, str] = {}
+    sub_of: dict[str, str] = {}
+    fibre_of: dict[str, str] = {}
+
+    primary_topics: list[dict[str, Any]] = []
+    sub_topics: list[dict[str, Any]] = []
+    fibre_topics: list[dict[str, Any]] = []
+
+    alpha_rows, alpha_coverage = _conversation_alpha_rows(
+        conversation_ids,
+        coordinates,
+        alpha_signals or {},
+    )
+
+    id_to_index = {conversation_id: index for index, conversation_id in enumerate(conversation_ids)}
+    for primary_index, members in enumerate(primary_components):
+        primary_id = f"primary-{primary_index:03d}"
+        for member in members:
+            primary_of[member] = primary_id
+        primary_topics.append(
+            _topic_summary(
+                primary_id,
+                "primary",
+                members,
+                factor_counts,
+                frame_counts,
+                ontology_feature_counts,
+                coordinates,
+                alpha_rows,
+                id_to_index,
+            )
+        )
+        local_subs = _threshold_components(
+            members,
+            distance_matrix,
+            thresholds["subtopic_tau"],
+            global_index=id_to_index,
+        )
+        for sub_index, sub_members in enumerate(local_subs):
+            sub_id = f"{primary_id}.sub-{sub_index:03d}"
+            sub_components.append(sub_members)
+            for member in sub_members:
+                sub_of[member] = sub_id
+            summary = _topic_summary(
+                sub_id,
+                "subtopic",
+                sub_members,
+                factor_counts,
+                frame_counts,
+                ontology_feature_counts,
+                coordinates,
+                alpha_rows,
+                id_to_index,
+            )
+            summary["parent_id"] = primary_id
+            sub_topics.append(summary)
+
+            cliques = _complete_link_threshold_groups(
+                sub_members,
+                distance_matrix,
+                thresholds["fibre_tau"],
+                id_to_index,
+            )
+            for fibre_index, fibre_members in enumerate(cliques):
+                fibre_id = f"{sub_id}.fibre-{fibre_index:03d}"
+                fibre_components.append(fibre_members)
+                for member in fibre_members:
+                    fibre_of[member] = fibre_id
+                fibre_summary = _topic_summary(
+                    fibre_id,
+                    "fibre",
+                    fibre_members,
+                    factor_counts,
+                    frame_counts,
+                    ontology_feature_counts,
+                    coordinates,
+                    alpha_rows,
+                    id_to_index,
+                )
+                fibre_summary["parent_id"] = sub_id
+                fibre_topics.append(fibre_summary)
+
+    conversation_rows = []
+    for index, conversation_id in enumerate(conversation_ids):
+        coordinate = [float(value) for value in coordinates[index]]
+        xy = coordinate[:2] if len(coordinate) >= 2 else coordinate + [0.0]
+        conversation_rows.append(
+            {
+                "conversation_id": conversation_id,
+                "primary_id": primary_of[conversation_id],
+                "subtopic_id": sub_of[conversation_id],
+                "fibre_id": fibre_of[conversation_id],
+                "coordinates": coordinate,
+                "xy": xy,
+                **alpha_rows[conversation_id],
+            }
+        )
+
+    return {
+        "schema": HIERARCHICAL_SPECTRAL_SCHEMA,
+        "source": {
+            "source_path": loaded.get("source_path"),
+            "conversation_count": len(conversation_ids),
+            "pnf_candidate_count": loaded.get("pnf_candidate_count"),
+            "source_contract": loaded.get("source_contract"),
+        },
+        "feature_space": {
+            "selected_feature_count": len(matrix_receipt["features"]),
+            "features": matrix_receipt["features"],
+            "selection": "corpus_energy_x_inverse_document_frequency",
+            "hardcoded_topic_count": False,
+        },
+        "marchenko_pastur": {
+            "gamma": spectral["gamma"],
+            "sigma2": spectral["sigma2"],
+            "lambda_plus": spectral["lambda_plus"],
+            "eigenvalues": spectral["eigenvalues"],
+            "macro_mode_count": spectral["macro_mode_count"],
+            "retained_macro_indices": spectral["retained_macro_indices"],
+        },
+        "thresholds": thresholds,
+        "mst_edges": mst_edges,
+        "macro_mst_edges": macro_mst_edges,
+        "primary_topics": primary_topics,
+        "subtopics": sub_topics,
+        "fibre_cliques": fibre_topics,
+        "conversation_rows": conversation_rows,
+        "alpha_signal_coverage": alpha_coverage,
+        "formal_boundary": {
+            "topics_are_data_derived": True,
+            "topic_names_are_motif_receipts_not_semantic_truth": True,
+            "ontology_terms_require_explicit_incidence_edges": True,
+            "spectral_coordinates_are_operator_relative": True,
+        },
+    }
+
+
+def _ontology_feature_counts(
+    conversation_ids: Sequence[str],
+    ontology_edges: Sequence[Mapping[str, Any]],
+) -> dict[str, Counter[str]]:
+    known = set(conversation_ids)
+    result = {conversation_id: Counter() for conversation_id in conversation_ids}
+    for edge in ontology_edges:
+        if not isinstance(edge, Mapping):
+            raise ValueError("ontology_edges entries must be objects")
+        members = edge.get("conversation_ids")
+        if members is None:
+            members = edge.get("members")
+        if not isinstance(members, Sequence) or isinstance(members, (str, bytes, bytearray)):
+            raise ValueError("ontology edge requires conversation_ids/members array")
+        label = _text(
+            edge.get("label")
+            or edge.get("target_label")
+            or edge.get("predicate")
+            or edge.get("edge_ref")
+        ).casefold()
+        if not label:
+            raise ValueError("ontology edge requires a stable label/predicate/ref")
+        raw_weight = edge.get("weight", 1.0)
+        if isinstance(raw_weight, bool) or not isinstance(raw_weight, (int, float)):
+            raise ValueError("ontology edge weight must be numeric")
+        weight = float(raw_weight)
+        if not math.isfinite(weight) or weight <= 0.0:
+            raise ValueError("ontology edge weight must be finite and positive")
+        feature = f"ontology:{label}"
+        for member in members:
+            conversation_id = _text(member)
+            if conversation_id in known:
+                result[conversation_id][feature] += weight
+    return result
+
+
+def _formal_ast_feature_counts(
+    conversation_ids: Sequence[str],
+    symbols: Sequence[Mapping[str, Any]],
+) -> dict[str, Counter[str]]:
+    """Project explicit AST symbol references onto conversation incidence."""
+    known = set(conversation_ids)
+    result = {conversation_id: Counter() for conversation_id in conversation_ids}
+    for item in symbols:
+        if not isinstance(item, Mapping):
+            raise ValueError("formal_ast_symbols entries must be objects")
+        symbol = _text(item.get("symbol"))
+        source_ref = _text(item.get("source_ref"))
+        members = item.get("conversation_ids")
+        if not symbol or not source_ref:
+            raise ValueError("formal AST symbol requires symbol and source_ref")
+        if not isinstance(members, Sequence) or isinstance(members, (str, bytes, bytearray)):
+            raise ValueError("formal AST symbol requires conversation_ids array")
+        raw_weight = item.get("weight", 1.0)
+        if isinstance(raw_weight, bool) or not isinstance(raw_weight, (int, float)):
+            raise ValueError("formal AST symbol weight must be numeric")
+        weight = float(raw_weight)
+        if not math.isfinite(weight) or weight <= 0.0:
+            raise ValueError("formal AST symbol weight must be finite and positive")
+        feature = f"ast:{symbol}@{source_ref}"
+        for member in members:
+            conversation_id = _text(member)
+            if conversation_id in known:
+                result[conversation_id][feature] += weight
+    return result
+
+
+def _corpus_factor_matrix(
+    conversation_ids: Sequence[str],
+    factor_counts: Mapping[str, Counter[str]],
+    *,
+    max_features: int,
+) -> dict[str, Any]:
+    import numpy as np
+
+    document_frequency: Counter[str] = Counter()
+    energy: Counter[str] = Counter()
+    for conversation_id in conversation_ids:
+        counts = factor_counts[conversation_id]
+        for feature, count in counts.items():
+            if count <= 0:
+                continue
+            document_frequency[feature] += 1
+            energy[feature] += math.log1p(float(count)) ** 2
+
+    n = len(conversation_ids)
+    ranked = sorted(
+        energy,
+        key=lambda feature: (
+            -energy[feature] * math.log1p(n / max(1, document_frequency[feature])),
+            feature,
+        ),
+    )
+    cap = min(max_features, max(2, n - 1), len(ranked))
+    features = ranked[:cap]
+    if len(features) < 2:
+        raise ValueError("corpus does not contain enough varying PNF factors")
+
+    matrix = np.zeros((n, len(features)), dtype=float)
+    for row_index, conversation_id in enumerate(conversation_ids):
+        counts = factor_counts[conversation_id]
+        for column_index, feature in enumerate(features):
+            count = float(counts.get(feature, 0.0))
+            if count <= 0.0:
+                continue
+            idf = math.log((1.0 + n) / (1.0 + document_frequency[feature])) + 1.0
+            matrix[row_index, column_index] = math.log1p(count) * idf
+
+    means = matrix.mean(axis=0)
+    std = matrix.std(axis=0, ddof=1)
+    keep = std > 1e-12
+    matrix = matrix[:, keep]
+    features = [feature for feature, retained in zip(features, keep.tolist(), strict=True) if retained]
+    if matrix.shape[1] < 2:
+        raise ValueError("corpus PNF factors collapse to fewer than two varying dimensions")
+    matrix = (matrix - matrix.mean(axis=0)) / matrix.std(axis=0, ddof=1)
+    return {"matrix": matrix, "features": features}
+
+
+def _mp_spectral_coordinates(
+    matrix: Any,
+    *,
+    max_spectral_dimensions: int,
+) -> dict[str, Any]:
+    import numpy as np
+
+    n, d = matrix.shape
+    covariance = (matrix.T @ matrix) / max(1, n - 1)
+    eigenvalues, eigenvectors = np.linalg.eigh(covariance)
+    order = np.argsort(eigenvalues)[::-1]
+    eigenvalues = eigenvalues[order]
+    eigenvectors = eigenvectors[:, order]
+
+    positive = eigenvalues[eigenvalues > 1e-12]
+    if positive.size == 0:
+        raise ValueError("spectral covariance has no positive modes")
+    tail_start = max(1, int(math.floor(0.20 * len(positive))))
+    bulk = positive[tail_start:] if tail_start < len(positive) else positive
+    sigma2 = float(np.median(bulk))
+    gamma = float(d / n)
+    lambda_plus = sigma2 * (1.0 + math.sqrt(gamma)) ** 2
+    retained = [int(index) for index, value in enumerate(eigenvalues) if float(value) > lambda_plus]
+
+    dimension_count = min(max_spectral_dimensions, d)
+    coordinates = matrix @ eigenvectors[:, :dimension_count]
+    retained_limited = [index for index in retained if index < dimension_count]
+    macro_coordinates = (
+        matrix @ eigenvectors[:, retained_limited]
+        if retained_limited
+        else np.zeros((n, 1), dtype=float)
+    )
+    return {
+        "coordinates": coordinates,
+        "macro_coordinates": macro_coordinates,
+        "eigenvalues": [float(value) for value in eigenvalues[:dimension_count]],
+        "gamma": gamma,
+        "sigma2": sigma2,
+        "lambda_plus": lambda_plus,
+        "macro_mode_count": len(retained_limited),
+        "retained_macro_indices": retained_limited,
+    }
+
+
+def _cosine_distance_matrix(coordinates: Any) -> Any:
+    import numpy as np
+
+    matrix = np.asarray(coordinates, dtype=float)
+    norms = np.linalg.norm(matrix, axis=1)
+    normalized = np.zeros_like(matrix)
+    nonzero = norms > 1e-12
+    normalized[nonzero] = matrix[nonzero] / norms[nonzero, None]
+    similarity = normalized @ normalized.T
+    similarity = np.clip(similarity, -1.0, 1.0)
+    distance = 1.0 - similarity
+    np.fill_diagonal(distance, 0.0)
+    return distance
+
+
+def _minimum_spanning_tree(
+    conversation_ids: Sequence[str],
+    distance_matrix: Any,
+) -> list[dict[str, Any]]:
+    n = len(conversation_ids)
+    selected = [False] * n
+    best = [math.inf] * n
+    parent = [-1] * n
+    best[0] = 0.0
+    edges: list[dict[str, Any]] = []
+    for _ in range(n):
+        node = min((index for index in range(n) if not selected[index]), key=lambda index: (best[index], conversation_ids[index]))
+        selected[node] = True
+        if parent[node] >= 0:
+            edges.append(
+                {
+                    "left": conversation_ids[parent[node]],
+                    "right": conversation_ids[node],
+                    "distance": float(distance_matrix[parent[node]][node]),
+                }
+            )
+        for candidate in range(n):
+            if selected[candidate] or candidate == node:
+                continue
+            value = float(distance_matrix[node][candidate])
+            if value < best[candidate] - 1e-15 or (
+                abs(value - best[candidate]) <= 1e-15
+                and (parent[candidate] < 0 or conversation_ids[node] < conversation_ids[parent[candidate]])
+            ):
+                best[candidate] = value
+                parent[candidate] = node
+    return sorted(edges, key=lambda edge: (edge["distance"], edge["left"], edge["right"]))
+
+
+def _dynamic_hierarchy_thresholds(mst_weights: Sequence[float]) -> dict[str, float]:
+    import numpy as np
+
+    values = sorted(float(value) for value in mst_weights if math.isfinite(float(value)) and float(value) >= 0.0)
+    if not values:
+        return {"fibre_tau": 0.0, "subtopic_tau": 0.0, "primary_tau": 0.0}
+    if len(values) == 1:
+        base = values[0]
+        return {
+            "fibre_tau": base * 0.50,
+            "subtopic_tau": base * 0.75,
+            "primary_tau": base,
+        }
+
+    gaps = [
+        (values[index + 1] - values[index], index)
+        for index in range(len(values) - 1)
+    ]
+    gap, gap_index = max(gaps, key=lambda item: (item[0], item[1]))
+    gap_cut = (values[gap_index] + values[gap_index + 1]) / 2.0 if gap > 1e-15 else float(np.quantile(values, 0.75))
+    fine = float(np.quantile(values, 0.25))
+    sub = float(np.quantile(values, 0.50))
+    primary = max(gap_cut, float(np.quantile(values, 0.75)))
+    if sub < fine:
+        sub = fine
+    if primary < sub:
+        primary = sub
+    return {
+        "fibre_tau": fine,
+        "subtopic_tau": sub,
+        "primary_tau": primary,
+    }
+
+
+def _threshold_components(
+    members: Sequence[str],
+    distance_matrix: Any,
+    tau: float,
+    *,
+    global_index: Mapping[str, int] | None = None,
+) -> list[list[str]]:
+    ordered = sorted(members)
+    index = global_index or {member: position for position, member in enumerate(ordered)}
+    adjacency = {member: [] for member in ordered}
+    for left_position, left in enumerate(ordered):
+        for right in ordered[left_position + 1 :]:
+            if float(distance_matrix[index[left]][index[right]]) <= tau + 1e-15:
+                adjacency[left].append(right)
+                adjacency[right].append(left)
+    seen: set[str] = set()
+    components: list[list[str]] = []
+    for seed in ordered:
+        if seed in seen:
+            continue
+        queue = [seed]
+        seen.add(seed)
+        component: list[str] = []
+        while queue:
+            current = queue.pop()
+            component.append(current)
+            for neighbour in adjacency[current]:
+                if neighbour not in seen:
+                    seen.add(neighbour)
+                    queue.append(neighbour)
+        components.append(sorted(component))
+    return sorted(components, key=lambda component: (component[0], len(component)))
+
+
+def _complete_link_threshold_groups(
+    members: Sequence[str],
+    distance_matrix: Any,
+    tau: float,
+    index: Mapping[str, int],
+) -> list[list[str]]:
+    groups: list[list[str]] = []
+    for member in sorted(members):
+        placed = False
+        for group in groups:
+            if all(float(distance_matrix[index[member]][index[other]]) <= tau + 1e-15 for other in group):
+                group.append(member)
+                placed = True
+                break
+        if not placed:
+            groups.append([member])
+    return [sorted(group) for group in groups]
+
+
+def _conversation_alpha_rows(
+    conversation_ids: Sequence[str],
+    coordinates: Any,
+    alpha_signals: Mapping[str, Mapping[str, Any]],
+) -> tuple[dict[str, dict[str, float]], dict[str, Any]]:
+    import numpy as np
+
+    energies = np.sum(np.asarray(coordinates, dtype=float) ** 2, axis=1)
+    energy_max = max(float(np.max(energies)), 1e-12)
+    theorem_raw: dict[str, float] = {}
+    gap_raw: dict[str, float] = {}
+    theorem_supplied = 0
+    gap_supplied = 0
+    for conversation_id in conversation_ids:
+        signals = alpha_signals.get(conversation_id)
+        signal_map = signals if isinstance(signals, Mapping) else {}
+        theorem_value = signal_map.get("theorem_density", 0.0)
+        gap_value = signal_map.get("formal_gap_reduction", 0.0)
+        theorem = float(theorem_value) if isinstance(theorem_value, (int, float)) and not isinstance(theorem_value, bool) else 0.0
+        gap = float(gap_value) if isinstance(gap_value, (int, float)) and not isinstance(gap_value, bool) else 0.0
+        theorem_raw[conversation_id] = max(0.0, theorem)
+        gap_raw[conversation_id] = max(0.0, gap)
+        theorem_supplied += int("theorem_density" in signal_map)
+        gap_supplied += int("formal_gap_reduction" in signal_map)
+
+    theorem_max = max(theorem_raw.values(), default=0.0)
+    gap_max = max(gap_raw.values(), default=0.0)
+    rows: dict[str, dict[str, float]] = {}
+    for index, conversation_id in enumerate(conversation_ids):
+        spectral_energy = float(energies[index]) / energy_max
+        theorem_density = theorem_raw[conversation_id] / theorem_max if theorem_max > 0.0 else 0.0
+        formal_gap_reduction = gap_raw[conversation_id] / gap_max if gap_max > 0.0 else 0.0
+        alpha = 0.50 * spectral_energy + 0.30 * theorem_density + 0.20 * formal_gap_reduction
+        rows[conversation_id] = {
+            "spectral_energy": spectral_energy,
+            "theorem_density": theorem_density,
+            "formal_gap_reduction": formal_gap_reduction,
+            "alpha": alpha,
+        }
+    return rows, {
+        "conversation_count": len(conversation_ids),
+        "theorem_density_supplied": theorem_supplied,
+        "formal_gap_reduction_supplied": gap_supplied,
+        "spectral_energy_supplied": len(conversation_ids),
+        "weights": {
+            "spectral_energy": 0.50,
+            "theorem_density": 0.30,
+            "formal_gap_reduction": 0.20,
+        },
+    }
+
+
+def _topic_summary(
+    topic_id: str,
+    level: str,
+    members: Sequence[str],
+    factor_counts: Mapping[str, Counter[str]],
+    frame_counts: Mapping[str, Counter[str]],
+    ontology_counts: Mapping[str, Counter[str]],
+    coordinates: Any,
+    alpha_rows: Mapping[str, Mapping[str, float]],
+    index: Mapping[str, int],
+) -> dict[str, Any]:
+    aggregate_factors: Counter[str] = Counter()
+    aggregate_frames: Counter[str] = Counter()
+    aggregate_ontology: Counter[str] = Counter()
+    for member in members:
+        aggregate_factors.update(factor_counts[member])
+        aggregate_frames.update(frame_counts[member])
+        aggregate_ontology.update(ontology_counts[member])
+
+    # A lexical frame is eligible as a world head only when the public
+    # SensibLaw parser/reducer supplies PROPN evidence. Missing producer
+    # capability abstains; no lane-local English wordlist or regex fallback.
+    top_frames = [
+        {"motif": motif, "weight": float(weight), "evidence": "sensiblaw_propn"}
+        for motif, weight in aggregate_frames.most_common()
+        if weight > 0 and _motif_has_propn_evidence(motif)
+    ][:5]
+    # Ontology features are admitted only because their incidence was explicitly
+    # supplied by the caller; they are not inferred from lexical resemblance.
+    top_ontology = [
+        {
+            "feature": feature.removeprefix("ontology:").split("@", 1)[0].removeprefix("ast:"),
+            "weight": float(weight),
+            "evidence": "formal_ast_symbol_incidence" if feature.startswith("ast:")
+                       else "explicit_ontology_incidence",
+            **({"source_ref": feature.split("@", 1)[1]} if feature.startswith("ast:") and "@" in feature else {}),
+        }
+        for feature, weight in aggregate_ontology.most_common(5)
+    ]
+    if top_frames:
+        name = " + ".join(item["motif"] for item in top_frames[:2])
+        name_source = "sensiblaw_propn_relational_frames"
+    elif top_ontology:
+        name = " + ".join(item["feature"] for item in top_ontology[:2])
+        evidence_kinds = {item["evidence"] for item in top_ontology[:2]}
+        name_source = next(iter(evidence_kinds)) if len(evidence_kinds) == 1 else "explicit_external_incidence"
+    else:
+        # Do not promote raw factors into topic heads. topic_id is an opaque
+        # stable identifier, not a semantic label.
+        name = topic_id
+        name_source = "opaque_topic_id"
+
+    width = len(coordinates[0])
+    centroid = [
+        sum(float(coordinates[index[member]][dimension]) for member in members) / len(members)
+        for dimension in range(width)
+    ]
+    alpha_values = [float(alpha_rows[member]["alpha"]) for member in members]
+    energy_values = [float(alpha_rows[member]["spectral_energy"]) for member in members]
+    theorem_values = [float(alpha_rows[member]["theorem_density"]) for member in members]
+    gap_values = [float(alpha_rows[member]["formal_gap_reduction"]) for member in members]
+    return {
+        "topic_id": topic_id,
+        "level": level,
+        "name": name,
+        "name_source": name_source,
+        "member_count": len(members),
+        "members": sorted(members),
+        "semantic_centroid": {
+            "spectral_coordinates": centroid,
+            "top_relational_frames": top_frames,
+            "top_ontology_incidence": top_ontology,
+        },
+        "alpha": {
+            "mean": sum(alpha_values) / len(alpha_values),
+            "max": max(alpha_values),
+            "spectral_energy_mean": sum(energy_values) / len(energy_values),
+            "theorem_density_mean": sum(theorem_values) / len(theorem_values),
+            "formal_gap_reduction_mean": sum(gap_values) / len(gap_values),
+        },
+    }
+
+
+def _motif_has_propn_evidence(motif: str) -> bool:
+    """Use SensibLaw's public parser/reducer; missing interface means abstain."""
+    try:
+        from sensiblaw.interfaces import collect_canonical_relational_bundle
+    except (ImportError, ModuleNotFoundError):
+        try:
+            from sensiblaw.interfaces.shared_reducer import collect_canonical_relational_bundle
+        except (ImportError, ModuleNotFoundError):
+            return False
+    try:
+        bundle = collect_canonical_relational_bundle(motif)
+    except Exception:
+        return False
+    atoms = bundle.get("atoms", []) if isinstance(bundle, Mapping) else []
+    if not isinstance(atoms, Sequence) or isinstance(atoms, (str, bytes, bytearray)):
+        return False
+    # The interface emits POS-tagged atom observations. Require a PROPN tag
+    # on the predicate head itself, not merely somewhere in an argument.
+    predicate = motif.split("(", 1)[0].strip().casefold()
+    for atom in atoms:
+        if not isinstance(atom, Mapping):
+            continue
+        text = str(atom.get("text") or "").strip().casefold()
+        lemma = str(atom.get("lemma") or "").strip().casefold()
+        pos = str(atom.get("pos") or "").strip().upper()
+        if pos == "PROPN" and (text == predicate or lemma == predicate):
+            return True
+    return False
+
+
+def _factor_display_name(feature: str) -> str:
+    if feature.startswith("ontology:"):
+        return feature.removeprefix("ontology:")
+    parts = feature.split("|")
+    if len(parts) >= 3:
+        return f"{parts[0]}:{parts[1]}:{parts[2]}"
+    return feature

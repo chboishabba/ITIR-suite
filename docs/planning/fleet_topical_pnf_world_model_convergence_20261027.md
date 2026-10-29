@@ -115,3 +115,16 @@ To overcome the latency of pulling multi-megabyte conversation graphs on 900-tur
 - [ ] Expose `fast` / `reconcile_attempts` in `chatgpt_continue` and `itir.chatgpt.dispatch_worker`.
 - [ ] Add `--fast` and `--stagger` flags to `scripts/run_tranche_convergence.py`.
 - [ ] Wire Stage R5 AST subtraction into rejuvenation prompts for high-turn ($\ge 200$) threads.
+
+
+## 6. Doctrine correction: semantic motif admission
+
+The spectral hierarchy must not own arbitrary English predicate stoplists. Historical predicate allow/deny sets such as `GENERIC_CONVERSATIONAL_PREDICATES` are prohibited: they encode lane-local semantics and drift from the shared producer.
+
+- Canonical tokenization, parsing, POS/lexeme typing, and relational extraction use the public `sensiblaw.interfaces` parser adapter/shared reducer, especially `collect_canonical_relational_bundle` and `tokenize_canonical_with_spans`.
+- A relational-frame motif can name a world head only when the shared interface returns `PROPN` evidence for the predicate head. If SensibLaw is unavailable, malformed, or supplies no matching POS evidence, the frame is omitted from semantic naming (fail closed); do not fall back to regexes or a local English wordlist.
+- Explicit ontology graph incidence and explicit formal AST symbol incidence remain eligible with source provenance (`source_ref` for AST symbols). Raw factor labels are not semantic names; absent substantive evidence, retain the stable opaque topic ID.
+- Corpus document-frequency / TF-IDF and the existing Marchenko–Pastur edge remain data-driven prioritization/retention mechanisms. They do not replace the PROPN / formal AST / explicit ontology admission gate.
+- The Python layer records producer evidence and remains candidate-only. The `build_hierarchical_pnf_topics` and `project_slrw_hierarchy_to_docs` APIs accept explicit AST incidence records (`conversation_ids`, `symbol`, `source_ref`, optional positive `weight`), which are preserved in topic evidence rather than inferred from token shape. Formal residual/quotient boundaries remain associated with `dashi_agda` owners `Ontology/Hecke/PNFResidualBridge.agda` and `DASHI/Interop/WorldEigenResidualStratification.agda`; `dashi_lean4` follows Agda. Related formal owner work is tracked in `dashi_agda` PR #1415 (world/eigen residual stratification) and PR #1437 (golden spectral stratification, W20, and Max Cut alignment), with `dashi_lean4` PR #90 mirroring the sublinear conductor law. These are reuse/authority references, not claims that the Python lexical gate is itself kernel-verified. This change does not claim a new kernel theorem or alter ESD surfaces.
+
+Acceptance requires regression tests for missing-interface abstention, positive PROPN evidence, rejection of verb-like frame labels without such evidence, explicit ontology naming, and absence of `GENERIC_CONVERSATIONAL_PREDICATES` in the implementation.
