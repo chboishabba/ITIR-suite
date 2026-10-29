@@ -239,7 +239,7 @@ def test_conductor_primary_roll_for_constrained_workers() -> None:
         candidate_lanes=_candidate_lanes(),
     )
 
-    assert plan["mode"] == "primary_roll"
+    assert plan["mode"] == "dynamic_costed"
     assert plan["worker_capacity"] == 2
     assert plan["selected_tau"] >= _hierarchy()["thresholds"]["primary_tau"]
     assert plan["prepared_lane_count"] == 2
@@ -253,25 +253,27 @@ def test_conductor_primary_roll_for_constrained_workers() -> None:
     assert "Execute in this order" in first_lane["prompt"]
 
 
-def test_conductor_w20_branches_independent_subtopics_in_alpha_pareto_order() -> None:
+def test_conductor_w20_does_not_blindly_overspawn() -> None:
     plan = build_pareto_conductor_plan(
         _hierarchy(),
         20,
         candidate_lanes=_candidate_lanes(),
     )
 
-    assert plan["mode"] == "independent_subtopics"
+    assert plan["mode"] == "dynamic_costed"
     assert plan["worker_capacity"] == 20
-    assert plan["selected_tau"] >= _hierarchy()["thresholds"]["subtopic_tau"]
-    assert plan["selected_tau"] < _hierarchy()["thresholds"]["primary_tau"]
     assert plan["pairwise_noTypedMeet_verified"] is True
-    assert plan["dispatchable_lane_count"] == 3
+    assert plan["dispatchable_lane_count"] == 2
     assert [topic["topic_id"] for topic in plan["selected_topics"]] == [
+        "primary-000",
+        "primary-001",
+    ]
+    assert [row["allocated_workers"] for row in plan["worker_allocations"]] == [1, 1]
+    assert plan["unused_worker_capacity"] == 18
+    assert [packet["topic_id"] for packet in plan["worker_allocations"][0]["internal_work_packets"]] == [
         "primary-000.sub-000",
         "primary-000.sub-001",
-        "primary-001.sub-000",
     ]
-    assert all(not lane["internal_work_packets"] for lane in plan["lanes"])
 
 
 def test_conductor_caps_workers_at_twenty() -> None:
