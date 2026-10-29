@@ -324,8 +324,9 @@ def classify_pnf_head(value: str, *, ontology_labels: Sequence[str] = (),
         return {"accepted": False, "status": "rejected", "reasons": ["empty"], "authority": "none"}
     head = value.strip()
     normalized = head.lower()
-    tokens = [part.strip(".,:;()[]{}<>/\\\\|·-_") for part in normalized.split()]
-    tokens = [token for token in tokens if token]
+    for punctuation in ".,:;()[]{}<>/\\\\|·-_":
+        normalized = normalized.replace(punctuation, " ")
+    tokens = [token for token in normalized.split() if token]
     reasons: list[str] = []
     if any(token.startswith("0x") and len(token) > 2 and
            all(ch in "0123456789abcdef" for ch in token[2:]) for token in tokens):
