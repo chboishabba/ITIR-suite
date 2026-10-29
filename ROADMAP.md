@@ -91,6 +91,32 @@ SQLite-backed corpus with TIRC and SL-style views.
   - Phase 2 outputs
   - Cross-domain mapping agreement
 
+## Milestone M4: Sublinear Topic Scaling & Conductor Cost Functions (May 2026)
+- Deliverables:
+  - Sublinear Topic Extraction: As conversation volume expands from 500 to 3,000+ chats,
+    extract sublinearly scaling primary topic manifolds ($\mathcal{T}(N) \sim C \cdot N^\gamma, \gamma < 0.5$)
+    with 20–50 concrete implementation goals per topic.
+  - Topic-Centric Rotation: Replace naive thread rotation with topic-level rotation,
+    using `itir.chatgpt.revive` and headless `curl_cffi` to synthesize cross-thread history
+    and rich PostgreSQL world-model context.
+  - Conductor Cost Function: Dynamic worker sizing balancing continuous $\alpha$-priority,
+    perplexity, frontier obstruction counts (e.g. 4 unblocked workers on 4 lemmas), and
+    sub-eigen dimensionality, preventing blind overspawning up to capacity $W=20$.
+  - Canonical Presets: Updated all worker prompt presets (`@max_cut`, `@grug_ste100`, `@zkp_qa`,
+    `@introspective_viz`, `@converge_toe`, `@referee_pass`) to mandate checking `dashi_lean4`
+    and `dashi_agda` before generating code.
+
+## Milestone M5: `itir-dioxus` Interactive Graph & Sankey UI (Jun 2026)
+- Deliverables:
+  - Multi-Scale Topic Explorer: Click extracted main topic $\to$ view constituent goals $\to$
+    deliverables timeline across conversations.
+  - Cross-Project Drag-and-Drop Node Graph: Interactive canvas connecting nodes across
+    `ITIR-suite`, `SensibLaw`, `StatiBaker`, and `SeaMeInIt` with governed bridge receipts.
+  - Multi-Metric Sankey Flow: Visualizing flow from chats to PNF factor clusters to active worker lanes,
+    with dynamic metric toggling (Continuous $\alpha$, Perplexity, Frontier Blockers, Task Priority).
+  - StatiBaker Kanban Integration: Direct projection of topic deliverables into StatiBaker
+    Kanban boards linked with Wikidata entity relations.
+
 ## Next Candidate Deliverables
 - Python ingest script for `conversations.json`.
 - TIRC recurrence query set.
