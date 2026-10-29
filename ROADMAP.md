@@ -139,6 +139,15 @@ SQLite-backed corpus with TIRC and SL-style views.
   - **Golden Sublinear Topic Width Law ($W=20$)**: Wire `itir_mcp.fleet_round_runner.execute_pareto_conductor`
     directly against PostgreSQL to size allocations across topics ($\mathcal{C}(T_k, W) = \alpha(T_k) \cdot \frac{\text{unblocked}}{\text{total}} \cdot \min(20, \dim(\text{SubEigens}), W)$)
     and allocate workers to topic deliverables rather than raw thread IDs.
+  - **Formal Family Triangulation & AST Consensus Deduplication (`RNNN` / `R193` & ClaySprint Series)**:
+    Rather than letting threads proliferate versioned round files without proof closure (e.g. `Round1` through `Round199`, `ClaySprint1` through `ClaySprint133`),
+    `re_gpt.formal_triangulator.triangulate_formal_family` performs an AST-level 3-way partition:
+    1. *Shared Invariant Baseline (`[OWNED / VERIFIED]`)*: Verified properties frozen as immutable preconditions.
+    2. *Divergent Construction Branches*: Competing hypotheses (e.g., temporal links absorbed into $T_k$ vs tracked as spatial boundary defects) exposed side-by-side.
+    3. *Unresolved Gap Intersection (`[BLOCKED / UNPROVEN]`)*: Universal blockers across all modules isolated as the sole proving frontier (e.g. `round193ClayPromotion = false` and `round193PackageAClosed = false` across `Round190`–`Round199` in `NSTriadKNClayFrontierRound193Exact.agda`; `AllDiameterWeightedKP` in YM).
+  - **Git Lineage & Active PR Context in World Evidence**:
+    Per `SUBLINEAR_TOPIC_METASYSTEM_AND_DIOXUS_UI.md` (Level 3: Deliverables & PR Lineage) and `pnf_work_packet_v1.md`,
+    `re_gpt.automatic_formal_evidence` embeds recent Git commit hashes and active GitHub PRs directly into world gap capsules.
   - Unified Schema Coverage: Transcripts (`corpus.chat_archive_message`), mutation ops (`operational.rejuvenation_job`),
     PNF relational factors (`pnf.statement_candidate_factor`, `pnf.candidate_semantic_product`, `pnf.graph`),
     docs & user stories (`corpus.document_manifest`), StatiBaker deliverables (`task.candidate`, `goal.timeline`),
