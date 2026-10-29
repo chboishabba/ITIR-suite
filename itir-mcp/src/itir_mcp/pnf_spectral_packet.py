@@ -299,3 +299,75 @@ def _int(value: Any, label: str) -> int:
         except (TypeError, ValueError) as exc:
             raise ValueError(f"{label} must be an integer") from exc
     return value
+
+
+# Deterministic head discriminator. These labels are candidate-only and never
+# create semantic, routing, support, or promotion authority.
+import re as _re
+
+_HEAD_HEX = _re.compile(r"(?i)0x[0-9a-f]+")
+_HEAD_UI = _re.compile(r"(?i)(document\\.|window\\.|innerhtml|outerhtml|classlist|queryselector|onclick\\s*=)")
+_HEAD_WORD = _re.compile(r"[A-Za-z][A-Za-z0-9_./:-]*")
+_HEAD_PARTICLES = frozenset({"than", "rather", "ago", "also"})
+_HEAD_FUNCTION_WORDS = frozenset({
+    "a", "an", "the", "and", "or", "but", "if", "then", "else", "of",
+    "to", "for", "from", "with", "without", "by", "on", "in", "at", "as",
+    "is", "are", "was", "were", "be", "been", "being", "change", "support",
+    "package", "satisfy", "day", "fp16",
+})
+_DOMAIN_HEADS = frozenset({
+    "YangMillsMassGap", "NavierStokesTriadKN", "GoemansWilliamsonMaxCut",
+    "DeonticObligationCalculus", "DioxusReactiveTree", "E8LatticeMoonshine",
+    "BalabanRenormalization",
+})
+
+
+def classify_pnf_head(value: str, *, ontology_labels: Sequence[str] = (),
+                      ast_symbols: Sequence[str] = ()) -> dict[str, Any]:
+    """Reject particle/dump/UI noise; return accepted heads as unverified candidates."""
+    if not isinstance(value, str) or not value.strip():
+        return {"accepted": False, "status": "rejected", "reasons": ["empty"]}
+    head = value.strip()
+    words = [word.lower() for word in _HEAD_WORD.findall(head)]
+    reasons: list[str] = []
+    if _HEAD_HEX.search(head):
+        reasons.append("hex_literal_or_memory_dump")
+    if _HEAD_UI.search(head):
+        reasons.append("raw_ui_dom_token")
+    if any(word in _HEAD_PARTICLES for word in words):
+        reasons.append("comparative_particle")
+    known = head in _DOMAIN_HEADS or head in set(ontology_labels) or head in set(ast_symbols)
+    substantive_capitalization = any(any(c.isupper() for c in word[1:]) for word in _HEAD_WORD.findall(head))
+    if words and all(word in _HEAD_FUNCTION_WORDS or word in _HEAD_PARTICLES for word in words):
+        reasons.append("grammatical_noise")
+    if not known and not substantive_capitalization:
+        reasons.append("no_substantive_entity_evidence")
+    accepted = not reasons
+    return {
+        "accepted": accepted,
+        "status": "candidate_unverified" if accepted else "rejected",
+        "head": head if accepted else None,
+        "reasons": sorted(set(reasons)),
+        "evidence_kind": "domain_or_ontology_or_ast" if known else "capitalization_heuristic",
+        "authority": "none",
+    }
+
+
+def validate_pnf_hierarchy_metadata(payload: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate declared hierarchy shape; never synthesize spectral vectors."""
+    if not isinstance(payload, Mapping):
+        raise ValueError("payload must be an object")
+    k = payload.get("k")
+    if type(k) is not int or k not in {50, 100}:
+        raise ValueError("k must be exactly 50 or 100")
+    levels = ("eigenspace", "primary_topics", "subtopics", "fibres", "goals")
+    if any(not isinstance(payload.get(level), list) for level in levels):
+        raise ValueError("eigenspace, primary_topics, subtopics, fibres and goals must be lists")
+    return {
+        "version": "itir.pnf.hierarchy_metadata.v1",
+        "k": k,
+        "level_counts": {level: len(payload[level]) for level in levels},
+        "spectral_computation": "not_performed",
+        "status": "producer_verified_metadata" if payload.get("producer_verified") is True else "candidate_unverified",
+        "authority": "none",
+    }
