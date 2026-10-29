@@ -87,7 +87,12 @@ def test_blocked_goals_are_not_scheduled_and_round_capacity_is_capped() -> None:
     goals = [{"id": f"g{i}", "alpha": 1, "blocked": i == 0,
               "typed_support": {"files": [f"{i}.agda"], "symbols": [str(i)], "lemmas": []}}
              for i in range(25)]
-    result = build_fleet_round_plan([goals], no_typed_meet_receipts={},
+    eligible = [goal for goal in goals if goal["blocked"] is not True]
+    receipts = {}
+    for index, left in enumerate(eligible):
+        for right in eligible[index + 1:]:
+            receipts["|".join(sorted((left["id"], right["id"])))] = True
+    result = build_fleet_round_plan([goals], no_typed_meet_receipts=receipts,
                                     worker_limit=20)
     assert result["rounds"][0]["selected_count"] == 20
     assert all(lane["goal_id"] != "g0" for lane in result["rounds"][0]["lanes"])
