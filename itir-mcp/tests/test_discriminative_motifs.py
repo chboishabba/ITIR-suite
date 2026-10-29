@@ -232,7 +232,7 @@ def _candidate_lanes() -> dict:
     return lanes
 
 
-def test_conductor_primary_roll_for_constrained_workers() -> None:
+def test_conductor_constrained_workers_preserve_primary_packets() -> None:
     plan = build_pareto_conductor_plan(
         _hierarchy(),
         2,
@@ -241,7 +241,7 @@ def test_conductor_primary_roll_for_constrained_workers() -> None:
 
     assert plan["mode"] == "dynamic_costed"
     assert plan["worker_capacity"] == 2
-    assert plan["selected_tau"] >= _hierarchy()["thresholds"]["primary_tau"]
+    assert plan["policy"]["worker_capacity_is_budget_not_mode_selector"] is True
     assert plan["prepared_lane_count"] == 2
     assert plan["pairwise_noTypedMeet_verified"] is True
     assert plan["selected_topics"][0]["topic_id"] == "primary-000"

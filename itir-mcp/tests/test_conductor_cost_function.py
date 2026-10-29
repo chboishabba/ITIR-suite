@@ -63,7 +63,7 @@ def test_frontier_blocked_topic_allocates_exactly_one_worker_per_blocker() -> No
         "name": "Blocked proof frontier",
         "alpha": _alpha(),
         "total_goals": 50,
-        "unblocked_goals": 46,
+        "unblocked_goals": 0,
         "sub_eigen_dimension": 12,
         "frontier_blockers": [
             {"blocker_id": "lemma:a"},

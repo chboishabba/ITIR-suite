@@ -561,7 +561,7 @@ def conductor_topic_cost(
     """Evaluate C(T_k, W) for one explicit worker bundle.
 
     C(T_k, W) = alpha(T_k) * (unblocked_goals / total_goals)
-                * min(W_cap, dim(SubEigens), W) - TokenCost(W)
+                * min(W_cap, dim(SubEigens)) - TokenCost(W)
     """
     if isinstance(worker_count, bool) or not isinstance(worker_count, int) or worker_count < 1:
         raise ValueError("worker_count must be a positive integer")
@@ -570,7 +570,7 @@ def conductor_topic_cost(
     total_goals, unblocked_goals = _topic_goal_counts(topic)
     ratio = (float(unblocked_goals) / float(total_goals)) if total_goals else 0.0
     sub_eigen_dimension = _topic_sub_eigen_dimension(topic)
-    spectral_width = min(worker_count, worker_cap, sub_eigen_dimension)
+    spectral_width = min(worker_cap, sub_eigen_dimension)
     alpha = _topic_alpha(topic)["mean"]
     token_cost = _topic_token_cost(topic, worker_count)
     benefit = alpha * ratio * float(spectral_width)
@@ -586,7 +586,7 @@ def conductor_topic_cost(
         "benefit": benefit,
         "token_cost": token_cost,
         "net_cost": benefit - token_cost,
-        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension,worker_count)-token_cost(worker_count)",
+        "formula": "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)-token_cost(worker_count)",
     }
 
 
