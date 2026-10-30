@@ -51,7 +51,7 @@ def run_dry_run() -> None:
     print("\n" + "=" * 70)
     print("STEP 3: Invariant Fibre Bundle (F_YM) across 3 Typed Representations")
     print("=" * 70)
-    bundle = packet.build_yang_mills_fibre_bundle()
+    bundle = packet.build_invariant_fibre_bundle(root_qid="Q271810", root_label="Yang-Mills Theory", fibre_id="F_YM", branches=packet.derive_fibre_branches("Q271810", sub_eigens=[{"id": "lattice", "motif_name": "lattice_transfer_matrix"}, {"id": "continuum", "motif_name": "continuum_curvature_holonomy"}, {"id": "agda", "motif_name": "constructive_agda_types"}]))
     print(f"  • Root Canonical Node:      {bundle['root']['label']} [{bundle['root']['qid']}]")
     print(f"  • Invariant Fibre:          {bundle['fibre_id']}")
     for branch in bundle["branches"]:
