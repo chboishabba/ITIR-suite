@@ -3220,3 +3220,42 @@ def route_verified_lemmas(
         "authority": "candidate_routing_only",
         "formal_typecheck_required": True,
     }
+
+
+def project_obligation_consumer_cut(
+    obligations: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Project independent live obligations and their consumers; never infer proof closure.
+
+    Inspired by the source-owned consumer-exposure max-cut in DASHI Yang-Mills
+    Round493. This is a generic scheduling projection, not an Agda proof.
+    """
+    live: list[dict[str, Any]] = []
+    consumer_owners: dict[str, list[str]] = defaultdict(list)
+    seen: set[str] = set()
+    for raw in obligations:
+        if not isinstance(raw, Mapping):
+            raise ValueError("obligations must contain objects")
+        identifier = _text(raw.get("obligation_id"))
+        if not identifier or identifier in seen:
+            raise ValueError("obligation_id must be unique and nonempty")
+        seen.add(identifier)
+        if raw.get("live") is not True:
+            continue
+        consumers = sorted(set(_string_list(raw.get("consumers"))))
+        live.append({"obligation_id": identifier, "consumers": consumers,
+                     "fanout": len(consumers), "proof_closed": False})
+        for consumer in consumers:
+            consumer_owners[consumer].append(identifier)
+    live.sort(key=lambda row: row["obligation_id"])
+    return {
+        "schema": "itir.pnf.obligation_consumer_cut.v1",
+        "live_obligations": live,
+        "cut_width": len(live),
+        "consumer_exposure": len(consumer_owners),
+        "declared_fanout": sum(row["fanout"] for row in live),
+        "consumer_owners": {key: sorted(value) for key, value in sorted(consumer_owners.items())},
+        "authority": "scheduling_only",
+        "formal_typecheck_required": True,
+        "theorem_closure_inferred": False,
+    }
