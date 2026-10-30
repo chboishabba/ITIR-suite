@@ -269,3 +269,18 @@ Canonical operator UI: `chboishabba/itir-dioxus` M10/M11, **not** legacy `itir-s
 **Cross-project acceptance:** deterministic replay and stable selection IDs, unknown versus unavailable versus redacted visually distinct, bounded raw-source drill-down, identical GPU/shell selection reducer outcome, no implicit promotion and no new semantic write by UI. Verified-progress metrics require producer-owned proof/test receipts; match evaluation budgets before claiming improvements from Cogentic-style prover populations or self-improving harnesses.
 
 See `docs/planning/user_story_alignment_and_reprioritization_20260402.md` (superseding UI note), `docs/planning/governed_revival_handoff_v1.md`, `itir-dioxus/docs/M10_UNIFIED_WORKBENCH.md` and `slr/docs/ROADMAP.md`. External research inputs: https://arxiv.org/abs/2609.40324 (Cogentic), https://arxiv.org/abs/2609.00006 (harness taxonomy), https://arxiv.org/abs/2606.09498 (Self-Harness), https://arxiv.org/abs/2610.05300 (MESH). **Planning only; no new runtime/kernel/test acceptance claimed.**
+
+
+## RPD PNF fibres, ontology grounding, and fleet barriers
+
+The implementation contract is `docs/planning/rpd_pnf_hierarchical_fibres_slr_wikidata_bridge_20261030.md`.
+
+The active PNF spectral path must use `sensiblaw.interfaces.parser_adapter.parse_canonical_text` for linguistic POS evidence. It does not own English stopword or predicate sets. Lexical heads are eligible only from substantive parser categories (`PROPN`, `NOUN`), explicit formal AST symbols, or supplied ontology identifiers. Corpus document frequency and the existing Marchenko–Pastur threshold are data-driven noise/retention signals; they do not create semantic authority.
+
+The hierarchy supports canonical ontology roots with typed representation children and shared invariant-fibre references. For Yang–Mills, the canonical root is `Q271810` and the fibre key is `F_YM`. Lattice, continuum, and constructive/formal branches remain separate objects. Shared fibre membership enables discovery of adjacent verified invariants but never promotes one branch proof into another branch without an explicit formal bridge.
+
+The fleet runner retains the live `execute_pareto_conductor` and `spawn_parallel_lanes` APIs. A round is a barrier over at most 20 concurrent lanes. Twenty rounds can therefore plan at most 400 worker calls. Every concurrent pair must pass typed-support `noTypedMeet` separation before dispatch.
+
+Wikimedia grounding reuses SensibLaw's public `WiktionaryProvider` and `WikidataProvider` rather than duplicating provider logic. Permanent QIDs remain external candidate evidence. New frontier concepts stay candidate-only under `cand:Q_*`, with explicit `P279`/`P361` anchors and an observational P2738 disjointness gate. Ontology walking and lemma routing use explicit graph edges and explicit verified lemma attachments only.
+
+Golden safe Agda remains the theorem authority. Lean follows Agda. ITIR receipts are operational/candidate evidence and do not establish proof authority.
