@@ -427,39 +427,33 @@ def test_postgres_graph_explicitly_maps_statement_to_conversation() -> None:
     assert result["ontology_edges"][0]["conversation_ids"] == ["conversation-1"]
 
 
-def test_public_preferred_stream_uses_slrw_fallback(tmp_path: Path) -> None:
+def test_public_preferred_stream_rejects_slrw_fallback(tmp_path: Path) -> None:
+    from itir_mcp.pg_semantic_spine import PostgresSemanticSpineIncompatible
+
     slrw = tmp_path / "fallback.slrw"
     slrw.write_bytes(b"placeholder")
-
-    def offline(_url):
-        raise OSError("offline")
-
-    from itir_mcp import pnf_spectral_packet
-
-    original = pnf_spectral_packet.load_slrw_conversation_factors
-    pnf_spectral_packet.load_slrw_conversation_factors = lambda _path: {
-        "schema": "itir.pnf.slrw_corpus_factors.v1",
-        "conversations": {
-            "fallback": {
-                "conversation_id": "fallback",
-                "factor_counts": {"x|actor|y": 1},
-                "frame_counts": {"x(actor:y)": 1},
-                "pnf_candidate_count": 1,
-            }
-        },
-    }
     try:
-        result = stream_preferred_corpus(
+        stream_preferred_corpus(
             database_url="postgresql://offline",
             slrw_fallback_path=slrw,
-            connect=offline,
+            connect=lambda _url: (_ for _ in ()).throw(OSError("offline")),
         )
-    finally:
-        pnf_spectral_packet.load_slrw_conversation_factors = original
+    except PostgresSemanticSpineIncompatible as exc:
+        assert "deprecated migration input" in str(exc)
+    else:
+        raise AssertionError("public stream must reject SLRW fallback")
 
-    assert result["source"] == "slrw"
-    assert result["fallback_used"] is True
-    assert "offline" in result["postgres_error"]
+
+def test_public_preferred_stream_fails_closed_on_pg_outage() -> None:
+    try:
+        stream_preferred_corpus(
+            database_url="postgresql://offline",
+            connect=lambda _url: (_ for _ in ()).throw(OSError("offline")),
+        )
+    except PostgresSemanticSpineUnavailable as exc:
+        assert "offline" in str(exc)
+    else:
+        raise AssertionError("public stream must fail closed on PG outage")
 
 
 def test_reference_registrar_abstains_when_slr_reference_columns_are_missing(
