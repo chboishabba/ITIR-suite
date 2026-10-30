@@ -35,7 +35,7 @@
 - [x] Add permanent-QID normalization, candidate-only `cand:Q_*` minting with explicit `P279`/`P361` anchors, and observational P2738 audit attachment.
 - [x] Add deterministic P279/P361 DAG walking and lemma routing over explicit verified lemma attachments.
 - [x] Add focused tests in `itir-mcp/tests/test_ao_pnf_spectral_fleet.py`.
-- [ ] Verify branch diff has zero protected ESD/digital_esd files and no trust-escape markers. Source audit pending final head.
+- [x] Verify branch diff has zero protected ESD/digital_esd files and no trust-escape markers. Exact branch compare and source scan completed.
 - [ ] Run focused pytest and available lint before marking complete. Local checkout is blocked by DNS; exact-head CI receipt is being requested by branch workflow.
 
 ### Follow-up, not claimed by this tranche
