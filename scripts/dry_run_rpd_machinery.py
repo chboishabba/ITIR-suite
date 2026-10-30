@@ -81,6 +81,7 @@ def run_dry_run() -> None:
     path_props = [e["property"] for e in route["path"]]
     print(f"  • Source QID:               {routed['start_qid']} (Yang-Mills)")
     print(f"  • Traversal Path:           {' -> '.join(path_props)} -> {route['qid']} (Lie Group)")
+    print(f"  • Formatted Path:           {route['formatted_path']}")
     print(f"  • Discovered Lemma:         {route['lemma_ref']} (from {route['source_ref']})")
     assert path_props == ["P361", "P279"]
 

@@ -20,6 +20,7 @@ for candidate in (repo_root / "itir-mcp" / "src", repo_root / "SensibLaw", repo_
         sys.path.insert(0, str(candidate))
 
 from itir_mcp.pnf_spectral_packet import (
+    attach_lemma_symbol_evidence,
     build_invariant_fibre_bundle,
     derive_fibre_branches,
     fibre_invariant_routes,
@@ -68,9 +69,10 @@ def test_real_pillar_3_agda_invariants() -> None:
     print(f"    Root: {bundle['root']['label']} [{bundle['root']['qid']}]")
 
     # 4. Project invariant discovery routes across representations
-    routes = fibre_invariant_routes(bundle, source_branch_id="ym:lattice-transfer")
+    source_branch = bundle["branches"][0]["branch_id"]
+    routes = fibre_invariant_routes(bundle, source_branch_id=source_branch)
     assert len(routes) == len(shared_invariants) * 2  # routes to both continuum and constructive agda
-    print(f"  [DISCOVERY ROUTES] Projected {len(routes)} non-promoting invariant routes from lattice to continuum & Agda:")
+    print(f"  [DISCOVERY ROUTES] Projected {len(routes)} non-promoting invariant routes from '{source_branch}' to continuum & Agda:")
     for r in routes[:3]:
         print(f"    -> {r['to_branch']}: {r['invariant_id']} (Gate: {r['promotion']})")
 
@@ -118,25 +120,35 @@ def test_real_pillar_4_live_wikidata_walk() -> None:
 
     # 2. Attach a verified lemma from DASHI to an ancestor discovered live in the crawl (e.g. Q1262328 'field theory')
     target_ancestor = "Q1262328"
-    known_historical_lemmas = [
+    raw_lemma_candidates = [
         {
             "qid": target_ancestor,
             "lemma_ref": "WightmanAxiomsAdmissible",
             "source_ref": "dashi_agda:DASHI/Physics/FieldTheory/Quantization.agda",
-            "verified": True,
         }
     ]
+    observed_ast_symbols = [
+        {
+            "source_ref": "dashi_agda:DASHI/Physics/FieldTheory/Quantization.agda",
+            "symbol": "WightmanAxiomsAdmissible",
+            "kernel_verified": True,
+        }
+    ]
+    verified_lemmas = attach_lemma_symbol_evidence(raw_lemma_candidates, observed_ast_symbols)
+    assert verified_lemmas[0]["verified"] is True
+    assert verified_lemmas[0]["ast_symbol_observed"] is True
 
     # 3. Route the verified lemma across the live graph
-    routed = route_verified_lemmas(root_qid, all_edges, known_historical_lemmas)
+    routed = route_verified_lemmas(root_qid, all_edges, verified_lemmas)
     assert len(routed["routes"]) >= 1, f"Expected ontology route from {root_qid} to {target_ancestor}"
 
     route = routed["routes"][0]
-    path_steps = [f"{step['source']} --{step['property']}--> {step['target']}" for step in route["path"]]
+    raw_path_str = " -> ".join([f"{s['source']} --{s['property']}--> {s['target']}" for s in route["path"]])
     print(f"\n  [LEMMA ROUTING SUCCESS]")
     print(f"    Source QID:     {routed['start_qid']} ({root_label})")
     print(f"    Target QID:     {route['qid']}")
-    print(f"    Traversal Path: {' -> '.join(path_steps)}")
+    print(f"    Raw Path:       {raw_path_str}")
+    print(f"    Formatted Path: {route['formatted_path']}")
     print(f"    Routed Lemma:   '{route['lemma_ref']}' from {route['source_ref']}")
     print(f"    Promotion Gate: {route['promotion']}")
 
