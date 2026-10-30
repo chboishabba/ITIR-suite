@@ -350,3 +350,25 @@ def test_labelled_instance_subclass_path() -> None:
     walk = packet.walk_ontology_dag("Q1192873", edges)
     assert [edge["property_label"] for edge in walk["paths"]["Q1262328"]] == ["instance of", "subclass of"]
     assert walk["formatted_paths"]["Q1262328"] == "Q1192873 --P31 (instance of)--> Q214850 --P279 (subclass of)--> Q1262328"
+
+
+def test_generic_consumer_exposure_max_cut_is_non_promoting() -> None:
+    cut = packet.project_obligation_consumer_cut([
+        {"obligation_id": "bWEXT", "live": True, "consumers": ["rooted-shell", "geometric-half-rate", "spectral-half-rate"]},
+        {"obligation_id": "bSameHamiltonian", "live": True, "consumers": ["reconstructed-H", "mass-gap"]},
+    ])
+    assert cut["cut_width"] == 2
+    assert cut["consumer_exposure"] == 5
+    assert cut["declared_fanout"] == 5
+    assert cut["theorem_closure_inferred"] is False
+    assert all(not row["proof_closed"] for row in cut["live_obligations"])
+
+
+def test_generic_consumer_exposure_deduplicates_shared_consumers() -> None:
+    cut = packet.project_obligation_consumer_cut([
+        {"obligation_id": "a", "live": True, "consumers": ["shared", "one"]},
+        {"obligation_id": "b", "live": True, "consumers": ["shared", "two"]},
+    ])
+    assert cut["declared_fanout"] == 4
+    assert cut["consumer_exposure"] == 3
+    assert cut["consumer_owners"]["shared"] == ["a", "b"]
