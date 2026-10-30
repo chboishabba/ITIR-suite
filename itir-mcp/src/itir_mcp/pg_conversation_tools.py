@@ -24,7 +24,8 @@ def search(payload):
         raise ToolInputError("invalid limit")
     if type(offset) is not int or not 0 <= offset <= 1000000:
         raise ToolInputError("invalid offset")
-    rows = _provider().list_pg_conversations(query=query, limit=limit, offset=offset)
+    rows = (_provider().list_synced_roster(query=query, limit=limit)
+            if offset == 0 else _provider().list_pg_conversations(query=query, limit=limit, offset=offset))
     return {"source": "itir_postgresql_corpus", "conversations": rows,
             "has_more_possible": len(rows) == limit}
 
