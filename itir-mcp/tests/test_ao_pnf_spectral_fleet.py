@@ -175,21 +175,53 @@ class _Provider:
         return result
 
 
-def test_wikimedia_pipeline_projects_permanent_qid(monkeypatch) -> None:
+@pytest.mark.parametrize(
+    ("surface", "qid"),
+    [
+        ("Yang-Mills", "Q271810"),
+        ("Navier-Stokes", "Q215282"),
+        ("Max Cut", "Q5577665"),
+        ("Spectral gap", "Q7575317"),
+    ],
+)
+def test_wikimedia_pipeline_projects_permanent_qids(monkeypatch, surface: str, qid: str) -> None:
     monkeypatch.setattr(
         packet,
         "_sensiblaw_wikimedia_dependencies",
         lambda: (_Demand, _Provider, _Provider),
     )
     result = packet.ground_wikimedia_surface(
-        "Yang-Mills",
-        subject_ref="topic:ym",
-        wikidata_provider=_Provider("Q271810"),
+        surface,
+        subject_ref=f"topic:{qid}",
+        wikidata_provider=_Provider(qid),
         wiktionary_provider=_Provider(None),
     )
-    assert result["permanent_qids"] == ["Q271810"]
+    assert result["permanent_qids"] == [qid]
     assert result["authority"] == "candidate_only"
     assert result["identity_closed"] is False
+
+
+def test_frontier_candidate_consumes_observational_disjointness_report(monkeypatch) -> None:
+    from itir_mcp import wikidata_disjointness_tool
+
+    monkeypatch.setattr(
+        wikidata_disjointness_tool,
+        "wikidata_disjointness_report",
+        lambda _payload: {
+            "summary": {
+                "subclass_violations_count": 0,
+                "instance_violations_count": 0,
+            },
+            "authority_boundary": {"candidate_only": True},
+        },
+    )
+    candidate = packet.mint_frontier_qid_candidate(
+        "CKN-Leray critical Besov rung",
+        anchors=[{"property": "P279", "target": "Q7575317"}],
+        disjointness_payload={"slice_data": {"windows": []}},
+    )
+    assert candidate["disjointness_clear"] is True
+    assert candidate["promotion_authority"] is False
 
 
 def test_frontier_candidate_is_deterministic_and_non_promoting() -> None:
@@ -291,3 +323,21 @@ def test_live_runner_contracts_remain_present() -> None:
         "alpha*(unblocked_goals/total_goals)*min(worker_cap,sub_eigen_dimension)"
         "-token_cost(worker_count)"
     )
+
+
+def test_spawn_parallel_lanes_rejects_more_than_twenty_before_dispatch() -> None:
+    lanes = [
+        {
+            "orchestrator_id": f"lane-{index}",
+            "prompt": "noop",
+            "typed_support": {
+                "files": [f"file-{index}.agda"],
+                "symbols": [f"symbol-{index}"],
+                "lemmas": [f"lemma-{index}"],
+            },
+        }
+        for index in range(21)
+    ]
+    workers = [{"conversation_id": f"worker-{index}"} for index in range(21)]
+    with pytest.raises(ValueError, match="at most 20"):
+        spawn_parallel_lanes(lanes, workers)
