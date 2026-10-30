@@ -154,6 +154,8 @@ def spawn_parallel_lanes(
     worker_rows = list(workers)
     if not lane_rows:
         return {"lane_count": 0, "results": [], "policy": {"pairwise_noTypedMeet": True}}
+    if len(lane_rows) > 20:
+        raise ValueError("one fleet round may dispatch at most 20 concurrent lanes")
     if len(lane_rows) != len(worker_rows):
         raise ValueError("lanes and workers must have equal length for one-lane-per-worker dispatch")
 
@@ -946,6 +948,123 @@ def execute_pareto_conductor(
         "plan": plan,
         "dispatch": dispatch_receipt,
     }
+
+def _round_lane_alpha(lane: Mapping[str, Any]) -> float:
+    raw = lane.get("alpha", 0.0)
+    if isinstance(raw, Mapping):
+        raw = raw.get("mean", 0.0)
+    if isinstance(raw, bool) or not isinstance(raw, (int, float)):
+        return 0.0
+    return float(raw)
+
+
+def plan_fleet_round_barriers(
+    round_frontiers: Sequence[Sequence[Mapping[str, Any]]],
+    *,
+    no_typed_meet_receipts: Mapping[str, bool],
+    worker_limit: int = 20,
+    round_limit: int = 20,
+) -> dict[str, Any]:
+    """Plan deterministic orchestration barriers without dispatching workers.
+
+    Each round is a simultaneous tranche. Every selected pair must have
+    disjoint concrete typed support and an explicit pairwise noTypedMeet receipt.
+    """
+    if isinstance(worker_limit, bool) or not isinstance(worker_limit, int) or not 1 <= worker_limit <= 20:
+        raise ValueError("worker_limit must be within [1, 20]")
+    if isinstance(round_limit, bool) or not isinstance(round_limit, int) or not 1 <= round_limit <= 20:
+        raise ValueError("round_limit must be within [1, 20]")
+    if not isinstance(no_typed_meet_receipts, Mapping):
+        raise ValueError("no_typed_meet_receipts must be a mapping")
+
+    rounds = []
+    total_calls = 0
+    for round_number, frontier in enumerate(round_frontiers[:round_limit], start=1):
+        if not isinstance(frontier, Sequence) or isinstance(frontier, (str, bytes, bytearray)):
+            raise ValueError("each round frontier must be a sequence")
+        candidates = [dict(row) for row in frontier if isinstance(row, Mapping)]
+        candidates = [
+            row
+            for row in candidates
+            if row.get("blocked") is not True and row.get("unblocked") is not False
+        ]
+        candidates.sort(
+            key=lambda row: (
+                int(row.get("pareto_rank", 0)),
+                -_round_lane_alpha(row),
+                str(row.get("orchestrator_id") or row.get("lane") or ""),
+            )
+        )
+        selected: list[dict[str, Any]] = []
+        held: list[dict[str, Any]] = []
+        for lane in candidates:
+            lane_id = str(lane.get("orchestrator_id") or lane.get("lane") or "").strip()
+            if not lane_id:
+                raise ValueError("round lane requires orchestrator_id or lane")
+            support = _lane_support_keys(lane)
+            if not support:
+                held.append({"lane": lane_id, "reason": "missing_typed_support"})
+                continue
+            conflict = None
+            for prior in selected:
+                prior_id = str(prior.get("orchestrator_id") or prior.get("lane") or "").strip()
+                prior_support = _lane_support_keys(prior)
+                overlap = sorted(support & prior_support)
+                if overlap:
+                    conflict = {
+                        "lane": lane_id,
+                        "with": prior_id,
+                        "reason": "typed_support_overlap",
+                        "overlap": overlap,
+                    }
+                    break
+                pair = "|".join(sorted((lane_id, prior_id)))
+                if no_typed_meet_receipts.get(pair) is not True:
+                    conflict = {
+                        "lane": lane_id,
+                        "with": prior_id,
+                        "reason": "missing_noTypedMeet_proof",
+                    }
+                    break
+            if conflict is not None:
+                held.append(conflict)
+                continue
+            if len(selected) >= worker_limit:
+                held.append({"lane": lane_id, "reason": "worker_capacity"})
+                continue
+            selected.append(lane)
+
+        lane_ids = [
+            str(row.get("orchestrator_id") or row.get("lane") or "")
+            for row in selected
+        ]
+        total_calls += len(lane_ids)
+        rounds.append({
+            "round": round_number,
+            "barrier": True,
+            "selected_lanes": lane_ids,
+            "selected_count": len(lane_ids),
+            "frontier_count": len(candidates),
+            "held": held,
+        })
+    return {
+        "schema": "itir.ao.fleet_round_barriers.v1",
+        "round_count": len(rounds),
+        "worker_limit": worker_limit,
+        "round_limit": round_limit,
+        "total_planned_worker_calls": total_calls,
+        "maximum_possible_calls": len(rounds) * worker_limit,
+        "rounds": rounds,
+        "dispatch_performed": False,
+        "policy": {
+            "round_is_orchestration_barrier": True,
+            "pairwise_noTypedMeet_required": True,
+            "typed_support_dimensions": ["files", "symbols", "lemmas"],
+            "max_workers_per_round": 20,
+            "max_rounds": 20,
+        },
+    }
+
 
 def execute_fleet_lead_round(*, max_leads: int = 5) -> list[dict[str, Any]]:
     fo = FleetOrchestrator()
