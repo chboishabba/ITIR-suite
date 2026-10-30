@@ -4,6 +4,7 @@ from typing import Any, Callable, Mapping
 
 from .autonomous_orchestrator_tools import get_autonomous_orchestrator_tools
 from .chatgpt_worker_tools import get_chatgpt_worker_tools
+from .tmux_observation_tools import get_tmux_observation_tools
 from .config_tools import get_config_tools
 from .comparison_tools import get_comparison_tools
 from .contracts import JsonDict, ToolError, ToolExecutionError, ToolHandler, ToolSpec, error_payload, success_payload
@@ -96,6 +97,8 @@ def build_default_registry(
     *, local_referee_context: Callable[[], Mapping[str, Any]] | None = None,
 ) -> ToolRegistry:
     registry = ToolRegistry()
+    for spec, handler in get_tmux_observation_tools():
+        registry.register(spec, handler)
     for spec, handler in get_chatgpt_worker_tools():
         registry.register(spec, handler)
     for spec, handler in get_sensiblaw_tools():
