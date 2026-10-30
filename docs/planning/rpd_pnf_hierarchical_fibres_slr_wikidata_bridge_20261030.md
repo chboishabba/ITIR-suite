@@ -155,3 +155,59 @@ Following repo guidelines:
   1. Inspects AST diffs, enforces interface doctrine, blocks clobber merges.
   2. Runs deterministic verification (`.venv/bin/pytest itir-mcp/tests/ -q`, Agda safe checks).
   3. Synthesizes state common capsules and feeds token-distilled critique back to the actor until tests and contracts are fully satisfied.
+
+
+---
+
+## 7. Implementation Status — 30 Oct 2026
+
+This branch implements the first bounded Python/runtime slice of the approved architecture while preserving the current live conductor.
+
+### Delivered in this tranche
+
+1. **Wordlist purge and canonical POS gate**
+   - Remove lane-local English predicate sets from `pnf_spectral_packet.py`.
+   - Route head validation through `sensiblaw.interfaces.parser_adapter.parse_canonical_text`.
+   - Retain `PROPN` and `NOUN` heads, explicit formal AST symbols, and supplied ontology QIDs.
+   - Drop particle-only candidates by parser POS class, not by English token membership.
+   - Apply corpus document-frequency and existing Marchenko–Pastur retention metadata as data-driven noise evidence.
+   - Missing parser evidence fails closed for lexical promotion.
+
+2. **Hierarchical fibre bundle**
+   - Add canonical root and typed child-branch records.
+   - Yang–Mills uses canonical root `Q271810` and shared invariant fibre `F_YM`.
+   - Lattice, continuum, and constructive-formal representations remain distinct child branches.
+   - Shared invariants are references for discovery and routing only; they do not prove branch-equivalence.
+
+3. **Fleet round barrier**
+   - Preserve `execute_pareto_conductor`, `spawn_parallel_lanes`, and the current dynamic conductor cost law.
+   - Add deterministic round-plan semantics: each round can contain at most 20 simultaneous workers.
+   - Twenty rounds therefore permit at most 400 planned worker calls.
+   - Every concurrent pair must pass existing typed-support disjointness checks over files, symbols, and lemmas before dispatch.
+
+4. **Wikimedia and ontology routing**
+   - Reuse SensibLaw `WiktionaryProvider` and `WikidataProvider`; ITIR does not copy provider implementation.
+   - Normalize provider candidates into permanent QIDs where available.
+   - Keep unresolved frontier concepts candidate-only as `cand:Q_*` records anchored by `P279`/`P361`.
+   - Candidate minting does not create Wikidata truth or edit authority.
+   - A P2738 disjointness result is an observational gate, not promotion authority.
+   - Add deterministic ontology DAG walking for P279/P361 and lemma-route projection from explicit verified lemma attachments.
+
+### Formal authority and non-promotion
+
+The Python layer is operational and candidate-only. Golden Agda remains authoritative. Existing formal owner work includes `dashi_agda` PR #1437 for world-eigen/fleet/Max-Cut alignment and the related golden TOE surfaces. Lean follows Agda. This implementation does not claim that a shared fibre, ontology path, or lexical match proves a Yang–Mills theorem on another representation.
+
+### Acceptance
+
+Focused deterministic tests must cover:
+- no hardcoded lexical predicate sets;
+- parser-POS head admission and rejection;
+- K=50/K=100 hierarchy metadata;
+- Yang–Mills root/child/fibre inheritance;
+- explicit QID grounding and candidate minting;
+- P279/P361 DAG walking and lemma-route projection;
+- 20 simultaneous lanes × 20 rounds = at most 400 planned worker calls;
+- pairwise noTypedMeet failure closes scheduling;
+- live runner functions remain present and unchanged in contract.
+
+No ESD or digital_esd surface may be edited.
