@@ -47,7 +47,7 @@ def test_real_pillar_3_agda_invariants() -> None:
     from itir_mcp.formal_triangulation_evidence import candidate_evidence_from_triangulation
     candidate_evidence = candidate_evidence_from_triangulation(
         triangulation, repo="chboishabba/dashi_agda",
-        sha=os.environ.get("DASHI_AGDA_COMMIT_SHA", "0" * 40),
+        sha=__import__("subprocess").check_output(["git", "-C", str(__import__("pathlib").Path(agda_files[0]).parent), "rev-parse", "HEAD"], text=True).strip(),
         source_paths=[str(path) for path in agda_files],
     )
     assert all(not row["kernel_verified"] and row["candidate_only"] for row in candidate_evidence)
