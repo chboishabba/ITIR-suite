@@ -62,8 +62,8 @@ def test_real_pillar_3_agda_invariants() -> None:
         {
             "invariant_id": inv_name,
             "source_ref": f"dashi_agda:{agda_files[0].split('/')[-1]}",
-            "verified": True,
-            "proof_status": "proved_true_in_all_sprint_variants",
+            "verified": False,
+            "proof_status": "triangulated_ast_candidate_not_kernel_certified",
         }
         for inv_name in shared_invariants
     ]
