@@ -72,7 +72,7 @@ $$\text{Observed Candidate AST} \;\ne\; \text{Kernel Referee Receipt} \;\ne\; \t
 - **First-Class MCP Tools:**
   - `itir.chatgpt.cdp_capture` in `itir-mcp`
   - `chatgpt_cdp_capture` in `reverse-engineered-chatgpt`
-- **Sub-Second WebSocket Capture:** Fast-path CDP on `http://127.0.0.1:9222` captures authenticated sessions, tokens, and cookies in $<0.5$s without heavy browser automation or DOM rendering.
+- **WebSocket Capture:** Fast-path CDP on `http://127.0.0.1:9222` captures authenticated sessions, tokens, and cookies without DOM rendering (earlier manual run: ~1s; the new MCP tool itself has only been unit-tested with a fake API, not live).
 - **Zero-Script Automated Maintenance:** Precommit mutation guards and `chatgpt_get_access_token` automatically trigger CDP or cookie-jar refresh when session state is stale, automatically synchronizing `~/.chatgpt_session`.
 
 ### E. Fleet Barrier Scheduling Scale-Out
@@ -85,10 +85,20 @@ $$\text{Observed Candidate AST} \;\ne\; \text{Kernel Referee Receipt} \;\ne\; \t
 
 | Test Target | Tests | Status | Execution Time |
 | :--- | :---: | :---: | :---: |
-| `tests/test_da51_slr_formal_evidence_fixture.py` & `itir-mcp/tests/` | **286** | **PASS** | 26.26s |
+| `tests/test_da51_slr_formal_evidence_fixture.py` & `itir-mcp/tests/` | **286** | **PASS** | not timed this run |
 | `reverse-engineered-chatgpt/tests/` | **349** | **PASS** | 3.95s |
-| `scripts/test_real_pillars_3_and_4.py` (Live Wikidata API + Live Agda ASTs) | **2** | **PASS** | 3.8s |
+| `scripts/test_real_pillars_3_and_4.py` (Live Wikidata API + Live Agda ASTs) | **2** | **PASS** | ~4s |
 | **Total Verified Test Suite** | **635** | **PASS (100%)** | — |
+
+---
+
+## 3b. Known Gaps / Not Yet Verified (read before relying on this doc)
+
+- **`formal.referee_receipt` migration has NOT been applied** to live PostgreSQL; PG roles/immutability untested. Only unit tests with fakes ran.
+- **`chatgpt_cdp_capture` / `itir.chatgpt.cdp_capture`** were never exercised against a live Chrome (CDP 9222 was not listening at 19:00). The `save_browser_session_snapshot` side effect that overwrites `~/.chatgpt_session` is untested live.
+- **Submodule pointer:** `reverse-engineered-chatgpt` commits 14e3129/608289c were made on a detached HEAD and referenced from `main` before being pushed. They are now on branch `feat/cdp-capture-auto-refresh-20261030` in the submodule repo; that line diverges from submodule `main` (65609ff) and needs a rebase/merge.
+- **`scripts/test_real_pillars_3_and_4.py` still hardcodes** root `Q271810` (the Yang-Mills *millennium problem* item, not the theory `Q1192873`), `F_YM`, and the three sub-eigen names. This contradicts the generic-first rule and should be derived from data.
+- SQLite is still read in `frontier_reference_validation.py` (Tranche 4).
 
 ---
 
