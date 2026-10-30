@@ -448,6 +448,22 @@ def session_refresh(payload: Mapping[str, Any]) -> JsonDict:
         raise ToolExecutionError(f"Session refresh failed: {exc}") from exc
 
 
+def session_refresh_cffi(payload: Mapping[str, Any]) -> JsonDict:
+    """Explicit headless CFFI-only renewal; never invoke CDP/browser fallback."""
+    profile_dir = payload.get("profile_dir")
+    snapshot_path = payload.get("snapshot_path")
+    if profile_dir is not None and not isinstance(profile_dir, str):
+        raise ToolInputError("Expected string field: profile_dir")
+    if snapshot_path is not None and not isinstance(snapshot_path, str):
+        raise ToolInputError("Expected string field: snapshot_path")
+    try:
+        refreshed = _worker_api().chatgpt_session_refresh_cffi(
+            profile_dir=profile_dir, snapshot_path=snapshot_path)
+        return {"version": SCHEMA_VERSION, "session": refreshed}
+    except Exception as exc:
+        raise ToolExecutionError("CFFI-only session renewal failed; owned session may require interactive sign-in") from exc
+
+
 def get_access_token_tool(payload: Mapping[str, Any]) -> JsonDict:
     """Retrieve active ChatGPT access token using automatic session resolution."""
     api = _worker_api()
@@ -769,6 +785,18 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                 read_only=True,
             ),
             session_status,
+        ),
+        (
+            ToolSpec(
+                name="itir.chatgpt.session_refresh_cffi",
+                title="Renew owned ChatGPT session over curl_cffi",
+                description="CFFI-only session-cookie renewal; no browser, CDP, token export or implicit fallback.",
+                input_schema={"type": "object", "properties": {
+                    "profile_dir": {"type": "string"}, "snapshot_path": {"type": "string"},
+                }, "additionalProperties": False},
+                read_only=False,
+            ),
+            session_refresh_cffi,
         ),
         (
             ToolSpec(
