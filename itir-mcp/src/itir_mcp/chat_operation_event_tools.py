@@ -17,8 +17,37 @@ def replay(payload):
     except Exception as exc:
         raise ToolExecutionError("canonical operation event replay failed") from exc
 
+def queue_turn(payload):
+    cid=payload.get("conversation_id")
+    prompt=payload.get("prompt")
+    actor=payload.get("actor","agent")
+    key=payload.get("job_id")
+    if not isinstance(cid,str) or not cid or len(cid)>150:
+        raise ToolInputError("invalid conversation ID")
+    if not isinstance(prompt,str) or not prompt.strip() or len(prompt)>200000:
+        raise ToolInputError("invalid prompt")
+    if not isinstance(actor,str) or not actor or len(actor)>80:
+        raise ToolInputError("invalid actor")
+    if key is not None and (not isinstance(key,str) or not key or len(key)>150):
+        raise ToolInputError("invalid job ID")
+    try:
+        from re_gpt.pg_turn_worker import queue_turn as submit
+        return submit(cid,prompt,actor=actor,job_id=key)
+    except Exception as exc:
+        raise ToolExecutionError("PG conversation queue submission failed") from exc
+
 def get_operation_event_tools():
-    return [(ToolSpec(name="itir.chatgpt.operation_events",
+    return [(ToolSpec(name="itir.chatgpt.queue_turn",
+                      title="Enqueue a server-owned ChatGPT turn",
+                      description="Create a durable PG work item; processing requires separate worker.",
+                      input_schema={"type":"object","properties":{
+                          "conversation_id":{"type":"string"},
+                          "prompt":{"type":"string"},
+                          "actor":{"type":"string"},
+                          "job_id":{"type":"string"}},
+                          "required":["conversation_id","prompt"],"additionalProperties":False},
+                      read_only=False),queue_turn),
+            (ToolSpec(name="itir.chatgpt.operation_events",
                       title="Replay ChatGPT operation events",
                       description="PG source-scoped events after cursor; no TUI required.",
                       input_schema={"type":"object","properties":{
