@@ -15,6 +15,8 @@ from .pnf_spectral_numeric_abi import spectral_parity_hash, validate_spectral_nu
 
 VERSION = "itir.pnf.spectral_candidate_packet.v0_1"
 
+WIKIDATA_PROPERTY_LABELS = {"P31": "instance of", "P279": "subclass of", "P361": "part of", "P2738": "disjoint union", "P527": "has part", "P1269": "facet of"}
+
 _FORBIDDEN_AUTHORITY_KEYS = {
     "truth",
     "support",
@@ -2874,7 +2876,7 @@ def build_invariant_fibre_bundle(
     root_label: str,
     fibre_id: str,
     branches: Sequence[Mapping[str, Any]],
-    invariants: Sequence[Mapping[str, Any]],
+    invariants: Sequence[Mapping[str, Any]] = (),
 ) -> dict[str, Any]:
     """Build a typed representation tree with non-promoting shared invariants."""
     if not root_qid.startswith("Q") or not root_qid[1:].isdigit():
@@ -2929,34 +2931,18 @@ def build_invariant_fibre_bundle(
     }
 
 
-def build_yang_mills_fibre_bundle(
-    *,
-    invariants: Sequence[Mapping[str, Any]] = (),
-) -> dict[str, Any]:
-    """Canonical RPD Yang–Mills representation bundle."""
-    return build_invariant_fibre_bundle(
-        root_qid="Q271810",
-        root_label="Yang-Mills Theory",
-        fibre_id="F_YM",
-        branches=(
-            {
-                "branch_id": "ym:lattice-transfer",
-                "representation": "lattice_transfer_matrix",
-                "typed_support": {"symbols": ["T_k"]},
-            },
-            {
-                "branch_id": "ym:continuum-curvature",
-                "representation": "continuum_curvature_holonomy",
-                "typed_support": {"symbols": ["F=dA+A∧A"]},
-            },
-            {
-                "branch_id": "ym:constructive-agda",
-                "representation": "constructive_agda_types",
-                "typed_support": {"files": ["DASHI/Physics/YangMills"]},
-            },
-        ),
-        invariants=invariants,
-    )
+def derive_fibre_branches(root_qid: str, *, ontology_edges: Sequence[Mapping[str, str]] = (), sub_eigens: Sequence[Mapping[str, Any]] = ()) -> list[dict[str, Any]]:
+    """Derive deterministic branch facets from supplied ontology children and eigen components."""
+    rows: dict[str, dict[str, Any]] = {}
+    for edge in ontology_edges:
+        if edge.get("target") == root_qid and edge.get("property") in {"P279", "P361"}:
+            child = _text(edge.get("source"))
+            if child:
+                rows["ontology:" + child] = {"branch_id": "ontology:" + child, "representation": _text(edge.get("label")) or child, "typed_support": {"qid": child, "property": edge["property"]}}
+    for index, component in enumerate(sub_eigens):
+        identifier = _text(component.get("id")) or str(index)
+        rows["eigen:" + identifier] = {"branch_id": "eigen:" + identifier, "representation": _text(component.get("motif_name")) or identifier, "typed_support": {"component": dict(component)}}
+    return [rows[key] for key in sorted(rows)]
 
 
 def fibre_invariant_routes(bundle: Mapping[str, Any], source_branch_id: str) -> list[dict[str, Any]]:
@@ -3171,13 +3157,14 @@ def walk_ontology_dag(
         for relation, target in adjacency.get(node, ()):
             if target in paths:
                 continue
-            paths[target] = paths[node] + [{"source": node, "property": relation, "target": target}]
+            paths[target] = paths[node] + [{"source": node, "property": relation, "property_label": WIKIDATA_PROPERTY_LABELS[relation], "target": target}]
             queue.append((target, depth + 1))
     return {
         "schema": "itir.pnf.ontology_dag_walk.v1",
         "start_qid": start_qid,
         "reachable_qids": sorted(paths),
         "paths": paths,
+        "formatted_paths": {qid: " ".join([start_qid] + ["--{} ({})--> {}".format(edge["property"], edge["property_label"], edge["target"]) for edge in path]) for qid, path in paths.items()},
         "relations": ["P279", "P361", "P31"],
         "authority": "graph_observation_only",
     }
@@ -3206,6 +3193,7 @@ def route_verified_lemmas(
                 "lemma_ref": lemma_ref,
                 "source_ref": source_ref,
                 "path": walk["paths"][qid],
+                "formatted_path": walk["formatted_paths"][qid],
                 "promotion": "reuse_candidate_requires_typecheck",
             })
     routes.sort(key=lambda row: (len(row["path"]), row["qid"], row["lemma_ref"]))
