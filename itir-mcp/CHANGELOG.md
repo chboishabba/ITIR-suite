@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Final static verification on the clean `main`-based RPD branch confirms zero protected ESD/digital_esd path edits, zero trust-escape markers in active runtime files, and preservation of the live Pareto conductor APIs. Focused pytest execution is still pending because the local runtime cannot resolve github.com and no exact-head Actions run has appeared; no green-test claim is made.
 - Implemented the approved RPD PNF hierarchy slice on a branch based at main `cf4ae65`: removed the active hardcoded conversational predicate set and replaced lexical head admission with SensibLaw parser POS evidence plus DF/N and Marchenko–Pastur candidate evidence.
 - Added K=50/K=100 hierarchy metadata validation, canonical invariant-fibre bundles with Yang–Mills root `Q271810` / fibre `F_YM`, non-promoting adjacent-branch invariant routing, and explicit ontology/AST authority boundaries.
 - Added SensibLaw Wikimedia provider reuse for Wiktionary/Wikidata candidate grounding, permanent-QID projection, candidate-only `cand:Q_*` minting with P279/P361 anchors and observational P2738 audit attachment, plus bounded P279/P361 DAG walking and verified-lemma route candidates.
