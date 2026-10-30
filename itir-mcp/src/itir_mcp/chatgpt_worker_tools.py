@@ -448,6 +448,34 @@ def session_refresh(payload: Mapping[str, Any]) -> JsonDict:
         raise ToolExecutionError(f"Session refresh failed: {exc}") from exc
 
 
+def get_access_token_tool(payload: Mapping[str, Any]) -> JsonDict:
+    """Retrieve active ChatGPT access token using automatic session resolution."""
+    api = _worker_api()
+    try:
+        if hasattr(api, "chatgpt_get_access_token"):
+            result = api.chatgpt_get_access_token()
+            return {
+                "version": SCHEMA_VERSION,
+                **result,
+            }
+        from re_gpt.async_chatgpt import AsyncChatGPT
+        from re_gpt.async_bridge import run_async_sync
+
+        async def run() -> str:
+            async with AsyncChatGPT() as client:
+                return await client.fetch_auth_token()
+
+        token = run_async_sync(run)
+        return {
+            "version": SCHEMA_VERSION,
+            "ok": bool(token),
+            "access_token": token,
+            "token_length": len(token) if token else 0,
+        }
+    except Exception as exc:
+        raise ToolExecutionError(f"Failed to retrieve access token: {exc}") from exc
+
+
 def view_messages(payload: Mapping[str, Any]) -> JsonDict:
     """Inspect recent or indexed messages in a conversation without raw SQLite queries."""
     conversation_id = _required_text(payload, "conversation_id")
@@ -687,6 +715,21 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                 read_only=False,
             ),
             session_refresh,
+        ),
+        (
+            ToolSpec(
+                name="itir.chatgpt.get_access_token",
+                title="Get active ChatGPT access token",
+                description="Retrieve active ChatGPT access token automatically loaded from ~/.chatgpt_session or local session snapshot.",
+                input_schema={
+                    "type": "object",
+                    "properties": {},
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=True,
+            ),
+            get_access_token_tool,
         ),
         (
             ToolSpec(

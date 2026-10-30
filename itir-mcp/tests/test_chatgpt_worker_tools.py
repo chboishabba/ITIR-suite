@@ -10,6 +10,7 @@ def test_registry_exposes_governed_chatgpt_worker_tools() -> None:
     for name in (
         "itir.chatgpt.list_threads",
         "itir.chatgpt.session_status",
+        "itir.chatgpt.get_access_token",
         "itir.chatgpt.hydrate",
         "itir.chatgpt.dispatch_worker",
         "itir.chatgpt.operation_status",
@@ -24,6 +25,7 @@ def test_registry_exposes_governed_chatgpt_worker_tools() -> None:
             "itir.chatgpt.operation_status",
             "itir.chatgpt.list_threads",
             "itir.chatgpt.session_status",
+            "itir.chatgpt.get_access_token",
             "itir.chatgpt.view_messages",
             "itir.chatgpt.fleet_status",
             "itir.chatgpt.fleet_opportunities",
