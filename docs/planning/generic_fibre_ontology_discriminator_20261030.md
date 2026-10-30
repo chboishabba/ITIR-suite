@@ -1,0 +1,3 @@
+# Generic-first fibre and ontology discriminator (2026-10-30)
+
+Order: documentation and TODO, implementation, tests, changelog. Shared `build_invariant_fibre_bundle` owns fibre construction; no Yang–Mills callable. Branch facets are supplied from ontology child edges (P279/P361) or computed cluster sub-eigen components, not baked into production functions. `walk_ontology_dag` projects P31/P279/P361 paths with both machine properties and English labels. Lemma attachments require observed AST symbol evidence or formal receipts; a bare `verified` flag is not proof of typechecking. Route outputs remain non-promoting candidates, with formal verification external. Preserve ESD read-only surfaces and original mathematical/proof attribution.
