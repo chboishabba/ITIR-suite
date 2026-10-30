@@ -4,6 +4,7 @@ from typing import Any, Callable, Mapping
 
 from .autonomous_orchestrator_tools import get_autonomous_orchestrator_tools
 from .chatgpt_worker_tools import get_chatgpt_worker_tools
+from .pg_conversation_tools import get_pg_conversation_tools
 from .tmux_observation_tools import get_tmux_observation_tools
 from .tui_state_tools import get_tui_state_tools
 from .config_tools import get_config_tools
@@ -101,6 +102,8 @@ def build_default_registry(
     for spec, handler in get_tui_state_tools():
         registry.register(spec, handler)
     for spec, handler in get_tmux_observation_tools():
+        registry.register(spec, handler)
+    for spec, handler in get_pg_conversation_tools():
         registry.register(spec, handler)
     for spec, handler in get_chatgpt_worker_tools():
         registry.register(spec, handler)
