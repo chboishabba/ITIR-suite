@@ -675,12 +675,13 @@ def stream_preferred_corpus(
     slrw_fallback_path: str | Path | None = None,
     connect: Any = None,
 ) -> dict[str, Any]:
-    """Prefer PostgreSQL semantic factors and fall back to SLRW when unavailable."""
-    from .pg_semantic_spine import load_preferred_semantic_corpus
+    """Read PostgreSQL semantic factors only; reject deprecated SLRW fallback."""
+    from .pg_semantic_spine import load_preferred_semantic_corpus, PostgresSemanticSpineIncompatible
 
+    if slrw_fallback_path is not None:
+        raise PostgresSemanticSpineIncompatible("SLRW is deprecated migration input, not a runtime semantic authority")
     return load_preferred_semantic_corpus(
         database_url=database_url,
-        slrw_path=slrw_fallback_path,
         connect=connect,
     )
 
@@ -735,13 +736,17 @@ def project_semantic_spine_hierarchy_to_docs(
     max_spectral_dimensions: int = 16,
     pg_connect: Any = None,
 ) -> dict[str, Any]:
-    """Prefer PostgreSQL semantic factors; use SLRW only when PG is unavailable."""
+    """Project PostgreSQL semantic factors only; reject deprecated SLRW fallback."""
     from .pg_semantic_spine import (
         DEFAULT_SQLITE_HISTORY,
+        PostgresSemanticSpineIncompatible,
         load_preferred_semantic_corpus,
         register_sqlite_chat_coordinates,
     )
     from .pnf_spectral_packet import build_hierarchical_pnf_topics
+
+    if slrw_fallback_path is not None:
+        raise PostgresSemanticSpineIncompatible("SLRW is deprecated migration input, not a runtime semantic authority")
 
     registration: dict[str, Any] | None = None
     if register_chat_coordinates:
@@ -767,7 +772,6 @@ def project_semantic_spine_hierarchy_to_docs(
 
     selected = load_preferred_semantic_corpus(
         database_url=database_url,
-        slrw_path=slrw_fallback_path,
         connect=pg_connect,
     )
     hierarchy = build_hierarchical_pnf_topics(
