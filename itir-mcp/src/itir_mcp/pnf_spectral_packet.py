@@ -2646,9 +2646,10 @@ def _topic_summary(
             "count": float(weight),
             "typed": True,
             "predicate": _frame_predicate(motif),
+            "evidence": "sensiblaw_pos",
         }
         for motif, weight in aggregate_frames.most_common(8)
-        if not _is_generic_frame_motif(motif)
+        if _frame_candidate_admissible(motif)
     ]
     top_ontology = [
         {
@@ -2697,10 +2698,6 @@ def _frame_predicate(motif: str) -> str:
     return motif.split("(", 1)[0].strip().casefold()
 
 
-def _is_generic_frame_motif(motif: str) -> bool:
-    return _frame_predicate(motif) in GENERIC_CONVERSATIONAL_PREDICATES
-
-
 def rank_discriminative_topic_motifs(
     topics: Sequence[Mapping[str, Any]],
     *,
@@ -2746,7 +2743,7 @@ def _apply_discriminative_topic_motifs(
         frames = Counter({
             motif: count
             for motif, count in frames.items()
-            if count > 0 and not _is_generic_frame_motif(motif)
+            if count > 0
         })
         ontology = Counter({
             feature: count
@@ -2760,7 +2757,15 @@ def _apply_discriminative_topic_motifs(
 
     total_clusters = len(rows)
     for index, topic in enumerate(rows):
-        frames = cluster_frames[index]
+        frames = Counter({
+            motif: count
+            for motif, count in cluster_frames[index].items()
+            if _frame_candidate_admissible(
+                motif,
+                document_frequency=int(frame_df[motif]),
+                document_count=total_clusters,
+            )
+        })
         ontology = cluster_ontology[index]
         total_frames = sum(frames.values())
         total_ontology = sum(ontology.values())
@@ -2770,7 +2775,7 @@ def _apply_discriminative_topic_motifs(
             for motif, count in frames.items():
                 score = (
                     (float(count) / float(total_frames))
-                    * math.log(float(total_clusters) / float(1 + frame_df[motif]))
+                    * math.log((1.0 + float(total_clusters)) / (1.0 + float(frame_df[motif])))
                 )
                 scored.append({
                     "kind": "typed_frame",
@@ -2813,8 +2818,12 @@ def _apply_discriminative_topic_motifs(
                 str(item["label"]),
             )
         )
-        positive = [item for item in scored if float(item["contrastive_score"]) > 0.0]
-        selected = (positive or scored)[:limit]
+        selected = [
+            item
+            for item in scored
+            if item["kind"] == "ontology_bridge"
+            or float(item["contrastive_score"]) > 0.0
+        ][:limit]
 
         centroid = topic.get("semantic_centroid")
         centroid_map = dict(centroid) if isinstance(centroid, Mapping) else {}
@@ -2822,7 +2831,8 @@ def _apply_discriminative_topic_motifs(
         centroid_map["motif_scoring"] = {
             "formula": "(count_in_cluster/total_cluster_frames)*log(total_clusters/(1+cluster_document_frequency))",
             "total_clusters": total_clusters,
-            "generic_predicate_filter": sorted(GENERIC_CONVERSATIONAL_PREDICATES),
+            "lexical_gate": "sensiblaw.parser_adapter.parse_canonical_text + POS + DF/N",
+            "manual_english_wordlist": False,
             "typed_frames_prioritized": True,
             "ontology_labels_require_explicit_incidence": True,
         }
