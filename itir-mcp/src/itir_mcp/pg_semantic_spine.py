@@ -362,44 +362,19 @@ def load_preferred_semantic_corpus(
     connect: Callable[[str | None], Any] | None = None,
     slrw_loader: Callable[[str | Path], Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Prefer PostgreSQL semantic truth; fall back to SLRW when PG is offline."""
+    """Read the sole PostgreSQL semantic authority; never use SLRW as fallback."""
+    if slrw_path is not None or slrw_loader is not None:
+        raise PostgresSemanticSpineIncompatible(
+            "SLRW is deprecated migration input, not a runtime semantic authority"
+        )
     resolved_url = database_url or os.environ.get("DATABASE_URL") or None
-    pg_error: str | None = None
-    try:
-        payload = load_postgres_semantic_corpus(
-            resolved_url,
-            connect=connect,
-        )
-        return {
-            "source": "postgresql",
-            "corpus": payload,
-            "ontology_edges": payload.get("ontology_edges", []),
-            "fallback_used": False,
-            "postgres_error": None,
-        }
-    except (PostgresSemanticSpineUnavailable, PostgresSemanticSpineIncompatible) as exc:
-        pg_error = str(exc)
-
-    if slrw_path is None:
-        raise PostgresSemanticSpineUnavailable(
-            f"PostgreSQL semantic spine unavailable and no SLRW fallback supplied: {pg_error}"
-        )
-    path = Path(slrw_path).expanduser().resolve()
-    if not path.is_file():
-        raise FileNotFoundError(
-            f"PostgreSQL semantic spine unavailable and SLRW fallback is missing: {path}"
-        )
-    if slrw_loader is None:
-        from .pnf_spectral_packet import load_slrw_conversation_factors
-
-        slrw_loader = load_slrw_conversation_factors
-    corpus = dict(slrw_loader(path))
+    payload = load_postgres_semantic_corpus(resolved_url, connect=connect)
     return {
-        "source": "slrw",
-        "corpus": corpus,
-        "ontology_edges": [],
-        "fallback_used": True,
-        "postgres_error": pg_error,
+        "source": "postgresql",
+        "corpus": payload,
+        "ontology_edges": payload.get("ontology_edges", []),
+        "fallback_used": False,
+        "postgres_error": None,
     }
 
 
