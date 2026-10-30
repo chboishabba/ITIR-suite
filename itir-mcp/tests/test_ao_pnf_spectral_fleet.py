@@ -182,7 +182,7 @@ class _Provider:
     [
         ("Yang-Mills", "Q271810"),
         ("Navier-Stokes", "Q215282"),
-        ("Max Cut", "Q5577665"),
+        ("Max Cut", "Q942557"),
         ("Spectral gap", "Q7575317"),
     ],
 )
