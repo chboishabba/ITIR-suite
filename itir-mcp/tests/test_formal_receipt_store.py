@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 
-from itir_mcp.formal_receipt_store import LocalRefereeReceiptStore
+from itir_mcp.formal_receipt_store import PostgresRefereeReceiptStore
 from itir_mcp.frontier_reference_validation import validate_typed_references
 
 REPO = "example/proofs"
@@ -30,8 +30,52 @@ def receipt():
     }
 
 
+class FakeCursor:
+    def __init__(self, db):
+        self.db = db
+        self.row = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        return False
+
+    def execute(self, sql, params):
+        key = tuple(params[:4])
+        if sql.startswith("INSERT"):
+            self.db.rows.setdefault(key, __import__("json").loads(params[4]))
+        elif sql.startswith("SELECT"):
+            value = self.db.rows.get(key)
+            self.row = (value,) if value is not None else None
+        else:
+            raise AssertionError(sql)
+
+    def fetchone(self):
+        return self.row
+
+
+class FakeConnection:
+    def __init__(self):
+        self.rows = {}
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        return False
+
+    def cursor(self):
+        return FakeCursor(self)
+
+
+def make_store():
+    db = FakeConnection()
+    return PostgresRefereeReceiptStore(connect=lambda _: db)
+
+
 def test_referee_receipt_persists_and_replay_is_idempotent(tmp_path):
-    store = LocalRefereeReceiptStore(tmp_path / "receipts.sqlite3")
+    store = make_store()
     verified = receipt()
     assert store.record_from_referee(REPO, SHA, PATH, THREAD, verified, referee_verified=True)
     assert store.record_from_referee(REPO, SHA, PATH, THREAD, verified, referee_verified=True)
@@ -44,7 +88,7 @@ def test_referee_receipt_persists_and_replay_is_idempotent(tmp_path):
 
 
 def test_actor_receipt_cannot_enter_store(tmp_path):
-    store = LocalRefereeReceiptStore(tmp_path / "receipts.sqlite3")
+    store = make_store()
     assert not store.record_from_referee(
         REPO, SHA, PATH, THREAD, receipt(), referee_verified=False
     )
@@ -52,7 +96,7 @@ def test_actor_receipt_cannot_enter_store(tmp_path):
 
 
 def test_stale_sha_and_thread_hold(tmp_path):
-    store = LocalRefereeReceiptStore(tmp_path / "receipts.sqlite3")
+    store = make_store()
     assert store.record_from_referee(
         REPO, SHA, PATH, THREAD, receipt(), referee_verified=True
     )
@@ -66,7 +110,7 @@ def test_stale_sha_and_thread_hold(tmp_path):
 
 
 def test_conflicting_replay_does_not_replace_receipt(tmp_path):
-    store = LocalRefereeReceiptStore(tmp_path / "receipts.sqlite3")
+    store = make_store()
     original = receipt()
     assert store.record_from_referee(REPO, SHA, PATH, THREAD, original, referee_verified=True)
     altered = deepcopy(original)
