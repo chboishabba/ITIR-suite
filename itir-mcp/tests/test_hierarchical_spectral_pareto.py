@@ -180,8 +180,13 @@ def test_real_slrw_loader_and_dynamic_hierarchy(tmp_path: Path) -> None:
 
     assert all(topic["name"] for topic in hierarchy["primary_topics"])
     assert any(
-        topic["semantic_centroid"]["top_relational_frames"]
+        topic["semantic_centroid"]["top_ontology_incidence"]
         for topic in hierarchy["primary_topics"]
+    )
+    assert all(
+        frame.get("evidence") == "sensiblaw_pos"
+        for topic in hierarchy["primary_topics"]
+        for frame in topic["semantic_centroid"]["top_relational_frames"]
     )
 
 
