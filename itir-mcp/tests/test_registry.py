@@ -68,6 +68,13 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.chatgpt.revive",
         "itir.chatgpt.session_status",
         "itir.chatgpt.session_refresh",
+        "itir.chatgpt.session_refresh_cffi",
+        "itir.chatgpt.pg_roster_list",
+        "itir.chatgpt.pg_search",
+        "itir.chatgpt.pg_read",
+        "itir.chatgpt.pg_roster_sync",
+        "itir.chatgpt.pg_hydrate_selected",
+        "itir.chatgpt.pg_hydrate_pending",
         "itir.chatgpt.get_access_token",
         "itir.chatgpt.cdp_capture",
         "itir.chatgpt.hydrate",
@@ -85,6 +92,9 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.spectral.visualize_corpus",
         "itir.spectral.render_heatmap",
         "itir.spectral.render_scatter",
+        "itir.terminal.observe",
+        "itir.terminal.picker",
+        "itir.terminal.state",
     }
 
 

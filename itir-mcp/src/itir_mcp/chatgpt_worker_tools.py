@@ -423,29 +423,25 @@ def session_status(payload: Mapping[str, Any]) -> JsonDict:
 
 
 def session_refresh(payload: Mapping[str, Any]) -> JsonDict:
-    """Refresh the saved ChatGPT session snapshot using displayless browser replay."""
+    """Renew the saved ChatGPT session via CFFI only; never invoke CDP/browser."""
     profile_dir = payload.get("profile_dir")
     if profile_dir is not None and not isinstance(profile_dir, str):
         raise ToolInputError("Expected string field: profile_dir")
     snapshot_path = payload.get("snapshot_path")
     if snapshot_path is not None and not isinstance(snapshot_path, str):
         raise ToolInputError("Expected string field: snapshot_path")
-    browser_mode = payload.get("browser_mode", "displayless")
-    if not isinstance(browser_mode, str):
-        raise ToolInputError("Expected string field: browser_mode")
     api = _worker_api()
     try:
         refreshed = api.chatgpt_session_refresh(
             profile_dir=profile_dir,
             snapshot_path=snapshot_path,
-            browser_mode=browser_mode,
         )
         return {
             "version": SCHEMA_VERSION,
             "session": refreshed,
         }
     except Exception as exc:
-        raise ToolExecutionError(f"Session refresh failed: {exc}") from exc
+        raise ToolExecutionError(f"CFFI-only session renewal failed: {exc}") from exc
 
 
 def session_refresh_cffi(payload: Mapping[str, Any]) -> JsonDict:
@@ -801,14 +797,13 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
         (
             ToolSpec(
                 name="itir.chatgpt.session_refresh",
-                title="Refresh CFFI session snapshot headless",
-                description="Refresh the saved ChatGPT session snapshot via displayless browser replay, renewing access token and fresh cookies.",
+                title="Renew owned ChatGPT session over curl_cffi",
+                description="CFFI-only session-cookie renewal; no browser, CDP, token export or implicit fallback.",
                 input_schema={
                     "type": "object",
                     "properties": {
                         "profile_dir": {"type": "string"},
                         "snapshot_path": {"type": "string"},
-                        "browser_mode": {"type": "string", "default": "displayless"},
                     },
                     "additionalProperties": False,
                 },
