@@ -3170,6 +3170,22 @@ def walk_ontology_dag(
     }
 
 
+def attach_lemma_symbol_evidence(lemma_attachments: Sequence[Mapping[str, Any]], ast_symbols: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    """Join candidate lemmas to observed AST symbols without conferring proof authority."""
+    indexed = {(str(row.get("source_ref")), str(row.get("symbol"))): row for row in ast_symbols if isinstance(row, Mapping)}
+    result = []
+    for raw in lemma_attachments:
+        if not isinstance(raw, Mapping):
+            continue
+        row = dict(raw)
+        evidence = indexed.get((str(row.get("source_ref")), str(row.get("lemma_ref"))))
+        row["ast_symbol_observed"] = evidence is not None
+        row["ast_evidence"] = dict(evidence) if evidence is not None else None
+        row["verified"] = evidence is not None and evidence.get("kernel_verified") is True
+        result.append(row)
+    return result
+
+
 def route_verified_lemmas(
     start_qid: str,
     edges: Sequence[Mapping[str, str]],
