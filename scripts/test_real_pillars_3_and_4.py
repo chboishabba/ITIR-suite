@@ -43,6 +43,14 @@ def test_real_pillar_3_agda_invariants() -> None:
 
     # 2. Triangulate the AST family to extract genuine shared invariants
     triangulation = triangulate_formal_family(agda_files).to_dict()
+    # AST triangulation is discovery evidence, never a kernel referee receipt.
+    from itir_mcp.formal_triangulation_evidence import candidate_evidence_from_triangulation
+    candidate_evidence = candidate_evidence_from_triangulation(
+        triangulation, repo="chboishabba/dashi_agda",
+        sha=os.environ.get("DASHI_AGDA_COMMIT_SHA", "0" * 40),
+        source_paths=[str(path) for path in agda_files],
+    )
+    assert all(not row["kernel_verified"] and row["candidate_only"] for row in candidate_evidence)
     shared_invariants = triangulation.get("shared_invariants", [])
     assert len(shared_invariants) > 0, "Formal triangulator must extract non-empty shared invariants"
     print(f"\n  [AST TRIANGULATION] Extracted {len(shared_invariants)} genuine verified invariants across all {len(agda_files)} modules:")
