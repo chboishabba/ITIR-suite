@@ -1,0 +1,5 @@
+# 2026-10-30 PostgreSQL formal referee receipts
+
+Replaced SQLite-backed `default_receipt_store` with `PostgresRefereeReceiptStore`, source-bound immutable-key insert-on-conflict/no-overwrite semantics and fail-closed PostgreSQL reads. Added PostgreSQL schema migration and deterministic fake-connection receipt tests. The `triangulate_formal_family` ClaySprint inspection now projects candidate-only source-pinned AST observations; it does not create independent kernel receipts or proof transport. Golden Agda and Lean untouched; ESD untouched.
+
+**Local referee pending:** apply SQL migration with privileged role; check PostgreSQL runtime roles; run pytest, verify no remaining SQLite formal receipt writer; audit all `formal_receipt_store` callers. Existing legacy SQLite data requires separate read-only reconciled migration before deletion. The proposed formal.referee_receipt is a dedicated table because existing ops.receipt/formal.theorem_manifest live schemas were not established as compatible.
