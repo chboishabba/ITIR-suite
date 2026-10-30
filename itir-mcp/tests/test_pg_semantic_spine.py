@@ -172,37 +172,33 @@ def test_postgres_semantic_loader_builds_relational_frames_directly() -> None:
     assert result["source_contract"]["raw_chat_body_persisted"] is False
 
 
-def test_preferred_loader_falls_back_to_slrw_when_postgres_is_offline(tmp_path: Path) -> None:
-    slrw = tmp_path / "fleet_top500_iter1.slrw"
+def test_preferred_loader_rejects_deprecated_slrw_fallback(tmp_path: Path) -> None:
+    from itir_mcp.pg_semantic_spine import PostgresSemanticSpineIncompatible
+
+    slrw = tmp_path / "fleet.slrw"
     slrw.write_bytes(b"placeholder")
+    try:
+        load_preferred_semantic_corpus(
+            database_url="postgresql://offline",
+            slrw_path=slrw,
+            connect=lambda _url: (_ for _ in ()).throw(OSError("offline")),
+        )
+    except PostgresSemanticSpineIncompatible as exc:
+        assert "deprecated migration input" in str(exc)
+    else:
+        raise AssertionError("SLRW fallback must not become semantic authority")
 
-    def unavailable(_url):
-        raise OSError("postgres offline")
 
-    expected = {
-        "schema": "itir.pnf.slrw_corpus_factors.v1",
-        "conversation_count": 1,
-        "conversations": {
-            "fallback": {
-                "conversation_id": "fallback",
-                "factor_counts": {"prove|actor|system": 1},
-                "frame_counts": {"prove(actor:system)": 1},
-                "pnf_candidate_count": 1,
-            }
-        },
-    }
-
-    result = load_preferred_semantic_corpus(
-        database_url="postgresql://offline",
-        slrw_path=slrw,
-        connect=unavailable,
-        slrw_loader=lambda _path: expected,
-    )
-
-    assert result["source"] == "slrw"
-    assert result["fallback_used"] is True
-    assert result["corpus"] == expected
-    assert "postgres offline" in result["postgres_error"]
+def test_preferred_loader_fails_closed_when_postgres_is_offline() -> None:
+    try:
+        load_preferred_semantic_corpus(
+            database_url="postgresql://offline",
+            connect=lambda _url: (_ for _ in ()).throw(OSError("postgres offline")),
+        )
+    except PostgresSemanticSpineUnavailable as exc:
+        assert "postgres offline" in str(exc)
+    else:
+        raise AssertionError("PostgreSQL outage must not use an alternate store")
 
 
 def test_reference_registrar_abstains_without_canonical_node_identity(tmp_path: Path) -> None:
