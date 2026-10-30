@@ -11,6 +11,7 @@ def test_registry_exposes_governed_chatgpt_worker_tools() -> None:
         "itir.chatgpt.list_threads",
         "itir.chatgpt.session_status",
         "itir.chatgpt.get_access_token",
+        "itir.chatgpt.cdp_capture",
         "itir.chatgpt.hydrate",
         "itir.chatgpt.dispatch_worker",
         "itir.chatgpt.operation_status",
@@ -157,4 +158,17 @@ def test_dispatch_worker_new_presets_and_golden_reminder(monkeypatch) -> None:
         sent = calls[0]["prompt"]
         assert chatgpt_worker_tools.GOLDEN_AGDA_REMINDER in sent
         assert sent.startswith(chatgpt_worker_tools.GOLDEN_AGDA_REMINDER)
+
+
+def test_cdp_capture_tool_invocable(monkeypatch) -> None:
+    class FakeWorkerApi:
+        @staticmethod
+        def chatgpt_cdp_capture(**kwargs):
+            return {"ok": True, "session": {"state": "ready"}}
+
+    monkeypatch.setattr(chatgpt_worker_tools, "_worker_api", lambda: FakeWorkerApi)
+    registry = build_default_registry()
+    res = registry.invoke("itir.chatgpt.cdp_capture", {"cdp_url": "http://127.0.0.1:9222"})
+    assert res["ok"] is True
+    assert res["result"]["session"]["state"] == "ready"
 

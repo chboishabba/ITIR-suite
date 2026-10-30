@@ -69,6 +69,7 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.chatgpt.session_status",
         "itir.chatgpt.session_refresh",
         "itir.chatgpt.get_access_token",
+        "itir.chatgpt.cdp_capture",
         "itir.chatgpt.hydrate",
         "itir.chatgpt.dispatch_worker",
         "itir.chatgpt.operation_status",

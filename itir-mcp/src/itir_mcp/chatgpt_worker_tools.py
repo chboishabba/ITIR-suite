@@ -476,6 +476,79 @@ def get_access_token_tool(payload: Mapping[str, Any]) -> JsonDict:
         raise ToolExecutionError(f"Failed to retrieve access token: {exc}") from exc
 
 
+def cdp_capture_tool(payload: Mapping[str, Any]) -> JsonDict:
+    """Capture authenticated ChatGPT session directly via Chrome DevTools Protocol (CDP)."""
+    cdp_url = payload.get("cdp_url", "http://127.0.0.1:9222")
+    if not isinstance(cdp_url, str):
+        raise ToolInputError("Expected string field: cdp_url")
+    timeout = payload.get("timeout", 5.0)
+    if not isinstance(timeout, (int, float)):
+        raise ToolInputError("Expected numeric field: timeout")
+    save = payload.get("save", True)
+    if not isinstance(save, bool):
+        raise ToolInputError("Expected boolean field: save")
+    profile_dir = payload.get("profile_dir")
+    snapshot_path = payload.get("snapshot_path")
+
+    api = _worker_api()
+    if hasattr(api, "chatgpt_cdp_capture"):
+        result = api.chatgpt_cdp_capture(
+            cdp_url=cdp_url,
+            timeout=float(timeout),
+            save=save,
+            profile_dir=profile_dir,
+            snapshot_path=snapshot_path,
+        )
+        return {
+            "version": SCHEMA_VERSION,
+            **result,
+        }
+
+    from re_gpt.async_bridge import run_async_sync
+    from re_gpt.cdp_sentinel import capture_snapshot_via_cdp
+    from re_gpt.browser_session_replay import save_browser_session_snapshot
+    from re_gpt.session_lifecycle import SessionLifecycle
+
+    async def run() -> Any:
+        return await capture_snapshot_via_cdp(
+            cdp_url=cdp_url,
+            profile_dir=profile_dir,
+            timeout=float(timeout),
+        )
+
+    try:
+        snap = run_async_sync(run)
+    except Exception as exc:
+        raise ToolExecutionError(f"CDP capture failed: {exc}") from exc
+
+    if snap is None:
+        return {
+            "version": SCHEMA_VERSION,
+            "ok": False,
+            "error": f"No active ChatGPT tab or connection refused at CDP endpoint {cdp_url}",
+            "cdp_url": cdp_url,
+            "hint": "Ensure Chrome is launched with --remote-debugging-port=9222 and has an active chatgpt.com tab.",
+        }
+
+    if save:
+        try:
+            save_browser_session_snapshot(
+                snap,
+                profile_dir=profile_dir,
+                snapshot_path=snapshot_path,
+            )
+        except Exception as exc:
+            raise ToolExecutionError(f"Failed saving snapshot: {exc}") from exc
+
+    status = SessionLifecycle().status_from_snapshot(snap)
+    return {
+        "version": SCHEMA_VERSION,
+        "ok": True,
+        "cdp_url": cdp_url,
+        "session": status,
+    }
+
+
 def view_messages(payload: Mapping[str, Any]) -> JsonDict:
     """Inspect recent or indexed messages in a conversation without raw SQLite queries."""
     conversation_id = _required_text(payload, "conversation_id")
@@ -730,6 +803,27 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                 read_only=True,
             ),
             get_access_token_tool,
+        ),
+        (
+            ToolSpec(
+                name="itir.chatgpt.cdp_capture",
+                title="Capture ChatGPT session via CDP",
+                description="Directly capture authenticated session, cookies, access token, and sentinel tokens from Chrome via Chrome DevTools Protocol (CDP port 9222).",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "cdp_url": {"type": "string", "default": "http://127.0.0.1:9222"},
+                        "timeout": {"type": "number", "default": 5.0},
+                        "save": {"type": "boolean", "default": True},
+                        "profile_dir": {"type": "string"},
+                        "snapshot_path": {"type": "string"},
+                    },
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=False,
+            ),
+            cdp_capture_tool,
         ),
         (
             ToolSpec(
