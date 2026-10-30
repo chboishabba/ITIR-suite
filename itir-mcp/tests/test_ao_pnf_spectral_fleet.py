@@ -119,7 +119,9 @@ def test_hierarchy_metadata_keeps_five_distinct_levels(k: int) -> None:
 
 
 def test_yang_mills_branches_inherit_one_non_promoting_fibre() -> None:
-    bundle = packet.build_yang_mills_fibre_bundle(
+    bundle = packet.build_invariant_fibre_bundle(
+        root_qid="Q271810", root_label="Yang-Mills Theory", fibre_id="F_YM",
+        branches=packet.derive_fibre_branches("Q271810", sub_eigens=[{"id": "lattice-transfer", "motif_name": "lattice_transfer_matrix"}, {"id": "continuum-curvature", "motif_name": "continuum_curvature_holonomy"}, {"id": "constructive-agda", "motif_name": "constructive_agda_types"}]),
         invariants=[{
             "invariant_id": "SpatialOnlyBlocking",
             "source_ref": "dashi_agda:DASHI/Physics/YangMills/SpatialOnlyBlocking.agda",
@@ -133,10 +135,10 @@ def test_yang_mills_branches_inherit_one_non_promoting_fibre() -> None:
         "continuum_curvature_holonomy",
         "constructive_agda_types",
     }
-    routes = packet.fibre_invariant_routes(bundle, "ym:lattice-transfer")
+    routes = packet.fibre_invariant_routes(bundle, "eigen:lattice-transfer")
     assert {row["to_branch"] for row in routes} == {
-        "ym:continuum-curvature",
-        "ym:constructive-agda",
+        "eigen:continuum-curvature",
+        "eigen:constructive-agda",
     }
     assert all(row["promotion"] == "requires_explicit_formal_bridge" for row in routes)
 
@@ -341,3 +343,10 @@ def test_spawn_parallel_lanes_rejects_more_than_twenty_before_dispatch() -> None
     workers = [{"conversation_id": f"worker-{index}"} for index in range(21)]
     with pytest.raises(ValueError, match="at most 20"):
         spawn_parallel_lanes(lanes, workers)
+
+
+def test_labelled_instance_subclass_path() -> None:
+    edges = [{"source": "Q1192873", "property": "P31", "target": "Q214850"}, {"source": "Q214850", "property": "P279", "target": "Q1262328"}]
+    walk = packet.walk_ontology_dag("Q1192873", edges)
+    assert [edge["property_label"] for edge in walk["paths"]["Q1262328"]] == ["instance of", "subclass of"]
+    assert walk["formatted_paths"]["Q1262328"] == "Q1192873 --P31 (instance of)--> Q214850 --P279 (subclass of)--> Q1262328"
