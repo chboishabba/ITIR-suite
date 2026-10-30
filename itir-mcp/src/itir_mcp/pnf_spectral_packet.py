@@ -3153,7 +3153,7 @@ def walk_ontology_dag(
         source = _text(edge.get("source"))
         relation = _text(edge.get("property"))
         target = _text(edge.get("target"))
-        if relation not in {"P279", "P361"}:
+        if relation not in {"P279", "P361", "P31"}:
             continue
         if source and target:
             adjacency[source].append((relation, target))
@@ -3178,7 +3178,7 @@ def walk_ontology_dag(
         "start_qid": start_qid,
         "reachable_qids": sorted(paths),
         "paths": paths,
-        "relations": ["P279", "P361"],
+        "relations": ["P279", "P361", "P31"],
         "authority": "graph_observation_only",
     }
 
