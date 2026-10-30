@@ -20,7 +20,8 @@ for candidate in (repo_root / "itir-mcp" / "src", repo_root / "SensibLaw", repo_
         sys.path.insert(0, str(candidate))
 
 from itir_mcp.pnf_spectral_packet import (
-    build_yang_mills_fibre_bundle,
+    build_invariant_fibre_bundle,
+    derive_fibre_branches,
     fibre_invariant_routes,
     route_verified_lemmas,
 )
@@ -57,7 +58,7 @@ def test_real_pillar_3_agda_invariants() -> None:
         }
         for inv_name in shared_invariants
     ]
-    bundle = build_yang_mills_fibre_bundle(invariants=real_invariant_rows)
+    bundle = build_invariant_fibre_bundle(root_qid="Q271810", root_label="Yang-Mills Theory", fibre_id="F_YM", branches=derive_fibre_branches("Q271810", sub_eigens=[{"id": "lattice", "motif_name": "lattice_transfer_matrix"}, {"id": "continuum", "motif_name": "continuum_curvature_holonomy"}, {"id": "agda", "motif_name": "constructive_agda_types"}]), invariants=real_invariant_rows)
 
     assert bundle["root"]["qid"] == "Q271810"
     assert bundle["fibre_id"] == "F_YM"
