@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import hashlib
+import io
 import math
 import struct
+import sys
 from pathlib import Path
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
@@ -1701,21 +1704,187 @@ def _prod_invariant_violation(
 
 HIERARCHICAL_SPECTRAL_SCHEMA = "itir.pnf.hierarchical_spectral_pareto.v1"
 
-GENERIC_CONVERSATIONAL_PREDICATES = frozenset({
-    "want",
-    "need",
-    "return",
-    "keep",
-    "get",
-    "think",
-    "go",
-    "see",
-    "make",
-    "do",
-    "have",
-    "be",
-})
 
+_SUBSTANTIVE_POS = frozenset({"PROPN", "NOUN"})
+_PARTICLE_POS = frozenset({"ADP", "CCONJ", "SCONJ", "DET", "PRON", "PUNCT"})
+
+
+def _sensiblaw_parser():
+    """Return the public SensibLaw parser interface, or None to fail closed."""
+    try:
+        from sensiblaw.interfaces.parser_adapter import parse_canonical_text
+        return parse_canonical_text
+    except (ImportError, ModuleNotFoundError):
+        repo_root = Path(__file__).resolve().parents[3]
+        for candidate in (repo_root / "SensibLaw", repo_root / "SensibLaw" / "src"):
+            text = str(candidate)
+            if candidate.exists() and text not in sys.path:
+                sys.path.insert(0, text)
+        try:
+            from sensiblaw.interfaces.parser_adapter import parse_canonical_text
+            return parse_canonical_text
+        except (ImportError, ModuleNotFoundError):
+            return None
+
+
+def validate_pnf_candidate(
+    head_text: str,
+    *,
+    ontology_qids: Sequence[str] = (),
+    ast_symbols: Sequence[str] = (),
+    document_frequency: int | None = None,
+    document_count: int | None = None,
+    eigenvalue: float | None = None,
+    lambda_plus: float | None = None,
+    parser: Any = None,
+) -> dict[str, Any]:
+    """Validate one candidate with public POS evidence and data-driven cuts.
+
+    Explicit AST symbols and supplied ontology QIDs are provenance-bearing
+    substantive evidence. Ordinary lexical candidates require SensibLaw
+    parser evidence. No local English wordlist or regex semantic fallback is
+    used.
+    """
+    if not isinstance(head_text, str) or not head_text.strip():
+        return {"accepted": False, "reason": "empty", "authority": "candidate_only"}
+    head = head_text.strip()
+    explicit_ast = head in {str(value).strip() for value in ast_symbols}
+    explicit_qid = head in {str(value).strip() for value in ontology_qids}
+    parse_fn = parser or _sensiblaw_parser()
+    tokens: list[Mapping[str, Any]] = []
+    parser_available = parse_fn is not None
+    if parse_fn is not None:
+        try:
+            parsed = parse_fn(head)
+            if isinstance(parsed, Mapping):
+                for sentence in parsed.get("sents") or ():
+                    if not isinstance(sentence, Mapping):
+                        continue
+                    for token in sentence.get("tokens") or ():
+                        if isinstance(token, Mapping):
+                            tokens.append(token)
+        except Exception:
+            tokens = []
+            parser_available = False
+
+    token_texts = [str(token.get("text") or "").strip() for token in tokens]
+    if any(text.casefold().startswith("0x") and len(text) > 2 for text in token_texts):
+        return {
+            "accepted": False,
+            "reason": "hex_literal_or_memory_dump",
+            "authority": "candidate_only",
+        }
+
+    substantive_tokens = [
+        token
+        for token in tokens
+        if str(token.get("pos") or "").upper() in _SUBSTANTIVE_POS
+    ]
+    particle_tokens = [
+        token
+        for token in tokens
+        if str(token.get("pos") or "").upper() in _PARTICLE_POS
+    ]
+    substantive = explicit_ast or explicit_qid or bool(substantive_tokens)
+    if not substantive:
+        reason = (
+            "grammatical_particle_noise"
+            if tokens and len(particle_tokens) == len(tokens)
+            else "missing_substantive_pos_evidence"
+        )
+        if not parser_available and not explicit_ast and not explicit_qid:
+            reason = "parser_unavailable"
+        return {
+            "accepted": False,
+            "reason": reason,
+            "authority": "candidate_only",
+            "parser_available": parser_available,
+        }
+
+    df_ratio: float | None = None
+    inverse_document_frequency: float | None = None
+    if document_frequency is not None or document_count is not None:
+        if (
+            type(document_frequency) is not int
+            or type(document_count) is not int
+            or document_frequency < 0
+            or document_count < 1
+            or document_frequency > document_count
+        ):
+            raise ValueError("document_frequency/document_count must satisfy 0 <= DF <= N")
+        df_ratio = document_frequency / document_count
+        inverse_document_frequency = math.log((1.0 + document_count) / (1.0 + document_frequency))
+        if df_ratio >= 1.0 and not (explicit_ast or explicit_qid):
+            return {
+                "accepted": False,
+                "reason": "ubiquitous_document_frequency",
+                "authority": "candidate_only",
+                "df_ratio": df_ratio,
+                "inverse_document_frequency": inverse_document_frequency,
+            }
+
+    spectral_retained: bool | None = None
+    if eigenvalue is not None or lambda_plus is not None:
+        if eigenvalue is None or lambda_plus is None:
+            raise ValueError("eigenvalue and lambda_plus must be supplied together")
+        spectral_retained = float(eigenvalue) > float(lambda_plus)
+        if not spectral_retained and not (explicit_ast or explicit_qid):
+            return {
+                "accepted": False,
+                "reason": "marchenko_pastur_bulk",
+                "authority": "candidate_only",
+                "eigenvalue": float(eigenvalue),
+                "lambda_plus": float(lambda_plus),
+                "spectral_retained": False,
+            }
+
+    return {
+        "accepted": True,
+        "reason": "substantive_candidate",
+        "authority": "candidate_unverified",
+        "head": head,
+        "pos": [str(token.get("pos") or "") for token in tokens],
+        "parser_available": parser_available,
+        "explicit_ast_symbol": explicit_ast,
+        "explicit_ontology_qid": explicit_qid,
+        "df_ratio": df_ratio,
+        "inverse_document_frequency": inverse_document_frequency,
+        "spectral_retained": spectral_retained,
+    }
+
+
+def validate_pnf_hierarchy_metadata(payload: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate the five hierarchy levels for the supported K truncations."""
+    if not isinstance(payload, Mapping):
+        raise ValueError("hierarchy metadata must be an object")
+    k = payload.get("k")
+    if type(k) is not int or k not in {50, 100}:
+        raise ValueError("k must be exactly 50 or 100")
+    levels = ("eigenspace", "primary_topics", "subtopics", "fibres", "goals")
+    missing = [name for name in levels if not isinstance(payload.get(name), list)]
+    if missing:
+        raise ValueError("hierarchy levels must be lists: " + ",".join(missing))
+    return {
+        "schema": "itir.pnf.hierarchy_metadata.v1",
+        "k": k,
+        "level_counts": {name: len(payload[name]) for name in levels},
+        "authority": "candidate_only",
+        "spectral_computation": "not_performed_by_validator",
+    }
+
+
+def _frame_candidate_admissible(
+    motif: str,
+    *,
+    document_frequency: int | None = None,
+    document_count: int | None = None,
+) -> bool:
+    evidence = validate_pnf_candidate(
+        _frame_predicate(motif),
+        document_frequency=document_frequency,
+        document_count=document_count,
+    )
+    return evidence["accepted"] is True
 
 
 def load_slrw_conversation_factors(
