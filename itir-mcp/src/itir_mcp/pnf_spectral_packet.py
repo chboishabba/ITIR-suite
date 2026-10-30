@@ -2861,3 +2861,357 @@ def _factor_display_name(feature: str) -> str:
     if len(parts) >= 3:
         return f"{parts[0]}:{parts[1]}:{parts[2]}"
     return feature
+
+
+FIBRE_BUNDLE_SCHEMA = "itir.pnf.invariant_fibre_bundle.v1"
+ONTOLOGY_ROUTE_SCHEMA = "itir.pnf.ontology_lemma_route.v1"
+
+
+def build_invariant_fibre_bundle(
+    *,
+    root_qid: str,
+    root_label: str,
+    fibre_id: str,
+    branches: Sequence[Mapping[str, Any]],
+    invariants: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Build a typed representation tree with non-promoting shared invariants."""
+    if not root_qid.startswith("Q") or not root_qid[1:].isdigit():
+        raise ValueError("root_qid must be a permanent Wikidata QID")
+    if not root_label.strip() or not fibre_id.strip():
+        raise ValueError("root_label and fibre_id are required")
+    branch_rows: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for index, raw in enumerate(branches):
+        if not isinstance(raw, Mapping):
+            raise ValueError("branches must contain objects")
+        branch_id = _text(raw.get("branch_id"))
+        representation = _text(raw.get("representation"))
+        if not branch_id or not representation or branch_id in seen:
+            raise ValueError(f"branch {index} requires a unique branch_id and representation")
+        seen.add(branch_id)
+        branch_rows.append({
+            "branch_id": branch_id,
+            "parent_qid": root_qid,
+            "representation": representation,
+            "typed_support": dict(raw.get("typed_support") or {}),
+            "local_invariants": list(raw.get("local_invariants") or ()),
+            "fibre_id": fibre_id,
+        })
+    invariant_rows: list[dict[str, Any]] = []
+    for index, raw in enumerate(invariants):
+        if not isinstance(raw, Mapping):
+            raise ValueError("invariants must contain objects")
+        invariant_id = _text(raw.get("invariant_id"))
+        source_ref = _text(raw.get("source_ref"))
+        if not invariant_id or not source_ref:
+            raise ValueError(f"invariant {index} requires invariant_id and source_ref")
+        invariant_rows.append({
+            "invariant_id": invariant_id,
+            "source_ref": source_ref,
+            "verified": raw.get("verified") is True,
+            "authority": _text(raw.get("authority")) or "external_formal_receipt",
+        })
+    return {
+        "schema": FIBRE_BUNDLE_SCHEMA,
+        "root": {"qid": root_qid, "label": root_label},
+        "fibre_id": fibre_id,
+        "branches": branch_rows,
+        "shared_invariants": invariant_rows,
+        "routing": {
+            "adjacent_branch_discovery": True,
+            "automatic_proof_transport": False,
+            "same_object_claim": False,
+            "formal_bridge_required_for_promotion": True,
+        },
+        "authority": "candidate_routing_only",
+    }
+
+
+def build_yang_mills_fibre_bundle(
+    *,
+    invariants: Sequence[Mapping[str, Any]] = (),
+) -> dict[str, Any]:
+    """Canonical RPD Yang–Mills representation bundle."""
+    return build_invariant_fibre_bundle(
+        root_qid="Q271810",
+        root_label="Yang-Mills Theory",
+        fibre_id="F_YM",
+        branches=(
+            {
+                "branch_id": "ym:lattice-transfer",
+                "representation": "lattice_transfer_matrix",
+                "typed_support": {"symbols": ["T_k"]},
+            },
+            {
+                "branch_id": "ym:continuum-curvature",
+                "representation": "continuum_curvature_holonomy",
+                "typed_support": {"symbols": ["F=dA+A∧A"]},
+            },
+            {
+                "branch_id": "ym:constructive-agda",
+                "representation": "constructive_agda_types",
+                "typed_support": {"files": ["DASHI/Physics/YangMills"]},
+            },
+        ),
+        invariants=invariants,
+    )
+
+
+def fibre_invariant_routes(bundle: Mapping[str, Any], source_branch_id: str) -> list[dict[str, Any]]:
+    """Project verified shared invariants to adjacent branches as discovery routes."""
+    branches = [dict(row) for row in bundle.get("branches") or () if isinstance(row, Mapping)]
+    source = next((row for row in branches if row.get("branch_id") == source_branch_id), None)
+    if source is None:
+        raise ValueError("source_branch_id is not present in the fibre bundle")
+    verified = [
+        dict(row)
+        for row in bundle.get("shared_invariants") or ()
+        if isinstance(row, Mapping) and row.get("verified") is True
+    ]
+    return [
+        {
+            "from_branch": source_branch_id,
+            "to_branch": target["branch_id"],
+            "fibre_id": bundle.get("fibre_id"),
+            "invariant_id": invariant["invariant_id"],
+            "source_ref": invariant["source_ref"],
+            "promotion": "requires_explicit_formal_bridge",
+        }
+        for target in branches
+        if target["branch_id"] != source_branch_id
+        for invariant in verified
+    ]
+
+
+def _sensiblaw_wikimedia_dependencies() -> tuple[Any, Any, Any] | None:
+    repo_root = Path(__file__).resolve().parents[3]
+    for candidate in (repo_root / "SensibLaw", repo_root / "SensibLaw" / "src"):
+        text = str(candidate)
+        if candidate.exists() and text not in sys.path:
+            sys.path.insert(0, text)
+    try:
+        from ontology.external_enrichment import ExternalLookupDemand
+        from ontology.wikimedia_providers import WikidataProvider, WiktionaryProvider
+        return ExternalLookupDemand, WikidataProvider, WiktionaryProvider
+    except (ImportError, ModuleNotFoundError):
+        try:
+            from src.ontology.external_enrichment import ExternalLookupDemand
+            from src.ontology.wikimedia_providers import WikidataProvider, WiktionaryProvider
+            return ExternalLookupDemand, WikidataProvider, WiktionaryProvider
+        except (ImportError, ModuleNotFoundError):
+            return None
+
+
+def _provider_lookup_projection(lookup: Any) -> dict[str, Any]:
+    candidates = []
+    for candidate in getattr(lookup, "candidates", ()) or ():
+        if hasattr(candidate, "to_dict"):
+            candidates.append(candidate.to_dict())
+        elif isinstance(candidate, Mapping):
+            candidates.append(dict(candidate))
+    return {
+        "lookup_key": str(getattr(lookup, "lookup_key", "")),
+        "provider_ref": str(getattr(lookup, "provider_ref", "")),
+        "candidates": candidates,
+        "snapshot_refs": list(getattr(lookup, "snapshot_refs", ()) or ()),
+        "request_receipts": [dict(row) for row in getattr(lookup, "request_receipts", ()) or () if isinstance(row, Mapping)],
+    }
+
+
+def ground_wikimedia_surface(
+    surface: str,
+    *,
+    subject_ref: str,
+    language: str = "en",
+    request_budget: int = 4,
+    wikidata_provider: Any = None,
+    wiktionary_provider: Any = None,
+) -> dict[str, Any]:
+    """Resolve one surface through the existing SensibLaw Wikimedia providers."""
+    if not surface.strip() or not subject_ref.strip():
+        raise ValueError("surface and subject_ref are required")
+    if request_budget < 1:
+        raise ValueError("request_budget must be positive")
+    dependencies = _sensiblaw_wikimedia_dependencies()
+    if dependencies is None:
+        return {
+            "surface": surface,
+            "subject_ref": subject_ref,
+            "status": "provider_unavailable",
+            "authority": "candidate_only",
+            "permanent_qids": [],
+        }
+    Demand, WikidataProvider, WiktionaryProvider = dependencies
+    wd = wikidata_provider or WikidataProvider()
+    wt = wiktionary_provider or WiktionaryProvider()
+    stream = io.StringIO()
+    lexical = Demand(
+        demand_ref=f"lexical:{subject_ref}",
+        subject_ref=subject_ref,
+        surface=surface,
+        demand_kind="lexical_sense",
+        language=language,
+    )
+    entity = Demand(
+        demand_ref=f"entity:{subject_ref}",
+        subject_ref=subject_ref,
+        surface=surface,
+        demand_kind="entity_identity",
+        language=language,
+    )
+    lexical_rows = wt.lookup_batch([lexical], request_budget=request_budget, progress_stream=stream)
+    entity_rows = wd.lookup_batch([entity], request_budget=request_budget, progress_stream=stream)
+    lexical_lookup = lexical_rows.get(lexical.lookup_key)
+    entity_lookup = entity_rows.get(entity.lookup_key)
+    lexical_projection = _provider_lookup_projection(lexical_lookup) if lexical_lookup is not None else {}
+    entity_projection = _provider_lookup_projection(entity_lookup) if entity_lookup is not None else {}
+    permanent_qids = sorted({
+        str(row.get("external_id"))
+        for row in entity_projection.get("candidates") or ()
+        if isinstance(row, Mapping)
+        and str(row.get("external_id") or "").startswith("Q")
+        and str(row.get("external_id") or "")[1:].isdigit()
+    })
+    return {
+        "surface": surface,
+        "subject_ref": subject_ref,
+        "status": "candidate_lookup_complete",
+        "wiktionary": lexical_projection,
+        "wikidata": entity_projection,
+        "permanent_qids": permanent_qids,
+        "authority": "candidate_only",
+        "identity_closed": False,
+    }
+
+
+def mint_frontier_qid_candidate(
+    label: str,
+    *,
+    anchors: Sequence[Mapping[str, str]],
+    disjointness_payload: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Mint a deterministic candidate ID; never create a Wikidata entity."""
+    clean_label = label.strip()
+    if not clean_label:
+        raise ValueError("label is required")
+    anchor_rows: list[dict[str, str]] = []
+    for anchor in anchors:
+        if not isinstance(anchor, Mapping):
+            raise ValueError("anchors must contain objects")
+        relation = _text(anchor.get("property"))
+        target = _text(anchor.get("target"))
+        if relation not in {"P279", "P361"}:
+            raise ValueError("candidate anchors must use P279 or P361")
+        if not target.startswith("Q") or not target[1:].isdigit():
+            raise ValueError("candidate anchors must target permanent QIDs")
+        anchor_rows.append({"property": relation, "target": target})
+    if not anchor_rows:
+        raise ValueError("at least one P279/P361 anchor is required")
+    canonical = clean_label + "|" + "|".join(
+        f"{row['property']}:{row['target']}" for row in sorted(anchor_rows, key=lambda row: (row["property"], row["target"]))
+    )
+    candidate_id = "cand:Q_" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:16].upper()
+    audit = None
+    clear = False
+    if disjointness_payload is not None:
+        from .wikidata_disjointness_tool import wikidata_disjointness_report
+        audit = wikidata_disjointness_report(disjointness_payload)
+        summary = audit.get("summary") or {}
+        clear = (
+            int(summary.get("subclass_violations_count", 0)) == 0
+            and int(summary.get("instance_violations_count", 0)) == 0
+        )
+    return {
+        "candidate_id": candidate_id,
+        "label": clean_label,
+        "anchors": anchor_rows,
+        "disjointness_audit": audit,
+        "disjointness_clear": clear if audit is not None else None,
+        "authority": "candidate_only",
+        "wikidata_entity_created": False,
+        "promotion_authority": False,
+    }
+
+
+def walk_ontology_dag(
+    start_qid: str,
+    edges: Sequence[Mapping[str, str]],
+    *,
+    max_depth: int = 8,
+) -> dict[str, Any]:
+    """Walk explicit P279/P361 edges only; return shortest deterministic paths."""
+    if not start_qid:
+        raise ValueError("start_qid is required")
+    if max_depth < 0:
+        raise ValueError("max_depth must be non-negative")
+    adjacency: dict[str, list[tuple[str, str]]] = defaultdict(list)
+    for edge in edges:
+        if not isinstance(edge, Mapping):
+            raise ValueError("ontology edges must contain objects")
+        source = _text(edge.get("source"))
+        relation = _text(edge.get("property"))
+        target = _text(edge.get("target"))
+        if relation not in {"P279", "P361"}:
+            continue
+        if source and target:
+            adjacency[source].append((relation, target))
+    for source in adjacency:
+        adjacency[source].sort(key=lambda row: (row[0], row[1]))
+
+    paths: dict[str, list[dict[str, str]]] = {start_qid: []}
+    queue: list[tuple[str, int]] = [(start_qid, 0)]
+    cursor = 0
+    while cursor < len(queue):
+        node, depth = queue[cursor]
+        cursor += 1
+        if depth >= max_depth:
+            continue
+        for relation, target in adjacency.get(node, ()):
+            if target in paths:
+                continue
+            paths[target] = paths[node] + [{"source": node, "property": relation, "target": target}]
+            queue.append((target, depth + 1))
+    return {
+        "schema": "itir.pnf.ontology_dag_walk.v1",
+        "start_qid": start_qid,
+        "reachable_qids": sorted(paths),
+        "paths": paths,
+        "relations": ["P279", "P361"],
+        "authority": "graph_observation_only",
+    }
+
+
+def route_verified_lemmas(
+    start_qid: str,
+    edges: Sequence[Mapping[str, str]],
+    lemma_attachments: Sequence[Mapping[str, Any]],
+    *,
+    max_depth: int = 8,
+) -> dict[str, Any]:
+    """Route explicit verified lemma references along the bounded ontology walk."""
+    walk = walk_ontology_dag(start_qid, edges, max_depth=max_depth)
+    reachable = set(walk["reachable_qids"])
+    routes = []
+    for row in lemma_attachments:
+        if not isinstance(row, Mapping) or row.get("verified") is not True:
+            continue
+        qid = _text(row.get("qid"))
+        lemma_ref = _text(row.get("lemma_ref"))
+        source_ref = _text(row.get("source_ref"))
+        if qid in reachable and lemma_ref and source_ref:
+            routes.append({
+                "qid": qid,
+                "lemma_ref": lemma_ref,
+                "source_ref": source_ref,
+                "path": walk["paths"][qid],
+                "promotion": "reuse_candidate_requires_typecheck",
+            })
+    routes.sort(key=lambda row: (len(row["path"]), row["qid"], row["lemma_ref"]))
+    return {
+        "schema": ONTOLOGY_ROUTE_SCHEMA,
+        "start_qid": start_qid,
+        "routes": routes,
+        "authority": "candidate_routing_only",
+        "formal_typecheck_required": True,
+    }
