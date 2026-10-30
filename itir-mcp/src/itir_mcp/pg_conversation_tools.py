@@ -24,8 +24,7 @@ def search(payload):
         raise ToolInputError("invalid limit")
     if type(offset) is not int or not 0 <= offset <= 1000000:
         raise ToolInputError("invalid offset")
-    rows = (_provider().list_synced_roster(query=query, limit=limit)
-            if offset == 0 else _provider().list_pg_conversations(query=query, limit=limit, offset=offset))
+    rows = _provider().list_pg_conversations(query=query, limit=limit, offset=offset)
     return {"source": "itir_postgresql_corpus", "conversations": rows,
             "has_more_possible": len(rows) == limit}
 
@@ -38,6 +37,17 @@ def read(payload):
     if type(limit) is not int or not 1 <= limit <= 10000:
         raise ToolInputError("invalid message limit")
     return _provider().read_pg_conversation(cid, limit=limit)
+
+
+def roster_list(payload):
+    query = payload.get("query", "")
+    limit = payload.get("limit", 100)
+    if not isinstance(query, str) or len(query) > 500:
+        raise ToolInputError("invalid query")
+    if type(limit) is not int or not 1 <= limit <= 500:
+        raise ToolInputError("invalid limit")
+    return {"source": "itir_postgresql_roster_and_corpus",
+            "conversations": _provider().list_synced_roster(query=query, limit=limit)}
 
 
 def sync_roster(payload):
@@ -63,6 +73,11 @@ def hydrate_queue(payload):
 
 def get_pg_conversation_tools():
     return [
+        (ToolSpec(name="itir.chatgpt.pg_roster_list", title="List PG conversation roster",
+                  description="PG roster and hydrated corpus union, bounded first page",
+                  input_schema={"type": "object", "properties": {
+                      "query": {"type": "string"}, "limit": {"type": "integer"}},
+                      "additionalProperties": False}, read_only=True), roster_list),
         (ToolSpec(name="itir.chatgpt.pg_roster_sync", title="Sync remote roster to canonical PG",
                   description="Explicit network roster observation and PG commit",
                   input_schema={"type": "object", "properties": {
