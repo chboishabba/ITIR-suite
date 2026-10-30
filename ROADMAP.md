@@ -165,3 +165,18 @@ SQLite-backed corpus with TIRC and SL-style views.
 - Cross-project contract note covering how Corkysoft and other operator-facing
   tools submit audio, poll jobs, and consume reviewed transcript completions
   from WhisperX-WebUI.
+
+
+## Milestone M7: RPD PNF Fibre Bundle and Ontology Lemma Routing (Oct 2026)
+
+- Base implementation must start from `main` commit `cf4ae65` or later. Do not stack this tranche on stale `master`.
+- Remove all ad-hoc English predicate sets from the active PNF spectral path. Use SensibLaw parser POS evidence plus data-driven document-frequency and Marchenko–Pastur retention.
+- Keep five explicit hierarchy levels: eigenspace, primary topic, subtopic, fibre, typed goal.
+- Normalize representational drift as typed child branches under canonical ontology roots. Yang–Mills uses `Q271810` and shared invariant fibre `F_YM`.
+- Treat shared fibre invariants as routing/discovery evidence only. They do not imply representation equivalence or automatic theorem transport.
+- Preserve the live conductor APIs and dynamic cost law. One round is an orchestration barrier over at most 20 simultaneously independent workers. Twenty rounds permit at most 400 planned worker calls.
+- Concurrent lanes require explicit pairwise `noTypedMeet` separation over files, symbols, and lemmas.
+- Reuse SensibLaw Wikimedia providers. Resolve permanent Wikidata QIDs where supported. Keep novel frontier nodes as candidate-only `cand:Q_*` records with explicit `P279`/`P361` anchors and observational P2738 disjointness audit.
+- Route verified lemma references only along explicit ontology edges and explicit lemma attachments. Ontology ancestry never creates proof authority.
+- Golden safe Agda is authoritative; Lean mirrors Agda. Reuse current dashi_agda TOE/fleet formal owners instead of creating a competing scheduler formalism.
+- Acceptance requires focused deterministic Python tests, zero ESD edits, zero hardcoded lexical wordlists, and no regression of `execute_pareto_conductor`, `spawn_parallel_lanes`, or the live cost-law contract.
