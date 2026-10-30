@@ -1705,7 +1705,7 @@ def _prod_invariant_violation(
 HIERARCHICAL_SPECTRAL_SCHEMA = "itir.pnf.hierarchical_spectral_pareto.v1"
 
 
-_SUBSTANTIVE_POS = frozenset({"PROPN", "NOUN"})
+_SUBSTANTIVE_POS = frozenset({"PROPN", "NOUN", "VERB", "ADJ"})
 _PARTICLE_POS = frozenset({"ADP", "CCONJ", "SCONJ", "DET", "PRON", "PUNCT"})
 
 
@@ -2775,13 +2775,14 @@ def _apply_discriminative_topic_motifs(
             for motif, count in frames.items():
                 score = (
                     (float(count) / float(total_frames))
-                    * math.log((1.0 + float(total_clusters)) / (1.0 + float(frame_df[motif])))
+                    * math.log(float(total_clusters) / float(1 + frame_df[motif]))
                 )
                 scored.append({
                     "kind": "typed_frame",
                     "label": motif,
                     "motif": motif,
                     "predicate": _frame_predicate(motif),
+                    "evidence": "sensiblaw_pos",
                     "count": float(count),
                     "cluster_tf": float(count) / float(total_frames),
                     "cluster_df": int(frame_df[motif]),
