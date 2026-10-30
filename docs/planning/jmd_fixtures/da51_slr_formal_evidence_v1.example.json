@@ -1,0 +1,167 @@
+{
+  "contractVersion": "da51-slr-formal-evidence-artifact/v1",
+  "positive": {
+    "source": {
+      "sourceRevisionRef": "source-revision:smith:hca37",
+      "spanRef": "span:smith:hca37:4",
+      "contentDigest": "sha256:source-smith-hca37"
+    },
+    "pnf": {
+      "pnfRevisionRef": "pnf-revision:smith:1",
+      "statementDigest": "sha256:statement-smith-direct-assistance"
+    },
+    "residual": {
+      "residualRef": "residual:smith:construction"
+    },
+    "obligation": {
+      "obligationRef": "proof-obligation:smith:1",
+      "requestedResultKind": "formal-proof"
+    },
+    "demand": {
+      "demandRef": "formal-demand:smith:1",
+      "externalObligationRef": "proof-obligation:smith:1",
+      "sourceRevisionRef": "source-revision:smith:hca37",
+      "statementDigest": "sha256:statement-smith-direct-assistance",
+      "targetProver": "lean",
+      "da51Address": "0xDA51831100800000"
+    },
+    "route": {
+      "externalRouteRef": "external-route:smith:1",
+      "baseRouteRef": "route:smith:1",
+      "authority": "routing-only",
+      "establishesProof": false
+    },
+    "agda2lean": {
+      "capability": "agda-to-lean-translation",
+      "establishesProof": false
+    },
+    "da51": {
+      "address": "0xDA51831100800000",
+      "status": "routed",
+      "statusEstablishesProof": false
+    },
+    "formalEvidence": {
+      "formalEvidenceRef": "formal-evidence:smith:1",
+      "demandRef": "formal-demand:smith:1",
+      "externalObligationRef": "proof-obligation:smith:1",
+      "sourceRevisionRef": "source-revision:smith:hca37",
+      "statementDigest": "sha256:statement-smith-direct-assistance",
+      "da51Address": "0xDA51831100800000",
+      "producer": "lean-kernel",
+      "artifactRef": "artifact:smith-proof:1",
+      "artifactDigest": "sha256:artifact-smith-proof",
+      "checker": "lean",
+      "checkerRevision": "lean:exact-head",
+      "resultKind": "formal-proof",
+      "certificationState": "kernel-certified"
+    },
+    "slrPayment": {
+      "demandRef": "formal-demand:smith:1",
+      "obligationRef": "proof-obligation:smith:1",
+      "statementDigest": "sha256:statement-smith-direct-assistance",
+      "formalPremisePaid": true,
+      "reopenRefs": ["residual:smith:dependent"],
+      "createsLegalAuthority": false,
+      "applicabilityPromoted": false,
+      "claimTruthPromoted": false
+    },
+    "artifact": {
+      "contractVersion": "shared-shard-artifact/v1",
+      "artifactId": "formal-evidence-smith",
+      "artifactRevision": "rev:formal-evidence-smith:1",
+      "artifactClass": "formal-evidence",
+      "da51Address": "0xDA51831100800000",
+      "formalDemandRef": "formal-demand:smith:1",
+      "formalEvidenceRef": "formal-evidence:smith:1",
+      "statementDigest": "sha256:statement-smith-direct-assistance",
+      "shards": [
+        {
+          "shardId": "formal-evidence-smith-proof",
+          "section": "proof",
+          "logicalKind": "formal-evidence",
+          "encoding": "cbor",
+          "sizeBytes": 512,
+          "contentDigest": "sha256:artifact-smith-proof",
+          "routingKeys": ["formal-evidence:smith:1"],
+          "objectRefs": [
+            {
+              "sink": "hf",
+              "uri": "hf://datasets/example/formal-evidence-smith/proof.cbor",
+              "sizeBytes": 512,
+              "contentDigest": "sha256:artifact-smith-proof"
+            },
+            {
+              "sink": "ipfs",
+              "uri": "ipfs://bafyexampleformalevidencesmith",
+              "sizeBytes": 512,
+              "contentDigest": "sha256:artifact-smith-proof"
+            }
+          ]
+        }
+      ]
+    },
+    "runtimeEvidence": [
+      {
+        "kind": "benchmark",
+        "producer": "zkperf",
+        "artifactRef": "zkperf:run:smith:1",
+        "authority": "evidence-only",
+        "establishesProof": false
+      },
+      {
+        "kind": "kernel_observation",
+        "producer": "ebpf-mcp",
+        "artifactRef": "ebpf:trace:smith:1",
+        "authority": "observation-only",
+        "establishesProof": false
+      }
+    ]
+  },
+  "negativeVectors": [
+    {
+      "id": "wrong-statement-digest",
+      "mutation": {"formalEvidence.statementDigest": "sha256:other"},
+      "mustFail": "StatementDigestMismatch"
+    },
+    {
+      "id": "wrong-obligation-ref",
+      "mutation": {"formalEvidence.externalObligationRef": "proof-obligation:other"},
+      "mustFail": "ObligationMismatch"
+    },
+    {
+      "id": "route-as-proof",
+      "mutation": {"route.establishesProof": true},
+      "mustFail": "RouteIsNotProof"
+    },
+    {
+      "id": "agda2lean-capability-as-proof",
+      "mutation": {"agda2lean.establishesProof": true},
+      "mustFail": "TranslationCapabilityIsNotProof"
+    },
+    {
+      "id": "da51-status-as-proof",
+      "mutation": {"da51.statusEstablishesProof": true},
+      "mustFail": "DA51StatusIsNotProof"
+    },
+    {
+      "id": "cid-as-semantic-identity",
+      "mutation": {"artifact.artifactId": "ipfs://bafyexampleformalevidencesmith"},
+      "mustFail": "SinkRefIsNotSemanticIdentity"
+    },
+    {
+      "id": "runtime-observation-as-theorem",
+      "mutation": {"runtimeEvidence[1].establishesProof": true},
+      "mustFail": "RuntimeObservationIsNotTheorem"
+    },
+    {
+      "id": "stale-source-revision",
+      "mutation": {"source.sourceRevisionRef": "source-revision:smith:stale"},
+      "mustFail": "SourceRevisionMismatch"
+    },
+    {
+      "id": "similar-symbol-as-equivalent",
+      "mutation": {"route.similarMatchEstablishesEquivalence": true},
+      "mustFail": "SimilarityIsNotEquivalence"
+    }
+  ]
+}
