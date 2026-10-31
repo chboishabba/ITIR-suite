@@ -80,6 +80,17 @@ Not in scope for the first increment:
 The adapter delegates to the local re-gpt public API with direct async writes,
 DOM fallback disabled, and receipt-bearing operation state. It does not expose
 browser/session bootstrap controls and never resends an uncertain operation.
+
+Attachment/artifact inspection is exposed as `itir.chatgpt.attachments`,
+`itir.chatgpt.export_sandbox_file`, and `itir.chatgpt.download_attachment`.
+`itir.chatgpt.adapter_health_reset` clears a stuck exact-read cooldown without
+erasing historical adapter telemetry.
+
+`itir.chatgpt.revive` revives one predecessor into a fresh thread.
+`itir.chatgpt.revive_bundle` joins 2–10 parent threads into a candidate-only
+world synthesis and revives them into one new thread with multi-parent lineage.
+Shared statements in the bundle are candidate evidence, not proof of
+equivalence; parent threads remain authoritative and are never retired.
 A normal worker dispatch is event-driven: the caller awaits its completion
 result and does not poll while it is in flight or require a user wake-up. The
 caller may complete independent work while waiting, otherwise waits silently.
@@ -111,6 +122,17 @@ receipt alone is not acceptance. Once accepted, the calling lane merges and
 pushes the branch to the authoritative target before dispatching dependent
 workers, so they build on checked current code.
 
+Before dispatching an existing conversation, inspect its title, current task,
+and recent bounded handoff/operation context to classify its role. Do not turn
+a formalisation, proof exploration, research, or review thread into an
+implementation worker merely because it has relevant background. Preserve such
+a thread as candidate evidence (or supply it through a bounded revival/handoff)
+and start a fresh implementation thread for the coherent coding cut. The
+implementation brief must state that fresh thread's purpose, target repository
+and branch, and verification boundary. If the role cannot be established from
+the available bounded evidence, use a report-only phase gate or abstain; never
+infer role from a URL or title alone.
+
 High-RAM Colab is the escalation path for Lean/Agda or another demonstrated
 memory-heavy verification need; ordinary Python/MCP tests stay local.
 
@@ -128,7 +150,7 @@ the gap function.
 
 ## Multi-parent revival
 
-The read-only `itir.pnf.multi_parent_handoff` accepts 2–10 distinct canonical thread IDs and returns separate bounded parent projections plus a candidate-only reference world. Save that result to an explicit caller-owned artifact path, then use `itir.chatgpt.revive_multi` to create one fresh ChatGPT conversation and attach that artifact over direct async CFFI. Ordered canonical parent IDs and the attachment operation receipt are retained in the re-gpt operational lineage receipt store; that store is not corpus authority. The request ID is claimed before either write, so repeated calls return the existing receipt rather than creating a second child or resending. Unavailable SensibLaw public parsing abstains. No cross-parent equivalence, parent retirement, automatic retry, or selected-context sufficiency proof is inferred.
+The read-only `itir.pnf.multi_parent_handoff` accepts 2–10 distinct canonical thread IDs and returns separate bounded parent projections plus a candidate-only reference world. The default handoff reader is the canonical PostgreSQL corpus (`corpus.chat_archive_message`); it does not fall back to the re-gpt SQLite cache. Save that result to an explicit caller-owned artifact path, then use `itir.chatgpt.revive_multi` to create one fresh ChatGPT conversation and attach that artifact over direct async CFFI. Ordered canonical parent IDs and the attachment operation receipt are retained in the re-gpt operational lineage receipt store; that store is not corpus authority. The request ID is claimed before either write, so repeated calls return the existing receipt rather than creating a second child or resending. Unavailable SensibLaw public parsing abstains. No cross-parent equivalence, parent retirement, automatic retry, or selected-context sufficiency proof is inferred.
 
 See `docs/planning/governed_revival_handoff_v1.md` for the complete contract and referee commands.
 

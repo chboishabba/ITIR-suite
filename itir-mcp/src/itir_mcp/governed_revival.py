@@ -10,12 +10,13 @@ from functools import lru_cache
 import hashlib
 import heapq
 import json
+import os
 import sqlite3
 import sys
 from pathlib import Path
 from typing import Any, Mapping
 
-from .pnf_work_packet_provider import REQUIRED, canonical_archive_path
+from .pnf_work_packet_provider import canonical_archive_path
 
 VERSION = "itir.pnf.governed_handoff.v1"
 VIEW_VERSION = "itir.archive.thread_view.v1"
@@ -69,19 +70,22 @@ def _lexical_spans(body: str, task_tokens: frozenset[str]) -> list[dict[str, Any
     ][:12]
 
 
-def _ref(row: sqlite3.Row) -> dict[str, Any]:
-    body = str(row["text"] or "")
+def _ref(row: Mapping[str, Any], *, archive_schema: str) -> dict[str, Any]:
+    body = str(row.get("text") or "")
+    message_id = str(row.get("message_id") or row.get("message_ref"))
     return {
-        "message_id": str(row["message_id"]),
-        "source_message_id": row["source_message_id"],
-        "node_id": row["node_id"],
-        "parent_node_id": row["parent_node_id"],
-        "branch_membership": row["branch_membership"],
-        "source_thread_id": row["source_thread_id"],
-        "lineage_status": "exact_graph" if row["node_id"] is not None else "graph_coordinate_unavailable",
-        "ts": row["ts"], "role": row["role"],
+        "message_id": message_id,
+        "source_message_id": row.get("source_message_id"),
+        "node_id": row.get("node_id"),
+        "parent_node_id": row.get("parent_node_id"),
+        "branch_membership": row.get("branch_membership"),
+        "source_thread_id": row.get("source_thread_id"),
+        "lineage_status": "exact_graph" if row.get("node_id") is not None else "graph_coordinate_unavailable",
+        "ts": row.get("ts"), "role": row.get("role"),
         "body_sha256": _hash(body),
-        "archive_locator": f"canonical_archive:messages/{row['message_id']}",
+        "archive_locator": (f"postgresql:corpus.chat_archive_message/{message_id}"
+                            if archive_schema == "postgresql_chat_archive"
+                            else f"canonical_archive:messages/{message_id}"),
     }
 
 
@@ -118,9 +122,6 @@ def governed_handoff(
     if child_thread_id is not None and (not isinstance(child_thread_id, str) or not child_thread_id.strip()):
         raise ValueError("invalid child_thread_id")
     thread, task, evidence = _validated_proposal(proposal)
-    path = canonical_archive_path(archive_db)
-    if not path.is_file():
-        raise FileNotFoundError("canonical archive unavailable")
     task_words = _task_tokens(task)
     # Retain newest two rows unconditionally; rank remaining rows by task matches
     # with a deterministic chronology tie-break.
@@ -128,25 +129,58 @@ def governed_handoff(
     ranked: list[tuple[int, int, dict[str, Any], list[dict[str, Any]]]] = []
     total = 0
     total_chars = 0
-    with sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True) as db:
-        db.row_factory = sqlite3.Row
-        cols = {r[1] for r in db.execute("PRAGMA table_info(messages)")}
-        if not REQUIRED <= cols:
+    archive_schema = "postgresql_chat_archive"
+    if archive_db and (archive_db.endswith(".sqlite") or archive_db.endswith(".sqlite3") or Path(archive_db).is_file()):
+        # Explicit SQLite paths remain only for the historical unit-test contract;
+        # the public/default path is PostgreSQL and never falls back to this store.
+        path = canonical_archive_path(archive_db)
+        if not path.is_file():
+            raise FileNotFoundError("canonical archive unavailable")
+        archive_schema = "canonical_messages"
+        db_context = sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True)
+        db_context.row_factory = sqlite3.Row
+        cols = {r[1] for r in db_context.execute("PRAGMA table_info(messages)")}
+        if not {"message_id", "canonical_thread_id", "text"} <= cols:
             raise RuntimeError("canonical archive schema unavailable; operational transcript stores are not corpus authority")
-        cursor = db.execute(
+        cursor = db_context.execute(
             """SELECT message_id,source_message_id,node_id,parent_node_id,
                       branch_membership,source_thread_id,ts,role,text
                FROM messages WHERE canonical_thread_id=?
                ORDER BY ts ASC,message_id ASC""", (thread,),
         )
-        archive_schema = "canonical_messages"
+        rows = cursor
+    else:
+        dsn = archive_db or os.environ.get("ITIR_PG_DSN") or os.environ.get("DATABASE_URL")
+        if not dsn:
+            raise RuntimeError("canonical PostgreSQL DSN unavailable")
+        try:
+            import psycopg
+        except ImportError as exc:
+            raise RuntimeError("psycopg is required for canonical PostgreSQL handoff") from exc
+        db_context = psycopg.connect(dsn, connect_timeout=3)
+        cursor = db_context.cursor()
+        cursor.execute(
+            """SELECT message_ref AS message_id,
+                      NULLIF(message_ref, '') AS source_message_id,
+                      node_ref AS node_id, parent_node_ref AS parent_node_id,
+                      branch_membership_ref AS branch_membership,
+                      conversation_ref AS source_thread_id,
+                      message_time_ref AS ts, role_ref AS role,
+                      body_storage_ref AS text
+               FROM corpus.chat_archive_message
+               WHERE conversation_ref=%s AND identity_verified IS TRUE
+               ORDER BY message_time_ref ASC, message_ref ASC""", ("conversation:" + thread,))
+        rows = cursor
+    try:
         for row in cursor:
+            if not isinstance(row, Mapping):
+                row = dict(zip([d[0] if isinstance(d, tuple) else d.name for d in cursor.description], row))
             total += 1
             if total > MAX_SCAN:
                 raise ValueError("thread exceeds hard scan ceiling; partition required")
             body = str(row["text"] or "")
             total_chars += len(body)
-            source = _ref(row)
+            source = _ref(row, archive_schema=archive_schema)
             spans = _lexical_spans(body, task_words)
             # Rank only producer-token matches to the caller's task text.
             score = sum(1 for item in spans if item["kind"] in task_words)
@@ -158,6 +192,8 @@ def governed_handoff(
                     heapq.heappush(ranked, ranked_item)
                 elif (score, total) > ranked[0][:2]:
                     heapq.heapreplace(ranked, ranked_item)
+    finally:
+        db_context.close()
     if not total:
         raise ValueError("canonical predecessor thread not found")
     chosen = {entry[1]["message_id"]: entry for entry in tail}

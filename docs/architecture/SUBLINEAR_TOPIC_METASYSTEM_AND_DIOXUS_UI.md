@@ -68,6 +68,7 @@ graph TD
    * Invariants are formally unified in `dashi_agda` and `dashi_lean4` with zero postulates.
 3. **Headless `curl_cffi` Context Rejuvenation:**
    * Monster threads (>500 turns) are rejuvenated via `itir.chatgpt.revive`.
+   * `itir.chatgpt.revive_bundle` joins 2–10 parent threads into a candidate-only world synthesis (`<label>_<bundle>_bundle_revival.md`) and revives them into one new thread with multi-parent lineage. Parent threads remain authoritative and are never retired by the bundle.
    * Rejuvenation compiles a structured memo (`<cid>_revival.md`), records parent-child lineage, and transmits via headless `curl_cffi` async transport with zero browser overhead.
 
 ---

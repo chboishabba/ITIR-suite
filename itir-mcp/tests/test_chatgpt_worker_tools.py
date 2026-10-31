@@ -13,6 +13,7 @@ def test_registry_exposes_governed_chatgpt_worker_tools() -> None:
         "itir.chatgpt.get_access_token",
         "itir.chatgpt.cdp_capture",
         "itir.chatgpt.hydrate",
+        "itir.chatgpt.revive_bundle",
         "itir.chatgpt.dispatch_worker",
         "itir.chatgpt.operation_status",
         "itir.chatgpt.reconcile",
@@ -71,6 +72,51 @@ def test_dispatch_forces_async_without_dom_fallback(monkeypatch) -> None:
         "dom_fallback": False,
         "db_path": None,
         "reconcile_attempts": 3,
+    }]
+
+
+def test_revive_bundle_validates_parents_and_delegates(monkeypatch) -> None:
+    calls = []
+
+    class FakeWorkerApi:
+        @staticmethod
+        def chatgpt_revive_bundle(**kwargs):
+            calls.append(kwargs)
+            return {
+                "operation_id": "op-bundle",
+                "state": "complete",
+                "parent_conversation_ids": kwargs["conversation_ids"],
+                "revived_conversation_id": "child-1",
+            }
+
+    monkeypatch.setattr(chatgpt_worker_tools, "_worker_api", lambda: FakeWorkerApi)
+
+    registry = build_default_registry()
+    rejected = registry.invoke(
+        "itir.chatgpt.revive_bundle",
+        {"conversation_ids": ["thread-1"], "prompt": "continue"},
+    )
+    assert rejected["ok"] is False
+
+    result = registry.invoke(
+        "itir.chatgpt.revive_bundle",
+        {
+            "conversation_ids": ["thread-1", "thread-2"],
+            "world_label": "shared mission",
+            "prompt": "continue",
+        },
+    )
+    assert result["ok"] is True
+    assert result["result"]["operation"]["revived_conversation_id"] == "child-1"
+    assert calls == [{
+        "conversation_ids": ["thread-1", "thread-2"],
+        "prompt": f"{chatgpt_worker_tools.GOLDEN_AGDA_REMINDER}\n\ncontinue",
+        "world_label": "shared mission",
+        "include_transcripts": True,
+        "attachments": [],
+        "follow": False,
+        "output": None,
+        "db_path": None,
     }]
 
 
