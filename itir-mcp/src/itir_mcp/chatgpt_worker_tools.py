@@ -413,14 +413,27 @@ def revive(payload: Mapping[str, Any]) -> JsonDict:
 
 
 def revive_multi(payload: Mapping[str, Any]) -> JsonDict:
-    """Attach an explicit candidate handoff artifact to one fresh child thread."""
+    """Validate the complete public contract before resolving adapters or paths."""
+    allowed = {
+        "parent_thread_ids", "handoff_path", "prompt", "request_id",
+        "follow", "follow_timeout", "db_path",
+    }
+    unknown = set(payload) - allowed
+    if unknown:
+        names = ", ".join(sorted(str(name) for name in unknown))
+        raise ToolInputError(f"unknown multi-parent revival field(s): {names}")
+
     parents = payload.get("parent_thread_ids")
     if not isinstance(parents, list) or not 2 <= len(parents) <= 10:
         raise ToolInputError("parent_thread_ids must contain 2..10 canonical IDs")
     if any(not isinstance(item, str) or not item.strip() for item in parents):
         raise ToolInputError("parent_thread_ids must contain non-empty strings")
-    if len(set(parents)) != len(parents):
+    normalized_parents = [item.strip() for item in parents]
+    if len(set(normalized_parents)) != len(normalized_parents):
         raise ToolInputError("duplicate parent_thread_ids are not allowed")
+
+    # Validate scalar fields before adapter resolution. In particular, no
+    # handoff-path existence check or transport operation may precede this gate.
     handoff_path = _required_text(payload, "handoff_path")
     prompt = _required_text(payload, "prompt")
     request_id = _required_text(payload, "request_id")
@@ -428,16 +441,20 @@ def revive_multi(payload: Mapping[str, Any]) -> JsonDict:
     if not isinstance(follow, bool):
         raise ToolInputError("Expected boolean field: follow")
     follow_timeout = payload.get("follow_timeout", 180.0)
-    if isinstance(follow_timeout, bool) or not isinstance(follow_timeout, (int, float)) or follow_timeout < 0:
+    if (isinstance(follow_timeout, bool)
+            or not isinstance(follow_timeout, (int, float))
+            or follow_timeout < 0):
         raise ToolInputError("follow_timeout must be a non-negative number")
+    db_path = _optional_db_path(payload)
+
     api = _worker_api()
     try:
         result = api.chatgpt_revive_multi(
-            parent_thread_ids=parents,
+            parent_thread_ids=normalized_parents,
             handoff_path=handoff_path,
             prompt=prompt,
             request_id=request_id,
-            db_path=_optional_db_path(payload),
+            db_path=db_path,
             follow=follow,
             follow_timeout=float(follow_timeout),
         )
