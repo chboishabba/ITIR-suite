@@ -124,6 +124,12 @@ renaming or collapsing fields: `O` Organization, `R` RFP, `C` Code, `S` State,
 particular, governance is a separate promotion/control surface, not part of
 the gap function.
 
+## Multi-parent revival
+
+The read-only `itir.pnf.multi_parent_handoff` accepts 2–10 distinct canonical thread IDs and returns separate bounded parent projections plus a candidate-only reference world. Save that result to an explicit caller-owned artifact path, then use `itir.chatgpt.revive_multi` to create one fresh ChatGPT conversation and attach that artifact over direct async CFFI. Ordered canonical parent IDs and the attachment operation receipt are retained in the re-gpt operational lineage receipt store; that store is not corpus authority. Unavailable SensibLaw public parsing abstains. No cross-parent equivalence, parent retirement, automatic retry, or selected-context sufficiency proof is inferred.
+
+See `docs/planning/governed_revival_handoff_v1.md` for the complete contract and referee commands.
+
 ## Numeric ABI
 
 `itir_mcp.pnf_numeric_abi` is a narrow receipt-bearing numeric ABI for
