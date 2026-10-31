@@ -654,3 +654,51 @@ The SEP's distinction between a request key and a transport request ID, and
 its explicit warning that deduplication cannot prove exactly-once execution
 across a side-effect/receipt crash window, are adopted as design guidance.
 This implementation does not claim MCP wire-level idempotency support.
+
+
+### Normalized operating and assurance surfaces
+
+This mapping is a control-design crosswalk, not a claim of certification or
+conformance assessment.
+
+| Framework | Normalized surface in this workflow |
+| --- | --- |
+| ITIL | Request record, bounded service operation, change/incident evidence for uncertain writes, and a reconciled completion receipt. |
+| ISO 9000 | Controlled inputs, repeatable selection policy, traceable outputs, acceptance criteria and corrective-action evidence. |
+| ISO/IEC 42001 | AI-system lifecycle ownership, human review boundary, candidate/proof non-promotion and explicit residual risk. |
+| ISO/IEC 27001 | Least-privilege archive access, separation of corpus and operational stores, controlled transport credentials and no browser-session hijack. |
+| ISO/IEC 27701 | Data minimisation, no raw transcript in the handoff, digest/reference-only evidence and explicit purpose limitation. |
+| ISO/IEC 23894 | Risk register for context omission, source ambiguity, parser unavailability, and uncertain external effects; fail closed where evidence is insufficient. |
+| ISO 9241 | Clear operator-visible parent ordering, explicit handoff path, readable operation state and accessible recovery instructions. |
+| NIST AI RMF | Govern: authority and accountability; Map: sources, task and affected context; Measure: boundedness, provenance and test gates; Manage: abstention, reconciliation and no-resend controls. |
+| Six Sigma | Critical-to-quality measures are schema validity, bounded packet size, source-reference traceability, zero duplicate dispatches in replay tests, and zero promotion from candidate evidence. |
+| C4 / PlantUML | Separate archive, candidate projection, transport adapter, external ChatGPT system and operational receipt store as distinct containers/components. |
+
+The C4 boundary can be rendered from this PlantUML source:
+
+```plantuml
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+Person(operator, "Operator", "Supplies ordered parents, task and owned handoff path")
+System_Ext(chatgpt, "ChatGPT", "Fresh conversation and attachment endpoint")
+System_Boundary(itir, "ITIR-suite") {
+  Container(archive, "Canonical archive", "SQLite, read-only", "Corpus authority and graph provenance")
+  Container(sensib, "SensibLaw interfaces", "Public parser/PNF API", "Token-span candidates; abstains if unavailable")
+  Container(handoff, "ITIR MCP", "Read-only projection", "Builds bounded candidate-only multi-parent handoff")
+}
+System_Boundary(regpt, "reverse-engineered-chatgpt") {
+  Container(adapter, "re-gpt MCP", "Headless async CFFI", "Validates artifact; at-most-once create/attach attempt")
+  Container(receipts, "Operational receipt store", "SQLite", "Request dedupe and ordered lineage/operation receipts only")
+}
+Rel(operator, handoff, "Requests 2..10 parent projection")
+Rel(archive, handoff, "Read-only canonical messages")
+Rel(sensib, handoff, "Public token-span interface")
+Rel(handoff, operator, "Candidate artifact + open formal gap")
+Rel(operator, adapter, "Explicit path, ordered parents, prompt, request_id")
+Rel(adapter, chatgpt, "At most one fresh-child and attachment attempt")
+Rel(adapter, receipts, "Persist operation and lineage receipts")
+@enduml
+```
+
+No standard listed above changes the authority lattice: standards alignment
+does not convert a candidate packet into reviewed evidence or a proof.
