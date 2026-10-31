@@ -22,7 +22,7 @@ class MultiParentRevivalTests(unittest.TestCase):
         self.archive = Path(self.temp.name) / "canonical.sqlite"
         with sqlite3.connect(self.archive) as db:
             db.execute("CREATE TABLE messages (" + ",".join(f"{name} TEXT" for name in sorted(REQUIRED)) + ")")
-            for parent in ("p1", "p2", "p3"):
+            for parent in tuple(f"p{i}" for i in range(1, 11)):
                 for index in range(5):
                     body = f"source material {parent} item {index}"
                     db.execute(
