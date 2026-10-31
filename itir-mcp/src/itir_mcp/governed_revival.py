@@ -78,7 +78,7 @@ def _ref(row: sqlite3.Row, path: Path) -> dict[str, Any]:
         "parent_node_id": row["parent_node_id"],
         "branch_membership": row["branch_membership"],
         "source_thread_id": row["source_thread_id"],
-        "lineage_status": "exact_graph" if row["node_id"] is not None and row["parent_node_id"] is not None else "unavailable_compressed_archive",
+        "lineage_status": "exact_graph" if row["node_id"] is not None else "graph_coordinate_unavailable",
         "ts": row["ts"], "role": row["role"],
         "body_sha256": _hash(body),
         "archive_locator": f"sqlite:{path.resolve()}#messages/{row['message_id']}",
