@@ -549,3 +549,31 @@ including the native MCP runtime, installed. The ITIR isolated-worktree test
 environment also needs the sibling `re_gpt` package importable and the
 declared `mcp` runtime dependency installed; missing either is an environment
 failure, not a passing test.
+
+### Exact ITIR-venv multi-parent referee invocation
+
+Run from the ITIR-suite repository root. This uses the ITIR project's own
+virtual environment and exposes both the ITIR MCP source tree and the sibling
+`reverse-engineered-chatgpt` transport package:
+
+```bash
+PYTHONPATH="itir-mcp/src:/home/c/Documents/code/reverse-engineered-chatgpt" \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s tests -p 'test_multi_parent_revival*.py' -v
+```
+
+For the fetched PR-head worktrees used by the local referee, the exact
+reproducible invocation is:
+
+```bash
+PYTHONPATH="/tmp/revive-itir2/itir-mcp/src:/tmp/revive-re2" \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s /tmp/revive-itir2/tests -p 'test_multi_parent_revival*.py' -v
+```
+
+The focused local referee result reported for those fetched heads is 7/7 ITIR
+multi-parent tests and 9/9 combined re-gpt plus public MCP contract tests.
+These are local referee results, not GitHub Actions checks and not Agda
+kernel verification. Candidate-only authority, independent parent lineage,
+canonical archive authority, no-resend behavior, and the open
+selected-context-sufficiency obligation are unchanged.
