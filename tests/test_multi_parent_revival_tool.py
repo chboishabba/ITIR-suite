@@ -35,16 +35,27 @@ class MultiParentToolTests(unittest.TestCase):
         self.assertEqual(api.calls[0]["request_id"], payload["request_id"])
         self.assertEqual(api.calls[0]["follow"], False)
 
-    def test_rejects_parent_count_duplicates_and_unknown_fields(self):
-        with self.assertRaises(ToolInputError):
-            revive_multi({"parent_thread_ids": ["only"], "handoff_path": "/x",
-                          "prompt": "continue", "request_id": "r1"})
-        with self.assertRaises(ToolInputError):
-            revive_multi({"parent_thread_ids": ["same", "same"], "handoff_path": "/x",
-                          "prompt": "continue", "request_id": "r2"})
-        with self.assertRaises(ToolInputError):
-            revive_multi({"parent_thread_ids": ["a", "b"], "handoff_path": "/x",
-                          "prompt": "continue", "request_id": "r3", "unexpected": True})
+    def test_rejects_parent_count_duplicates_and_unknown_fields_before_adapter(self):
+        invalid_payloads = [
+            {"parent_thread_ids": ["only"], "handoff_path": "/definitely/missing",
+             "prompt": "continue", "request_id": "r1"},
+            {"parent_thread_ids": ["same", "same"], "handoff_path": "/definitely/missing",
+             "prompt": "continue", "request_id": "r2"},
+            {"parent_thread_ids": ["a", "b"], "handoff_path": "/definitely/missing",
+             "prompt": "continue", "request_id": "r3", "unexpected": True},
+            {"parent_thread_ids": ["a", 7], "handoff_path": "/definitely/missing",
+             "prompt": "continue", "request_id": "r4"},
+            {"parent_thread_ids": ["a", ""], "handoff_path": "/definitely/missing",
+             "prompt": "continue", "request_id": "r5"},
+            {"parent_thread_ids": "a,b", "handoff_path": "/definitely/missing",
+             "prompt": "continue", "request_id": "r6"},
+        ]
+        with patch("itir_mcp.chatgpt_worker_tools._worker_api") as worker_api:
+            for payload in invalid_payloads:
+                with self.subTest(payload=payload):
+                    with self.assertRaises(ToolInputError):
+                        revive_multi(payload)
+            worker_api.assert_not_called()
 
     def test_tool_is_registered_as_mutating_not_read_only(self):
         specs = {spec.name: spec for spec, _handler in get_chatgpt_worker_tools()}
