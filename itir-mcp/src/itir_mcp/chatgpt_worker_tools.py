@@ -411,6 +411,40 @@ def revive(payload: Mapping[str, Any]) -> JsonDict:
     }
 
 
+
+def revive_multi(payload: Mapping[str, Any]) -> JsonDict:
+    """Attach an explicit candidate handoff artifact to one fresh child thread."""
+    parents = payload.get("parent_thread_ids")
+    if not isinstance(parents, list) or not 2 <= len(parents) <= 10:
+        raise ToolInputError("parent_thread_ids must contain 2..10 canonical IDs")
+    if any(not isinstance(item, str) or not item.strip() for item in parents):
+        raise ToolInputError("parent_thread_ids must contain non-empty strings")
+    if len(set(parents)) != len(parents):
+        raise ToolInputError("duplicate parent_thread_ids are not allowed")
+    handoff_path = _required_text(payload, "handoff_path")
+    prompt = _required_text(payload, "prompt")
+    follow = payload.get("follow", True)
+    if not isinstance(follow, bool):
+        raise ToolInputError("Expected boolean field: follow")
+    follow_timeout = payload.get("follow_timeout", 180.0)
+    if isinstance(follow_timeout, bool) or not isinstance(follow_timeout, (int, float)) or follow_timeout < 0:
+        raise ToolInputError("follow_timeout must be a non-negative number")
+    api = _worker_api()
+    try:
+        result = api.chatgpt_revive_multi(
+            parent_thread_ids=parents,
+            handoff_path=handoff_path,
+            prompt=prompt,
+            db_path=_optional_db_path(payload),
+            follow=follow,
+            follow_timeout=float(follow_timeout),
+        )
+    except Exception as exc:
+        raise ToolExecutionError(f"multi-parent revival failed without automatic retry: {exc}") from exc
+    return {"version": SCHEMA_VERSION, "operation": _compact_operation(result)}
+
+
+
 def session_status(payload: Mapping[str, Any]) -> JsonDict:
     """Return redacted CFFI session and adapter health status."""
     db_path = _optional_db_path(payload)
@@ -764,6 +798,30 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                 read_only=False,
             ),
             revive,
+        ),
+        (
+            ToolSpec(
+                name="itir.chatgpt.revive_multi",
+                title="Attach governed 2..10-parent handoff to a fresh ChatGPT thread",
+                description="Create one fresh child, attach one explicit candidate-only handoff artifact over direct async CFFI, and persist ordered canonical parent lineage receipts. Never retries uncertain operations.",
+                input_schema={
+                    "type": "object",
+                    "required": ["parent_thread_ids", "handoff_path", "prompt"],
+                    "properties": {
+                        "parent_thread_ids": {"type": "array", "minItems": 2, "maxItems": 10,
+                            "uniqueItems": True, "items": {"type": "string", "minLength": 1}},
+                        "handoff_path": {"type": "string", "minLength": 1},
+                        "prompt": {"type": "string", "minLength": 1},
+                        "follow": {"type": "boolean"},
+                        "follow_timeout": {"type": "number", "minimum": 0},
+                        "db_path": {"type": "string"},
+                    },
+                    "additionalProperties": False,
+                },
+                response_version=SCHEMA_VERSION,
+                read_only=False,
+            ),
+            revive_multi,
         ),
         (
             ToolSpec(
