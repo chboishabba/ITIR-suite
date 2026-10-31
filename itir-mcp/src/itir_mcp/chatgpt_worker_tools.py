@@ -423,6 +423,7 @@ def revive_multi(payload: Mapping[str, Any]) -> JsonDict:
         raise ToolInputError("duplicate parent_thread_ids are not allowed")
     handoff_path = _required_text(payload, "handoff_path")
     prompt = _required_text(payload, "prompt")
+    request_id = _required_text(payload, "request_id")
     follow = payload.get("follow", True)
     if not isinstance(follow, bool):
         raise ToolInputError("Expected boolean field: follow")
@@ -435,6 +436,7 @@ def revive_multi(payload: Mapping[str, Any]) -> JsonDict:
             parent_thread_ids=parents,
             handoff_path=handoff_path,
             prompt=prompt,
+            request_id=request_id,
             db_path=_optional_db_path(payload),
             follow=follow,
             follow_timeout=float(follow_timeout),
@@ -806,12 +808,13 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                 description="Create one fresh child, attach one explicit candidate-only handoff artifact over direct async CFFI, and persist ordered canonical parent lineage receipts. Never retries uncertain operations.",
                 input_schema={
                     "type": "object",
-                    "required": ["parent_thread_ids", "handoff_path", "prompt"],
+                    "required": ["parent_thread_ids", "handoff_path", "prompt", "request_id"],
                     "properties": {
                         "parent_thread_ids": {"type": "array", "minItems": 2, "maxItems": 10,
                             "uniqueItems": True, "items": {"type": "string", "minLength": 1}},
                         "handoff_path": {"type": "string", "minLength": 1},
                         "prompt": {"type": "string", "minLength": 1},
+                        "request_id": {"type": "string", "minLength": 1, "maxLength": 128},
                         "follow": {"type": "boolean"},
                         "follow_timeout": {"type": "number", "minimum": 0},
                         "db_path": {"type": "string"},
