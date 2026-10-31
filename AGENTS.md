@@ -250,3 +250,21 @@ invalid parent-list types, counts outside 2..10, empty IDs, and duplicate IDs
 before resolving the re-gpt adapter or checking the handoff path. A contract
 failure must not touch the filesystem or dispatch a mutation. Never retry or
 resend an uncertain creation or attachment operation.
+
+## Governed multi-parent revival referee
+
+Run the focused multi-parent tool tests from the ITIR workspace with the
+repository venv and both source trees on the import path:
+
+```bash
+PYTHONPATH=/home/c/Documents/code/ITIR-suite/itir-mcp/src:/home/c/Documents/code/reverse-engineered-chatgpt \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s /home/c/Documents/code/ITIR-suite/tests \
+  -p 'test_multi_parent_revival*.py' -v
+```
+
+The public `revive_multi` contract must reject unknown keys, invalid parent
+container/type, parent counts outside 2..10, empty IDs, and duplicate IDs
+before resolving the re-gpt adapter or checking the handoff artifact path.
+Invalid-input tests must assert that the adapter is not called. A dispatch
+with an uncertain result is never retried or resent.
