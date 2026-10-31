@@ -621,3 +621,31 @@ reverse-engineered-chatgpt plus public MCP contract tests. This is local
 referee evidence supplied for this change, not a GitHub Actions check and not
 an Agda proof. The candidate-only boundary and the open
 selected-context-sufficiency obligation are unchanged.
+
+
+### Delivery semantics and external cross-pollination
+
+The caller-supplied request ID follows the application-level deduplication
+pattern discussed in Model Context Protocol SEP-3182, 'Request Idempotency'
+(PR #3182, proposal created 2026-08-01):
+https://github.com/modelcontextprotocol/modelcontextprotocol/pull/3182
+
+That SEP is a proposal, not a claim that this server implements a protocol
+capability. The implementation uses its own durable application request key.
+The key is bound to the ordered parents, handoff SHA-256 and prompt SHA-256;
+reusing it with changed arguments is rejected. The request row is committed
+before any external write, and an existing key is never dispatched again.
+
+The guarantee is deliberately **at-most-once dispatch**, not exactly-once
+remote effect. A process or network failure after the remote service commits
+but before the local receipt is updated can leave the request in a starting or
+unknown state. Such a state is held for reconciliation; it is never treated as
+permission to resend. The durable row prevents a duplicate attempt but cannot,
+by itself, prove whether the remote effect occurred. A future status/reconcile
+surface must resolve that uncertainty from owned MutationService operation
+receipts before any human-authorized continuation.
+
+The SEP's distinction between a request key and a transport request ID, and
+its explicit warning that deduplication cannot prove exactly-once execution
+across a side-effect/receipt crash window, are adopted as design guidance.
+This implementation does not claim MCP wire-level idempotency support.
