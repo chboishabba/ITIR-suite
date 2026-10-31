@@ -222,3 +222,31 @@ Available interface functions:
 - `collect_canonical_relational_bundle`
 
 Standard Python string methods (such as `.split()`, `.replace()`, `.strip()`) are preferred for simple layout/separator checks.
+
+## Governed Multi-Parent Revival Verification
+
+Run the focused worker-tool and handoff tests with the repository ITIR virtual
+environment and both source roots on `PYTHONPATH`. The second source root is
+the sibling `reverse-engineered-chatgpt` checkout, because the transport
+adapter is imported by the ITIR tests.
+
+```bash
+PYTHONPATH="$PWD/itir-mcp/src:/home/c/Documents/code/reverse-engineered-chatgpt" \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s tests -p 'test_multi_parent_revival*.py' -v
+```
+
+When running against a temporary fetched PR worktree, keep the same venv and
+set both paths to the fetched ITIR `itir-mcp/src` and fetched re-gpt checkout:
+
+```bash
+PYTHONPATH="/tmp/revive-itir2/itir-mcp/src:/tmp/revive-re2" \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s /tmp/revive-itir2/tests -p 'test_multi_parent_revival*.py' -v
+```
+
+The mutating `itir.chatgpt.revive_multi` contract must reject unknown fields,
+invalid parent-list types, counts outside 2..10, empty IDs, and duplicate IDs
+before resolving the re-gpt adapter or checking the handoff path. A contract
+failure must not touch the filesystem or dispatch a mutation. Never retry or
+resend an uncertain creation or attachment operation.
