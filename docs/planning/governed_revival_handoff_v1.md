@@ -519,13 +519,18 @@ From the ITIR-suite root:
     python -m unittest discover -s tests -p 'test_multi_parent_revival_tool.py' -v
     ruff check itir-mcp/src/itir_mcp/governed_revival.py itir-mcp/src/itir_mcp/multi_parent_revival_tools.py itir-mcp/src/itir_mcp/registry.py tests/test_multi_parent_revival.py tests/test_multi_parent_revival_tool.py
 
-From the dashi_agda root, using the repository's pinned authoritative toolchain:
+From the dashi_agda root, use the repository's documented Agda 2.9
+parallel-check wrapper for focused draft checks:
 
-    nix develop -c agda -i . DASHI/Core/CandidateOnlyCore.agda
-    nix develop -c agda -i . DASHI/Interop/PNFPackageCore.agda
-    nix develop -c agda -i . DASHI/Interop/ResidualBoundaryCore.agda
-    nix develop -c agda -i . DASHI/Cognition/PNF/EventAlgebra.agda
-    nix develop -c agda -i . DASHI/Interop/InspectionRelativeNoTypedMeet.agda
+    scripts/run_agda29_parallel_check.sh DASHI/Core/CandidateOnlyCore.agda
+    scripts/run_agda29_parallel_check.sh DASHI/Interop/PNFPackageCore.agda
+    scripts/run_agda29_parallel_check.sh DASHI/Interop/ResidualBoundaryCore.agda
+    scripts/run_agda29_parallel_check.sh DASHI/Cognition/PNF/EventAlgebra.agda
+    scripts/run_agda29_parallel_check.sh DASHI/Interop/InspectionRelativeNoTypedMeet.agda
+
+The pinned Dashi flake remains the reproducibility authority for final
+DASHI/Everything.agda promotion checks. The parallel wrapper is draft feedback,
+not a substitute for that authoritative promotion check.
 
 The commands above are referee instructions, not a claim that they were run
 through this GitHub-only implementation session. No local checkout or local
