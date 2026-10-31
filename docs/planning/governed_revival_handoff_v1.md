@@ -178,3 +178,211 @@ this GitHub-connector session.
 - Real-host MCP stdio, owned-session attachment, canonical archive mapping and
   exact-head tests remain operator verification requirements. No live ChatGPT
   mutation or attachment was performed by this implementation session.
+
+
+## DASHI formal correspondence and ZKP contract
+
+The implementation reuses existing golden Agda machinery. It does not introduce a
+revival-specific equivalence theorem or claim that the workflow itself is proved.
+
+### O / R / C / S / L / P / G / F
+
+- **O — Organization:** the canonical archive is the only corpus authority.
+  ITIR owns read-only selection and candidate handoff construction. re-gpt owns
+  transport and operation/lineage receipts. The MCP registry owns guarded tool
+  contracts. Parent conversations remain independent authorities.
+- **R — Requirement:** accept 2–10 distinct, ordered canonical parent IDs;
+  produce a bounded candidate-only handoff; attach it once to one fresh child;
+  preserve the legacy one-parent API.
+- **C — Code:** canonical archive schema only; public
+  `sensiblaw.interfaces.shared_reducer.tokenize_canonical_with_spans` only.
+  Missing parser authority means abstention. No operational transcript fallback,
+  regex semantic extraction, hand-authored predicate list, direct spaCy, or
+  private `src.*` import.
+- **S — State:** a caller-owned artifact path and stable request ID are explicit.
+  The request fingerprint binds ordered parents, artifact digest and prompt
+  digest. An identical replay returns the existing receipt; key reuse with a
+  different fingerprint is rejected.
+- **L — Logic:** raw source references precede lexical/parser candidates;
+  candidates precede reviewed world models; reviewed models precede formal
+  proof. No stage is skipped. A shared candidate does not establish identity,
+  equivalence, contradiction, truth, or theoremhood.
+- **P — Proof obligations:** preconditions, invariants and postconditions below.
+  Only the generic candidate/residual propositions listed in the Agda mapping
+  are currently kernel-checked. The end-to-end revival theorem is not.
+- **G — Governance:** read-only projections do not dispatch or mutate source
+  conversations. A fresh-child write and attachment require the explicit
+  caller request. Never retry or resend an uncertain operation. Lineage rows
+  are transport receipts, not corpus authority.
+- **F — Formal gap:** selected-context sufficiency remains open. The packet
+  does not prove that omitted messages are irrelevant or that the child
+  continues every parent task.
+
+### Preconditions, invariants and postconditions
+
+Let (P=[p_0,\ldots,p_{n-1}]) be the ordered parent list, (H) the
+explicit handoff bytes, (r) the caller request ID, and (c) the new child.
+
+**Preconditions**
+
+1. (2 \leq n \leq 10); every (p_i) is a non-empty canonical ID and
+   the IDs are pairwise distinct.
+2. Every parent projection resolves against the canonical archive schema.
+   No re-gpt operational transcript database is a fallback corpus.
+3. (H) is a bounded, versioned candidate-only artifact whose ordered parent
+   IDs equal (P), whose source-content materialization flag is false, whose
+   cross-parent equivalence set is empty, and whose sufficiency-proof flag is
+   false.
+4. (r) is non-empty and stable for this logical operation. The artifact path
+   is explicit and caller-owned.
+5. If the public SensibLaw token-span producer is unavailable, lexical
+   selection abstains rather than substituting another semantic extractor.
+
+**Invariants**
+
+1. Parent order and identity are preserved in each projection and in durable
+   lineage edges. No parent is merged, rewritten, retired or treated as a
+   child of another parent.
+2. Candidate output carries no truth, support, admissibility, runtime or
+   theorem authority and is never silently promoted.
+3. The request key is claimed before the first remote write. A matching replay
+   cannot dispatch again; a mismatching payload under the same key is rejected.
+4. A creation state of `commit_unknown` blocks attachment. Any uncertain
+   attachment is retained as an operation receipt and is never automatically
+   resent.
+5. The archive remains corpus authority; re-gpt SQLite stores only operation
+   and lineage receipts. No raw transcript body is included in the handoff.
+
+**Postconditions**
+
+- On a confirmed success: exactly one fresh child exists, one explicit
+  attachment operation has a MutationService-owned receipt, and the ordered
+  parent edges plus artifact digest/path are recorded.
+- On a confirmed creation failure or uncertain creation: no attachment is
+  dispatched.
+- On an uncertain attachment: the uncertain state and operation ID are
+  retained; replay returns the receipt without redispatch.
+- In every outcome: parent authorities remain independent and
+  `selected_context_sufficiency_proved = false`.
+
+### Existing golden Agda machinery
+
+The following modules are reused as the semantic authority. Their generic
+lemmas constrain the implementation; they do **not** prove the whole
+multi-parent protocol.
+
+| Agda owner | Existing proposition/construct | Revival interpretation |
+|---|---|---|
+| `DASHI/Core/CandidateOnlyCore.agda` | `CandidateOnlyReceipt`: candidate-only is true, promoted is false, and truth/support/admissibility/trading/runtime/theorem authority bits are false | A handoff candidate cannot be promoted by packaging or transport |
+| `DASHI/Interop/PNFPackageCore.agda` | typed package and fail-closed package obligations | Missing or invalid typed evidence must remain unavailable/abstained |
+| `DASHI/Cognition/PNF/EventAlgebra.agda` | `CandidatePNF`, retained alternatives, `ComparisonResult`, `noTypedMeet`, receipt-bearing composition and revisions | Similarity is not equivalence; preserve alternatives and typed residuals |
+| `DASHI/Interop/ResidualBoundaryCore.agda` | exact/partial/no-typed-meet/contradiction residual boundary | Incomparable parent evidence is not automatically contradictory |
+| `DASHI/Interop/InspectionRelativeNoTypedMeet.agda` | inspection-relative no-typed-meet and bridge-revisability | Absence of a typed meet is a scoped residual, not a global impossibility |
+
+In particular, `noTypedMeet` is distinct from contradiction. The revival
+adapter must preserve that distinction and must not collapse incomparable
+parent candidates into one normalized fact.
+
+### Lean consumer status
+
+The checked-in `dashi_lean4` README and
+`docs/DECLARATION_LANDSCAPE.md` currently describe the small DashiPerf
+surface and bundle-name inventory. Code search did not find checked-in Lean
+counterparts for the candidate-only/PNF residual declarations above. Therefore
+this cut adds no Lean theorem and claims no Lean verification of the revival
+protocol. Agda remains golden; a Lean consumer must be added only when the
+actual checked-in Agda declarations and proof obligations can be translated
+without strengthening them.
+
+### Normalized control and architecture view
+
+The following is a traceability aid, not a claim of certification against any
+standard:
+
+- ITIL: explicit service boundary, operation state, ownership and incident
+  handling for ambiguous writes.
+- ISO 9000 / Six Sigma: versioned acceptance criteria, reproducible fixtures,
+  deterministic failure states and traceable corrective actions.
+- ISO/IEC 42001, 23894 and NIST AI RMF: documented authority limits,
+  uncertainty, abstention, human review boundary and residual risk.
+- ISO/IEC 27001 and 27701: least privilege, read-only source projection,
+  data minimization, explicit artifact path and bounded receipts.
+- ISO 9241: stable public tool contract, explicit required fields and
+  predictable error/abstention behavior.
+- C4/PlantUML: ownership is separated by component; data and mutation flow
+  are explicit.
+
+```plantuml
+@startuml
+actor Caller
+database "Canonical archive\n(corpus authority)" as Archive
+component "ITIR MCP\nread-only selector + handoff" as ITIR
+component "SensibLaw public interfaces\nparser/token-span candidates" as SL
+component "re-gpt\nasync transport + receipts" as REGPT
+database "Operational receipt store\n(non-authoritative)" as Receipts
+cloud "Fresh ChatGPT child" as Child
+
+Caller -> ITIR : ordered 2..10 canonical IDs + task
+ITIR -> Archive : bounded read-only canonical projection
+ITIR -> SL : public token/span interface
+SL --> ITIR : candidate spans or abstain
+ITIR --> Caller : candidate-only handoff artifact
+Caller -> REGPT : explicit path + request_id + prompt
+REGPT -> REGPT : claim request fingerprint
+REGPT -> Child : create exactly one fresh child
+REGPT -> Child : attach artifact once (direct async CFFI)
+REGPT -> Receipts : ordered lineage + operation receipts
+note right of Receipts
+Not corpus authority.
+No automatic resend on uncertainty.
+end note
+note bottom of ITIR
+Selected-context sufficiency remains unproved.
+Parent authorities remain independent.
+end note
+@enduml
+```
+
+### Deterministic referee commands
+
+From the reverse-engineered-chatgpt checkout, with its declared project
+dependencies installed:
+
+```bash
+pytest -q tests/test_multi_parent_revival.py tests/test_multi_parent_mcp_contract.py
+ruff check re_gpt/multi_parent_revival.py re_gpt/mcp_server.py tests/test_multi_parent_revival.py tests/test_multi_parent_mcp_contract.py
+```
+
+The public-entrypoint contract test imports the native MCP server, asserts
+that `request_id` has no default, invokes `chatgpt_revive_multi`, and checks
+that the stable key is forwarded unchanged to `revive_from_handoff`.
+
+From an ITIR workspace that also has the sibling re-gpt package and MCP
+runtime installed (the isolated worktree alone is insufficient):
+
+```bash
+python -m unittest discover -s tests -p 'test_multi_parent_revival_tool.py' -v
+python -m unittest discover -s tests -p 'test_multi_parent_revival.py' -v
+(cd itir-mcp && PYTHONPATH=src python -c 'from itir_mcp.registry import build_default_registry; s={t.name:t for t in build_default_registry().list_tools()}; assert "itir.chatgpt.revive_multi" in s; assert not s["itir.chatgpt.revive_multi"].read_only')
+```
+
+If the ITIR isolated worktree reports `ModuleNotFoundError: re_gpt`, make the
+sibling checkout importable using the workspace's normal editable-install or
+`PYTHONPATH` setup. If it reports `ModuleNotFoundError: mcp`, install the
+declared ITIR MCP runtime dependencies before running the registry test. These
+are environment prerequisites, not passing tests; report them rather than
+masking them.
+
+Agda referee (from the dashi_agda checkout):
+
+```bash
+agda -i . DASHI/Core/CandidateOnlyCore.agda
+agda -i . DASHI/Interop/PNFPackageCore.agda
+agda -i . DASHI/Cognition/PNF/EventAlgebra.agda
+agda -i . DASHI/Interop/ResidualBoundaryCore.agda
+agda -i . DASHI/Interop/InspectionRelativeNoTypedMeet.agda
+```
+
+No Lean command is prescribed for this cut because the checked-in Lean
+repository currently has no matching declarations to compile. Do not treat a
+name-only bundle reference as a checked-in Lean theorem.
