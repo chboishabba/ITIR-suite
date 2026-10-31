@@ -549,3 +549,45 @@ including the native MCP runtime, installed. The ITIR isolated-worktree test
 environment also needs the sibling `re_gpt` package importable and the
 declared `mcp` runtime dependency installed; missing either is an environment
 failure, not a passing test.
+
+
+## ITIR public-input validation ordering — referee addendum (2026-10-31)
+
+The current `revive_multi` worker boundary validates unknown fields, parent
+list type/count, non-empty string IDs, duplicate IDs after whitespace
+normalization, required scalar fields, request-ID length (1–128), and numeric /
+boolean options before calling `_worker_api()`. This is the public admission
+precondition: malformed input cannot trigger adapter/session construction or
+a filesystem check. Normalized parent IDs are the exact IDs delegated to the
+transport. The transport remains responsible for validating artifact bytes,
+version, parent order, candidate-only flags, and digest-bound at-most-once
+dispatch.
+
+### Exact deterministic commands using the ITIR repository venv
+
+From the ITIR-suite root (the sibling re-gpt source is needed by the transport
+tests):
+
+```bash
+PYTHONPATH="$PWD/itir-mcp/src:/home/c/Documents/code/reverse-engineered-chatgpt" \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s tests -p 'test_multi_parent_revival*.py' -v
+/home/c/Documents/code/ITIR-suite/.venv/bin/ruff check \
+  itir-mcp/src/itir_mcp/chatgpt_worker_tools.py \
+  tests/test_multi_parent_revival_tool.py
+```
+
+For a fetched PR worktree, use the same venv while pointing imports at the
+fetched source trees:
+
+```bash
+PYTHONPATH="/tmp/revive-itir2/itir-mcp/src:/tmp/revive-re2" \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s /tmp/revive-itir2/tests -p 'test_multi_parent_revival*.py' -v
+```
+
+The focused invalid-input cases deliberately use a nonexistent handoff path
+and assert that the worker API is never constructed. This distinguishes
+contract rejection from a valid request that reaches the transport and then
+fails artifact admission. These are referee commands; this connector session
+does not claim to have executed them.
