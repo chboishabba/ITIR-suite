@@ -591,3 +591,33 @@ and assert that the worker API is never constructed. This distinguishes
 contract rejection from a valid request that reaches the transport and then
 fails artifact admission. These are referee commands; this connector session
 does not claim to have executed them.
+
+### Exact ITIR-venv multi-parent referee invocation
+
+For the canonical local sibling-checkout layout, run from the ITIR-suite
+repository root. This deliberately uses the ITIR project's own virtual
+environment and exposes both the ITIR MCP source tree and the sibling
+`reverse-engineered-chatgpt` transport package:
+
+```bash
+PYTHONPATH="itir-mcp/src:/home/c/Documents/code/reverse-engineered-chatgpt" \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s tests -p 'test_multi_parent_revival*.py' -v
+```
+
+For the fetched PR-head worktrees used by the local referee, the equivalent
+command is:
+
+```bash
+PYTHONPATH="/tmp/revive-itir2/itir-mcp/src:/tmp/revive-re2" \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s /tmp/revive-itir2/tests -p 'test_multi_parent_revival*.py' -v
+```
+
+The first command is the documented developer invocation; the second records
+the exact reproducible fetched-head layout. The reported focused result for
+the fetched PR heads is 7/7 ITIR multi-parent tests and 9/9 combined
+reverse-engineered-chatgpt plus public MCP contract tests. This is local
+referee evidence supplied for this change, not a GitHub Actions check and not
+an Agda proof. The candidate-only boundary and the open
+selected-context-sufficiency obligation are unchanged.
