@@ -26,24 +26,25 @@ class MultiParentToolTests(unittest.TestCase):
         api = FakeAPI()
         payload = {"parent_thread_ids": ["canonical-a", "canonical-b"],
                    "handoff_path": "/owned/output/handoff.json",
-                   "prompt": "continue", "follow": False}
+                   "prompt": "continue", "request_id": "stable-request-1", "follow": False}
         with patch("itir_mcp.chatgpt_worker_tools._worker_api", return_value=api):
             result = revive_multi(payload)
         self.assertEqual(result["operation"]["child_conversation_id"], "child")
         self.assertEqual(api.calls[0]["parent_thread_ids"], payload["parent_thread_ids"])
         self.assertEqual(api.calls[0]["handoff_path"], payload["handoff_path"])
+        self.assertEqual(api.calls[0]["request_id"], payload["request_id"])
         self.assertEqual(api.calls[0]["follow"], False)
 
     def test_rejects_parent_count_duplicates_and_unknown_fields(self):
         with self.assertRaises(ToolInputError):
             revive_multi({"parent_thread_ids": ["only"], "handoff_path": "/x",
-                          "prompt": "continue"})
+                          "prompt": "continue", "request_id": "r1"})
         with self.assertRaises(ToolInputError):
             revive_multi({"parent_thread_ids": ["same", "same"], "handoff_path": "/x",
-                          "prompt": "continue"})
+                          "prompt": "continue", "request_id": "r2"})
         with self.assertRaises(ToolInputError):
             revive_multi({"parent_thread_ids": ["a", "b"], "handoff_path": "/x",
-                          "prompt": "continue", "unexpected": True})
+                          "prompt": "continue", "request_id": "r3", "unexpected": True})
 
     def test_tool_is_registered_as_mutating_not_read_only(self):
         specs = {spec.name: spec for spec, _handler in get_chatgpt_worker_tools()}
