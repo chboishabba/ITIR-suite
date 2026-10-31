@@ -11,7 +11,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "itir-mcp" / "src"))
 
-from itir_mcp.governed_revival import governed_handoff, operation_review, thread_view, _lexical_spans, _sensiblaw_tokenizer, TOKEN_RE
+from itir_mcp.governed_revival import governed_handoff, operation_review, thread_view, _lexical_spans, _sensiblaw_tokenizer
 from itir_mcp.operation_receipt_lookup import operation_receipts
 from unittest.mock import patch
 from itir_mcp.registry import build_default_registry
@@ -48,7 +48,13 @@ class GovernedRevivalTests(unittest.TestCase):
 
     def test_full_span_and_tail_decision(self):
         def public_tokenizer(text):
-            return [(match.group(), match.start(), match.end()) for match in TOKEN_RE.finditer(text)]
+            result = []
+            offset = 0
+            for token in text.split():
+                start = text.find(token, offset)
+                result.append((token.strip(".,:;#").casefold(), start, start + len(token)))
+                offset = start + len(token)
+            return result
 
         with patch("itir_mcp.governed_revival._sensiblaw_tokenizer", return_value=public_tokenizer):
             packet = self.build(child_thread_id="child")
