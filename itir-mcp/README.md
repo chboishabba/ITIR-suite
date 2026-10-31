@@ -62,10 +62,12 @@ Not in scope for the first increment:
 - `itir.pnf.observer_evidence`
 - `itir.pnf.work_packet`
 - `itir.pnf.governed_handoff`
+- `itir.pnf.multi_parent_handoff`
 - `itir.pnf.residual_cases`
 - `itir.archive.thread_view`
 - `itir.ao.operation_review`
 - `itir.chatgpt.operation_receipts`
+- `itir.chatgpt.revive_multi`
 - `itir.markdown.render_projection`
 - `itir.markdown.write_projection`
 - `itir.docstore.config_plan`
