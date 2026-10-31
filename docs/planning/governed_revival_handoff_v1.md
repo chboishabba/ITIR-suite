@@ -386,3 +386,147 @@ agda -i . DASHI/Interop/InspectionRelativeNoTypedMeet.agda
 No Lean command is prescribed for this cut because the checked-in Lean
 repository currently has no matching declarations to compile. Do not treat a
 name-only bundle reference as a checked-in Lean theorem.
+
+## Formal contract crosswalk — multi-parent revival (2026-10-31)
+
+This section records the executable boundary against the existing DASHI golden
+Agda machinery. It does not introduce a competing revival-specific proof
+system. Agda remains authoritative; Lean is a downstream consumer only when a
+corresponding checked-in Lean declaration exists.
+
+### O/R/C/S/L/P/G/F contract
+
+- **O — Organization:** the canonical archive owns corpus identity, message
+  content and graph provenance; ITIR owns read-only selection and candidate
+  handoff; SensibLaw owns public parser/token-span and typed PNF interfaces;
+  re-gpt owns headless mutation transport and operation/attachment receipts.
+- **R — Requirement:** accept an explicitly ordered list of 2–10 distinct
+  canonical parent IDs, create exactly one fresh child, attach one explicit
+  caller-owned handoff, and preserve each parent as an independent authority.
+  The legacy one-parent revival API remains unchanged.
+- **C — Code:** 'governed_multi_parent_handoff' constructs the archive-backed
+  candidate projection; 'multi_parent_handoff' registers the read-only MCP
+  contract; 'revive_from_handoff' validates and attaches the artifact through
+  'MutationService'; 'chatgpt_revive_multi' requires and forwards a stable
+  caller-supplied 'request_id'.
+- **S — State:** the handoff is versioned, bounded by 10 parents, 80 selected
+  references, and an explicit packet-byte ceiling. Each parent projection
+  retains its own packet and source-reference lineage. The transport request
+  key binds the ordered parents, handoff digest and prompt digest.
+- **L — Lattice:** raw canonical references and parser-owned token-span
+  candidates are below reviewed world-model status; reviewed world-model
+  status is below formal proof. No cross-parent equivalence or contradiction
+  is inferred by this transport. 'noTypedMeet' is not contradiction.
+- **P — Postconditions:** a successful operation returns one child ID, ordered
+  parent edges, handoff digest, and an attachment operation receipt. Creation
+  ambiguity prevents attachment; attachment ambiguity prevents automatic
+  resend. Replaying the same request key does not dispatch another write.
+- **G — Governance:** archive reads are read-only; the operational re-gpt
+  database stores transport/lineage receipts only. Public SensibLaw interfaces
+  are the sole parser boundary. Missing parser authority abstains. No DOM,
+  browser, transcript fallback, raw-regex semantic extraction, direct spaCy,
+  or private 'src.*' imports are permitted.
+- **F — Formal gap:** selected-context sufficiency remains open. No theorem
+  establishes that omitted messages are irrelevant, that parent claims are
+  equivalent, or that the new child fully continues every parent task.
+
+### Preconditions
+
+1. Parent IDs are 2–10 distinct, non-empty canonical archive identifiers in
+   the exact requested order.
+2. The candidate artifact is UTF-8 JSON, version
+   'itir.pnf.multi_parent_handoff.v1', and no larger than 100,000 bytes.
+3. Its parent list and count exactly match the explicit transport arguments.
+4. Each source reference contains only canonical coordinates, provenance
+   fields and a body digest; source bodies are not materialized.
+5. The candidate world is marked 'candidate_only', with no reviewed world,
+   proof, cross-parent equivalence or contradiction promotion.
+6. The lineage receipt explicitly states that parents remain independent and
+   are not retired.
+7. Materialization excludes raw transcripts, typed world models, reviewed
+   claims and proofs.
+8. The formal sufficiency gap remains explicitly open.
+9. A non-empty stable 'request_id' is supplied by the caller and is bound to
+   the ordered parent IDs, artifact digest and prompt digest.
+
+### Invariants
+
+- **I1 — Authority separation:** canonical archive is corpus authority;
+  operational SQLite is operation/lineage receipt storage only.
+- **I2 — Parent independence:** ordered parent IDs are injective within the
+  request; no parent is overwritten, merged, or retired.
+- **I3 — Candidate non-promotion:** lexical spans and source references never
+  become reviewed claims, equivalences, contradictions or theorem evidence.
+- **I4 — Parser ownership:** token offsets originate only from
+  'sensiblaw.interfaces.shared_reducer.tokenize_canonical_with_spans'; missing
+  producer means abstention.
+- **I5 — Boundedness:** parent count, selected references, artifact bytes and
+  packet bytes are bounded and checked before transport.
+- **I6 — At-most-once dispatch:** the request key is claimed before writes;
+  a replay never re-dispatches. 'commit_unknown' on creation prevents
+  attachment; uncertain attachment is never automatically resent.
+- **I7 — Owned attachment evidence:** attachment success is represented only
+  by the existing MutationService canonical attachment binding receipt.
+- **I8 — Compatibility:** the legacy one-parent route is not rewritten by the
+  multi-parent adapter.
+
+### Postconditions
+
+For an admitted request, the transport creates at most one fresh child and
+attempts at most one attachment. If creation is not canonically committed, no
+attachment is attempted. If attachment is ambiguous, its operation ID/state
+is retained and no retry is authorized. The lineage receipt preserves parent
+order and remains explicitly operational rather than corpus authority.
+
+### Golden Agda machinery — reuse map
+
+The implementation crosswalk is:
+
+| Runtime obligation | Golden Agda owner | What is reused; what is *not* claimed |
+| --- | --- | --- |
+| Candidate-only / no promotion | 'DASHI/Core/CandidateOnlyCore.agda' | 'candidateOnlyIsTrue', 'candidatePromotedIsFalse', and non-promoting generic receipts. These establish the generic candidate boundary, not runtime archive completeness. |
+| Package admission and fail-closed selectors | 'DASHI/Interop/PNFPackageCore.agda' | Package admission invariants; candidate support is not promoted; scores are not authority; selector does not commit directly to ITIR. |
+| Residual and bridge gates | 'DASHI/Interop/ResidualBoundaryCore.agda' | 'exact', 'partial', 'noTypedMeet', 'scopeExceeded', and 'contradiction' remain distinct; truth, support and external authority promotion are false; bridge-required comparisons fail closed. |
+| Typed comparison semantics | 'DASHI/Cognition/PNF/EventAlgebra.agda' | Comparison results are typed; no typed meet is not silently recast as contradiction. |
+| Inspection-relative revisability | 'DASHI/Interop/InspectionRelativeNoTypedMeet.agda' | A current no-typed-meet result may be revised under an explicit bridge; no implicit bridge is inferred. |
+
+These modules are existing golden owners, not new results authored by this
+revival tranche. The runtime validator is an implementation-level admission
+guard. It is not a proof that the Python implementation refines every Agda
+record, nor that the selector preserves task-relevant information.
+
+### Lean consumer status
+
+The current 'dashi_lean4' 'main' branch contains the DA51/perf schema and
+Moonshine phase-transition examples ('Main.lean', 'DashiPerf/Schema.lean').
+Its checked-in 'docs/DECLARATION_LANDSCAPE.md' does not list a Lean translation
+of the candidate-only, PNF package, or residual-boundary owners above. This
+tranche therefore adds no Lean stub and claims no Lean theorem. A Lean consumer
+must be generated or authored only after an actual Agda-owned declaration and
+its exact semantics are selected; it must remain weaker than or equivalent to
+the Agda contract, never stronger.
+
+### Deterministic referee commands
+
+From the re-gpt repository root:
+
+    pytest -q tests/test_multi_parent_revival.py
+    ruff check re_gpt/multi_parent_revival.py re_gpt/mcp_server.py tests/test_multi_parent_revival.py
+
+From the ITIR-suite root:
+
+    python -m unittest discover -s tests -p 'test_multi_parent_revival.py' -v
+    python -m unittest discover -s tests -p 'test_multi_parent_revival_tool.py' -v
+    ruff check itir-mcp/src/itir_mcp/governed_revival.py itir-mcp/src/itir_mcp/multi_parent_revival_tools.py itir-mcp/src/itir_mcp/registry.py tests/test_multi_parent_revival.py tests/test_multi_parent_revival_tool.py
+
+From the dashi_agda root, using the repository's pinned authoritative toolchain:
+
+    nix develop -c agda -i . DASHI/Core/CandidateOnlyCore.agda
+    nix develop -c agda -i . DASHI/Interop/PNFPackageCore.agda
+    nix develop -c agda -i . DASHI/Interop/ResidualBoundaryCore.agda
+    nix develop -c agda -i . DASHI/Cognition/PNF/EventAlgebra.agda
+    nix develop -c agda -i . DASHI/Interop/InspectionRelativeNoTypedMeet.agda
+
+The commands above are referee instructions, not a claim that they were run
+through this GitHub-only implementation session. No local checkout or local
+test result is asserted.
