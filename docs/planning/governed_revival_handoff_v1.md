@@ -631,8 +631,8 @@ selected-context-sufficiency obligation are unchanged.
 ### Delivery semantics and external cross-pollination
 
 The caller-supplied request ID follows the application-level deduplication
-pattern discussed in Model Context Protocol SEP-3182, 'Request Idempotency'
-(PR #3182, proposal created 2026-08-01):
+pattern discussed in Model Context Protocol SEP-3182, 'Request Idempotency',
+a proposal by Amit Gautam (PR #3182, created 2026-08-01):
 https://github.com/modelcontextprotocol/modelcontextprotocol/pull/3182
 
 That SEP is a proposal, not a claim that this server implements a protocol
