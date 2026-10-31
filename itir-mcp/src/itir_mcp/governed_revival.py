@@ -314,6 +314,14 @@ def governed_multi_parent_handoff(
             "reviewed_world_model": False,
             "formal_proof": False,
         },
+        "materialization": {
+            "artifact_content": "canonical_source_references_and_lexical_candidate_spans_only",
+            "raw_transcript_included": False,
+            "typed_world_model_included": False,
+            "reviewed_claims_included": False,
+            "proof_included": False,
+            "source_content_materialization": "not_authorized_by_read_only_projection",
+        },
         "lineage_receipt": {
             "relationship": "multi_parent_proposed",
             "parents": [{"canonical_thread_id": item} for item in parent_ids],
