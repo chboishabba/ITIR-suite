@@ -519,13 +519,18 @@ From the ITIR-suite root:
     python -m unittest discover -s tests -p 'test_multi_parent_revival_tool.py' -v
     ruff check itir-mcp/src/itir_mcp/governed_revival.py itir-mcp/src/itir_mcp/multi_parent_revival_tools.py itir-mcp/src/itir_mcp/registry.py tests/test_multi_parent_revival.py tests/test_multi_parent_revival_tool.py
 
-From the dashi_agda root, using the repository's pinned authoritative toolchain:
+From the dashi_agda root, use the repository's documented Agda 2.9
+parallel-check wrapper for focused draft checks:
 
-    nix develop -c agda -i . DASHI/Core/CandidateOnlyCore.agda
-    nix develop -c agda -i . DASHI/Interop/PNFPackageCore.agda
-    nix develop -c agda -i . DASHI/Interop/ResidualBoundaryCore.agda
-    nix develop -c agda -i . DASHI/Cognition/PNF/EventAlgebra.agda
-    nix develop -c agda -i . DASHI/Interop/InspectionRelativeNoTypedMeet.agda
+    scripts/run_agda29_parallel_check.sh DASHI/Core/CandidateOnlyCore.agda
+    scripts/run_agda29_parallel_check.sh DASHI/Interop/PNFPackageCore.agda
+    scripts/run_agda29_parallel_check.sh DASHI/Interop/ResidualBoundaryCore.agda
+    scripts/run_agda29_parallel_check.sh DASHI/Cognition/PNF/EventAlgebra.agda
+    scripts/run_agda29_parallel_check.sh DASHI/Interop/InspectionRelativeNoTypedMeet.agda
+
+The pinned Dashi flake remains the reproducibility authority for final
+DASHI/Everything.agda promotion checks. The parallel wrapper is draft feedback,
+not a substitute for that authoritative promotion check.
 
 The commands above are referee instructions, not a claim that they were run
 through this GitHub-only implementation session. No local checkout or local
@@ -549,3 +554,151 @@ including the native MCP runtime, installed. The ITIR isolated-worktree test
 environment also needs the sibling `re_gpt` package importable and the
 declared `mcp` runtime dependency installed; missing either is an environment
 failure, not a passing test.
+
+
+## ITIR public-input validation ordering — referee addendum (2026-10-31)
+
+The current `revive_multi` worker boundary validates unknown fields, parent
+list type/count, non-empty string IDs, duplicate IDs after whitespace
+normalization, required scalar fields, request-ID length (1–128), and numeric /
+boolean options before calling `_worker_api()`. This is the public admission
+precondition: malformed input cannot trigger adapter/session construction or
+a filesystem check. Normalized parent IDs are the exact IDs delegated to the
+transport. The transport remains responsible for validating artifact bytes,
+version, parent order, candidate-only flags, and digest-bound at-most-once
+dispatch.
+
+### Exact deterministic commands using the ITIR repository venv
+
+From the ITIR-suite root (the sibling re-gpt source is needed by the transport
+tests):
+
+```bash
+PYTHONPATH="$PWD/itir-mcp/src:/home/c/Documents/code/reverse-engineered-chatgpt" \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s tests -p 'test_multi_parent_revival*.py' -v
+/home/c/Documents/code/ITIR-suite/.venv/bin/ruff check \
+  itir-mcp/src/itir_mcp/chatgpt_worker_tools.py \
+  tests/test_multi_parent_revival_tool.py
+```
+
+For a fetched PR worktree, use the same venv while pointing imports at the
+fetched source trees:
+
+```bash
+PYTHONPATH="/tmp/revive-itir2/itir-mcp/src:/tmp/revive-re2" \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s /tmp/revive-itir2/tests -p 'test_multi_parent_revival*.py' -v
+```
+
+The focused invalid-input cases deliberately use a nonexistent handoff path
+and assert that the worker API is never constructed. This distinguishes
+contract rejection from a valid request that reaches the transport and then
+fails artifact admission. These are referee commands; this connector session
+does not claim to have executed them.
+
+### Exact ITIR-venv multi-parent referee invocation
+
+For the canonical local sibling-checkout layout, run from the ITIR-suite
+repository root. This deliberately uses the ITIR project's own virtual
+environment and exposes both the ITIR MCP source tree and the sibling
+`reverse-engineered-chatgpt` transport package:
+
+```bash
+PYTHONPATH="itir-mcp/src:/home/c/Documents/code/reverse-engineered-chatgpt" \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s tests -p 'test_multi_parent_revival*.py' -v
+```
+
+For the fetched PR-head worktrees used by the local referee, the equivalent
+command is:
+
+```bash
+PYTHONPATH="/tmp/revive-itir2/itir-mcp/src:/tmp/revive-re2" \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s /tmp/revive-itir2/tests -p 'test_multi_parent_revival*.py' -v
+```
+
+The first command is the documented developer invocation; the second records
+the exact reproducible fetched-head layout. The reported focused result for
+the fetched PR heads is 7/7 ITIR multi-parent tests and 9/9 combined
+reverse-engineered-chatgpt plus public MCP contract tests. This is local
+referee evidence supplied for this change, not a GitHub Actions check and not
+an Agda proof. The candidate-only boundary and the open
+selected-context-sufficiency obligation are unchanged.
+
+
+### Delivery semantics and external cross-pollination
+
+The caller-supplied request ID follows the application-level deduplication
+pattern discussed in Model Context Protocol SEP-3182, 'Request Idempotency',
+a proposal by Amit Gautam (PR #3182, created 2026-08-01):
+https://github.com/modelcontextprotocol/modelcontextprotocol/pull/3182
+
+That SEP is a proposal, not a claim that this server implements a protocol
+capability. The implementation uses its own durable application request key.
+The key is bound to the ordered parents, handoff SHA-256 and prompt SHA-256;
+reusing it with changed arguments is rejected. The request row is committed
+before any external write, and an existing key is never dispatched again.
+
+The guarantee is deliberately **at-most-once dispatch**, not exactly-once
+remote effect. A process or network failure after the remote service commits
+but before the local receipt is updated can leave the request in a starting or
+unknown state. Such a state is held for reconciliation; it is never treated as
+permission to resend. The durable row prevents a duplicate attempt but cannot,
+by itself, prove whether the remote effect occurred. A future status/reconcile
+surface must resolve that uncertainty from owned MutationService operation
+receipts before any human-authorized continuation.
+
+The SEP's distinction between a request key and a transport request ID, and
+its explicit warning that deduplication cannot prove exactly-once execution
+across a side-effect/receipt crash window, are adopted as design guidance.
+This implementation does not claim MCP wire-level idempotency support.
+
+
+### Normalized operating and assurance surfaces
+
+This mapping is a control-design crosswalk, not a claim of certification or
+conformance assessment.
+
+| Framework | Normalized surface in this workflow |
+| --- | --- |
+| ITIL | Request record, bounded service operation, change/incident evidence for uncertain writes, and a reconciled completion receipt. |
+| ISO 9000 | Controlled inputs, repeatable selection policy, traceable outputs, acceptance criteria and corrective-action evidence. |
+| ISO/IEC 42001 | AI-system lifecycle ownership, human review boundary, candidate/proof non-promotion and explicit residual risk. |
+| ISO/IEC 27001 | Least-privilege archive access, separation of corpus and operational stores, controlled transport credentials and no browser-session hijack. |
+| ISO/IEC 27701 | Data minimisation, no raw transcript in the handoff, digest/reference-only evidence and explicit purpose limitation. |
+| ISO/IEC 23894 | Risk register for context omission, source ambiguity, parser unavailability, and uncertain external effects; fail closed where evidence is insufficient. |
+| ISO 9241 | Clear operator-visible parent ordering, explicit handoff path, readable operation state and accessible recovery instructions. |
+| NIST AI RMF | Govern: authority and accountability; Map: sources, task and affected context; Measure: boundedness, provenance and test gates; Manage: abstention, reconciliation and no-resend controls. |
+| Six Sigma | Critical-to-quality measures are schema validity, bounded packet size, source-reference traceability, zero duplicate dispatches in replay tests, and zero promotion from candidate evidence. |
+| C4 / PlantUML | Separate archive, candidate projection, transport adapter, external ChatGPT system and operational receipt store as distinct containers/components. |
+
+The C4 boundary can be rendered from this PlantUML source:
+
+```plantuml
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+Person(operator, "Operator", "Supplies ordered parents, task and owned handoff path")
+System_Ext(chatgpt, "ChatGPT", "Fresh conversation and attachment endpoint")
+System_Boundary(itir, "ITIR-suite") {
+  Container(archive, "Canonical archive", "SQLite, read-only", "Corpus authority and graph provenance")
+  Container(sensib, "SensibLaw interfaces", "Public parser/PNF API", "Token-span candidates; abstains if unavailable")
+  Container(handoff, "ITIR MCP", "Read-only projection", "Builds bounded candidate-only multi-parent handoff")
+}
+System_Boundary(regpt, "reverse-engineered-chatgpt") {
+  Container(adapter, "re-gpt MCP", "Headless async CFFI", "Validates artifact; at-most-once create/attach attempt")
+  Container(receipts, "Operational receipt store", "SQLite", "Request dedupe and ordered lineage/operation receipts only")
+}
+Rel(operator, handoff, "Requests 2..10 parent projection")
+Rel(archive, handoff, "Read-only canonical messages")
+Rel(sensib, handoff, "Public token-span interface")
+Rel(handoff, operator, "Candidate artifact + open formal gap")
+Rel(operator, adapter, "Explicit path, ordered parents, prompt, request_id")
+Rel(adapter, chatgpt, "At most one fresh-child and attachment attempt")
+Rel(adapter, receipts, "Persist operation and lineage receipts")
+@enduml
+```
+
+No standard listed above changes the authority lattice: standards alignment
+does not convert a candidate packet into reviewed evidence or a proof.
