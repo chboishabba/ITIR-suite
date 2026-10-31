@@ -549,3 +549,28 @@ including the native MCP runtime, installed. The ITIR isolated-worktree test
 environment also needs the sibling `re_gpt` package importable and the
 declared `mcp` runtime dependency installed; missing either is an environment
 failure, not a passing test.
+
+
+## Public admission bound refinement (2026-10-31)
+
+The public `revive_multi` boundary now enforces the transport's 128-character
+request-ID ceiling before constructing the worker API. Parent IDs are
+whitespace-normalized before duplicate detection and the normalized values
+are the exact values delegated. This extends, rather than changes, the
+existing invalid-input-before-adapter guarantee.
+
+### Exact focused referee commands (ITIR venv)
+
+From the ITIR-suite root:
+
+```bash
+PYTHONPATH="$PWD/itir-mcp/src:/home/c/Documents/code/reverse-engineered-chatgpt" \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s tests -p 'test_multi_parent_revival*.py' -v
+/home/c/Documents/code/ITIR-suite/.venv/bin/ruff check \
+  itir-mcp/src/itir_mcp/chatgpt_worker_tools.py \
+  tests/test_multi_parent_revival_tool.py
+```
+
+These are deterministic referee instructions, not a claim of execution in
+this connector session. Keep the PR unmerged until they pass.
