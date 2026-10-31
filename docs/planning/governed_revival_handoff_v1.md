@@ -97,3 +97,82 @@ ruff check itir-mcp/src/itir_mcp/governed_revival.py itir-mcp/src/itir_mcp/opera
 ```
 
 Residual: real-host stdio MCP smoke, canonical ID mapping across multi-source threads, public SensibLaw producer installation, and kernel-verified typed PNF/world-store proof remain referee/next-phase boundaries.
+
+
+## Multi-parent revival extension (2026-10-31)
+
+The feat/governed-multi-parent-revival-v1 implementation adds an explicit
+2–10-parent path without changing the one-parent itir.chatgpt.revive /
+chatgpt_revive compatibility path.
+
+### Read-only candidate construction
+
+- itir.pnf.multi_parent_handoff accepts 2–10 distinct canonical_thread_id +
+  task_atom proposals and reads only the canonical archive schema
+  (canonical_thread_id plus canonical graph/source columns).
+- The previous compressed re-gpt transcript-schema fallback has been removed
+  from governed handoff selection. An operational transcript database is not
+  accepted as corpus authority.
+- Task and source token spans are obtained only from the public
+  sensiblaw.interfaces.shared_reducer.tokenize_canonical_with_spans interface.
+  If that producer is unavailable, token selection abstains; no regex
+  tokenizer, English predicate list, direct spaCy, or private src.* import is
+  substituted.
+- Each parent remains a separate projection with its own source refs, digest
+  packet and omission receipt. The candidate world is a bounded union of
+  references/candidate spans only. There is no cross-parent deduplication,
+  equivalence, contradiction resolution, reviewed-world promotion or proof.
+- The read-only projection returns references and candidate offsets, not raw
+  transcript bodies. It does not mutate the canonical archive.
+
+### Fresh-child attachment and lineage
+
+1. Call itir.pnf.multi_parent_handoff for the chosen 2–10 canonical parents.
+2. Persist the returned candidate packet at an explicit, caller-owned
+   handoff_path. Do not substitute an operational transcript export.
+3. Call itir.chatgpt.revive_multi with the same ordered canonical parent IDs,
+   that explicit artifact path and the continuation prompt.
+4. The re-gpt adapter creates one fresh conversation over direct async CFFI,
+   then attaches the artifact exactly once. The attachment is accepted only
+   through the existing MutationService canonical attachment binding receipt.
+5. Ordered parent edges, handoff digest/path and attachment operation/state are
+   durably recorded in the re-gpt operational lineage-receipt tables. This is
+   adapter/operation evidence only; it is not a second corpus authority.
+
+A creation result in commit_unknown does not proceed to attachment. An
+ambiguous attachment result is recorded and is never automatically resent.
+The parent conversations remain untouched and independently authoritative.
+The existing single-parent revival entrypoint remains available unchanged.
+
+### Exact intended verification
+
+From the ITIR-suite root:
+
+    python -m unittest discover -s tests -p 'test_governed_revival_handoff.py' -v
+    python -m unittest discover -s tests -p 'test_multi_parent_revival.py' -v
+    python -m unittest discover -s tests -p 'test_multi_parent_revival_tool.py' -v
+    ruff check itir-mcp/src/itir_mcp/governed_revival.py itir-mcp/src/itir_mcp/pnf_tools.py itir-mcp/src/itir_mcp/chatgpt_worker_tools.py tests/test_governed_revival_handoff.py tests/test_multi_parent_revival.py tests/test_multi_parent_revival_tool.py
+    (cd itir-mcp && PYTHONPATH=src python -c 'from itir_mcp.registry import build_default_registry; print([t.name for t in build_default_registry().list_tools() if "multi_parent" in t.name or "revive_multi" in t.name])')
+
+From the reverse-engineered-chatgpt root:
+
+    pytest -q tests/test_multi_parent_revival.py
+    ruff check re_gpt/multi_parent_revival.py re_gpt/mcp_server.py tests/test_multi_parent_revival.py
+
+These commands are intended referee checks; they have not been executed in
+this GitHub-connector session.
+
+### Residual formal and product gaps
+
+- Selected-context sufficiency for any revival task remains UNPROVED.
+  formal_gap.selected_context_sufficiency_proved is explicitly false.
+- This first multi-parent artifact is a reference/candidate packet, not a
+  complete typed SensibLaw world-store compilation. A future producer-owned
+  compiler may enrich it only with versioned parser/PNF receipts and without
+  collapsing the candidate/review/proof lattice.
+- No theorem establishes that omitted source messages are irrelevant, that
+  two parent statements are equivalent, or that the child is a complete
+  continuation of all parent tasks.
+- Real-host MCP stdio, owned-session attachment, canonical archive mapping and
+  exact-head tests remain operator verification requirements. No live ChatGPT
+  mutation or attachment was performed by this implementation session.
