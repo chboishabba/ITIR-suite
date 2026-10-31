@@ -147,8 +147,8 @@ def governed_handoff(
             body = str(row["text"] or "")
             total_chars += len(body)
             source = _ref(row, path)
-            spans = _lexical_spans(body, words)
-            # Weight exact task words higher than generic proof vocabulary.
+            spans = _lexical_spans(body, task_words)
+            # Rank only producer-token matches to the caller's task text.
             score = sum(1 for item in spans if item["kind"] in task_words)
             entry = (total, source, spans)
             tail.append(entry)
