@@ -437,6 +437,8 @@ def revive_multi(payload: Mapping[str, Any]) -> JsonDict:
     handoff_path = _required_text(payload, "handoff_path")
     prompt = _required_text(payload, "prompt")
     request_id = _required_text(payload, "request_id")
+    if len(request_id) > 128:
+        raise ToolInputError("request_id must be at most 128 characters")
     follow = payload.get("follow", True)
     if not isinstance(follow, bool):
         raise ToolInputError("Expected boolean field: follow")
