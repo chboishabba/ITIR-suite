@@ -69,7 +69,7 @@ def _lexical_spans(body: str, task_tokens: frozenset[str]) -> list[dict[str, Any
     ][:12]
 
 
-def _ref(row: sqlite3.Row, path: Path) -> dict[str, Any]:
+def _ref(row: sqlite3.Row) -> dict[str, Any]:
     body = str(row["text"] or "")
     return {
         "message_id": str(row["message_id"]),
@@ -81,7 +81,7 @@ def _ref(row: sqlite3.Row, path: Path) -> dict[str, Any]:
         "lineage_status": "exact_graph" if row["node_id"] is not None else "graph_coordinate_unavailable",
         "ts": row["ts"], "role": row["role"],
         "body_sha256": _hash(body),
-        "archive_locator": f"sqlite:{path.resolve()}#messages/{row['message_id']}",
+        "archive_locator": f"canonical_archive:messages/{row['message_id']}",
     }
 
 
@@ -146,7 +146,7 @@ def governed_handoff(
                 raise ValueError("thread exceeds hard scan ceiling; partition required")
             body = str(row["text"] or "")
             total_chars += len(body)
-            source = _ref(row, path)
+            source = _ref(row)
             spans = _lexical_spans(body, task_words)
             # Rank only producer-token matches to the caller's task text.
             score = sum(1 for item in spans if item["kind"] in task_words)
