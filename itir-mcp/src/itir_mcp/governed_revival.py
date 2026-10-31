@@ -123,7 +123,7 @@ def governed_handoff(
         raise FileNotFoundError("canonical archive unavailable")
     task_words = _task_tokens(task)
     # Retain newest two rows unconditionally; rank remaining rows by task matches
-    # and formal evidence, with a deterministic chronology tie-break.
+    # with a deterministic chronology tie-break.
     tail: deque[tuple[int, dict[str, Any], list[dict[str, Any]]]] = deque(maxlen=2)
     ranked: list[tuple[int, int, dict[str, Any], list[dict[str, Any]]]] = []
     total = 0
@@ -209,10 +209,10 @@ def governed_handoff(
         },
         "governance": operation_review({"operation_status": operation_status}),
         "semantic_pnf_execution": {
-            "status": "abstained_producer_not_executed",
-            "producer": "re_gpt.pnf_compiler.PnfFleetCompiler -> sensiblaw-world-compiler",
+            "status": "typed_pnf_not_compiled",
+            "producer": "SensibLaw producer-owned typed PNF/world-store interface",
             "coverage": "not_established",
-            "residual": "full_thread_task_span_compilation_and_binary_receipt_unavailable",
+            "residual": "producer_owned_typed_pnf_world_store_receipt_unavailable",
             "candidate_only": True, "no_promotion": True,
         },
         "formal_gap": {
