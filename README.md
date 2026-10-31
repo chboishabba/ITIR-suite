@@ -57,6 +57,8 @@ resend. No browser/DOM or dispatch is performed by these read-only tools.
 R means RFP; G (governance) and F (gap function) remain distinct.
 See [the contract](docs/planning/governed_revival_handoff_v1.md).
 
+The governed revival path now also has an explicit 2–10-parent extension: `itir.pnf.multi_parent_handoff` builds a read-only candidate packet from distinct canonical archive threads, and `itir.chatgpt.revive_multi` attaches an explicit caller-owned artifact to one fresh child with ordered parent lineage receipts. Parents remain independent authorities; equivalence, reviewed-world promotion, proof and selected-context sufficiency are not inferred. See [the contract](docs/planning/governed_revival_handoff_v1.md).
+
 ## What This Repo Is For
 
 Use the root repo when you want to:
