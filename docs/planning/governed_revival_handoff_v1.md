@@ -530,3 +530,22 @@ From the dashi_agda root, using the repository's pinned authoritative toolchain:
 The commands above are referee instructions, not a claim that they were run
 through this GitHub-only implementation session. No local checkout or local
 test result is asserted.
+
+
+### Public re-gpt MCP request-key contract
+
+The native `chatgpt_revive_multi` entrypoint requires a non-defaulted
+`request_id` and forwards it unchanged to `revive_from_handoff`. The
+companion regression test invokes that public entrypoint (not only the
+lower-level adapter):
+
+```bash
+pytest -q tests/test_multi_parent_revival.py tests/test_multi_parent_mcp_contract.py
+ruff check re_gpt/multi_parent_revival.py re_gpt/mcp_server.py tests/test_multi_parent_revival.py tests/test_multi_parent_mcp_contract.py
+```
+
+Run these from the re-gpt repository root with its declared dependencies,
+including the native MCP runtime, installed. The ITIR isolated-worktree test
+environment also needs the sibling `re_gpt` package importable and the
+declared `mcp` runtime dependency installed; missing either is an environment
+failure, not a passing test.
