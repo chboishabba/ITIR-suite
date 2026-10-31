@@ -19,6 +19,7 @@ from .guardrails import safe_tool_call
 from .governance_tools import get_governance_tools
 from .promotion_tools import get_promotion_tools
 from .pnf_tools import get_pnf_tools
+from .multi_parent_revival_tools import get_multi_parent_revival_tools
 from .sensiblaw_tools import get_sensiblaw_tools
 from .spectral_plot_tools import get_spectral_plot_tools
 from .tool_authority_profiles import DEFAULT_REGISTRY_TOOL_AUTHORITY_PROFILES, validate_tool_authority_profile
@@ -116,6 +117,8 @@ def build_default_registry(
     for spec, handler in get_promotion_tools():
         registry.register(spec, handler)
     for spec, handler in get_pnf_tools():
+        registry.register(spec, handler)
+    for spec, handler in get_multi_parent_revival_tools():
         registry.register(spec, handler)
     for spec, handler in get_export_tools():
         registry.register(spec, handler)

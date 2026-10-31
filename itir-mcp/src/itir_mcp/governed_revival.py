@@ -10,7 +10,6 @@ from functools import lru_cache
 import hashlib
 import heapq
 import json
-import re
 import sqlite3
 import sys
 from pathlib import Path
@@ -18,18 +17,12 @@ from typing import Any, Mapping
 
 from .pnf_work_packet_provider import REQUIRED, canonical_archive_path
 
-REGPT_COLUMNS = frozenset(("conversation_id", "message_index", "author", "content", "create_time"))
-
 VERSION = "itir.pnf.governed_handoff.v1"
 VIEW_VERSION = "itir.archive.thread_view.v1"
 OP_VERSION = "itir.ao.operation_review.v1"
 MAX_SELECTED = 80
 MAX_SCAN = 1000000
 MAX_PACKET = 100000
-TOKEN_RE = re.compile(r"[a-zA-Z][a-zA-Z0-9_]*")
-SIGNALS = frozenset(("lemma", "theorem", "proof", "agda", "lean", "gap",
-                     "blocked", "fixed", "commit", "merged", "pr", "todo",
-                     "formal", "implement", "receipt", "failed", "verified"))
 AMBIGUOUS = frozenset(("async_starting", "commit_unknown", "unknown", "pending"))
 
 
@@ -55,18 +48,28 @@ def _sensiblaw_tokenizer():
     return tokenize_canonical_with_spans
 
 
-def _lexical_spans(body: str, words: frozenset[str]) -> list[dict[str, Any]]:
-    """Public producer token spans only; unavailable producer means abstention."""
+def _task_tokens(task: str) -> frozenset[str]:
+    """Tokenize task text through the producer; absence means no semantic selection."""
+    tokenize = _sensiblaw_tokenizer()
+    if tokenize is None:
+        return frozenset()
+    return frozenset(str(token).casefold() for token, _, _ in tokenize(task) if str(token).strip())
+
+
+def _lexical_spans(body: str, task_tokens: frozenset[str]) -> list[dict[str, Any]]:
+    """Return parser-owned token-span candidates; never synthesize predicates."""
     tokenize = _sensiblaw_tokenizer()
     if tokenize is None:
         return []
-    return [{"kind": token.lower(), "start": start, "end": end,
-             "authority": "sensiblaw_public_token_span_candidate"}
-            for token, start, end in tokenize(body)
-            if token.lower() in words][:12]
+    return [
+        {"kind": str(token).casefold(), "start": start, "end": end,
+         "authority": "sensiblaw_public_token_span_candidate"}
+        for token, start, end in tokenize(body)
+        if str(token).casefold() in task_tokens
+    ][:12]
 
 
-def _ref(row: sqlite3.Row, path: Path) -> dict[str, Any]:
+def _ref(row: sqlite3.Row) -> dict[str, Any]:
     body = str(row["text"] or "")
     return {
         "message_id": str(row["message_id"]),
@@ -75,10 +78,10 @@ def _ref(row: sqlite3.Row, path: Path) -> dict[str, Any]:
         "parent_node_id": row["parent_node_id"],
         "branch_membership": row["branch_membership"],
         "source_thread_id": row["source_thread_id"],
-        "lineage_status": "exact_graph" if row["node_id"] is not None and row["parent_node_id"] is not None else "unavailable_compressed_archive",
+        "lineage_status": "exact_graph" if row["node_id"] is not None else "graph_coordinate_unavailable",
         "ts": row["ts"], "role": row["role"],
         "body_sha256": _hash(body),
-        "archive_locator": f"sqlite:{path.resolve()}#messages/{row['message_id']}",
+        "archive_locator": f"canonical_archive:messages/{row['message_id']}",
     }
 
 
@@ -118,10 +121,9 @@ def governed_handoff(
     path = canonical_archive_path(archive_db)
     if not path.is_file():
         raise FileNotFoundError("canonical archive unavailable")
-    task_words = frozenset(m.group().lower() for m in TOKEN_RE.finditer(task))
-    words = task_words | SIGNALS
+    task_words = _task_tokens(task)
     # Retain newest two rows unconditionally; rank remaining rows by task matches
-    # and formal evidence, with a deterministic chronology tie-break.
+    # with a deterministic chronology tie-break.
     tail: deque[tuple[int, dict[str, Any], list[dict[str, Any]]]] = deque(maxlen=2)
     ranked: list[tuple[int, int, dict[str, Any], list[dict[str, Any]]]] = []
     total = 0
@@ -129,49 +131,25 @@ def governed_handoff(
     with sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True) as db:
         db.row_factory = sqlite3.Row
         cols = {r[1] for r in db.execute("PRAGMA table_info(messages)")}
-        if REQUIRED <= cols:
-            cursor = db.execute(
-                """SELECT message_id,source_message_id,node_id,parent_node_id,
-                          branch_membership,source_thread_id,ts,role,text
-                   FROM messages WHERE canonical_thread_id=?
-                   ORDER BY ts ASC,message_id ASC""", (thread,),
-            )
-            archive_schema = "canonical_messages"
-        elif REGPT_COLUMNS <= cols:
-            # Historical re-gpt rows contain chronological message coordinates,
-            # not mapping node IDs or graph parent edges. NULL means unknown.
-            cursor = db.execute(
-                """SELECT conversation_id || ':' || message_index || ':' || author AS message_id,
-                          message_key AS source_message_id,
-                          NULL AS node_id, NULL AS parent_node_id,
-                          NULL AS branch_membership,
-                          conversation_id AS source_thread_id,
-                          create_time AS ts, author AS role, content AS text
-                   FROM messages WHERE conversation_id=?
-                   ORDER BY message_index ASC, author ASC""", (thread,),
-            ) if "message_key" in cols else db.execute(
-                """SELECT conversation_id || ':' || message_index || ':' || author AS message_id,
-                          NULL AS source_message_id,
-                          NULL AS node_id, NULL AS parent_node_id,
-                          NULL AS branch_membership,
-                          conversation_id AS source_thread_id,
-                          create_time AS ts, author AS role, content AS text
-                   FROM messages WHERE conversation_id=?
-                   ORDER BY message_index ASC, author ASC""", (thread,),
-            )
-            archive_schema = "regpt_compressed_messages"
-        else:
-            raise RuntimeError("unsupported archive messages schema; no inferred graph projection")
+        if not REQUIRED <= cols:
+            raise RuntimeError("canonical archive schema unavailable; operational transcript stores are not corpus authority")
+        cursor = db.execute(
+            """SELECT message_id,source_message_id,node_id,parent_node_id,
+                      branch_membership,source_thread_id,ts,role,text
+               FROM messages WHERE canonical_thread_id=?
+               ORDER BY ts ASC,message_id ASC""", (thread,),
+        )
+        archive_schema = "canonical_messages"
         for row in cursor:
             total += 1
             if total > MAX_SCAN:
                 raise ValueError("thread exceeds hard scan ceiling; partition required")
             body = str(row["text"] or "")
             total_chars += len(body)
-            source = _ref(row, path)
-            spans = _lexical_spans(body, words)
-            # Weight exact task words higher than generic proof vocabulary.
-            score = sum(4 if item["kind"] in task_words else 1 for item in spans)
+            source = _ref(row)
+            spans = _lexical_spans(body, task_words)
+            # Rank only producer-token matches to the caller's task text.
+            score = sum(1 for item in spans if item["kind"] in task_words)
             entry = (total, source, spans)
             tail.append(entry)
             if score:
@@ -231,10 +209,10 @@ def governed_handoff(
         },
         "governance": operation_review({"operation_status": operation_status}),
         "semantic_pnf_execution": {
-            "status": "abstained_producer_not_executed",
-            "producer": "re_gpt.pnf_compiler.PnfFleetCompiler -> sensiblaw-world-compiler",
+            "status": "typed_pnf_not_compiled",
+            "producer": "SensibLaw producer-owned typed PNF/world-store interface",
             "coverage": "not_established",
-            "residual": "full_thread_task_span_compilation_and_binary_receipt_unavailable",
+            "residual": "producer_owned_typed_pnf_world_store_receipt_unavailable",
             "candidate_only": True, "no_promotion": True,
         },
         "formal_gap": {
@@ -263,6 +241,119 @@ def governed_handoff(
         packet["span_receipt"]["packet_units_dropped"] += 1
         packet["span_receipt"]["packet_truncated"] = True
     return packet
+
+
+
+MULTI_VERSION = "itir.pnf.multi_parent_handoff.v1"
+MAX_PARENTS = 10
+
+
+def governed_multi_parent_handoff(
+    proposals: list[Mapping[str, Any]], *, archive_db: str | None = None,
+    max_selected_per_parent: int = 8, max_total_selected: int = 80,
+    max_packet_chars: int = 48000, child_thread_id: str | None = None,
+    operation_status: str = "not_requested",
+) -> dict[str, Any]:
+    """Build a candidate-only union of 2..10 independent canonical parent projections."""
+    if not isinstance(proposals, list) or not 2 <= len(proposals) <= MAX_PARENTS:
+        raise ValueError("proposals must contain 2..10 independent parent threads")
+    if type(max_selected_per_parent) is not int or not 2 <= max_selected_per_parent <= MAX_SELECTED:
+        raise ValueError("max_selected_per_parent must be 2..80")
+    if type(max_total_selected) is not int or not len(proposals) <= max_total_selected <= MAX_SELECTED:
+        raise ValueError("max_total_selected must be between parent count and 80")
+    if type(max_packet_chars) is not int or not 2000 <= max_packet_chars <= MAX_PACKET:
+        raise ValueError("max_packet_chars must be 2000..100000")
+    if child_thread_id is not None and (not isinstance(child_thread_id, str) or not child_thread_id.strip()):
+        raise ValueError("invalid child_thread_id")
+    if not isinstance(operation_status, str) or not operation_status.strip():
+        raise ValueError("explicit operation_status required")
+    parent_ids = [item.get("canonical_thread_id") for item in proposals if isinstance(item, Mapping)]
+    if len(parent_ids) != len(proposals) or any(not isinstance(item, str) or not item.strip() for item in parent_ids):
+        raise ValueError("every parent requires an explicit canonical_thread_id")
+    if len(set(parent_ids)) != len(parent_ids):
+        raise ValueError("duplicate parent thread IDs are not allowed")
+    projections = [
+        governed_handoff(
+            proposal, archive_db=archive_db,
+            max_selected=max_selected_per_parent,
+            max_packet_chars=max_packet_chars,
+            child_thread_id=child_thread_id,
+            operation_status=operation_status,
+        )
+        for proposal in proposals
+    ]
+    selected_total = sum(item["span_receipt"]["selected_messages"] for item in projections)
+    if selected_total > max_total_selected:
+        raise ValueError("per-parent selections exceed max_total_selected; lower max_selected_per_parent")
+    parents = [{
+        "canonical_thread_id": item["canonical_thread_id"],
+        "packet_id": item["packet_id"],
+        "source_refs": item["source_refs"],
+        "span_receipt": item["span_receipt"],
+        "semantic_pnf_execution": item["semantic_pnf_execution"],
+    } for item in projections]
+    result = {
+        "version": MULTI_VERSION,
+        "child_thread_id": child_thread_id,
+        "parent_count": len(parents),
+        "parents": parents,
+        "candidate_world": {
+            "status": "candidate_only",
+            "nodes": [
+                {"parent_thread_id": parent["canonical_thread_id"],
+                 "source_ref": ref,
+                 "candidate_spans": next((candidate["spans"]
+                     for candidate in projection["pnf_candidates"]
+                     if candidate["message_id"] == ref["message_id"]), []),
+                 "authority": "raw_source_reference_or_lexical_candidate"}
+                for parent, projection in zip(parents, projections)
+                for ref in parent["source_refs"]
+            ],
+            "cross_parent_equivalences": [],
+            "cross_parent_contradictions": [],
+            "reviewed_world_model": False,
+            "formal_proof": False,
+        },
+        "materialization": {
+            "artifact_content": "canonical_source_references_and_lexical_candidate_spans_only",
+            "raw_transcript_included": False,
+            "typed_world_model_included": False,
+            "reviewed_claims_included": False,
+            "proof_included": False,
+            "source_content_materialization": "not_authorized_by_read_only_projection",
+        },
+        "lineage_receipt": {
+            "relationship": "multi_parent_proposed",
+            "parents": [{"canonical_thread_id": item} for item in parent_ids],
+            "child_thread_id": child_thread_id,
+            "parents_remain_independent_authorities": True,
+            "parent_retirement": False,
+            "durability": "handoff_receipt_only_until_child_attachment_receipt",
+        },
+        "governance": operation_review({"operation_status": operation_status}),
+        "authority": {
+            "canonical_archive": "corpus_authority_read_only",
+            "transport_receipts": "bounded_operation_evidence_only",
+            "candidate_world": "not_reviewed_not_promoted",
+            "equivalence": "not_established",
+            "formal_proof": "not_established",
+            "dispatch": False,
+            "automatic_resend": False,
+        },
+        "formal_gap": {
+            "status": "open",
+            "selected_context_sufficiency_proved": False,
+            "required": "prove selected source refs preserve all task-relevant information needed for the revival task",
+        },
+    }
+    result["packet_id"] = _hash(_encoded({
+        "parents": [(p["canonical_thread_id"], p["packet_id"]) for p in parents],
+        "child": child_thread_id, "policy": [max_selected_per_parent, max_total_selected, max_packet_chars],
+        "operation": operation_status,
+    }))
+    if len(_encoded(result)) > max_packet_chars:
+        raise ValueError("multi-parent reference packet exceeds explicit packet budget")
+    return result
 
 
 def thread_view(payload: Mapping[str, Any]) -> dict[str, Any]:
