@@ -98,7 +98,7 @@ def assess_deliberation(payload: Mapping[str, Any]) -> dict[str, Any]:
             if "authority_receipt_ref" in event:
                 _ref(event["authority_receipt_ref"], "authority_receipt_ref")
         if "supersedes_ref" in event:
-            if kind != "amendment" or event["supersedes_ref"] not in seen:
+            if kind != "amendment" or event["supersedes_ref"] == ref or event["supersedes_ref"] not in seen:
                 raise ToolInputError("amendment must point to a prior recorded event")
         items.append(dict(event))
         seen.add(ref)
