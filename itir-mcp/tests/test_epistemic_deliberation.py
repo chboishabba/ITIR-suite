@@ -82,6 +82,7 @@ def test_self_approval_and_no_independent_contribution_are_held():
     lambda p: p["events"][1].update({"event_ref": "event:1"}),
     lambda p: p["events"][1].update({"at": "2022-01-01T00:00:00Z"}),
     lambda p: p["events"][2].update({"supersedes_ref": "event:not-yet"}),
+    lambda p: p["events"][2].update({"supersedes_ref": "event:3"}),
     lambda p: p["events"][1].update({"authority_receipt_ref": "fake:authority"}),
     lambda p: p["events"][0].update({"source_revision_ref": ""}),
     lambda p: p["events"][0].update({"at": "2022-01-28T00:00:00"}),
