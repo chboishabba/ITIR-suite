@@ -11,6 +11,7 @@ from itir_mcp.contracts import ToolInputError
 from itir_mcp.epistemic_deliberation_handoff import (
     project_slr_handoff,
     project_deliberation_consumer_link,
+    project_source_replay_handoff,
 )
 
 # Fictional source IDs and hashes test only the contract; no historical claims.
@@ -132,3 +133,50 @@ def test_registry_exposes_both_as_read_only_and_returns_unverified_packets():
     actual = registry.invoke("itir.governance.deliberation_slr_handoff", _payload())
     assert actual["ok"] is True
     assert actual["result"]["authority"]["slr_pg_reopened"] is False
+
+
+def test_captured_sensiblaw_historical_wiki_wrapper_is_exactly_slr_handoff_and_non_authoritative():
+    native=_payload()
+    wrapper={
+        "schema_version":"sl.wikidata_deliberation_slr_handoff_draft.v0_1",
+        "itir_slr_input":native,
+        "source_revision_refs":REQUIRED,
+        "candidate_only":True,
+        "producer_canonical_byte_digests_observed":True,
+        "independent_source_provider_receipts_verified":False,
+        "historical_policy_applicability_verified":False,
+        "historical_policy_interpretation_verified":False,
+        "creator_role_verified":False,
+        "community_consensus_verified":False,
+        "source_ingested_and_reopened_in_slr":False,
+        "wikidata_edit_authorised":False,
+        "ao_dispatch_allowed":False,
+    }
+    result=project_source_replay_handoff(wrapper)
+    ordinary=project_slr_handoff(native)
+    assert result["slr_input"]==ordinary["slr_packet"]
+    assert result["slr_source_seals"]==ordinary["slr_source_seals"]
+    assert result["slr_event_anchors"]==ordinary["slr_event_anchors"]
+    assert result["authority"]["candidate_only"]
+    assert not result["authority"]["slr_pg_reopened"]
+    assert result["independent_source_verification"]=="not_completed"
+    assert not result["authority"]["wikidata_edit_authorised"]
+    assert not result["authority"]["ao_dispatch_allowed"]
+    assert build_default_registry().get_tool_spec(
+        "itir.governance.wikidata_source_replay_handoff").read_only
+    bad=deepcopy(wrapper)
+    bad["historical_policy_interpretation_verified"]=True
+    with pytest.raises(ToolInputError):
+        project_source_replay_handoff(bad)
+    bad=deepcopy(wrapper)
+    bad["source_revision_refs"].pop()
+    with pytest.raises(ToolInputError):
+        project_source_replay_handoff(bad)
+    bad=deepcopy(wrapper)
+    bad["source_revision_refs"].append(REQUIRED[0])
+    with pytest.raises(ToolInputError):
+        project_source_replay_handoff(bad)
+    bad=deepcopy(wrapper)
+    bad["itir_slr_input"]["event_anchors"][0]["end_byte"]=0
+    with pytest.raises(ToolInputError):
+        project_source_replay_handoff(bad)
