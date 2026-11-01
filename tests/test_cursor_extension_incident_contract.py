@@ -9,7 +9,7 @@ def test_advisory_scope():
     assert data['schema'] == 'supply-chain-incident-evidence/v1'
     assert set(data['advisory']['versions']) == {'2.1.312', '2.1.313'}
     assert 'linux-x64' not in data['advisory']['confirmed_targets']
-    assert data['advisory']['publisher_compromise_confirmed'] is False
+    assert data['advisory']['publisher_compromise_status'] == 'unresolved'
     assert len(data['known_modified_vsix_sha256']) == 2
 
 def test_no_promoted_conclusions_without_independent_evidence():
