@@ -115,7 +115,7 @@ def project_slr_handoff(payload: Mapping[str, Any]) -> dict[str, Any]:
         "slr_packet": packet,
         "slr_source_seals": [source_map[ref] for ref in sorted(source_map)],
         "slr_event_anchors": [anchors[ref] for ref in sorted(anchors)],
-        "itil_consumer_contract": "existing S29 OntologyDiagnostic; source reopen required",
+        "slr_consumer_contract": "existing S29 OntologyDiagnostic; source reopen required",
         "itil_accepted_review_states": ["needs_evidence", "qualified", "abstained"],
         "record_completeness": assessed["record_completeness"],
         "recorded_judgement": assessed["recorded_judgement"],
