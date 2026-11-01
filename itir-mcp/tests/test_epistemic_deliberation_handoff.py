@@ -194,11 +194,27 @@ def _captured_text_fixture():
 
 def test_captured_sensiblaw_historical_wiki_wrapper_is_exactly_slr_handoff_and_non_authoritative():
     native,source_inputs=_captured_text_fixture()
+    policy_source=next(row for row in source_inputs if
+        row["envelope"]["source_revision_ref"]==native["deliberation"]["policy_revision_ref"])
+    policy_oldid=int(policy_source["envelope"]["source_ref"].rsplit(":",1)[1])
+    policy_window={
+        "opening_policy_page_oldid":policy_oldid,
+        "closing_policy_page_oldid":policy_oldid,
+        "opening_policy_revision_time":"2021-12-30T00:00:00Z",
+        "closing_policy_revision_time":"2021-12-30T00:00:00Z",
+        "policy_content_digest_ref":policy_source["envelope"]["content_digest_ref"],
+        "closing_policy_content_digest_ref":policy_source["envelope"]["content_digest_ref"],
+        "closing_acquisition_url":"https://www.wikidata.org/w/api.php?revid=policy",
+        "comparison_status":"unchanged_across_proposal_window",
+        "candidate_only":True,
+        "policy_normatively_verified":False,
+    }
     wrapper={
         "schema_version":"sl.wikidata_deliberation_slr_handoff_draft.v0_1",
         "itir_slr_input":native,
         "slr_source_inputs":source_inputs,
         "historical_policy_drift_status":"unchanged_across_proposal_window",
+        "historical_policy_window_source_witness":policy_window,
         "source_revision_refs":[v["source_revision_ref"] for v in native["source_seals"]],
         "candidate_only":True,
         "producer_canonical_byte_digests_observed":True,
@@ -218,6 +234,7 @@ def test_captured_sensiblaw_historical_wiki_wrapper_is_exactly_slr_handoff_and_n
     assert result["slr_event_anchors"]==ordinary["slr_event_anchors"]
     assert result["slr_source_inputs"]==sorted(source_inputs,key=lambda x:x["envelope"]["source_revision_ref"])
     assert result["normative_policy_hold"] is False
+    assert result["historical_policy_window_source_witness"]==policy_window
     assert result["authority"]["candidate_only"]
     assert not result["authority"]["slr_pg_reopened"]
     assert result["independent_source_verification"]=="not_completed"
@@ -231,10 +248,18 @@ def test_captured_sensiblaw_historical_wiki_wrapper_is_exactly_slr_handoff_and_n
         project_source_replay_handoff(bad)
     bad=deepcopy(wrapper)
     bad["historical_policy_drift_status"]="closure_policy_not_examined"
+    bad["historical_policy_window_source_witness"]=None
     pending=project_source_replay_handoff(bad)
     assert pending["normative_policy_hold"] is True
     bad["historical_policy_drift_status"]="changed_during_proposal_requires_independent_rule_adjudication"
+    bad["historical_policy_window_source_witness"]=deepcopy(policy_window)
+    bad["historical_policy_window_source_witness"]["comparison_status"]=bad["historical_policy_drift_status"]
+    bad["historical_policy_window_source_witness"]["closing_policy_page_oldid"]+=1
     assert project_source_replay_handoff(bad)["normative_policy_hold"] is True
+    bad=deepcopy(wrapper)
+    bad["historical_policy_window_source_witness"]["policy_content_digest_ref"]="sha256:"+"0"*64
+    with pytest.raises(ToolInputError):
+        project_source_replay_handoff(bad)
     bad=deepcopy(wrapper)
     bad["source_revision_refs"].pop()
     with pytest.raises(ToolInputError):
