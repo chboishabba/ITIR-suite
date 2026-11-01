@@ -200,6 +200,13 @@ def project_source_replay_handoff(payload: Mapping[str, Any]) -> dict[str, Any]:
         payload.get("producer_canonical_byte_digests_observed") is not True
     ):
         raise ToolInputError("historical source projection must be candidate-only")
+    policy_drift=payload.get("historical_policy_drift_status")
+    if policy_drift not in (
+        "closure_policy_not_examined",
+        "unchanged_across_proposal_window",
+        "changed_during_proposal_requires_independent_rule_adjudication",
+    ):
+        raise ToolInputError("historical policy must retain an explicit opening/closure drift status")
     p=payload.get("itir_slr_input")
     if not isinstance(p,Mapping):
         raise ToolInputError("historical wrapper is missing native SLR input")
@@ -292,6 +299,8 @@ def project_source_replay_handoff(payload: Mapping[str, Any]) -> dict[str, Any]:
         "slr_source_seals":inspected["slr_source_seals"],
         "slr_event_anchors":inspected["slr_event_anchors"],
         "slr_source_inputs":source_inputs,
+        "historical_policy_drift_status":policy_drift,
+        "normative_policy_hold":policy_drift!="unchanged_across_proposal_window",
         "holds":inspected["holds"],
         "record_completeness":inspected["record_completeness"],
         "scope":"not_assigned_until_s29",
