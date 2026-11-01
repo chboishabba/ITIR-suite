@@ -13,7 +13,7 @@ Status date: 2026-11-01. Scope: Roszkowski 2024/2026, real P10322 history, ITIR/
 | Canonical source and S29 review persistence | SLR INGEST-1 `generic_source_content_store` and S29 `review_workstation_store` | [SLR #76](https://github.com/chboishabba/slr/pull/76) | Exact source ID+byte reopening, fully typed incoming JSON, atomic S29+sidecar review, no independent source-store or second reviewer |
 | Downstream matters, tool dispatch and external edits | Existing S30/AO/Wikidata community governance | none promoted | No entrypoint from this tranche bypasses recipient/role/purpose/knowledge-cut checks or grants Wikidata edit authority |
 
-## Concrete code obligations
+## Concrete K00–K17 code obligations
 
 Status vocabulary: **source-written** = implemented and committed but not executed/verified through this GitHub-only turn; **held-external** = needs evidence or executor beyond current PR source text; **bounded original** = existing owner remains authoritative.
 
@@ -33,6 +33,10 @@ Status vocabulary: **source-written** = implemented and committed but not execut
 | K11 | Compose with real review geometry, not just reference-string hits; preserve all existing original consumer diagnostics and nonpromotion | SensibLaw `attach_deliberation_context` | Source-written for climate/Nat, ChangeReviewPacket, Peter/Ege disjointness, Rosario hotspot and live-follow |
 | K12 | Formal independent creator, proposer-separation, historical-policy-source, consensus, age and exact-source obligations; reuse checker non-authority theorem | DASHI `WikidataDeliberationGovernanceExact.agda` | Source-written, **kernel unverified** |
 | K13 | Regress native two-source JSON handoff, canonical IDs, event spans, source tampering, role flags, real bounded lane reports and scoped PG replay | Four PRs’ test files | Source-written, **not executed**, per user request not to prioritise CI |
+| K14 | Preserve both proposal/closure policy oldids, source revision times, original UTF-8 SHA-256 and closing acquisition coordinate and refuse changed/unexamined policy | SensibLaw source witness → ITIR validation → SLR strict native intake | Source-written; real historical opening/closure snapshots not fetched |
+| K15 | Require matter scope equality **before** reopening original source text or S29 row; still require separate S30 audience admission | SLR `load_deliberation_diagnostic_scoped` | Source-written; S30 access remains external |
+| K16 | Never route Wikidata auto capture to enwiki/simplewiki-only pywikibot path; parse original UTC minute as an ISO instant | Original SensibLaw `wiki_pull_api.py`, source anchor projector | Source-written; no network/source capture performed |
+| K17 | Golden conditional theorem requires explicit proposal-time to closure-time `PolicyWindowValid` witness and exposes blocker when absent | DASHI `ClosureAdmission`, working-group regression | Source-written; Agda kernel not run |
 
 ## Exact remaining real-world acceptance obligations
 
