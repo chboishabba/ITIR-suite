@@ -130,3 +130,16 @@ The generic linkage remains a **candidate overlay**, not an automatic edit/merge
 6. Preserve **one shared generic review/model owner**. ChangeReviewPacket's structural severity monotonicity, source relevance, community policy legitimacy, and Wikidata edit authority remain separate gates. AO does not gain autonomous dispatch from any of them.
 
 No external Wikidata edits, checked historical consensus, or completed repository kernel receipts are claimed.
+
+
+### 2026-11-01 original historical-source and consumer runtime linkage
+
+[SensibLaw PR #511](https://github.com/chboishabba/SensibLaw/pull/511) now supplies the original real P10322 oldid `1572799769`, an attributed and explicitly unverified actual community-event locator manifest, exact oldid/UTC-minute/unique text-signature to byte-hash projection, and the existing Wiki puller's Wikidata and as-of historical policy retrieval path. No historical policy revision or creator-rights decision is synthesized.
+
+That PR also extends `sl.wikidata_signal_review_bundle.v0_1` with an actual **candidate property + focus PID cone intersection** overlay, exercised against five real existing lane-built climate/Nat, ChangeReviewPacket, P2738/Ege-Peter, Rosario hotspot and live-follow reports. It preserves all original diagnostics, source structure, refusals and distributions. The original `python -m src.cli wikidata lane-bundle` has an optional source-deliberation overlay; `python -m src.cli wikidata history-snapshot-handoff` projects fetched proposal/policy snapshots into native `deliberation`/`source_seals`/`event_anchors` records. The historical rule-age input is a caller-supplied candidate; original policy applicability remains held.
+
+ITIR now also registers **`itir.governance.wikidata_source_replay_handoff`**, which checks the SensibLaw source-projection wrapper's non-promoting evidence flags and delegates to the existing `project_slr_handoff` invariant checks instead of copying an independent validator. Both the captured source's SHA and any claimed acquisition receipt remain self-reported until SLR independently reopens its persisted canonical content. `source_revision_refs` must match exactly the source-seal set, and the historical producer cannot assert community role, consensus, edit or AO dispatch authority.
+
+SLR PR #76 additionally implements `persist_deliberation_from_source_inputs`: existing INGEST-1 canonical wiki text source writes precede independently verified S29 sidecar persistence, with one atomic S29+sidecar transaction. Its disposable-DB acceptance test is now authored over that direct canonical-ingest entrypoint, **not** a fake source row.
+
+These are functional source-written cross-repo joins with tests. They **do not** constitute an executed P10322 policy/role adjudication, an Agda kernel receipt, or an external edit.
