@@ -39,7 +39,7 @@
     "payload_support_inferred": [
       "linux"
     ],
-    "publisher_compromise_confirmed": false
+    "publisher_compromise_status": "unresolved"
   },
   "known_modified_vsix_sha256": {
     "darwin-arm64": {
