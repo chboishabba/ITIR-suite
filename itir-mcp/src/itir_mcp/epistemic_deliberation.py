@@ -76,7 +76,7 @@ def assess_deliberation(payload: Mapping[str, Any]) -> dict[str, Any]:
         actor = _ref(event.get("actor_ref"), "actor_ref")
         event_source = _ref(event.get("source_revision_ref"), "event source_revision_ref")
         kind = event.get("kind")
-        if kind not in KINDS or ref in seen:
+        if not isinstance(kind, str) or kind not in KINDS or ref in seen:
             raise ToolInputError("invalid or duplicate event kind/ref")
         instant = _time(event.get("at"), "event.at")
         if prior is not None and instant < prior:
@@ -90,7 +90,7 @@ def assess_deliberation(payload: Mapping[str, Any]) -> dict[str, Any]:
         if kind != "decision" and has_decision_fields:
             raise ToolInputError("only decisions carry judgement and governance refs")
         if kind == "decision":
-            if event.get("judgement") not in JUDGEMENTS:
+            if not isinstance(event.get("judgement"), str) or event["judgement"] not in JUDGEMENTS:
                 raise ToolInputError("decision requires an explicit judgement")
             # These are source claims, not independently verified attestations.
             if "consensus_assessment_ref" in event:
