@@ -16,7 +16,7 @@ from .domain_tools import (
     zelph_partial_closure,
 )
 from .epistemic_deliberation import VERSION as DELIBERATION_ASSESSMENT_VERSION, assess_deliberation
-from .epistemic_deliberation_handoff import VERSION as DELIBERATION_SLR_HANDOFF_VERSION, project_slr_handoff, project_deliberation_consumer_link
+from .epistemic_deliberation_handoff import VERSION as DELIBERATION_SLR_HANDOFF_VERSION, project_slr_handoff, project_deliberation_consumer_link, project_source_replay_handoff
 from .pnf_spectral_packet import VERSION as SPECTRAL_CANDIDATE_PACKET_VERSION, build_candidate_spectral_packet
 from .shard_transport import (
     BOUNDED_GRAPH_SLICE_VIEW_VERSION,
@@ -102,6 +102,44 @@ def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
                 read_only=True,
             ),
             validate_tool_profile_tool,
+        ),
+        (
+            ToolSpec(
+                name="itir.governance.wikidata_source_replay_handoff",
+                title="Captured Wikidata historical revision to SLR evidence handoff",
+                description="Validate an already captured original SensibLaw Wiki proposal/policy source pair as candidate-only native SLR packet/seals/anchors; never authenticates the network or community roles.",
+                input_schema={
+                    "type":"object",
+                    "properties":{
+                        "schema_version":{"type":"string"},
+                        "itir_slr_input":{"type":"object"},
+                        "source_revision_refs":{"type":"array","items":{"type":"string"}},
+                        "candidate_only":{"type":"boolean"},
+                        "producer_canonical_byte_digests_observed":{"type":"boolean"},
+                        "independent_source_provider_receipts_verified":{"type":"boolean"},
+                        "historical_policy_applicability_verified":{"type":"boolean"},
+                        "historical_policy_interpretation_verified":{"type":"boolean"},
+                        "creator_role_verified":{"type":"boolean"},
+                        "community_consensus_verified":{"type":"boolean"},
+                        "source_ingested_and_reopened_in_slr":{"type":"boolean"},
+                        "wikidata_edit_authorised":{"type":"boolean"},
+                        "ao_dispatch_allowed":{"type":"boolean"},
+                    },
+                    "required":[
+                        "schema_version","itir_slr_input","source_revision_refs",
+                        "candidate_only","producer_canonical_byte_digests_observed",
+                        "independent_source_provider_receipts_verified",
+                        "historical_policy_applicability_verified",
+                        "historical_policy_interpretation_verified","creator_role_verified",
+                        "community_consensus_verified","source_ingested_and_reopened_in_slr",
+                        "wikidata_edit_authorised","ao_dispatch_allowed",
+                    ],
+                    "additionalProperties":True,
+                },
+                response_version="itir.governance.wikidata_source_replay_handoff.v1",
+                read_only=True,
+            ),
+            project_source_replay_handoff,
         ),
         (
             ToolSpec(
