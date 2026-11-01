@@ -6,6 +6,7 @@ import copy
 import pytest
 
 from itir_mcp import build_default_registry
+from itir_mcp.contracts import ToolInputError
 from itir_mcp.epistemic_deliberation import assess_deliberation
 
 BASE = {
@@ -88,7 +89,7 @@ def test_self_approval_and_no_independent_contribution_are_held():
 def test_malformed_source_or_history_fails_closed(mutation):
     p = copy.deepcopy(BASE)
     mutation(p)
-    with pytest.raises(ValueError):
+    with pytest.raises(ToolInputError):
         assess_deliberation(p)
 
 
