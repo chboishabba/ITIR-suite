@@ -135,12 +135,70 @@ def test_registry_exposes_both_as_read_only_and_returns_unverified_packets():
     assert actual["result"]["authority"]["slr_pg_reopened"] is False
 
 
+def _captured_text_fixture():
+    import hashlib
+
+    base = _payload()
+    expected = {
+        base["deliberation"]["source_revision_ref"],
+        base["deliberation"]["policy_revision_ref"],
+        *(event["source_revision_ref"] for event in base["deliberation"]["events"]),
+    }
+    references = {}
+    input_rows = []
+    for i, old in enumerate(sorted(expected), start=1):
+        source_ref = f"wikidata:page:{1000+i}"
+        original_text = f"original Wikidata revision {old} source bytes"
+        digest = "sha256:" + hashlib.sha256(original_text.encode("utf-8")).hexdigest()
+        acquisition = "wiki-acquisition:sha256:" + hashlib.sha256(
+            ("\n".join([source_ref, f"https://www.wikidata.org/w/api.php?revid={i}", digest])).encode()
+        ).hexdigest()
+        fields = ("generic-source-revision:v1", source_ref, "wikidata:mediawiki-api",
+                  acquisition, digest, "text/x-wiki")
+        encoded=b"".join(len(v.encode()).to_bytes(8,"big")+v.encode() for v in fields)
+        revision="source-revision:sha256:"+hashlib.sha256(encoded).hexdigest()
+        references[old]=(revision,original_text,digest,acquisition)
+        input_rows.append({
+            "envelope":{
+                "source_ref":source_ref,"source_revision_ref":revision,
+                "provider_ref":"wikidata:mediawiki-api","family":"wiki",
+                "role_class":"content_source","content_digest_ref":digest,
+                "acquisition_receipt_ref":acquisition,"media_type_ref":"text/x-wiki",
+                "candidate_only":True,"creates_semantic_authority":False,
+                "applicability_promoted":False,"claim_truth_promoted":False,
+            },
+            "canonical_text":original_text,
+        })
+    discussion=base["deliberation"]
+    discussion["source_revision_ref"]=references[discussion["source_revision_ref"]][0]
+    discussion["policy_revision_ref"]=references[discussion["policy_revision_ref"]][0]
+    for event in discussion["events"]:
+        old=event["source_revision_ref"]
+        event["source_revision_ref"]=references[old][0]
+    source_seals=[]
+    for old in sorted(references):
+        revision,original_text,digest,acquisition=references[old]
+        source_seals.append({
+            "source_revision_ref":revision,"content_digest_ref":digest,
+            "acquisition_receipt_ref":acquisition,
+        })
+    for anchor in base["event_anchors"]:
+        old=anchor["source_revision_ref"]
+        revision,original_text,digest,acquisition=references[old]
+        anchor["source_revision_ref"]=revision
+        anchor["end_byte"]=len(original_text.encode())
+        anchor["excerpt_digest_ref"]=digest
+    base["source_seals"]=source_seals
+    return base,input_rows
+
+
 def test_captured_sensiblaw_historical_wiki_wrapper_is_exactly_slr_handoff_and_non_authoritative():
-    native=_payload()
+    native,source_inputs=_captured_text_fixture()
     wrapper={
         "schema_version":"sl.wikidata_deliberation_slr_handoff_draft.v0_1",
         "itir_slr_input":native,
-        "source_revision_refs":REQUIRED,
+        "slr_source_inputs":source_inputs,
+        "source_revision_refs":[v["source_revision_ref"] for v in native["source_seals"]],
         "candidate_only":True,
         "producer_canonical_byte_digests_observed":True,
         "independent_source_provider_receipts_verified":False,
@@ -157,6 +215,7 @@ def test_captured_sensiblaw_historical_wiki_wrapper_is_exactly_slr_handoff_and_n
     assert result["slr_input"]==ordinary["slr_packet"]
     assert result["slr_source_seals"]==ordinary["slr_source_seals"]
     assert result["slr_event_anchors"]==ordinary["slr_event_anchors"]
+    assert result["slr_source_inputs"]==sorted(source_inputs,key=lambda x:x["envelope"]["source_revision_ref"])
     assert result["authority"]["candidate_only"]
     assert not result["authority"]["slr_pg_reopened"]
     assert result["independent_source_verification"]=="not_completed"
@@ -173,10 +232,18 @@ def test_captured_sensiblaw_historical_wiki_wrapper_is_exactly_slr_handoff_and_n
     with pytest.raises(ToolInputError):
         project_source_replay_handoff(bad)
     bad=deepcopy(wrapper)
-    bad["source_revision_refs"].append(REQUIRED[0])
+    bad["source_revision_refs"].append(bad["source_revision_refs"][0])
     with pytest.raises(ToolInputError):
         project_source_replay_handoff(bad)
     bad=deepcopy(wrapper)
     bad["itir_slr_input"]["event_anchors"][0]["end_byte"]=0
+    with pytest.raises(ToolInputError):
+        project_source_replay_handoff(bad)
+    bad=deepcopy(wrapper)
+    bad["slr_source_inputs"][0]["canonical_text"]+=" tampered"
+    with pytest.raises(ToolInputError):
+        project_source_replay_handoff(bad)
+    bad=deepcopy(wrapper)
+    bad["slr_source_inputs"][0]["envelope"]["source_revision_ref"]="source-revision:sha256:"+"0"*64
     with pytest.raises(ToolInputError):
         project_source_replay_handoff(bad)
