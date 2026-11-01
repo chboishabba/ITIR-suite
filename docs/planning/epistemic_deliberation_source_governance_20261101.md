@@ -102,10 +102,31 @@ This integration is a **generic evidential/governance coordinate** on existing r
 
 The March 25 Rosario/Ege/Peter parity note predates the implemented P2738 report lane. By July the architecture documents a bounded disjointness report and first local direct-Zelph proof route; this does **not** establish full hosted WD shard acceptance or exact Ege/Peter method parity. The actual current status must come from the pinned fixtures, the dated July executable-lane notes, and new execution receipts, not from the March gap statement in isolation.
 
-### Explicit missing integration (not paid by current two PRs)
+### Implemented cross-repository max-cut (2026-11-01)
 
-1. Establish the **source-native SLR PG binding** for each deliberation event to an existing revision and a consumer-scope-controlled S29 review item. The Rust function currently *projects* an S29 `ReviewItem`; it does not persist or reopen it.
-2. Add a typed consumer bridge from the existing generic source/PNF observation and `ChangeReviewPacket` / `sl.wikidata_signal_review_bundle.v0_1` to a deliberation-sidecar *only after* source and revision identity are verified. No existing packet schema should be silently widened.
-3. Exercise negative examples for `P2738` pair/context disagreements and Nat climate case/subject/qualifier drift, retaining independent diagnostic axes. Roszkowski's proposal-governance state cannot pay these structural/evidential obligations.
-4. Produce a real P10322 source-historical replay and compare Python ISO versus Rust Unix timestamps under a shared canonical source identity. Without a real persisted specimen, claiming end-to-end parity would be misleading.
-5. Test a reviewer-visible *cross-lane* scenario with published source, proposal chronology, objections, decision, current Wikidata property and post-decision statement usage, including a role/consensus disagreement that stays unresolved.
+**SLR #76** now source-writes the production-layer adapter, not merely a projected review item:
+
+- `persist_deliberation_diagnostic` creates a candidate-only PG sidecar only after reopening all **canonical source bytes** through existing `load_generic_text_source`; proposal, every event and the historical policy must have independently supplied, exact, matching source/acquisition SHA-256 seals.
+- `DeliberationEventAnchor` requires one nonempty exact byte interval and excerpt SHA-256 for every event; replay reopens bytes and checks intervals/digests again. A correct span does **not** prove its textual interpretation or historical authority.
+- The existing S29 `OntologyDiagnostic` review item is bound to a deterministic **consumer-scoped** ID and inherits its ordinary review transaction and receipt storage. No separate approval reducer or fabricated JMD Lean diagnostic receipt is used. Only evidence-request/qualification/abstention/source-opening actions are offered, never external property approval.
+- `load_deliberation_diagnostic_scoped` and `apply_deliberation_diagnostic_review` require the explicit consumer scope and fail on scope mismatch; a caller must still enforce S30 recipient, role, purpose and knowledge-cut permissions before displaying any source.
+- A **disposable, pre-migrated PostgreSQL** opt-in physical acceptance test is now source-written in `crates/sl-pg-source-store/tests/epistemic_deliberation_replay.rs`. It exercises source ingest, byte-span checking, idempotent PG replay, negative seals, unrelated scope rejection and S29 evidence-request re-open. This test has **not run** through the GitHub-only connector.
+
+**ITIR-suite #70** now exposes three actual read-only tools through the shared governance registry:
+
+1. `itir.governance.deliberation_assessment` — separately recorded arguments, objections, amendments, policy age, and conditional discussion closure.
+2. `itir.governance.deliberation_slr_handoff` — exact timezone-qualified ISO instant to **whole Unix seconds**, with explicit caller-supplied source seal and per-event byte-span grammar matching SLR's native `DeliberationPacket`, `DeliberationSourceSeal` and `DeliberationEventAnchor`. It **does not authenticate** the caller-supplied hashes; SLR must do so physically.
+3. `itir.governance.deliberation_consumer_link` — explicit consumer source and alignment references plus optional exact property-ID navigation for climate, `ChangeReviewPacket`, P2738 and Rosario/hotspot carriers. Matching IDs are **not** licensed identity, source credibility, semantic truth or a safe edit.
+
+The generic linkage remains a **candidate overlay**, not an automatic edit/merge or a trusted AO typed-reference kind. **DASHI Agda #1447** adds formal conditional obligations and the no-checker-authority regression to the focused Wikidata root, without independently authorising Wikidata decisions.
+
+### Exact remaining acceptance obligations
+
+1. **Execute verification** on real user facilities: focused Python tests, SLR Rust unit regressions, disposable migrated PG acceptance, and independently kernel-checked Agda focused root / golden pinned Track A. No green test or proof status follows merely from source-written code.
+2. Reopen the **historical P10322** proposal discussion, its event spans, creator-role evidence, property creation revision, and the *then-effective* rule. No synthetic fixture or current rule may be substituted.
+3. Authenticate the historical policy/creator and community consensus through **independent reviewers**. Accurate source bytes and decision labels are not a policy-authority witness.
+4. Bind **actual consumer artifacts**, not only reference fields, through the existing SLR generic source/PNF/projection and S30 access-control checks. Exercise real Nat climate P5991→P14143, disjointness P2738/P11260, Rosario/hotspot and `ChangeReviewPacket` specimens. Current ITIR linkage is deliberately candidate-only.
+5. Obtain the stronger **same-object ABI theorem**: source-backed ISO↔Unix conversion plus exact Rust/Python packet semantics and Agda witness, not merely equal names or matching fingerprints. As implemented, the ITIR digest and SLR JSON digest intentionally differ because they describe different receipt encodings.
+6. Preserve **one shared generic review/model owner**. ChangeReviewPacket's structural severity monotonicity, source relevance, community policy legitimacy, and Wikidata edit authority remain separate gates. AO does not gain autonomous dispatch from any of them.
+
+No external Wikidata edits, checked historical consensus, or completed repository kernel receipts are claimed.
