@@ -198,6 +198,7 @@ def test_captured_sensiblaw_historical_wiki_wrapper_is_exactly_slr_handoff_and_n
         "schema_version":"sl.wikidata_deliberation_slr_handoff_draft.v0_1",
         "itir_slr_input":native,
         "slr_source_inputs":source_inputs,
+        "historical_policy_drift_status":"unchanged_across_proposal_window",
         "source_revision_refs":[v["source_revision_ref"] for v in native["source_seals"]],
         "candidate_only":True,
         "producer_canonical_byte_digests_observed":True,
@@ -216,6 +217,7 @@ def test_captured_sensiblaw_historical_wiki_wrapper_is_exactly_slr_handoff_and_n
     assert result["slr_source_seals"]==ordinary["slr_source_seals"]
     assert result["slr_event_anchors"]==ordinary["slr_event_anchors"]
     assert result["slr_source_inputs"]==sorted(source_inputs,key=lambda x:x["envelope"]["source_revision_ref"])
+    assert result["normative_policy_hold"] is False
     assert result["authority"]["candidate_only"]
     assert not result["authority"]["slr_pg_reopened"]
     assert result["independent_source_verification"]=="not_completed"
@@ -227,6 +229,12 @@ def test_captured_sensiblaw_historical_wiki_wrapper_is_exactly_slr_handoff_and_n
     bad["historical_policy_interpretation_verified"]=True
     with pytest.raises(ToolInputError):
         project_source_replay_handoff(bad)
+    bad=deepcopy(wrapper)
+    bad["historical_policy_drift_status"]="closure_policy_not_examined"
+    pending=project_source_replay_handoff(bad)
+    assert pending["normative_policy_hold"] is True
+    bad["historical_policy_drift_status"]="changed_during_proposal_requires_independent_rule_adjudication"
+    assert project_source_replay_handoff(bad)["normative_policy_hold"] is True
     bad=deepcopy(wrapper)
     bad["source_revision_refs"].pop()
     with pytest.raises(ToolInputError):
