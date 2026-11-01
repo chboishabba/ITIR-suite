@@ -15,6 +15,8 @@ from .domain_tools import (
     wikidata_review_packet,
     zelph_partial_closure,
 )
+from .epistemic_deliberation import VERSION as DELIBERATION_ASSESSMENT_VERSION, assess_deliberation
+from .epistemic_deliberation_handoff import VERSION as DELIBERATION_SLR_HANDOFF_VERSION, project_slr_handoff, project_deliberation_consumer_link, project_source_replay_handoff
 from .pnf_spectral_packet import VERSION as SPECTRAL_CANDIDATE_PACKET_VERSION, build_candidate_spectral_packet
 from .shard_transport import (
     BOUNDED_GRAPH_SLICE_VIEW_VERSION,
@@ -100,6 +102,122 @@ def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
                 read_only=True,
             ),
             validate_tool_profile_tool,
+        ),
+        (
+            ToolSpec(
+                name="itir.governance.wikidata_source_replay_handoff",
+                title="Captured Wikidata historical revision to SLR evidence handoff",
+                description="Validate an already captured original SensibLaw Wiki proposal/policy source pair as candidate-only native SLR packet/seals/anchors; never authenticates the network or community roles.",
+                input_schema={
+                    "type":"object",
+                    "properties":{
+                        "schema_version":{"type":"string"},
+                        "itir_slr_input":{"type":"object"},
+                        "slr_source_inputs":{"type":"array","items":{"type":"object"}},
+                        "historical_policy_drift_status":{"type":"string"},
+                        "historical_policy_window_source_witness":{"type":["object","null"]},
+                        "source_revision_refs":{"type":"array","items":{"type":"string"}},
+                        "candidate_only":{"type":"boolean"},
+                        "producer_canonical_byte_digests_observed":{"type":"boolean"},
+                        "independent_source_provider_receipts_verified":{"type":"boolean"},
+                        "historical_policy_applicability_verified":{"type":"boolean"},
+                        "historical_policy_interpretation_verified":{"type":"boolean"},
+                        "creator_role_verified":{"type":"boolean"},
+                        "community_consensus_verified":{"type":"boolean"},
+                        "source_ingested_and_reopened_in_slr":{"type":"boolean"},
+                        "wikidata_edit_authorised":{"type":"boolean"},
+                        "ao_dispatch_allowed":{"type":"boolean"},
+                    },
+                    "required":[
+                        "schema_version","itir_slr_input","slr_source_inputs","source_revision_refs",
+                        "historical_policy_drift_status",
+                        "historical_policy_window_source_witness",
+                        "candidate_only","producer_canonical_byte_digests_observed",
+                        "independent_source_provider_receipts_verified",
+                        "historical_policy_applicability_verified",
+                        "historical_policy_interpretation_verified","creator_role_verified",
+                        "community_consensus_verified","source_ingested_and_reopened_in_slr",
+                        "wikidata_edit_authorised","ao_dispatch_allowed",
+                    ],
+                    "additionalProperties":True,
+                },
+                response_version="itir.governance.wikidata_source_replay_handoff.v1",
+                read_only=True,
+            ),
+            project_source_replay_handoff,
+        ),
+        (
+            ToolSpec(
+                name="itir.governance.deliberation_slr_handoff",
+                title="Source-span-bound SLR deliberation input projection",
+                description="Candidate-only ISO-time to exact Unix-second conversion plus original source digests and byte anchors for native SLR/S29 reopening. Never verifies PG bytes.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "deliberation": {"type": "object"},
+                        "source_seals": {"type": "array", "items": {"type": "object"}},
+                        "event_anchors": {"type": "array", "items": {"type": "object"}},
+                    },
+                    "required": ["deliberation", "source_seals", "event_anchors"],
+                    "additionalProperties": False,
+                },
+                response_version=DELIBERATION_SLR_HANDOFF_VERSION,
+                read_only=True,
+            ),
+            project_slr_handoff,
+        ),
+        (
+            ToolSpec(
+                name="itir.governance.deliberation_consumer_link",
+                title="Candidate source-aligned review consumer link",
+                description="Keep a proposed property discussion distinct from existing climate/change/disjointness/hotspot consumer diagnostics; explicit source alignment is never self-verifying.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "deliberation": {"type": "object"},
+                        "consumer_ref": {"type": "string"},
+                        "consumer_schema": {"type": "string"},
+                        "consumer_source_revision_ref": {"type": "string"},
+                        "subject_property_refs": {"type": "array", "items": {"type": "string"}},
+                        "source_alignment_ref": {"type": "string"},
+                    },
+                    "required": [
+                        "deliberation", "consumer_ref", "consumer_schema",
+                        "consumer_source_revision_ref", "subject_property_refs",
+                        "source_alignment_ref",
+                    ],
+                    "additionalProperties": False,
+                },
+                response_version="itir.governance.deliberation_consumer_link.v1",
+                read_only=True,
+            ),
+            project_deliberation_consumer_link,
+        ),
+        (
+            ToolSpec(
+                name="itir.governance.deliberation_assessment",
+                title="Source-pinned deliberation completeness assessment",
+                description="Candidate-only review of proposal events, policy age and governance evidence; never infers consensus or permits public edits or AO dispatch.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "proposal_ref": {"type": "string"},
+                        "source_revision_ref": {"type": "string"},
+                        "policy_revision_ref": {"type": "string"},
+                        "minimum_age_seconds": {"type": "integer"},
+                        "events": {"type": "array", "items": {"type": "object"}},
+                        "created_property_ref": {"type": "string"},
+                    },
+                    "required": [
+                        "proposal_ref", "source_revision_ref", "policy_revision_ref",
+                        "minimum_age_seconds", "events",
+                    ],
+                    "additionalProperties": False,
+                },
+                response_version=DELIBERATION_ASSESSMENT_VERSION,
+                read_only=True,
+            ),
+            assess_deliberation,
         ),
         (
             ToolSpec(
