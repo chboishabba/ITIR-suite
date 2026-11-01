@@ -66,6 +66,9 @@ Not in scope for the first increment:
 - `itir.pnf.residual_cases`
 - `itir.archive.thread_view`
 - `itir.ao.operation_review`
+- `itir.governance.deliberation_assessment`
+- `itir.governance.deliberation_slr_handoff`
+- `itir.governance.deliberation_consumer_link`
 - `itir.chatgpt.operation_receipts`
 - `itir.chatgpt.revive_multi`
 - `itir.markdown.render_projection`
@@ -292,3 +295,16 @@ The fleet runner retains the live `execute_pareto_conductor` and `spawn_parallel
 Wikimedia grounding reuses SensibLaw's public `WiktionaryProvider` and `WikidataProvider` rather than duplicating provider logic. Permanent QIDs remain external candidate evidence. New frontier concepts stay candidate-only under `cand:Q_*`, with explicit `P279`/`P361` anchors and an observational P2738 disjointness gate. Ontology walking and lemma routing use explicit graph edges and explicit verified lemma attachments only.
 
 Golden safe Agda remains the theorem authority. Lean follows Agda. ITIR receipts are operational/candidate evidence and do not establish proof authority.
+
+
+## Source-pinned community deliberation and SLR/AO boundaries
+
+The three read-only `itir.governance.deliberation_*` tools implement one generic source-anchored epistemic-proposal review contract. The proposal/arguments/amendments/decision history is inspired by Marcin Roszkowski, *Navigating change* (2024), DOI 10.1108/JD-01-2024-0008, and the 2026 Wikimedia CEE presentation. All validators, API fields and fail-closed rules are locally authored engineering, not Roszkowski's formal theorems.
+
+- **Assessment** retains discussion chronology, the *declared historical policy revision*, separate objection/amendment/decision events, age and missing role/consensus/source-evidence holds. It is a record-completeness diagnostic only; `reviewable` does not verify consensus, actor permissions or world truth.
+- **SLR input projection** requires one exact caller-supplied source digest/acquisition receipt for the proposal, every event and the historical policy, one byte-span/excerpt hash per event, and whole nonnegative Unix-second timestamps translated from original timezone-aware ISO instants. The tool cannot read PostgreSQL and thus always reports `source_binding_status=caller_supplied_unverified`.
+- **Generic consumer link** retains explicit review schema, source revision, consumer ref, candidate source alignment and candidate property-ID hits, without asserting a same-object identity, validating repair or granting edit authority. Use it for the existing climate, ChangeReviewPacket, P2738/Ege/Peter, Rosario/hotspot and Wiki claim-review **consumer references**, not as a replacement for their canonical report payloads. 
+- **SLR production owner:** [PR #76](https://github.com/chboishabba/slr/pull/76) defines exact `DeliberationPacket`, `DeliberationSourceSeal`, `DeliberationEventAnchor`, canonical content reopens, source-byte checks, a dedicated candidate sidecar and a consumer-scoped S29 review/reopen API. Its separately guarded PG test is not evidence of a completed run until executed.
+- **Agda golden semantic owner:** [PR #1447](https://github.com/chboishabba/dashi_agda/pull/1447), conditionally separating source authenticator, creator role, historical community policy, consensus and time guards. No actual kernel receipt is claimed.
+
+The AO frontier continues to accept only its existing trusted reference kinds. A `deliberation:sha256` candidate ID is not a formal receipt, source-verified PG record, target Wikidata decision, new typed AO reference class or dispatch permission. The SLR owner and any S30 interface must independently enforce recipient/role/purpose/knowledge-cut. See `docs/planning/epistemic_deliberation_source_governance_20261101.md` for exact user-story links and remaining acceptance checks.
