@@ -292,6 +292,54 @@ def project_source_replay_handoff(payload: Mapping[str, Any]) -> dict[str, Any]:
         if end>len(source) or "sha256:"+hashlib.sha256(source[start:end]).hexdigest()!=anchor["excerpt_digest_ref"]:
             raise ToolInputError("source event byte-span/hash mismatch")
     source_inputs.sort(key=lambda x:x["envelope"]["source_revision_ref"])
+    window = payload.get("historical_policy_window_source_witness")
+    if policy_drift == "closure_policy_not_examined":
+        if window is not None:
+            raise ToolInputError("unexamined policy cannot have a closure-window witness")
+    else:
+        required_window = {
+            "opening_policy_page_oldid", "closing_policy_page_oldid",
+            "opening_policy_revision_time", "closing_policy_revision_time",
+            "policy_content_digest_ref", "closing_policy_content_digest_ref",
+            "closing_acquisition_url", "comparison_status", "candidate_only",
+            "policy_normatively_verified",
+        }
+        if not isinstance(window, Mapping) or set(window)!=required_window:
+            raise ToolInputError("closure policy needs the full source-window witness")
+        if window["comparison_status"]!=policy_drift or window["candidate_only"] is not True or (
+            window["policy_normatively_verified"] is not False
+        ):
+            raise ToolInputError("policy window cannot promote authority")
+        opening,closing=window["opening_policy_page_oldid"],window["closing_policy_page_oldid"]
+        if type(opening) is not int or type(closing) is not int or min(opening,closing)<1:
+            raise ToolInputError("policy window must retain exact positive oldids")
+        if not isinstance(window["closing_acquisition_url"],str) or not (
+            window["closing_acquisition_url"].startswith("https://www.wikidata.org/w/api.php?")
+        ):
+            raise ToolInputError("policy window closing source origin missing")
+        policy_input = next((
+            input_row for input_row in source_inputs
+            if input_row["envelope"]["source_revision_ref"]==inspected["slr_packet"]["policy_revision_ref"]
+        ),None)
+        if policy_input is None or policy_input["envelope"]["source_ref"] != f"wikidata:page:{opening}":
+            raise ToolInputError("historical policy opening oldid disagrees with canonical source")
+        if window["policy_content_digest_ref"] != policy_input["envelope"]["content_digest_ref"]:
+            raise ToolInputError("policy opening SHA differs from canonical source")
+        _sha(window["closing_policy_content_digest_ref"],"closing_policy_content_digest_ref")
+        if policy_drift == "unchanged_across_proposal_window" and (
+            opening != closing
+            or window["closing_policy_content_digest_ref"]!=window["policy_content_digest_ref"]
+        ):
+            raise ToolInputError("unchanged historical policy must have identical revision and bytes")
+        if policy_drift.startswith("changed_during") and (
+            opening == closing and
+            window["closing_policy_content_digest_ref"]==window["policy_content_digest_ref"]
+        ):
+            raise ToolInputError("changed historical policy must contain an observed difference")
+        start=_time(window["opening_policy_revision_time"],"opening_policy_revision_time")
+        stop=_time(window["closing_policy_revision_time"],"closing_policy_revision_time")
+        if start>stop or stop>_time(p["deliberation"]["events"][-1]["at"], "proposal closure"):
+            raise ToolInputError("policy revision times must precede closure")
     return {
         "version":"itir.governance.wikidata_source_replay_handoff.v1",
         "origin":"sl.wikidata_deliberation_slr_handoff_draft.v0_1",
@@ -300,6 +348,7 @@ def project_source_replay_handoff(payload: Mapping[str, Any]) -> dict[str, Any]:
         "slr_event_anchors":inspected["slr_event_anchors"],
         "slr_source_inputs":source_inputs,
         "historical_policy_drift_status":policy_drift,
+        "historical_policy_window_source_witness":dict(window) if window is not None else None,
         "normative_policy_hold":policy_drift!="unchanged_across_proposal_window",
         "holds":inspected["holds"],
         "record_completeness":inspected["record_completeness"],
