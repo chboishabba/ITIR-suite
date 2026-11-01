@@ -67,3 +67,45 @@ The historical P10322 `time in the pouch` proposal can be used as a **future sou
 2. Require SLR's real PostgreSQL source lookup to bind every event source ref and S29 diagnostic to a trusted source/consumer scope before exposing the packet as an AO evidence reference.
 3. Compare historical consensus/evidential reasoning to actual community roles and rule changes without inventing automatic consensus criteria.
 4. Obtain exact Agda theorem dependency and kernel execution receipts independently. No source citation or Rust/Python test substitutes for these receipts.
+
+## Existing user-story and Wikidata handoff crosswalk (reviewed 2026-11-01)
+
+This integration is a **generic evidential/governance coordinate** on existing review stories, not a new Wikidata lane, new AO dispatcher, new SLR source store, or a substitute for the approved candidate-change grammar.
+
+| Existing owner and accepted surface | What Roszkowski-style deliberation can supply | What this PR does **not** supply |
+| --- | --- | --- |
+| `docs/user_stories.md` **ITIR-US-17** wiki revision review assist | Proposal event refs and revisions can become review-navigation candidates | Wiki page parser, citations or bounded followed-source materialisation |
+| **SL-US-15/16**, contested Wikipedia moderation/Wikidata claim workers | Separates a community decision about vocabulary from evidence about a contested particular statement | Finding of truth/defamation, attribution of a person's actions, time-validity of a Wikidata claim |
+| **WIKI-US-01 / SL-US-38**, `itir.wikidata.review_packet` and `itir.wikidata.object_review_bundle` | Additional provenance dimension for a **proposed new property**, alongside existing per-statement qualifier/reference review | Statement edit approval, GUID verification, datatype/constraint validation, batch transport |
+| **WIKI-US-02 / SL-US-39**, `itir.wikiproject.tooling_profile` | Historical actor-and-role claims and policy revision can be inspected without tool-generated authority | Modification of bot authority profiles or QuickStatements/OpenRefine edit permission |
+| **WIKI-US-03 / SL-US-40**, P2738 disjointness/migration | One provenance layer explaining *why* a change proposal was supported or contested | Extraction/counting/culprit analysis, or declaration that a structural repair is community authorised |
+| **WIKI-US-04 / SL-US-41**, `sl.wikidata_signal_review_bundle.v0_1` | Attaches candidate decision-history provenance to revision-pinned wiki source views | Replacing primary evidence, temporal truth or source-grounded PNF roles |
+| **AO-OP-1** and `itir.ao.operator_workflow` | Explicit missing-source/authority holds may inform an operator's next **manual** acquisition decision | Trusted AO typed reference, automatic dispatch, completed operation or formal receipt |
+| **Nat climate** `P5991 → P14143` | Separates WikiProject coordination and proposal decisions from statement-level migration-policy gates | Family A–E disposition, split verification, after-state proof, user consent or live mutation |
+| **Peter / Ege** `P2738` + `P11260` | Contestable *governance provenance* for a future disjointness repair proposal | Pair extraction, subclass/instance violations or culprit ranking |
+| **Rosario** hotspot benchmark | Source/decision history for ontology test-case vocabulary | LLM consistency result, score-only benchmark or exact-method parity |
+| **ChangeReviewPacket** `compare-candidates` | Future input reference for `new_property_obligation`, `split_class_obligation` and other candidate semantic repairs | Replacing the in-memory check family, monotone-coherence rule, or upgrading existential obligation labels to actual QIDs/PIDs |
+| **WIKI-1 / SLR** source-native checker and S29 review | Source-pinned deliberation diagnostic via the existing review kind | Executed JMD Lean checker, source-revision PG witness, kernel proof or externally approved edit |
+
+### Source-backed workflows that informed this crosswalk
+
+- `chboishabba/SensibLaw/docs/wikidata/README.md`, stories 1–5: climate property migration; climate PNF/residual review; hotspot benchmark; P2738 disjointness; ChangeReviewPacket candidate repair comparison.
+- `chboishabba/SensibLaw/docs/planning/wikidata_octf_entrypoint_20260421.md`: Dave/OCTF, Peter, Ege and Rosario reader routes, concrete CLI, first-hand edit authority boundary.
+- `chboishabba/SensibLaw/docs/planning/wikimedia_prior_work_and_originality_note_20260326.md`: explicit attribution to Rosario/IBM, Ege Doğan/Peter Patel-Schneider and Shixiong Zhao/Hideaki Takeda; do not claim replication/parity beyond evidence.
+- `docs/planning/wikidata_assist_lane_reviewer_packet_alignment_20260401.md`: `lane_id`, `packet_id`, `case_list`, `culprit_summary`, `qualifier_reference_index`, `progress_claim`, `governance_flags`, `reviewer_prompt`. This is a **consumer packet grammar**, not a license to add a second semantic owner; its assist lane is still review-first.
+- `docs/planning/wikidata_combined_roadmap_nat_and_assist_20260401.md`: distinguish *source Cohorts A–E* from *action Families A–E* and recognise checked-safe staging as narrower than live edit authority.
+- `docs/planning/wikidata_lane_architecture_and_roadmap_20260703.md`: one `sl.wikidata_signal_review_bundle.v0_1` carrier, five executable lanes, disjointness direct-Zelph versus climate/Nat adjacent-live versus hotspot/change-review geometry.
+- `docs/planning/generic_world_model_compiler_convergence_20260716.md`: one generic compiler/reviewer with lane profiles; preserve receipt-free world model and source-to-review/receipt boundary.
+- `docs/planning/pnf_zelph_wd_linkage_depth_contract_20260703.md`: maintain token/span → sentence/document → PNF → WD candidate → review linkages. A new `deliberation:sha256` identifier **is not** a replacement for this provenance spine.
+
+### Historical-note correction
+
+The March 25 Rosario/Ege/Peter parity note predates the implemented P2738 report lane. By July the architecture documents a bounded disjointness report and first local direct-Zelph proof route; this does **not** establish full hosted WD shard acceptance or exact Ege/Peter method parity. The actual current status must come from the pinned fixtures, the dated July executable-lane notes, and new execution receipts, not from the March gap statement in isolation.
+
+### Explicit missing integration (not paid by current two PRs)
+
+1. Establish the **source-native SLR PG binding** for each deliberation event to an existing revision and a consumer-scope-controlled S29 review item. The Rust function currently *projects* an S29 `ReviewItem`; it does not persist or reopen it.
+2. Add a typed consumer bridge from the existing generic source/PNF observation and `ChangeReviewPacket` / `sl.wikidata_signal_review_bundle.v0_1` to a deliberation-sidecar *only after* source and revision identity are verified. No existing packet schema should be silently widened.
+3. Exercise negative examples for `P2738` pair/context disagreements and Nat climate case/subject/qualifier drift, retaining independent diagnostic axes. Roszkowski's proposal-governance state cannot pay these structural/evidential obligations.
+4. Produce a real P10322 source-historical replay and compare Python ISO versus Rust Unix timestamps under a shared canonical source identity. Without a real persisted specimen, claiming end-to-end parity would be misleading.
+5. Test a reviewer-visible *cross-lane* scenario with published source, proposal chronology, objections, decision, current Wikidata property and post-decision statement usage, including a role/consensus disagreement that stays unresolved.
