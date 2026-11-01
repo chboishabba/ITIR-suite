@@ -211,12 +211,87 @@ def project_source_replay_handoff(payload: Mapping[str, Any]) -> dict[str, Any]:
         seal["source_revision_ref"] for seal in inspected["slr_source_seals"]
     }:
         raise ToolInputError("historical wrapper source revision set differs from source seals")
+    # Source bytes and source identities must correspond to the original
+    # INGEST-1 owner, not merely claim identical source revision *strings*.
+    # The exact cross-language framed identity is independently checked here.
+    import hashlib
+    raw_inputs=payload.get("slr_source_inputs")
+    if not isinstance(raw_inputs,list) or len(raw_inputs)!=len(inspected["slr_source_seals"]):
+        raise ToolInputError("historical replay requires every original source input and text")
+    by_source={row["source_revision_ref"]:row for row in inspected["slr_source_seals"]}
+    observed=set()
+    source_inputs=[]
+    for input_row in raw_inputs:
+        if not isinstance(input_row,Mapping) or set(input_row)!={"envelope","canonical_text"}:
+            raise ToolInputError("invalid canonical source input fields")
+        envelope=input_row["envelope"]
+        canonical_text=input_row["canonical_text"]
+        expected_keys={
+            "source_ref","source_revision_ref","provider_ref","family","role_class",
+            "content_digest_ref","acquisition_receipt_ref","media_type_ref",
+            "candidate_only","creates_semantic_authority","applicability_promoted",
+            "claim_truth_promoted",
+        }
+        if not isinstance(envelope,Mapping) or set(envelope)!=expected_keys:
+            raise ToolInputError("incorrect INGEST-1 source envelope grammar")
+        if not isinstance(canonical_text,str) or not canonical_text or len(canonical_text.encode("utf-8"))>4_000_000:
+            raise ToolInputError("missing or unbounded canonical source text")
+        for field in ("source_ref","source_revision_ref","provider_ref",
+                      "content_digest_ref","acquisition_receipt_ref","media_type_ref"):
+            _ref(envelope[field],field)
+        if envelope["family"]!="wiki" or envelope["role_class"]!="content_source":
+            raise ToolInputError("historical source must be Wiki/ContentSource")
+        if envelope["provider_ref"]!="wikidata:mediawiki-api" or envelope["media_type_ref"]!="text/x-wiki":
+            raise ToolInputError("source provenance or type mismatch")
+        if envelope["candidate_only"] is not True or any(
+            envelope[field] is not False for field in (
+                "creates_semantic_authority","applicability_promoted","claim_truth_promoted")
+        ):
+            raise ToolInputError("source envelope attempts authority promotion")
+        content_sha="sha256:"+hashlib.sha256(canonical_text.encode("utf-8")).hexdigest()
+        if content_sha!=envelope["content_digest_ref"]:
+            raise ToolInputError("source content digest does not match original canonical bytes")
+        # Mirrors only the *identity framing* of SLR's
+        # canonical_generic_source_revision_ref, not its source persistence.
+        hasher=hashlib.sha256()
+        for field in (
+            "generic-source-revision:v1",envelope["source_ref"],
+            envelope["provider_ref"],envelope["acquisition_receipt_ref"],
+            content_sha,envelope["media_type_ref"]
+        ):
+            raw=field.encode("utf-8")
+            hasher.update(len(raw).to_bytes(8,"big"))
+            hasher.update(raw)
+        revision="source-revision:sha256:"+hasher.hexdigest()
+        if revision!=envelope["source_revision_ref"]:
+            raise ToolInputError("INGEST-1 canonical source-revision identity mismatch")
+        if revision in observed or revision not in by_source:
+            raise ToolInputError("duplicate or missing source in replay")
+        observed.add(revision)
+        receipt=by_source[revision]
+        if (receipt["content_digest_ref"]!=content_sha or
+                receipt["acquisition_receipt_ref"]!=envelope["acquisition_receipt_ref"]):
+            raise ToolInputError("source seal differs from canonical envelope")
+        source_inputs.append({
+            "envelope":dict(envelope),"canonical_text":canonical_text
+        })
+    if observed!=set(by_source):
+        raise ToolInputError("historical source content set is incomplete")
+    content_by_ref={s["envelope"]["source_revision_ref"]:s["canonical_text"].encode("utf-8")
+                    for s in source_inputs}
+    for anchor in inspected["slr_event_anchors"]:
+        source=content_by_ref[anchor["source_revision_ref"]]
+        start,end=anchor["start_byte"],anchor["end_byte"]
+        if end>len(source) or "sha256:"+hashlib.sha256(source[start:end]).hexdigest()!=anchor["excerpt_digest_ref"]:
+            raise ToolInputError("source event byte-span/hash mismatch")
+    source_inputs.sort(key=lambda x:x["envelope"]["source_revision_ref"])
     return {
         "version":"itir.governance.wikidata_source_replay_handoff.v1",
         "origin":"sl.wikidata_deliberation_slr_handoff_draft.v0_1",
         "slr_input":inspected["slr_packet"],
         "slr_source_seals":inspected["slr_source_seals"],
         "slr_event_anchors":inspected["slr_event_anchors"],
+        "slr_source_inputs":source_inputs,
         "holds":inspected["holds"],
         "record_completeness":inspected["record_completeness"],
         "scope":"not_assigned_until_s29",
