@@ -131,8 +131,10 @@ chatgpt_revive compatibility path.
 2. Persist the returned candidate packet at an explicit, caller-owned
    handoff_path. Do not substitute an operational transcript export.
 3. Call itir.chatgpt.revive_multi with the same ordered canonical parent IDs,
-   that explicit artifact path, the continuation prompt and a stable caller-supplied
-   request_id. Repeating the same request_id/payload returns the stored receipt;
+   that explicit artifact path and the continuation prompt. The adapter derives a
+   stable idempotency key from the ordered parents, artifact path and prompt;
+   an explicit request_id is an optional advanced override. Repeating the same
+   derived key/payload returns the stored receipt;
    reusing the key for a different payload is rejected.
 4. The re-gpt adapter creates one fresh conversation over direct async CFFI,
    then attaches the artifact exactly once. The attachment is accepted only

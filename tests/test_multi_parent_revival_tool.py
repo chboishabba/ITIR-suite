@@ -62,6 +62,16 @@ class MultiParentToolTests(unittest.TestCase):
         self.assertIn("itir.chatgpt.revive_multi", specs)
         self.assertFalse(specs["itir.chatgpt.revive_multi"].read_only)
 
+    def test_request_id_is_derived_when_omitted(self):
+        api = FakeAPI()
+        payload = {"parent_thread_ids": ["canonical-a", "canonical-b"],
+                   "handoff_path": "/owned/output/handoff.json", "prompt": "continue"}
+        with patch("itir_mcp.chatgpt_worker_tools._worker_api", return_value=api):
+            revive_multi(payload)
+            revive_multi(payload)
+        self.assertTrue(api.calls[0]["request_id"].startswith("revive-"))
+        self.assertEqual(api.calls[0]["request_id"], api.calls[1]["request_id"])
+
 
 if __name__ == "__main__":
     unittest.main()
