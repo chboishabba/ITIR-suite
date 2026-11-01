@@ -171,3 +171,58 @@ def project_deliberation_consumer_link(payload: Mapping[str, Any]) -> dict[str, 
             "ao_dispatch_allowed": False,
         },
     }
+
+
+def project_source_replay_handoff(payload: Mapping[str, Any]) -> dict[str, Any]:
+    """Consume SensibLaw's *actual captured-revision* native transport envelope.
+
+    SensibLaw owns source-byte projection; this adapter only validates the
+    wrapper guard and delegates to the existing generic SLR ABI validator.
+    Neither code path can independently authenticate a MediaWiki HTTP result.
+    """
+    if not isinstance(payload, Mapping) or payload.get("schema_version") != (
+        "sl.wikidata_deliberation_slr_handoff_draft.v0_1"
+    ):
+        raise ToolInputError("expected the SensibLaw historical source handoff schema")
+    for field in (
+        "independent_source_provider_receipts_verified",
+        "historical_policy_applicability_verified",
+        "historical_policy_interpretation_verified",
+        "creator_role_verified",
+        "community_consensus_verified",
+        "source_ingested_and_reopened_in_slr",
+        "wikidata_edit_authorised",
+        "ao_dispatch_allowed",
+    ):
+        if payload.get(field) is not False:
+            raise ToolInputError(f"historical producer cannot claim {field} as verified")
+    if payload.get("candidate_only") is not True or (
+        payload.get("producer_canonical_byte_digests_observed") is not True
+    ):
+        raise ToolInputError("historical source projection must be candidate-only")
+    p=payload.get("itir_slr_input")
+    if not isinstance(p,Mapping):
+        raise ToolInputError("historical wrapper is missing native SLR input")
+    inspected=project_slr_handoff(p)
+    if set(payload.get("source_revision_refs", [])) != {
+        seal["source_revision_ref"] for seal in inspected["slr_source_seals"]
+    }:
+        raise ToolInputError("historical wrapper source revision set differs from source seals")
+    return {
+        "version":"itir.governance.wikidata_source_replay_handoff.v1",
+        "origin":"sl.wikidata_deliberation_slr_handoff_draft.v0_1",
+        "slr_input":inspected["slr_packet"],
+        "slr_source_seals":inspected["slr_source_seals"],
+        "slr_event_anchors":inspected["slr_event_anchors"],
+        "holds":inspected["holds"],
+        "record_completeness":inspected["record_completeness"],
+        "scope":"not_assigned_until_s29",
+        "independent_source_verification":"not_completed",
+        "community_creator_role_verification":"not_completed",
+        "community_consensus_verification":"not_completed",
+        "authority":{
+            "candidate_only":True,"slr_pg_reopened":False,
+            "community_consensus_verified":False,
+            "wikidata_edit_authorised":False,"ao_dispatch_allowed":False,
+        },
+    }
