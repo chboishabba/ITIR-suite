@@ -114,6 +114,7 @@ def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
                         "schema_version":{"type":"string"},
                         "itir_slr_input":{"type":"object"},
                         "slr_source_inputs":{"type":"array","items":{"type":"object"}},
+                        "historical_policy_drift_status":{"type":"string"},
                         "source_revision_refs":{"type":"array","items":{"type":"string"}},
                         "candidate_only":{"type":"boolean"},
                         "producer_canonical_byte_digests_observed":{"type":"boolean"},
@@ -128,6 +129,7 @@ def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
                     },
                     "required":[
                         "schema_version","itir_slr_input","slr_source_inputs","source_revision_refs",
+                        "historical_policy_drift_status",
                         "candidate_only","producer_canonical_byte_digests_observed",
                         "independent_source_provider_receipts_verified",
                         "historical_policy_applicability_verified",
