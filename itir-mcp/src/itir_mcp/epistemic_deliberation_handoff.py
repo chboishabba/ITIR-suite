@@ -204,7 +204,10 @@ def project_source_replay_handoff(payload: Mapping[str, Any]) -> dict[str, Any]:
     if not isinstance(p,Mapping):
         raise ToolInputError("historical wrapper is missing native SLR input")
     inspected=project_slr_handoff(p)
-    if set(payload.get("source_revision_refs", [])) != {
+    revisions=payload.get("source_revision_refs")
+    if not isinstance(revisions,list) or any(not isinstance(ref,str) for ref in revisions):
+        raise ToolInputError("historical source revision refs must be an explicit list")
+    if len(revisions)!=len(set(revisions)) or set(revisions) != {
         seal["source_revision_ref"] for seal in inspected["slr_source_seals"]
     }:
         raise ToolInputError("historical wrapper source revision set differs from source seals")
