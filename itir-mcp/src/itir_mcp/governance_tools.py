@@ -16,6 +16,7 @@ from .domain_tools import (
     zelph_partial_closure,
 )
 from .epistemic_deliberation import VERSION as DELIBERATION_ASSESSMENT_VERSION, assess_deliberation
+from .epistemic_deliberation_handoff import VERSION as DELIBERATION_SLR_HANDOFF_VERSION, project_slr_handoff, project_deliberation_consumer_link
 from .pnf_spectral_packet import VERSION as SPECTRAL_CANDIDATE_PACKET_VERSION, build_candidate_spectral_packet
 from .shard_transport import (
     BOUNDED_GRAPH_SLICE_VIEW_VERSION,
@@ -101,6 +102,53 @@ def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
                 read_only=True,
             ),
             validate_tool_profile_tool,
+        ),
+        (
+            ToolSpec(
+                name="itir.governance.deliberation_slr_handoff",
+                title="Source-span-bound SLR deliberation input projection",
+                description="Candidate-only ISO-time to exact Unix-second conversion plus original source digests and byte anchors for native SLR/S29 reopening. Never verifies PG bytes.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "deliberation": {"type": "object"},
+                        "source_seals": {"type": "array", "items": {"type": "object"}},
+                        "event_anchors": {"type": "array", "items": {"type": "object"}},
+                    },
+                    "required": ["deliberation", "source_seals", "event_anchors"],
+                    "additionalProperties": False,
+                },
+                response_version=DELIBERATION_SLR_HANDOFF_VERSION,
+                read_only=True,
+            ),
+            project_slr_handoff,
+        ),
+        (
+            ToolSpec(
+                name="itir.governance.deliberation_consumer_link",
+                title="Candidate source-aligned review consumer link",
+                description="Keep a proposed property discussion distinct from existing climate/change/disjointness/hotspot consumer diagnostics; explicit source alignment is never self-verifying.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "deliberation": {"type": "object"},
+                        "consumer_ref": {"type": "string"},
+                        "consumer_schema": {"type": "string"},
+                        "consumer_source_revision_ref": {"type": "string"},
+                        "subject_property_refs": {"type": "array", "items": {"type": "string"}},
+                        "source_alignment_ref": {"type": "string"},
+                    },
+                    "required": [
+                        "deliberation", "consumer_ref", "consumer_schema",
+                        "consumer_source_revision_ref", "subject_property_refs",
+                        "source_alignment_ref",
+                    ],
+                    "additionalProperties": False,
+                },
+                response_version="itir.governance.deliberation_consumer_link.v1",
+                read_only=True,
+            ),
+            project_deliberation_consumer_link,
         ),
         (
             ToolSpec(
