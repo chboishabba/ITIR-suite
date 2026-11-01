@@ -13,7 +13,7 @@ Status date: 2026-11-01. Scope: Roszkowski 2024/2026, real P10322 history, ITIR/
 | Canonical source and S29 review persistence | SLR INGEST-1 `generic_source_content_store` and S29 `review_workstation_store` | [SLR #76](https://github.com/chboishabba/slr/pull/76) | Exact source ID+byte reopening, fully typed incoming JSON, atomic S29+sidecar review, no independent source-store or second reviewer |
 | Downstream matters, tool dispatch and external edits | Existing S30/AO/Wikidata community governance | none promoted | No entrypoint from this tranche bypasses recipient/role/purpose/knowledge-cut checks or grants Wikidata edit authority |
 
-## Concrete K00–K17 code obligations
+## Concrete K00–K18 code obligations
 
 Status vocabulary: **source-written** = implemented and committed but not executed/verified through this GitHub-only turn; **held-external** = needs evidence or executor beyond current PR source text; **bounded original** = existing owner remains authoritative.
 
@@ -37,6 +37,7 @@ Status vocabulary: **source-written** = implemented and committed but not execut
 | K15 | Require matter scope equality **before** reopening original source text or S29 row; still require separate S30 audience admission | SLR `load_deliberation_diagnostic_scoped` | Source-written; S30 access remains external |
 | K16 | Never route Wikidata auto capture to enwiki/simplewiki-only pywikibot path; parse original UTC minute as an ISO instant | Original SensibLaw `wiki_pull_api.py`, source anchor projector | Source-written; no network/source capture performed |
 | K17 | Golden conditional theorem requires explicit proposal-time to closure-time `PolicyWindowValid` witness and exposes blocker when absent | DASHI `ClosureAdmission`, working-group regression | Source-written; Agda kernel not run |
+| K18 | Capture bounded, original, as-of-closure Wikidata rights log with source query continuity, retaining unresolved `Jura`/`Jura1` identity and independent creator/administrator role witness | Original SensibLaw MediaWiki pull helper and P10322 source locator manifest | Source-written; original rights log and P10322 creation log not fetched |
 
 ## Exact remaining real-world acceptance obligations
 
