@@ -143,3 +143,8 @@ ITIR now also registers **`itir.governance.wikidata_source_replay_handoff`**, wh
 SLR PR #76 additionally implements `persist_deliberation_from_source_inputs`: existing INGEST-1 canonical wiki text source writes precede independently verified S29 sidecar persistence, with one atomic S29+sidecar transaction. Its disposable-DB acceptance test is now authored over that direct canonical-ingest entrypoint, **not** a fake source row.
 
 These are functional source-written cross-repo joins with tests. They **do not** constitute an executed P10322 policy/role adjudication, an Agda kernel receipt, or an external edit.
+
+
+### Canonical synchronized K00–K13 / A00–A07 status (2026-11-01)
+
+See the [single four-repo max-cut roadmap](https://github.com/chboishabba/ITIR-suite/blob/agent/epistemic-deliberation-candidate-governance-20261101/docs/planning/wikidata_deliberation_maxcut_exact_20261101.md) for each exact owner, source-written code, and remaining primary-source acceptance. The latest canonical source ABI uses SensibLaw's length-framed SHA-256 INGEST-1 source identity, independently reverified by ITIR against original UTF-8 text and byte anchors, and SLR's full typed JSON replay into existing INGEST-1 + atomic S29 review. This is committed source code, not an executed kernel/PG check. Historical P10322 original bytes, applicable policy, creator rights, consensus, actual S30 permission and cross-language formal proof remain independent obligations; no external Wikidata edits are authorised.
