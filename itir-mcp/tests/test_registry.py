@@ -32,6 +32,7 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.archive.thread_view",
         "itir.ao.operation_review",
         "itir.chatgpt.operation_receipts",
+        "itir.chatgpt.create_conversation",
         "itir.markdown.render_projection",
         "itir.markdown.write_projection",
         "itir.docstore.config_plan",

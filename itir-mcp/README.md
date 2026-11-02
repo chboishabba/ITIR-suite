@@ -314,3 +314,12 @@ The fleet runner retains the live `execute_pareto_conductor` and `spawn_parallel
 Wikimedia grounding reuses SensibLaw's public `WiktionaryProvider` and `WikidataProvider` rather than duplicating provider logic. Permanent QIDs remain external candidate evidence. New frontier concepts stay candidate-only under `cand:Q_*`, with explicit `P279`/`P361` anchors and an observational P2738 disjointness gate. Ontology walking and lemma routing use explicit graph edges and explicit verified lemma attachments only.
 
 Golden safe Agda remains the theorem authority. Lean follows Agda. ITIR receipts are operational/candidate evidence and do not establish proof authority.
+
+## Fresh ChatGPT creation boundary
+
+`itir.chatgpt.create_conversation` creates one fresh conversation through the
+native re-gpt async CFFI path. It requires an explicit prompt and returns the
+durable re-gpt operation receipt. `commit_unknown` and pending states are
+explicit holds for read-only reconciliation; callers must not retry or resend.
+The tool never enables DOM fallback and is separate from governed revival and
+AO dispatch.

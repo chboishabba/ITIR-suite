@@ -20,6 +20,7 @@ def test_registry_exposes_governed_chatgpt_worker_tools() -> None:
         "itir.chatgpt.view_messages",
         "itir.chatgpt.fleet_status",
         "itir.chatgpt.fleet_opportunities",
+        "itir.chatgpt.create_conversation",
     ):
         spec = registry.get_tool_spec(name)
         assert spec is not None
@@ -32,6 +33,43 @@ def test_registry_exposes_governed_chatgpt_worker_tools() -> None:
             "itir.chatgpt.fleet_status",
             "itir.chatgpt.fleet_opportunities",
         })
+
+
+def test_create_conversation_forces_direct_async_and_returns_uncertain_receipt(monkeypatch) -> None:
+    calls = []
+
+    class FakeWorkerApi:
+        @staticmethod
+        def chatgpt_new(**kwargs):
+            calls.append(kwargs)
+            return {"operation_id": "op-new", "state": "commit_unknown", "conversation_id": "c-new"}
+
+    monkeypatch.setattr(chatgpt_worker_tools, "_worker_api", lambda: FakeWorkerApi)
+    result = build_default_registry().invoke(
+        "itir.chatgpt.create_conversation", {"prompt": "fresh", "follow": False}
+    )
+    assert result["ok"] is True
+    assert result["result"]["status"] == "uncertain"
+    assert result["result"]["uncertain"] is True
+    assert result["result"]["receipt"]["operation_id"] == "op-new"
+    assert result["result"]["policy"]["dom_fallback"] is False
+    assert result["result"]["policy"]["automatic_resend"] is False
+    assert calls == [{"prompt": "fresh", "follow": False, "db_path": None}]
+
+
+def test_create_conversation_rejects_empty_prompt_before_adapter(monkeypatch) -> None:
+    called = False
+
+    def fail_adapter():
+        nonlocal called
+        called = True
+        raise AssertionError("adapter must not be resolved")
+
+    monkeypatch.setattr(chatgpt_worker_tools, "_worker_api", fail_adapter)
+    result = build_default_registry().invoke("itir.chatgpt.create_conversation", {"prompt": "  "})
+    assert result["ok"] is False
+    assert result["error"]["code"] == "input_error"
+    assert called is False
 
 
 def test_dispatch_forces_async_without_dom_fallback(monkeypatch) -> None:
