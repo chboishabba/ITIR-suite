@@ -841,3 +841,17 @@ development workaround, not the main entrypoint for most readers.
 If you need that path, see the existing container/dev notes in the repo and the
 relevant subproject setup docs before using it.
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/chboishabba/ITIR-suite)
+
+
+The multi-parent revival contract is specified in
+[governed_revival_handoff_v1.md](docs/planning/governed_revival_handoff_v1.md),
+including its O/R/C/S/L/P/G/F preconditions, invariants, postconditions and
+golden-Agda crosswalk. The relevant Agda owners are
+DASHI/Core/CandidateOnlyCore.agda,
+DASHI/Interop/PNFPackageCore.agda,
+DASHI/Interop/ResidualBoundaryCore.agda,
+DASHI/Cognition/PNF/EventAlgebra.agda, and
+DASHI/Interop/InspectionRelativeNoTypedMeet.agda. The current
+dashi_lean4 checkout has no corresponding checked-in revival consumer;
+no Lean proof or formal closure is claimed. Selected-context sufficiency
+remains an explicit open obligation.

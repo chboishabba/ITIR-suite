@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import importlib
-import hashlib
-import json
 from typing import Any, Mapping
 
 from .contracts import JsonDict, ToolExecutionError, ToolInputError, ToolSpec
@@ -438,17 +436,9 @@ def revive_multi(payload: Mapping[str, Any]) -> JsonDict:
     # handoff-path existence check or transport operation may precede this gate.
     handoff_path = _required_text(payload, "handoff_path")
     prompt = _required_text(payload, "prompt")
-    request_id = payload.get("request_id")
-    if request_id is not None and (not isinstance(request_id, str) or not request_id.strip()):
-        raise ToolInputError("request_id must be a non-empty string when supplied")
-    if request_id is None:
-        # Idempotency is an adapter concern. Derive a stable key from the
-        # immutable request shape so ordinary callers cannot accidentally
-        # create duplicate children by omitting an opaque implementation ID.
-        request_id = "revive-" + hashlib.sha256(json.dumps(
-            {"parents": normalized_parents, "handoff_path": handoff_path, "prompt": prompt},
-            sort_keys=True, separators=(",", ":"), ensure_ascii=False,
-        ).encode("utf-8")).hexdigest()
+    request_id = _required_text(payload, "request_id")
+    if len(request_id) > 128:
+        raise ToolInputError("request_id must be at most 128 characters")
     follow = payload.get("follow", True)
     if not isinstance(follow, bool):
         raise ToolInputError("Expected boolean field: follow")
@@ -485,21 +475,6 @@ def session_status(payload: Mapping[str, Any]) -> JsonDict:
         "session": api.chatgpt_session_status(),
         "adapter_health": api.chatgpt_adapter_health(db_path=db_path, sample_limit=20),
     }
-
-
-def adapter_health_reset(payload: Mapping[str, Any]) -> JsonDict:
-    adapter = payload.get("adapter")
-    if adapter is not None and (not isinstance(adapter, str) or not adapter.strip()):
-        raise ToolInputError("Expected non-empty string field: adapter")
-    db_path = _optional_db_path(payload)
-    try:
-        result = _worker_api().chatgpt_adapter_health_reset(
-            adapter=adapter.strip() if adapter else None, db_path=db_path,
-        )
-    except Exception as exc:
-        raise ToolExecutionError("adapter health reset failed") from exc
-    return {"version": SCHEMA_VERSION, "result": result,
-            "policy": {"explicit_only": True, "mutation_retry": False}}
 
 
 def session_refresh(payload: Mapping[str, Any]) -> JsonDict:
@@ -852,14 +827,13 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                 description="Create one fresh child, attach one explicit candidate-only handoff artifact over direct async CFFI, and persist ordered canonical parent lineage receipts. Never retries uncertain operations.",
                 input_schema={
                     "type": "object",
-                    "required": ["parent_thread_ids", "handoff_path", "prompt"],
+                    "required": ["parent_thread_ids", "handoff_path", "prompt", "request_id"],
                     "properties": {
                         "parent_thread_ids": {"type": "array", "minItems": 2, "maxItems": 10,
                             "uniqueItems": True, "items": {"type": "string", "minLength": 1}},
                         "handoff_path": {"type": "string", "minLength": 1},
                         "prompt": {"type": "string", "minLength": 1},
-                        "request_id": {"type": "string", "minLength": 1, "maxLength": 128,
-                                       "description": "Optional idempotency override; derived automatically when omitted."},
+                        "request_id": {"type": "string", "minLength": 1, "maxLength": 128},
                         "follow": {"type": "boolean"},
                         "follow_timeout": {"type": "number", "minimum": 0},
                         "db_path": {"type": "string"},
@@ -887,20 +861,6 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                 read_only=True,
             ),
             session_status,
-        ),
-        (
-            ToolSpec(
-                name="itir.chatgpt.adapter_health_reset",
-                title="Reset read-adapter health",
-                description="Explicitly reset PostgreSQL read-adapter cooldown and latency telemetry; never automatic.",
-                input_schema={"type": "object", "properties": {
-                    "adapter": {"type": "string", "minLength": 1},
-                    "db_path": {"type": "string", "minLength": 1},
-                }, "additionalProperties": False},
-                response_version=SCHEMA_VERSION,
-                read_only=False,
-            ),
-            adapter_health_reset,
         ),
         (
             ToolSpec(

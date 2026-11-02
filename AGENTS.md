@@ -246,8 +246,9 @@ PYTHONPATH="/tmp/revive-itir2/itir-mcp/src:/tmp/revive-re2" \
 ```
 
 The mutating `itir.chatgpt.revive_multi` contract must reject unknown fields,
-invalid parent-list types, counts outside 2..10, empty IDs, and duplicate IDs
-before resolving the re-gpt adapter or checking the handoff path. A contract
+invalid parent-list types, counts outside 2..10, empty IDs, duplicate IDs
+(after trimming), and request IDs longer than 128 characters before resolving
+the re-gpt adapter or checking the handoff path. A contract
 failure must not touch the filesystem or dispatch a mutation. Never retry or
 resend an uncertain creation or attachment operation.
 
