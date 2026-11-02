@@ -487,6 +487,21 @@ def session_status(payload: Mapping[str, Any]) -> JsonDict:
     }
 
 
+def adapter_health_reset(payload: Mapping[str, Any]) -> JsonDict:
+    adapter = payload.get("adapter")
+    if adapter is not None and (not isinstance(adapter, str) or not adapter.strip()):
+        raise ToolInputError("Expected non-empty string field: adapter")
+    db_path = _optional_db_path(payload)
+    try:
+        result = _worker_api().chatgpt_adapter_health_reset(
+            adapter=adapter.strip() if adapter else None, db_path=db_path,
+        )
+    except Exception as exc:
+        raise ToolExecutionError("adapter health reset failed") from exc
+    return {"version": SCHEMA_VERSION, "result": result,
+            "policy": {"explicit_only": True, "mutation_retry": False}}
+
+
 def session_refresh(payload: Mapping[str, Any]) -> JsonDict:
     """Renew the saved ChatGPT session via CFFI only; never invoke CDP/browser."""
     profile_dir = payload.get("profile_dir")
@@ -872,6 +887,20 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                 read_only=True,
             ),
             session_status,
+        ),
+        (
+            ToolSpec(
+                name="itir.chatgpt.adapter_health_reset",
+                title="Reset read-adapter health",
+                description="Explicitly reset PostgreSQL read-adapter cooldown and latency telemetry; never automatic.",
+                input_schema={"type": "object", "properties": {
+                    "adapter": {"type": "string", "minLength": 1},
+                    "db_path": {"type": "string", "minLength": 1},
+                }, "additionalProperties": False},
+                response_version=SCHEMA_VERSION,
+                read_only=False,
+            ),
+            adapter_health_reset,
         ),
         (
             ToolSpec(
