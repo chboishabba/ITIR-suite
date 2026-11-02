@@ -38,10 +38,20 @@ def create_conversation(payload: Mapping[str, Any]) -> JsonDict:
     if not isinstance(follow, bool):
         raise ToolInputError("Expected boolean field: follow")
     db_path = _db_path(payload)
+    model = payload.get("model")
+    if model is not None and (not isinstance(model, str) or not model.strip()):
+        raise ToolInputError("Expected non-empty string field: model")
+    reasoning_effort = payload.get("reasoning_effort", "medium")
+    if reasoning_effort not in {"low", "medium", "high"}:
+        raise ToolInputError("reasoning_effort must be one of: low, medium, high")
     try:
         from .chatgpt_worker_tools import _worker_api
 
-        raw = _worker_api().chatgpt_new(prompt=prompt, follow=follow, db_path=db_path)
+        controls = {} if model is None and reasoning_effort == "medium" else {
+            "model": model.strip() if model else None,
+            "reasoning_effort": reasoning_effort,
+        }
+        raw = _worker_api().chatgpt_new(prompt=prompt, follow=follow, db_path=db_path, **controls)
     except ToolInputError:
         raise
     except Exception as exc:
@@ -71,6 +81,7 @@ def create_conversation(payload: Mapping[str, Any]) -> JsonDict:
             "automatic_resend": False,
             "uncertain_result_action": "reconcile_only" if uncertain else "none",
         },
+        "controls": {"model": model.strip() if model else None, "reasoning_effort": reasoning_effort},
     }
 
 
@@ -91,6 +102,8 @@ def get_chatgpt_creation_tools() -> list[tuple[ToolSpec, Any]]:
                     "properties": {
                         "prompt": {"type": "string", "minLength": 1},
                         "follow": {"type": "boolean"},
+                        "model": {"type": "string", "minLength": 1},
+                        "reasoning_effort": {"type": "string", "enum": ["low", "medium", "high"]},
                         "db_path": {"type": "string", "minLength": 1},
                     },
                 },

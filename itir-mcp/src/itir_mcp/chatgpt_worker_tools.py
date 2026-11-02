@@ -9,6 +9,7 @@ from .contracts import JsonDict, ToolExecutionError, ToolInputError, ToolSpec
 
 
 SCHEMA_VERSION = "itir.chatgpt_worker.v1"
+REASONING_EFFORTS = frozenset({"low", "medium", "high"})
 
 GOLDEN_AGDA_REMINDER = (
     "Check dashi_lean4 and dashi_agda and formalise the current problem in terms of "
@@ -203,6 +204,16 @@ def _optional_db_path(payload: Mapping[str, Any]) -> str | None:
     return value.strip()
 
 
+def _controls(payload: Mapping[str, Any]) -> tuple[str | None, str]:
+    model = payload.get("model")
+    if model is not None and (not isinstance(model, str) or not model.strip()):
+        raise ToolInputError("Expected non-empty string field: model")
+    effort = payload.get("reasoning_effort", "medium")
+    if not isinstance(effort, str) or effort not in REASONING_EFFORTS:
+        raise ToolInputError("reasoning_effort must be one of: low, medium, high")
+    return (model.strip() if isinstance(model, str) else None), effort
+
+
 def _worker_api() -> Any:
     try:
         for mod_name in (
@@ -225,6 +236,7 @@ def dispatch_worker(payload: Mapping[str, Any]) -> JsonDict:
     conversation_id = _required_text(payload, "conversation_id")
     prompt = _resolve_prompt(payload)
     db_path = _optional_db_path(payload)
+    model, reasoning_effort = _controls(payload)
     follow = payload.get("follow", True)
     if not isinstance(follow, bool):
         raise ToolInputError("Expected boolean field: follow")
@@ -250,6 +262,9 @@ def dispatch_worker(payload: Mapping[str, Any]) -> JsonDict:
         if pnf_mode:
             prompt = capsule.condensed_prompt_text
 
+    controls = {} if model is None and reasoning_effort == "medium" else {
+        "model": model, "reasoning_effort": reasoning_effort,
+    }
     result = _worker_api().chatgpt_continue(
         conversation_id=conversation_id,
         prompt=prompt,
@@ -259,6 +274,7 @@ def dispatch_worker(payload: Mapping[str, Any]) -> JsonDict:
         dom_fallback=False,
         db_path=db_path,
         reconcile_attempts=reconcile_attempts,
+        **controls,
     )
     ret = {
         "version": SCHEMA_VERSION,
@@ -268,6 +284,7 @@ def dispatch_worker(payload: Mapping[str, Any]) -> JsonDict:
             "dom_fallback": False,
             "automatic_resend": False,
         },
+        "controls": {"model": model, "reasoning_effort": reasoning_effort},
     }
     if bridge_capsule is not None:
         ret["latex_bridge"] = bridge_capsule
@@ -417,6 +434,7 @@ def revive_multi(payload: Mapping[str, Any]) -> JsonDict:
     allowed = {
         "parent_thread_ids", "handoff_path", "prompt", "request_id",
         "follow", "follow_timeout", "db_path",
+        "model", "reasoning_effort",
     }
     unknown = set(payload) - allowed
     if unknown:
@@ -448,6 +466,7 @@ def revive_multi(payload: Mapping[str, Any]) -> JsonDict:
             or follow_timeout < 0):
         raise ToolInputError("follow_timeout must be a non-negative number")
     db_path = _optional_db_path(payload)
+    model, reasoning_effort = _controls(payload)
 
     api = _worker_api()
     try:
@@ -459,10 +478,13 @@ def revive_multi(payload: Mapping[str, Any]) -> JsonDict:
             db_path=db_path,
             follow=follow,
             follow_timeout=float(follow_timeout),
+            model=model,
+            reasoning_effort=reasoning_effort,
         )
     except Exception as exc:
         raise ToolExecutionError(f"multi-parent revival failed without automatic retry: {exc}") from exc
-    return {"version": SCHEMA_VERSION, "operation": _compact_operation(result)}
+    return {"version": SCHEMA_VERSION, "operation": _compact_operation(result),
+            "controls": {"model": model, "reasoning_effort": reasoning_effort}}
 
 
 
@@ -836,6 +858,8 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                         "request_id": {"type": "string", "minLength": 1, "maxLength": 128},
                         "follow": {"type": "boolean"},
                         "follow_timeout": {"type": "number", "minimum": 0},
+                        "model": {"type": "string", "minLength": 1},
+                        "reasoning_effort": {"type": "string", "enum": ["low", "medium", "high"]},
                         "db_path": {"type": "string"},
                     },
                     "additionalProperties": False,
@@ -992,6 +1016,8 @@ def get_chatgpt_worker_tools() -> list[tuple[ToolSpec, Any]]:
                         "auto_latex_bridge": {"type": "boolean", "description": "Auto-extract LaTeX math and link to in-repo formal symbols."},
                         "pnf_mode": {"type": "boolean", "description": "Distill prompt through PNF reduction before dispatch (~99% token reduction)."},
                         "reconcile_attempts": {"type": "integer", "minimum": 0, "maximum": 10, "description": "Number of full-graph reconciliation attempts. Set 0 for fast submission mode without multi-MB graph pulls."},
+                        "model": {"type": "string", "minLength": 1},
+                        "reasoning_effort": {"type": "string", "enum": ["low", "medium", "high"]},
                         "db_path": {"type": "string"},
                     },
                     "additionalProperties": False,
