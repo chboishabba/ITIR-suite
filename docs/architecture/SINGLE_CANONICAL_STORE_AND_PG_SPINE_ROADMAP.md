@@ -109,15 +109,18 @@ The legacy scripts (`scripts/run_improved_ao_5x20_rounds.py`, `scripts/run_impro
    - `corpus.chat_archive_message` holds `15,599` messages across `58` hydrated conversations.
    - `pnf.statement_candidate_factor` currently holds `157,325` rows covering only 4 static external documents (`0` mapped chat `conversation_ref`s in `pnf.graph`). Hydrated chat messages must be compiled into `corpus.source_statement` $\to$ `pnf.statement_candidate_factor` $\to$ `pnf.candidate_semantic_product` $\to$ `pnf.graph` before running multi-round fleet orchestration.
 
-### B. Golden Agda Formalism Mandate (`dashi_agda`)
-All SensibLaw / SLR / ITIR architectural boundaries are governed by Golden Agda (`{-# OPTIONS --safe #-}`, 0 postulates, 0 unsolved metas, 0 terminating pragmas), proving that **no inhabitable path (`→ ⊥`) exists** to:
-- `SQLiteIsCanonicalRuntimeStore → ⊥`
-- `JSONLedgerIsCanonicalStateStore → ⊥`
-- `SLRWBagOfWordsFileIsSemanticSource → ⊥`
-- `RawRegexConstructsSemanticTokenOrPNF → ⊥`
-- `RegexIdentifierScrapeConstructsFormalInvariant → ⊥`
-- `HardcodedSlotDomainTableSelectsModules → ⊥`
-- `AlphabeticalDirectorySliceConstructsProofTarget → ⊥`
-- `PositionalRosterZipAssignsWorkerTopic → ⊥`
-- `UnwitnessedCrossDomainJoinAdmissible → ⊥`
-- `PassiveCoherenceFlagAllowsDispatch → ⊥`
+### B. Golden Agda Formalism Mandate (`dashi_agda` PR #1462 @ `1c2abbe76c`)
+All SensibLaw / SLR / ITIR architectural boundaries are governed by Golden Agda (`{-# OPTIONS --safe #-}`, 0 postulates, 0 unsolved metas, 0 terminating pragmas) in `DASHI/Interop/SLRNoPathFirewallExact.agda` and `DASHI/Interop/SLRStructuralReceiptFirewallExact.agda` (wired into `DASHI/Unified/Everything.agda`, `DASHI/Unifier.agda`, and `DASHI/EverythingTOESymmetryResolved369.agda`, and verified locally under `agda --safe` alongside `SLRProtectedPNFFleetReductionExact.agda`, `SLRActorCriticPromotionExact.agda`, `SLRPostgresWorldPersistenceExact.agda`, `SLRProductionRoadmapParityExact.agda`, `SLRSharedEvidenceReducerExact.agda`, and `SLRWorldModelSuiteConvergenceRoadmapExact.agda`), proving that **no inhabitable path (`→ ⊥`) exists** to:
+- `SQLiteIsCanonicalRuntimeStore → ⊥` / `sqliteNoPath`
+- `JSONLedgerIsCanonicalStateStore → ⊥` / `jsonNoPath`
+- `SLRWBagOfWordsFileIsSemanticSource → ⊥` / `slrwNoPath`
+- `UnconfiguredPGWithoutCanonicalSLRDSNAdmissible → ⊥` / `unconfiguredPGNoPath` / `canonicalPGNeedsDSN`
+- `RawRegexConstructsSemanticTokenOrPNF → ⊥` / `rawRegexNoPath`
+- `RegexIdentifierScrapeConstructsFormalInvariant → ⊥` / `regexAgdaScrapeNoPath`
+- `SubstringSymbolLikeQueryConstructsFormalOwner → ⊥` / `substringLikeNoPath`
+- `HardcodedSlotDomainTableSelectsModules → ⊥` / `hardcodedSlotNoPath`
+- `AlphabeticalDirectorySliceConstructsProofTarget → ⊥` / `alphabeticalSliceNoPath`
+- `PositionalRosterZipAssignsWorkerTopic → ⊥` / `positionalRosterNoPath`
+- `UnwitnessedCrossDomainJoinAdmissible → ⊥` / `missingASTBridgeNoPath` / `missingCoboundaryNoPath`
+- `PassiveCoherenceFlagAllowsDispatch → ⊥` / `passiveCoherenceNoPath`
+- Feature-set receipt gates (`missingIngest1NoPath`, `missingS29SidecarNoPath`, `missingK14K17WitnessNoPath`, `browserRefreshFallbackNoPath`, `silentStaleSessionNoPath`, `unclosedAdapterHealthStoreNoPath`, `invalidParentCountNoPath`, `duplicateOrEmptyParentNoPath`, `oversizedRequestIdNoPath`, `preGateAdapterTouchNoPath`, `uncertainCommitRetryNoPath`, `unnormalizedHyphenMacroNoPath`, `incompleteMacroChainNoPath`, `leakedLiteralMacroTokenNoPath`)
