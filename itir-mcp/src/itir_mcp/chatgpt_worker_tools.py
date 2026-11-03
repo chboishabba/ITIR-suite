@@ -153,6 +153,10 @@ def _compact_operation(result: Any) -> Any:
     return result
 
 
+def _normalize_preset_key(raw: str) -> str:
+    return raw.lstrip("@").strip().rstrip(",.;:").replace("-", "_").lower()
+
+
 def _resolve_prompt(payload: Mapping[str, Any]) -> str:
     raw_prompt = payload.get("prompt")
     if raw_prompt is not None and not isinstance(raw_prompt, str):
@@ -161,25 +165,65 @@ def _resolve_prompt(payload: Mapping[str, Any]) -> str:
     if preset is not None and not isinstance(preset, str):
         raise ToolInputError("Expected string field: preset")
     parts: list[str] = []
+    seen_presets: set[str] = set()
     if preset:
         for key in preset.replace(",", " ").split():
-            clean = key.lstrip("@").strip()
+            clean = _normalize_preset_key(key)
             if clean not in WORKER_PROMPT_PRESETS:
                 raise ToolInputError(f"Unknown worker prompt preset: {clean}")
-            parts.append(WORKER_PROMPT_PRESETS[clean])
+            if clean not in seen_presets:
+                parts.append(WORKER_PROMPT_PRESETS[clean])
+                seen_presets.add(clean)
     text = (raw_prompt or "").strip()
     if text:
         tokens = text.split()
         consumed = 0
         for tok in tokens:
-            if tok.startswith("@") and tok[1:] in WORKER_PROMPT_PRESETS:
-                parts.append(WORKER_PROMPT_PRESETS[tok[1:]])
+            clean_tok = _normalize_preset_key(tok) if tok.startswith("@") else ""
+            if tok.startswith("@") and clean_tok in WORKER_PROMPT_PRESETS:
+                if clean_tok not in seen_presets:
+                    parts.append(WORKER_PROMPT_PRESETS[clean_tok])
+                    seen_presets.add(clean_tok)
                 consumed += 1
             else:
                 break
         remainder = "" if consumed == len(tokens) else (text.split(None, consumed)[-1] if consumed else text)
         if remainder:
-            parts.append(remainder)
+            # Also expand any remaining standalone @preset tokens anywhere in the body
+            expanded_words: list[str] = []
+            for word in remainder.split():
+                clean_word = _normalize_preset_key(word) if word.startswith("@") else ""
+                if word.startswith("@") and clean_word in WORKER_PROMPT_PRESETS:
+                    if clean_word not in seen_presets:
+                        parts.append(WORKER_PROMPT_PRESETS[clean_word])
+                        seen_presets.add(clean_word)
+                else:
+                    expanded_words.append(word)
+            if expanded_words:
+                # Preserve original line structure while stripping standalone macro lines
+                cleaned_lines: list[str] = []
+                for line in remainder.splitlines():
+                    line_tokens = line.split()
+                    if line_tokens and all(
+                        t.startswith("@") and _normalize_preset_key(t) in WORKER_PROMPT_PRESETS
+                        for t in line_tokens
+                    ):
+                        continue
+                    kept_tokens = [
+                        (WORKER_PROMPT_PRESETS[_normalize_preset_key(t)]
+                         if t.startswith("@") and _normalize_preset_key(t) in WORKER_PROMPT_PRESETS
+                         and _normalize_preset_key(t) not in seen_presets
+                         else t)
+                        for t in line_tokens
+                        if not (t.startswith("@") and _normalize_preset_key(t) in WORKER_PROMPT_PRESETS)
+                    ]
+                    if kept_tokens != line_tokens:
+                        cleaned_lines.append(" ".join(kept_tokens))
+                    else:
+                        cleaned_lines.append(line)
+                cleaned_remainder = "\n".join(cleaned_lines).strip()
+                if cleaned_remainder:
+                    parts.append(cleaned_remainder)
     resolved = "\n\n".join(p for p in parts if p)
     if not resolved:
         raise ToolInputError("Expected non-empty string field: prompt (or preset)")

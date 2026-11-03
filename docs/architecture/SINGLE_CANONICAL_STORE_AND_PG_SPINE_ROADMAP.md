@@ -93,4 +93,31 @@ Every subsystem of the ITIR suite maps directly to a native PostgreSQL schema:
    - Verified 1,389 rows active in TrueNAS PostgreSQL.
 3. **Gate 3 — Headless CFFI Direct-to-PG:** Switch `MutationService` and headless `curl_cffi` write transports to connect directly to PostgreSQL, removing SQLite write paths.
 4. **Gate 4 — Spectral Pipeline Switch:** Ensure `hierarchical_corpus_manifold.py` and `load_preferred_semantic_corpus` query PostgreSQL as the only source, disabling `.slrw` file fallback.
-5. **Gate 5 — Deletion of SQLite & SLRW:** Remove the local `.sqlite` and `.slrw` files permanently.
+5. **Gate 5 — Deletion of SQLite, SLRW & JSON Ledgers:** Remove the local `.sqlite`, `.slrw`, and `docs/fleet/*.json` files permanently.
+
+---
+
+## 5. 2026-11-03 Architectural Audit & Golden Agda Non-Admissibility Firewalls
+
+### A. Root-Cause Audit of Deleted Ad-Hoc Orchestration Scripts
+The legacy scripts (`scripts/run_improved_ao_5x20_rounds.py`, `scripts/run_improved_ao_20_rounds.py`, `scripts/run_improved_ao_rounds.py`) and JSON ledgers (`docs/fleet/*.json`) have been permanently deleted because they violated core repository invariants:
+1. **No JSON / SLRW / SQLite State:** Reading `docs/fleet/fleet_hierarchical_pareto_summary.json` re-injected deprecated `.slrw` bag-of-words UI chrome (`collapse(auto)`, `than(rather)`, `redact(output)`).
+2. **No `SLOT_DOMAIN_SPEC` or Alphabetical `rglob("*.agda")` Slicing:** Hardcoded domain tables combined with `sorted(target_dir.rglob("*.agda"))` produced alphabetical `A*`, `B*`, `DNA*`, and `GRQuantum*` file slices and fabricated non-existent cross-domain joins (`SensibLaw <-> GR/Quantum`).
+3. **No Raw Regex (`import re`):** Identifier scraping via regex (`baseEq`) bypassed both `sensiblaw.interfaces` (`parser_adapter`, `shared_reducer`) and `dashi_agda` AST preflight (`itir.formal.inspect` / `itir.formal.route` over `DashiAgdaMcpTools`: `discover`, `symbol_search`, `related_symbols`, `object_detail`, `round_lineage`, `proof_route_for_obligation`, `formal_evidence_for_obligation`, `diagnose`, `affected`).
+4. **No Blind Positional Zipping or Passive Coherence Gates:** Workers must be grounded via their own PostgreSQL `corpus.chat_archive_message` $\leftrightarrow$ `pnf.statement_candidate_factor` / `pnf.graph` meets, and any `spectral_no_typed_meet` ($\delta^T \delta$ coboundary SVD) or PNF noise violation must hard-block dispatch.
+5. **Current Live PostgreSQL PNF State (`sensiblaw_sparse_ready_20260818`):**
+   - `corpus.chat_archive_message` holds `15,599` messages across `58` hydrated conversations.
+   - `pnf.statement_candidate_factor` currently holds `157,325` rows covering only 4 static external documents (`0` mapped chat `conversation_ref`s in `pnf.graph`). Hydrated chat messages must be compiled into `corpus.source_statement` $\to$ `pnf.statement_candidate_factor` $\to$ `pnf.candidate_semantic_product` $\to$ `pnf.graph` before running multi-round fleet orchestration.
+
+### B. Golden Agda Formalism Mandate (`dashi_agda`)
+All SensibLaw / SLR / ITIR architectural boundaries are governed by Golden Agda (`{-# OPTIONS --safe #-}`, 0 postulates, 0 unsolved metas, 0 terminating pragmas), proving that **no inhabitable path (`→ ⊥`) exists** to:
+- `SQLiteIsCanonicalRuntimeStore → ⊥`
+- `JSONLedgerIsCanonicalStateStore → ⊥`
+- `SLRWBagOfWordsFileIsSemanticSource → ⊥`
+- `RawRegexConstructsSemanticTokenOrPNF → ⊥`
+- `RegexIdentifierScrapeConstructsFormalInvariant → ⊥`
+- `HardcodedSlotDomainTableSelectsModules → ⊥`
+- `AlphabeticalDirectorySliceConstructsProofTarget → ⊥`
+- `PositionalRosterZipAssignsWorkerTopic → ⊥`
+- `UnwitnessedCrossDomainJoinAdmissible → ⊥`
+- `PassiveCoherenceFlagAllowsDispatch → ⊥`

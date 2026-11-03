@@ -1,5 +1,30 @@
 # TODO (ITIR-suite)
 
+## Golden Agda Formalism & AO/PNF/PostgreSQL Pipeline Audit (2026-11-03)
+
+- [x] **Purge Legacy Hardcoded Slot / JSON / Regex Orchestration Scripts:**
+  - Deleted `scripts/run_improved_ao_5x20_rounds.py`, `scripts/run_improved_ao_20_rounds.py`, `scripts/run_improved_ao_rounds.py`, and all `docs/fleet/*.json` files (`fleet_hierarchical_pareto_summary.json`, `improved_ao_*_ledger.json`, `autonomous_rounds_ledger.json`, `tranche_200_convergence_ledger.json`, `full_corpus_spectral_coordinates.json`, `fleet_spectral_visual_summary.json`).
+  - Documented root causes of the cross-wired dispatches:
+    1. *Blind positional zipping:* Zipped top-20 `ops.chat_hydration_roster` rows with `fleet_hierarchical_pareto_summary.json` and a hardcoded `SLOT_DOMAIN_SPEC` table without reading thread messages or checking thread-level PNF meets.
+    2. *Polluted `.slrw` bag-of-words UI chrome:* `collapse(auto)`, `than(rather)`, and `redact(output)` leaked from legacy `.slrw` files via `fleet_hierarchical_pareto_summary.json`.
+    3. *Alphabetical `rglob("*.agda")` slicing:* `sorted(target_dir.rglob("*.agda"))` grabbed alphabetical `A*` (`AQFTNetReceipt.agda`), `B*` (`Balaban1989Beta*`, `Base369Appraisal*`), `DNA*` (`DNAFirstFormalismRegression.agda`), and `GRQuantum*` files instead of routing via `dashi_agda` AST preflight (`itir.formal.inspect` / `itir.formal.route`).
+    4. *Fabricated cross-domain joins (`SensibLaw <-> GR/Quantum`):* Invented by `SLOT_DOMAIN_SPEC[4]` with zero backing Agda bridge or `noTypedMeet` witness.
+    5. *Regex identifier scraping (`baseEq`):* Used `import re` instead of `sensiblaw.interfaces` (`parser_adapter`, `shared_reducer`) and `DashiAgdaMcpTools` (`symbol_search`, `related_symbols`, `object_detail`, `proof_route_for_obligation`).
+    6. *Passive non-blocking coherence evaluation:* Flagged noise in JSON output without blocking worker dispatch.
+- [x] **Fix `@max-cut` / `@preset` Macro Expansion Across MCP Surfaces (`itir-mcp` & `reverse-engineered-chatgpt`):**
+  - Normalized preset keys (`.lstrip("@").strip().rstrip(",.;:").replace("-", "_").lower()`) in `itir_mcp.chatgpt_worker_tools._resolve_prompt` and `re_gpt.mcp_server.expand_worker_prompt` so hyphenated `@max-cut`, `@grug-ste100`, `@zkp-qa`, etc. expand identically to underscore variants and never terminate multi-macro chains (`@docs @max-cut @rpd @steelman @lemmas @surrounds @snowball`) or leak literal `@max-cut` strings into prompts.
+- [ ] **Golden Agda Formalism Synchronisation for SensibLaw / SLR / ITIR (`dashi_agda` via Governed MCP Worker):**
+  - Ensure Golden Agda (`{-# OPTIONS --safe #-}`, 0 postulates, 0 unsolved metas, 0 terminating pragmas) is completely up to date with the current Python/Rust feature set (`slr`, `SensibLaw`, `itir-mcp`, `re_gpt`) and formally proves that **no path exists (`→ ⊥`)** to:
+    1. `SQLiteIsCanonicalRuntimeStore → ⊥` (no path from runtime / orchestrator / work-packet / PNF spine to `.sqlite` / `.sqlite3` files).
+    2. `JSONLedgerIsCanonicalStateStore → ⊥` and `SLRWBagOfWordsFileIsSemanticSource → ⊥` (no path to `.json` ledgers or `.slrw`/`.slro` files; TrueNAS PostgreSQL `sensiblaw_sparse_ready_20260818` is the sole canonical store).
+    3. `RawRegexConstructsSemanticTokenOrPNF → ⊥` and `RegexIdentifierScrapeConstructsFormalInvariant → ⊥` (no path from `import re` string scraping to `TextUnit`, `PredicatePNF`, `RelationalAtom`, or `FormalSymbolJoin`; all text parsing must factor through `sensiblaw.interfaces` / `slr` shared reducer, and all formal symbol/join discovery must factor through `dashi_agda` AST preflight `DashiAgdaMcpTools`).
+    4. `HardcodedSlotDomainTableSelectsModules → ⊥`, `AlphabeticalDirectorySliceConstructsProofTarget → ⊥`, and `PositionalRosterZipAssignsWorkerTopic → ⊥` (no `SLOT_DOMAIN_SPEC`, no alphabetical `A*`/`B*`/`DNA*` slicing, no blind positional roster zipping).
+    5. `UnwitnessedCrossDomainJoinAdmissible → ⊥` (e.g., `SensibLaw <-> GR/Quantum` without an AST bridge module and `spectral_no_typed_meet` coboundary witness $\delta^T \delta$).
+    6. `PassiveCoherenceFlagAllowsDispatch → ⊥` (any UI chrome noise, `noTypedMeet` violation, or `illegalDefect` hard-blocks `DispatchEligible`).
+- [ ] **PostgreSQL PNF Spine & Work-Packet Migration (Next Implementation Round After Agda Goldens):**
+  - Compile the 58 hydrated ChatGPT conversations (`15,599` messages in `corpus.chat_archive_message`) into `corpus.source_statement`, `pnf.statement_candidate_factor`, `pnf.candidate_semantic_product`, and `pnf.graph` (currently `pnf.statement_candidate_factor` only has `157,325` rows from 4 static external documents and 0 mapped chat `conversation_ref`s).
+  - Refactor `itir-mcp/src/itir_mcp/pnf_work_packet_provider.py` to remove `import re` (`PATTERN = re.compile(...)`) and `sqlite3.connect("~/chat_archive.sqlite")`, querying PostgreSQL `corpus.chat_archive_message` + `pnf.*` via `sensiblaw.interfaces`.
+
 ## SLR Migration & 5-Stage PNF Fleet Reduction Spine (2026-10-27)
 
 > **Deprecation Notice:** `SensibLaw` (Python) is deprecated in favour of `slr` (`/home/c/Documents/code/slr`, native Rust workspace). All new PNF reduction, world-compiler, residual-lattice, and PostgreSQL persistence work belongs in `slr` and `dashi_agda`.

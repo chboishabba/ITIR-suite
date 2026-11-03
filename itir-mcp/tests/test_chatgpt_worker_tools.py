@@ -13,7 +13,8 @@ def test_registry_exposes_governed_chatgpt_worker_tools() -> None:
         "itir.chatgpt.get_access_token",
         "itir.chatgpt.cdp_capture",
         "itir.chatgpt.hydrate",
-        "itir.chatgpt.revive_bundle",
+        "itir.chatgpt.revive",
+        "itir.chatgpt.revive_multi",
         "itir.chatgpt.dispatch_worker",
         "itir.chatgpt.operation_status",
         "itir.chatgpt.reconcile",
@@ -113,17 +114,17 @@ def test_dispatch_forces_async_without_dom_fallback(monkeypatch) -> None:
     }]
 
 
-def test_revive_bundle_validates_parents_and_delegates(monkeypatch) -> None:
+def test_revive_multi_validates_parents_and_delegates(monkeypatch) -> None:
     calls = []
 
     class FakeWorkerApi:
         @staticmethod
-        def chatgpt_revive_bundle(**kwargs):
+        def chatgpt_revive_multi(**kwargs):
             calls.append(kwargs)
             return {
                 "operation_id": "op-bundle",
                 "state": "complete",
-                "parent_conversation_ids": kwargs["conversation_ids"],
+                "parent_thread_ids": kwargs["parent_thread_ids"],
                 "revived_conversation_id": "child-1",
             }
 
@@ -131,31 +132,30 @@ def test_revive_bundle_validates_parents_and_delegates(monkeypatch) -> None:
 
     registry = build_default_registry()
     rejected = registry.invoke(
-        "itir.chatgpt.revive_bundle",
-        {"conversation_ids": ["thread-1"], "prompt": "continue"},
+        "itir.chatgpt.revive_multi",
+        {
+            "parent_thread_ids": ["thread-1"],
+            "handoff_path": "/tmp/handoff.json",
+            "prompt": "continue",
+            "request_id": "req-1",
+        },
     )
     assert rejected["ok"] is False
 
     result = registry.invoke(
-        "itir.chatgpt.revive_bundle",
+        "itir.chatgpt.revive_multi",
         {
-            "conversation_ids": ["thread-1", "thread-2"],
-            "world_label": "shared mission",
+            "parent_thread_ids": ["thread-1", "thread-2"],
+            "handoff_path": "/tmp/handoff.json",
             "prompt": "continue",
+            "request_id": "req-1",
         },
     )
     assert result["ok"] is True
     assert result["result"]["operation"]["revived_conversation_id"] == "child-1"
-    assert calls == [{
-        "conversation_ids": ["thread-1", "thread-2"],
-        "prompt": f"{chatgpt_worker_tools.GOLDEN_AGDA_REMINDER}\n\ncontinue",
-        "world_label": "shared mission",
-        "include_transcripts": True,
-        "attachments": [],
-        "follow": False,
-        "output": None,
-        "db_path": None,
-    }]
+    assert calls[0]["parent_thread_ids"] == ["thread-1", "thread-2"]
+    assert calls[0]["handoff_path"] == "/tmp/handoff.json"
+    assert calls[0]["request_id"] == "req-1"
 
 
 def test_reconcile_never_constructs_re_gpt_service_with_none_db_path(monkeypatch) -> None:
@@ -242,6 +242,29 @@ def test_dispatch_worker_new_presets_and_golden_reminder(monkeypatch) -> None:
         sent = calls[0]["prompt"]
         assert chatgpt_worker_tools.GOLDEN_AGDA_REMINDER in sent
         assert sent.startswith(chatgpt_worker_tools.GOLDEN_AGDA_REMINDER)
+
+    # Verify hyphenated @max-cut in a multi-macro chain expands all macros and leaves no literal @ tokens
+    calls.clear()
+    res = build_default_registry().invoke(
+        "itir.chatgpt.dispatch_worker",
+        {
+            "conversation_id": "thread-1",
+            "prompt": "@docs @max-cut @rpd @steelman @lemmas @surrounds @snowball\nFormalise SensibLaw/SLR Agda boundary.",
+        },
+    )
+    assert res["ok"] is True
+    sent = calls[0]["prompt"]
+    assert "@max-cut" not in sent
+    assert "@docs" not in sent
+    assert "@rpd" not in sent
+    assert "@steelman" not in sent
+    assert "@lemmas" not in sent
+    assert "@surrounds" not in sent
+    assert "@snowball" not in sent
+    assert "Synchronize and update project documentation" in sent
+    assert "Exactly complete all per max-cut" in sent
+    assert "List every required lemma between here -> completed." in sent
+    assert sent.endswith("Formalise SensibLaw/SLR Agda boundary.")
 
 
 def test_cdp_capture_tool_invocable(monkeypatch) -> None:

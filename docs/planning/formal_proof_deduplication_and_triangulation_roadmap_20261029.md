@@ -17,7 +17,7 @@ Despite accumulating thousands of lines of verified code, proof closure was repe
 2. **Untracked Divergent Branches:** Threads split into 2 or 3 competing approaches for an intermediate lemma (e.g., whether temporal transfer terms are absorbed into the transfer matrix $T_k$ or tracked as spatial boundary defects) without explicitly comparing the trade-offs.
 3. **Obscured Gap Intersections:** The true scientific blockers (e.g., the all-diameter Kotecký-Preiss polymer activity bound, or the finite-to-continuum BKM vorticity passage) were buried beneath surface syntax churn.
 
-To halt this infinite cycle of disconnected sprints, the AST-level **Formal Family Triangulator** (`re_gpt.formal_triangulator`) and **Bounded Formal Slicer** (`re_gpt.formal_slicer`) were developed to deduplicate and triangulate formal families automatically.
+To halt this infinite cycle of disconnected sprints, all formal discovery, similarity, and obligation routing must factor exclusively through the AST-indexed **`dashi_agda` preflight & similarity engine** (`itir.formal.inspect` and `itir.formal.route` over `DashiAgdaMcpTools`: `discover`, `symbol_search`, `related_symbols`, `object_detail`, `round_lineage`, `proof_route_for_obligation`, `formal_evidence_for_obligation`, `diagnose`, `affected`) and the PostgreSQL PNF semantic spine (`itir_mcp.pg_semantic_spine` + `sensiblaw.interfaces`). Legacy regex-based `re_gpt.formal_triangulator` and `re_gpt.formal_slicer` are retired and banned per the zero-regex rule.
 
 ---
 
