@@ -3,6 +3,22 @@
 6 November 2026.  Source-connected ITIR contribution to Golden DASHI
 biology history/future quotient max-cut (DASHI PR #1471).
 
+## Additional source-anchoring acceptance (6 November 2026)
+
+The source producer in DASHI PR #1471 and this ITIR candidate consumer now
+**independently** require that the original evidence reference of every
+GO-CAM-activity / SBML-reaction join is actually present on the selected
+original GO-CAM activity's molecular-function or causal-edge evidence.
+An arbitrary citation string, a citation belonging to another activity,
+or a missing reference cannot authorize even a candidate join.
+
+This is a source-local evidence-integrity check, **not** a reviewed PNF
+source span, biochemical equivalence, a PostgreSQL write or authority
+promotion. The consumer's negative tests exercise absent and
+wrong-activity references. The generic span-bearing canonical
+parser/reviewer remains the only acceptance route for authoritative
+PNF reconciliation.
+
 ## Authority and role
 
 PostgreSQL PNF is the *single* canonical world-model persistence layer.  This
