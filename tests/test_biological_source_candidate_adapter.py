@@ -70,6 +70,21 @@ class BiologyWorldModelTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             project_biological_sources(r)
 
+    def test_join_evidence_requires_selected_original_activity(self):
+        r=source()
+        r["candidate_joins"][0]["evidence_reference"]="PMID:UNSUPPORTED"
+        with self.assertRaises(ValueError):
+            project_biological_sources(r)
+        # Even a reference present on a *different* original activity
+        # cannot be used to assert this selected activity/reaction join.
+        r=source()
+        r["gocam"]["activities"][1]["molecular_function_evidence"]=[
+            {"reference":"PMID:OTHER"}
+        ]
+        r["candidate_joins"][0]["evidence_reference"]="PMID:OTHER"
+        with self.assertRaises(ValueError):
+            project_biological_sources(r)
+
     def test_reject_mutation_and_corrupt_source(self):
         r=source()
         r["pnf_mutation_performed"]=True
