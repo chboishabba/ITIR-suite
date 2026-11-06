@@ -78,6 +78,7 @@ def project_biological_sources(
         raise ValueError("activities and reactions must be arrays")
     aids = set()
     statements = []
+    source_evidence_by_activity: dict[str, set[str]] = {}
     for activity in activities:
         if not isinstance(activity, Mapping):
             raise ValueError("malformed activity")
@@ -87,6 +88,10 @@ def project_biological_sources(
         aids.add(subject)
     for activity in activities:
         subject = activity["id"]
+        activity_evidence: set[str] = set()
+        original_molecular_evidence = activity.get("molecular_function_evidence") or []
+        if original_molecular_evidence:
+            activity_evidence.update(_candidate_evidence(original_molecular_evidence))
         for edge in activity.get("causal_associations") or ():
             if not isinstance(edge, Mapping):
                 raise ValueError("malformed causal relation")
@@ -97,6 +102,7 @@ def project_biological_sources(
             if object_id not in aids:
                 raise ValueError("out-of-model causal reference")
             evidence_refs = _candidate_evidence(edge.get("evidence"))
+            activity_evidence.update(evidence_refs)
             candidate = {
                 "source_id": go_id, "source_sha256": go_sha,
                 "subject": subject, "predicate": predicate,
@@ -106,6 +112,7 @@ def project_biological_sources(
             }
             candidate["candidate_ref"] = "biology:candidate:" + _digest(candidate)
             statements.append(candidate)
+        source_evidence_by_activity[subject] = activity_evidence
     rids = set()
     for reaction in reactions:
         if not isinstance(reaction, Mapping):
@@ -123,6 +130,10 @@ def project_biological_sources(
         ev = _nonempty(edge.get("evidence_reference"), "join original reference")
         if aid not in aids or rid not in rids:
             raise ValueError("join endpoint not present in source")
+        if ev not in source_evidence_by_activity[aid]:
+            raise ValueError(
+                "join evidence not attached to original selected GO-CAM activity"
+            )
         joins.append({
             "left": {"kind":"GO-CAM activity","id":aid,"source_sha256":go_sha},
             "right": {"kind":"SBML reaction","id":rid,"source_sha256":sbml_sha},
