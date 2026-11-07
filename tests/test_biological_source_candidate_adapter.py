@@ -40,6 +40,39 @@ def source():
     }
 
 
+def spatial():
+    return {
+        "status": "source-matched-spatial-observation-not-kinetic-mechanism",
+        "pnf_mutation_performed": False,
+        "original_source_digest_verified_by_independent_fetch": False,
+        "transport_mode_claim_independently_validated": False,
+        "source_id": "spatial:synthetic",
+        "original_source": "spatial:synthetic",
+        "source_sha256": "d"*64,
+        "original_csv_sha256": "d"*64,
+        "original_source_sha256_declared": "e"*64,
+        "original_measurement_rows": 2,
+        "context_measurements": [
+            {
+                "specimen":"s1", "time_s":"0", "region":"blood",
+                "compartment":"plasma", "bh4_amount_mol":"0.000002",
+                "bh2_amount_mol":"0.000001",
+                "connection_id":"a", "transport_mode":"vascular_perfusion",
+                "transport_source_reference":"source-only:test",
+                "experiment":"exp1", "split":"test",
+            },
+            {
+                "specimen":"s1", "time_s":"0", "region":"endothelium",
+                "compartment":"cytosol", "bh4_amount_mol":"0.000001",
+                "bh2_amount_mol":"0.000002",
+                "connection_id":"a", "transport_mode":"plasma_membrane",
+                "transport_source_reference":"source-only:test",
+                "experiment":"exp1", "split":"test",
+            },
+        ],
+    }
+
+
 class BiologyWorldModelTests(unittest.TestCase):
     def test_canonical_candidate_identity_and_no_promotion(self):
         a=project_biological_sources(source())
@@ -94,6 +127,44 @@ class BiologyWorldModelTests(unittest.TestCase):
         r["gocam"]["sha256"]="not-a-hash"
         with self.assertRaises(ValueError):
             project_biological_sources(r)
+
+    def test_spatial_assay_preserves_compartment_and_transport_candidate(self):
+        bundle = project_biological_sources(source(), spatial_measurement=spatial())
+        candidate = bundle["spatial_observation_candidates"]
+        self.assertTrue(candidate["candidate_only"])
+        self.assertEqual(candidate["measured_csv_sha256"], "d"*64)
+        self.assertEqual(len(candidate["same_specimen_context_rows"]), 2)
+        self.assertEqual(candidate["same_specimen_context_rows"][0]["region"], "blood")
+        self.assertEqual(candidate["same_specimen_context_rows"][1]["compartment"], "cytosol")
+        self.assertFalse(candidate["same_physical_model_established"])
+        self.assertFalse(candidate["transport_law_validated"])
+        self.assertFalse(bundle["pnf_promotion"])
+
+    def test_spatial_assay_rejects_unanchored_or_false_source_identity(self):
+        r = spatial()
+        r["source_sha256"] = "f"*64
+        with self.assertRaises(ValueError):
+            project_biological_sources(source(), spatial_measurement=r)
+        r = spatial()
+        r["context_measurements"][0]["transport_source_reference"] = ""
+        with self.assertRaises(ValueError):
+            project_biological_sources(source(), spatial_measurement=r)
+        r = spatial()
+        r["context_measurements"][0]["transport_mode"] = "teleport"
+        with self.assertRaises(ValueError):
+            project_biological_sources(source(), spatial_measurement=r)
+        r = spatial()
+        r["context_measurements"][1] = r["context_measurements"][0].copy()
+        with self.assertRaises(ValueError):
+            project_biological_sources(source(), spatial_measurement=r)
+        r = spatial()
+        r["transport_mode_claim_independently_validated"] = True
+        with self.assertRaises(ValueError):
+            project_biological_sources(source(), spatial_measurement=r)
+        r = spatial()
+        r["context_measurements"][0]["bh4_amount_mol"] = "-1"
+        with self.assertRaises(ValueError):
+            project_biological_sources(source(), spatial_measurement=r)
 
     def test_assay_remains_separate_evidence(self):
         kin={
