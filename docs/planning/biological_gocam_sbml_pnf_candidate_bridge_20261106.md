@@ -19,6 +19,49 @@ wrong-activity references. The generic span-bearing canonical
 parser/reviewer remains the only acceptance route for authoritative
 PNF reconciliation.
 
+## 2026-11-07 spatial physiology boundary
+
+The source producer in DASHI Kitzerow/BH4 PR #1454 now has
+`check_bh4_spatial_measurement_payment.py`, which keeps original
+**region, compartment, specimen, time, measured volume, BH4/BH2
+amounts and delivery-connection provenance** together. Circulation
+is separate from local tissue adjacency, membrane transport, and
+blood-brain barrier access.
+
+This ITIR adapter now supports the optional
+`spatial_measurement=` argument on the existing
+`project_biological_sources` function, not a new PNF compiler,
+storage table or autonomous ontology writer.
+
+The candidate-only `spatial_observation_candidates` retains:
+- source/CSV SHA-256 and source identity **separately**;
+- specimen and original experiment identity, evaluation split,
+  time, region and compartment;
+- original molar BH4/BH2 amounts (no assumption that a
+  concentration equals a tissue-accessible amount);
+- transport connection, mode and original evidence reference;
+- explicit falsity of model identity, transport law validation,
+  physical causal proof and canonical PNF promotion.
+
+The consumer rejects mismatched source digests, non-finite/negative
+amounts, duplicate same-specimen/time/region contexts, unrecognized
+transport modes, missing route provenance, and self-declared
+source/transport authority. Focused negative tests are included.
+
+**The important scientific distinction:** equal global biochemical
+inventory may be insufficient for a region's future phenotype; both
+transport connectivity and local BH4/BH2 redox matter. The
+repository's finite mathematical witnesses do not establish a
+clinical mechanism in autism, other neurodevelopmental phenotypes
+or planarian tissue. The creator's allostatic proposal and
+independently curated chemistry remain distinct.
+
+Actual PostgreSQL ingestion still requires the canonical SLR/PNF
+source-span parser, reviewer, and separately authorized operation.
+No parser invocation or database mutation is performed by this
+candidate adapter. Exact-head unit tests and source reconciliation
+remain unexecuted until independent run receipts exist.
+
 ## Authority and role
 
 PostgreSQL PNF is the *single* canonical world-model persistence layer.  This
