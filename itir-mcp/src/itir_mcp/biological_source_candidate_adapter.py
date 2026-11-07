@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from decimal import Decimal, InvalidOperation
 from collections.abc import Mapping
 from typing import Any
 
@@ -47,11 +48,106 @@ def _candidate_evidence(value: object) -> list[str]:
     return sorted(set(refs))
 
 
+_TRANSPORT_MODES = {
+    "local_diffusion", "vascular_perfusion", "plasma_membrane",
+    "interstitial", "gap_junction", "blood_brain_barrier",
+}
+
+
+def _nonnegative_decimal(value: object, label: str) -> str:
+    try:
+        result = Decimal(str(value))
+    except (InvalidOperation, TypeError, ValueError) as exc:
+        raise ValueError(f"invalid {label}") from exc
+    if not result.is_finite() or result < 0:
+        raise ValueError(f"invalid {label}")
+    return str(result)
+
+
+def _project_spatial_assay(report: Mapping[str, Any]) -> dict[str, Any]:
+    if report.get("status") != "source-matched-spatial-observation-not-kinetic-mechanism":
+        raise ValueError("spatial assay has not passed selected source qualification")
+    if report.get("pnf_mutation_performed") is not False:
+        raise ValueError("spatial assay cannot claim canonical mutation")
+    if report.get("original_source_digest_verified_by_independent_fetch") is not False:
+        raise ValueError("unreviewed source digest cannot self-claim external authentication")
+    if report.get("transport_mode_claim_independently_validated") is not False:
+        raise ValueError("transport mechanism must not self-promote from a candidate")
+    digest = _sha(report.get("source_sha256"))
+    if digest != _sha(report.get("original_csv_sha256")):
+        raise ValueError("spatial source assay digest discrepancy")
+    original_digest = _sha(report.get("original_source_sha256_declared"))
+    original_id = _nonempty(report.get("original_source"), "original spatial source ID")
+    if original_id != _nonempty(report.get("source_id"), "spatial source ID"):
+        raise ValueError("spatial original-source ID mismatch")
+    raw = report.get("context_measurements")
+    if not isinstance(raw, list) or not raw:
+        raise ValueError("spatial candidate requires measured context rows")
+    count = report.get("original_measurement_rows")
+    if type(count) is not int or count != len(raw):
+        raise ValueError("spatial report measured row count mismatch")
+    if not raw:
+        raise ValueError("spatial report cannot be empty")
+    seen = set()
+    contexts = []
+    for entry in raw:
+        if not isinstance(entry, Mapping):
+            raise ValueError("malformed spatial measurement row")
+        ident = tuple(_nonempty(entry.get(key), key) for key in
+            ("specimen", "region", "compartment"))
+        time = _nonnegative_decimal(entry.get("time_s"), "spatial time")
+        context_key = (ident[0], time, ident[1], ident[2])
+        if context_key in seen:
+            raise ValueError("duplicate same specimen/time/location spatial observation")
+        seen.add(context_key)
+        mode = _nonempty(entry.get("transport_mode"), "transport mode")
+        if mode not in _TRANSPORT_MODES:
+            raise ValueError("unsupported physical transport mode")
+        context = {
+            "specimen_id": ident[0],
+            "time_s": time,
+            "region": ident[1],
+            "compartment": ident[2],
+            "bh4_amount_mol": _nonnegative_decimal(
+                entry.get("bh4_amount_mol"), "BH4 molar amount"
+            ),
+            "bh2_amount_mol": _nonnegative_decimal(
+                entry.get("bh2_amount_mol"), "BH2 molar amount"
+            ),
+            "delivery_connection_id": _nonempty(
+                entry.get("connection_id"), "spatial transport connection"
+            ),
+            "transport_mode": mode,
+            "transport_original_reference": _nonempty(
+                entry.get("transport_source_reference"), "original transport reference"
+            ),
+            "experiment_id": _nonempty(entry.get("experiment"), "original experiment"),
+            "split": _nonempty(entry.get("split"), "original evaluation split"),
+            "candidate_only": True,
+            "same_physical_model_established": False,
+            "transport_law_validated": False,
+            "pnf_promoted": False,
+        }
+        contexts.append(context)
+    return {
+        "source_id": original_id,
+        "original_source_digest_declared": original_digest,
+        "measured_csv_sha256": digest,
+        "candidate_only": True,
+        "same_specimen_context_rows": contexts,
+        "same_physical_model_established": False,
+        "transport_law_validated": False,
+        "clinical_or_causal_mechanism_established": False,
+        "pnf_mutation_performed": False,
+    }
+
+
 def project_biological_sources(
     receipt: Mapping[str, Any],
     *,
     kinetic_calibration: Mapping[str, Any] | None = None,
     genotype_holdout: Mapping[str, Any] | None = None,
+    spatial_measurement: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Pure candidate-only projection. Never read or write PNF automatically."""
     if receipt.get("status") != "unpromoted-source-intake":
@@ -170,7 +266,12 @@ def project_biological_sources(
             "biological_mechanism_validated":False,
         }
         studies.append(study)
+    spatial_candidates = (
+        _project_spatial_assay(spatial_measurement)
+        if spatial_measurement is not None else None
+    )
     bundle = {
+        "spatial_observation_candidates": spatial_candidates,
         "schema":VERSION,
         "authority":"source-evidence-candidate-only",
         "source_artifacts":sources,
