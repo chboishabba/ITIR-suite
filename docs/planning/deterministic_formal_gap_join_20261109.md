@@ -89,3 +89,35 @@ python -m unittest discover -s tests -p 'test_formal_gap_join.py' -v
 
 Do not introduce a new AO fleet, orchestration state, PNF authority, source
 parser, theorem fingerprint system, or proof transport here.
+
+## Translator round-trip interoperability (2026-11-09)
+
+The **authoritative** translator-specific phase/deliverable/exact-lemma
+ledger is [agda2lean/docs/BIDIRECTIONAL_ROUNDTRIP_MAX_CUT.md](https://github.com/chboishabba/agda2lean/blob/main/docs/BIDIRECTIONAL_ROUNDTRIP_MAX_CUT.md).
+Existing `itir.formal.inspect`, `itir.formal.route`, and this
+`scripts/formal_gap_join.py` remain read-only, candidate-only source
+discovery. Neither the AO fleet nor LLM orchestration is part of this
+mathematical script.
+
+Bidirectional benchmark roles are explicitly separate:
+
+1. `dashi_lean4`/Lean: primary ingestion and kernel checking for external
+   Lean theorem donors.
+2. `agda2lean`: Agda → Lean typed-IR and strict capability/translation;
+   plus the new round-trip source/audit runner and feature taxonomy.
+3. `formalverification/lean2agda`: independent Lean → Agda candidate
+   translator, inspected but not modified.
+4. `dashi_agda`: Agda source-owning theorem proof and cross-language
+   representation/correspondence obligations.
+5. `ITIR-suite`: a small external-automation-optional gap query,
+   **not** the runtime or theorem proof authority.
+
+The audited corpora have 19 agda2lean feature fixtures, zero source-promoted
+correspondences, and 12 lean2agda hand-translation corpus entries. A
+conservative reviewed feature crosswalk creates 42 candidate pairs;
+zero become formal equivalences by lookup. Generic inverse-law theorems
+have been written on Agda and Lean sides, but neither a real selected
+translation cycle nor the two required independent kernel receipts has
+yet been executed and paid by this effort.
+
+No unpublished DASHI source is supplied to upstream maintainers.
