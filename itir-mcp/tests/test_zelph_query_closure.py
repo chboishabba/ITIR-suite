@@ -146,3 +146,83 @@ def test_query_closure_refuses_mixed_revisions_and_unproved_negatives():
     assert covered["family_dependencies_inspected"]
     assert covered["coverage_status"] == "unverified-source-closure"
     assert not covered["scoped_negative_answer_permitted"]
+
+
+def _manifest_bridge_case():
+    from itir_mcp.zelph_query_closure import verify_manifest_name_cover
+    declared, raw = _inputs()
+    artifact = "wikidata-20260309-all"
+    object_uris = {
+        "name-1": f"hf://datasets/acrion/zelph/{artifact}/shards/nodeOfName/chunk-000001-wikidata.capnp-packed",
+        "name-4": f"hf://datasets/acrion/zelph/{artifact}/shards/nodeOfName/chunk-000004-wikidata.capnp-packed",
+    }
+    named = [
+        replace(
+            d,
+            shard_id=f"nodeOfName-chunk-{d.chunk_index:06d}-{d.language}",
+            object_uri=object_uris[d.shard_id],
+        )
+        for d in declared
+    ]
+    named_raw = {
+        f"nodeOfName-chunk-{d.chunk_index:06d}-{d.language}": raw[d.shard_id]
+        for d in declared
+    }
+    manifest = {
+        "manifestVersion": 2,
+        "storageMode": "split-by-direction-and-section",
+        "source": {"artifactName": artifact},
+        "sections": {"nodeOfName": {"chunks": [
+            {
+                "chunkIndex": d.chunk_index, "lang": d.language,
+                "length": d.size_bytes, "objectPath": d.object_uri,
+            }
+            for d in named
+        ]}},
+    }
+    audit = audit_declared_name_partition(
+        artifact_id=artifact, graph_revision="hf:immutable-dataset",
+        declared=named, raw_objects=named_raw, decode=_decode,
+    )
+    return manifest, audit
+
+
+def test_manifest_to_all_declared_name_chunks_bridge():
+    from itir_mcp.zelph_query_closure import verify_manifest_name_cover
+    manifest, audit = _manifest_bridge_case()
+    result = verify_manifest_name_cover(manifest=manifest, audit=audit)
+    assert result["manifest_declared_name_cover_exhausted"] is True
+    assert result["matched_physical_object_count"] == 2
+    assert result["actual_byte_sha_receipts_present"] is True
+    assert result["decoder_refinement_proved"] is False
+    assert result["source_graph_name_domain_exhausted"] is False
+
+
+def test_manifest_cover_rejects_missing_chunk_and_wrong_object_uri():
+    from copy import deepcopy
+    from itir_mcp.zelph_query_closure import verify_manifest_name_cover
+    manifest, audit = _manifest_bridge_case()
+    shorter = deepcopy(manifest)
+    shorter["sections"]["nodeOfName"]["chunks"].pop()
+    with pytest.raises(ValueError, match="manifest/decoded"):
+        verify_manifest_name_cover(manifest=shorter, audit=audit)
+    changed = deepcopy(manifest)
+    changed["sections"]["nodeOfName"]["chunks"][0]["objectPath"] += ".forged"
+    with pytest.raises(ValueError, match="manifest/decoded"):
+        verify_manifest_name_cover(manifest=changed, audit=audit)
+
+
+def test_manifest_cover_rejects_duplicate_physical_chunk_and_unbound_artifact():
+    from copy import deepcopy
+    from itir_mcp.zelph_query_closure import verify_manifest_name_cover
+    manifest, audit = _manifest_bridge_case()
+    duplicated = deepcopy(manifest)
+    duplicated["sections"]["nodeOfName"]["chunks"].append(
+        deepcopy(duplicated["sections"]["nodeOfName"]["chunks"][0])
+    )
+    with pytest.raises(ValueError, match="duplicate manifest"):
+        verify_manifest_name_cover(manifest=duplicated, audit=audit)
+    mismatch = deepcopy(manifest)
+    mismatch["source"]["artifactName"] = "another-graph"
+    with pytest.raises(ValueError, match="audited graph differs"):
+        verify_manifest_name_cover(manifest=mismatch, audit=audit)
