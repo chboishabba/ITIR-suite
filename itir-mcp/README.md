@@ -60,9 +60,99 @@ Not in scope for the first increment:
 - `itir.pnf.context_index`
 - `itir.pnf.task_memory_preview`
 - `itir.pnf.observer_evidence`
+- `itir.pnf.work_packet`
+- `itir.pnf.governed_handoff`
+- `itir.pnf.multi_parent_handoff`
+- `itir.pnf.residual_cases`
+- `itir.archive.thread_view`
+- `itir.ao.operation_review`
+- `itir.chatgpt.operation_receipts`
+- `itir.chatgpt.revive_multi`
 - `itir.markdown.render_projection`
 - `itir.markdown.write_projection`
 - `itir.docstore.config_plan`
+
+## Governed ChatGPT worker lane
+
+`itir-mcp` owns the fleet-facing ChatGPT worker boundary. Callers use
+`itir.chatgpt.dispatch_worker`, `itir.chatgpt.operation_status`, and
+`itir.chatgpt.reconcile` rather than constructing a `re-gpt` CLI command.
+The adapter delegates to the local re-gpt public API with direct async writes,
+DOM fallback disabled, and receipt-bearing operation state. It does not expose
+browser/session bootstrap controls and never resends an uncertain operation.
+
+Attachment/artifact inspection is exposed as `itir.chatgpt.attachments`,
+`itir.chatgpt.export_sandbox_file`, and `itir.chatgpt.download_attachment`.
+`itir.chatgpt.adapter_health_reset` clears a stuck exact-read cooldown without
+erasing historical adapter telemetry.
+
+`itir.chatgpt.revive` revives one predecessor into a fresh thread.
+`itir.chatgpt.revive_bundle` joins 2–10 parent threads into a candidate-only
+world synthesis and revives them into one new thread with multi-parent lineage.
+Shared statements in the bundle are candidate evidence, not proof of
+equivalence; parent threads remain authoritative and are never retired.
+A normal worker dispatch is event-driven: the caller awaits its completion
+result and does not poll while it is in flight or require a user wake-up. The
+caller may complete independent work while waiting, otherwise waits silently.
+`operation_status` and `reconcile` are recovery tools for an uncertain or
+interrupted operation, not routine liveness checks.
+
+ChatGPT is the normal low-cost worker for a major coherent implementation cut.
+Keep tiny local fixes, bounded review repairs, test-harness adjustments, and
+verification plumbing in the calling Codex/AO lane rather than creating a
+worker round-trip. A report-only dispatch is an intentional phase gate:
+require the worker to establish the applicable
+roadmap, phase, deliverables/acceptance state, ZKP frame, and relevant
+Agda/Lean proof surfaces from repository evidence. Do not impose an arbitrary
+word cap on that report. A subsequent implementation dispatch should deliver
+the largest coherent max-cut supported by the gate, not a needlessly tiny
+patch. Every nontrivial brief carries the full `O/R/C/S/L/P/G/F` frame and
+material constraints, invariants, preconditions, and postconditions; it names
+the owner, disjoint write surface, post-worker verification phase, and a
+measurable refinement criterion. The ChatGPT connector returns the branch/PR, intended verification
+commands, and its execution boundary; it is not asked to run local tests,
+assume a mounted checkout, or use GitHub Actions. Before dispatch, the calling
+lane inspects available local clones and supplies the exact GitHub
+repository/branch, current schema/API facts, roadmap paths, and intended
+local/Colab acceptance commands. The connector uses its GitHub integration
+against those named targets rather than guessing a repository mapping. The
+calling Codex/AO lane
+runs applicable tests or formal checks locally or in Colab. An operation or PR
+receipt alone is not acceptance. Once accepted, the calling lane merges and
+pushes the branch to the authoritative target before dispatching dependent
+workers, so they build on checked current code.
+
+Before dispatching an existing conversation, inspect its title, current task,
+and recent bounded handoff/operation context to classify its role. Do not turn
+a formalisation, proof exploration, research, or review thread into an
+implementation worker merely because it has relevant background. Preserve such
+a thread as candidate evidence (or supply it through a bounded revival/handoff)
+and start a fresh implementation thread for the coherent coding cut. The
+implementation brief must state that fresh thread's purpose, target repository
+and branch, and verification boundary. If the role cannot be established from
+the available bounded evidence, use a report-only phase gate or abstain; never
+infer role from a URL or title alone.
+
+High-RAM Colab is the escalation path for Lean/Agda or another demonstrated
+memory-heavy verification need; ordinary Python/MCP tests stay local.
+
+Use plain language and proportional accessibility requirements for
+human-facing artifacts. Agents may propose a visualization or visual proof
+when it materially clarifies a difficult relation, but require explicit human
+approval before creating one; an approved artifact is inspected before any
+claim based on it is promoted.
+
+For ZKP-framed worker briefs and receipts, use the canonical model without
+renaming or collapsing fields: `O` Organization, `R` RFP, `C` Code, `S` State,
+`L` Lattice, `P` Proposal, `G` Governance, and `F` Gap function. In
+particular, governance is a separate promotion/control surface, not part of
+the gap function.
+
+## Multi-parent revival
+
+The read-only `itir.pnf.multi_parent_handoff` accepts 2–10 distinct canonical thread IDs and returns separate bounded parent projections plus a candidate-only reference world. The default handoff reader is the canonical PostgreSQL corpus (`corpus.chat_archive_message`); it does not fall back to the re-gpt SQLite cache. Save that result to an explicit caller-owned artifact path, then use `itir.chatgpt.revive_multi` to create one fresh ChatGPT conversation and attach that artifact over direct async CFFI. Ordered canonical parent IDs and the attachment operation receipt are retained in the re-gpt operational lineage receipt store; that store is not corpus authority. The request ID is claimed before either write, so repeated calls return the existing receipt rather than creating a second child or resending. Unavailable SensibLaw public parsing abstains. No cross-parent equivalence, parent retirement, automatic retry, or selected-context sufficiency proof is inferred.
+
+See `docs/planning/governed_revival_handoff_v1.md` for the complete contract and referee commands.
 
 ## Numeric ABI
 
@@ -196,3 +286,40 @@ Doctrine: all tool outputs are proposals until verified.
 - `dioxus/web` should call a backend/native seam that talks to this adapter
 - existing internal Dioxus MCP-like registries remain useful UI/debug surfaces
   but are not the canonical suite transport layer
+
+
+## Dioxus fleet/research cockpit integration (2026-10-23 planning addendum)
+
+Canonical operator UI: `chboishabba/itir-dioxus` M10/M11, **not** legacy `itir-svelte`. Reuse Dioxus `VisualisationIr` and the shared `DomainCommand` reducer. UI must not become a second fleet controller, archive, world store, or semantic authority.
+
+**Read-only producer projection** should link AO operation/lane/worker state, canonical archive handoff and source digests, StatiBaker observer chronology, SLR candidate-only proof-search/residual receipts and exact verifier evidence by stable scoped references. First cut is one mission end-to-end with bounded graph/timeline/inspector selection. Do not infer success from a heartbeat, output text, GPU node color or PR creation.
+
+**Governed action boundary:** `itir.chatgpt.dispatch_worker`, `operation_status`, `reconcile` and `itir.ao.*` remain the only documented controller interfaces for their respective operations. Dioxus may propose a typed requested action, but execution requires scope and policy review, explicit approval where applicable, and a receipt of the actual outcome. `async_starting` and `commit_unknown` are hold/reconcile/no-resend, never auto-retry. Ordinary dispatch is event-driven and should not be converted into polling for dashboard animation. The historical title/DOM-based fleet daemon is excluded from this governed path.
+
+**Cross-project acceptance:** deterministic replay and stable selection IDs, unknown versus unavailable versus redacted visually distinct, bounded raw-source drill-down, identical GPU/shell selection reducer outcome, no implicit promotion and no new semantic write by UI. Verified-progress metrics require producer-owned proof/test receipts; match evaluation budgets before claiming improvements from Cogentic-style prover populations or self-improving harnesses.
+
+See `docs/planning/user_story_alignment_and_reprioritization_20260402.md` (superseding UI note), `docs/planning/governed_revival_handoff_v1.md`, `itir-dioxus/docs/M10_UNIFIED_WORKBENCH.md` and `slr/docs/ROADMAP.md`. External research inputs: https://arxiv.org/abs/2609.40324 (Cogentic), https://arxiv.org/abs/2609.00006 (harness taxonomy), https://arxiv.org/abs/2606.09498 (Self-Harness), https://arxiv.org/abs/2610.05300 (MESH). **Planning only; no new runtime/kernel/test acceptance claimed.**
+
+
+## RPD PNF fibres, ontology grounding, and fleet barriers
+
+The implementation contract is `docs/planning/rpd_pnf_hierarchical_fibres_slr_wikidata_bridge_20261030.md`.
+
+The active PNF spectral path must use `sensiblaw.interfaces.parser_adapter.parse_canonical_text` for linguistic POS evidence. It does not own English stopword or predicate sets. Lexical heads are eligible only from substantive parser categories (`PROPN`, `NOUN`), explicit formal AST symbols, or supplied ontology identifiers. Corpus document frequency and the existing Marchenko–Pastur threshold are data-driven noise/retention signals; they do not create semantic authority.
+
+The hierarchy supports canonical ontology roots with typed representation children and shared invariant-fibre references. For Yang–Mills, the canonical root is `Q271810` and the fibre key is `F_YM`. Lattice, continuum, and constructive/formal branches remain separate objects. Shared fibre membership enables discovery of adjacent verified invariants but never promotes one branch proof into another branch without an explicit formal bridge.
+
+The fleet runner retains the live `execute_pareto_conductor` and `spawn_parallel_lanes` APIs. A round is a barrier over at most 20 concurrent lanes. Twenty rounds can therefore plan at most 400 worker calls. Every concurrent pair must pass typed-support `noTypedMeet` separation before dispatch.
+
+Wikimedia grounding reuses SensibLaw's public `WiktionaryProvider` and `WikidataProvider` rather than duplicating provider logic. Permanent QIDs remain external candidate evidence. New frontier concepts stay candidate-only under `cand:Q_*`, with explicit `P279`/`P361` anchors and an observational P2738 disjointness gate. Ontology walking and lemma routing use explicit graph edges and explicit verified lemma attachments only.
+
+Golden safe Agda remains the theorem authority. Lean follows Agda. ITIR receipts are operational/candidate evidence and do not establish proof authority.
+
+## Fresh ChatGPT creation boundary
+
+`itir.chatgpt.create_conversation` creates one fresh conversation through the
+native re-gpt async CFFI path. It requires an explicit prompt and returns the
+durable re-gpt operation receipt. `commit_unknown` and pending states are
+explicit holds for read-only reconciliation; callers must not retry or resend.
+The tool never enables DOM fallback and is separate from governed revival and
+AO dispatch.

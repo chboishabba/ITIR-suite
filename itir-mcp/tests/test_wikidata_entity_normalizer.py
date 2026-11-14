@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2] / "SensibLaw"
 sys.path.insert(0, str(ROOT))
 
-from src.ontology.wikidata import build_slice_from_entity_exports
+from src.ontology.wikidata import build_slice_from_entity_exports  # noqa: E402
 
 
 def _statement(value: object, *, rank: str = "normal", qualifiers: dict | None = None, references: list | None = None) -> dict:
@@ -63,6 +63,7 @@ def test_build_slice_from_entity_exports_normalizes_single_object_claim_map() ->
             "unit": None,
             "qualifiers": {},
             "references": [],
+            "statement_id": None,
         }
     ]
 
@@ -158,6 +159,7 @@ def test_build_slice_from_entity_exports_normalizes_simplified_claim_rows() -> N
             "unit": None,
             "qualifiers": {},
             "references": [],
+            "statement_id": None,
         }
     ]
 
@@ -211,5 +213,6 @@ def test_build_slice_from_entity_exports_normalizes_realish_wikidata_claim_shape
             "unit": None,
             "qualifiers": {"P580": ("+2000-01-01T00:00:00Z",)},
             "references": [{"P248": ["Q123"], "P813": ["+2024-01-01T00:00:00Z"]}],
+            "statement_id": None,
         }
     ]

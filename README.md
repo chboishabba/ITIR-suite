@@ -17,6 +17,48 @@ This repo is the place where those pieces are pinned together, documented
 together, and routed together. Most detailed setup and day-to-day running
 happens inside the individual project directories.
 
+## Chat archive storage boundary
+
+The structured archive at `~/chat_archive.sqlite` is the sole canonical chat
+corpus. It owns canonical thread IDs, message text, provenance, graph/archive
+hydration receipts, and archive search. Consumers must use canonical thread
+coordinates for corpus selection.
+
+`~/.chatgpt_history.sqlite3` is a separate re-gpt operational store. It may
+provide bounded mutation/adapter receipts after an exact canonical-to-source
+thread mapping, but it is not corpus authority and must not drive candidate
+selection, transcript retrieval, title-based worker revival, or browser-based
+fallbacks. `~/.chat_archive.sqlite` is a historical archive path; it is not
+silently selected or merged.
+
+The archive migration direction is one-way: a reviewed, receipt-bearing
+backfill may read the operational store and materialize compatible records in
+the canonical archive. It never joins the databases or overwrites canonical
+messages. Derived roster and lifecycle receipts live in their own database.
+
+The legacy operational-store default is scheduled for removal only after the
+bounded receipt lookup receives an explicit replacement locator. Until then,
+new callers should pass that locator explicitly rather than rely on the legacy
+fallback.
+
+## Governed canonical revival MCP boundary
+
+Merged PR #30 provides read-only `itir.pnf.governed_handoff` and
+`itir.archive.thread_view` projections over the canonical archive, plus
+`itir.ao.operation_review` and `itir.chatgpt.operation_receipts`.
+The receipt lookup resolves a canonical thread to one transport conversation
+identity, then returns bounded re-gpt mutation states and no raw bodies.
+Canonical archive is the corpus authority; the re-gpt SQLite cache supplies
+**operation receipts only**, not canonical message truth. The handoff consumes
+public `sensiblaw.interfaces.shared_reducer.tokenize_canonical_with_spans`;
+unavailable producer means explicit abstention, not regex semantic authority.
+`async_starting` and `commit_unknown` require review, never automatic
+resend. No browser/DOM or dispatch is performed by these read-only tools.
+R means RFP; G (governance) and F (gap function) remain distinct.
+See [the contract](docs/planning/governed_revival_handoff_v1.md).
+
+The governed revival path now also has an explicit 2–10-parent extension: `itir.pnf.multi_parent_handoff` builds a read-only candidate packet from distinct canonical archive threads, and `itir.chatgpt.revive_multi` attaches an explicit caller-owned artifact to one fresh child with ordered parent lineage receipts. Parents remain independent authorities; equivalence, reviewed-world promotion, proof and selected-context sufficiency are not inferred. See [the contract](docs/planning/governed_revival_handoff_v1.md).
+
 ## What This Repo Is For
 
 Use the root repo when you want to:
@@ -799,3 +841,17 @@ development workaround, not the main entrypoint for most readers.
 If you need that path, see the existing container/dev notes in the repo and the
 relevant subproject setup docs before using it.
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/chboishabba/ITIR-suite)
+
+
+The multi-parent revival contract is specified in
+[governed_revival_handoff_v1.md](docs/planning/governed_revival_handoff_v1.md),
+including its O/R/C/S/L/P/G/F preconditions, invariants, postconditions and
+golden-Agda crosswalk. The relevant Agda owners are
+DASHI/Core/CandidateOnlyCore.agda,
+DASHI/Interop/PNFPackageCore.agda,
+DASHI/Interop/ResidualBoundaryCore.agda,
+DASHI/Cognition/PNF/EventAlgebra.agda, and
+DASHI/Interop/InspectionRelativeNoTypedMeet.agda. The current
+dashi_lean4 checkout has no corresponding checked-in revival consumer;
+no Lean proof or formal closure is claimed. Selected-context sufficiency
+remains an explicit open obligation.

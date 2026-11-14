@@ -1,0 +1,53 @@
+name: AO PNF fibre discriminator
+
+on:
+  push:
+    branches:
+      - agent/rpd-pnf-fibres-wikidata-main-20261030
+  pull_request:
+    paths:
+      - "itir-mcp/src/itir_mcp/pnf_spectral_packet.py"
+      - "itir-mcp/src/itir_mcp/fleet_round_runner.py"
+      - "itir-mcp/tests/test_ao_pnf_spectral_fleet.py"
+      - "itir-mcp/tests/test_pnf_spectral_packet.py"
+      - "itir-mcp/tests/test_fleet_round_runner.py"
+      - "docs/planning/rpd_pnf_hierarchical_fibres_slr_wikidata_bridge_20261030.md"
+      - "ROADMAP.md"
+      - "itir-mcp/README.md"
+      - "itir-mcp/TODO.md"
+      - "itir-mcp/CHANGELOG.md"
+      - ".github/workflows/ao-pnf-fibre-discriminator.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install local test surfaces
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ./reverse-engineered-chatgpt
+          python -m pip install -e './itir-mcp[dev]'
+
+      - name: Compile changed Python surfaces
+        run: |
+          python -m compileall -q             itir-mcp/src/itir_mcp/pnf_spectral_packet.py             itir-mcp/src/itir_mcp/fleet_round_runner.py             itir-mcp/tests/test_ao_pnf_spectral_fleet.py
+
+      - name: Run focused discriminator regressions
+        run: |
+          python -m pytest -q             itir-mcp/tests/test_ao_pnf_spectral_fleet.py             itir-mcp/tests/test_pnf_spectral_packet.py             itir-mcp/tests/test_fleet_round_runner.py
+
+      - name: Check patch whitespace
+        run: git diff --check origin/main...HEAD

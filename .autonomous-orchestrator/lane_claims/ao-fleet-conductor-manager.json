@@ -1,0 +1,15 @@
+{
+  "heartbeat_file": "heartbeat.ao-fleet-conductor-manager.json",
+  "lane": "ao.fleet.dynamic-lane-conductor",
+  "lane_claim": "Bridge AO planning to Fleet execution by spawning only unblocked, pairwise-independent leaf obligations with explicit noTypedMeet support and direct async fast-mode workers.",
+  "orchestrator_id": "ao-fleet-conductor-manager",
+  "parent_orchestrator_id": null,
+  "status_file": "status.ao-fleet-conductor-manager.json",
+  "invariants": {
+    "zero_trust_escapes": true,
+    "esd_read_only": true,
+    "pairwise_noTypedMeet": true,
+    "one_lane_per_worker": true,
+    "automatic_resend": false
+  }
+}

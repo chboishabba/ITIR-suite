@@ -14,6 +14,36 @@ Do not code from generic habits alone. This repo prefers shared generic
 interfaces with data-in/world-model-out product boundaries, not lane-owned
 semantics.
 
+## External LLM / ChatGPT Guidelines (curl_cffi & Accessibility Debug Policy)
+- Detailed CLI/MCP docs: [`reverse-engineered-chatgpt/README.md`](reverse-engineered-chatgpt/README.md).
+- **Accessibility & Debug Protocol (CDP & Browser Inspection)**:
+  - This is fundamentally an **accessibility project for vision-impaired people**, extracting rich semantic content from browser silos for assistive technology (e.g. braille readers, offline speech synthesizers, screen readers).
+  - Connecting via Chrome DevTools Protocol (CDP) on port 9222 or inspecting the browser session is **permitted strictly for debugging, diagnostic tracing, and accessibility extraction**.
+  - Do not use DOM automation or CDP hijacking for routine background spam; reserve it for debugging session anomalies, token state, and accessibility verification.
+- **Headless curl_cffi is the Preferred Programmatic Method**: For ordinary turns, it is **significantly faster, requires no browser overhead, and is vastly more reliable** than browser/DOM automation.
+- **Headless CLI Usage**:
+  ```bash
+  ../.venv/bin/python -m re_gpt.entrypoint \
+    --send <CONVERSATION_ID> \
+    --prompt "<text>" \
+    --write-transport async \
+    --no-dom-fallback \
+    --write-timeout 300 \
+    --follow
+  ```
+  *(Use `--prompt-file <path>` for multiline prompts. Keep `--write-timeout 300` for reasoning models).*
+- **Native MCP Server**:
+  Use `python -m re_gpt.mcp_server` (`chatgpt_continue`, etc.) with `write_transport="async"` and `dom_fallback=False`.
+- **Implementation Delegation Protocol (Actor-Critic / Supervisor-Discriminator)**:
+  - **The MCP Worker is the Generative Actor**: All major implementation, deep mathematical/algorithmic reasoning, exploratory theorem proving, and wide-reaching search must be deferred to the governed MCP worker (`itir.chatgpt.dispatch_worker` or `re_gpt.mcp_server`). Instruct the remote worker to implement changes via its GitHub connector directly in the repository (creating a branch/PR).
+  - **The Local Worker is the Cooperative Discriminator, Commons Coordinator & Repo Searcher**: The local agent must not attempt heavy speculative coding locally. It acts as the analytical judge, security firewall, precision repo searcher, and local referee:
+    1. *Targeted Repo Content Search & Context Condenser*: Performs precision AST lookups, grep, and type extraction; synthesizes lean state capsules (extracting exact interface boundaries and test contracts) so the MCP Actor receives maximum signal with minimum token footprint.
+    2. *Deterministic Verification*: Fetches the branch locally (`git fetch origin`), runs deterministic tests (`pytest`, `ruff`, `cargo test`, `agda`), and verifies conformance against ISO, NIST AI RMF, and ZKP framing (O/R/C/S/L/P/G/F). Never merges unverified code.
+    3. *Sovereignty & Guardrail Gate*: Protects local files, databases, and resources from unauthorized destructive commands or schema corruption.
+  - **Evidence-Based Restorative Feedback**: If local verification fails, the local discriminator never provides vague conversational complaints. It returns a minimal, token-distilled critique package with exact failing test traces, deterministic compilation logs, or schema residuals, turning drift into a fast, closed TDD loop.
+  - **Context-Insulated Protocol (State over Chat History)**: Mitigate the Tragedy of the Context Commons. Do not pass sprawling conversational histories or massive raw tool dumps across turns. Distill shared progress into lean state commons (active status maps, verified facts, open gap lists) and dispatch only targeted state fingerprints and event triggers.
+  - **All Graph Operations Use Headless curl_cffi**: All catalog queries (`get_conversations`, `list_conversations_page`) and thread message hydrations (`fetch_conversation`, `itir.chatgpt.hydrate`) execute purely over headless `curl_cffi` without browser overhead or DOM rendering. Browser same-origin retrieval is an isolated diagnostic fallback only when Turnstile challenges or backend 429 cooldowns strictly require it.
+
 ## Generic-First Rule
 No lane owns a semantic method.
 
@@ -192,3 +222,50 @@ Available interface functions:
 - `collect_canonical_relational_bundle`
 
 Standard Python string methods (such as `.split()`, `.replace()`, `.strip()`) are preferred for simple layout/separator checks.
+
+## Governed Multi-Parent Revival Verification
+
+Run the focused worker-tool and handoff tests with the repository ITIR virtual
+environment and both source roots on `PYTHONPATH`. The second source root is
+the sibling `reverse-engineered-chatgpt` checkout, because the transport
+adapter is imported by the ITIR tests.
+
+```bash
+PYTHONPATH="$PWD/itir-mcp/src:/home/c/Documents/code/reverse-engineered-chatgpt" \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s tests -p 'test_multi_parent_revival*.py' -v
+```
+
+When running against a temporary fetched PR worktree, keep the same venv and
+set both paths to the fetched ITIR `itir-mcp/src` and fetched re-gpt checkout:
+
+```bash
+PYTHONPATH="/tmp/revive-itir2/itir-mcp/src:/tmp/revive-re2" \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s /tmp/revive-itir2/tests -p 'test_multi_parent_revival*.py' -v
+```
+
+The mutating `itir.chatgpt.revive_multi` contract must reject unknown fields,
+invalid parent-list types, counts outside 2..10, empty IDs, duplicate IDs
+(after trimming), and request IDs longer than 128 characters before resolving
+the re-gpt adapter or checking the handoff path. A contract
+failure must not touch the filesystem or dispatch a mutation. Never retry or
+resend an uncertain creation or attachment operation.
+
+## Governed multi-parent revival referee
+
+Run the focused multi-parent tool tests from the ITIR workspace with the
+repository venv and both source trees on the import path:
+
+```bash
+PYTHONPATH=/home/c/Documents/code/ITIR-suite/itir-mcp/src:/home/c/Documents/code/reverse-engineered-chatgpt \
+  /home/c/Documents/code/ITIR-suite/.venv/bin/python -m unittest discover \
+  -s /home/c/Documents/code/ITIR-suite/tests \
+  -p 'test_multi_parent_revival*.py' -v
+```
+
+The public `revive_multi` contract must reject unknown keys, invalid parent
+container/type, parent counts outside 2..10, empty IDs, and duplicate IDs
+before resolving the re-gpt adapter or checking the handoff artifact path.
+Invalid-input tests must assert that the adapter is not called. A dispatch
+with an uncertain result is never retried or resent.

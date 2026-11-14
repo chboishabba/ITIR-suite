@@ -1,0 +1,17 @@
+{
+  "heartbeat_file": "heartbeat.ao-fleet-spectral-world-eigen-wikidata.json",
+  "lane": "ao.fleet.spectral-world-eigen-wikidata",
+  "lane_claim": "Refine spectral quotient collision geometry with world/Wikidata feature joins, sub-eigen noTypedMeet stratification, and fail-closed world invalidation.",
+  "orchestrator_id": "ao-fleet-spectral-world-eigen-wikidata",
+  "parent_orchestrator_id": "ao-fleet-spectral-notypedmeet-quotient",
+  "status_file": "status.ao-fleet-spectral-world-eigen-wikidata.json",
+  "invariants": {
+    "world_features_are_evidence_supplied": true,
+    "macro_orbit_is_non_authoritative": true,
+    "noTypedMeet_is_sub_eigen": true,
+    "illegalDefect_is_fibre_contradiction": true,
+    "world_invalidation_cannot_zoom_out": true,
+    "zero_trust_escapes": true,
+    "esd_read_only": true
+  }
+}

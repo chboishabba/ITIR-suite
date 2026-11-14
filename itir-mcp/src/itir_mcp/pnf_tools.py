@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+import sqlite3
 import sys
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -7,9 +9,12 @@ from typing import Any, Mapping, Sequence
 from .contracts import JsonDict, ToolHandler, ToolInputError, ToolSpec
 
 
+PNF_WORK_PACKET_VERSION = "itir.pnf.work_packet.v1"
 PNF_CONTEXT_INDEX_VERSION = "itir.pnf.context_index.v1"
 PNF_TASK_MEMORY_PREVIEW_VERSION = "itir.pnf.task_memory_preview.v1"
 PNF_OBSERVER_EVIDENCE_VERSION = "itir.pnf.observer_evidence.v1"
+PNF_RESIDUAL_CASES_VERSION = "itir.pnf_agda_receipt_export.v0_1"
+PNF_EIGEN_MOTIFS_VERSION = "itir.pnf.eigen_motifs.v1"
 
 
 def _repo_root() -> Path:
@@ -234,8 +239,307 @@ def _text(value: Any) -> str:
     return str(value or "").strip()
 
 
+def pnf_work_packet(payload: Mapping[str, Any]) -> JsonDict:
+    from .pnf_work_packet_provider import build_work_packet
+
+    allowed = {"proposals", "archive_db", "span_policy"}
+    if set(payload) - allowed or "proposals" not in payload:
+        raise ToolInputError("explicit proposals and known fields required")
+    try:
+        return build_work_packet(
+            payload["proposals"],
+            archive_db=payload.get("archive_db"),
+            span_policy=payload.get("span_policy"),
+        )
+    except (ValueError, RuntimeError, FileNotFoundError, TypeError) as exc:
+        raise ToolInputError(str(exc)) from exc
+
+
+
+def pnf_governed_handoff(payload: Mapping[str, Any]) -> JsonDict:
+    from .governed_revival import governed_handoff
+
+    allowed = {"proposal", "archive_db", "max_selected", "max_packet_chars",
+               "child_thread_id", "operation_status"}
+    if set(payload) - allowed or "proposal" not in payload:
+        raise ToolInputError("explicit proposal and known fields required")
+    try:
+        return governed_handoff(
+            payload["proposal"], archive_db=payload.get("archive_db"),
+            max_selected=payload.get("max_selected", 24),
+            max_packet_chars=payload.get("max_packet_chars", 24000),
+            child_thread_id=payload.get("child_thread_id"),
+            operation_status=payload.get("operation_status", "not_requested"),
+        )
+    except (ValueError, RuntimeError, FileNotFoundError, TypeError) as exc:
+        raise ToolInputError(str(exc)) from exc
+
+
+def pnf_thread_view(payload: Mapping[str, Any]) -> JsonDict:
+    from .governed_revival import thread_view
+
+    try:
+        return thread_view(payload)
+    except (ValueError, RuntimeError, FileNotFoundError, TypeError) as exc:
+        raise ToolInputError(str(exc)) from exc
+
+
+def pnf_operation_review(payload: Mapping[str, Any]) -> JsonDict:
+    from .governed_revival import operation_review
+
+    try:
+        return operation_review(payload)
+    except (ValueError, RuntimeError, TypeError) as exc:
+        raise ToolInputError(str(exc)) from exc
+
+
+def pnf_residual_cases(payload: Mapping[str, Any]) -> JsonDict:
+    from .pnf_residual_cases import load_receipt_cases
+
+    allowed = {"run_db", "run_id", "canonical_thread_id"}
+    if set(payload) - allowed:
+        raise ToolInputError("unknown residual-case fields")
+    run_db = _required_str(payload, "run_db")
+    run_id = _required_str(payload, "run_id")
+    thread = payload.get("canonical_thread_id")
+    if thread is not None and (not isinstance(thread, str) or not thread.strip()):
+        raise ToolInputError("canonical_thread_id must be a non-empty string")
+    try:
+        return load_receipt_cases(run_db, run_id=run_id, canonical_thread_id=thread)
+    except (OSError, sqlite3.Error, ValueError, TypeError, json.JSONDecodeError) as exc:
+        raise ToolInputError(str(exc)) from exc
+
+
+def pnf_eigen_motifs(payload: Mapping[str, Any]) -> JsonDict:
+    from .pnf_spectral_packet import analyze_pareto_distribution, compute_hierarchical_eigen_coordinates
+
+    allowed = {"thread_multisets", "k_eigens", "pareto_factors"}
+    unknown = set(payload) - allowed
+    if unknown or "thread_multisets" not in payload:
+        raise ToolInputError("thread_multisets and known eigen-motif fields required")
+
+    thread_multisets = _sequence(payload, "thread_multisets")
+    if not thread_multisets or any(not isinstance(item, Mapping) for item in thread_multisets):
+        raise ToolInputError("thread_multisets must contain object entries")
+
+    k_eigens = payload.get("k_eigens", 5)
+    if isinstance(k_eigens, bool) or not isinstance(k_eigens, int) or not 1 <= k_eigens <= 32:
+        raise ToolInputError("k_eigens must be an integer between 1 and 32")
+
+    pareto_factors = payload.get("pareto_factors")
+    if pareto_factors is None:
+        derived: dict[str, list[float]] = {}
+        for item in thread_multisets:
+            factors = item.get("factors")
+            if not isinstance(factors, Mapping):
+                raise ToolInputError("each thread_multisets entry must contain a factors object")
+            for name, value in factors.items():
+                if isinstance(value, bool) or not isinstance(value, (int, float)):
+                    raise ToolInputError(f"factor {name!r} must be numeric")
+                derived.setdefault(str(name), []).append(float(value))
+        pareto_factors = derived
+    elif not isinstance(pareto_factors, (Mapping, Sequence)) or isinstance(
+        pareto_factors, (str, bytes, bytearray)
+    ):
+        raise ToolInputError("pareto_factors must be an object or numeric array")
+
+    try:
+        eigen = compute_hierarchical_eigen_coordinates(
+            [dict(item) for item in thread_multisets],
+            k_eigens=k_eigens,
+        )
+        pareto = analyze_pareto_distribution(pareto_factors)
+    except (TypeError, ValueError) as exc:
+        raise ToolInputError(str(exc)) from exc
+
+    return {
+        "version": PNF_EIGEN_MOTIFS_VERSION,
+        "eigen_coordinates": eigen,
+        "pareto_analysis": pareto,
+        "authority_boundary": {
+            "read_only": True,
+            "candidate_only": True,
+            "diagnostic_only": True,
+            "canonical_truth_mutated": False,
+            "eigenvalue_magnitude_creates_proof_authority": False,
+            "zipf_rank_creates_mathematical_theorem_truth": False,
+            "motif_name_creates_semantic_identity": False,
+        },
+    }
+
+
 def get_pnf_tools() -> list[tuple[ToolSpec, ToolHandler]]:
     return [
+        (
+            ToolSpec(
+                name="itir.pnf.eigen_motifs",
+                title="Dynamic PNF eigen motifs and Pareto diagnostics",
+                description=(
+                    "Compute dependency-free covariance-SVD eigen coordinates, Marchenko-Pastur "
+                    "macroscopic motifs, and continuous/discrete Pareto fits without promotion."
+                ),
+                input_schema={
+                    "type": "object",
+                    "required": ["thread_multisets"],
+                    "additionalProperties": False,
+                    "properties": {
+                        "thread_multisets": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "object",
+                                "required": ["thread_id", "factors"],
+                                "additionalProperties": False,
+                                "properties": {
+                                    "thread_id": {"type": "string", "minLength": 1},
+                                    "factors": {
+                                        "type": "object",
+                                        "minProperties": 1,
+                                        "additionalProperties": {"type": "number", "minimum": 0},
+                                    },
+                                },
+                            },
+                        },
+                        "k_eigens": {"type": "integer", "minimum": 1, "maximum": 32},
+                        "pareto_factors": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "oneOf": [
+                                    {"type": "array", "items": {"type": "number"}},
+                                    {
+                                        "type": "object",
+                                        "required": ["values"],
+                                        "additionalProperties": True,
+                                        "properties": {
+                                            "values": {"type": "array", "items": {"type": "number"}}
+                                        },
+                                    },
+                                ]
+                            },
+                        },
+                    },
+                },
+                response_version=PNF_EIGEN_MOTIFS_VERSION,
+                read_only=True,
+            ),
+            pnf_eigen_motifs,
+        ),
+        (
+            ToolSpec(
+                name="itir.pnf.residual_cases",
+                title="Receipt-backed PNF residual cases",
+                description="Read residual cases from one completed PNF batch run without writing artifacts or promoting claims.",
+                input_schema={
+                    "type": "object", "required": ["run_db", "run_id"], "additionalProperties": False,
+                    "properties": {
+                        "run_db": {"type": "string", "minLength": 1},
+                        "run_id": {"type": "string", "minLength": 1},
+                        "canonical_thread_id": {"type": "string", "minLength": 1},
+                    },
+                },
+                response_version=PNF_RESIDUAL_CASES_VERSION, read_only=True,
+            ),
+            pnf_residual_cases,
+        ),
+        (
+            ToolSpec(
+                name="itir.pnf.governed_handoff",
+                title="Governed canonical predecessor handoff",
+                description="Full-thread task-oriented evidence selection with lineage and no dispatch.",
+                input_schema={
+                    "type": "object", "required": ["proposal"], "additionalProperties": False,
+                    "properties": {
+                        "proposal": {"type": "object", "additionalProperties": False,
+                            "required": ["canonical_thread_id", "task_atom"],
+                            "properties": {
+                                "canonical_thread_id": {"type": "string", "minLength": 1},
+                                "task_atom": {"type": "string", "minLength": 1},
+                                **{key: {"type": "array", "items": {"type": "string"}}
+                                   for key in ("formal_gap_receipts", "repo_receipts",
+                                               "pnf_receipts", "evidence_refs")},
+                            }},
+                        "archive_db": {"type": "string"},
+                        "max_selected": {"type": "integer", "minimum": 2, "maximum": 80},
+                        "max_packet_chars": {"type": "integer", "minimum": 1000, "maximum": 100000},
+                        "child_thread_id": {"type": "string"},
+                        "operation_status": {"type": "string"},
+                    },
+                },
+                response_version="itir.pnf.governed_handoff.v1", read_only=True,
+            ),
+            pnf_governed_handoff,
+        ),
+        (
+            ToolSpec(
+                name="itir.archive.thread_view",
+                title="Canonical thread reference view",
+                description="Read a task-neutral, bounded canonical graph view without SQL or raw transcript.",
+                input_schema={
+                    "type": "object", "required": ["canonical_thread_id"],
+                    "additionalProperties": False,
+                    "properties": {
+                        "canonical_thread_id": {"type": "string", "minLength": 1},
+                        "archive_db": {"type": "string"},
+                        "max_selected": {"type": "integer", "minimum": 2, "maximum": 80},
+                        "max_packet_chars": {"type": "integer", "minimum": 1000, "maximum": 100000},
+                    },
+                },
+                response_version="itir.archive.thread_view.v1", read_only=True,
+            ),
+            pnf_thread_view,
+        ),
+        (
+            ToolSpec(
+                name="itir.ao.operation_review",
+                title="Ambiguous async operation governance review",
+                description="Review supplied operation status; never resend or dispatch.",
+                input_schema={
+                    "type": "object", "required": ["operation_status"],
+                    "additionalProperties": False,
+                    "properties": {
+                        "operation_status": {"type": "string", "minLength": 1},
+                        "operation_id": {"type": "string"},
+                        "review_receipt": {"type": "string"},
+                    },
+                },
+                response_version="itir.ao.operation_review.v1", read_only=True,
+            ),
+            pnf_operation_review,
+        ),
+        (
+            ToolSpec(
+                name="itir.pnf.work_packet",
+                title="Bounded canonical archive PNF work packet",
+                description="Read-only source digest references and unverified candidate units; no promotion.",
+                input_schema={
+                    "type": "object",
+                    "required": ["proposals"],
+                    "additionalProperties": False,
+                    "properties": {
+                        "archive_db": {"type": "string", "minLength": 1},
+                        "proposals": {"type": "array", "minItems": 1, "maxItems": 8,
+                            "items": {"type": "object", "additionalProperties": False,
+                                "required": ["canonical_thread_id", "task_atom"],
+                                "properties": {
+                                    "canonical_thread_id": {"type": "string", "minLength": 1},
+                                    "task_atom": {"type": "string", "minLength": 1},
+                                    **{k: {"type": "array", "items": {"type": "string"}}
+                                       for k in ("formal_gap_receipts", "repo_receipts",
+                                                 "pnf_receipts", "evidence_refs")},
+                                }}},
+                        "span_policy": {"type": "object", "additionalProperties": False,
+                            "properties": {
+                                "max_messages": {"type": "integer", "minimum": 1, "maximum": 200},
+                                "max_chars": {"type": "integer", "minimum": 1, "maximum": 100000},
+                                "packet_max_chars": {"type": "integer", "minimum": 1, "maximum": 100000},
+                            }},
+                    },
+                },
+                response_version=PNF_WORK_PACKET_VERSION,
+                read_only=True,
+            ),
+            pnf_work_packet,
+        ),
         (
             ToolSpec(
                 name="itir.pnf.context_index",

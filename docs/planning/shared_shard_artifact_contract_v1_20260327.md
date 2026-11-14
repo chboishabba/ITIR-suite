@@ -72,11 +72,36 @@ Recommended semantics:
     - `zelph-graph`
     - `erdfa-shard-set`
     - `chat-freeze`
+    - `formal-evidence`
 - `buildProvenance`
   - source inputs
   - builder identity
   - builder version
   - optional parent artifact refs
+
+### 1A. Optional semantic/proof provenance attachments
+
+A logical artifact may carry the following optional provenance joins:
+
+- `da51Address`
+- `formalDemandRef`
+- `formalEvidenceRef`
+- `statementDigest`
+
+These are **attachments**, not artifact or shard identity fields.
+
+Required semantics:
+
+- `da51Address` is a cross-system semantic/reference join and never proof authority;
+- `formalDemandRef` names an external formalisation/proof demand owned by its producer (for example SLR);
+- `formalEvidenceRef` names an independently produced evidence receipt;
+- `statementDigest` commits to the concrete formal statement associated with that demand/evidence;
+- none of these fields may change `artifactId`, `shardId`, selector meaning, or sink choice merely by being present;
+- if formal evidence changes the statement digest, the caller must supply an explicit transport/equivalence receipt or create a new demand. Symbol/DA51 reuse is not sufficient.
+
+The companion contract is:
+
+`docs/planning/da51_slr_formal_evidence_artifact_contract_v1_20261017.md`.
 
 ### 2. Logical shard catalog
 
@@ -114,6 +139,7 @@ Required semantics:
     - `name-bucket`
     - `content-shard`
     - `manifest-sidecar`
+    - `formal-evidence`
 - `encoding`
   - examples:
     - `capnp-packed`
@@ -152,6 +178,7 @@ Important rule:
 
 - sink refs are attachments to the logical shard
 - they do not define shard identity
+- a CID/URI does not inherit theorem/legal/security authority from a linked formal or runtime evidence object
 
 ## Manifest serialization
 
@@ -172,6 +199,7 @@ Required rule:
   - `shardId`
   - `contentDigest`
   - selector/routing meaning
+  - optional DA51/formal-evidence provenance attachments when present
 
 ## Selector model
 
@@ -252,6 +280,7 @@ Zelph must:
   - HF first when configured for hosted query
   - local/file or IPFS when explicitly configured
 - avoid relying on sink path structure as part of semantic routing
+- display optional DA51/formal-evidence provenance as provenance, not as query/promotion authority
 
 Zelph may:
 
@@ -262,6 +291,7 @@ Zelph may not:
 
 - redefine shard identity around local chunk numbering once the shared contract
   is adopted
+- infer proof from DA51 status, route metadata, or a sink URI
 
 ## ZOS publisher/puller obligations
 
@@ -272,6 +302,7 @@ ZOS must:
 - attach sink refs for every published shard it materializes
 - keep publication and retrieval separate from selector semantics
 - record which sinks were successfully published for a given artifact revision
+- preserve optional DA51/formal-evidence provenance without reinterpreting it
 
 ZOS may:
 
@@ -283,6 +314,7 @@ ZOS may not:
 
 - rewrite logical shard ids per sink
 - let publish transport change the contract meaning
+- treat publication acknowledgement as proof or semantic promotion
 
 ## Current repo-fit read under this contract
 
@@ -315,36 +347,42 @@ Current emitted behavior:
 - emits a CBOR projection of the same semantic artifact
 - can attach optional `ipfs://` object refs from a supplied mapping file
 
+The 2026-10-17 formal-evidence cross-repo fixture additionally proves at the contract level that one logical shard may carry both HF and IPFS refs with one content digest while the DA51/demand/evidence attachments remain separate from sink identity.
+
 ## Minimal example shape
 
 ```json
 {
   "contractVersion": "shared-shard-artifact/v1",
-  "artifactId": "wikidata-20260309-query-shards",
-  "artifactRevision": "2026-03-27T12:00:00Z+build-1",
-  "artifactClass": "zelph-graph",
-  "createdAtUtc": "2026-03-27T12:00:00Z",
+  "artifactId": "formal-evidence-smith",
+  "artifactRevision": "rev:formal-evidence-smith:1",
+  "artifactClass": "formal-evidence",
+  "createdAtUtc": "2026-10-17T00:00:00Z",
+  "da51Address": "0xDA51831100800000",
+  "formalDemandRef": "formal-demand:smith:1",
+  "formalEvidenceRef": "formal-evidence:smith:1",
+  "statementDigest": "sha256:statement-smith-direct-assistance",
   "shards": [
     {
-      "shardId": "left-bucket-000123",
-      "section": "left",
-      "logicalKind": "adjacency-bucket",
-      "encoding": "capnp-packed",
-      "sizeBytes": 8388608,
-      "contentDigest": "sha256:abc123",
-      "routingKeys": ["route-left-node"],
+      "shardId": "formal-evidence-smith-proof",
+      "section": "proof",
+      "logicalKind": "formal-evidence",
+      "encoding": "cbor",
+      "sizeBytes": 512,
+      "contentDigest": "sha256:artifact-smith-proof",
+      "routingKeys": ["formal-evidence:smith:1"],
       "objectRefs": [
         {
           "sink": "hf",
-          "uri": "hf://datasets/chbwa/zelph-sharded/shards/left/bucket-000123.capnp-packed",
-          "sizeBytes": 8388608,
-          "contentDigest": "sha256:abc123"
+          "uri": "hf://datasets/example/formal-evidence-smith/proof.cbor",
+          "sizeBytes": 512,
+          "contentDigest": "sha256:artifact-smith-proof"
         },
         {
           "sink": "ipfs",
-          "uri": "ipfs://bafy...",
-          "sizeBytes": 8388608,
-          "contentDigest": "sha256:abc123"
+          "uri": "ipfs://bafyexampleformalevidencesmith",
+          "sizeBytes": 512,
+          "contentDigest": "sha256:artifact-smith-proof"
         }
       ]
     }
@@ -365,16 +403,8 @@ Do not promote this contract beyond planning until:
    - Zelph-style shard generation
    - Kant-style shard generation
    under this same contract
+5. formal-evidence consumers preserve exact `demandRef + obligationRef + statementDigest` matching rather than treating provenance attachments as proof authority
 
 ## Immediate next step
 
-Use this note as the canonical schema/obligation source for the next bounded
-comparison or implementation pass.
-
-The next implementation step after this first builder slice is:
-
-1. emit one shared-contract artifact from a real Zelph proof manifest
-2. project it to:
-   - JSON/HF
-   - CBOR/IPFS
-3. compare the same logical shard ids across both sink projections
+Use this note as the canonical schema/obligation source for bounded publication/query integration. The DA51/SLR formal-evidence fixture is the regression shape for proof-linked artifacts; it does not replace existing Zelph/Kant fixture families.

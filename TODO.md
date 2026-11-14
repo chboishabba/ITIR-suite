@@ -1,5 +1,95 @@
 # TODO (ITIR-suite)
 
+## Golden Agda Formalism & AO/PNF/PostgreSQL Pipeline Audit (2026-11-03)
+
+- [x] **Purge Legacy Hardcoded Slot / JSON / Regex Orchestration Scripts:**
+  - Deleted `scripts/run_improved_ao_5x20_rounds.py`, `scripts/run_improved_ao_20_rounds.py`, `scripts/run_improved_ao_rounds.py`, and all `docs/fleet/*.json` files (`fleet_hierarchical_pareto_summary.json`, `improved_ao_*_ledger.json`, `autonomous_rounds_ledger.json`, `tranche_200_convergence_ledger.json`, `full_corpus_spectral_coordinates.json`, `fleet_spectral_visual_summary.json`).
+  - Documented root causes of the cross-wired dispatches:
+    1. *Blind positional zipping:* Zipped top-20 `ops.chat_hydration_roster` rows with `fleet_hierarchical_pareto_summary.json` and a hardcoded `SLOT_DOMAIN_SPEC` table without reading thread messages or checking thread-level PNF meets.
+    2. *Polluted `.slrw` bag-of-words UI chrome:* `collapse(auto)`, `than(rather)`, and `redact(output)` leaked from legacy `.slrw` files via `fleet_hierarchical_pareto_summary.json`.
+    3. *Alphabetical `rglob("*.agda")` slicing:* `sorted(target_dir.rglob("*.agda"))` grabbed alphabetical `A*` (`AQFTNetReceipt.agda`), `B*` (`Balaban1989Beta*`, `Base369Appraisal*`), `DNA*` (`DNAFirstFormalismRegression.agda`), and `GRQuantum*` files instead of routing via `dashi_agda` AST preflight (`itir.formal.inspect` / `itir.formal.route`).
+    4. *Fabricated cross-domain joins (`SensibLaw <-> GR/Quantum`):* Invented by `SLOT_DOMAIN_SPEC[4]` with zero backing Agda bridge or `noTypedMeet` witness.
+    5. *Regex identifier scraping (`baseEq`):* Used `import re` instead of `sensiblaw.interfaces` (`parser_adapter`, `shared_reducer`) and `DashiAgdaMcpTools` (`symbol_search`, `related_symbols`, `object_detail`, `proof_route_for_obligation`).
+    6. *Passive non-blocking coherence evaluation:* Flagged noise in JSON output without blocking worker dispatch.
+- [x] **Fix `@max-cut` / `@preset` Macro Expansion Across MCP Surfaces (`itir-mcp` & `reverse-engineered-chatgpt`):**
+  - Normalized preset keys (`.lstrip("@").strip().rstrip(",.;:").replace("-", "_").lower()`) in `itir_mcp.chatgpt_worker_tools._resolve_prompt` and `re_gpt.mcp_server.expand_worker_prompt` so hyphenated `@max-cut`, `@grug-ste100`, `@zkp-qa`, etc. expand identically to underscore variants and never terminate multi-macro chains (`@docs @max-cut @rpd @steelman @lemmas @surrounds @snowball`) or leak literal `@max-cut` strings into prompts.
+- [x] **Golden Agda Formalism Synchronisation for SensibLaw / SLR / ITIR (`dashi_agda` PR #1462 @ `1c2abbe76c` via Governed MCP Worker `6ad357c7-406c-83ec-be12-6ae2b106a9a4`):**
+  - Added and verified [`DASHI/Interop/SLRNoPathFirewallExact.agda`](https://github.com/chboishabba/dashi_agda/pull/1462) and [`DASHI/Interop/SLRStructuralReceiptFirewallExact.agda`](https://github.com/chboishabba/dashi_agda/pull/1462) (`{-# OPTIONS --safe #-}`, 0 postulates, 0 unsolved metas, 0 terminating pragmas), consolidated root `dashi-agda.agda-lib` (`41fd8b30`), added explicit `{-# OPTIONS --safe #-}` headers to `SLRProtectedPNFFleetReductionExact.agda` (`8b2b1a47`) and `SLRActorCriticPromotionExact.agda` (`c82f54de`), and wired both firewall modules into all three TOE roots (`DASHI/Unified/Everything.agda`, `DASHI/Unifier.agda`, `DASHI/EverythingTOESymmetryResolved369.agda`).
+  - Locally verified with `agda --safe --no-libraries -i . -i /home/c/.cache/codex-dashi/agda-stdlib-experimental/src` across all 8 SLR Golden Agda modules (exit code `0`):
+    1. `StorageReceipt` / `StorageAdmissible`: `sqliteNoPath`, `jsonNoPath`, `slrwNoPath`, `unconfiguredPGNoPath`, `canonicalPGNeedsDSN` (`→ ⊥`).
+    2. `ExtractionReceipt` / `ExtractionAdmissible`: `rawRegexNoPath`, `regexAgdaScrapeNoPath` (`→ ⊥`).
+    3. `SymbolLinkReceipt` / `SymbolLinkAdmissible`: `substringLikeNoPath` (`→ ⊥`).
+    4. `RoutingReceipt` / `RoutingAdmissible`: `hardcodedSlotNoPath`, `alphabeticalSliceNoPath`, `positionalRosterNoPath` (`→ ⊥`).
+    5. `CrossDomainJoinReceipt` / `CrossDomainJoinAdmissible`: `missingASTBridgeNoPath`, `missingCoboundaryNoPath` (`→ ⊥`).
+    6. `CoherenceGateReceipt` / `CoherenceAdmissible`: `passiveCoherenceNoPath` (`→ ⊥`).
+    7. `SourceStoreDeliberationReceipt` (`sl-pg-source-store` `INGEST-1`/`S29`/`K14–K17` parity): `missingIngest1NoPath`, `missingS29SidecarNoPath`, `missingK14K17WitnessNoPath` (`→ ⊥`).
+    8. `CFFISessionLifecycleReceipt` (`re_gpt` CFFI refresh & health-store lifecycle parity): `browserRefreshFallbackNoPath`, `silentStaleSessionNoPath`, `unclosedAdapterHealthStoreNoPath` (`→ ⊥`).
+    9. `MultiParentRevivalReceipt` (`itir.chatgpt.revive_multi` `2..10` pre-adapter contract parity): `invalidParentCountNoPath`, `duplicateOrEmptyParentNoPath`, `oversizedRequestIdNoPath`, `preGateAdapterTouchNoPath`, `uncertainCommitRetryNoPath` (`→ ⊥`).
+    10. `MacroPresetExpansionReceipt` (`@max-cut` / `@preset` normalization parity): `unnormalizedHyphenMacroNoPath`, `incompleteMacroChainNoPath`, `leakedLiteralMacroTokenNoPath` (`→ ⊥`).
+- [x] **Full Golden Agda Implementation Coverage of All Existing `itir-mcp` Tools (93), `re_gpt` MCP Functions (26), `slr` Crates (31), and End-to-End 5-Stage PNF → Marchenko–Pastur → `DashiAgdaMcpTools` Proof-Join Pipeline (`dashi_agda` PR #1462 @ `ac1c272d02` via Governed MCP Worker `6ad357c7-406c-83ec-be12-6ae2b106a9a4`):**
+  - **Audit Gap Resolved:** Previously only `11/93` `itir-mcp` tools, `0/26` `re_gpt.mcp_server` functions, and `12/31` `slr` crates were referenced in `dashi_agda`, and the 5-stage PNF reduction funnel (`CandidateInvalidation` $\to$ `AdmissibilityGate` $\to$ `SameHeckeCandidatePool` `99.40%` fibre quotient $\to$ Marchenko–Pastur null-band spectral shrinkage $\to$ `DashiAgdaMcpTools` AST preflight/routing $\to$ `FormalProofJoin`) was not wired together end-to-end. Added [`DASHI/Interop/ITIRMCPFullRegistryCoverageExact.agda`](https://github.com/chboishabba/dashi_agda/pull/1462), [`DASHI/Interop/SLRFullWorkspaceCrateCoverageExact.agda`](https://github.com/chboishabba/dashi_agda/pull/1462), and [`DASHI/Interop/SLRPNFToAgdaPreflightProofJoinPipelineExact.agda`](https://github.com/chboishabba/dashi_agda/pull/1462), fixed the indentation `ParseError` at `DASHI/Interop/PNFSpectralCoordinateRebuildability.agda:542`, wired all modules into `DASHI/Unified/Everything.agda`, `DASHI/Unifier.agda`, and `DASHI/EverythingTOESymmetryResolved369.agda`, and verified all 11 SLR/ITIR Golden Agda modules locally under `agda --safe` (exit code `0`).
+  - **Verified Golden Agda Coverage (`{-# OPTIONS --safe #-}`, 0 postulates, 0 unsolved metas, 0 terminating pragmas):**
+    1. **End-to-End Composed 5-Stage PNF → Hecke Fibre Quotient → Marchenko–Pastur Shrinkage → `DashiAgdaMcpTools` Proof-Join Pipeline (`DASHI/Interop/SLRPNFToAgdaPreflightProofJoinPipelineExact.agda`):**
+       - **Stage R0 $\to$ R1 (`CandidateInvalidation` + `AdmissibilityGate` + `SlotPartition` + `AdmittedPNFFramePair`):** `319,211` raw `PNF1` candidates $=$ `294,671` invalidated $+$ (`11,611` repair demands $+$ `12,929` admitted frames) (`95.95%` Stage-1 reduction; `invalidatedPNFCannotEnterAdmittedFrames`). `AdmittedPNFFramePair` binds two admitted `Event.CandidatePNF` frames (`Event.validity ≡ Event.admissible`) to their `Residual.PNFEmissionReceipt` witnesses.
+       - **Stage R2 (`SameHeckeCandidatePool` + `QuotientInterfaceOn`):** `12,929` admitted frames $\to$ `9,289` unique Hecke fibres $\to$ `1,931` retained fibres (`317,280` eliminated $+$ `1,931` retained $=$ `319,211`; `99.40%` reduction) under $K_{\text{retained}} = K_{\text{spectral}} \cup K_{\text{formally\_required}} \cup K_{\text{reviewed}}$ (`sameHeckePoolSharesFibreRepresentative`).
+       - **Stage R3 (`SensibLawResidualLattice` $\to$ `PNFObligationDemand` via `buildPNFObligationDemandFromReceipts`):** `622` evaluated proposals (`600` `resolved_unique` $+$ `22` `blocked_conflict`) $\to$ `1,112` `DomainIRProjection` rows (Core Knowledge) $+$ `221` `ProjectionDemand` rows carrying `(demandRef, externalObligationRef, statementDigest, leftEmissionReceipt, rightEmissionReceipt, residualLevel, residualComesFromReceiptComputation, protection)` where `residualLevel ≡ Residual.receiptResidual leftEmissionReceipt rightEmissionReceipt`.
+       - **Stage R4 (Marchenko–Pastur Bulk Upper-Edge Inequality + Typed `FleetReduction.Protection` Survivability):** Over the $200 \times 120$ matrix ($\gamma = 0.600$, $\sigma^2 = 0.8733$, $\lambda_+ = 2.7500$), `117 / 120` bulk dimensions (`eigenvalueMicros < suc bulkUpperEdgeMicros`) shrink unprotected spectral noise (`FleetReduction.spectral x`) to zero (`marchenkoPasturShrinksUnprotectedSpectralBulkToZero`) leaving `3 / 120` macroscopic Core Knowledge Eigen-Motifs (`bulkUpperEdgeMicros < eigenvalueMicros`), while proving `protectedFormalSurvivesMarchenkoPasturBulk`, `protectedReviewedSurvivesMarchenkoPasturBulk`, and `marchenkoPasturCannotDropFormalSingleton : ... → ⊥` (zero singleton formal-obligation recall loss).
+       - **Stage R5 (`DashiAgdaMcpTools` 26 Operations $\to$ `FormalProofJoin` & `EndToEndPNFToAgdaProofJoinPipeline`):** Maps all 26 `DashiAgdaMcpTools` operations (`diagnose`, `next_error`, `apply_fix`, `affected`, `refresh`, `cache_status`, `semantic_status`, `promote`, `promotion_history`, `symbol_search`, `related_symbols`, `object_detail`, `discover`, `round_lineage`, `narrative_*`, `proof_route`, `proof_route_for_obligation`, `formal_evidence_for_obligation`, `proof_route_history`, `da51_resolve`, `da51_evidence`, `da51_frontier`) to `itir.formal.inspect` / `itir.formal.route` / `itir.formal.refine` / `itir.formal.certify`, enforces `RoundNNN` snapshot noise hiding (`defaultSearchHidesRoundSnapshotNoise`, `roundNoiseBlocksFormalProofJoin : ... → ⊥`), binds `(demandRef, externalObligationRef, statementDigest)` to `sl-formal-proof-bridge` via `ObligationRouteBinding`, constructs `FormalProofJoin` over `Residual.receiptResidual left right ≡ Residual.noTypedMeet`, chains Stages R1–R5 in `EndToEndPNFToAgdaProofJoinPipeline`, and verifies the empirical frontier partition (`584` Discharged Core Knowledge Fibres $+$ `44` Polarity Contradiction Gaps $+$ `58` Unformalised Formal Gaps $=$ `686`).
+    2. **All 93 `itir-mcp` Registered Tools Across All 14 Namespaces:**
+       - `itir.terminal.*` (3): `state`, `picker`, `observe`
+       - `itir.chatgpt.*` (25): `pg_roster_list`, `pg_roster_sync`, `pg_hydrate_selected`, `pg_hydrate_pending`, `pg_search`, `pg_read`, `list_threads`, `revive`, `revive_multi`, `session_status`, `session_refresh_cffi`, `session_refresh`, `get_access_token`, `cdp_capture`, `hydrate`, `operation_receipts`, `dispatch_worker`, `operation_status`, `reconcile`, `view_messages`, `fleet_status`, `fleet_opportunities`, `tranche_status`, `fleet_telemetry`, `create_conversation`
+       - `sensiblaw.*` (6): `itir_job_status`, `obligations_query`, `obligations_explain`, `obligations_alignment`, `obligations_projection`, `obligations_activate`
+       - `itir.*` core comparison/envelope (3): `compare_observations`, `score_coherence`, `build_envelope`
+       - `itir.docstore.*` & `itir.obsidian.*` & `itir.markdown.*` (7): `docstore.status`, `docstore.open_questions`, `obsidian.vault_scan`, `docstore.proposal_receipt`, `markdown.render_projection`, `markdown.write_projection`, `docstore.config_plan`
+       - `itir.pnf.*` & `itir.archive.*` (11): `distill_prompt`, `eigen_motifs`, `residual_cases`, `governed_handoff`, `archive.thread_view`, `work_packet`, `context_index`, `task_memory_preview`, `observer_evidence`, `multi_parent_handoff`
+       - `itir.spectral.*` (4): `render_scatter`, `render_heatmap`, `visualize_corpus`, `candidate_packet`
+       - `itir.governance.*`, `itir.wikidata.*`, `itir.wikiproject.*`, `itir.climate.*`, `itir.gwb.*` (9): `governance.tool_profiles`, `governance.validate_tool_profile`, `wikidata.tooling_profile`, `wikiproject.tooling_profile`, `wikidata.review_packet`, `wikidata.object_review_bundle`, `wikidata.migration_candidate`, `wikidata.disjointness_report`, `climate.claim_review`, `gwb.follow_graph`
+       - `itir.zelph.*` & `itir.shard.*` (9): `zelph.transport_boundary`, `zelph.hf_manifest_contract`, `zelph.pack_sources`, `zelph.partial_closure`, `shard.validate_artifact`, `shard.route_selector`, `shard.partial_graph_view`, `shard.bounded_graph_slice_plan`, `shard.payload_probe`
+       - `itir.formal.*` (5): `latex_bridge`, `inspect`, `route`, `refine`, `certify`
+       - `itir.ao.*` (11): `operation_review`, `operator_workflow`, `frontier_evidence`, `completed_operation_candidates`, `pareto_conductor`, `spawn_parallel_lanes`, `status`, `claim_lane`, `heartbeat`, `report_result`, `gap_check`
+    2. **All 26 `re_gpt.mcp_server` Functions & Core Transport Subsystems:**
+       - `chatgpt_adapter_health`, `chatgpt_adapter_health_reset`, `chatgpt_branch`, `chatgpt_continue`, `chatgpt_edit_branch`, `chatgpt_fleet_telemetry`, `chatgpt_hydrate`, `chatgpt_list`, `chatgpt_live_activity`, `chatgpt_live_status`, `chatgpt_new`, `chatgpt_operation_status`, `chatgpt_protocol_compare`, `chatgpt_protocol_fingerprint`, `chatgpt_reconcile`, `chatgpt_regenerate`, `chatgpt_revive`, `chatgpt_revive_multi`, `chatgpt_session_bootstrap`, `chatgpt_session_doctor`, `chatgpt_session_refresh`, `chatgpt_session_refresh_cffi`, `chatgpt_session_status`, `chatgpt_sync_roster`, `chatgpt_tranche_status`, `chatgpt_view`
+       - Subsystems: `SessionLifecycle`, `MutationService`, `GraphBroker`, `PostgresAdapterHealthStore`, `ProofOfWork` + `TurnstileVM` + `Conduit`, `PGHydration` + `PGConversationRead`.
+    3. **All 31 `slr` Rust Workspace Crates (`/home/c/Documents/code/slr/crates/`):**
+       - Including the 19 previously unmapped crates (`sl-bench`, `sl-cli`, `sl-evidential-reopen`, `sl-expanded-cert`, `sl-formal-proof-bridge`, `sl-formal-proof-reopen`, `sl-governed-legal-provider`, `sl-legal-counterfactual`, `sl-legal-follow-plan`, `sl-legal-runtime`, `sl-nsw-legislation-provider`, `sl-parity`, `sl-proof-search-loop`, `sl-proof-search-scheduler`, `sl-reader-model`, `sl-semantic-admission`, `sl-semantic-expansion`, `sl-semantic-status`, `sl-stream`) alongside the 12 already referenced crates (`sl-consumer-residual`, `sl-core`, `sl-evidence-payment`, `sl-pg-source-store`, `sl-residual-planner`, `sl-reviewed-evidence-payment`, `sl-route-executor`, `sl-route-selector`, `sl-wikimedia-candidate-provider`, `sl-world-compiler`, `sl-world-expansion-runtime`, `sl-world-store`).
+- [ ] **Deferred Python/Rust Implementation & PostgreSQL Spine Tasks (Execute ONLY After Golden Agda Coverage Round Completes):**
+  1. **Auto-Load Canonical PostgreSQL DSN From `../slr/.env`:**
+     - Update `_connect` in `reverse-engineered-chatgpt/re_gpt/pg_conversation_read.py:25-28` and `load_preferred_semantic_corpus` in `itir-mcp/src/itir_mcp/pg_semantic_spine.py:358-378` to resolve `DATABASE_URL` / `ITIR_PG_DSN` from `../slr/.env` (`postgresql://admin:admin@truenas.local:5432/sensiblaw_sparse_ready_20260818`) when absent from `os.environ`, and add `ITIR_PG_DSN` / `DATABASE_URL` to `~/.gemini/antigravity/mcp_config.json`.
+  2. **Fix `PostgresAdapterHealthStore.close()` Crash:**
+     - Add `def close(self) -> None: return None` to `PostgresAdapterHealthStore` in `reverse-engineered-chatgpt/re_gpt/pg_adapter_health.py:50` so `fetch_exact_graph` in `re_gpt/graph_broker.py:386` never raises `AttributeError: 'PostgresAdapterHealthStore' object has no attribute 'close'`.
+  3. **Complete `ToolAuthorityProfile` Coverage in Python (`tool_authority_profiles.py`):**
+     - Add explicit `ToolAuthorityProfile` entries for the 71 currently unprofiled tools in `itir-mcp/src/itir_mcp/tool_authority_profiles.py` to match the Golden Agda 93-tool authority table.
+  4. **Eliminate Remaining SQLite, Raw Regex, and Substring `LIKE` Paths in `itir-mcp` & `re_gpt`:**
+     - Refactor `itir-mcp/src/itir_mcp/pnf_work_packet_provider.py`, `governed_revival.py`, `pnf_residual_cases.py`, `formal_tools.py`, `latex_math_bridge.py`, and `chatgpt_worker_tools.py` to remove `import re` (`PATTERN = re.compile(...)`), `WHERE name LIKE '%ident%'` prose-substring symbol matching, and `sqlite3.connect(...)` (`~/chat_archive.sqlite`, `~/.chatgpt_history.sqlite3`, `.cache/agda_preflight/source-index.sqlite3`), routing exclusively through PostgreSQL (`corpus.chat_archive_message`, `pnf.*`) and `sensiblaw.interfaces` / `slr`.
+  5. **Populate the Chat-to-PNF Bridge in PostgreSQL & Re-Run 5×20 Governed Fleet Rounds:**
+     - Compile the hydrated ChatGPT conversations in `corpus.chat_archive_message` into `corpus.source_statement`, `pnf.statement_candidate_factor`, `pnf.candidate_semantic_product`, and `pnf.graph` via `slr` (`sl-world-compiler` / `sl-world-store`), then execute `itir.ao.pareto_conductor` across 5 rounds of up to 20 workers per round.
+
+## SLR Migration & 5-Stage PNF Fleet Reduction Spine (2026-10-27)
+
+> **Deprecation Notice:** `SensibLaw` (Python) is deprecated in favour of `slr` (`/home/c/Documents/code/slr`, native Rust workspace). All new PNF reduction, world-compiler, residual-lattice, and PostgreSQL persistence work belongs in `slr` and `dashi_agda`.
+
+- [x] **Pure `curl_cffi` Headless Sentinel + Turnstile VM + Conduit Mutation Pipeline (`reverse-engineered-chatgpt` @ `95e3669`, `ITIR-suite` @ `7bf8e32`):**
+  - Replaced deprecated `/backend-api/conversation` with 5-step headless `curl_cffi` flow (`GET /backend-api/sentinel/chat-requirements/prepare` -> FNV-1a Murmur3 PoW + 82-opcode `solveDx` Turnstile VM -> `POST /backend-api/sentinel/chat-requirements/finalize` -> `POST /backend-api/f/conversation/prepare` -> `POST /backend-api/f/conversation`). Zero browser/DOM/CDP required.
+- [x] **5-Stage PNF Reduction & Single PostgreSQL Spine Verification (`fleet_top200_iter1.slrw` -> `sensiblaw_sparse_ready_20260818`):**
+  - Verified live reduction over `319,211` `PNF1` candidates / world atoms across `200` threads and `30,979` sentences:
+    - **Stage R0 -> R1 (`CandidateInvalidation.agda` + `AdmissibilityGate.agda`):** `319,211` raw candidates -> `294,671` invalidated (`78,131` light verbs/non-lexical heads, `35,626` conversational modals/conjunctions/quantifiers, `21,231` deictic pronouns, `20,980` non-domain tokens, `138,703` incomplete structural signatures) -> **`12,929` admissible multi-slot predicate frames (`AdmissiblePNF`)** (`95.95%` noise reduction).
+    - **Stage R2 (`SameHeckeCandidatePool` Fibred Quotient):** `12,929` frames -> **`9,289` unique Hecke/Quotient fibres** -> **`1,931` retained multi-occurrence/cross-thread/conflict fibres** (`99.40%` reduction) under $K_{\text{retained}} = K_{\text{spectral}} \cup K_{\text{formally\_required}} \cup K_{\text{reviewed}}$.
+    - **Stage R3 (Fibred Residual Lattice & Lifecycle Resolution):** `622` evaluated proposals -> `600` `resolved_unique` + `22` `blocked_conflict` -> **`1,112` `DomainIRProjection` rows (Core Knowledge)** + **`221` `ProjectionDemand` rows (Actionable Back-Demands)** + `1,112` `ProjectionLossReceipt`s.
+    - **Stage R4 (`PNFSpectralCoordinateRebuildability.agda` + Marchenko–Pastur Null-Band Shrinkage):** Over the $200 \times 120$ standardized covariance matrix ($\gamma = 0.600$, $\sigma^2 = 0.8733$, $\lambda_+ = 2.7500$), `117 / 120` dimensions collapse into the bulk, leaving **3 macroscopic Core Knowledge Eigen-Motifs** ($\lambda_1 = 74.5526$, $\lambda_2 = 18.8350$, $\lambda_3 = 5.5865$), validated under `itir.pnf.spectral_numeric_abi.v0_2` (`parity_hash: 6853373e81e551aea8fca490ce2ad9f5264664d49bde8804edfc4e98e7517799`).
+    - **Stage R5 (`dashi_agda` Formal AST Subtraction + Single PostgreSQL Persistence):** Partitioned into **`584` Discharged Core Knowledge Fibres**, **`44` Polarity Contradiction Gaps**, and **`58` Unformalised Formal Gaps`, persisted directly into `postgresql://admin:admin@truenas.local:5432/sensiblaw_sparse_ready_20260818` (`pnf-document-graph:d14f740cb5ec4b39f22998832691f5932bae5e527118280f648f607b57456fc7`) with reference-only canonical SQLite chat coordinates (`corpus.chat_archive_message`).
+- [ ] **Formalise & Implement Native 5-Stage PNF Reducer in `slr` + `dashi_agda` (Delegated via MCP to `6ad357c7-406c-83ec-be12-6ae2b106a9a4`):**
+  - Port the R1–R5 reduction funnel (`CandidateInvalidation`, `AdmissibilityGate`, `SameHeckeCandidatePool` fibre quotient, $K_{\text{retained}} = K_{\text{spectral}} \cup K_{\text{formally\_required}} \cup K_{\text{reviewed}}$ with zero singleton formal-obligation recall loss, Marchenko–Pastur spectral shrinkage, and `dashi_agda` AST subtraction) natively into Rust in `slr` (`crates/sl-world-compiler`, `crates/sl-consumer-residual`, `crates/sl-world-store`, `crates/sl-pg-source-store`).
+  - Expose unified PostgreSQL read-model views (`public.v_fleet_core_knowledge_spine`, `public.v_fleet_actionable_gap_frontier`) in `slr/crates/sl-world-store` over `public.slr_world_v2_*` + `corpus.chat_archive_message` so `StatiBaker/sb/ao_kanboard_control.py` and `itir-mcp` consume a single PostgreSQL spine without `SensibLaw` Python or duplicate SQLite world tables.
+
+## Chat archive storage migration
+
+- [ ] Replace the implicit `~/.chatgpt_history.sqlite3` fallback in re-gpt
+  receipt consumers with an explicitly configured, receipt-only locator.
+- [ ] After all governed callers pass explicit transport receipt locations,
+  rename/archive the legacy default path and fail closed if it is selected.
+- [ ] Keep `~/chat_archive.sqlite` as the only canonical corpus location; do
+  not auto-merge the historical `~/.chat_archive.sqlite` path.
+
 #Added 24/7/26 JB
 Yes. The better unifying picture is not merely a cyclic pipeline of engines. It is a **fibred semantic construction**.
 
@@ -5935,3 +6025,30 @@ Canonical implementation note:
   - next real Nat blocker is local reference coverage for
     `reconciled_non_business_variance`, where rows still fall back to
     revision-locked fetch because no concrete local reference URL is pinned
+
+## AO-OP-1 canonical operator workflow
+
+- [x] Add generic read-only evidence-to-handoff composer and strict MCP registration on a separate branch.
+- [x] Add synthetic fixtures for canonical/ambiguous/missing, typed holds, semantic absence, operation states, bounds, determinism, redaction, registry and corpus immutability.
+- [x] Caller executes the focused unit, regression, Ruff and production-cwd fixture smoke commands in `docs/planning/ao_operator_workflow_v1.md`.
+- [x] Independent review of source-written integration and formalization gap; no kernel-verified refinement claimed.
+- [ ] Receipt-location migration remains a separate cut; no default operational-store retirement here.
+
+- [x] AO-OP-1 acceptance-gap source change: missing optional semantic producer/PG no longer blocks canonical **candidate-only review**; verified-PNF review is available only with a trusted injected resolver.
+- [x] Add focused regression fixtures for verified resolver, deterministic actionable handoff, no PG dependency, untrusted labels, and fail-closed resolver errors.
+- [ ] Wire a genuine producer-owned PNF verifier into the production MCP runtime if production needs to assert verified-PNF (currently unverified/candidate-only; no user-controlled verification flag).
+- [x] Caller executes focused tests, lint and production registry smoke; independent review required.
+
+## Proof search and formal gap roadmap
+
+- [ ] Wire live PostgreSQL PNF compiler store (`port 55432`, `compiler_pnf_factor`) into `itir.ao.gap_check` and `itir.pnf.work_packet` to resolve informal thread factors against the 14,392 pre-compiled factors.
+- [ ] Fix sort signature mismatch in `dashi_agda/DASHI/Physics/Closure/NSTriadKNComplex3FieldAlgebra.agda:111` to unblock Colab Agda 2.9.0 parallel runner (`accept-agda-ns-b4-011`).
+- [ ] Maintain SLR proof-search lattice exploration as candidate-only; ensure no AST tactic or LLM-suggested step promotes without an independent kernel verifier receipt.
+- [ ] Integrate candidate spectral packets (`itir.spectral.candidate_packet`) into formal work packet evidence.
+
+## Wiki and public-knowledge governance roadmap
+
+- [x] Bridge SensibLaw P2738 disjointness projector into candidate-only MCP tool (`itir.wikidata.disjointness_report`).
+- [ ] Connect `itir.wikidata.review_packet` and `itir.wikidata.object_review_bundle` to the Dioxus M10/M11 read-only inspection cockpit.
+- [ ] Surface disjointness violations (P2738) and metaclass hierarchy collisions in `sl.wikidata_signal_review_bundle.v0_1` before generating `itir.wikidata.migration_candidate` proposals.
+- [ ] Enforce `itir.wikiproject.tooling_profile` governance contracts on external batch runs (QuickStatements, OpenRefine, Listeria) to prevent unreviewed mutations to live Wikidata.

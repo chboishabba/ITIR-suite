@@ -1,0 +1,15 @@
+{
+  "heartbeat_file": "heartbeat.ao-fleet-spectral-notypedmeet-quotient.json",
+  "lane": "ao.fleet.spectral-notypedmeet-quotient",
+  "lane_claim": "Multiscale spectral noTypedMeet and quotient-fiber collision engine across itir-mcp and reverse-engineered-chatgpt.",
+  "orchestrator_id": "ao-fleet-spectral-notypedmeet-quotient",
+  "parent_orchestrator_id": "ao-fleet-conductor-manager",
+  "status_file": "status.ao-fleet-spectral-notypedmeet-quotient.json",
+  "invariants": {
+    "pairwise_spectral_noTypedMeet": true,
+    "quotient_overlap_is_candidate_only": true,
+    "prod_carrier_lock": true,
+    "zero_trust_escapes": true,
+    "esd_read_only": true
+  }
+}
