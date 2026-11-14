@@ -20,6 +20,7 @@
 #include <zelph/zelph.capnp.h>
 
 #include <cstdint>
+#include <cctype>
 #include <cstdio>
 #include <filesystem>
 #include <iostream>
@@ -67,6 +68,10 @@ std::string escaped(std::string_view value) {
 }
 
 uint64_t parse_number(const std::string& value, const char* label) {
+    if (value.empty()) throw std::runtime_error(std::string("empty ") + label);
+    for (unsigned char c : value) {
+        if (!std::isdigit(c)) throw std::runtime_error(std::string("invalid ") + label);
+    }
     size_t used = 0;
     auto n = std::stoull(value, &used, 10);
     if (used != value.size()) throw std::runtime_error(std::string("invalid ") + label);
@@ -219,10 +224,11 @@ int main(int argc, char** argv) {
         if (!fp) throw std::runtime_error("failed to open packed shard");
         try {
             kj::FdInputStream raw(fileno(fp));
+            kj::BufferedInputStreamWrapper buffered(raw);
             capnp::ReaderOptions options;
             options.traversalLimitInWords = 1ull << 32;
             options.nestingLimit = 128;
-            capnp::PackedMessageReader message(raw, options);
+            capnp::PackedMessageReader message(buffered, options);
             std::cout << "{\"version\":\"itir.zelph.selected_native_capnp_decode.v1\""
                       << ",\"section\":\"" << escaped(args.section) << "\""
                       << ",\"chunk_index\":" << args.chunk_index;
