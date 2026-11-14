@@ -1,5 +1,47 @@
 # Same-original Zelph `.bin` ↔ selected HF shards — physical maximum-cut receipt (2026-11-14)
 
+## New A2 finite relation-word closure — explicit numeric frontier loop
+
+**New implementation at latest ITIR #14 source (NOT included in prior exact-head 95/95 receipt):** original C++ filtered producer accepts extra `--node <u64>` root IDs in addition to unchanged five QID seeds, preserving sorted/distinct numeric identity and using the **same two scans** of the original `.bin`. This does not create a graph index or fabricate a QID for an unnamed numeric node. The original range verifier, immutable HF selected fetch and native decoder now select and audit the exact union of five named roots and extra numeric nodes. `audit_zelph_native_selected_physical.py` exports the source-bin-equal `root_adjacency` for each checked numeric node/direction, along with QID names and extra roots.
+
+`audit_zelph_finite_query_family.py` composes those finite one-hop equalities for explicit numeric `left`/`right` relation words. Every intermediate `(node, direction)` must have a source- and selected-equal native root observation from the same graph revision and manifest. Missing boundaries are emitted as concrete next scanner targets; they do **not** give scoped absence. This is a finite path construction, not a property-filtered P31/P279/P14143/SPARQL query.
+
+The five QID/node numeric pairs in the example below are **operator-reported historical mapping values**, not current accepted live bytes. The example exercises 20 one- and two-hop queries and should initially produce missing boundaries for most two-hop words until the original source frontier is traversed.
+
+```bash
+# First: the separate immutable byte / source route / native decoder steps below
+# must already have produced an ACTUAL native-selected-physical-answer.json.
+FAMILY=docs/planning/zelph_five_qid_lr_query_family.example.json
+AUDIT=/path/to/native-selected-physical-answer.json
+python tools/audit_zelph_finite_query_family.py \
+  --query-family "$FAMILY" --native-audit "$AUDIT" \
+  --output /path/to/finite-lr-query-closure.json
+# Exit 3 is an expected FAIL-CLOSED 'missing intermediate physical rows',
+# not a source-negative answer. Read missing_boundaries in the JSON.
+
+# Rerun the original source-bin producer with ALL five real seed QIDs,
+# plus EACH distinct numeric node_id from missing_boundaries. Do not use
+# fake QID strings; explicit --node is the new bounded source-frontier path.
+tools/zelph_bin_filtered_route_builder --bin "$BIN" \
+  --output /path/to/expanded-original-bin-route.json \
+  --qid Q10403939 --qid Q10416948 --qid Q10422059 \
+  --qid Q10651551 --qid Q56404383 \
+  --node <exact-node-from-missing-boundaries>
+# Repeat selected-only HF fetch, exact original-bin byte-range proof,
+# native schema replay with the expanded route, and finite closure until
+# ALL declared finite words close or the explicit cap/truncation stops it.
+
+# Local exact-head source verification; includes original 95-suite tests
+# plus newly added finite-word and numeric frontier checks:
+bash tools/check_zelph_physical_maxcut_offline.sh
+```
+
+**Important:** The example `--node <...>` is a placeholder, not a runnable numeric argument. Fill it from the actual missing-boundary JSON. The original binary must be authenticated independently and the native source-bin route oracle is not recomputed inside the final finite-word checker. A report with `all_declared_words_closed=true` is therefore **conditional on the attached native source audits**, not a standalone proof of original HF authenticity. It does not supply source support, write rights, or native Wikibase P854/P14143 statements.
+
+**New proof partner:** [DASHI/Interop/ZelphFiniteQueryWordClosureExact.agda](https://github.com/chboishabba/dashi_agda/blob/agent/nora-perspective-consumer-maxcut-20261114/DASHI/Interop/ZelphFiniteQueryWordClosureExact.agda) proves source-reachable one-step equality implies equality of the entire declared finite relation word. New Agda head **not yet typechecked**; existing exact seven-module earlier Agda PASS remains valid at its source commit.
+
+
+
 ## 15 November FLN ↔ original Zelph HF source and reviewer gate
 
 The separate [DASHI Ibrahim exact-lemma acceptance matrix](https://github.com/chboishabba/dashi_agda/blob/feat/ibrahim-fln-ternary-revision-maxcut-20261114/Docs/IbrahimFLNMaximumCutAcceptanceAndExactLemmas20261115.md) now lists the original-wikitext first-link edge, the selected Hyperfabric physical incidence and reviewed ITIR consumer as **three distinct original objects until a physical/source crosswalk is produced**. The native Zelph `nodeOfName`/QID/name graph does not, by itself, prove that a Wikipedia article's first qualifying hyperlink points to the same node, nor that its cross-language meaning was reviewed. Retain original page `oldid`, `pageid`, wikitext hash/selected span, original `.bin` offsets/digest and source→target adjacency in the joined receipt.
