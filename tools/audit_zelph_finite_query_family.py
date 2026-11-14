@@ -151,7 +151,16 @@ def finite_relation_word_closure(
             rows[key] = neighbours
             counts[key] = raw_count
             sources.setdefault(key, set()).add(raw_digest)
-        declared_nodes = set(declared.values())
+        extra_numeric = audit.get("additional_numeric_root_nodes", [])
+        if (
+            not isinstance(extra_numeric, list)
+            or len(extra_numeric) > 100000
+            or any(type(node) is not int or not 0 <= node <= (2**64 - 1)
+                   for node in extra_numeric)
+            or extra_numeric != sorted(set(extra_numeric))
+        ):
+            raise ValueError("numeric frontier roots must be sorted distinct uint64 IDs")
+        declared_nodes = set(declared.values()) | set(extra_numeric)
         if local_keys != {
             (node, direction) for node in declared_nodes for direction in _DIRECTIONS
         }:
