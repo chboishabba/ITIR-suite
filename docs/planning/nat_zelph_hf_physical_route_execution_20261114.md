@@ -1,5 +1,15 @@
 # Nat Zelph HF physical route execution — reported receipt and remaining verification
 
+## Later local regression receipt — ITIR PR #14 head `a119add` (14 November 2026)
+
+Operator reports executing the **complete six-suite local Python 3.12 command** at head `a119add`: **58 passed in 3.54 s**. Per-suite: packager **6**, raw verifier **9**, HF probe **3**, byte/physical-name/adjacency closure **19**, strict QID routing **14**, manifest-v2 **7** (sum **58**). This **supersedes** the earlier 41-pass report only for these named tests. Reported results are local, not independent container execution here, and do not include a C++ physical rebuild, raw HF manifest/data rehash, physical selected-chunk readback, or full graph query closure. The later source on DASHI PR #1506 adds the three Agda 2.9 corrections plus [the previously authored core Set-sort changes from `0dc254eabe`](https://github.com/chboishabba/dashi_agda/commit/0dc254eabeb00c4fdf1dc6d6f1a0e013d05d9606).
+
+**Physical next cut (not unit tests):** rerun the existing C++ filtered producer against the *actual pinned source .bin*, record source file SHA, emit new (different) route and receipt raw SHA256s, inspect real full-manifest `nodeOfName` coverage, acquire selected physical `left`/`right`/`nameOfNode` bytes, then run the source-bin versus HF root-neighbourhood equality audit and explicit query-family closure. Do not re-use the older digest after a producer-schema change. The same original source graph revision must be proven, not just copied into a field.
+
+[Golden updated local Agda runner and exact gate roadmap](https://github.com/chboishabba/dashi_agda/blob/agent/nora-perspective-consumer-maxcut-20261114/Docs/ZelphTrieHyperfabricNatNoraMaximumCut20261114.md).
+
+
+
 ## New P0/A1/A2 implementation tranche (after the operator's 41-test run)
 
 **Source changes on this same PR #14:** `package_zelph_filtered_route_receipt.py` now verifies that the interpreted route equals the JSON read back from the exact raw file hashed into the content address (previously separate objects could diverge). `tools/verify_zelph_filtered_route_replay.py` adds independent raw request/manifest/route/receipt replay; it checks the numeric-v2 manifest shape, request revision/digest binding, canonical receipt digest, original route raw SHA, QID/node/chunk mappings, and nonpromotion. This is a new verification tool, **not evidence the operator's prior raw files were replayed here**.
