@@ -1,5 +1,18 @@
 # Nat Zelph HF physical route execution — reported receipt and remaining verification
 
+## Next accepted physical maximum-cut commands and source-state split
+
+**Kernel (golden owner):** the operator's clean, source-only Agda 2.9 check at DASHI PR #1506 exact head `4c89edbe90ef0e29ea5c02b18bd5dfe090ab9e61` passed for seven imported modules. **ITIR local 58/58** Python tests were run at earlier head `a119add`, before the new physical tranche. Those results are credited but must not be described as validation of the latest C++ decoder or raw HF bytes.
+
+**New combined execution doc:** [immutable full-source .bin ↔ selected HF byte-range + native Cap'n Proto A1/A2 pipeline](zelph_original_bin_hf_ranges_maxcut_20261114.md). This reuses the existing filtered route builder, exact Cap'n Proto schema, manifest v2, immutable HF revision, and local SLR/NORA authority firewall.
+
+**New source and four test suites NOT YET RUN:** `verify_zelph_bin_shard_exact.py`, `verify_zelph_hf_remote_original_ranges.py`, `plan_zelph_hf_selected_fetch.py`, `audit_zelph_native_selected_physical.py`, `zelph_selected_packed_shard_decoder.cpp`. Each checks a distinct physical witness; the final audit requires the prior original-.bin source-range equality receipt. A successful fetch is not itself byte verification and one-hop selected-root equality is not all-word graph query completeness.
+
+**No live HF access here:** Container DNS to `huggingface.co` failed; the pinned raw manifest and original source binary could not be acquired. **Physical P0/A1/A2 remains OPEN**, pending independent exact-head regression, native C++ compilation, actual immutable shard/range execution and preserved receipts.
+
+
+
+
 ## Later local regression receipt — ITIR PR #14 head `a119add` (14 November 2026)
 
 Operator reports executing the **complete six-suite local Python 3.12 command** at head `a119add`: **58 passed in 3.54 s**. Per-suite: packager **6**, raw verifier **9**, HF probe **3**, byte/physical-name/adjacency closure **19**, strict QID routing **14**, manifest-v2 **7** (sum **58**). This **supersedes** the earlier 41-pass report only for these named tests. Reported results are local, not independent container execution here, and do not include a C++ physical rebuild, raw HF manifest/data rehash, physical selected-chunk readback, or full graph query closure. The later source on DASHI PR #1506 adds the three Agda 2.9 corrections plus [the previously authored core Set-sort changes from `0dc254eabe`](https://github.com/chboishabba/dashi_agda/commit/0dc254eabeb00c4fdf1dc6d6f1a0e013d05d9606).
