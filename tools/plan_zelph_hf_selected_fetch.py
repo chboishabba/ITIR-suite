@@ -76,7 +76,8 @@ def selected_fetch_plan(
         "max_selected_gib": max_selected_gib,
         "invocation": command,
         "printable_command": shlex.join(command),
-        "network_executed": False,
+        "download_client_invoked": False,
+        "network_transfer_confirmed": False,
         "original_bin_requested": False,
         "source_bin_to_shard_ranges_verified": False,
         "candidate_only": True,
@@ -107,7 +108,10 @@ def main() -> int:
             # Download command intentionally does not run via a shell.
             # It reuses HF's existing client authentication, retries and cache.
             subprocess.run(result["invocation"], check=True)
-            result["network_executed"] = True
+            result["download_client_invoked"] = True
+            # Local HF cache hits can satisfy downloads; independent raw-byte
+            # verification is performed by the later physical audit.
+            result["network_transfer_confirmed"] = False
             result["source_bin_to_shard_ranges_verified"] = False
         output = json.dumps(result, indent=2, sort_keys=True) + "\n"
         if args.output:
