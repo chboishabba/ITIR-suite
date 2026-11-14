@@ -119,8 +119,20 @@ def _selected_route_keys(route: Mapping[str, Any]) -> set[tuple[str, int]]:
     wanted: set[tuple[str, int]] = {
         ("nodeOfName", name_chunks[qid]) for qid in qids
     }
-    if set(node_routes) != {str(nodes[qid]) for qid in qids}:
-        raise ValueError("node route domain differs from resolved QID nodes")
+    extra_numeric = route.get("additionalNumericNodes", [])
+    if (
+        not isinstance(extra_numeric, list)
+        or len(extra_numeric) > 100000
+        or any(type(node) is not int or not 0 <= node <= (2**64 - 1)
+               for node in extra_numeric)
+        or extra_numeric != sorted(set(extra_numeric))
+    ):
+        raise ValueError("extra numeric frontier nodes must be sorted distinct uint64 values")
+    expected_root_nodes = {str(nodes[qid]) for qid in qids} | {
+        str(node) for node in extra_numeric
+    }
+    if set(node_routes) != expected_root_nodes:
+        raise ValueError("node route domain differs from named and numeric source roots")
     for node, parts in node_routes.items():
         if not isinstance(parts, dict):
             raise ValueError(f"invalid route for {node}")
