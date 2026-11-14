@@ -58,10 +58,10 @@ def setup(tmp_path, monkeypatch):
     shard.mkdir()
     producer = tmp_path / 'producer'
     producer.write_text(
-        '#!/usr/bin/env python3\\nimport pathlib,sys\\n'
+        '#!/usr/bin/env python3\nimport pathlib,sys\n'
         'pathlib.Path(sys.argv[sys.argv.index("--output")+1]).write_bytes('
         'pathlib.Path(sys.argv[sys.argv.index("--bin")+1]).parent.joinpath('
-        '"route-template.json").read_bytes())\\n'
+        '"route-template.json").read_bytes())\n'
     )
     producer.chmod(producer.stat().st_mode | stat.S_IXUSR)
     decoder = tmp_path / 'decoder'
