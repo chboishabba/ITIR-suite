@@ -111,7 +111,7 @@ def verify_native_selected_shard_answer(
     if selected - set(index):
         raise ValueError("selected chunk not contained in immutable manifest")
     receipts = _verified_range_rows(
-        proof, selected=selected, manifest_sha=manifest_sha,
+        proof, selected=selected, manifest_sha=manifest_sha256,
         route_sha=route_sha, revision=dataset_revision,
     )
     total = sum(index[key]["length"] for key in selected)
