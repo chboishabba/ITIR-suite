@@ -61,7 +61,8 @@ def _plan(tmp):
 
 def test_download_is_only_a_plan_by_default_and_selects_four_chunks(tmp_path):
     result = _plan(tmp_path)
-    assert result["network_executed"] is False
+    assert result["download_client_invoked"] is False
+    assert result["network_transfer_confirmed"] is False
     assert result["selected_object_count"] == 4
     assert result["advertised_selected_bytes"] == 32
     assert result["original_bin_requested"] is False
