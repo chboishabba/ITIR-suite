@@ -58,10 +58,21 @@ struct Header {
     uint64_t header_length{};
 };
 
+// The original .bin pass is the source-local adjacency oracle. The bounded
+// payload stays distinct from a full-graph or native Wikibase completeness
+// certificate; a high-degree node explicitly reports truncation.
+static constexpr size_t kMaxNeighborsPerNodeDirection = 200000;
+
 struct NodeRoute {
     std::set<uint32_t> left;
     std::set<uint32_t> right;
     std::set<uint32_t> name_of_node;
+    std::set<uint64_t> left_adjacency;
+    std::set<uint64_t> right_adjacency;
+    uint64_t left_values_seen{0};
+    uint64_t right_values_seen{0};
+    bool left_truncated{false};
+    bool right_truncated{false};
 };
 
 static std::string json_escape(std::string_view value) {
@@ -203,8 +214,21 @@ static std::map<uint64_t, NodeRoute> resolve_routes(
                 for (auto pair : chunk.getPairs()) {
                     const uint64_t node = pair.getNode();
                     if (target_nodes.count(node) == 0) continue;
-                    if (left) routes[node].left.insert(chunk.getChunkIndex());
-                    else routes[node].right.insert(chunk.getChunkIndex());
+                    NodeRoute& route = routes.at(node);
+                    if (left) route.left.insert(chunk.getChunkIndex());
+                    else route.right.insert(chunk.getChunkIndex());
+                    auto& neighbors = left ? route.left_adjacency : route.right_adjacency;
+                    auto& values_seen = left ? route.left_values_seen : route.right_values_seen;
+                    auto& truncated = left ? route.left_truncated : route.right_truncated;
+                    for (uint64_t adjacent : pair.getAdj()) {
+                        ++values_seen;
+                        if (neighbors.size() < kMaxNeighborsPerNodeDirection ||
+                            neighbors.count(adjacent) != 0) {
+                            neighbors.insert(adjacent);
+                        } else {
+                            truncated = true;
+                        }
+                    }
                 }
             }
         };
@@ -229,10 +253,11 @@ static std::map<uint64_t, NodeRoute> resolve_routes(
     }
 }
 
-static void write_set(std::ostream& out, const std::set<uint32_t>& values) {
+template <typename Integer>
+static void write_set(std::ostream& out, const std::set<Integer>& values) {
     out << "[";
     bool first = true;
-    for (uint32_t value : values) {
+    for (Integer value : values) {
         if (!first) out << ",";
         first = false;
         out << value;
@@ -303,6 +328,26 @@ int main(int argc, char** argv) {
             out << ",\"nameOfNode\":"; write_set(out, entry.second.name_of_node); out << "}";
         }
         out << "},\n";
+        // Original .bin source-local adjacency, not a published HF chunk
+        // replay. Each node/direction has a bounded and reported capture.
+        out << "  \"nodeAdjacency\": {";
+        first = true;
+        for (const auto& entry : routes) {
+            if (!first) out << ","; first = false;
+            const NodeRoute& route = entry.second;
+            out << "\"" << entry.first << "\":{\"left\":";
+            write_set(out, route.left_adjacency);
+            out << ",\"right\":";
+            write_set(out, route.right_adjacency);
+            out << ",\"leftValuesSeen\":" << route.left_values_seen;
+            out << ",\"rightValuesSeen\":" << route.right_values_seen;
+            out << ",\"leftTruncated\":" << (route.left_truncated ? "true" : "false");
+            out << ",\"rightTruncated\":" << (route.right_truncated ? "true" : "false");
+            out << "}";
+        }
+        out << "},\n";
+        out << "  \"adjacencyOracleScope\": \"bounded-selected-roots-in-source-bin\",\n";
+        out << "  \"sourceBinToPublishedHfDatasetIdentityVerified\": false,\n";
         out << "  \"resolvedQidCount\": " << qid_to_node.size() << ",\n";
         out << "  \"completeQidResolution\": " << (qid_to_node.size() == args.qids.size() ? "true" : "false") << ",\n";
         out << "  \"fullRouteMaterializationPerformed\": false\n";
