@@ -1,5 +1,22 @@
 # Same-original Zelph `.bin` ↔ selected HF shards — physical maximum-cut receipt (2026-11-14)
 
+## New native original-bin two-pass mini-fixture gate (new head not yet rerun)
+
+The existing `tools/check_zelph_native_capnp_roundtrip.sh` now builds **three** C++ binaries with original upstream-generated Cap'n Proto: native writer, selected shard decoder and `zelph_bin_filtered_route_builder.cpp`. It generates all four packed shard types PLUS an original packed header, concatenates an internally consistent full mini source `.bin`, and runs the **actual original two-pass filtered route producer** on `--qid Q1 --node 8`. The fixture has `Q1 ↔ 7`, left `7→{8,9}`, right `7→{10}`, and unnamed numeric node `8` with left `8→{11}` and right `8→{12}`. It checks routes, source-local oracle arrays, value count, nontruncation, exact chunk indices, nameless node 8 decode, wrong-section/index/language/trailer controls and read-only flags. This is a genuine source-format **synthetic binary** contract, not an original Wikidata/HF provenance witness.
+
+Run **new exact committed head**:
+
+```bash
+bash tools/check_zelph_physical_maxcut_offline.sh
+# Also use the golden pinned Agda 2.9 9-target acceptance in DASHI #1506:
+bash scripts/check_zelph_trie_hyperfabric_maxcut.sh
+# And SLR B5 new native structural comparison:
+cargo test -p sensiblaw-source-handoff native_statement_evidence
+```
+
+Only the **previous** ITIR `e64c04f` head is operator-verified at 95 Python + native 4/5. The new A1/A2 Agda, added Python finite-word/unnamed numeric route controls, original two-pass mini-bin and SLR native Rust source have **no new exact-head acceptance receipt yet**. The local agent created/tested a standalone Python prototype with 16/16 synthetic tests, which is not a check of the final committed source and must not be presented as one.
+
+
 ## New A2 finite relation-word closure — explicit numeric frontier loop
 
 **New implementation at latest ITIR #14 source (NOT included in prior exact-head 95/95 receipt):** original C++ filtered producer accepts extra `--node <u64>` root IDs in addition to unchanged five QID seeds, preserving sorted/distinct numeric identity and using the **same two scans** of the original `.bin`. This does not create a graph index or fabricate a QID for an unnamed numeric node. The original range verifier, immutable HF selected fetch and native decoder now select and audit the exact union of five named roots and extra numeric nodes. `audit_zelph_native_selected_physical.py` exports the source-bin-equal `root_adjacency` for each checked numeric node/direction, along with QID names and extra roots.
