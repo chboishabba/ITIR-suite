@@ -73,6 +73,12 @@ def build_receipt(
     missing_node_routes = sorted(node for node in resolved_nodes if node not in node_routes)
     complete = not unresolved_qids and not missing_node_routes and bool(route.get("completeQidResolution"))
 
+    # This is a critical byte-to-meaning boundary: a caller can pass a
+    # dictionary that differs from the JSON file being content-addressed.
+    # Never sign/assert a parsed route whose bytes were not actually hashed.
+    disk_route = _load(route_path)
+    if disk_route != dict(route):
+        raise ValueError("filtered route payload differs from hashed route file bytes")
     route_digest = _sha256_bytes(route_path)
     receipt_without_digest = {
         "schema_version": RECEIPT_SCHEMA,
