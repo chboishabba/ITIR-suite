@@ -171,6 +171,86 @@ def route_selector(
     return matched
 
 
+
+def exact_wikidata_name_route(
+    payload: Mapping[str, Any],
+    qid: str,
+    *,
+    route_index: Mapping[str, Any] | None,
+) -> dict[str, Any]:
+    """Resolve a Wikidata QID only from an exact, language-pinned route witness.
+
+    Deliberately bypasses route_selector's coarse routingKeys/family fallback.
+    This is a candidate shard plan, not evidence of payload fetch, native
+    Wikidata family coverage, semantic truth, or global absence.
+    """
+    artifact = validate_shared_shard_artifact(payload)
+    if (
+        not isinstance(qid, str)
+        or not qid.startswith("Q")
+        or not qid[1:].isascii()
+        or not qid[1:].isdigit()
+        or not qid[1:]
+        or qid[1] == "0"
+    ):
+        raise ValueError("qid must be a canonical nonzero Wikidata Q identifier")
+    if not isinstance(route_index, Mapping):
+        raise ValueError("exact QID route requires an explicit pinned route sidecar")
+    routing = route_index.get("routing", route_index)
+    if not isinstance(routing, Mapping):
+        raise ValueError("route sidecar routing must be an object")
+    entries = routing.get("nodeOfName")
+    if not isinstance(entries, list):
+        raise ValueError("route sidecar has no nodeOfName entries")
+    shard_ids_by_chunk = _shards_by_section_chunk(artifact)
+    matched: list[tuple[int, str]] = []
+    for entry in entries:
+        if not isinstance(entry, Mapping):
+            raise ValueError("nodeOfName entry must be an object")
+        if entry.get("lang") != "wikidata":
+            continue
+        names = entry.get("names")
+        if not isinstance(names, list):
+            raise ValueError("wikidata nodeOfName entry requires names")
+        if qid not in names:
+            continue
+        index = _required_int(entry, "chunkIndex")
+        shard_id = shard_ids_by_chunk.get(("nodeOfName", index, "wikidata"))
+        if shard_id is None:
+            raise ValueError("exact route refers to a missing indexed Wikidata name shard")
+        matched.append((index, shard_id))
+    if len(matched) != 1:
+        raise ValueError(
+            "exact Wikidata name route unresolved or ambiguous; do not use coarse fallback"
+        )
+    index, shard_id = matched[0]
+    shard = next(shard for shard in artifact["shards"] if shard["shardId"] == shard_id)
+    return {
+        "version": "itir.shard.exact_wikidata_name_route.v1",
+        "qid": qid,
+        "selector": f"route-name={qid} route-lang=wikidata",
+        "route_evidence": "exact-sidecar-name-and-language",
+        "artifact_identity": {
+            "artifactId": artifact["artifactId"],
+            "artifactRevision": artifact["artifactRevision"],
+        },
+        "selected_shard_id": shard_id,
+        "section": "nodeOfName",
+        "chunkIndex": index,
+        "language": "wikidata",
+        "declared_bytes": int(shard["sizeBytes"]),
+        "route_witness": True,
+        "payload_fetch": False,
+        "payload_decode": False,
+        "query_coverage_complete": False,
+        "candidate_only": True,
+        "truth_authority": False,
+        "support_authority": False,
+        "promotion_authority": False,
+        "wikidata_edit_authority": False,
+    }
+
+
 def build_partial_graph_view(
     payload: Mapping[str, Any], selectors: Sequence[str]
 ) -> dict[str, Any]:
