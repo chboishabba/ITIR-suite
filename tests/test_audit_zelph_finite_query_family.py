@@ -196,3 +196,35 @@ def test_duplicate_raw_json_key_rejected(tmp_path):
     file.write_text('{"version":"v1","version":"v1"}')
     with pytest.raises(ValueError, match="duplicate input JSON key"):
         finite._strict_json(file)
+
+
+def test_numeric_intermediate_roots_do_not_require_fabricated_qids():
+    named = _audit((1, "left", [2, 3]), (1, "right", [4]))
+    numeric = _audit(
+        (2, "left", [5]), (2, "right", []),
+        (3, "left", [6]), (3, "right", []),
+        qids={"Q1": 1},
+    )
+    # A later same-source audit includes the real QID seed 1, but separately
+    # observes numeric-only frontier IDs 2 and 3 without inventing QID names.
+    numeric["additional_numeric_root_nodes"] = [2, 3]
+    numeric["root_adjacency"] = named["root_adjacency"] + numeric["root_adjacency"]
+    result = _run(audits=[(named, "1" * 64), (numeric, "2" * 64)])
+    assert result["all_declared_words_closed"]
+    assert result["query_results"][1]["end_nodes"] == [5, 6]
+
+
+def test_unnamed_numeric_frontier_must_be_declared_and_exact():
+    named = _audit((1, "left", [2, 3]), (1, "right", []))
+    extra = deepcopy(named)
+    extra["root_adjacency"] += [
+        {"node_id": 2, "direction": "left", "neighbors": [9],
+         "source_values_seen": 1, "source_truncated": False, "physical_truncated": False},
+        {"node_id": 2, "direction": "right", "neighbors": [],
+         "source_values_seen": 0, "source_truncated": False, "physical_truncated": False},
+    ]
+    with pytest.raises(ValueError, match="both directions"):
+        _run(audits=[(extra, DIGEST)])
+    extra["additional_numeric_root_nodes"] = [2]
+    result = _run(audits=[(extra, DIGEST)])
+    assert result["query_results"][1]["end_nodes"] is None  # node 3 still missing
