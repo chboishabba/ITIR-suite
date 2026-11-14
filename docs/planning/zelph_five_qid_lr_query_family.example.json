@@ -1,0 +1,162 @@
+{
+  "version": "itir.zelph.finite_lr_query_family.v1",
+  "qid_root_nodes": {
+    "Q10403939": 24721153,
+    "Q10416948": 874016,
+    "Q10422059": 63706277,
+    "Q10651551": 2475334,
+    "Q56404383": 741397
+  },
+  "queries": [
+    {
+      "id": "Q10403939:left",
+      "qid": "Q10403939",
+      "word": [
+        "left"
+      ]
+    },
+    {
+      "id": "Q10403939:right",
+      "qid": "Q10403939",
+      "word": [
+        "right"
+      ]
+    },
+    {
+      "id": "Q10403939:left-right",
+      "qid": "Q10403939",
+      "word": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "id": "Q10403939:right-left",
+      "qid": "Q10403939",
+      "word": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "id": "Q10416948:left",
+      "qid": "Q10416948",
+      "word": [
+        "left"
+      ]
+    },
+    {
+      "id": "Q10416948:right",
+      "qid": "Q10416948",
+      "word": [
+        "right"
+      ]
+    },
+    {
+      "id": "Q10416948:left-right",
+      "qid": "Q10416948",
+      "word": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "id": "Q10416948:right-left",
+      "qid": "Q10416948",
+      "word": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "id": "Q10422059:left",
+      "qid": "Q10422059",
+      "word": [
+        "left"
+      ]
+    },
+    {
+      "id": "Q10422059:right",
+      "qid": "Q10422059",
+      "word": [
+        "right"
+      ]
+    },
+    {
+      "id": "Q10422059:left-right",
+      "qid": "Q10422059",
+      "word": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "id": "Q10422059:right-left",
+      "qid": "Q10422059",
+      "word": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "id": "Q10651551:left",
+      "qid": "Q10651551",
+      "word": [
+        "left"
+      ]
+    },
+    {
+      "id": "Q10651551:right",
+      "qid": "Q10651551",
+      "word": [
+        "right"
+      ]
+    },
+    {
+      "id": "Q10651551:left-right",
+      "qid": "Q10651551",
+      "word": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "id": "Q10651551:right-left",
+      "qid": "Q10651551",
+      "word": [
+        "right",
+        "left"
+      ]
+    },
+    {
+      "id": "Q56404383:left",
+      "qid": "Q56404383",
+      "word": [
+        "left"
+      ]
+    },
+    {
+      "id": "Q56404383:right",
+      "qid": "Q56404383",
+      "word": [
+        "right"
+      ]
+    },
+    {
+      "id": "Q56404383:left-right",
+      "qid": "Q56404383",
+      "word": [
+        "left",
+        "right"
+      ]
+    },
+    {
+      "id": "Q56404383:right-left",
+      "qid": "Q56404383",
+      "word": [
+        "right",
+        "left"
+      ]
+    }
+  ]
+}
