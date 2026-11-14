@@ -84,9 +84,22 @@ python -m pytest -q itir-mcp/tests/test_exact_wikidata_name_route.py tests/test_
 
 **Next separate gates:** no-fallback pinned physical shard GET, Cap'n Proto decode against the blessed Zelph binary, measured physical GET/bytes, query-family completeness and SLR source/S29 persisted review. All remain open until runtime receipts are collected.
 
+## 2026-11-14 local execution receipt — five Nat QIDs physically located
+
+**[Read the five-QID HF physical route execution audit](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/docs/planning/nat_zelph_hf_physical_route_execution_20261114.md).** The operator has now reported **21 targeted tests passed**, direct Cap'n Proto `nodeOfName` chunk decoding on the HF full graph, and a **content-addressed filtered-route receipt**. The raw local receipt JSON, raw filtered-route JSON, requests and physical chunk digest files have not been pushed, so this is a **reported measurement**, not an independently replayed acceptance.
+
+- Reported immutable dataset SHA: `0d4bd670959ebddae72f70d973410fdea8917ec1`.
+- Full manifest sha256: `cedd5cf0e4951ae1aa7c2c5968614b0eb72a4c3b5c8b2dc4ab18c40be8c83f59`.
+- Pruned-small manifest sha256: `4f0696e81dd60c61c545f261b9bf3c5bb1bc22d181384381f147d7dd9dcc9cac`.
+- **No published `hfObjects.nodeRouteIndex`** was advertised in either tested manifest. The original strict MCP tool correctly **BLOCKED**. A *separate physical name-shard decoding path* resolved all five external QIDs under the Wikidata language, which is stronger evidence than a guessed route family.
+- Full graph: `Q10403939`, `Q10416948`, `Q10422059` → chunk 1; `Q10651551` → chunk 4; `Q56404383` → chunk 75. All refer to `nodeOfName`, not adjacency `left/right`.
+- Reported route artifact `sha256:fbc43156ae80b8e32f9cbd5b32dd30dcc2085ad9ead04e73e16ff8f376425233`; reported receipt digest `d3970f969c4e9b030fdb75c2914318c20d9e20eb096cb0212ed3b6b421b6dd05`.
+
+**Revised high-information next step:** check the raw local files' SHA and source/producer lineage; record per-name-chunk physical request and byte cost; perform direct `left/right/nameOfNode` decoding; get Agda kernel and SLR persisted replay. **Do not treat QID-name routing as the native quantitative `P14143` family or `P854` source-support verification**: the ordinary Zelph graph contains entity-linked triples, not full dates, quantities, methods and references. The historical `57,989` statements remain outside this five-QID route receipt.
+
 ## 4. What remains unverified, and the exact next probe
 
-The current GPT connector can read GitHub source but has **not** fetched the live HF metadata/binary blob and therefore does not certify the current manifest, route file, individual shard digests, CDN responses or live QID resolution.
+An earlier session lacked working HF DNS. A later operator's local run has **reported** real HF manifest retrieval and five-QID physical name-chunk decoding (linked above). This audit still has **not** independently fetched the manifest, verified raw route receipt bytes or decoded physical shards, and the hosted publication did **not** advertise a precomputed route sidecar.
 
 The minimum direct-receipt operation is:
 
