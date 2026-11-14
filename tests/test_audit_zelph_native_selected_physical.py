@@ -140,6 +140,14 @@ def test_same_original_range_and_native_four_section_projection(monkeypatch, tmp
     assert result["selected_name_routes_and_inverse_checked"]
     assert result["selected_root_one_hop_bidirectional_adjacency_equal_original_bin"]
     assert result["selected_object_count"] == 4
+    assert result["qid_root_nodes"] == {"Q1": 7}
+    assert result["additional_numeric_root_nodes"] == []
+    assert result["root_adjacency"] == [
+        {"node_id": 7, "direction": "left", "neighbors": [8, 9],
+         "source_values_seen": 2, "source_truncated": False, "physical_truncated": False},
+        {"node_id": 7, "direction": "right", "neighbors": [10],
+         "source_values_seen": 1, "source_truncated": False, "physical_truncated": False},
+    ]
     assert result["general_query_family_closed"] is False
     assert result["native_P14143_P854_support_proved"] is False
     assert result["edit_authority"] is False
