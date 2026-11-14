@@ -87,3 +87,27 @@ The current 204-name-shard manifest and physical five-QID scan **are not assumed
 6. Route this through ITIR's already-registered candidate-only MCP and **DASHI Agda golden** coverage/physical transport contracts. The next Agda gate is a pinned kernel receipt on the **actual same-source receipt**, not an unrelated finite data example.
 
 The complete report cannot yet be independently reproduced from GitHub because the raw execution artifacts remain local. [Author-facing NORA entry point](https://github.com/chboishabba/SensibLaw/pull/514).
+
+
+## 2026-11-14 source implementation delta — A1/A2/A6 consumer-side auditor
+
+Added `itir-mcp/src/itir_mcp/zelph_query_closure.py` and `itir-mcp/tests/test_zelph_query_closure.py` on the **existing PR #14**. This supplements, rather than replaces, `itir.shard.exact_wikidata_name_route` and the C++ physical name scanner.
+
+- `audit_declared_name_partition`: requires actual raw byte strings for **every caller-declared** section/global `nodeOfName` object, checks immutable graph identity presence, object SHA-256 and byte length, decodes each exactly once through an explicit callback, rejects undeclared/missing/duplicate physical objects and malformed decoded language/node IDs, preserves duplicate-name **collision fibres**.
+- `lookup_audited_name`: returns a list of physical `(shard_id,node_id)` witnesses; an absent QID returns `unresolved-in-original-graph`, *not* global `novalue`. Decoder correctness remains an external refinement obligation.
+- `evaluate_query_closure`: explicitly compares requested/inspected family dependencies and rejects mixed graph revisions. Full original-graph edge closure **remains false** without source-specific physical evidence, even if all supplied dependency labels were visited.
+- Tests cover digest mutation, missing/extra chunks, chunk identity collisions, wrong language, invalid node, duplicate QID, scoped missing QID, mixed revisions and partial adjacency dependency closure.
+
+**Do not claim that the input list of 'declared' objects is the full manifest population.** Binding manifest section enumeration, raw Cap'n Proto decoder identity and original-graph closure is still open. This utility intentionally does not infer native GUIDs, P14143 values, qualifiers or P854 support.
+
+Run locally at exact PR head:
+```bash
+PYTHONPATH=itir-mcp/src python -m pytest -q \
+  itir-mcp/tests/test_zelph_query_closure.py \
+  itir-mcp/tests/test_exact_wikidata_name_route.py \
+  itir-mcp/tests/test_published_zelph_manifest_compat.py
+```
+
+**Next physical maximum cut:** materialise original manifest/source request/route JSON and all selected real Cap'n Proto objects, run the callback against the repository's pinned decoder, then check manifest-level enumeration and decode `left/right/nameOfNode`. Record network object count + byte totals + cache state and no sequential fallback, with the actual dataset SHA. The historical five-QID values above remain *operator-reported*, not independently re-hashed here.
+
+[Golden A1–A6 proof source and P0–P5 gate ledger](https://github.com/chboishabba/dashi_agda/blob/agent/nora-perspective-consumer-maxcut-20261114/Docs/ZelphTrieHyperfabricNatNoraMaximumCut20261114.md).
