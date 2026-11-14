@@ -57,6 +57,12 @@ def _verified_range_rows(
             or proof.get("dataset_revision") != revision
         ):
             raise ValueError("immutable remote original-bin range receipt identity invalid")
+        pinned_source_url = (
+            "https://huggingface.co/datasets/acrion/zelph/resolve/"
+            + revision + "/" + _ARTIFACT + ".bin"
+        )
+        if proof.get("source_bin_url") != pinned_source_url:
+            raise ValueError("remote original-bin range receipt URL is not immutable/pinned")
         raw_rows = proof.get("receipts")
         expected_sha_key = "equal_raw_sha256"
         uri_key = "shard_object_uri"
@@ -74,9 +80,20 @@ def _verified_range_rows(
         sha = row.get(expected_sha_key)
         if not isinstance(sha, str) or not _SHA64.fullmatch(sha):
             raise ValueError("missing 64-hex physical byte digest")
+        offset = row.get("source_offset")
+        size = row.get("bytes_compared")
+        if (type(offset) is not int or offset < 0
+                or type(size) is not int or size <= 0):
+            raise ValueError("source-bin receipt offset and byte length must be checked integers")
+        if version == _REMOTE_RANGE and (
+            row.get("range_http_status") != 206
+            or row.get("exact_content_range_verified") is not True
+            or row.get("source_end_inclusive") != offset + size - 1
+        ):
+            raise ValueError("remote original-bin HTTP 206 range witness incomplete")
         rows[key] = {
-            "sha256": sha, "size_bytes": row.get("bytes_compared"),
-            "uri": row.get(uri_key),
+            "sha256": sha, "size_bytes": size,
+            "source_offset": offset, "uri": row.get(uri_key),
         }
     if set(rows) != selected:
         raise ValueError("source-bin range witness lacks selected physical chunks")
@@ -146,6 +163,7 @@ def verify_native_selected_shard_answer(
         if (
             path.stat().st_size != item["length"]
             or prev["size_bytes"] != item["length"]
+            or prev["source_offset"] != item["offset"]
             or prev["uri"] != item["object_uri"]
             or _hash_file(path) != prev["sha256"]
         ):
