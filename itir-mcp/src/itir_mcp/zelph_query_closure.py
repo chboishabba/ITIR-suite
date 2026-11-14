@@ -26,6 +26,7 @@ class DeclaredNameObject:
     language: str
     size_bytes: int
     sha256_hex: str
+    object_uri: str = ""  # optional on legacy callers; required for manifest bridge
 
 
 def audit_declared_name_partition(
@@ -104,6 +105,7 @@ def audit_declared_name_partition(
             "shard_id": shard_id,
             "chunk_index": entry.chunk_index,
             "language": entry.language,
+            "object_uri": entry.object_uri,
             "sha256": entry.sha256_hex,
             "byte_count": len(raw),
             "decoded_pair_count": len(seen_pairs),
@@ -198,4 +200,89 @@ def evaluate_query_closure(
         "scoped_negative_answer_permitted": False,
         "coverage_status": "incomplete" if missing else "unverified-source-closure",
         "candidate_only": True,
+    }
+
+
+def verify_manifest_name_cover(
+    *, manifest: Mapping[str, Any], audit: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Compare **every** name object in the published manifest to byte-audited receipts.
+
+    This is a structural manifest-to-physical-name-cover bridge, NOT a claim
+    that the manifest itself enumerates every source-graph name or that
+    the caller's Cap'n Proto decoder has been formally refined.
+    """
+    if (
+        manifest.get("manifestVersion") != 2
+        or manifest.get("storageMode") != "split-by-direction-and-section"
+    ):
+        raise ValueError("unsupported published numeric-v2 name manifest")
+    source = manifest.get("source")
+    if not isinstance(source, Mapping):
+        raise ValueError("missing graph source manifest")
+    artifact = source.get("artifactName")
+    if not isinstance(artifact, str) or not artifact:
+        raise ValueError("manifest source artifact identity missing")
+    if audit.get("artifact_id") != artifact:
+        raise ValueError("audited graph differs from manifest artifact")
+    sections = manifest.get("sections")
+    if not isinstance(sections, Mapping):
+        raise ValueError("manifest sections missing")
+    name_section = sections.get("nodeOfName")
+    if not isinstance(name_section, Mapping):
+        raise ValueError("manifest nodeOfName section missing")
+    chunks = name_section.get("chunks")
+    if not isinstance(chunks, list) or not chunks:
+        raise ValueError("manifest nodeOfName cover empty or invalid")
+    expected: dict[str, tuple[int, str, int, str]] = {}
+    for chunk in chunks:
+        if not isinstance(chunk, Mapping):
+            raise ValueError("manifest name chunk is not an object")
+        index, language, length, uri = (
+            chunk.get("chunkIndex"), chunk.get("lang"),
+            chunk.get("length"), chunk.get("objectPath")
+        )
+        if (
+            type(index) is not int or index < 0
+            or not isinstance(language, str) or not language
+            or type(length) is not int or length < 0
+            or not isinstance(uri, str)
+            or not uri.startswith(f"hf://datasets/acrion/zelph/{artifact}/shards/nodeOfName/")
+            or "/../" in uri or uri.endswith("/..")
+        ):
+            raise ValueError("untrusted name chunk identity or path in manifest")
+        name_id = f"nodeOfName-chunk-{index:06d}-{language}"
+        if name_id in expected:
+            raise ValueError("duplicate manifest name chunk identity")
+        expected[name_id] = (index, language, length, uri)
+    receipts = audit.get("physical_receipts")
+    if not isinstance(receipts, list):
+        raise ValueError("no audited physical byte receipts")
+    actual: dict[str, tuple[int, str, int, str]] = {}
+    for receipt in receipts:
+        if not isinstance(receipt, Mapping):
+            raise ValueError("malformed byte receipt")
+        name_id = receipt.get("shard_id")
+        if not isinstance(name_id, str) or name_id in actual:
+            raise ValueError("duplicate or invalid audited shard ID")
+        actual[name_id] = (
+            receipt.get("chunk_index"), receipt.get("language"),
+            receipt.get("byte_count"), receipt.get("object_uri")
+        )
+    if actual != expected:
+        raise ValueError("manifest/decoded name-object cover differs in key, length or URI")
+    if audit.get("declared_object_set_exhausted") is not True:
+        raise ValueError("audited physical object set not exhausted")
+    return {
+        "version": "itir.zelph.manifest_name_cover_bridge.v1",
+        "artifact_id": artifact,
+        "graph_revision": audit.get("graph_revision"),
+        "manifest_declared_name_cover_exhausted": True,
+        "matched_physical_object_count": len(expected),
+        "actual_byte_sha_receipts_present": True,
+        "decoder_refinement_proved": False,
+        "source_graph_name_domain_exhausted": False,
+        "graph_query_family_complete": False,
+        "candidate_only": True,
+        "source_support_paid": False,
     }
