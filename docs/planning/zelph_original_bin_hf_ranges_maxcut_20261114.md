@@ -1,5 +1,26 @@
 # Same-original Zelph `.bin` ↔ selected HF shards — physical maximum-cut receipt (2026-11-14)
 
+## Exact-head offline gate CLOSED — 15 November 2026
+
+**Operator-reported clean execution:** ITIR PR #14 commit `e64c04f32f791502f6feccd3d918ece9a426c122`, command `bash tools/check_zelph_physical_maxcut_offline.sh`, clean tracked worktree, exit 0. **95/95 Python regression tests passed** across ten modules. Both C++ files compiled with `clang++ -fuse-ld=lld -std=c++17 -O2`; the generated upstream-schema packed fixture decoded **four** original Zelph section types correctly and rejected **five** wrong-direction/index/lang/trailer/empty-candidate controls. This supersedes the earlier 90/90 patched-worktree status as the latest offline source-level acceptance.
+
+**What has NOT been checked:** no actual `acrion/zelph` immutable raw manifest fetched/rehashed in this latest run, no original real `.bin` against published shard offset equality, no real original-five-QID `nodeAdjacency` comparison, no full A1 manifest-vs-source name-domain exhaustion, no A2 arbitrary query-family closure, no actual network request/byte budgets, no independent native P854 evidence, no SLR PostgreSQL S29 persistence and no authentic Éder Porto NORA export. The `--source-bin` audit rechecks bytes but still does not recompute the oracle from the original binary or authenticate that binary's upstream origin; its result exposes those false flags. Such proof requires a separately verified source provenance and original producer execution.
+
+### Exact next physical acceptance outputs
+
+| Artifact | Producer | Acceptance criterion |
+|---|---|---|
+| `original-source.json` | Original binary metadata / independent upstream identity | Same `wikidata-20260309-all` source revision, actual binary SHA/size and provenance; a local arbitrary `.bin` path is insufficient |
+| `manifest-raw.json`, SHA256 | HF immutable revision `0d4bd670959ebddae72f70d973410fdea8917ec1` | Real raw digest equals `cedd5cf0e4951ae1aa7c2c5968614b0eb72a4c3b5c8b2dc4ab18c40be8c83f59` or halt and explain |
+| `route-new.json` | Original-bin `zelph_bin_filtered_route_builder.cpp` | Five exact QIDs, section-global name/adjacency routes, bounded `nodeAdjacency`, producer/schema digest; **new** hash, not historic `fbc43156...` |
+| `selected-shards/` | `plan_zelph_hf_selected_fetch.py --execute` | Only requested pinned objects, no unbounded transfer; real GET/bytes/cache counts separately |
+| `selected-range-proof.json` | Local `.bin` exact ranges or immutable HTTP206 original range | **Real original bytes** equal each shard byte range including offset, length, SHA and physical object URI; no source provenance overclaim |
+| `native-selected-physical-answer.json` | C++ decoder + `audit_zelph_native_selected_physical.py` | Original-bin name↔node and selected left/right neighbour/value-count equality for five QIDs; no truncation, collision ambiguity or synthetic fixture |
+| `query-family-closure.json` | Subsequent query evaluator / proof witness | Exact query grammar, real original answers, selected-view answers and boundary closure for all required steps; one-hop result **not** enough |
+
+**Next run:** use the commands below for P0 real bytes. If local original `.bin` exists, invoke the final native audit with `--source-bin "$BIN"`; if it does not, use immutable remote `206` with the range receipt and mark original-range replay as previously witnessed, not same-run. The current high-information wall is **physical-source access and query-family proof**, not parser/fixture compiler readiness.
+
+
 ## 2026-11-15 local diagnostic receipt and follow-up acceptance
 
 The operator ran four new physical Python suites at **ITIR `bcbf7c3` with local corrections**: initial **23/32**; after fixing the native range argument and the negative test's immutable object path, **32/32** passed. With the previously checked 58 regressions, the operator reports **90/90 passing locally**. The native C++ decoder compiled and ran under **`clang++ -fuse-ld=lld`**, because the system's `libcapnp.a` contains LLVM bitcode that the default GNU linker could not read. These tests used synthetic data and the operator's fixed worktree; they were **not a clean exact-head acceptance of the original `bcbf7c3` commit**.
