@@ -18,6 +18,7 @@ from typing import Any, Mapping
 
 from verify_zelph_bin_shard_exact import (
     _ARTIFACT, _SHA40, _SHA64, _manifest_index, _read_json, _selected_route_keys,
+    verify_selected_source_ranges,
 )
 
 _NATIVE_VERSION = "itir.zelph.selected_native_capnp_decode.v1"
@@ -105,6 +106,7 @@ def verify_native_selected_shard_answer(
     shard_root: Path, decoder_executable: Path,
     dataset_revision: str, manifest_sha256: str,
     max_selected_gib: int = 8, decoder_timeout_seconds: int = 900,
+    source_bin: Path | None = None,
 ) -> dict[str, Any]:
     if not _SHA40.fullmatch(dataset_revision) or not _SHA64.fullmatch(manifest_sha256):
         raise ValueError("immutable HF revision and exact raw manifest SHA256 required")
@@ -137,6 +139,35 @@ def verify_native_selected_shard_answer(
         or total > max_selected_gib * 1024 ** 3
     ):
         raise ValueError("native selected shard budget exceeded")
+    # Strongest offline acceptance: a caller who supplies the original .bin
+    # does NOT get to rely on an untrusted JSON receipt. Re-run the exact
+    # selected packed byte comparisons in this process, then compare each
+    # newly observed physical entry to the proposed range receipt.
+    # Without --source-bin, the result is a receipt-dependent audit, not an
+    # independently reverified original-bin equality.
+    source_bytes_reverified_here = source_bin is not None
+    if source_bin is not None:
+        fresh = verify_selected_source_ranges(
+            manifest_path=manifest_path, route_path=route_path,
+            source_bin=source_bin, shard_root=shard_root,
+            dataset_revision=dataset_revision,
+            manifest_sha256=manifest_sha256, max_selected_gib=max_selected_gib,
+        )
+        current = {
+            (part["section"], part["chunk_index"]): part
+            for part in fresh["physical_receipts"]
+        }
+        if set(current) != selected:
+            raise ValueError("replayed original-bin source-range domain differs")
+        for key, part in current.items():
+            original = receipts[key]
+            if (
+                original["sha256"] != part["sha256"]
+                or original["source_offset"] != part["source_offset"]
+                or original["size_bytes"] != part["bytes_compared"]
+                or original["uri"] != part["object_uri"]
+            ):
+                raise ValueError("claimed source-bin range receipt differs from fresh physical replay")
     root = shard_root.resolve(strict=True)
     if not root.is_dir() or not decoder_executable.is_file():
         raise ValueError("native shard root or Cap'n Proto decoder absent")
@@ -283,6 +314,8 @@ def verify_native_selected_shard_answer(
         "selected_object_count": len(selected),
         "selected_bytes_rehashed": total,
         "native_schema_decoder_executed": True,
+        "source_bin_range_equality_reverified_in_this_run": source_bytes_reverified_here,
+        "prior_range_receipt_is_trusted_without_replay": False,
         "selected_name_routes_and_inverse_checked": True,
         "selected_root_one_hop_bidirectional_adjacency_equal_original_bin": True,
         "physical_chunk_receipts": decoded,
@@ -300,6 +333,8 @@ def main() -> int:
     parser.add_argument("--dataset-revision", required=True)
     parser.add_argument("--manifest-sha256", required=True)
     parser.add_argument("--max-selected-gib", type=int, default=8)
+    parser.add_argument("--source-bin", type=Path,
+                        help="optional: independently reverify original .bin ranges in this same process")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     try:
@@ -310,6 +345,7 @@ def main() -> int:
             dataset_revision=args.dataset_revision,
             manifest_sha256=args.manifest_sha256,
             max_selected_gib=args.max_selected_gib,
+            source_bin=args.source_bin,
         )
         output = json.dumps(result, indent=2, sort_keys=True) + "\n"
         if args.output:
