@@ -1,5 +1,29 @@
 # Nat Zelph HF physical route execution — reported receipt and remaining verification
 
+## New P0/A1/A2 implementation tranche (after the operator's 41-test run)
+
+**Source changes on this same PR #14:** `package_zelph_filtered_route_receipt.py` now verifies that the interpreted route equals the JSON read back from the exact raw file hashed into the content address (previously separate objects could diverge). `tools/verify_zelph_filtered_route_replay.py` adds independent raw request/manifest/route/receipt replay; it checks the numeric-v2 manifest shape, request revision/digest binding, canonical receipt digest, original route raw SHA, QID/node/chunk mappings, and nonpromotion. This is a new verification tool, **not evidence the operator's prior raw files were replayed here**.
+
+**A1 actual manifest cover:** `verify_manifest_name_cover` in `itir_mcp.zelph_query_closure` compares all numeric-v2 `nodeOfName` chunk index/language/length/physical URI tuples with independent SHA-checked name object receipts. It refuses omitted or additional chunks and duplicate identities. `declared_object_set_exhausted`/manifest-list completeness still does not imply the original graph's full name domain or a formally verified Cap'n Proto decoder.
+
+**A2 actual source-bin oracle and selected-chunk check:** existing `tools/zelph_bin_filtered_route_builder.cpp` now collects adjacency lists for the *resolved five* (or any selected) node IDs in the same second pass of the original `.bin`; stores bounded `nodeAdjacency` and per-direction truncation flags; refuses same-QID cross-chunk collisions; checks each `AdjChunk.which` direction. `audit_selected_adjacency_against_bin` takes physically supplied `left/right` chunk bytes + a decoder, independently hashes every object, verifies exact planned node/chunk cover and compares each selected root's neighbourhood against the nontruncated source-bin oracle. A strict mismatch abstains. This is **root one-hop equality between two supplied carriers**, not all-word query-family completeness nor verified source-bin↔published HF identity.
+
+**New code has not been locally rerun as part of this audit.** The earlier 41/41 result predates the added P0/A1/A2 tests and C++ changes. The raw manifest/dataset/route/digest four-tuple remains operator-reported. Preserve old digest receipts as historical; an updated C++ producer changes route JSON content and requires a new route and packaged digest.
+
+Commands (in ITIR):
+```bash
+PYTHONPATH=itir-mcp/src python -m pytest -q \
+  itir-mcp/tests/test_zelph_query_closure.py \
+  tests/test_verify_zelph_filtered_route_replay.py \
+  tests/test_package_zelph_filtered_route_receipt.py
+# Build and execute the existing filtered route C++ producer with its pinned
+# Cap'n Proto generated schema/toolchain; repackage the NEW emitted JSON.
+# Then replay raw request/manifest/route/receipt with the new verifier.
+```
+[Golden maximum-cut ledger](https://github.com/chboishabba/dashi_agda/blob/agent/nora-perspective-consumer-maxcut-20261114/Docs/ZelphTrieHyperfabricNatNoraMaximumCut20261114.md).
+
+
+
 **Date:** 2026-11-14. **Source of empirical values:** operator-supplied local execution report and command transcript summary; the raw local files are at `/home/c/Documents/code/ITIR-suite/build/receipts/` and were **not uploaded to GitHub or replayed by this audit**. This document is a handoff of reported measured data, not independent confirmation of the receipt bytes, HF content or local build/toolchain.
 
 **Ownership:** DASHI/Agda **golden formal contracts**; SLR Rust/PostgreSQL **production state and reviewed evidence**; ITIR MCP **routing, graph-read interfaces and source receipt delivery**; SensibLaw Python **historical Nat reference**.
