@@ -8,6 +8,7 @@
 
 #include <cstdio>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -46,20 +47,26 @@ int main(int argc, char** argv) {
             auto chunk = msg.initRoot<zelph::network::AdjChunk>();
             chunk.setWhich("left");
             chunk.setChunkIndex(0);
-            auto pairs = chunk.initPairs(1);
+            auto pairs = chunk.initPairs(2);
             pairs[0].setNode(7);
             auto adj = pairs[0].initAdj(2);
             adj.set(0, 8);
             adj.set(1, 9);
+            pairs[1].setNode(8);
+            auto second = pairs[1].initAdj(1);
+            second.set(0, 11);
         });
         write_chunk(root / "right.capnp-packed", [](capnp::MallocMessageBuilder& msg) {
             auto chunk = msg.initRoot<zelph::network::AdjChunk>();
             chunk.setWhich("right");
             chunk.setChunkIndex(0);
-            auto pairs = chunk.initPairs(1);
+            auto pairs = chunk.initPairs(2);
             pairs[0].setNode(7);
             auto adj = pairs[0].initAdj(1);
             adj.set(0, 10);
+            pairs[1].setNode(8);
+            auto second = pairs[1].initAdj(1);
+            second.set(0, 12);
         });
         write_chunk(root / "nameOfNode.capnp-packed", [](capnp::MallocMessageBuilder& msg) {
             auto chunk = msg.initRoot<zelph::network::NameChunk>();
@@ -77,7 +84,28 @@ int main(int argc, char** argv) {
             pairs[0].setKey("Q1");
             pairs[0].setValue(7);
         });
-        std::cout << "four original Zelph schema packed fixtures emitted\n";
+        // Emit a complete tiny original .bin: header then the four packed
+        // section messages, preserving the upstream two-pass reader order.
+        write_chunk(root / "header.capnp-packed", [](capnp::MallocMessageBuilder& msg) {
+            auto header = msg.initRoot<zelph::network::ZelphImpl>();
+            header.setLeftChunkCount(1);
+            header.setRightChunkCount(1);
+            header.setNameOfNodeChunkCount(1);
+            header.setNodeOfNameChunkCount(1);
+        });
+        std::ofstream original(root / "original-small.bin", std::ios::binary);
+        if (!original) throw std::runtime_error("cannot create original mini-bin");
+        for (const char* section : {
+            "header", "left", "right", "nameOfNode", "nodeOfName"
+        }) {
+            std::ifstream part(root / (std::string(section) + ".capnp-packed"), std::ios::binary);
+            if (!part) throw std::runtime_error("cannot reopen packed mini-bin section");
+            original << part.rdbuf();
+            if (!original) throw std::runtime_error("failed to concatenate original mini-bin");
+        }
+        original.close();
+        if (!original) throw std::runtime_error("failed to close original mini-bin");
+        std::cout << "four original Zelph schema packed fixtures and mini source .bin emitted\n";
         return 0;
     } catch (const std::exception& ex) {
         std::cerr << "zelph_native_fixture: " << ex.what() << "\n";
