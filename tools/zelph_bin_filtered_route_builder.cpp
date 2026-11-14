@@ -155,11 +155,21 @@ static std::map<std::string, uint64_t> resolve_qids(
                 if (args.qids.count(key) != 0) {
                     const uint64_t node = pair.getValue();
                     const auto existing = resolved.find(key);
-                    if (existing != resolved.end() && existing->second != node) {
-                        throw std::runtime_error("QID resolved to multiple numeric nodes: " + key);
+                    if (existing != resolved.end()) {
+                        // A graph may have repeated name rows.  A repeated
+                        // key in *another physical chunk* cannot silently
+                        // overwrite the shard identity even when its nodeId
+                        // happens to be the same.  The single-shard/v1 route
+                        // cannot represent that collision fibre, so abstain.
+                        const auto first_chunk = qid_node_of_name_chunk.at(key);
+                        if (existing->second != node || first_chunk != chunk.getChunkIndex()) {
+                            throw std::runtime_error(
+                                "QID has ambiguous node/chunk witnesses: " + key);
+                        }
+                        continue; // exact duplicate within the same chunk
                     }
-                    resolved[key] = node;
-                    qid_node_of_name_chunk[key] = chunk.getChunkIndex();
+                    resolved.emplace(key, node);
+                    qid_node_of_name_chunk.emplace(key, chunk.getChunkIndex());
                 }
             }
         }
