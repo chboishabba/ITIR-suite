@@ -24,7 +24,8 @@ PYTHONPATH=itir-mcp/src python3 -m pytest -q \
   tests/test_plan_zelph_hf_selected_fetch.py \
   tests/test_audit_zelph_native_selected_physical.py \
   tests/test_audit_zelph_finite_query_family.py \
-  tests/test_verify_wikidata_native_entity_snapshot.py
+  tests/test_verify_wikidata_native_entity_snapshot.py \
+  tests/test_run_zelph_local_physical_maxcut.py
 
 bash tools/check_zelph_native_capnp_roundtrip.sh
 
