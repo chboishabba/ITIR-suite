@@ -59,6 +59,14 @@ bash tools/check_zelph_physical_maxcut_offline.sh
 
 
 
+## 15 November exact-head native offline acceptance — PASS at a22995e4
+
+**Verified source commit:** GitHub confirms `a22995e4d52d167686aaa2130e2fdfbcdf4b3dca` exists in this PR's history. The operator's local exact-head run of `bash tools/check_zelph_physical_maxcut_offline.sh` reports **120/120 Python PASS**, a successfully compiled upstream-schema Cap'n Proto writer/decoder, genuine packed-message roundtrip of **four sections** (`left`, `right`, `nameOfNode`, `nodeOfName`), **five fail-closed negative controls** (direction swapping, wrong chunk index, language mismatch, unknown-QID candidate-only, trailing-byte tampering) and **exit 0**.
+
+**Offline native gate CLOSED at checked head.** This is stronger than the old **90/90 corrected-local Python** and decoder-compilation-only report. Later branch commits are not necessarily independently tested by that receipt. The original publication's immutable source `.bin` range-by-range SHA, selected HF shards, native first-hop query equality on one physical graph and full original partition are **NOT** paid by synthetic packed fixtures. These require the actual original `--source-bin` audit with a pinned manifest/original data source and independent bytes, followed by A1/A2 query closure. GUID/P14143/P854, S29 persistence/restart, authentic NORA export and reviewed Wikipedia cross-language repair remain separate.
+
+**Next decisive physical execution:** `python tools/audit_zelph_native_selected_physical.py ... --source-bin "$BIN" ...` against the actual verified original `.bin`, immutable chunk paths with matching offsets, lengths, HTTP 206 status, selected shard SHA, all four native sections and same-object query-family responses. A missing raw original or unsupported range request is **BLOCKED**, never a synthetic success.
+
 ## 15 November FLN ↔ original Zelph HF source and reviewer gate
 
 The separate [DASHI Ibrahim exact-lemma acceptance matrix](https://github.com/chboishabba/dashi_agda/blob/feat/ibrahim-fln-ternary-revision-maxcut-20261114/Docs/IbrahimFLNMaximumCutAcceptanceAndExactLemmas20261115.md) now lists the original-wikitext first-link edge, the selected Hyperfabric physical incidence and reviewed ITIR consumer as **three distinct original objects until a physical/source crosswalk is produced**. The native Zelph `nodeOfName`/QID/name graph does not, by itself, prove that a Wikipedia article's first qualifying hyperlink points to the same node, nor that its cross-language meaning was reviewed. Retain original page `oldid`, `pageid`, wikitext hash/selected span, original `.bin` offsets/digest and source→target adjacency in the joined receipt.
