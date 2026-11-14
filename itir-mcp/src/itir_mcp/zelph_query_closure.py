@@ -286,3 +286,141 @@ def verify_manifest_name_cover(
         "candidate_only": True,
         "source_support_paid": False,
     }
+
+
+@dataclass(frozen=True)
+class DeclaredAdjacencyObject:
+    direction: str
+    chunk_index: int
+    size_bytes: int
+    sha256_hex: str
+    object_uri: str
+
+
+def audit_selected_adjacency_against_bin(
+    *,
+    route: Mapping[str, Any],
+    declared: Sequence[DeclaredAdjacencyObject],
+    raw_objects: Mapping[tuple[str, int], bytes],
+    decode: Callable[[bytes], tuple[str, int, Sequence[tuple[int, Sequence[int]]]]],
+) -> dict[str, Any]:
+    """Compare exact decoded physical chunks with the original-bin root oracle.
+
+    This only proves equality for the declared *one-hop left/right adjacency*
+    of the named root nodes between two caller-supplied carriers. The original
+    .bin itself is not authenticated as the exact published HF dataset.
+    It does not prove P31/P279 closure, longer relation words, native P14143,
+    absence in Wikidata, qualifier/reference equivalence or edit authority.
+    """
+    if route.get("routeVersion") != "zelph-filtered-route/v1":
+        raise ValueError("filtered route source contract required")
+    qid_nodes = route.get("qidToZelphNodeIds")
+    routing = route.get("nodeRoutes")
+    oracle = route.get("nodeAdjacency")
+    if not isinstance(qid_nodes, Mapping) or not isinstance(routing, Mapping):
+        raise ValueError("source route node map missing")
+    if not isinstance(oracle, Mapping):
+        raise ValueError("source-bin adjacency oracle was not emitted")
+    targets = {str(node) for node in qid_nodes.values() if type(node) is int}
+    if not targets or set(routing) != targets or set(oracle) != targets:
+        raise ValueError("source route/oracle target-node domain mismatch")
+
+    required: set[tuple[str, int]] = set()
+    for node in targets:
+        branches = routing[node]
+        if not isinstance(branches, Mapping):
+            raise ValueError("route branch missing")
+        for direction in ("left", "right"):
+            indexes = branches.get(direction)
+            if not isinstance(indexes, list) or any(
+                type(i) is not int or i < 0 for i in indexes
+            ):
+                raise ValueError("invalid route adjacency chunk family")
+            if len(indexes) != len(set(indexes)):
+                raise ValueError("duplicate route adjacency chunk")
+            required.update((direction, idx) for idx in indexes)
+
+    expected: dict[tuple[str, int], DeclaredAdjacencyObject] = {}
+    for obj in declared:
+        key = (obj.direction, obj.chunk_index)
+        if obj.direction not in {"left", "right"}:
+            raise ValueError("unexpected physical adjacency section")
+        if key in expected:
+            raise ValueError("duplicate physical adjacency chunk")
+        if (
+            type(obj.chunk_index) is not int or obj.chunk_index < 0
+            or type(obj.size_bytes) is not int or obj.size_bytes < 0
+            or not _SHA256.fullmatch(obj.sha256_hex)
+            or not isinstance(obj.object_uri, str)
+            or "/../" in obj.object_uri
+        ):
+            raise ValueError("invalid physical adjacency object metadata")
+        expected[key] = obj
+    if set(expected) != required or set(raw_objects) != required:
+        raise ValueError("selected physical adjacency cover differs from route")
+    observations: dict[tuple[str, str], set[int]] = defaultdict(set)
+    seen_node_chunk: set[tuple[str, str, int]] = set()
+    physical_receipts = []
+    for direction, idx in sorted(required):
+        entry = expected[(direction, idx)]
+        raw = raw_objects[(direction, idx)]
+        if (
+            not isinstance(raw, bytes) or len(raw) != entry.size_bytes
+            or sha256(raw).hexdigest() != entry.sha256_hex
+        ):
+            raise ValueError("selected adjacency bytes/digest mismatch")
+        actual_direction, actual_index, pairs = decode(raw)
+        if actual_direction != direction or actual_index != idx:
+            raise ValueError("decoded physical adjacency direction/index mismatch")
+        for node, neighbors in pairs:
+            if type(node) is not int or node < 0:
+                raise ValueError("decoded adjacency has invalid root node")
+            if not isinstance(neighbors, Sequence) or isinstance(neighbors, (str, bytes)):
+                raise ValueError("decoded adjacency neighbors must be finite list")
+            if any(type(adj) is not int or adj < 0 for adj in neighbors):
+                raise ValueError("decoded adjacency has invalid neighbor node")
+            node_key = str(node)
+            if node_key not in targets:
+                continue
+            unique_pair = (node_key, direction, idx)
+            if unique_pair in seen_node_chunk:
+                raise ValueError("duplicate root row within selected physical chunk")
+            seen_node_chunk.add(unique_pair)
+            observations[(node_key, direction)].update(neighbors)
+        physical_receipts.append({
+            "direction": direction,
+            "chunk_index": idx,
+            "size_bytes": entry.size_bytes,
+            "sha256": entry.sha256_hex,
+            "object_uri": entry.object_uri,
+        })
+    for node in sorted(targets):
+        for direction in ("left", "right"):
+            expected_chunks = routing[node][direction]
+            if any((node, direction, idx) not in seen_node_chunk for idx in expected_chunks):
+                raise ValueError("routed root missing in advertised physical chunk")
+            oracle_node = oracle[node]
+            if not isinstance(oracle_node, Mapping):
+                raise ValueError("missing original-bin adjacency oracle node")
+            if oracle_node.get(direction + "Truncated") is not False:
+                raise ValueError("original-bin adjacency oracle truncated or unverified")
+            source_values = oracle_node.get(direction)
+            if not isinstance(source_values, list) or any(
+                type(x) is not int or x < 0 for x in source_values
+            ):
+                raise ValueError("invalid original-bin adjacency values")
+            if set(source_values) != observations[(node, direction)]:
+                raise ValueError("selected physical adjacency differs from original-bin oracle")
+    return {
+        "version": "itir.zelph.same_bin_selected_adjacency_audit.v1",
+        "root_node_count": len(targets),
+        "physical_object_count": len(required),
+        "physical_byte_count": sum(item["size_bytes"] for item in physical_receipts),
+        "physical_receipts": physical_receipts,
+        "one_hop_root_adjacency_equal_to_source_bin": True,
+        "source_bin_to_hf_dataset_identity_proved": False,
+        "all_relation_words_complete": False,
+        "native_statement_coverage": False,
+        "global_negative_answer_authority": False,
+        "candidate_only": True,
+    }
