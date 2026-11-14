@@ -134,6 +134,16 @@ for section, (args, rows) in expected.items():
     assert payload["candidate_only"] is True
     assert payload["authority"] is False
 
+# A numeric source frontier (node 8) has valid physical adjacency
+# without inventing any QID or nameOfNode entry for that node.
+assert json.loads(run("left", "--node", "8").stdout)["rows"] == [
+    {"node_id": 8, "neighbors": [11], "values_seen": 1, "truncated": False}
+]
+assert json.loads(run("right", "--node", "8").stdout)["rows"] == [
+    {"node_id": 8, "neighbors": [12], "values_seen": 1, "truncated": False}
+]
+assert json.loads(run("nameOfNode", "--node", "8").stdout)["rows"] == []
+
 # Direction and chunk-index are not interchangeable.
 assert run("right", "--node", "7",
            file=root / "left.capnp-packed").returncode != 0
