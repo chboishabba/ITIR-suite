@@ -181,7 +181,9 @@ def verify_native_selected_shard_answer(
     if (route.get("sourceBinToPublishedHfDatasetIdentityVerified") is not False
             or route.get("adjacencyOracleScope") != "bounded-selected-roots-in-source-bin"):
         raise ValueError("original-bin route authority/scope mismatch")
-    root_ids = {str(node) for node in qid_nodes.values()}
+    # Named roots plus explicitly requested unnamed numeric frontier nodes.
+    # The source-bin route parser already checked their exact domain.
+    root_ids = set(node_routes)
     # Compile exact decoder invocations for all selected physical shards.
     native_rows: dict[tuple[str, int], list[dict[str, Any]]] = {}
     decoded: list[dict[str, Any]] = []
@@ -325,6 +327,7 @@ def verify_native_selected_shard_answer(
         "version": "itir.zelph.native_physical_selected_original_query_cut.v1",
         "artifact_id": _ARTIFACT,
         "qid_root_nodes": qid_nodes,
+        "additional_numeric_root_nodes": route.get("additionalNumericNodes", []),
         "root_adjacency": root_adjacency,
         "dataset_revision": dataset_revision,
         "manifest_sha256": manifest_sha256,
