@@ -129,6 +129,8 @@ Detailed page deliverables for this workbench family are tracked in
 `docs/planning/recent_workbench_page_user_stories_20260310.md`.
 
 ## ITIR-US-17: Wiki Revision Review Assist
+
+Reuse the existing [ITIR Wikidata review/manifest/shard tools](https://github.com/chboishabba/ITIR-suite/blob/main/itir-mcp/src/itir_mcp/governance_tools.py) and [production SLR source-acquisition contracts](https://github.com/chboishabba/slr/blob/main/docs/ROADMAP.md); DASHI Agda is golden and SensibLaw Python is reference-only. The [exact HF/QID locator](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/docs/planning/zelph_hf_wikidata_mcp_locator_20261114.md) is a source-discovery aid, not proof that a remote shard was decoded.
 As a reviewer working from Wikipedia or Wikidata-adjacent migration/dispute
 pages, I want ITIR to capture a specific revision, parse its bounded sections
 and cited references, and follow selected links through bounded source seams so
@@ -648,6 +650,8 @@ Acceptance criteria:
   conclusion.
 
 ### SL-US-16: Wikidata Ontology / Claim Worker on Contested Entities
+
+Implementation crosswalk: use existing `itir.wikidata.object_review_bundle`, `itir.wikidata.migration_candidate`, `itir.wikidata.disjointness_report`, `itir.shard.exact_wikidata_name_route` (on PR #14), and SLR's native source/bundle/S29 review. Agda/DASHI is golden for truth/absence/transport boundaries; no tool directly edits Wikidata.
 As a Wikidata ontology worker handling contested entities and statements, I
 want to inspect identity, relation, time-validity, and sourcing pressure so I
 can decide whether a claim belongs, should be qualified, or should remain out
@@ -1087,3 +1091,499 @@ Acceptance criteria:
   clear omissions.
 - The review surface stays provenance-first and does not claim the affidavit is
   legally sufficient or complete by default.
+
+## AO-OP-1 — Canonical operator evidence-to-handoff (implementation slice)
+
+Source-written, pending caller verification: a read-only `itir.ao.operator_workflow` composes canonical frontier/ledger, typed references, bounded PNF packet, governed handoff and operation review for ITIR-US-11/12/15/16. Operator acceptance: explicit canonical task and provenance; bounded source digests and candidate disposition; holds for ambiguity/unverified semantic or formal evidence; no bodies, mutation or automatic resend. This is shared workflow infrastructure, **not** full acceptance of any UI story or a verified semantic parser. See `docs/planning/ao_operator_workflow_v1.md`.
+
+AO-OP-1 acceptance follow-up: uniquely canonical admitted tasks now yield deterministic actionable **review-only** handoffs even without optional PostgreSQL materialisation or a semantic PNF producer. A trusted producer resolver can attest verified-PNF in direct composition; ordinary governed MCP output remains explicitly unverified/candidate-only until a real verifier is wired. This closes operator review access without claiming semantic promotion, create-thread support, or autonomous dispatch.
+
+---
+
+## Proof search and formal verification operator stories
+
+### SLR-US-01 / ITIR-US-18: Formal Multiset Gap Check Operator (PNF-to-AST Residual Accounting)
+As a formal verification researcher or proof-search operator, I want to compute
+the exact difference between informal research thread claims and formal
+Agda/Lean AST factors ($\Delta_{\text{Gap}} = M_{\text{informal}} \setminus M_{\text{formal}}$)
+via `itir.ao.gap_check` so I can identify unformalized premises (Alpha targets)
+and ungrounded formal assertions without guessing.
+
+Typical flow:
+- Operator specifies a canonical research conversation ID and an active formal
+  specification file (e.g. `dashi_digital_esd/ITIRPNFAssessment.agda` or Lean 4
+  theorem file).
+- `itir.ao.gap_check` extracts the compiled PNF semantic multiset from the
+  research thread and the syntactic AST multiset from the formal file.
+- The multiset difference is computed, classifying factors into matched,
+  unmatched informal (missing premises), and unmatched formal (unaddressed
+  constraints).
+- The operator reviews top missing premise signatures and targets them for the
+  next formal proof step.
+
+Preferences:
+- Direct multiset accounting summary table with clear factor signatures.
+- Ranked list of top unformalized premises with recommended formalization
+  targets (e.g., add lemma constraint or hypothesis bound).
+- Fast execution over local or pre-compiled PNF world stores.
+
+Requirements:
+- Gap computation must be strictly read-only and deterministic.
+- Zero-residue provenance comparison doctrine: informal claims without formal
+  AST counterparts must never be marked verified.
+- Status must fail closed to `RESIDUAL GAP DETECTED` unless exact multiset
+  equality holds.
+
+Acceptance criteria:
+- `itir.ao.gap_check` returns structured reports and markdown summaries
+  matching the `ExactGapComparator` contract.
+- Missing informal factors are explicitly distinguished from unaddressed formal
+  invariants.
+- Zero proof authority is transferred without an AST-level match.
+
+### SLR-US-02 / ITIR-US-19: SLR Candidate-Only Proof Search Spine & Exploration Lattice
+As a mathematician or theorem search operator, I want to explore candidate proof
+paths through an SLR-backed candidate search lattice (AutoInAgda, Lean Mathlib
+cache, external prover runner) while ensuring that every proof step emits a
+verifiable receipt and candidate hold, so that no informal LLM step is mistaken
+for a kernel-checked theorem.
+
+Typical flow:
+- Operator initiates proof search over a formal target (e.g. Navier-Stokes,
+  Riemann Hypothesis reduction, or Quantum Mereology lemma).
+- Prover spine expands candidate proof branches, ranking tactics and candidate
+  lemmas.
+- Candidate steps are held as `candidate_only` until an independent kernel
+  verifier produces an execution receipt.
+- Negative results, dead ends, and syntax/sort errors are explicitly recorded in
+  the candidate ledger to prevent infinite search loops.
+
+Preferences:
+- Tree and branch visualization separating unverified explorations from
+  kernel-accepted nodes.
+- Explicit display of proof search budget, depth, and remaining open goals.
+- Direct link from search nodes to exact line/column AST coordinates.
+
+Requirements:
+- Kernel verifier receipts are strictly external: LLM output or search path
+  generation cannot self-certify correctness.
+- Incomplete proof trees or unproven `sorry`/`admit` postulates must be flagged
+  with open formal gap status.
+- Proof receipts must reference immutable artifact CIDs or SHA-256 digests.
+
+Acceptance criteria:
+- Candidate proof paths remain strictly partitioned from authoritative lemmas.
+- Invariant violations (e.g. serde in compiler crates or invalid sort signatures)
+  halt promotion and emit actionable diagnostic holds.
+- Full provenance trace is preserved from informal informal premise to formal
+  tactic.
+
+### SLR-US-03 / ITIR-US-20: Multi-Prover Bridge & Remote Prover Runner (Colab / GPU Container)
+As a prover pipeline operator, I want to dispatch bounded proof check jobs to a
+remote runner (Colab Agda/Lean runner or ITIR GPU container) and ingest
+verifiable execution receipts (`artifact-resolution-receipt/v1`, typecheck logs,
+AST factors) back into the canonical frontier without attaching unverified code
+to `main`.
+
+Typical flow:
+- Operator submits a batch of formal modules or proof patches for remote
+  typechecking.
+- Remote runner executes parallel checks (e.g., `run_agda29_parallel_check.sh`
+  or `lake build` against cached Mathlib oleans).
+- Runner returns a structured execution receipt with return code, elapsed time,
+  stderr diagnostics, and artifact hash.
+- Front-end imports the receipt into the candidate ledger, updating the status
+  of dependent candidate operations.
+
+Preferences:
+- Support for parallel execution across independent formal subtrees.
+- Transparent reuse of pre-compiled Mathlib caches and Agda libraries.
+- Headless, non-interactive batch execution with clear progress heartbeats.
+
+Requirements:
+- Remote runner must never execute arbitrary unreviewed shell code outside
+  sandboxed execution boundaries.
+- Stderr/stdout logs must be captured with exact line and column error bounds.
+- Typecheck failure must produce an explicit hold receipt rather than crashing
+  the orchestration loop.
+
+Acceptance criteria:
+- Bounded verification runs complete within configured timeout budgets.
+- Verification receipts satisfy `artifact-resolution-receipt/v1` schema.
+- Failed modules (such as sort mismatches) are isolated without contaminating
+  verified modules.
+
+### SLR-US-04 / ITIR-US-21: Spectral & Algebraic Invariant Packet Extraction
+As a formal methods researcher working on complex dynamics, fluid mechanics, or
+physics models, I want to extract candidate spectral packets
+(`itir.spectral.candidate_packet`) from algebraic structures to evaluate
+harmonic and topological invariants before formalizing them in Agda/Lean.
+
+Typical flow:
+- Researcher selects an algebraic system or triad complex.
+- `itir.spectral.candidate_packet` computes eigenvalues, spectral projections,
+  and candidate algebraic invariants.
+- The resulting candidate packet provides quantitative bounds that inform formal
+  lemma formulation.
+- The packet is attached as review-only evidence to the formalization work packet.
+
+Preferences:
+- Clean decomposition into spectral components, trace bounds, and energy
+  landscapes.
+- Explicit comparison between empirical/spectral data and formal constraints.
+
+Requirements:
+- Spectral packets are review surfaces and heuristic guides, not formal proofs.
+- Mathematical assumptions and precision tolerances must be documented in the
+  packet metadata.
+
+Acceptance criteria:
+- Tool returns valid candidate spectral packets without mutating canonical state.
+- Packets carry non-authoritative review boundaries and full computation receipts.
+
+### SLR-US-05 / ITIR-US-22: Governed Actor–Critic PR Lifecycle & Commit-Bound Verification
+As a repository maintainer, I want candidate commits from remote generative actors
+to pass an independently verified, commit-bound promotion protocol with typed
+restorative critiques so that generative exploration cannot self-certify or
+bypass local governance.
+
+Typical flow:
+- Remote generative actor explores candidate implementations/proofs and pushes an
+  immutable commit SHA to a feature branch or draft PR.
+- Local cooperative discriminator fetches the exact commit and executes
+  deterministic checks (`cargo test`, `agda`, `pytest`, `ruff`) plus scope and
+  sovereignty gates.
+- If checks fail, the discriminator emits a minimal, deterministic critique
+  residual (`slr.referee-critique.v1`) containing exact failing checks, source
+  coordinates, expected-vs-observed values, and an evidence digest.
+- If checks pass, the discriminator records a commit-bound verification receipt
+  binding the exact commit SHA, verifier identity, checker digest, and dependency
+  closure digest.
+
+Preferences:
+- Zero conversational filler in failure critiques; exact compiler/prover/test
+  coordinates and digests only.
+- Explicit separation between actor preliminary self-tests and independent
+  referee certification.
+
+Requirements:
+- Actor output is strictly candidate-only (`ActorGenerated(x) !=> Verified(x)`).
+- Verification receipts are bound to an immutable commit SHA; pushing a new commit
+  invalidates promotion eligibility unless an explicit verified reuse rule applies.
+- Merge eligibility requires all mandatory checks and policy gates (`TestsPass(c)`
+  alone does not imply `MergeSafe(c)` if unauthorized schema/policy changes exist).
+
+Acceptance criteria:
+- Every actor submission and referee receipt identifies an immutable commit SHA
+  and dependency closure digest.
+- Failed checks produce typed diagnostic holds and minimal critique residuals.
+- The actor cannot authorize its own promotion, and replaying identical receipts
+  does not create duplicate authoritative transitions.
+
+### SLR-US-06 / ITIR-US-23: Context-Insulated State Commons & Deterministic Snapshot Capsules
+As a distributed research agent, I want to receive compact, content-addressed
+state capsules projected from the single PostgreSQL semantic spine and retrieve
+supporting historical evidence on demand so that work can continue without
+transferring sprawling conversation histories.
+
+Typical flow:
+- Local coordinator queries the single PostgreSQL spine
+  (`sensiblaw_sparse_ready_20260818`) under a consistent snapshot (`REPEATABLE READ`)
+  to project a canonical `StateCapsule`.
+- Dispatcher transmits a compact event trigger (~100-200 tokens) referencing the
+  capsule's canonical digest, active frontier revision, and obligation ID.
+- Remote actor uses the state capsule to orient immediately and retrieves raw
+  source spans, logs, or proof artifacts by digest only when required.
+- Before promoting any resulting candidate, the referee verifies optimistic
+  concurrency compatibility between the capsule's frontier revision and the
+  current active frontier.
+
+Preferences:
+- Three-tier separation: (1) compact event trigger, (2) PostgreSQL state snapshot,
+  (3) on-demand historical evidence in canonical SQLite/source stores.
+- Preservation of pointers to relevant negative evidence and reopening history so
+  context compression never masks prior failed proof attempts or disputed premises.
+
+Requirements:
+- Do not introduce a second orchestration database; project directly from
+  existing `slr_world_v2_*`, `formal_bridge.*`, and `resolution.*` relations.
+- Original chat transcripts remain in canonical SQLite (`~/.chatgpt_history.sqlite3`);
+  PostgreSQL stores semantic references and evidence lineage without duplicating
+  raw transcript bodies.
+- Context compression must never erase active protected formal obligations
+  (`ActiveProtected(H, r) <= SnapshotFrontier(H, r)`).
+
+Acceptance criteria:
+- Every state capsule carries a protocol version and length-prefixed canonical
+  SHA-256 digest; reconstructing the same state produces the identical digest.
+- Concurrent frontier updates cannot silently invalidate promotion assumptions.
+- Protected singleton obligations and negative-evidence pointers survive snapshot
+  compression without loss.
+
+### SLR-US-07 / ITIR-US-24: Federated Capability & Local Machine Sovereignty Enforcement
+As a participating node operator in a federated mesh, I want to delegate bounded
+capabilities to remote generative agents while retaining strict local sovereignty
+over command execution, database persistence, and branch promotion.
+
+Typical flow:
+- Participating nodes advertise explicit capability sets (`generate`, `search`,
+  `propose` for remote actors; `verify`, `review`, `authorize`, `persist` for
+  local referees).
+- Remote actor proposes candidate branches and structured packets within its
+  scoped capability window.
+- Local sovereignty gate validates capability scope, expiry, and command
+  allowlists before running local verification or persisting approved receipts.
+
+Preferences:
+- Capability-constrained peer federation rather than a monolithic hidden
+  centralized supervisor.
+- Idempotent receipt ingestion with full provenance attribution.
+
+Requirements:
+- Repository and corpus content must be treated as untrusted data to defend
+  against prompt injection and malicious test commands.
+- Protected database operations and schema migrations require explicit local
+  authorization.
+- Duplicate, expired, revoked, or forged capability/receipt messages must fail
+  closed.
+
+Acceptance criteria:
+- Remote actors cannot execute unauthorized local commands or self-certify
+  promotions.
+- Every accepted state transition records an attributable actor, verifier
+  principal, and authorization receipt.
+- Nodes can contribute independently verified artifacts across the mesh without
+  surrendering local machine sovereignty.
+
+### SLR-US-08 / ITIR-US-25: Condensed Formal Preflight, Similarity Routing & Candidate-Only Interactive Proof States
+As a governed proof-search operator, I want a lean MCP facade over the existing
+dashi-agda-preflight diagnostic, similarity, routing and isolated kernel-check
+capabilities so that interactive proof exploration remains candidate-only while
+the local referee retains independent certification authority.
+
+Typical flow:
+- Actor requests `formal.inspect` for a module or obligation: the adapter
+  condenses `diagnose`, `next_error`, `affected`, `related_symbols`,
+  `discover`, and `round_lineage` into bounded diagnostics with exact
+  retrieval references for complete underlying evidence.
+- Actor requests `formal.route`: existing `proof_route_for_obligation` and
+  DA51 bridge produce exact target-prover demands without creating proof authority.
+- Actor optionally requests `formal.refine`: Agda interaction-JSON or Lean LSP
+  supplies goals, contexts and candidate hole refinements; every response is
+  `candidate_only=true`, `establishes_proof=false`.
+- Local discriminator invokes `formal.certify`: existing `certify_artifact`
+  and isolated Agda/Lean shadow runners verify an immutable artifact, and
+  `validate_kernel_handoff` checks the resulting handoff before any formal
+  evidence is considered for payment or promotion.
+- The native SLR referee receipt binds the exact commit, source digest,
+  checker/environment/dependency digests, authenticated verifier identity,
+  and check outcome. Critiques retain exact diagnostic evidence by digest.
+
+Requirements:
+- Public MCP surface remains four task-oriented operations
+  (`formal.inspect`, `formal.route`, `formal.refine`, `formal.certify`);
+  internal preflight tools are not individually re-exported.
+- Do not reimplement preflight indexing, similarity, proof routing or kernel
+  certification in `itir-mcp`; invoke the existing dashi-agda-preflight owner.
+- Interactive goal inspection and similarity matches are never kernel receipts;
+  `formal_resolver` must not interpret a Boolean or lexical match as proof.
+- No actor-controlled claim of successful certification can self-authorize
+  promotion; authenticated local referee evidence and policy gates are required.
+- Condensed payloads are bounded, deterministic, source-addressable and include
+  digests for lossless on-demand recovery; 90% reduction is a benchmark target,
+  not a license to drop blocking errors or protected obligations.
+- Local files, database schemas, runner commands and credentials remain within
+  the sovereign node's capability boundary.
+
+Acceptance criteria:
+- Candidate-only goal/refinement/similarity receipts cannot discharge formal
+  obligations even when they report success or exact signature equivalence.
+- Source changes after checking invalidate certification; stale commit,
+  environment or dependency digests fail closed.
+- Isolated kernel handoff validates artifact, statement, checker and dependency
+  identities; failures produce deterministic `slr.referee-critique.v1` holds.
+- Large diagnostics return bounded summaries plus retrievable immutable evidence
+  references; protected singleton obligations and negative evidence survive.
+- Replay and duplicate delivery are idempotent; no duplicate proof payment.
+- The local referee can run fixture tests with no external interactive MCP
+  installed; optional Lean/Agda interactive adapters fail closed to unavailable.
+
+---
+
+## Wiki and public-knowledge operator integration stories
+
+### Reuse-first tool library and authority ownership (Wikidata / Zelph / NORA)
+
+**Discover before designing.** [ITIR MCP registry](https://github.com/chboishabba/ITIR-suite/blob/main/itir-mcp/src/itir_mcp/registry.py) exposes runtime `list_tools` with governed, versioned [tool specifications](https://github.com/chboishabba/ITIR-suite/blob/main/itir-mcp/src/itir_mcp/governance_tools.py). Do not duplicate a tool, selector, source provider, review packet, persistence store or proof carrier without checking its existing owner.
+
+| Layer | Authoritative implementation |
+|---|---|
+| Golden formal contracts | [DASHI Agda](https://github.com/chboishabba/dashi_agda): [Zelph coverage](https://github.com/chboishabba/dashi_agda/blob/master/DASHI/Interop/ZelphBoundedGraphCoverageExact.agda), [pruned graph soundness](https://github.com/chboishabba/dashi_agda/blob/master/DASHI/Interop/ZelphPrunedArtifactQueryPreservationExact.agda), [SLR transport](https://github.com/chboishabba/dashi_agda/blob/master/DASHI/Interop/SLRGWBPhysicalObjectAcquisitionPolicyExact.agda). Kernel acceptance is a separate test gate. |
+| Production runtime | [SLR Rust/PostgreSQL](https://github.com/chboishabba/slr/blob/main/docs/ROADMAP.md): [native Nat bundles (#10)](https://github.com/chboishabba/slr/pull/10), [recurrent acquisition (#28)](https://github.com/chboishabba/slr/pull/28), [ontology comparison (#51)](https://github.com/chboishabba/slr/pull/51), [S29 review (#76)](https://github.com/chboishabba/slr/pull/76). |
+| MCP integration and public-facing reviewer tools | [ITIR MCP](https://github.com/chboishabba/ITIR-suite/blob/main/itir-mcp/src/itir_mcp/registry.py). |
+| Historical reference and regression | [SensibLaw Python](https://github.com/chboishabba/SensibLaw): [editor story](https://github.com/chboishabba/SensibLaw/blob/main/docs/user_stories.md#wikidata-editor--ontology-reviewer), [Nat/Zelph (#493)](https://github.com/chboishabba/SensibLaw/pull/493). Not production authority. |
+
+Existing **Wikidata MCP library**: `itir.wikidata.review_packet`, `itir.wikidata.object_review_bundle`, `itir.wikidata.migration_candidate`, `itir.wikidata.disjointness_report`, `itir.wikidata.tooling_profile`, `itir.wikiproject.tooling_profile`.
+
+Existing **Zelph/shard MCP library**: `itir.zelph.hf_manifest_contract`, `itir.zelph.pack_sources`, `itir.zelph.partial_closure`, `itir.zelph.transport_boundary`, `itir.shard.validate_artifact`, `itir.shard.route_selector`, `itir.shard.partial_graph_view`, `itir.shard.bounded_graph_slice_plan`, `itir.shard.payload_probe`. [ITIR PR #14](https://github.com/chboishabba/ITIR-suite/pull/14) additionally proposes `itir.shard.exact_wikidata_name_route`, which rejects broad fallback and requires an explicit exact sidecar witness. It does not fetch a shard.
+
+For the exact HF publication and immutable-revision acceptance steps, use the [ITIR locator](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/docs/planning/zelph_hf_wikidata_mcp_locator_20261114.md) and [upstream Zelph sharding reference](https://zelph.org/sharding/). Manifest existence, an exact QID name route, a decoded shard, query-family completeness and reviewed semantic/source payment are **five separate assertions**.
+
+
+### WIKI-US-01 / SL-US-38: Wikidata Statement Review Packet & Batch Review Surface
+
+**Available-tool reuse:** Reuse `itir.wikidata.review_packet`, `itir.wikidata.object_review_bundle`; persist approved **candidate receipts**, not approvals to edit, in existing SLR native review infrastructure.
+As a Wikidata contributor or ontology custodian, I want to inspect candidate
+statement edits and entity modifications through `itir.wikidata.review_packet`
+and `itir.wikidata.object_review_bundle` with strict validation and no silent
+repair, ensuring zero unreviewed mutations to live Wikidata.
+
+Typical flow:
+- Contributor imports an entity statement bundle or batch edit proposal.
+- `itir.wikidata.review_packet` validates statements, qualifiers, references,
+  and item links against strict schema constraints.
+- The operator inspects discrepancies, missing references, and qualifier drifts
+  in a structured review surface.
+- Edits are approved or rejected individually; approved candidates emit review
+  receipts for external batch transport.
+
+Preferences:
+- Clear separation between observed item state, candidate modification, and
+  validation receipt.
+- Fast drill-down into property datatypes, rank qualifiers, and reference URLs.
+- Bulk review queue grouping similar statement modifications.
+
+Requirements:
+- Review packet operations must be strictly read-only (`mutates: false`).
+- Validation mode must be strict: malformed statements must be rejected, not
+  silently repaired or normalized without provenance.
+- Tool must never execute autonomous writes to live Wikidata endpoints.
+
+Acceptance criteria:
+- Candidate entity edits produce review receipts adhering to
+  `itir.wikidata.review_packet.v1`.
+- Validation errors include exact property and statement IDs.
+- Canonical entity truth remains untouched.
+
+### WIKI-US-02 / SL-US-39: WikiProject Tooling & Governance Profiles
+
+**Available-tool reuse:** Discover actual registered MCP tools and their versioned authority profiles before adding external NORA, Zelph, QuickStatements or OpenRefine adapters; `itir.wikidata.tooling_profile` and `itir.wikiproject.tooling_profile` are existing owners.
+As a WikiProject coordinator or community moderator, I want to evaluate external
+bot and batch tools (QuickStatements, OpenRefine, EntitySchemas, KrBot, Listeria,
+Property Constraints) against governed authority profiles
+(`itir.wikiproject.tooling_profile`), mapping tool capabilities and risk
+classes so that batch updates remain strictly diagnostic and candidate-only.
+
+Typical flow:
+- Coordinator reviews proposed automation or batch ingestion toolchain.
+- `itir.wikiproject.tooling_profile` returns the governance taxonomy, tool
+  capabilities ($\kappa$), output classes ($O$), and authority bounds ($B$).
+- System verifies that tools with high write impact (e.g. QuickStatements) are
+  constrained to `candidate_only: true` and `promotion_enabled: false`.
+- Diagnostic and repair tools (OpenRefine, Listeria) are assigned appropriate
+  review-only and receipt-mirroring profiles.
+
+Preferences:
+- Clear categorization of tools into batch transport, repair, schema, bot,
+  ingestion, and constraints.
+- Formal profile cards showing tool capabilities and promotion boundaries.
+
+Requirements:
+- Tool authority profiles must prevent autonomous promotion (`self_promotes: false`).
+- Outputs must be classified as `candidate` or `diagnostic`.
+- Governance profiles must be versioned and verifiable.
+
+Acceptance criteria:
+- `itir.wikiproject.tooling_profile` emits complete governance descriptors
+  matching `itir.wikiproject.tooling_profile.v1`.
+- All 6 core WikiProject tool families are accurately represented with their
+  operational boundaries.
+
+### WIKI-US-03 / SL-US-40: Ontology Constraint & Disjointness Violation Triaging
+
+**Available-tool reuse:** Reuse `itir.wikidata.disjointness_report`, `itir.wikidata.migration_candidate`, `itir.zelph.partial_closure` and exact shard routing where supported. Partial graph non-observation must never create a native Wikidata absence claim.
+As an ontology maintainer, I want to run disjointness audits (e.g., P2738
+disjoint union, Q24017414 second-order classes, P8225 metaclasses) across
+entity graphs, surfacing constraint violations and structural flatness
+diagnostics before proposing ontology migration candidates
+(`itir.wikidata.migration_candidate`).
+
+Typical flow:
+- Maintainer targets a contested ontology branch or high-violation property
+  (e.g., calendar year disjointness or metaclass hierarchies).
+- System executes constraint audit across entity slices, detecting pairwise
+  disjointness collisions and order confusion.
+- Maintainer inspects flatness diagnostics and evaluates whether statements
+  should be qualified, split, or migrated.
+- Migration proposals are exported as non-authoritative candidate bundles.
+
+Preferences:
+- Visual representation of disjointness clashes and ontology hierarchy depth.
+- Quantitative violation counts and hotspot ranking.
+- Export of candidate repair statements with source justification.
+
+Requirements:
+- Audits must preserve conflicting evidence rather than forcing false consensus.
+- Disjointness violations must be flagged as structural pressure, not deleted
+  unilaterally.
+- Migration candidates must carry provenance linking back to the audit run.
+
+Acceptance criteria:
+- Constraint audits accurately detect P2738 and class-order violations.
+- `itir.wikidata.migration_candidate` emits well-formed candidate migration
+  bundles without mutating live ontology.
+
+### WIKI-US-04 / SL-US-41: Cross-Corpus Wiki-to-SensibLaw Evidence Reconciliation
+
+**Available-tool reuse:** Use SLR production source revisions and S29 review, ITIR source comparison and MCP packets, DASHI golden evidence semantics, and SensibLaw historical fixtures. A wiki or Zelph graph claim is not an independently verified primary source.
+As a legal or journalistic investigator, I want to project Wikipedia/Wikidata
+entity graphs into SensibLaw timeline and claim review surfaces
+(`sl.wikidata_signal_review_bundle.v0_1`) alongside transcripts and public
+filings, separating crowd-sourced assertions from primary source evidence
+without collapsing into single-narrative bias.
+
+Typical flow:
+- Investigator loads a contested public affair or litigation subject into
+  SensibLaw.
+- Wikipedia article revision history and Wikidata statements are ingested via
+  governed adapters into `sl.wikidata_signal_review_bundle.v0_1`.
+- Chronology overlay places wiki claims alongside primary documents, court
+  rulings, and verified corporate filings.
+- Investigator filters claims by source authority, distinguishing crowd-sourced
+  allegations from primary evidence.
+
+Preferences:
+- Source-weighted timeline ribbon highlighting contemporaneous vs retrospective
+  wiki edits.
+- Side-by-side comparison of wiki claim wording against primary source texts.
+- Defamation and reputational risk flags on weakly sourced public-figure claims.
+
+Requirements:
+- Wikipedia text must never be treated as legal proof or primary evidence.
+- Edit timestamps must be preserved to track narrative drift over time.
+- All wiki-derived claims must carry clear `candidate` or `review_surface`
+  authority tags.
+
+Acceptance criteria:
+- Wiki entities and claims integrate seamlessly into SensibLaw review bundles.
+- Primary evidence and crowd-sourced claims remain strictly segregated in the UI.
+- Narrative drift and retroactive edits are clearly surfaced on the timeline.
+
+### WIKI-US-05 / ITIR-US-26: Exact revision-pinned Wikidata QID → Zelph/HF shard review
+
+As a Nat ontology reviewer, I want ITIR MCP to resolve a Wikidata QID to an exact, revision-pinned physical name shard through the **existing** Zelph route contract, so that I can tell apart the original source, a graph route, a shard payload, its coverage, and an actual reviewed statement.
+
+Typical flow:
+- Discover `itir.zelph.hf_manifest_contract` and `itir.shard.exact_wikidata_name_route` from the MCP registry before using generic selectors or inventing a new route service.
+- Pin the [published HF manifest](https://zelph.org/sharding/) and its **manifest-advertised** sidecar by immutable dataset revision/digest. External QIDs use `route-name=Q... route-lang=wikidata`; `route-node` takes an artifact-local numeric ID, not a QID.
+- Require a unique `nodeOfName` + `lang=wikidata` route-to-section/chunk witness. A broad `routingKeys` family match does not establish exact routing.
+- Separate an exact shard *plan* from an executed shard fetch, Cap'n Proto decode, native Wikidata family observation and query-family completeness receipt.
+- Route candidate evidence through existing SLR recurrent acquisition and S29 review, preserving original QID, statement GUID, source revision, qualifier/reference and reviewer disposition.
+
+Acceptance criteria:
+- Offline MCP tests reject missing sidecars, language-confused QIDs, absent chunks, duplicate exact routes, non-QID values, and generic-family-only fallbacks.
+- A real current HF dataset SHA, manifest and route bytes, physical shard digest, direct decoded read and transfer budget are measured independently before declaring hosted acceptance.
+- A partial non-observation may remain unresolved or cause governed live fallback; it is never native `novalue`, source support, semantic truth or permission to edit.
+- The five-QID Nat regression cannot stand in for the historical 57,989-statement migration: population closure needs a composite `(QID, GUID)` inventory receipt.
+
+[ITIR implementation PR #14](https://github.com/chboishabba/ITIR-suite/pull/14) · [NORA handoff PR #514](https://github.com/chboishabba/SensibLaw/pull/514) · [DASHI golden boundary](https://github.com/chboishabba/dashi_agda/blob/master/DASHI/Interop/ZelphBoundedGraphCoverageExact.agda).
