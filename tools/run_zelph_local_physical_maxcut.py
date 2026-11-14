@@ -19,7 +19,8 @@ import subprocess
 import sys
 from typing import Any
 
-from verify_zelph_bin_shard_exact import verify_selected_source_ranges
+from verify_zelph_bin_shard_exact import verify_selected_source_ranges, _read_json
+from audit_zelph_original_packed_partition import verify_original_packed_partition
 from audit_zelph_native_selected_physical import verify_native_selected_shard_answer
 from audit_zelph_finite_query_family import finite_relation_word_closure, _strict_json
 
@@ -78,12 +79,14 @@ def run_local_physical_maxcut(*, source_bin: Path, manifest: Path, shard_root: P
     output_dir.mkdir(parents=True, exist_ok=True)
     if not output_dir.is_dir():
         raise ValueError('physical evidence output path is not a directory')
-    for filename in ('route-new.json', 'selected-range-proof.json',
+    for filename in ('route-new.json', 'original-packed-partition.json',
+                     'selected-range-proof.json',
                      'native-selected-physical-answer.json',
                      'finite-lr-query-closure.json', 'physical-acceptance.json'):
         if (output_dir / filename).exists():
             raise ValueError('output directory already contains physical evidence; refuse overwrite')
     route = output_dir / 'route-new.json'
+    partition_path = output_dir / 'original-packed-partition.json'
     range_path = output_dir / 'selected-range-proof.json'
     native_path = output_dir / 'native-selected-physical-answer.json'
     summary_path = output_dir / 'physical-acceptance.json'
@@ -98,6 +101,16 @@ def run_local_physical_maxcut(*, source_bin: Path, manifest: Path, shard_root: P
         raise ValueError(f'original .bin two-pass source route producer failed: {proc.stderr[:500]}')
     if not route.is_file() or not 0 < route.stat().st_size <= 64 * 1024 * 1024:
         raise ValueError('producer did not emit bounded source-origin route JSON')
+    # A source-local original header plus the *entire* published manifest
+    # must tile the original packed binary exactly: header, left, right,
+    # nameOfNode, nodeOfName. This is structural geometry, not raw source
+    # provenance, decoder refinement or full name-key domain completeness.
+    partition = verify_original_packed_partition(
+        manifest=_read_json(manifest, 16 * 1024 * 1024),
+        route=_read_json(route, 64 * 1024 * 1024),
+        actual_source_size=source_bin.stat().st_size,
+    )
+    _write(partition_path, partition)
     verified = verify_selected_source_ranges(
         manifest_path=manifest, route_path=route, source_bin=source_bin,
         shard_root=shard_root, dataset_revision=dataset_revision,
@@ -123,6 +136,9 @@ def run_local_physical_maxcut(*, source_bin: Path, manifest: Path, shard_root: P
         'dataset_revision': dataset_revision,
         'manifest_sha256': manifest_sha256,
         'source_bin_external_digest_matched_in_this_run': source_matched,
+        'original_packed_manifest_full_offset_cover_checked_in_this_run': True,
+        'original_packed_partition_raw_sha256': _raw_sha(partition_path),
+        'complete_original_name_key_domain_verified': False,
         'upstream_source_origin_independently_authenticated_here': False,
         'original_source_bin_route_producer_executed': True,
         'source_bin_ranges_reverified_in_same_native_audit':
