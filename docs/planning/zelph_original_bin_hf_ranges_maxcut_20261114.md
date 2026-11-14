@@ -1,5 +1,23 @@
 # Same-original Zelph `.bin` ↔ selected HF shards — physical maximum-cut receipt (2026-11-14)
 
+## Exact B5 discriminator acceptance and new P0 packed-partition audit (15 November 2026)
+
+The operator's clean-worktree exact-head check of [ITIR PR #14 at `712011a91231295250ce196e77d0015e04635492`](https://github.com/chboishabba/ITIR-suite/commit/712011a91231295250ce196e77d0015e04635492) ran `bash tools/check_zelph_physical_maxcut_offline.sh` with **145/145 Python tests** and genuine native original-schema C++ packed Cap'n Proto roundtrips/negative controls, exit 0. This supersedes the previously documented 120/120 checked-head offline tranche. The additional 25 are 19 `test_verify_wikidata_native_entity_snapshot.py` and 6 `test_run_zelph_local_physical_maxcut.py`. It does not mean any 82 GiB upstream source bytes were physically replayed.
+
+Companion local acceptance: [SLR #10 `fc819e652be4e78dcfaa3bcc0c1dafad8d6f3840`](https://github.com/chboishabba/slr/commit/fc819e652be4e78dcfaa3bcc0c1dafad8d6f3840) **24/24 Rust**, including five strict `native_raw_receipt_join` tests; [DASHI #1506 `20ef376c832568992baab3db5e657a8dc76e76e6`](https://github.com/chboishabba/dashi_agda/commit/20ef376c832568992baab3db5e657a8dc76e76e6) **9/9 Agda 2.9.0** (source unchanged from `cf3ba8d`); [SensibLaw #514 `f77b28f20ad4b15a2f873a223c2650fcc71461f8`](https://github.com/chboishabba/SensibLaw/commit/f77b28f20ad4b15a2f873a223c2650fcc71461f8) **17/17 pytest** (source unchanged from `a5715ea7`). These are operator-reported exact-head local results.
+
+**Newer ITIR source requires a new acceptance:** branch subsequently reached [`11b5ea3f96d2d0ebb54121f84d03973a2a1ba9e0`](https://github.com/chboishabba/ITIR-suite/commit/11b5ea3f96d2d0ebb54121f84d03973a2a1ba9e0), **six commits after the 145-test accepted source**. The new `tools/audit_zelph_original_packed_partition.py` checks `headerLengthBytes`, whole-bin length, section header counts, dense section-global chunk numbers, actual declared offsets, nonoverlap, gaps, and final byte coverage for `left`, `right`, `nameOfNode`, and `nodeOfName`. It is integrated into `run_zelph_local_physical_maxcut.py` and its synthetic test module is included in the offline checker. **SOURCE WRITTEN / EXACT-HEAD CHECK OPEN** at `11b5ea3`; do not count the new tests as accepted until rerun.
+
+**Original-object P0/P1/P2 still OPEN:** execute the real driver with independently acquired upstream source `.bin`, pinned original source digest, signed/independently audited dataset revision and manifest, and real immutable HF shard bytes. Check packed partition geometry, same-run selected original ranges/shard equality, four-section native decoder and finite declared query words. A successful synthetic mini-bin cannot pay any of these. Full name-key coverage, semantic P14143/P854 source confirmation and actual S29 persist/reload are also separate gates. The candidate-only raw entity join never grants source support or edit authority.
+
+Exact-head acceptance:
+```bash
+git rev-parse HEAD
+bash tools/check_zelph_physical_maxcut_offline.sh
+```
+
+---
+
 ## 15 November 2026 operator exact-head acceptance and next original-packed partition gate
 
 **New operator verification RECEIVED:** ITIR #14 at `712011a91231295250ce196e77d0015e04635492` passed **145/145 Python tests plus all native C++ roundtrips including the two-pass original mini `.bin` producer**, under clean tracked-worktree conditions. SLR #10 at `fc819e652be4e78dcfaa3bcc0c1dafad8d6f3840` passed **24/24 Rust tests**. DASHI #1506 at `20ef376c832568992baab3db5e657a8dc76e76e6` retained **9/9 Agda 2.9.0** kernel targets; SensibLaw #514 at `f77b28f20ad4b15a2f873a223c2650fcc71461f8` retained **17/17 Python** tests. Exact-head source-level gates CLOSED at *these recorded source heads only*. P0 actual HF original bytes, real P854 source and S29 persistence OPEN.
