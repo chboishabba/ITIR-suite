@@ -1,5 +1,34 @@
 # Same-original Zelph `.bin` ↔ selected HF shards — physical maximum-cut receipt (2026-11-14)
 
+## 2026-11-15 local diagnostic receipt and follow-up acceptance
+
+The operator ran four new physical Python suites at **ITIR `bcbf7c3` with local corrections**: initial **23/32**; after fixing the native range argument and the negative test's immutable object path, **32/32** passed. With the previously checked 58 regressions, the operator reports **90/90 passing locally**. The native C++ decoder compiled and ran under **`clang++ -fuse-ld=lld`**, because the system's `libcapnp.a` contains LLVM bitcode that the default GNU linker could not read. These tests used synthetic data and the operator's fixed worktree; they were **not a clean exact-head acceptance of the original `bcbf7c3` commit**.
+
+The exact two fixes are now committed to ITIR #14: `manifest_sha=manifest_sha256` in `audit_zelph_native_selected_physical.py`, and a matching `chunk-000007-wikidata.capnp-packed` URI in the density negative-control fixture. The subsequent source now also pins the original range's **source offset**, remote source URL, and exact HTTP 206 status before native decoding; permits `--source-bin` to **re-verify original .bin byte equality within the same process** rather than trusting a JSON claim; and rejects trailing bytes in native Cap'n Proto shard messages. These newer assertions have **not yet been run**.
+
+### Required new native schema round-trip gate
+
+```bash
+# Builds TWO binaries from upstream-generated original Zelph schema:
+# a genuine packed fixture writer and the selected-shard decoder;
+# runs four real Cap'n Proto sections plus fail-closed negative controls.
+bash tools/check_zelph_native_capnp_roundtrip.sh
+
+# Source audit on local original .bin: strengthens a prior receipt by
+# repeating exact raw-byte comparisons before native output is accepted.
+python tools/audit_zelph_native_selected_physical.py \
+  --manifest "$MANIFEST" --route "$ROUTE" --range-receipt "$RANGE" \
+  --source-bin "$BIN" --shard-root "$ROOT" \
+  --decoder tools/zelph_selected_packed_shard_decoder \
+  --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
+  --max-selected-gib "$MAX_GIB" \
+  --source-bin "$BIN" \
+  --output /path/to/native-selected-physical-answer.json
+```
+
+The native decoder's successful **compilation alone** is weaker than actual packed-schema round-trip execution. A receipt-only native audit (without `--source-bin`) explicitly returns `source_bin_range_equality_reverified_in_this_run=false`; it remains dependent on the independent previously recorded range receipt. A real five-QID full acceptance must still present the actual immutable HF object bytes, original source `.bin` or remote 206 range, compiled schema adapter, and closed query-family premises.
+
+
 **State:** Source and tests committed in ITIR PR #14; NO actual HF source-range or native Cap’n Proto execution receipt yet in this chat. The operator's 58/58 earlier Python tests preceded these additions. The 7/7 exact-head Agda 2.9 check at DASHI commit `4c89edbe90ef0e29ea5c02b18bd5dfe090ab9e61` passed separately.
 
 ## What was actually added
@@ -31,7 +60,7 @@ sha256sum "$MANIFEST" # MUST equal MANIFEST_SHA
 
 # 2. Compile and run existing filtered route builder against original source .bin
 # (same generated upstream capnp schema as existing builder).
-g++ -std=c++17 -O2 -I aur/zelph/build-local/src/lib/io \
+clang++ -fuse-ld=lld -std=c++17 -O2 -I aur/zelph/build-local/src/lib/io \
   tools/zelph_bin_filtered_route_builder.cpp \
   aur/zelph/build-local/src/lib/io/zelph.capnp.c++ \
   -lcapnp -lkj -o tools/zelph_bin_filtered_route_builder
@@ -64,7 +93,7 @@ python tools/verify_zelph_bin_shard_exact.py \
 #   --max-selected-gib "$MAX_GIB" --output "$RANGE"
 
 # 5. Build native schema decoder and check selected physical one-hop answer.
-g++ -std=c++17 -O2 -I aur/zelph/build-local/src/lib/io \
+clang++ -fuse-ld=lld -std=c++17 -O2 -I aur/zelph/build-local/src/lib/io \
   tools/zelph_selected_packed_shard_decoder.cpp \
   aur/zelph/build-local/src/lib/io/zelph.capnp.c++ \
   -lcapnp -lkj -o tools/zelph_selected_packed_shard_decoder
