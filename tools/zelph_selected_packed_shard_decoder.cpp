@@ -228,16 +228,23 @@ int main(int argc, char** argv) {
             capnp::ReaderOptions options;
             options.traversalLimitInWords = 1ull << 32;
             options.nestingLimit = 128;
-            capnp::PackedMessageReader message(buffered, options);
-            std::cout << "{\"version\":\"itir.zelph.selected_native_capnp_decode.v1\""
-                      << ",\"section\":\"" << escaped(args.section) << "\""
-                      << ",\"chunk_index\":" << args.chunk_index;
-            if (args.section == "left" || args.section == "right")
-                print_adj_chunk(message, args);
-            else if (args.section == "nameOfNode")
-                print_name_of_node(message, args);
-            else
-                print_node_of_name(message, args);
+            {
+                capnp::PackedMessageReader message(buffered, options);
+                std::cout << "{\"version\":\"itir.zelph.selected_native_capnp_decode.v1\""
+                          << ",\"section\":\"" << escaped(args.section) << "\""
+                          << ",\"chunk_index\":" << args.chunk_index;
+                if (args.section == "left" || args.section == "right")
+                    print_adj_chunk(message, args);
+                else if (args.section == "nameOfNode")
+                    print_name_of_node(message, args);
+                else
+                    print_node_of_name(message, args);
+            }
+            // The physical object must contain *one exact* packed chunk,
+            // not a valid first message followed by ignored bytes.
+            kj::byte extra;
+            if (buffered.tryRead(&extra, 1, 1) != 0)
+                throw std::runtime_error("unexpected trailing bytes after packed shard");
             std::cout << ",\"candidate_only\":true,\"authority\":false}\n";
             std::fclose(fp);
             return 0;
