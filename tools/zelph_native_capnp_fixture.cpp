@@ -26,9 +26,11 @@ void write_chunk(
             kj::FdOutputStream output(fileno(fp));
             capnp::writePackedMessage(output, message);
         }
-        if (std::fclose(fp) != 0) throw std::runtime_error("fixture write failed");
+        const int closed = std::fclose(fp);
+        fp = nullptr;
+        if (closed != 0) throw std::runtime_error("fixture write failed");
     } catch (...) {
-        std::fclose(fp);
+        if (fp) std::fclose(fp);
         throw;
     }
 }
