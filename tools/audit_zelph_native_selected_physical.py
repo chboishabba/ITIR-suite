@@ -305,8 +305,27 @@ def verify_native_selected_shard_answer(
                 raise ValueError("native physical adjacency differs from exact original-bin oracle")
             if raw_value_counts[(node_id, direction)] != source_node.get(direction + "ValuesSeen"):
                 raise ValueError("native physical adjacency multiplicity/count differs from source")
+    # Export exactly the already-compared finite node/direction rows so that
+    # a separate finite-word closure worker can construct a dependent proof
+    # of every reached boundary. This is NOT a new source oracle: row equality
+    # was already checked above against the original-bin route.
+    root_adjacency = [
+        {
+            "node_id": int(node_id),
+            "direction": direction,
+            "neighbors": sorted(physical_neighbours[(node_id, direction)]),
+            "source_values_seen": raw_value_counts[(node_id, direction)],
+            "source_truncated": False,
+            "physical_truncated": False,
+        }
+        for node_id in sorted(root_ids, key=int)
+        for direction in ("left", "right")
+    ]
     return {
         "version": "itir.zelph.native_physical_selected_original_query_cut.v1",
+        "artifact_id": _ARTIFACT,
+        "qid_root_nodes": qid_nodes,
+        "root_adjacency": root_adjacency,
         "dataset_revision": dataset_revision,
         "manifest_sha256": manifest_sha256,
         "route_sha256": route_sha,
