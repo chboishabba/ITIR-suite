@@ -1,5 +1,29 @@
 # Same-original Zelph `.bin` ↔ selected HF shards — physical maximum-cut receipt (2026-11-14)
 
+## 15 November 2026 operator exact-head acceptance and next original-packed partition gate
+
+**New operator verification RECEIVED:** ITIR #14 at `712011a91231295250ce196e77d0015e04635492` passed **145/145 Python tests plus all native C++ roundtrips including the two-pass original mini `.bin` producer**, under clean tracked-worktree conditions. SLR #10 at `fc819e652be4e78dcfaa3bcc0c1dafad8d6f3840` passed **24/24 Rust tests**. DASHI #1506 at `20ef376c832568992baab3db5e657a8dc76e76e6` retained **9/9 Agda 2.9.0** kernel targets; SensibLaw #514 at `f77b28f20ad4b15a2f873a223c2650fcc71461f8` retained **17/17 Python** tests. Exact-head source-level gates CLOSED at *these recorded source heads only*. P0 actual HF original bytes, real P854 source and S29 persistence OPEN.
+
+**New independently formulated P0 structural cut (subsequent ITIR code; NOT part of 145/145 PASS):** `tools/audit_zelph_original_packed_partition.py` checks that the entire published manifest tiles the original packed `.bin` with one header and the correct four ordered sections: `left`, `right`, `nameOfNode`, `nodeOfName`. It demands source header length, bin size agreement, all section-global dense chunk numbers, identical section counts, exact `offset(cursor)`, full final byte coverage, and refuses overlaps, gaps, reordered sections, trailing bytes and boolean/invalid metadata. It is metadata/offset geometry only, **not** raw remote byte equality, whole-source rehash, downstream name-key enumeration, or original upstream authenticity. The one-shot physical runner now requires it *before* selected original/shard byte comparison and writes `original-packed-partition.json` with its raw SHA recorded in `physical-acceptance.json`.
+
+**New source acceptance:** `bash tools/check_zelph_physical_maxcut_offline.sh` includes `tests/test_audit_zelph_original_packed_partition.py` and two newly added same-run driver partition tests; this latest commit has **not** been verified on a clean local head. Run it at the new SHA rather than assuming the old 145/145 receipt covers modified tests. No original 82 GiB `.bin` or real HF selected objects were downloaded in this chat environment: HTTPS requests to pinned Hugging Face dataset endpoints failed at the runtime network layer.
+
+**Independent structural verification if an original route/manifest is available:**
+
+```bash
+python tools/audit_zelph_original_packed_partition.py \
+  --manifest /path/to/pinned-raw-full-manifest.json \
+  --route /path/to/fresh-source-bin-route.json \
+  --source-bin /path/to/original-wikidata-20260309-all.bin \
+  --expected-manifest-sha256 <independently-pinned-manifest-digest> \
+  --output /path/to/new-original-packed-partition.json
+# Omitting --source-bin checks the header/manifest supplied size agreement
+# without verifying an actual local binary's byte size.
+```
+
+**A1 mathematical interpretation:** if (i) a trusted complete original source header gives exact section counts, (ii) all source packed sections form this gap-free partition, (iii) every original `nodeOfName` chunk has an independently checked same-original byte-equivalent published shard, and (iv) the decoder faithfully enumerates name rows, then every original source `nodeOfName` row is included in that published name-section cover. Those premises do **not** establish key uniqueness, QID name-range indexes, native Wikidata P14143/P854 source semantics or full graph query closure. The A1 collision-preserving list-fibre proof and the remaining global index completeness are distinct.
+
+
 ## 2026-11-15 next physical and native-source maximum cut (source committed; new head unverified)
 
 **Operator acceptance checkpoint:** On clean checked heads, DASHI #1506 `cf3ba8d` Agda 2.9 **9/9**; ITIR #14 `7385872` Python **120/120** plus full upstream-schema packed original-mini-bin C++ builder/decoder; SLR #10 `4e0f150` Rust **19/19**; SensibLaw #514 `a5715ea7` Python **17/17**. These close their precise *offline* gate only. Subsequent ITIR/SLR commits below require fresh source-head checks.
