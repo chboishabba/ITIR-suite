@@ -184,6 +184,10 @@ def test_declared_chunk_indices_must_be_dense_and_section_global(tmp_path):
     paths = _fixture(tmp_path)
     manifest = json.loads(paths["manifest"].read_text())
     manifest["sections"]["nodeOfName"]["chunks"][0]["chunkIndex"] = 7
+    manifest["sections"]["nodeOfName"]["chunks"][0]["objectPath"] = (
+        f"hf://datasets/acrion/zelph/{ARTIFACT}/shards/nodeOfName/"
+        "chunk-000007-wikidata.capnp-packed"
+    )
     _save(paths["manifest"], manifest)
     with pytest.raises(ValueError, match="0..N-1"):
         _verify(paths, manifest_sha=sha256(paths["manifest"].read_bytes()).hexdigest())
