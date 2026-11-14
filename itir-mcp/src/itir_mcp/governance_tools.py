@@ -25,6 +25,7 @@ from .shard_transport import (
     build_payload_probe,
     build_partial_graph_view,
     fetch_zelph_hf_manifest_contract,
+    exact_wikidata_name_route,
     route_selector as _route_selector,
     validate_shared_shard_artifact,
 )
@@ -43,6 +44,7 @@ WIKIDATA_TOOLING_PROFILE_VERSION = "itir.wikidata.tooling_profile.v1"
 ZELPH_TRANSPORT_BOUNDARY_VERSION = "itir.zelph.transport_boundary.v1"
 SHARD_VALIDATE_ARTIFACT_VERSION = "itir.shard.validate_artifact.v1"
 SHARD_ROUTE_SELECTOR_VERSION = "itir.shard.route_selector.v1"
+EXACT_WIKIDATA_NAME_ROUTE_VERSION = "itir.shard.exact_wikidata_name_route.v1"
 SHARD_PARTIAL_GRAPH_VIEW_VERSION = "itir.shard.partial_graph_view.v1"
 
 _AUTHORITY_BOUNDARY: JsonDict = {
@@ -174,6 +176,26 @@ def get_governance_tools() -> list[tuple[ToolSpec, ToolHandler]]:
                 read_only=True,
             ),
             route_selector_tool,
+        ),
+        (
+            ToolSpec(
+                name="itir.shard.exact_wikidata_name_route",
+                title="Exact Wikidata QID to Zelph name shard (candidate only)",
+                description="Resolve a QID only with an explicitly provided, artifact-pinned nodeOfName route sidecar; never use family-only fallback or claim payload decoding.",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "qid": {"type": "string"},
+                        "route_index": {"type": "object"},
+                        "contract": {"type": "object"},
+                    },
+                    "required": ["qid", "route_index"],
+                    "additionalProperties": True,
+                },
+                response_version=EXACT_WIKIDATA_NAME_ROUTE_VERSION,
+                read_only=True,
+            ),
+            exact_wikidata_name_route_tool,
         ),
         (
             ToolSpec(
@@ -537,6 +559,27 @@ def route_selector_tool(payload: Mapping[str, Any]) -> JsonDict:
         "logical_shard_ids": logical_ids,
         "logical_shard_count": len(logical_ids),
         "authority_boundary": dict(_AUTHORITY_BOUNDARY),
+    }
+
+
+def exact_wikidata_name_route_tool(payload: Mapping[str, Any]) -> JsonDict:
+    qid = _require_str(payload, "qid")
+    route_index = _require_mapping(payload, "route_index")
+    result = _wrap_value_error(
+        exact_wikidata_name_route,
+        _contract_payload(payload),
+        qid,
+        route_index=route_index,
+    )
+    return {
+        **result,
+        "authority_boundary": {
+            **dict(_AUTHORITY_BOUNDARY),
+            "candidate_only": True,
+            "truth_authority": False,
+            "support_authority": False,
+            "promotion_authority": False,
+        },
     }
 
 

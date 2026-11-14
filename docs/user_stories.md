@@ -129,6 +129,8 @@ Detailed page deliverables for this workbench family are tracked in
 `docs/planning/recent_workbench_page_user_stories_20260310.md`.
 
 ## ITIR-US-17: Wiki Revision Review Assist
+
+Reuse the existing [ITIR Wikidata review/manifest/shard tools](https://github.com/chboishabba/ITIR-suite/blob/main/itir-mcp/src/itir_mcp/governance_tools.py) and [production SLR source-acquisition contracts](https://github.com/chboishabba/slr/blob/main/docs/ROADMAP.md); DASHI Agda is golden and SensibLaw Python is reference-only. The [exact HF/QID locator](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/docs/planning/zelph_hf_wikidata_mcp_locator_20261114.md) is a source-discovery aid, not proof that a remote shard was decoded.
 As a reviewer working from Wikipedia or Wikidata-adjacent migration/dispute
 pages, I want ITIR to capture a specific revision, parse its bounded sections
 and cited references, and follow selected links through bounded source seams so
@@ -648,6 +650,8 @@ Acceptance criteria:
   conclusion.
 
 ### SL-US-16: Wikidata Ontology / Claim Worker on Contested Entities
+
+Implementation crosswalk: use existing `itir.wikidata.object_review_bundle`, `itir.wikidata.migration_candidate`, `itir.wikidata.disjointness_report`, `itir.shard.exact_wikidata_name_route` (on PR #14), and SLR's native source/bundle/S29 review. Agda/DASHI is golden for truth/absence/transport boundaries; no tool directly edits Wikidata.
 As a Wikidata ontology worker handling contested entities and statements, I
 want to inspect identity, relation, time-validity, and sourcing pressure so I
 can decide whether a claim belongs, should be qualified, or should remain out
@@ -1408,7 +1412,27 @@ Acceptance criteria:
 
 ## Wiki and public-knowledge operator integration stories
 
+### Reuse-first tool library and authority ownership (Wikidata / Zelph / NORA)
+
+**Discover before designing.** [ITIR MCP registry](https://github.com/chboishabba/ITIR-suite/blob/main/itir-mcp/src/itir_mcp/registry.py) exposes runtime `list_tools` with governed, versioned [tool specifications](https://github.com/chboishabba/ITIR-suite/blob/main/itir-mcp/src/itir_mcp/governance_tools.py). Do not duplicate a tool, selector, source provider, review packet, persistence store or proof carrier without checking its existing owner.
+
+| Layer | Authoritative implementation |
+|---|---|
+| Golden formal contracts | [DASHI Agda](https://github.com/chboishabba/dashi_agda): [Zelph coverage](https://github.com/chboishabba/dashi_agda/blob/master/DASHI/Interop/ZelphBoundedGraphCoverageExact.agda), [pruned graph soundness](https://github.com/chboishabba/dashi_agda/blob/master/DASHI/Interop/ZelphPrunedArtifactQueryPreservationExact.agda), [SLR transport](https://github.com/chboishabba/dashi_agda/blob/master/DASHI/Interop/SLRGWBPhysicalObjectAcquisitionPolicyExact.agda). Kernel acceptance is a separate test gate. |
+| Production runtime | [SLR Rust/PostgreSQL](https://github.com/chboishabba/slr/blob/main/docs/ROADMAP.md): [native Nat bundles (#10)](https://github.com/chboishabba/slr/pull/10), [recurrent acquisition (#28)](https://github.com/chboishabba/slr/pull/28), [ontology comparison (#51)](https://github.com/chboishabba/slr/pull/51), [S29 review (#76)](https://github.com/chboishabba/slr/pull/76). |
+| MCP integration and public-facing reviewer tools | [ITIR MCP](https://github.com/chboishabba/ITIR-suite/blob/main/itir-mcp/src/itir_mcp/registry.py). |
+| Historical reference and regression | [SensibLaw Python](https://github.com/chboishabba/SensibLaw): [editor story](https://github.com/chboishabba/SensibLaw/blob/main/docs/user_stories.md#wikidata-editor--ontology-reviewer), [Nat/Zelph (#493)](https://github.com/chboishabba/SensibLaw/pull/493). Not production authority. |
+
+Existing **Wikidata MCP library**: `itir.wikidata.review_packet`, `itir.wikidata.object_review_bundle`, `itir.wikidata.migration_candidate`, `itir.wikidata.disjointness_report`, `itir.wikidata.tooling_profile`, `itir.wikiproject.tooling_profile`.
+
+Existing **Zelph/shard MCP library**: `itir.zelph.hf_manifest_contract`, `itir.zelph.pack_sources`, `itir.zelph.partial_closure`, `itir.zelph.transport_boundary`, `itir.shard.validate_artifact`, `itir.shard.route_selector`, `itir.shard.partial_graph_view`, `itir.shard.bounded_graph_slice_plan`, `itir.shard.payload_probe`. [ITIR PR #14](https://github.com/chboishabba/ITIR-suite/pull/14) additionally proposes `itir.shard.exact_wikidata_name_route`, which rejects broad fallback and requires an explicit exact sidecar witness. It does not fetch a shard.
+
+For the exact HF publication and immutable-revision acceptance steps, use the [ITIR locator](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/docs/planning/zelph_hf_wikidata_mcp_locator_20261114.md) and [upstream Zelph sharding reference](https://zelph.org/sharding/). Manifest existence, an exact QID name route, a decoded shard, query-family completeness and reviewed semantic/source payment are **five separate assertions**.
+
+
 ### WIKI-US-01 / SL-US-38: Wikidata Statement Review Packet & Batch Review Surface
+
+**Available-tool reuse:** Reuse `itir.wikidata.review_packet`, `itir.wikidata.object_review_bundle`; persist approved **candidate receipts**, not approvals to edit, in existing SLR native review infrastructure.
 As a Wikidata contributor or ontology custodian, I want to inspect candidate
 statement edits and entity modifications through `itir.wikidata.review_packet`
 and `itir.wikidata.object_review_bundle` with strict validation and no silent
@@ -1442,6 +1466,8 @@ Acceptance criteria:
 - Canonical entity truth remains untouched.
 
 ### WIKI-US-02 / SL-US-39: WikiProject Tooling & Governance Profiles
+
+**Available-tool reuse:** Discover actual registered MCP tools and their versioned authority profiles before adding external NORA, Zelph, QuickStatements or OpenRefine adapters; `itir.wikidata.tooling_profile` and `itir.wikiproject.tooling_profile` are existing owners.
 As a WikiProject coordinator or community moderator, I want to evaluate external
 bot and batch tools (QuickStatements, OpenRefine, EntitySchemas, KrBot, Listeria,
 Property Constraints) against governed authority profiles
@@ -1474,6 +1500,8 @@ Acceptance criteria:
   operational boundaries.
 
 ### WIKI-US-03 / SL-US-40: Ontology Constraint & Disjointness Violation Triaging
+
+**Available-tool reuse:** Reuse `itir.wikidata.disjointness_report`, `itir.wikidata.migration_candidate`, `itir.zelph.partial_closure` and exact shard routing where supported. Partial graph non-observation must never create a native Wikidata absence claim.
 As an ontology maintainer, I want to run disjointness audits (e.g., P2738
 disjoint union, Q24017414 second-order classes, P8225 metaclasses) across
 entity graphs, surfacing constraint violations and structural flatness
@@ -1506,6 +1534,8 @@ Acceptance criteria:
   bundles without mutating live ontology.
 
 ### WIKI-US-04 / SL-US-41: Cross-Corpus Wiki-to-SensibLaw Evidence Reconciliation
+
+**Available-tool reuse:** Use SLR production source revisions and S29 review, ITIR source comparison and MCP packets, DASHI golden evidence semantics, and SensibLaw historical fixtures. A wiki or Zelph graph claim is not an independently verified primary source.
 As a legal or journalistic investigator, I want to project Wikipedia/Wikidata
 entity graphs into SensibLaw timeline and claim review surfaces
 (`sl.wikidata_signal_review_bundle.v0_1`) alongside transcripts and public
@@ -1538,3 +1568,23 @@ Acceptance criteria:
 - Wiki entities and claims integrate seamlessly into SensibLaw review bundles.
 - Primary evidence and crowd-sourced claims remain strictly segregated in the UI.
 - Narrative drift and retroactive edits are clearly surfaced on the timeline.
+
+### WIKI-US-05 / ITIR-US-26: Exact revision-pinned Wikidata QID → Zelph/HF shard review
+
+As a Nat ontology reviewer, I want ITIR MCP to resolve a Wikidata QID to an exact, revision-pinned physical name shard through the **existing** Zelph route contract, so that I can tell apart the original source, a graph route, a shard payload, its coverage, and an actual reviewed statement.
+
+Typical flow:
+- Discover `itir.zelph.hf_manifest_contract` and `itir.shard.exact_wikidata_name_route` from the MCP registry before using generic selectors or inventing a new route service.
+- Pin the [published HF manifest](https://zelph.org/sharding/) and its **manifest-advertised** sidecar by immutable dataset revision/digest. External QIDs use `route-name=Q... route-lang=wikidata`; `route-node` takes an artifact-local numeric ID, not a QID.
+- Require a unique `nodeOfName` + `lang=wikidata` route-to-section/chunk witness. A broad `routingKeys` family match does not establish exact routing.
+- When the manifest has **no advertised route sidecar**, do not synthesize one. The strict sidecar-based MCP tool stays blocked; an **independently executed direct Cap'n Proto name-chunk decoder** may establish an alternative **physical-witness** route, but its source SHA, downloaded shard bytes/digests, name/language/node IDs and chunk-to-manifest identities must be recorded and validated separately. This is not a successful sidecar-tool invocation.
+- Separate an exact shard *plan* from an executed shard fetch, Cap'n Proto decode, native Wikidata family observation and query-family completeness receipt.
+- Route candidate evidence through existing SLR recurrent acquisition and S29 review, preserving original QID, statement GUID, source revision, qualifier/reference and reviewer disposition.
+
+Acceptance criteria:
+- Offline MCP tests reject missing sidecars, language-confused QIDs, absent chunks, duplicate exact routes, non-QID values, and generic-family-only fallbacks.
+- A real current HF dataset SHA, manifest bytes and either **actual sidecar bytes** or **pinned physical name-chunk decode witnesses**, physical shard digests and transfer budget are measured before declaring hosted acceptance. A name-only route never proves full adjacency/query-family completeness.
+- A partial non-observation may remain unresolved or cause governed live fallback; it is never native `novalue`, source support, semantic truth or permission to edit.
+- The five-QID Nat regression cannot stand in for the historical 57,989-statement migration: population closure needs a composite `(QID, GUID)` inventory receipt.
+
+[Reported five-QID physical route execution and source-binding gates](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/docs/planning/nat_zelph_hf_physical_route_execution_20261114.md) · [ITIR implementation PR #14](https://github.com/chboishabba/ITIR-suite/pull/14) · [NORA handoff PR #514](https://github.com/chboishabba/SensibLaw/pull/514) · [DASHI golden boundary](https://github.com/chboishabba/dashi_agda/blob/master/DASHI/Interop/ZelphBoundedGraphCoverageExact.agda).
