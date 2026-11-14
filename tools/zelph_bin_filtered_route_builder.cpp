@@ -211,6 +211,9 @@ static std::map<uint64_t, NodeRoute> resolve_routes(
             for (uint32_t i = 0; i < count; ++i) {
                 capnp::PackedMessageReader message(counting, options);
                 const auto chunk = message.getRoot<zelph::network::AdjChunk>();
+                if (std::string(chunk.getWhich().cStr()) != (left ? "left" : "right")) {
+                    throw std::runtime_error("adjacency chunk direction mismatches source section");
+                }
                 for (auto pair : chunk.getPairs()) {
                     const uint64_t node = pair.getNode();
                     if (target_nodes.count(node) == 0) continue;
