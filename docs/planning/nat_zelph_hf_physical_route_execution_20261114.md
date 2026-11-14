@@ -1,5 +1,24 @@
 # Nat Zelph HF physical route execution — reported receipt and remaining verification
 
+## 2026-11-15 operator source verification and stronger exact-head gate
+
+**Operator's physical-tranche local readback:** original `bcbf7c3` source: 23/32 new Python tests pass, with 9 failures. Two one-line worktree repairs make 32/32 physical-shape tests pass; added to the prior 58 targets = **90/90 locally reported**. Both one-line fixes are now committed onto this same PR #14. The earlier failures must not be called 90/90 green **at original `bcbf7c3` without modifications**.
+
+**C++ compile:** the original Cap'n Proto generated source and the selected decoder compile with `clang++ -fuse-ld=lld` (operator local linker `libcapnp.a` is LLVM-bitcode). The normal `g++` example cannot link on that toolchain. A separate **native packed-message writer/reader roundtrip** with all four original schema sections, exact section/direction/chunk index, and fail-closed appended garbage was added after the local report. It has NOT yet been executed.
+
+**Current source additions after that local report:** strict source offset/size/SHA/URI + pinned HTTP206 original `.bin` URL validation in native audit; opt-in same-process `--source-bin` exact raw-byte re-verification; native rejection of valid packed messages with trailing bytes; synthetic negative controls; `tools/check_zelph_native_capnp_roundtrip.sh` and `tools/check_zelph_physical_maxcut_offline.sh` as clean-exact-head native/offline checkers. **The latest source head is untested in this chat.**
+
+```bash
+# One acceptance invocation on a clean ITIR PR #14 checkout:
+bash tools/check_zelph_physical_maxcut_offline.sh
+# Then execute actual immutable-shard physical P0/A1/A2 as documented below.
+```
+
+The source-level 90/90 local result does not prove source-bin↔HF identical bytes, full graph query closure or actual native Wikidata source support. The original physical request/route/receipt SHAs remain historical until independently recomputed on real files.
+
+
+
+
 ## Next accepted physical maximum-cut commands and source-state split
 
 **Kernel (golden owner):** the operator's clean, source-only Agda 2.9 check at DASHI PR #1506 exact head `4c89edbe90ef0e29ea5c02b18bd5dfe090ab9e61` passed for seven imported modules. **ITIR local 58/58** Python tests were run at earlier head `a119add`, before the new physical tranche. Those results are credited but must not be described as validation of the latest C++ decoder or raw HF bytes.
