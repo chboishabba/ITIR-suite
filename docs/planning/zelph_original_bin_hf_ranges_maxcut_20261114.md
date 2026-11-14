@@ -1,5 +1,56 @@
 # Same-original Zelph `.bin` ↔ selected HF shards — physical maximum-cut receipt (2026-11-14)
 
+## 2026-11-15 next physical and native-source maximum cut (source committed; new head unverified)
+
+**Operator acceptance checkpoint:** On clean checked heads, DASHI #1506 `cf3ba8d` Agda 2.9 **9/9**; ITIR #14 `7385872` Python **120/120** plus full upstream-schema packed original-mini-bin C++ builder/decoder; SLR #10 `4e0f150` Rust **19/19**; SensibLaw #514 `a5715ea7` Python **17/17**. These close their precise *offline* gate only. Subsequent ITIR/SLR commits below require fresh source-head checks.
+
+**One-shot P0→P2 original local replay:** `tools/run_zelph_local_physical_maxcut.py` invokes the existing two-pass original `.bin` filtered producer, selected-offset byte comparator and actual C++ native schema decoder *in the same local execution*. Optionally feeds source-equal node/direction rows into `audit_zelph_finite_query_family.py`, reporting required additional numeric node boundaries without turning them into negative answers. The run produces `route-new.json`, `selected-range-proof.json`, `native-selected-physical-answer.json`, optional `finite-lr-query-closure.json` and `physical-acceptance.json`. Each output SHA is reported and prior files cannot be silently overwritten. Offline isolated orchestrator negatives: **6/6 passed locally**; new GH exact-head has not been rerun.
+
+```bash
+# On the pinned new ITIR #14 branch, only AFTER obtaining the actual
+# original source bin and fetching selected immutable HF shard files.
+python tools/run_zelph_local_physical_maxcut.py \
+  --source-bin "$BIN" --manifest "$MANIFEST" \
+  --shard-root "$ROOT" \
+  --producer tools/zelph_bin_filtered_route_builder \
+  --decoder tools/zelph_selected_packed_shard_decoder \
+  --output-dir /path/to/new-empty-physical-acceptance \
+  --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
+  --qid Q10403939 --qid Q10416948 --qid Q10422059 \
+  --qid Q10651551 --qid Q56404383 \
+  --query-family docs/planning/zelph_five_qid_lr_query_family.example.json \
+  --max-selected-gib 16
+# Optional (only if independently sourced):
+#   --expected-source-bin-sha256 <full-raw-source-bin-sha256>
+# Exit 0: real selected one-hop and requested finite words complete;
+# Exit 3: real one-hop success but missing numeric node/direction boundaries;
+# Exit 2: fail-closed source/provenance/decoder/error budget.
+# For exit 3, read finite-lr-query-closure.json and rerun in a fresh
+# empty output directory with each independently validated --node value.
+```
+
+**Read-only native Wikibase P4 source-byte lane:** New `tools/verify_wikidata_native_entity_snapshot.py` accepts *full* Wikibase JSON (Special:EntityData or wbgetentities) for one exact `(QID, statement GUID, property, lastrevid)` and an externally pinned raw SHA256. It preserves exact quantity amount/unit/bounds, qualifier snaks, ordered reference records, P854 URLs, and fails closed on malformed/duplicate/truncated JSON. Isolated 19/19 adversarial cases passed locally; the new repo head is not yet verified. This is NOT the structurally different Wikibase REST statement representation. The output retains `upstream_http_provenance_independently_verified=false` and `p854_documents_independently_verified=false`. The downstream SLR `native_raw_receipt_join` binds the raw receipt's QID/GUID/property/revision/digest/P854/quantity to the existing native candidate, with no source payment or edit authority.
+
+```bash
+# Obtain/pin an ORIGINAL full entity snapshot at a known revision
+# independently. Revision-specific URLs are documented by Wikidata:
+# https://www.wikidata.org/wiki/Special:EntityData/Q10403939.json?revision=<REVISION>
+python tools/verify_wikidata_native_entity_snapshot.py \
+  --raw-entity /path/to/native-full-entity.json \
+  --expected-sha256 <independently-pinned-raw-entity-sha256> \
+  --qid Q10403939 --statement-guid '<actual-QID-dollar-GUID>' \
+  --property P14143 --entity-revision <actual-integer-revision> \
+  --output /path/to/raw-native-observation.json
+# Actual statement GUID and entity revision must come from the native source.
+# A hash freshly computed from the same untrusted local bytes is not
+# independent network/source-origin authentication.
+```
+
+**Latest source acceptance, NOT YET RUN:** `bash tools/check_zelph_physical_maxcut_offline.sh` now includes two new suites (19 raw-native and 6 local-physical driver tests) in addition to the operator-verified 120, i.e. 145 selected Python cases if the previous 120 remain unchanged. The C++ original-mini-bin roundtrip and previously verified checks remain in the runner. SLR adds 4 focused native-raw-receipt tests; cargo exact-head check pending.
+
+**Still OPEN:** real original/source HF-byte origin, whole graph name-domain A1, property-labelled source/selected query A2, actual native entity bytes & P854 document inspection, S29 durable review/restart, genuine Éder Porto NORA export and current exhausted Nat GUID cursor. No graph candidate or self-reported receipt grants source review, semantic truth or external edits.
+
+
 ## New native original-bin two-pass mini-fixture gate (new head not yet rerun)
 
 The existing `tools/check_zelph_native_capnp_roundtrip.sh` now builds **three** C++ binaries with original upstream-generated Cap'n Proto: native writer, selected shard decoder and `zelph_bin_filtered_route_builder.cpp`. It generates all four packed shard types PLUS an original packed header, concatenates an internally consistent full mini source `.bin`, and runs the **actual original two-pass filtered route producer** on `--qid Q1 --node 8`. The fixture has `Q1 ↔ 7`, left `7→{8,9}`, right `7→{10}`, and unnamed numeric node `8` with left `8→{11}` and right `8→{12}`. It checks routes, source-local oracle arrays, value count, nontruncation, exact chunk indices, nameless node 8 decode, wrong-section/index/language/trailer controls and read-only flags. This is a genuine source-format **synthetic binary** contract, not an original Wikidata/HF provenance witness.
