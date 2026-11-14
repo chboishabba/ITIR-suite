@@ -213,3 +213,36 @@ def test_ambiguous_or_missing_original_node_route_is_rejected(tmp_path):
     _save(paths["route"], route)
     with pytest.raises(ValueError, match="unresolved QID"):
         _verify(paths)
+
+
+def test_extra_unnamed_numeric_frontier_is_valid_route_domain(tmp_path):
+    paths = _fixture(tmp_path)
+    route = json.loads(paths["route"].read_text())
+    route["additionalNumericNodes"] = [999]
+    route["nodeRoutes"]["999"] = {
+        "left": [0], "right": [0], "nameOfNode": [],
+    }
+    _save(paths["route"], route)
+    output = _verify(paths)
+    assert output["all_selected_shards_equal_local_original_bin_packed_ranges"] is True
+    # This verifies physical chunk selection only, not a fabricated QID/name
+    # or existence of row 999; the native decoder checks that separately.
+
+
+@pytest.mark.parametrize("bad", [[8, 8], [9, 8], [-1], ["8"], [True], [2**64]])
+def test_extra_numeric_frontier_must_be_sorted_distinct_uint64(tmp_path, bad):
+    paths = _fixture(tmp_path)
+    route = json.loads(paths["route"].read_text())
+    route["additionalNumericNodes"] = bad
+    _save(paths["route"], route)
+    with pytest.raises(ValueError, match="extra numeric frontier"):
+        _verify(paths)
+
+
+def test_extra_numeric_route_cannot_omit_its_original_source_node(tmp_path):
+    paths = _fixture(tmp_path)
+    route = json.loads(paths["route"].read_text())
+    route["additionalNumericNodes"] = [999]
+    _save(paths["route"], route)
+    with pytest.raises(ValueError, match="node route domain"):
+        _verify(paths)
