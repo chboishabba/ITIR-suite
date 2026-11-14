@@ -226,3 +226,86 @@ def test_manifest_cover_rejects_duplicate_physical_chunk_and_unbound_artifact():
     mismatch["source"]["artifactName"] = "another-graph"
     with pytest.raises(ValueError, match="audited graph differs"):
         verify_manifest_name_cover(manifest=mismatch, audit=audit)
+
+
+def _adjacency_case():
+    from itir_mcp.zelph_query_closure import DeclaredAdjacencyObject
+    left = _encode({"direction": "left", "index": 1,
+                    "pairs": [[24721153, [3, 4]], [999, [7]] ]})
+    right = _encode({"direction": "right", "index": 2,
+                     "pairs": [[24721153, [5]]]})
+    route = {
+        "routeVersion": "zelph-filtered-route/v1",
+        "qidToZelphNodeIds": {"Q10403939": 24721153},
+        "nodeRoutes": {"24721153": {"left": [1], "right": [2], "nameOfNode": []}},
+        "nodeAdjacency": {
+            "24721153": {
+                "left": [3, 4], "right": [5],
+                "leftValuesSeen": 2, "rightValuesSeen": 1,
+                "leftTruncated": False, "rightTruncated": False,
+            }
+        },
+        "sourceBinToPublishedHfDatasetIdentityVerified": False,
+    }
+    declared = [
+        DeclaredAdjacencyObject(
+            "left", 1, len(left), sha256(left).hexdigest(),
+            "hf://datasets/acrion/zelph/full/shards/left/chunk-000001.capnp-packed"
+        ),
+        DeclaredAdjacencyObject(
+            "right", 2, len(right), sha256(right).hexdigest(),
+            "hf://datasets/acrion/zelph/full/shards/right/chunk-000002.capnp-packed"
+        ),
+    ]
+    raw = {("left", 1): left, ("right", 2): right}
+    def decode(raw_bytes):
+        item = __import__("json").loads(raw_bytes)
+        return item["direction"], item["index"], item["pairs"]
+    return route, declared, raw, decode
+
+
+def test_same_bin_oracle_matches_actual_selected_left_and_right_bytes():
+    from itir_mcp.zelph_query_closure import audit_selected_adjacency_against_bin
+    route, declared, raw, decode = _adjacency_case()
+    output = audit_selected_adjacency_against_bin(
+        route=route, declared=declared, raw_objects=raw, decode=decode
+    )
+    assert output["one_hop_root_adjacency_equal_to_source_bin"]
+    assert output["physical_object_count"] == 2
+    assert output["source_bin_to_hf_dataset_identity_proved"] is False
+    assert output["all_relation_words_complete"] is False
+
+
+def test_adjacency_comparison_rejects_corruption_truncation_and_missing_chunks():
+    from copy import deepcopy
+    from itir_mcp.zelph_query_closure import audit_selected_adjacency_against_bin
+    route, declared, raw, decode = _adjacency_case()
+    def run(r=route, d=declared, b=raw, decoder=decode):
+        return audit_selected_adjacency_against_bin(
+            route=r, declared=d, raw_objects=b, decode=decoder
+        )
+    with pytest.raises(ValueError, match="bytes/digest mismatch"):
+        run(b={**raw, ("left", 1): raw[("left", 1)] + b"?"})
+    with pytest.raises(ValueError, match="cover differs"):
+        run(b={("left", 1): raw[("left", 1)]})
+    truncated = deepcopy(route)
+    truncated["nodeAdjacency"]["24721153"]["leftTruncated"] = True
+    with pytest.raises(ValueError, match="truncated"):
+        run(r=truncated)
+    changed = deepcopy(route)
+    changed["nodeAdjacency"]["24721153"]["left"] = [3, 9]
+    with pytest.raises(ValueError, match="differs from original-bin"):
+        run(r=changed)
+    with pytest.raises(ValueError, match="direction/index mismatch"):
+        run(decoder=lambda b: ("right", 1, [[24721153, [3, 4]]]))
+
+
+def test_adjacency_route_missing_actual_root_row_fails_closed():
+    from itir_mcp.zelph_query_closure import audit_selected_adjacency_against_bin
+    route, declared, raw, decode = _adjacency_case()
+    with pytest.raises(ValueError, match="routed root missing"):
+        audit_selected_adjacency_against_bin(
+            route=route, declared=declared, raw_objects=raw,
+            decode=lambda b: ("left", 1, [[999, [3]]])
+            if b == raw[("left", 1)] else decode(b),
+        )
