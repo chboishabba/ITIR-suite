@@ -208,14 +208,7 @@ def verify_native_selected_shard_answer(
         ]
         if len(matches) != 1 or matches[0].get("node_id") != node_id:
             raise ValueError(f"native nodeOfName one-to-one QID route mismatch: {qid}")
-        names = [
-            row
-            for (_, _), chunk_rows in native_rows.items()
-            for row in chunk_rows
-            if row.get("node_id") == node_id and row.get("name") == qid
-        ]
-        # The previous comprehension is cross-sectional; make the nameOfNode
-        # direction explicit rather than mistaking nodeOfName for its inverse.
+        # The inverse assertion must use nameOfNode, not nodeOfName.
         names = [
             row
             for (section, _), chunk_rows in native_rows.items()
