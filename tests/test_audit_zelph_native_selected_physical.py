@@ -46,6 +46,7 @@ def _case(tmp_path: Path):
         byte_receipts.append({
             "section": section, "chunk_index": 0,
             "sha256": sha256(content).hexdigest(),
+            "source_offset": part["offset"],
             "bytes_compared": len(content),
             "object_uri": part["objectPath"],
         })
@@ -179,4 +180,70 @@ def test_missing_old_source_oracle_or_missing_root_rejected(monkeypatch, tmp_pat
     # Must fail before any attempted semantic promotion, independently
     # of the stale range receipt digest.
     with pytest.raises(ValueError):
+        _verify(case)
+
+
+def test_forged_original_bin_offset_rejected_before_native_decode(monkeypatch, tmp_path):
+    case = _case(tmp_path)
+    def no_decoder(*a, **k):
+        raise AssertionError("native decoder must not start on mismatched source offsets")
+    monkeypatch.setattr(audit.subprocess, "run", no_decoder)
+    data = json.loads(case["receipt"].read_text())
+    data["physical_receipts"][0]["source_offset"] += 1
+    _write(case["receipt"], data)
+    with pytest.raises(ValueError, match="physical bytes no longer match"):
+        _verify(case)
+
+
+def test_remote_range_receipt_must_pin_source_url_and_206(monkeypatch, tmp_path):
+    case = _case(tmp_path)
+    monkeypatch.setattr(audit.subprocess, "run", _mock_run())
+    data = json.loads(case["receipt"].read_text())
+    data["version"] = "itir.zelph.pinned_hf_remote_bin_ranges.v1"
+    data.pop("physical_receipts")
+    data.pop("manifest_sha256_verified")
+    data.pop("route_sha256_verified")
+    data.pop("graph_revision_claim")
+    data.pop("all_selected_shards_equal_local_original_bin_packed_ranges")
+    data.update({
+        "selected_raw_remote_bin_ranges_equal_local_shard_bytes": True,
+        "manifest_raw_sha256": case["manifest_sha"],
+        "route_raw_sha256": sha256(case["route"].read_bytes()).hexdigest(),
+        "dataset_revision": REV,
+        "source_bin_url": (
+            "https://huggingface.co/datasets/acrion/zelph/resolve/"
+            + REV + "/" + ART + ".bin"
+        ),
+    })
+    rows = []
+    manifest = json.loads(case["manifest"].read_text())
+    for section in ("left", "right", "nameOfNode", "nodeOfName"):
+        item = manifest["sections"][section]["chunks"][0]
+        p = case["root"] / ART / "shards" / section / item["objectPath"].split("/")[-1]
+        size = item["length"]
+        rows.append({
+            "section": section,
+            "chunk_index": item["chunkIndex"],
+            "source_offset": item["offset"],
+            "source_end_inclusive": item["offset"] + size - 1,
+            "bytes_compared": size,
+            "equal_raw_sha256": sha256(p.read_bytes()).hexdigest(),
+            "range_http_status": 206,
+            "exact_content_range_verified": True,
+            "shard_object_uri": item["objectPath"],
+        })
+    data["receipts"] = rows
+    _write(case["receipt"], data)
+    assert _verify(case)["selected_object_count"] == 4
+
+    forged = json.loads(case["receipt"].read_text())
+    forged["source_bin_url"] = forged["source_bin_url"].replace(REV, "b" * 40)
+    _write(case["receipt"], forged)
+    with pytest.raises(ValueError, match="not immutable/pinned"):
+        _verify(case)
+
+    forged["source_bin_url"] = data["source_bin_url"]
+    forged["receipts"][0]["range_http_status"] = 200
+    _write(case["receipt"], forged)
+    with pytest.raises(ValueError, match="HTTP 206"):
         _verify(case)
