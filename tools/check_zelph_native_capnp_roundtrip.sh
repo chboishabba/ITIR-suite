@@ -34,6 +34,34 @@ COMMON=("$LINKER_FLAG" -std=c++17 -O2 -I "$CAPNP_ROOT")
   "$CAPNP_GENERATED" -lcapnp -lkj -o "$TMP/fixture"
 "$CXX" "${COMMON[@]}" tools/zelph_selected_packed_shard_decoder.cpp \
   "$CAPNP_GENERATED" -lcapnp -lkj -o "$TMP/decoder"
+"$CXX" "${COMMON[@]}" tools/zelph_bin_filtered_route_builder.cpp \
+  "$CAPNP_GENERATED" -lcapnp -lkj -o "$TMP/original-filtered-route"
+
+# The new --node frontier flag is explicit; reject nondecimal, signed IDs.
+# A valid numeric ID should reach the (intentionally absent) source bin,
+# not be rejected as an unknown argument.
+if "$TMP/original-filtered-route" --bin "$TMP/absent.bin" \
+  --output "$TMP/absent-route.json" --qid Q1 --node -1 \
+  >"$TMP/invalid.stdout" 2>"$TMP/invalid.stderr"; then
+  echo "BLOCKED: accepted negative numeric node ID" >&2
+  exit 3
+fi
+grep -q "nondecimal numeric frontier ID" "$TMP/invalid.stderr" || {
+  cat "$TMP/invalid.stderr" >&2
+  echo "BLOCKED: did not reject invalid numeric frontier at the parser" >&2
+  exit 3
+}
+if "$TMP/original-filtered-route" --bin "$TMP/absent.bin" \
+  --output "$TMP/absent-route.json" --qid Q1 --node 42 \
+  >"$TMP/valid.stdout" 2>"$TMP/valid.stderr"; then
+  echo "BLOCKED: unexpectedly found source .bin fixture" >&2
+  exit 3
+fi
+grep -q "failed to open source bin" "$TMP/valid.stderr" || {
+  cat "$TMP/valid.stderr" >&2
+  echo "BLOCKED: valid numeric source root did not reach source opening" >&2
+  exit 3
+}
 
 mkdir -p "$TMP/packed"
 "$TMP/fixture" "$TMP/packed"
