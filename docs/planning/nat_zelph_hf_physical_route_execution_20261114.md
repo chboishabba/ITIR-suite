@@ -65,6 +65,12 @@ The original Nat 57,989 historical statements and the 57-slot five-QID test rema
 | Z9 — SLR production | **Not performed** | Source-native SLR bundle, source/revision/GUID/proposition review, PG persisted S29 and selective reopen, Agda golden acceptance |
 | Z10 — NORA | **Not performed** | Actual canonical NORA export/fixture and decision round trip via existing ITIR/SLR contracts |
 
+## 2026-11-14 observed upstream manifest ABI correction
+
+The same local operator reported the live manifest's `manifestVersion` as numeric **`2`** with `storageMode: split-by-direction-and-section`. Prior ITIR [`build_shared_shard_contract_from_zelph_manifest`](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/itir-mcp/src/itir_mcp/shard_transport.py) instead required string `zelph-hf-layout/v*`. This was a **concrete latent production mismatch** independent of the missing route sidecar.
+
+[ITIR PR #14](https://github.com/chboishabba/ITIR-suite/pull/14) now source-implements compatibility for **only numeric 2 + exact published storage mode**, normalizing it to the internal `zelph-hf-layout/v2` contract; other numeric/layout combinations continue to fail closed. [Shape-specific regression tests](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/itir-mcp/tests/test_published_zelph_manifest_compat.py) are committed, but there is **no new native-run receipt for this patch**, and the fixture is based on the operator's live manifest field readback rather than a downloaded raw manifest in this audit. Raw live v2 interoperability still needs a network-enabled replay.
+
 ## 6. Minimum independent replay and promotion criteria
 
 1. Obtain **the actual raw** `build/receipts/nat_zelph_filtered_route_receipt.json`, the byte-identical filtered-route JSON and the source request/manifest used by the operator (not screenshots). Rehash both at the named SHA; inspect and compare route `source`, `nodeRoutes` and `qidToNodeOfNameChunks` to the manifest+direct shard evidence.
