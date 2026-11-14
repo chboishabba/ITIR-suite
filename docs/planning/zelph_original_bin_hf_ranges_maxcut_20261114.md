@@ -1,5 +1,20 @@
 # Same-original Zelph `.bin` ↔ selected HF shards — physical maximum-cut receipt (2026-11-14)
 
+## 15 November FLN ↔ original Zelph HF source and reviewer gate
+
+The separate [DASHI Ibrahim exact-lemma acceptance matrix](https://github.com/chboishabba/dashi_agda/blob/feat/ibrahim-fln-ternary-revision-maxcut-20261114/Docs/IbrahimFLNMaximumCutAcceptanceAndExactLemmas20261115.md) now lists the original-wikitext first-link edge, the selected Hyperfabric physical incidence and reviewed ITIR consumer as **three distinct original objects until a physical/source crosswalk is produced**. The native Zelph `nodeOfName`/QID/name graph does not, by itself, prove that a Wikipedia article's first qualifying hyperlink points to the same node, nor that its cross-language meaning was reviewed. Retain original page `oldid`, `pageid`, wikitext hash/selected span, original `.bin` offsets/digest and source→target adjacency in the joined receipt.
+
+**Current ITIR acceptance boundary:** the operator reported **58/58 earlier Python tests** and **32/32 new tests after two local corrections** at `bcbf7c3` (initial 23/32). The corrected worktree total is **90/90 locally**, and `clang++ -fuse-ld=lld` successfully compiled the native decoder. The subsequent physical hardening and real Cap'n Proto generator/decoder roundtrip are **source written but not yet clean-head executed**. ITIR #14 current source head when this crosswalk was written: `e64c04f`. No same-run original-source `.bin` ↔ selected shard comparison, published complete-name partition, A2 original/selected query-family closure, original P14143/P854/GUID, S29 persisted-review receipt or authentic Éder Porto NORA export was supplied to this assistant.
+
+**Next ordered deliverables:**
+1. Clean-head `bash tools/check_zelph_physical_maxcut_offline.sh`: 90 Python, native packed writer→reader roundtrip for all four sections and negative controls.
+2. Repeated original-range audit with `--source-bin` (only once), correct immutable chunk index/object filename, source offset/length, actual SHA, URI and HTTP 206 original-byte provenance; fail closed when unavailable.
+3. Complete original-name partition and actual decoded first-hop and query-family source/selected adjacency equality on a single dataset revision and physical manifest. No inferred global absence from an unvisited source graph.
+4. An independently retrieved original Wikipedia revision/selector span packet and explicit crosswalk if integrating FLN; source identity must be verified, not inferred from QID/name.
+5. Pass approved reviewer/consumer-specific result to existing SLR/S29 and SensibLaw NORA owners; retain original source views and recheck after persisted reload. No external edit is authorised by the tests.
+
+**Original attribution:** Zelph upstream data/shards are external; Ibrahim/Danforth/Dodds are original FLN method authors (DOI 10.1016/j.jocs.2016.12.001); the original sheaf-hypergraph model is due to Duta et al.; Éder Porto owns external NORA work. The crosswalk constraints are DASHI/ITIR integration governance and not a source data receipt.
+
 ## Exact-head offline gate CLOSED — 15 November 2026
 
 **Operator-reported clean execution:** ITIR PR #14 commit `e64c04f32f791502f6feccd3d918ece9a426c122`, command `bash tools/check_zelph_physical_maxcut_offline.sh`, clean tracked worktree, exit 0. **95/95 Python regression tests passed** across ten modules. Both C++ files compiled with `clang++ -fuse-ld=lld -std=c++17 -O2`; the generated upstream-schema packed fixture decoded **four** original Zelph section types correctly and rejected **five** wrong-direction/index/lang/trailer/empty-candidate controls. This supersedes the earlier 90/90 patched-worktree status as the latest offline source-level acceptance.
@@ -43,7 +58,6 @@ python tools/audit_zelph_native_selected_physical.py \
   --decoder tools/zelph_selected_packed_shard_decoder \
   --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
   --max-selected-gib "$MAX_GIB" \
-  --source-bin "$BIN" \
   --output /path/to/native-selected-physical-answer.json
 ```
 
