@@ -58,6 +58,32 @@ The route sidecar may be **incomplete by design**. Its absence or a miss is not 
 
 Upstream also states that the name-section `chunkIndex` is **section-global across languages**. For the published pruned-small artifact, Wikidata name chunks are indices 0–7 and English chunks 8–12 (per current upstream documentation). Chunk numbers are **artifact-local** and must be revalidated after regeneration.
 
+## 2026-11-14 implementation continuation — exact route MCP and reproducible HF probe
+
+**Golden / production / reference:** [DASHI Agda](https://github.com/chboishabba/dashi_agda) is the formal gold source, [SLR](https://github.com/chboishabba/slr/blob/main/docs/ROADMAP.md) is the Rust/PostgreSQL production owner, this ITIR MCP is the tool catalogue/integration layer, and [SensibLaw](https://github.com/chboishabba/SensibLaw) is historical Python reference. The [updated ITIR Wiki stories](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/docs/user_stories.md) now explicitly list existing tool ABIs and the exact-shard user story WIKI-US-05.
+
+**New read-only MCP endpoint on [ITIR PR #14](https://github.com/chboishabba/ITIR-suite/pull/14):** `itir.shard.exact_wikidata_name_route` calls [`exact_wikidata_name_route`](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/itir-mcp/src/itir_mcp/shard_transport.py). It uses a **caller-supplied pinned** `route_index`, requires a canonical `Q...`, exact `nodeOfName`/Wikidata language and unambiguous section-global indexed shard. This prevents the generic family's `routingKeys` fallback from masquerading as exact QID routing. Its output is an artifact-revision-bound **plan**; `payload_fetch=false`, `payload_decode=false`, `query_coverage_complete=false`.
+
+**Reproducible metadata-only probe:** [`tools/probe_zelph_hf_nat_routes.py`](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/tools/probe_zelph_hf_nat_routes.py) performs:
+
+1. GET `https://huggingface.co/api/datasets/acrion/zelph` with a bounded metadata cap and parse its immutable `sha`.
+2. GET the exact upstream-documented full (or `--artifact pruned-small`) HF manifest at `/resolve/<sha>/...`, hash the actual manifest response.
+3. Only fetch the **manifest-declared** `hfObjects.nodeRouteIndex.path`, pinned to the *same* SHA, then hash it. **Do not invent a sidecar filename.** If not advertised, return an explicit blocked result.
+4. Resolve five exact Nat QIDs: `Q10403939`, `Q10416948`, `Q10422059`, `Q10651551`, `Q56404383`. Emit per-QID exact-route or unresolved and the identity digests, with no payload download or authority claim.
+5. Fail closed if DNS/HTTP is unavailable, metadata exceeds bounds, a sidecar is absent, or a specific QID has no unique exact witness.
+
+Commands from an ITIR checkout:
+
+```sh
+python tools/probe_zelph_hf_nat_routes.py
+python tools/probe_zelph_hf_nat_routes.py --artifact pruned-small
+python -m pytest -q itir-mcp/tests/test_exact_wikidata_name_route.py tests/test_probe_zelph_hf_nat_routes.py
+```
+
+**Network status of this audit:** direct live HF dataset API and manifest reads were attempted on 2026-11-14. Browser retrieval could not access them, and the available container failed DNS resolution of `huggingface.co`. We therefore have **no actual dataset SHA, manifest byte digest, sidecar byte digest or live QID result** from this environment. The command is executable but its remote outcome is unverified; new test files have been committed but not executed in a native ITIR checkout here. The [upstream Zelph published docs](https://zelph.org/sharding/) do specify the canonical paths and revised cache/transfer behaviour, but are not substitute transport receipts.
+
+**Next separate gates:** no-fallback pinned physical shard GET, Cap'n Proto decode against the blessed Zelph binary, measured physical GET/bytes, query-family completeness and SLR source/S29 persisted review. All remain open until runtime receipts are collected.
+
 ## 4. What remains unverified, and the exact next probe
 
 The current GPT connector can read GitHub source but has **not** fetched the live HF metadata/binary blob and therefore does not certify the current manifest, route file, individual shard digests, CDN responses or live QID resolution.
