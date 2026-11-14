@@ -66,6 +66,37 @@ grep -q "failed to open source bin" "$TMP/valid.stderr" || {
 mkdir -p "$TMP/packed"
 "$TMP/fixture" "$TMP/packed"
 
+# Actually execute the SAME original-bin two-pass producer on a full
+# miniature source (not just its CLI parsing) with a named QID root and an
+# unnamed numeric node reached through the named root's left adjacency.
+"$TMP/original-filtered-route" --bin "$TMP/packed/original-small.bin" \
+  --output "$TMP/mini-original-route.json" --qid Q1 --node 8
+python3 - "$TMP/mini-original-route.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+route = json.loads(Path(sys.argv[1]).read_text())
+assert route["routeVersion"] == "zelph-filtered-route/v1"
+assert route["requestedQids"] == ["Q1"]
+assert route["qidToZelphNodeIds"] == {"Q1": 7}
+assert route["qidToNodeOfNameChunks"] == {"Q1": 0}
+assert route["additionalNumericNodes"] == [8]
+assert route["nodeRoutes"]["7"] == {"left": [0], "right": [0], "nameOfNode": [0]}
+assert route["nodeRoutes"]["8"] == {"left": [0], "right": [0], "nameOfNode": []}
+assert route["nodeAdjacency"]["7"]["left"] == [8, 9]
+assert route["nodeAdjacency"]["7"]["right"] == [10]
+assert route["nodeAdjacency"]["8"]["left"] == [11]
+assert route["nodeAdjacency"]["8"]["right"] == [12]
+for node_id in ("7", "8"):
+    row = route["nodeAdjacency"][node_id]
+    for direction in ("left", "right"):
+        assert row[direction + "Truncated"] is False
+assert route["completeQidResolution"] is True
+assert route["sourceBinToPublishedHfDatasetIdentityVerified"] is False
+print("PASS: native two-pass original mini-bin QID+numeric frontier route")
+PY
+
 python3 - "$TMP/decoder" "$TMP/packed" <<'PY'
 import json
 from pathlib import Path
