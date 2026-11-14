@@ -123,3 +123,40 @@ def test_full_route_materialization_is_rejected(tmp_path: Path) -> None:
         assert "full route" in str(exc)
     else:
         raise AssertionError("expected full-route materialization to fail")
+
+
+def test_receipt_rejects_payload_different_from_hashed_route_file(tmp_path: Path) -> None:
+    """The content-addressed bytes must be *the* route being interpreted."""
+    route = _route()
+    route_path = _write_route(tmp_path, route)
+    changed = json.loads(json.dumps(route))
+    changed["qidToZelphNodeIds"]["Q1"] = 999
+    try:
+        module.build_receipt(
+            request=_request(),
+            route=changed,
+            route_path=route_path,
+            actual_producer_commit="actual-commit",
+        )
+    except ValueError as exc:
+        assert "differs from hashed route file bytes" in str(exc)
+    else:
+        raise AssertionError("expected forged route interpretation to be rejected")
+
+
+def test_receipt_rejects_route_file_modified_after_parse(tmp_path: Path) -> None:
+    """Reject even if caller supplies a stale-but-otherwise-valid route."""
+    route = _route()
+    route_path = _write_route(tmp_path, route)
+    route_path.write_text(json.dumps({**route, "source": {"binPath": "/tmp/other.bin"}}))
+    try:
+        module.build_receipt(
+            request=_request(),
+            route=route,
+            route_path=route_path,
+            actual_producer_commit="actual-commit",
+        )
+    except ValueError as exc:
+        assert "differs from hashed route file bytes" in str(exc)
+    else:
+        raise AssertionError("expected byte-payload mismatch to fail")
