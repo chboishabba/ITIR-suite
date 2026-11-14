@@ -75,6 +75,8 @@ def _case(tmp_path: Path):
         "adjacencyOracleScope": "bounded-selected-roots-in-source-bin",
     }
     paths = {s: tmp_path / (s + ".json") for s in ("manifest", "route", "receipt")}
+    paths["source_bin"] = tmp_path / "original.bin"
+    paths["source_bin"].write_bytes(all_bytes)
     _write(paths["manifest"], manifest)
     _write(paths["route"], route)
     mdig = sha256(paths["manifest"].read_bytes()).hexdigest()
@@ -247,3 +249,49 @@ def test_remote_range_receipt_must_pin_source_url_and_206(monkeypatch, tmp_path)
     _write(case["receipt"], forged)
     with pytest.raises(ValueError, match="HTTP 206"):
         _verify(case)
+
+
+def test_same_run_local_original_bin_replay_upgrades_witness(monkeypatch, tmp_path):
+    case = _case(tmp_path)
+    monkeypatch.setattr(audit.subprocess, "run", _mock_run())
+    output = audit.verify_native_selected_shard_answer(
+        manifest_path=case["manifest"],
+        route_path=case["route"],
+        range_receipt_path=case["receipt"],
+        shard_root=case["root"],
+        decoder_executable=case["decoder"],
+        dataset_revision=REV,
+        manifest_sha256=case["manifest_sha"],
+        source_bin=case["source_bin"],
+    )
+    assert output["native_schema_decoder_executed"]
+    assert output["source_bin_range_equality_reverified_in_this_run"] is True
+    assert output["prior_range_receipt_is_trusted_without_replay"] is False
+
+
+def test_same_run_source_byte_mutation_fails_even_with_unchanged_receipt(monkeypatch, tmp_path):
+    case = _case(tmp_path)
+    def no_decoder(*a, **k):
+        raise AssertionError("source byte verification should fail before native decode")
+    monkeypatch.setattr(audit.subprocess, "run", no_decoder)
+    original = case["source_bin"].read_bytes()
+    case["source_bin"].write_bytes(original[:-1] + b"?")
+    with pytest.raises(ValueError, match="source .bin and shard bytes differ"):
+        audit.verify_native_selected_shard_answer(
+            manifest_path=case["manifest"],
+            route_path=case["route"],
+            range_receipt_path=case["receipt"],
+            shard_root=case["root"],
+            decoder_executable=case["decoder"],
+            dataset_revision=REV,
+            manifest_sha256=case["manifest_sha"],
+            source_bin=case["source_bin"],
+        )
+
+
+def test_default_receipt_only_decoding_does_not_claim_same_run_source_replay(monkeypatch, tmp_path):
+    case = _case(tmp_path)
+    monkeypatch.setattr(audit.subprocess, "run", _mock_run())
+    output = _verify(case)
+    assert output["source_bin_range_equality_reverified_in_this_run"] is False
+    assert output["prior_range_receipt_is_trusted_without_replay"] is False
