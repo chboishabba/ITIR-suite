@@ -71,6 +71,12 @@ The same local operator reported the live manifest's `manifestVersion` as numeri
 
 [ITIR PR #14](https://github.com/chboishabba/ITIR-suite/pull/14) now source-implements compatibility for **only numeric 2 + exact published storage mode**, normalizing it to the internal `zelph-hf-layout/v2` contract; other numeric/layout combinations continue to fail closed. [Shape-specific regression tests](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/itir-mcp/tests/test_published_zelph_manifest_compat.py) are committed, but there is **no new native-run receipt for this patch**, and the fixture is based on the operator's live manifest field readback rather than a downloaded raw manifest in this audit. Raw live v2 interoperability still needs a network-enabled replay.
 
+## Golden trie/ultrametric/hyperfabric maximum-cut owner
+
+The transport is a *physical representation* of existing DASHI indexed prefix/fibre/adequacy semantics. The canonical [DASHI golden maximum-cut](https://github.com/chboishabba/dashi_agda/blob/agent/nora-perspective-consumer-maxcut-20261114/Docs/ZelphTrieHyperfabricNatNoraMaximumCut20261114.md) gives A1–A6 original mathematical obligations, B1–B6 runtime/Agda bridge obligations and C1–C6 physical/production acceptance. Exact prefix agreement and trie residuals are **already formalised**; a certified **key→physical shard cover**, query-specific completeness, and revision-coherent hyperfabric gluing are **not yet**.
+
+The current 204-name-shard manifest and physical five-QID scan **are not assumed to be a balanced-ternary trie**. To exploit a trie/range index, demonstrate actual sort semantics and cross-chunk boundary coverage first. Otherwise use a correct section-global range map and keep the richer hyperfabric as the semantic overlay. `QID→nodeOfName` is not a native `P14143` statement. Do not build a second graph database or review store.
+
 ## 6. Minimum independent replay and promotion criteria
 
 1. Obtain **the actual raw** `build/receipts/nat_zelph_filtered_route_receipt.json`, the byte-identical filtered-route JSON and the source request/manifest used by the operator (not screenshots). Rehash both at the named SHA; inspect and compare route `source`, `nodeRoutes` and `qidToNodeOfNameChunks` to the manifest+direct shard evidence.
