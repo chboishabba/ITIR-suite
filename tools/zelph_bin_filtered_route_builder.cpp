@@ -17,6 +17,8 @@
 #include <kj/io.h>
 
 #include <cstdio>
+#include <cctype>
+#include <stdexcept>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -48,6 +50,8 @@ struct Args {
     std::filesystem::path output;
     std::string lang{"wikidata"};
     std::set<std::string> qids;
+    // Numeric source frontier roots are not fabricated Wikidata QIDs.
+    std::set<uint64_t> extra_numeric_nodes;
 };
 
 struct Header {
@@ -112,6 +116,18 @@ static Args parse_args(int argc, char** argv) {
         else if (arg == "--output") args.output = take("--output");
         else if (arg == "--lang") args.lang = take("--lang");
         else if (arg == "--qid") args.qids.insert(take("--qid"));
+        else if (arg == "--node") {
+            const std::string value = take("--node");
+            if (value.empty()) throw std::runtime_error("empty numeric node ID");
+            for (unsigned char ch : value) {
+                if (!std::isdigit(ch)) throw std::runtime_error("nondecimal numeric frontier ID");
+            }
+            size_t used = 0;
+            const auto parsed = std::stoull(value, &used, 10);
+            if (used != value.size()) throw std::runtime_error("invalid numeric frontier ID");
+            if (!args.extra_numeric_nodes.insert(parsed).second)
+                throw std::runtime_error("duplicate extra numeric frontier ID");
+        }
         else throw std::runtime_error("unknown argument: " + arg);
     }
     if (args.bin.empty() || args.output.empty()) throw std::runtime_error("--bin and --output are required");
@@ -280,6 +296,7 @@ int main(int argc, char** argv) {
         const auto qid_to_node = resolve_qids(args, options, first_header, node_of_name_chunks);
         std::set<uint64_t> target_nodes;
         for (const auto& entry : qid_to_node) target_nodes.insert(entry.second);
+        target_nodes.insert(args.extra_numeric_nodes.begin(), args.extra_numeric_nodes.end());
 
         Header second_header;
         const auto routes = resolve_routes(args, options, target_nodes, second_header);
@@ -304,6 +321,9 @@ int main(int argc, char** argv) {
         bool first = true;
         for (const auto& qid : args.qids) { if (!first) out << ","; first = false; out << "\"" << json_escape(qid) << "\""; }
         out << "],\n";
+        out << "  \"additionalNumericNodes\": ";
+        write_set(out, args.extra_numeric_nodes);
+        out << ",\n";
         out << "  \"qidToZelphNodeIds\": {";
         first = true;
         for (const auto& qid : args.qids) {
