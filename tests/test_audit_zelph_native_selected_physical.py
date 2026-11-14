@@ -266,7 +266,8 @@ def test_same_run_local_original_bin_replay_upgrades_witness(monkeypatch, tmp_pa
     )
     assert output["native_schema_decoder_executed"]
     assert output["source_bin_range_equality_reverified_in_this_run"] is True
-    assert output["prior_range_receipt_is_trusted_without_replay"] is False
+    assert output["prior_range_receipt_relied_on_without_fresh_source_bytes"] is False
+    assert output["original_bin_upstream_authenticity_proved"] is False
 
 
 def test_same_run_source_byte_mutation_fails_even_with_unchanged_receipt(monkeypatch, tmp_path):
@@ -294,4 +295,5 @@ def test_default_receipt_only_decoding_does_not_claim_same_run_source_replay(mon
     monkeypatch.setattr(audit.subprocess, "run", _mock_run())
     output = _verify(case)
     assert output["source_bin_range_equality_reverified_in_this_run"] is False
-    assert output["prior_range_receipt_is_trusted_without_replay"] is False
+    assert output["prior_range_receipt_relied_on_without_fresh_source_bytes"] is True
+    assert output["source_bin_route_oracle_recomputed_in_this_run"] is False
