@@ -1577,13 +1577,14 @@ Typical flow:
 - Discover `itir.zelph.hf_manifest_contract` and `itir.shard.exact_wikidata_name_route` from the MCP registry before using generic selectors or inventing a new route service.
 - Pin the [published HF manifest](https://zelph.org/sharding/) and its **manifest-advertised** sidecar by immutable dataset revision/digest. External QIDs use `route-name=Q... route-lang=wikidata`; `route-node` takes an artifact-local numeric ID, not a QID.
 - Require a unique `nodeOfName` + `lang=wikidata` route-to-section/chunk witness. A broad `routingKeys` family match does not establish exact routing.
+- When the manifest has **no advertised route sidecar**, do not synthesize one. The strict sidecar-based MCP tool stays blocked; an **independently executed direct Cap'n Proto name-chunk decoder** may establish an alternative **physical-witness** route, but its source SHA, downloaded shard bytes/digests, name/language/node IDs and chunk-to-manifest identities must be recorded and validated separately. This is not a successful sidecar-tool invocation.
 - Separate an exact shard *plan* from an executed shard fetch, Cap'n Proto decode, native Wikidata family observation and query-family completeness receipt.
 - Route candidate evidence through existing SLR recurrent acquisition and S29 review, preserving original QID, statement GUID, source revision, qualifier/reference and reviewer disposition.
 
 Acceptance criteria:
 - Offline MCP tests reject missing sidecars, language-confused QIDs, absent chunks, duplicate exact routes, non-QID values, and generic-family-only fallbacks.
-- A real current HF dataset SHA, manifest and route bytes, physical shard digest, direct decoded read and transfer budget are measured independently before declaring hosted acceptance.
+- A real current HF dataset SHA, manifest bytes and either **actual sidecar bytes** or **pinned physical name-chunk decode witnesses**, physical shard digests and transfer budget are measured before declaring hosted acceptance. A name-only route never proves full adjacency/query-family completeness.
 - A partial non-observation may remain unresolved or cause governed live fallback; it is never native `novalue`, source support, semantic truth or permission to edit.
 - The five-QID Nat regression cannot stand in for the historical 57,989-statement migration: population closure needs a composite `(QID, GUID)` inventory receipt.
 
-[ITIR implementation PR #14](https://github.com/chboishabba/ITIR-suite/pull/14) · [NORA handoff PR #514](https://github.com/chboishabba/SensibLaw/pull/514) · [DASHI golden boundary](https://github.com/chboishabba/dashi_agda/blob/master/DASHI/Interop/ZelphBoundedGraphCoverageExact.agda).
+[Reported five-QID physical route execution and source-binding gates](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/docs/planning/nat_zelph_hf_physical_route_execution_20261114.md) · [ITIR implementation PR #14](https://github.com/chboishabba/ITIR-suite/pull/14) · [NORA handoff PR #514](https://github.com/chboishabba/SensibLaw/pull/514) · [DASHI golden boundary](https://github.com/chboishabba/dashi_agda/blob/master/DASHI/Interop/ZelphBoundedGraphCoverageExact.agda).
