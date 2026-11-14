@@ -153,6 +153,23 @@ def verify_local_replay(
         and bool(request.get("request_ref")),
         "source request identity mismatch",
     )
+    _require(
+        receipt.get("route_source_identity") == route.get("source"),
+        "route source metadata differs from packaged route source identity",
+    )
+    producer_lineage = receipt.get("producer_lineage")
+    _require(
+        isinstance(producer_lineage, dict)
+        and isinstance(producer_lineage.get("actual_producer"), dict)
+        and bool(_SHA40.fullmatch(producer_lineage["actual_producer"].get("commit", "")))
+        and producer_lineage["actual_producer"].get("path")
+            == "tools/zelph_bin_filtered_route_builder.cpp",
+        "missing pinned actual route producer source identity",
+    )
+    _require(
+        receipt.get("network_performed") is False,
+        "receipt must report packager-local network status only",
+    )
 
     expected_qids = _qid_set(request.get("qids"), "request QIDs")
     _require(
