@@ -307,9 +307,28 @@ def build_shared_shard_contract_from_zelph_manifest(
     artifact_class: str = "zelph-graph",
 ) -> dict[str, Any]:
     data = _mapping(manifest, "manifest")
-    manifest_version = _required_str(data, "manifestVersion")
-    if not manifest_version.startswith("zelph-hf-layout/v"):
-        raise ValueError("manifestVersion must be zelph-hf-layout/v*")
+    raw_manifest_version = data.get("manifestVersion")
+    # Upstream published HF v2 manifests may encode this as numeric 2
+    # together with storageMode=split-by-direction-and-section, while
+    # historical ITIR-generated manifests use zelph-hf-layout/v2.
+    # Accept only the explicitly observed pair; do not generalize arbitrary
+    # integers or downgrade unknown layouts to v2.
+    if (
+        type(raw_manifest_version) is int
+        and raw_manifest_version == 2
+        and data.get("storageMode") == "split-by-direction-and-section"
+    ):
+        manifest_version = "zelph-hf-layout/v2"
+    elif (
+        isinstance(raw_manifest_version, str)
+        and raw_manifest_version.startswith("zelph-hf-layout/v")
+    ):
+        manifest_version = raw_manifest_version
+    else:
+        raise ValueError(
+            "unsupported Zelph manifestVersion/storageMode; expected "
+            "zelph-hf-layout/v* or numeric 2 with split-by-direction-and-section"
+        )
     sections = _mapping(data.get("sections"), "sections")
     selector_model = dict(data.get("selectorModel") or {})
     source = dict(data.get("source") or {})
