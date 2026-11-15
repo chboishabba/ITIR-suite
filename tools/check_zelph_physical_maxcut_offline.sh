@@ -29,6 +29,7 @@ PYTHONPATH=itir-mcp/src python3 -m pytest -q \
   tests/test_audit_zelph_original_packed_partition.py \
   tests/test_verify_zelph_hf_original_header.py \
   tests/test_probe_zelph_hf_original_metadata.py \
+  tests/test_run_zelph_hf_connector_maxcut.py \
   tests/test_run_zelph_local_physical_maxcut.py \
   tests/test_acquire_pinned_source_bytes.py \
   tests/test_run_zelph_live_cohort.py \
