@@ -161,9 +161,13 @@ void print_adj_chunk(
     for (auto pair : chunk.getPairs()) {
         const uint64_t id = pair.getNode();
         if (args.nodes.count(id) == 0) continue;
-        if (seen.count(id))
-            throw std::runtime_error("duplicate same-node row in packed adjacency shard");
-        SelectedAdjacency row;
+        // The original whole-.bin filtered-route builder allows more than
+        // one native AdjPair for the same node within or across chunks,
+        // unions all neighbour values, and counts every occurrence. Match
+        // those SAME original semantics instead of treating a repeated row
+        // as a missing/invalid source. Do not silently drop duplicate values
+        // or claim exact coverage when the bounded unique set truncates.
+        auto& row = seen[id];
         row.node_id = id;
         for (uint64_t other : pair.getAdj()) {
             ++row.values_seen;
@@ -174,7 +178,6 @@ void print_adj_chunk(
                 row.truncated = true;
             }
         }
-        seen.emplace(id, std::move(row));
     }
     std::cout << ",\"rows\":[";
     bool first = true;
