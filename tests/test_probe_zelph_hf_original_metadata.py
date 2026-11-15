@@ -149,3 +149,31 @@ def test_forged_plan_revision_or_download_list_fails_closed(tmp_path):
             plan=bad, local_dir=local, receipt_dir=receipts,
             native_header_decoder=decoder, run_download=forbid,
         )
+
+
+def test_detached_header_json_digest_cannot_be_promoted(tmp_path):
+    plan, local, receipts = _plan(tmp_path)
+    decoder = tmp_path / "probe"
+    decoder.touch()
+    def fake_download(argv, *, check, timeout):
+        for relative in (plan["manifest_relative_path"],
+                         plan["original_offset_index_relative_path"]):
+            path = local / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text('{"fixture":"metadata"}')
+    def forged_header(**kwargs):
+        kwargs["raw_header_output"].write_bytes(b"changed-header")
+        return {
+            "native_original_header_matches_all_four_section_counts": True,
+            "original_source_http_status": 206,
+            "header_bytes_received": len(b"changed-header"),
+            "header_raw_sha256": "a"*64,
+            "edit_authority": False,
+        }
+    with pytest.raises(ValueError, match="not bound to retained raw source bytes"):
+        execute_metadata_header_probe(
+            plan=plan, local_dir=local, receipt_dir=receipts,
+            native_header_decoder=decoder,
+            run_download=fake_download, run_header_check=forged_header,
+        )
+    assert not (receipts / "original-header-proof.json").exists()
