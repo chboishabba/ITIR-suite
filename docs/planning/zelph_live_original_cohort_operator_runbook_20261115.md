@@ -1,5 +1,29 @@
 # Original Zelph → native Wikibase → SLR source review: physical operator runbook
 
+## 15 November — P0-S chunk 0 REAL original-source equality; bounded all-name-section max-cut
+
+**Operator live PASS at ITIR #14 `858cfea1`: 302/302 Python and original-schema native C++ roundtrip PASS.** Source pinned to `acrion/zelph` revision `0d4bd670959ebddae72f70d973410fdea8917ec1`, manifest raw SHA `cedd5cf0e4951ae1aa7c2c5968614b0eb72a4c3b5c8b2dc4ab18c40be8c83f59`, index raw SHA `89f7ccac888e9e7db09b349cef246e725d969f07d4280142c325e96e12a30d77`. **Actual P0-S physical witness:** published `nodeOfName` chunk 0, `22,755,697` bytes, original `.bin` HTTP 206 range `79284085471-79306841167`, both raw SHA256 `0bbfc205a26caeb8a0daf5e1b265cc10a0895d43e5c7828c0c4ad8109efc8508`, byte-for-byte identity. P0-H live header evidence retained separately. No whole 82 GiB original downloaded.
+
+**Next coherent bite already source-written:** `tools/audit_zelph_hf_name_section_bytes.py` enumerates the actual whole original manifest/index name-section chunk domain, verifies each already-retained independent chunk receipt against section, chunk index, immutable manifest/index/revision, original byte offset/length and matching source/shard SHA256, schedules only missing chunks under both per-object and cumulative network caps, and writes a new immutable per-chunk receipt via existing `verify_zelph_hf_direct_original_chunk.py`. Re-running resumes safely: no duplicate physical requests for validated receipts. Default is dry-run, `--execute` required. Existing direct chunk 0 receipt can be copied to a matching **new** canonical filename under `--receipts-dir` if the original file bytes remain intact.
+
+**Example plan (zero network):**
+
+    REV=0d4bd670959ebddae72f70d973410fdea8917ec1
+    MANIFEST_SHA=cedd5cf0e4951ae1aa7c2c5968614b0eb72a4c3b5c8b2dc4ab18c40be8c83f59
+    INDEX_SHA=89f7ccac888e9e7db09b349cef246e725d969f07d4280142c325e96e12a30d77
+    RUN=/tmp/zelph-new-p0-evidence
+    M="$RUN/metadata/wikidata-20260309-all/wikidata-20260309-all.hf-v2.json"
+    I="$RUN/metadata/wikidata-20260309-all/artifact.index.json"
+    RECEIPTS="$RUN/nodeOfName-physical-receipts"
+    mkdir -p "$RECEIPTS"
+    cp -n "$RUN/direct-nodeOfName-0.json" "$RECEIPTS/nodeOfName-000000.json"
+    python3 tools/audit_zelph_hf_name_section_bytes.py --manifest "$M" --original-index "$I" --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" --original-index-sha256 "$INDEX_SHA" --section nodeOfName --receipts-dir "$RECEIPTS" --max-chunk-mib 128 --max-transfer-mib 512 --max-new-chunks 4
+
+**Bounded physical execution:** use the same command with `--execute` and rerun as often as the intended transfer budget allows; each invocation will skip validated receipts and select the next four missing chunks (or fewer within the 512 MiB combined published-shard + original-range budget). An object larger than 128 MiB is deferred, not silently fetched; increase a cap explicitly to cover its exact manifest-declared length. Keep output files if reporting (`--output`) distinct/unique between invocations. A failure leaves already-written valid chunk receipts but does not produce a false complete-section summary.
+
+**Interpretation:** `all_name_section_packed_payload_bytes_verified=true` is permitted only after independently matching every exact published packed shard to its original HTTP206 `.bin` range for the *chosen section*. It is still **not** `all_native_name_rows_decoded`, uniqueness, full list-fibre closure, or the Agda A1 original name-domain theorem. To reach A1, close both name sections as applicable; separately implement trusted native packed-row exhaustive enumeration across all sections, preserve duplicates/collisions, prove decoded row domain matches source name records and transport into the Agda `CompleteNameShardFibre` premises. These remain OPEN.
+
+
 ## 15 November 2026: P0 existing itir-mcp HF connector is the sole physical transport owner
 
 **Supersedes prior P0 metadata/shard acquisition via separate HF CLI or duplicated HTTP in tools.** Strict pinned physical API owner: itir-mcp/src/itir_mcp/shard_transport.py, functions fetch_pinned_zelph_object and open_pinned_zelph_range. The existing bounded preview APIs remain backward compatible and DO NOT prove complete source byte equality.
