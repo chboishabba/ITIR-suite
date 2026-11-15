@@ -129,7 +129,7 @@ python3 tools/audit_zelph_native_name_fibres.py \
   --output "$RUN/a1-first-four-chunks.json"
 ```
 
-**Expected:** nonzero exact original `nodeOfName` row counts, four positive
+**Expected:** nonzero exact original `nodeOfName` row counts, five positive QID
 root replays (three chunks covering five QIDs), collision-preserving
 `(name,node)` rows in SQLite; **`all_original_name_key_fibres_verified=false`**
 and `both_source_name_sections_pair_multiplicities_equal=null` because
