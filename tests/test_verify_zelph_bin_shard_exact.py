@@ -246,3 +246,80 @@ def test_extra_numeric_route_cannot_omit_its_original_source_node(tmp_path):
     _save(paths["route"], route)
     with pytest.raises(ValueError, match="node route domain"):
         _verify(paths)
+
+
+# Real upstream emitter dialect from acrion/zelph/tools/emit_zelph_hf_v2.py:
+# manifestVersion="zelph-hf-layout/v2", storageMode="multi-object-shards",
+# sourceOffset/sourceRange, nested object, source.binPath, section chunkCounts.
+def _upstream_fixture(paths: dict) -> dict:
+    obj = json.loads(paths["manifest"].read_text())
+    header_bytes = len(b"header-payload")
+    original_size = paths["bin"].stat().st_size
+    obj["manifestVersion"] = "zelph-hf-layout/v2"
+    obj["storageMode"] = "multi-object-shards"
+    obj["transport"] = {"primary": "hf-object-fetch"}
+    obj["source"] = {
+        "binPath": f"hf://datasets/acrion/zelph/{ARTIFACT}.bin",
+        "binSizeBytes": original_size,
+        "headerLengthBytes": header_bytes,
+        "totalChunkCount": 4,
+        "totalChunkBytes": original_size - header_bytes,
+    }
+    for name, section in obj["sections"].items():
+        section["chunkCount"] = len(section["chunks"])
+        section["totalBytes"] = sum(row["length"] for row in section["chunks"])
+        for row in section["chunks"]:
+            offset = row.pop("offset")
+            row["sourceOffset"] = offset
+            row["sourceRange"] = f"bytes={offset}-{offset + row['length'] - 1}"
+            row["object"] = {
+                "path": row["objectPath"], "mediaType": "application/octet-stream",
+                "sizeBytes": row["length"],
+            }
+    _save(paths["manifest"], obj)
+    paths["manifest_sha"] = sha256(paths["manifest"].read_bytes()).hexdigest()
+    return obj
+
+
+def test_real_upstream_hf_v2_manifest_abi_matches_original_packed_bytes(tmp_path):
+    paths = _fixture(tmp_path)
+    upstream = _upstream_fixture(paths)
+    result = _verify(paths)
+    assert result["selected_object_count"] == 4
+    assert result["all_selected_shards_equal_local_original_bin_packed_ranges"] is True
+    assert upstream["manifestVersion"] == "zelph-hf-layout/v2"
+    assert upstream["sections"]["left"]["chunks"][0]["sourceOffset"] == len(b"header-payload")
+    assert result["original_bin_upstream_authenticity_proved"] is False
+
+
+@pytest.mark.parametrize("mutate,reason", [
+    ("wrong_source_bin", "source.binPath"),
+    ("mismatched_sourceRange", "sourceRange"),
+    ("wrong_nested_object", "nested object"),
+    ("wrong_total_chunks", "total chunk count"),
+    ("wrong_section_count", "section size/count"),
+    ("wrong_sourceOffset", "bytes differ"),
+])
+def test_upstream_hf_v2_consistency_and_tamper_rejected(tmp_path, mutate, reason):
+    paths = _fixture(tmp_path)
+    obj = _upstream_fixture(paths)
+    entry = obj["sections"]["left"]["chunks"][0]
+    if mutate == "wrong_source_bin":
+        obj["source"]["binPath"] = "hf://datasets/evil/zelph/source.bin"
+    elif mutate == "mismatched_sourceRange":
+        entry["sourceRange"] = "bytes=1000000-1000003"
+    elif mutate == "wrong_nested_object":
+        entry["object"]["path"] = "hf://datasets/evil/zelph/bad.bin"
+    elif mutate == "wrong_total_chunks":
+        obj["source"]["totalChunkCount"] += 1
+    elif mutate == "wrong_section_count":
+        obj["sections"]["right"]["chunkCount"] += 1
+    else:
+        entry["sourceOffset"] += 1
+        entry["sourceRange"] = (
+            f"bytes={entry['sourceOffset']}-"
+            f"{entry['sourceOffset'] + entry['length'] - 1}"
+        )
+    _save(paths["manifest"], obj)
+    with pytest.raises(ValueError, match=reason):
+        _verify(paths, manifest_sha=sha256(paths["manifest"].read_bytes()).hexdigest())
