@@ -142,6 +142,7 @@ def run_a2_round(
     if len(family["queries"]) > 10000:
         raise ValueError("original finite query family exceeds fixed row count")
     labels = set()
+    contracts = set()
     for item in family["queries"]:
         if not isinstance(item, dict):
             raise ValueError("finite original LR query entry must be object")
@@ -153,6 +154,10 @@ def run_a2_round(
                        for direction in word)):
             raise ValueError("unrecognised finite original LR query word, QID or duplicate label")
         labels.add(label)
+        key=(qid,tuple(word))
+        if key in contracts:
+            raise ValueError("duplicate original QID/relation-word cannot be a separate finite endpoint")
+        contracts.add(key)
     if len(set(roots.values())) > 256:
         raise ValueError("overlarge source-native positive root set")
     geometry = verify_index_manifest_files(
