@@ -18,6 +18,8 @@ import re
 import subprocess
 import sys
 from typing import Any, Callable
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'itir-mcp' / 'src'))
+from itir_mcp.shard_transport import fetch_pinned_zelph_object
 
 from verify_zelph_hf_original_header import verify_pinned_original_header
 
@@ -53,6 +55,8 @@ def plan_metadata_header_probe(*, dataset_revision: str, manifest_sha256: str,
         "manifest_relative_path": _MANIFEST_REL,
         "original_offset_index_relative_path": _INDEX_REL,
         "hf_download_argv": command,
+        "primary_transport_owner": "itir_mcp.shard_transport",
+        "connector_will_fetch_exact_metadata": True,
         "header_raw_receipt_path": str(receipt_dir / "original-header.capnp-packed"),
         "header_proof_receipt_path": str(receipt_dir / "original-header-proof.json"),
         "selected_file_count": 2,
@@ -68,7 +72,8 @@ def execute_metadata_header_probe(*, plan: dict[str, Any], local_dir: Path,
                                   receipt_dir: Path, native_header_decoder: Path,
                                   original_index_sha256: str | None = None,
                                   timeout_seconds: int = 900,
-                                  run_download: Callable[..., Any] = subprocess.run,
+                                  run_download: Callable[..., Any] | None = None,
+                                  fetch_object: Callable[..., dict] | None = None,
                                   run_header_check: Callable[..., dict] = verify_pinned_original_header,
                                   **header_kwargs: Any) -> dict[str, Any]:
     if type(timeout_seconds) is not int or not 1 <= timeout_seconds <= 3600:
@@ -89,12 +94,39 @@ def execute_metadata_header_probe(*, plan: dict[str, Any], local_dir: Path,
     ]
     if argv != expected_argv:
         raise ValueError("metadata download plan attempts non-approved HF files or revision")
-    run_download(argv, check=True, timeout=timeout_seconds)
     manifest = local_dir / _MANIFEST_REL
     index = local_dir / _INDEX_REL
+    if run_download is not None:
+        # Backward-compatible deterministic injection seam for existing offline
+        # acceptance; production never shells out to hf/download.
+        run_download(argv, check=True, timeout=timeout_seconds)
+    else:
+        fetcher = fetch_object or fetch_pinned_zelph_object
+        for relative, target in ((_MANIFEST_REL, manifest), (_INDEX_REL, index)):
+            if target.exists() or target.is_symlink():
+                raise ValueError("refuse overwrite existing immutable source metadata")
+            proof = fetcher(
+                hf_uri=f"hf://datasets/acrion/zelph/{relative}",
+                revision=plan["dataset_revision"], max_bytes=16 * 1024 * 1024,
+                timeout=min(timeout_seconds, 600),
+            )
+            data = proof.get("bytes")
+            if (type(data) is not bytes or not 0 < len(data) <= 16 * 1024 * 1024
+                    or sha256(data).hexdigest() != proof.get("sha256")
+                    or proof.get("whole_object_observed") is not True):
+                raise ValueError("HF connector did not return verified complete source metadata bytes")
+            if (relative == _MANIFEST_REL
+                    and proof["sha256"] != plan["manifest_sha256_expected"]):
+                raise ValueError("pinned source manifest digest mismatch")
+            if (relative == _INDEX_REL and original_index_sha256 is not None
+                    and proof["sha256"] != original_index_sha256):
+                raise ValueError("pinned original index digest mismatch")
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with target.open("xb") as out:
+                out.write(data)
     for path in (manifest, index):
         if not path.is_file() or not 0 < path.stat().st_size <= 16 * 1024 * 1024:
-            raise ValueError("immutable metadata download did not produce bounded raw files")
+            raise ValueError("immutable metadata transfer did not produce bounded raw files")
     result = run_header_check(
         manifest_path=manifest, index_path=index,
         manifest_sha256=plan["manifest_sha256_expected"],
@@ -117,7 +149,8 @@ def execute_metadata_header_probe(*, plan: dict[str, Any], local_dir: Path,
         raise ValueError("original header receipt is not bound to retained raw source bytes")
     receipt = {
         **result,
-        "metadata_hf_cli_invoked": True,
+        "metadata_hf_cli_invoked": run_download is not None,
+        "metadata_itir_hf_connector_invoked": run_download is None,
         "metadata_network_transfer_measured": False,
         "whole_original_bin_downloaded": False,
         "selected_original_chunk_payloads_compared": False,
