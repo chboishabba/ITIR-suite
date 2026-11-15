@@ -20,6 +20,7 @@ from hashlib import sha256
 import json
 from pathlib import Path
 import re
+import shutil
 import sqlite3
 import subprocess
 import sys
@@ -178,9 +179,18 @@ def original_name_plan(*, manifest: Path, original_index: Path,
 
 def _validated_native_frame(frame: dict, *, section: str, chunk: int,
                             expected_row_index: int, done: bool) -> tuple[str, Any]:
-    if (frame.get("section") != section or frame.get("chunk_index") != chunk
+    if (frame.get("section") != section
+            or type(frame.get("chunk_index")) is not int
+            or frame["chunk_index"] != chunk
             or frame.get("language") != "wikidata"):
         raise ValueError("native name row/terminal section and language mismatch")
+    expected_keys = (
+        {"version","section","chunk_index","language","rows_emitted","candidate_only","authority"}
+        if done else
+        {"version","section","chunk_index","language","row_index","name","node_id"}
+    )
+    if set(frame) != expected_keys:
+        raise ValueError("native original name row has extra/missing fields")
     if done:
         if (frame.get("version") != _END_VERSION or
                 type(frame.get("rows_emitted")) is not int or
@@ -208,7 +218,13 @@ def _stream_native_chunk(conn: sqlite3.Connection, *, entry: dict,
     if (type(max_rows) is not int or not 0 < max_rows <= 100000000
             or type(timeout_seconds) is not int or not 0 < timeout_seconds <= 7200):
         raise ValueError("positive bounded original native row/decoder budgets required")
-    cmd = [str(decoder), "--file", entry["packed_shard"],
+    if shutil.which("timeout") is None:
+        raise ValueError("coreutils timeout required for bounded native A1 streaming")
+    # A wall-clock kill guard covers stdout.readline() and EOF reads too;
+    # subprocess.wait(timeout=...) alone cannot time-limit a blocked pipe.
+    cmd = ["timeout", "--signal=TERM", "--kill-after=10s",
+           f"{timeout_seconds}s", str(decoder),
+           "--file", entry["packed_shard"],
            "--section", section, "--chunk-index", str(chunk),
            "--lang", "wikidata", "--stream-name-rows",
            "--max-name-rows", str(max_rows)]
