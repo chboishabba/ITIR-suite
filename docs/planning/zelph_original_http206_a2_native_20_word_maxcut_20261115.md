@@ -1,5 +1,24 @@
 # Zelph A2 original HTTP206 → native left/right → declared 20-word maximum cut
 
+## 15 November source-original A2-B key-filter / candidate replay follow-up
+
+The older full 984+984 section-native scanner below remains an exact but
+expensive reference implementation. The [new source-original A2-B operator
+maximum cut](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/docs/planning/zelph_original_lr_bloom_sparse_a2_maxcut_20261115.md)
+adds genuine upstream Cap'n Proto key-only Bloom membership extraction,
+original HTTP206/decoder/bitmap-pinned complete-shard receipts,
+candidate-only native adjacency replay and direct 20-word closure support.
+It is safe with the operator's currently physically accepted
+`left:5`, `right:1`, `right:983`, but will report UNKNOWN outside
+these three source-equal chunks. No numeric node-ID range is inferred
+because upstream adjacency serialization iterates an unordered segmented
+map. Full 984+984 source membership cover or a separately certified
+same-original route index remains mandatory to close selected original
+one-hop adjacency. The new source and Agda edge-equivalence weld
+need fresh exact-head tests.
+
+---
+
 ## 15 Nov — reuse audit: Agda golden + upstream Zelph routed HF / historical logs BEFORE 1,968 original adjacency scans
 
 **Why this matters:** The source-first A2 full-scan fallback is *valid as a physical witness but not the architecture's cheapest/default query plan*. Before burning 984+984 original HTTP206 adjacency chunk comparisons, reuse the prior authoring and its historical acceptance logs. The original graph has UNSORTED left/right chunk node keys: neither chunk number nor node ID range gives routes. A genuine same-artifact complete node-route index can select exact candidate original chunks and justify a much cheaper declared finite query family. A previous v3 artifact's route sidecar is not proof about a different full `.bin`.
