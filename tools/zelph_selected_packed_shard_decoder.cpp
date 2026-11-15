@@ -26,6 +26,7 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <utility>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -45,6 +46,8 @@ struct Args {
     size_t max_neighbors{kMaxNeighborsDefault};
     bool stream_name_rows{false};
     uint64_t max_name_rows{10000000};
+    bool adjacency_bloom{false};
+    uint64_t max_key_rows{2000000};
 };
 
 std::string escaped(std::string_view value) {
@@ -100,6 +103,13 @@ Args parse_args(int argc, char** argv) {
         else if (flag == "--node") args.nodes.insert(parse_number(next(), "node"));
         else if (flag == "--qid") args.qids.insert(next());
         else if (flag == "--stream-name-rows") args.stream_name_rows = true;
+        else if (flag == "--adjacency-bloom") args.adjacency_bloom = true;
+        else if (flag == "--max-key-rows") {
+            auto n = parse_number(next(), "max-key-rows");
+            if (n == 0 || n > 100000000)
+                throw std::runtime_error("invalid bounded adjacency key count");
+            args.max_key_rows = n;
+        }
         else if (flag == "--max-name-rows") {
             auto n = parse_number(next(), "max-name-rows");
             if (n == 0 || n > 100000000)
@@ -120,7 +130,13 @@ Args parse_args(int argc, char** argv) {
     }
     if (!std::filesystem::is_regular_file(args.file))
         throw std::runtime_error("packed shard file absent");
-    if (args.stream_name_rows) {
+    if (args.stream_name_rows && args.adjacency_bloom)
+        throw std::runtime_error("original name streaming and adjacency bloom are disjoint modes");
+    if (args.adjacency_bloom) {
+        if ((args.section != "left" && args.section != "right")
+            || !args.qids.empty() || !args.nodes.empty())
+            throw std::runtime_error("native original adjacency bloom requires one whole direction chunk and no selectors");
+    } else if (args.stream_name_rows) {
         if ((args.section != "nodeOfName" && args.section != "nameOfNode")
                 || !args.qids.empty() || !args.nodes.empty())
             throw std::runtime_error("name-row streaming requires name section and no selectors");
@@ -278,6 +294,57 @@ uint64_t stream_all_native_name_rows(
     return count;
 }
 
+
+constexpr uint64_t kAdjBloomBits = 1ull << 24;
+constexpr uint64_t kAdjBloomMask = kAdjBloomBits - 1;
+constexpr size_t kAdjBloomBytes = static_cast<size_t>(kAdjBloomBits / 8);
+
+uint64_t adjacency_bloom_mix(uint64_t input) {
+    input += 0x9e3779b97f4a7c15ull;
+    input = (input ^ (input >> 30)) * 0xbf58476d1ce4e5b9ull;
+    input = (input ^ (input >> 27)) * 0x94d049bb133111ebull;
+    return input ^ (input >> 31);
+}
+
+void write_le_u32(uint32_t number) {
+    for (int shift = 0; shift < 32; shift += 8)
+        std::cout.put(static_cast<char>((number >> shift) & 0xff));
+}
+void write_le_u64(uint64_t number) {
+    for (int shift = 0; shift < 64; shift += 8)
+        std::cout.put(static_cast<char>((number >> shift) & 0xff));
+}
+
+// Complete original source-native AdjChunk membership sketch. A Bloom
+// negative is exact (under validated decoder and full original byte witness);
+// a positive is only a CANDIDATE and MUST be replayed against the genuine
+// original native shard. Because the upstream adjacency map is unordered,
+// no guessed numeric node ranges or modulo/ordinal chunk routes are used.
+std::pair<std::vector<unsigned char>, uint64_t>
+build_native_original_adjacency_bloom(
+    capnp::PackedMessageReader& reader, const Args& args
+) {
+    auto chunk = reader.getRoot<zelph::network::AdjChunk>();
+    if (std::string(chunk.getWhich().cStr()) != args.section ||
+        chunk.getChunkIndex() != args.chunk_index)
+        throw std::runtime_error("original adjacency bloom direction/chunk mismatch");
+    std::vector<unsigned char> bitmap(kAdjBloomBytes, 0);
+    uint64_t count = 0;
+    for (auto pair : chunk.getPairs()) {
+        if (++count > args.max_key_rows)
+            throw std::runtime_error("original native adjacency bloom row count exceeds bound");
+        const uint64_t node = pair.getNode();
+        const uint64_t h1 = adjacency_bloom_mix(node ^ 0x243f6a8885a308d3ull);
+        const uint64_t h2 = adjacency_bloom_mix(node ^ 0x13198a2e03707344ull) | 1ull;
+        for (uint64_t i = 0; i < 7; ++i) {
+            const uint64_t bit = (h1 + i * h2) & kAdjBloomMask;
+            bitmap[static_cast<size_t>(bit >> 3)] |=
+                static_cast<unsigned char>(1u << (bit & 7));
+        }
+    }
+    return {std::move(bitmap), count};
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -292,9 +359,14 @@ int main(int argc, char** argv) {
             options.traversalLimitInWords = 1ull << 32;
             options.nestingLimit = 128;
             uint64_t rows_streamed = 0;
+            std::vector<unsigned char> bloom;
             {
                 capnp::PackedMessageReader message(buffered, options);
-                if (args.stream_name_rows) {
+                if (args.adjacency_bloom) {
+                    auto built = build_native_original_adjacency_bloom(message, args);
+                    bloom = std::move(built.first);
+                    rows_streamed = built.second;
+                } else if (args.stream_name_rows) {
                     rows_streamed = stream_all_native_name_rows(message, args);
                 } else {
                     std::cout << "{\"version\":\"itir.zelph.selected_native_capnp_decode.v1\""
@@ -313,7 +385,25 @@ int main(int argc, char** argv) {
             kj::byte extra;
             if (buffered.tryRead(&extra, 1, 1) != 0)
                 throw std::runtime_error("unexpected trailing bytes after packed shard");
-            if (args.stream_name_rows) {
+            if (args.adjacency_bloom) {
+                // The entire bloom is emitted ONLY after the original packed
+                // message passes the exact EOF/zero-trailer verification.
+                // Binary v1: magic[8], uint32 chunk LE, 4 option bytes,
+                // bitmap[2^21], magic[8], uint64 row_count LE.
+                std::cout.write("ZLBLOOM1", 8);
+                write_le_u32(args.chunk_index);
+                std::cout.put(args.section == "left" ? '\0' : '\1');
+                std::cout.put('\7');
+                std::cout.put('\30'); // 24 decimal: bitmap size = 2^24 bits
+                std::cout.put('\0');
+                std::cout.write(reinterpret_cast<const char*>(bloom.data()),
+                                static_cast<std::streamsize>(bloom.size()));
+                std::cout.write("ZLBEND01", 8);
+                write_le_u64(rows_streamed);
+                std::cout.flush();
+                if (!std::cout)
+                    throw std::runtime_error("native original adjacency bloom output failure");
+            } else if (args.stream_name_rows) {
                 // Only after EXACT packed-message EOF can a caller accept
                 // the complete stream as an exhaustive native chunk decode.
                 std::cout << "{\"version\":\"itir.zelph.native_original_name_rows_end.v1\""
