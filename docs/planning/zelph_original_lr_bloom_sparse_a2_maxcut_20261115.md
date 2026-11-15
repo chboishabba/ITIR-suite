@@ -1,5 +1,26 @@
 # Zelph original A2-B maximum cut: authentic Bloom candidate routing without a full original .bin
 
+## A2-B1 physical-filter evidence crosswalk — three original shards DONE, full A2-B2 still OPEN
+
+**Additional already-produced local operator receipts, recovered from the contemporaneous A2-B execution rather than re-executed by this documentation commit.** The previous A2-B0 acceptance block immediately below mentions generating the first three Bloom files as a next step; this paragraph **supersedes that particular stale instruction.**
+
+Native A2-B decoder: `/tmp/zelph-new-original-name-evidence/native-a2b/selected-decoder`, SHA-256 `debaca4bd4fe08a16c446e65751fe999a0f8d82e49dce2a5f3619b452678eef7`. Actual retained operator build receipt: `/tmp/zelph-new-original-name-evidence/a2b-build-batch01.json`.
+
+| Directional original chunk | Bloom wire bytes | Actual native source key rows | Physical original-equal source chunk SHA-256 |
+|---|---:|---:|---|
+| `left:5` | 2,097,184 | 1,000,000 | `d4ae3f77c9b6a48d3380ceeb8499d26783dc8db3d85b21949ff0cb1b9431df95` |
+| `right:1` | 2,097,184 | 741,648 | `58a1ee68b69da3fb8d2038741aa2a944208a0005a7fa8331fa55e8c14d9b626d` |
+| `right:983` | 2,097,184 | 682,972 | `6e0b7596ff503ee82424b94f6f3630f9d9e79e605d33682ef1764ebc3b6dcf88` |
+
+**Aggregate: 3 physical source-bound Bloom filters, 6,291,552 output bytes, 2,424,620 actual native key rows.** The five original-positive QID roots `Q10403939`, `Q10416948`, `Q10422059`, `Q10651551`, `Q56404383` produced empty **candidate chunk index lists among those three verified filter chunks only**. The query receipt correctly reported `all_original_adjacency_blooms_completed=false`. It does **not** assert no original neighbours, no source row in the remaining chunks, or full 20-word closure.
+
+This establishes **A2-B1's three-chunk live pilot** with actual native filter files and evidence, not just synthetic ABI roundtrip. The next high-alpha physical gate is **A2-B2: verify/index the other 1,965 original left/right chunks (or authenticate a complete alternative same-original source route certificate)**; then A2-B3 selects and natively decodes Bloom-positive frontier chunks to instantiate the conditional Agda theorem. A2-B0 and pilot B1 do not waive the global coverage or decoder/refinement premises.
+
+The individual per-filter Bloom digests were supplied only in abbreviated form in the contemporaneous operator summary; do not invent full digests in repository documentation. The receipt path above is local operator evidence, not a versioned file committed in this repository. Independently rerunning the physical gate requires access to those retained local files and source receipt bytes.
+
+---
+
+
 ## Operator exact-head acceptance — A2-B0 CLOSED (15 November 2026)
 
 **Newly reported clean-worktree acceptance, recorded as operator evidence, not independently reproduced by this documentation commit:**
