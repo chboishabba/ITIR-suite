@@ -207,6 +207,78 @@ assert run("left", "--node", "7", file=tampered).returncode != 0
 print("PASS: 4 native packed Zelph section roundtrips and 5 fail-closed controls")
 PY
 
+
+# Exhaustive native name-row mode is separate from the QID selection mode:
+# demand one complete footer after reading the packed message through EOF.
+# Preserve ambiguous repeated keys as a multi-valued fibre, not a dict.
+python3 - "$TMP/decoder" "$TMP/packed" <<'PY'
+import json
+from pathlib import Path
+import subprocess
+import sys
+exe, root = sys.argv[1], Path(sys.argv[2])
+
+def run(section, filename, *flags):
+    return subprocess.run([
+        exe, "--file", str(root / filename), "--section", section,
+        "--chunk-index", "0", "--lang", "wikidata",
+        "--stream-name-rows", *flags
+    ], capture_output=True, text=True, timeout=60, check=False)
+
+def checked_rows(section, filename, expected):
+    proc = run(section, filename)
+    assert proc.returncode == 0, (proc.stderr, proc.stdout)
+    docs = [json.loads(line) for line in proc.stdout.splitlines()]
+    assert len(docs) == len(expected) + 1
+    footer = docs.pop()
+    assert footer == {
+        "version": "itir.zelph.native_original_name_rows_end.v1",
+        "section": section, "chunk_index": 0,
+        "language": "wikidata", "rows_emitted": len(expected),
+        "candidate_only": True, "authority": False,
+    }
+    for idx, (row, (name, node_id)) in enumerate(zip(docs, expected)):
+        assert row == {
+            "version": "itir.zelph.native_original_name_row.v1",
+            "section": section, "chunk_index": 0, "language": "wikidata",
+            "row_index": idx, "name": name, "node_id": node_id,
+        }
+    return docs
+
+checked_rows("nameOfNode", "nameOfNode.capnp-packed", [("Q1", 7)])
+checked_rows("nodeOfName", "nodeOfName.capnp-packed", [("Q1", 7)])
+rows = checked_rows("nodeOfName", "nodeOfName-multifibre.capnp-packed",
+                    [("Q1", 7), ("Q1", 8), ("Q2", 9)])
+assert [row["node_id"] for row in rows if row["name"] == "Q1"] == [7, 8]
+
+# A deliberately insufficient row cap must return a nonzero exit and never
+# emit the required terminal marker; partial stdout cannot be promoted.
+limited = run("nodeOfName", "nodeOfName-multifibre.capnp-packed",
+              "--max-name-rows", "1")
+assert limited.returncode != 0
+assert "name-row count exceeds explicit bound" in limited.stderr
+assert "native_original_name_rows_end.v1" not in limited.stdout
+
+bad_lang = subprocess.run([
+    exe, "--file", str(root / "nodeOfName.capnp-packed"),
+    "--section", "nodeOfName", "--chunk-index", "0", "--lang", "en",
+    "--stream-name-rows"
+], capture_output=True, text=True, timeout=60)
+assert bad_lang.returncode != 0
+
+for section, filename in [("left", "left.capnp-packed"),
+                          ("right", "right.capnp-packed")]:
+    assert run(section, filename).returncode != 0
+
+trailing = root / "nodeOfName-with-trailer.capnp-packed"
+trailing.write_bytes((root / "nodeOfName.capnp-packed").read_bytes() + b"attack")
+bad_tail = run("nodeOfName", trailing.name)
+assert bad_tail.returncode != 0
+assert "native_original_name_rows_end.v1" not in bad_tail.stdout
+print("PASS: exhaustive native name-row NDJSON + duplicate fibres, "
+      "row caps, wrong type/language, and fail-closed trailer")
+PY
+
 echo "PASS: native Cap'n Proto fixture + selected decoder compile and replay"
 echo "NOT COVERED: actual immutable HF objects, original 82 GiB binary provenance,"
 echo "whole graph name or query completeness, Wikidata native P854, S29, NORA."
