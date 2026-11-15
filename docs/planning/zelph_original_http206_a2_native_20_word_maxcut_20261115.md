@@ -1,5 +1,60 @@
 # Zelph A2 original HTTP206 → native left/right → declared 20-word maximum cut
 
+## 15 Nov 2026 — integrated large-bite A2 source HTTP206 / native / 20 distinct words
+
+**Latest local diagnostic by operator:** ITIR #14 at `a3a32d74e1cb7865e9c85437d3bec47e502d2b19` ran 442/448 Python and native Cap'n Proto C++ PASS. Six test errors were all due to the original `tests/test_audit_zelph_native_original_lr_roots.py` fixture using `dest.parent.mkdir(parents=True)` for multiple chunks under one left/right directory. The one-line fix `dest.parent.mkdir(parents=True, exist_ok=True)` was separately verified by the operator as **6/6 PASS** and committed directly to existing PR #14. That does **not** yet establish a new exact-head 448/448 run. SLR 24/24 + 4/4, SensibLaw 25/25 and DASHI 9/9 stay at the operator's independently checked heads.
+
+**New, materially larger code cut committed in the SAME ITIR PR, awaiting operator acceptance:** `tools/run_zelph_original_a2_finite_round_maxcut.py` composes the existing original HTTP206-vs-published full packed `left/right` section validators, authenticated single-object restoration, full original-schema native selected-adjacency scan and declared relation-word closure. It independently pins immutable revision, manifest/index raw SHA, native executable SHA, actual positive QID receipt, and the exact 20-query JSON SHA. Both original `left` and `right` physical comparisons are PRE-FLIGHTED under one **combined** two-sided network cap before any source request; the source-equal shard rematerialiser now also supports `left/right` and uses only remaining one-sided budget. The actual native scan is bounded by original chunk, node, row, neighbour and timeout caps, with one transactionally pinned SQLite scratch DB per exact numeric-node cohort.
+
+**Successive finite graph frontiers are handled without hand editing:** the new A2 runner reads immutable, complete prior native scan receipts; verifies original source/decoder/root identity and SHA256 of the completed native SQLite snapshot; feeds their exact rows to the existing finite-word evaluator; and schedules only the next numeric frontier nodes under the declared count cap. A new node cohort receives its OWN deterministic SQLite filename and immutable complete scan JSON receipt. An incomplete 984+984 source scan NEVER emits a complete source-frontier receipt and NEVER pays absence/negative adjacency. The future run repeats without rewriting past receipts, source SHA or native cache. This is not an Agda theorem, property filter or general graph index.
+
+**Mathematical soundness improvement:** A2's `all_twenty_original_lr_words_closed` now requires 20 distinct `(QID, direction-word)` contracts, not 20 differently labelled repetitions of 4 words. The canonical `docs/planning/zelph_five_qid_lr_query_family.example.json` actually contains 5 QIDs × 4 distinct words = **20 distinct contracts**. New tests cover forged duplicates, first/second native numeric frontier progression, cross-phase aggregate transfer budget, wrong decoder/family SHA, malformed words, corrupted SQLite snapshot and partial 984+984 sections.
+
+### One-command operator plan and bounded live round
+
+```bash
+REV=0d4bd670959ebddae72f70d973410fdea8917ec1
+MANIFEST_SHA=cedd5cf0e4951ae1aa7c2c5968614b0eb72a4c3b5c8b2dc4ab18c40be8c83f59
+INDEX_SHA=89f7ccac888e9e7db09b349cef246e725d969f07d4280142c325e96e12a30d77
+META=/tmp/zelph-new-p0-evidence/metadata/wikidata-20260309-all
+RUN=/tmp/zelph-new-original-name-evidence
+mkdir -p "$RUN"
+# Build with `bash tools/build_zelph_native_live.sh "$RUN/native-a2"`
+# into a NEW empty directory if the current original-schema decoder is absent.
+DECODER="$RUN/native-a2/selected-decoder"
+ROOTS="$RUN/five-original-positive-qid-roots.json"
+FAMILY=docs/planning/zelph_five_qid_lr_query_family.example.json
+DECODER_SHA=$(sha256sum "$DECODER" | awk '{print $1}')
+FAMILY_SHA=$(sha256sum "$FAMILY" | awk '{print $1}')
+ARGS=(
+  --manifest "$META/wikidata-20260309-all.hf-v2.json"
+  --original-index "$META/artifact.index.json"
+  --dataset-revision "$REV"
+  --manifest-sha256 "$MANIFEST_SHA"
+  --original-index-sha256 "$INDEX_SHA"
+  --decoder "$DECODER" --decoder-sha256 "$DECODER_SHA"
+  --positive-roots-receipt "$ROOTS"
+  --query-family "$FAMILY" --query-family-sha256 "$FAMILY_SHA"
+  --left-receipts-dir "$RUN/left-original-receipts"
+  --right-receipts-dir "$RUN/right-original-receipts"
+  --shard-root "$RUN/source-equal-shards"
+  --native-audit-dir "$RUN/a2-native-numeric-frontiers"
+  --max-network-mib 1024 --max-physical-per-section 8
+  --max-restore 8 --max-native-chunks 16
+  --max-numeric-frontier 64 --max-chunk-mib 256
+)
+# If prior physical matrix receipts exist, add:
+# ARGS+=(--import-physical-receipts-dir "$RUN/positive-name-matrix")
+bash tools/check_zelph_physical_maxcut_offline.sh
+python3 tools/run_zelph_original_a2_finite_round_maxcut.py "${ARGS[@]}"
+python3 tools/run_zelph_original_a2_finite_round_maxcut.py "${ARGS[@]}" --execute
+```
+
+The first call is an **offline/zero-network plan**; the second executes a bounded actual original source batch. Repeat the same execute invocation only while acceptable given measured network/disk costs, retaining immutable original HTTP206 receipts and native SQLite cohorts. The final closure flag is permitted only when the source original 984+984 adjacency physical chunks are verified, relevant native full-section scans complete, and **all 20 distinct declared finite LR words** have no unobserved numeric frontier. This never establishes 20 arbitrary property-filtered Wikidata statements, original source P854, global A1 unique QID names, full original .bin SHA, S29 PG persistence, or NORA authority.
+
+**Current material frontier:** all 984+984 production adjacency HTTP206 parity, complete original native selected LR scans and real 20-word closure remain OPEN. The latest newly written A2 coordinator/anti-duplicate tests are not covered by the earlier 442/448 diagnostic nor by the isolated fixture 6/6; a clean new-head exact acceptance is required.
+
+
 **15 November 2026. SOURCE-WRITTEN; new-head verification required.**
 
 The original P0-S/P1/A1 operator has supplied real physical and native receipts:
