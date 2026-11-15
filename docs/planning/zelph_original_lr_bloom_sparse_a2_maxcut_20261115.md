@@ -1,5 +1,42 @@
 # Zelph original A2-B maximum cut: authentic Bloom candidate routing without a full original .bin
 
+## 15 November follow-up — exact source patch, acceptance still separated
+
+**Live ITIR PR #14 head before this documentation update:** `bb69f6556503798bf704cd68a713d4114ffedbb4`. The reported operator clean-worktree baseline `2f407629417ad7dfd63d4c04c85309812831ba7d` had 505/506 Python checks passing; a locally tested one-line assertion correction brought that to 506/506, and a separate local native C++ Cap'n Proto roundtrip passed after restoring inherited Python import paths. Those local corrected runs are **not** independent exact-head checks of the new committed files.
+
+Two changes now committed on the **same** ITIR branch:
+
+1. `4e41a5065f3405e16994a84f2a6501e0fb801e75` — Bloom replay test accepts the earlier fail-closed physical/source mismatch as well as the downstream unverified-Bloom refusal. It must continue to **reject** altered candidate routes.
+2. `bb69f6556503798bf704cd68a713d4114ffedbb4` — the native original-schema Bloom roundtrip invokes Python with `PYTHONPATH="tools:itir-mcp/src:${PYTHONPATH:-}"`, preserving any caller-provided `re_gpt` or other import locations.
+
+**Next exact-head commands, against the checked-out current branch (not an uncommitted test overlay):**
+
+```bash
+git rev-parse HEAD
+git status --porcelain --untracked-files=no
+bash tools/check_zelph_physical_maxcut_offline.sh
+```
+
+**Golden alignment:** DASHI Agda PR #1506 is now **merged** (15 November 2026). Its last publicly inspected Zelph runner enumerates **10** Agda targets, including `DASHI/Interop/ZelphOriginalBloomPrunedSourceRouteExact.agda`. Earlier 9/9 local operator acceptance applies to the earlier mathematical spine, **not** a separately witnessed 10/10 kernel run. Run `bash scripts/check_zelph_trie_hyperfabric_maxcut.sh` at the exact merged Agda tree before marking A2-B0 wholly accepted.
+
+**Physical/semantic gate ledger (do not promote source-written or synthetic fixtures):**
+
+| Gate | Supported current receipt | Exact unresolved obligation |
+|---|---|---|
+| ITIR A2-B0 offline | Reported local 506/506 corrected overlay plus native C++ pass; both corrections now committed | Clean source-head Python + C++ acceptance, with pinned HEAD and exit zero |
+| Agda A2-B0 golden | Earlier 9/9 locally accepted; tenth Bloom-specific module source-written and merged | Exact-head pinned 10/10 kernel validation and concrete decoder/refinement assumptions |
+| A2-B1 first filters | `left:5`, `right:1`, `right:983` HTTP206-vs-published matching bytes reported (127,798,753 bytes) | Build and validate actual native Bloom files and hash-bound receipts for these three retained original-equal chunks |
+| A2-B2 source completeness | 3 original adjacency chunks physically checked out of 984+984 | Verify the other **1,965** chunks or provide an independently authenticated complete same-original node-key route index; do not infer from unsorted chunk ordinal |
+| A2-B3 twenty words | Five original-positive QID roots and the 20 distinct finite QID/relation-word declarations | Bloom-complete native candidate replay for every *reachable node/direction*, then instantiate `SourceReachableBoundary` and close all twenty results |
+| A1 / native evidence / S29 / NORA | Original source-backed `nodeOfName` chunks 0/1/4/75, four million row observations; separate offline S29/NORA tests | Full source name-fibre/inverse evidence, source primary P854 semantics, real PG restart/readback, actual NORA export and scoped reviewer acceptance |
+
+**Critical negative boundary:** A native Bloom-negative is an exact chunk exclusion **only** after original HTTP206 byte equality, full native key enumeration, exact packed EOF and hash-ABI agreement are independently checked. With 3/1968 filters, no absence claim about an entire original adjacency direction is justified. A positive Bloom result never proves a graph edge until the candidate chunk is decoded. The existing 2017/v3 route sidecars cannot substitute for this pinned 2026 source.
+
+The next physical operator step reuses the already retained three original-equal packed files (no new large download), compiles the current `--adjacency-bloom` decoder, executes the three-filter generator and five-root query commands below, and stores per-filter exact SHA/row counts; then resume remaining chunk acquisition by bounded source-equal HTTP206 ranges. Do not claim 20-word closure from three partial filters.
+
+---
+
+
 **15 November 2026. Source-written in existing ITIR PR #14, not yet accepted at changed head.**
 
 ## New high-alpha producer finding
