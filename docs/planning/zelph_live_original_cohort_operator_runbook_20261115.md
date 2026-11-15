@@ -1,5 +1,15 @@
 # Original Zelph → native Wikibase → SLR source review: physical operator runbook
 
+## New preferred P0-S / P1 positive-name route: original HTTP206 only (15 November)
+
+**Important correction to the original full-download route below:** The operator has now established a real `nodeOfName:0` original HTTP206/published-shard byte match, **22,755,697 bytes**, at fixed revision `0d4bd670959ebddae72f70d973410fdea8917ec1`, SHA `0bbfc205a26caeb8a0daf5e1b265cc10a0895d43e5c7828c0c4ad8109efc8508`. ITIR exact-head `858cfea` passed 302/302 Python + original-schema native tests. **A whole 87,954,185,510-byte local original .bin is NOT needed to verify independently selected chunk equality or to obtain positive name→node observations**.
+
+The new preferred next run is [the P0-S matrix and native five-QID operator section](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/docs/planning/zelph_original_bin_hf_ranges_maxcut_20261114.md). It verifies source-pinned original HTTP206 name chunks 1, 4, 75 and atomically retains those same published Cap'n Proto bytes as local shards, then calls the original compiled selected decoder to demand exact positive QID/name rows. Existing `verify_zelph_hf_direct_original_chunk.py` remains the underlying raw byte comparator; no second HF transport is introduced. The new multi-chunk and native-root tests have been added to the mandatory checker; **run them before treating new heads as accepted**.
+
+The `--source-bin` pipeline below is now an **alternative/full-source producer path**, not a prerequisite for the direct-range P0-S/P1 positive-name path. Original-bin source-backed QID→left/right chunk routes, selected physical adjacency and 20-word left/right closure are still OPEN. Likewise an original full-binary SHA256 proof cannot be inferred from selected ranges. Do not turn the operator's previously reported name-chunk hints into claimed left/right routes.
+
+---
+
 ## 15 November — P0-S chunk 0 REAL original-source equality; bounded all-name-section max-cut
 
 **Operator live PASS at ITIR #14 `858cfea1`: 302/302 Python and original-schema native C++ roundtrip PASS.** Source pinned to `acrion/zelph` revision `0d4bd670959ebddae72f70d973410fdea8917ec1`, manifest raw SHA `cedd5cf0e4951ae1aa7c2c5968614b0eb72a4c3b5c8b2dc4ab18c40be8c83f59`, index raw SHA `89f7ccac888e9e7db09b349cef246e725d969f07d4280142c325e96e12a30d77`. **Actual P0-S physical witness:** published `nodeOfName` chunk 0, `22,755,697` bytes, original `.bin` HTTP 206 range `79284085471-79306841167`, both raw SHA256 `0bbfc205a26caeb8a0daf5e1b265cc10a0895d43e5c7828c0c4ad8109efc8508`, byte-for-byte identity. P0-H live header evidence retained separately. No whole 82 GiB original downloaded.
