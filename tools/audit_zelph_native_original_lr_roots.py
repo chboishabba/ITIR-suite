@@ -21,6 +21,8 @@ from pathlib import Path
 import re
 import sqlite3
 import subprocess
+import tempfile
+import resource
 import sys
 from typing import Any, Callable
 
@@ -91,12 +93,12 @@ def native_original_lr_plan(
             or native.get("original_index_sha256")!=original_index_sha256):
         raise ValueError("original source QID root identity disagrees with adjacency pins")
     extra=extra_numeric_nodes or []
-    if (not isinstance(extra,list) or len(extra)>200000 or
+    if (not isinstance(extra,list) or len(extra)>256 or
             any(type(v) is not int or not 0<=v<=2**64-1 for v in extra)
             or extra!=sorted(set(extra))):
         raise ValueError("bounded sorted distinct extra original numeric nodes required")
     targets=sorted(set(roots.values())|set(extra))
-    if not 0<len(targets)<=200000:
+    if not 0<len(targets)<=256:
         raise ValueError("bounded selected original native roots required")
     meta=verify_index_manifest_files(
         manifest_path=manifest,index_path=original_index,
@@ -144,6 +146,7 @@ def native_original_lr_plan(
                 "saved_original_equal_packed_file":str(shard),
                 "packed_sha256":matches[0][1]["published_shard_raw_sha256"],
                 "receipt_sha256":_file_sha(matches[0][0],1024*1024),
+                "receipt_file":str(matches[0][0]),
                 "original_source_offset":item["offset"],
                 "packed_size_bytes":item["length"],
             })
@@ -175,11 +178,27 @@ def _decode_adjacency(*,entry:dict,targets:list[int],decoder:Path,
          "--max-neighbors",str(max_neighbors)]
     for node in targets:
         cmd.extend(["--node",str(node)])
-    proc=runner(cmd,capture_output=True,timeout=timeout_seconds,check=False)
-    if (proc.returncode!=0 or type(proc.stdout) is not bytes
-            or len(proc.stdout)>max_stdout_mib*1024*1024):
+    if runner is subprocess.run:
+        # subprocess.run(capture_output=True) could buffer arbitrarily large
+        # output even when a post-hoc byte cap is supplied. Use a real file
+        # with RLIMIT_FSIZE and a bounded read into Python instead.
+        def bound_stdout():
+            resource.setrlimit(resource.RLIMIT_FSIZE,
+                (max_stdout_mib*1024*1024,max_stdout_mib*1024*1024))
+        with tempfile.TemporaryFile(mode="w+b") as output:
+            proc=subprocess.run(cmd,stdout=output,stderr=subprocess.PIPE,
+                timeout=timeout_seconds,check=False,preexec_fn=bound_stdout)
+            if proc.returncode!=0:
+                raise ValueError("upstream original selected adjacency decoder failed or exceeded output cap")
+            output.seek(0)
+            raw=output.read(max_stdout_mib*1024*1024+1)
+    else:
+        proc=runner(cmd,capture_output=True,timeout=timeout_seconds,check=False)
+        raw=proc.stdout
+    if (proc.returncode!=0 or type(raw) is not bytes
+            or len(raw)>max_stdout_mib*1024*1024):
         raise ValueError("upstream native selected adjacency decoder failed/overflowed")
-    payload=_strict(proc.stdout)
+    payload=_strict(raw)
     if (payload.get("version")!=_NATIVE or payload.get("section")!=section
             or type(payload.get("chunk_index")) is not int
             or payload["chunk_index"]!=n
@@ -205,7 +224,7 @@ def _decode_adjacency(*,entry:dict,targets:list[int],decoder:Path,
             raise ValueError("ambiguous/truncated original native adjacency row")
         seen.add(node)
         processed.append({"node_id":node,"neighbors":adj,"source_values_seen":count})
-    return processed,sha256(proc.stdout).hexdigest()
+    return processed,sha256(raw).hexdigest()
 
 
 def run_native_original_lr(*,plan:dict,decoder:Path,sqlite_index:Path,
@@ -263,6 +282,9 @@ def run_native_original_lr(*,plan:dict,decoder:Path,sqlite_index:Path,
             file=Path(entry["saved_original_equal_packed_file"])
             if _file_sha(file)!=entry["packed_sha256"]:
                 raise ValueError("previously verified original adjacency packed data drift")
+            if (_file_sha(Path(entry["receipt_file"]),1024*1024)
+                    !=entry["receipt_sha256"]):
+                raise ValueError("previously verified original HTTP206 receipt bytes drifted")
             rows,stdout_sha=_decode_adjacency(
                 entry=entry,targets=nodes,decoder=decoder,
                 max_neighbors=max_neighbors,max_stdout_mib=max_stdout_mib,
