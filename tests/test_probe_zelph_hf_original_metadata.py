@@ -177,3 +177,95 @@ def test_detached_header_json_digest_cannot_be_promoted(tmp_path):
             run_download=fake_download, run_header_check=forged_header,
         )
     assert not (receipts / "original-header-proof.json").exists()
+
+
+def test_connector_is_production_metadata_transport_and_cli_is_not_called(tmp_path):
+    plan, local, receipts = _plan(tmp_path)
+    decoder = tmp_path / "probe"
+    decoder.write_text("native binary presence stub")
+    calls = []
+
+    def exact_hf_transport(*, hf_uri, revision, max_bytes, timeout):
+        calls.append(hf_uri)
+        assert revision == REV
+        assert max_bytes == 16 * 1024 * 1024
+        assert hf_uri.startswith("hf://datasets/acrion/zelph/")
+        # These are deterministic synthetic metadata bytes only.
+        raw = (b'{"manifestVersion":2}' if hf_uri.endswith(".hf-v2.json")
+               else b'{"header":{"offset":0,"length":12}}')
+        if hf_uri.endswith(".hf-v2.json"):
+            # This test's manifest pin is deliberately overwritten with
+            # a truly exact synthetic digest before the transport is called.
+            assert sha256(raw).hexdigest() == plan["manifest_sha256_expected"]
+        return {
+            "bytes": raw, "sha256": sha256(raw).hexdigest(),
+            "whole_object_observed": True, "source_support_paid": False,
+            "edit_authority": False,
+        }
+
+    manifest_bytes = b'{"manifestVersion":2}'
+    plan["manifest_sha256_expected"] = sha256(manifest_bytes).hexdigest()
+
+    def fake_header(*, raw_header_output, **kwargs):
+        assert kwargs["manifest_path"].read_bytes() == manifest_bytes
+        assert kwargs["index_path"].read_bytes() == b'{"header":{"offset":0,"length":12}}'
+        raw = b"real-ish-native-header"
+        raw_header_output.write_bytes(raw)
+        return {
+            "original_source_http_status": 206,
+            "native_original_header_matches_all_four_section_counts": True,
+            "header_bytes_received": len(raw),
+            "header_raw_sha256": sha256(raw).hexdigest(),
+            "edit_authority": False,
+        }
+
+    out = execute_metadata_header_probe(
+        plan=plan, local_dir=local, receipt_dir=receipts,
+        native_header_decoder=decoder,
+        fetch_object=exact_hf_transport, run_header_check=fake_header,
+    )
+    assert calls == [
+        "hf://datasets/acrion/zelph/wikidata-20260309-all/wikidata-20260309-all.hf-v2.json",
+        "hf://datasets/acrion/zelph/wikidata-20260309-all/artifact.index.json",
+    ]
+    assert out["metadata_itir_hf_connector_invoked"] is True
+    assert out["metadata_hf_cli_invoked"] is False
+    assert out["whole_original_bin_downloaded"] is False
+
+
+def test_connector_rejects_different_real_bytes_even_with_matching_receipt_label(tmp_path):
+    plan, local, receipts = _plan(tmp_path)
+    decoder = tmp_path / "probe"
+    decoder.touch()
+    def liar(*, hf_uri, revision, max_bytes, timeout):
+        return {"bytes": b"changed", "sha256": "f" * 64,
+                "whole_object_observed": True}
+    def refuse(**kwargs):
+        raise AssertionError("native header must not run")
+    with pytest.raises(ValueError, match="verified complete source metadata bytes"):
+        execute_metadata_header_probe(
+            plan=plan, local_dir=local, receipt_dir=receipts,
+            native_header_decoder=decoder,
+            fetch_object=liar, run_header_check=refuse,
+        )
+    assert not (receipts / "original-header-proof.json").exists()
+
+
+def test_connector_rejects_manifest_pin_mismatch_before_index_download(tmp_path):
+    plan, local, receipts = _plan(tmp_path)
+    decoder = tmp_path / "probe"
+    decoder.touch()
+    called = []
+    def wrong(*, hf_uri, revision, max_bytes, timeout):
+        called.append(hf_uri)
+        raw = b"wrong original manifest"
+        return {"bytes": raw, "sha256": sha256(raw).hexdigest(),
+                "whole_object_observed": True}
+    with pytest.raises(ValueError, match="pinned source manifest digest mismatch"):
+        execute_metadata_header_probe(
+            plan=plan, local_dir=local, receipt_dir=receipts,
+            native_header_decoder=decoder,
+            fetch_object=wrong,
+        )
+    assert len(called) == 1
+    assert not (receipts / "original-header-proof.json").exists()
