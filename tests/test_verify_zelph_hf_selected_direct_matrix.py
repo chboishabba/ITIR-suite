@@ -183,3 +183,47 @@ def test_plan_drift_denied_without_any_evidence_directory(tmp_path):
                        manifest_path=inputs["manifest_path"],
                        original_index_path=inputs["original_index_path"])
     assert not evidence.exists()
+
+
+def test_source_equal_native_shard_copy_is_saved_once_for_downstream_decoder(tmp_path):
+    inputs = pinned(tmp_path)
+    plan = plan_matrix(**inputs, keys=parse_keys(["nodeOfName:0", "left:0"]))
+    evidence = tmp_path / "physical-receipts"
+    saved = tmp_path / "source-equal-published"
+    baseline = mock_witness(plan)
+    def write_verified_copy(**kwargs):
+        row = next(row for row in plan["entries"]
+                   if row["section"] == kwargs["section"]
+                   and row["chunk_index"] == kwargs["chunk_index"])
+        path = kwargs["save_published_copy"]
+        raw = b"o" * row["bytes"]
+        path.write_bytes(raw)
+        receipt = baseline(**kwargs)
+        receipt["published_shard_raw_sha256"] = sha256(raw).hexdigest()
+        receipt["original_packed_range_raw_sha256"] = sha256(raw).hexdigest()
+        receipt["saved_original_equal_published_copy"] = str(path)
+        return receipt
+    result = execute_matrix(
+        plan=plan, evidence_dir=evidence, save_published_root=saved,
+        manifest_path=inputs["manifest_path"],
+        original_index_path=inputs["original_index_path"],
+        verify_one=write_verified_copy)
+    assert result["locally_saved_original_equal_published_shards"] is True
+    assert result["all_explicitly_selected_chunks_byte_equal"] is True
+    for item in plan["entries"]:
+        rel = item["published_object_uri"].split("hf://datasets/acrion/zelph/", 1)[1]
+        assert (saved / rel).read_bytes() == b"o" * item["bytes"]
+
+
+def test_bogus_or_missing_native_copy_never_gets_complete_matrix_receipt(tmp_path):
+    inputs = pinned(tmp_path)
+    plan = plan_matrix(**inputs, keys=parse_keys(["nodeOfName:0"]))
+    evidence = tmp_path / "receipts"
+    saved = tmp_path / "source-equal-published"
+    with pytest.raises(ValueError, match="native saved shard missing"):
+        execute_matrix(
+            plan=plan, evidence_dir=evidence, save_published_root=saved,
+            manifest_path=inputs["manifest_path"],
+            original_index_path=inputs["original_index_path"],
+            verify_one=mock_witness(plan))
+    assert not (evidence / "selected-matrix-complete.json").exists()
