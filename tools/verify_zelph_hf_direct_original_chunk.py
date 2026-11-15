@@ -14,6 +14,8 @@ from __future__ import annotations
 import argparse
 from contextlib import ExitStack
 from hashlib import sha256
+import os
+import tempfile
 import json
 from pathlib import Path
 import re
@@ -42,6 +44,7 @@ def verify_direct_original_chunk(
     original_index_sha256: str | None = None,
     max_chunk_mib: int = 128,
     opener: Callable[..., Any] | None = None,
+    save_published_copy: Path | None = None,
 ) -> dict[str, Any]:
     if type(dataset_revision) is not str or not _REV.fullmatch(dataset_revision):
         raise ValueError("immutable HF 40-hex revision required")
@@ -73,7 +76,20 @@ def verify_direct_original_chunk(
     digest_shard = sha256()
     digest_original = sha256()
     count = 0
+    if save_published_copy is not None:
+        if (save_published_copy.exists() or save_published_copy.is_symlink()
+                or not save_published_copy.parent.is_dir()
+                or save_published_copy.parent.is_symlink()):
+            raise ValueError("refuse overwrite or symlink saved native source shard")
     with ExitStack() as stack:
+        copied = None
+        scratch = None
+        if save_published_copy is not None:
+            copied = stack.enter_context(tempfile.NamedTemporaryFile(
+                mode="wb", dir=save_published_copy.parent,
+                prefix=".verified-hf-original-", delete=False))
+            scratch = Path(copied.name)
+            stack.callback(lambda: scratch.unlink(missing_ok=True))
         published = stack.enter_context(open_pinned_zelph_complete_object(
             hf_uri=item["object_uri"], revision=dataset_revision,
             expected_size=size, max_bytes=max_chunk_mib * 1024 * 1024,
@@ -91,12 +107,19 @@ def verify_direct_original_chunk(
                 raise ValueError("published HF shard and original .bin HTTP206 packed bytes differ")
             digest_shard.update(a)
             digest_original.update(b)
+            if copied is not None:
+                copied.write(a)
             count += amount
         if published.read(1) or original.read(1):
             raise ValueError("selected original/shard source response has trailing bytes")
         object_status = getattr(published, "status", None)
-    if digest_shard.digest() != digest_original.digest():
-        raise ValueError("selected original and published shard raw hashes diverge")
+        if digest_shard.digest() != digest_original.digest():
+            raise ValueError("selected original and published shard raw hashes diverge")
+        if copied is not None:
+            copied.flush()
+            os.fsync(copied.fileno())
+            # Atomic link refuses overwrite even when another writer races.
+            os.link(scratch, save_published_copy, follow_symlinks=False)
     return {
         "version": "itir.zelph.direct_original_selected_chunk_equality.v1",
         "dataset_revision": dataset_revision,
@@ -113,6 +136,8 @@ def verify_direct_original_chunk(
         "original_source_http_status": 206,
         "original_packed_range_raw_sha256": digest_original.hexdigest(),
         "published_shard_raw_sha256": digest_shard.hexdigest(),
+        "saved_original_equal_published_copy":
+            str(save_published_copy) if save_published_copy is not None else None,
         "exact_original_packed_bytes_equal_published_shard": True,
         "full_index_manifest_offset_cover_checked": True,
         "original_bin_full_digest_verified": False,
@@ -135,6 +160,8 @@ def main() -> int:
     parser.add_argument("--section", choices=_SECTIONS, required=True)
     parser.add_argument("--chunk-index", type=int, required=True)
     parser.add_argument("--max-chunk-mib", type=int, default=128)
+    parser.add_argument("--save-published-copy", type=Path,
+                        help="new local shard path; retain only after exact original equality")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--execute", action="store_true",
                         help="explicit opt-in to real published shard + original .bin HTTP ranges")
@@ -161,6 +188,7 @@ def main() -> int:
             original_index_sha256=args.original_index_sha256,
             section=args.section, chunk_index=args.chunk_index,
             max_chunk_mib=args.max_chunk_mib,
+            save_published_copy=args.save_published_copy,
         )
         with args.output.open("x", encoding="utf-8") as stream:
             json.dump(proof, stream, sort_keys=True, indent=2)
