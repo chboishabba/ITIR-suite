@@ -1,5 +1,70 @@
 # Original Zelph → native Wikibase → SLR source review: physical operator runbook
 
+## 15 November — LIVE P0-S 2-chunk witness → native full-name-row A1 maximum cut
+
+**User/operator accepted baseline at ITIR #14 `adba4f0dbc385cdcd8f23601eaa6a6b9be6c7c98`:** clean 347/347 Python plus expanded native original Cap'n Proto C++ roundtrip PASS. Immutable Zelph dataset revision `0d4bd670959ebddae72f70d973410fdea8917ec1`: `nodeOfName` chunk 0 **22,755,697 bytes** original interval `[79284085471,79306841167]`, SHA `0bbfc205a26caeb8a0daf5e1b265cc10a0895d43e5c7828c0c4ad8109efc8508`; chunk 1 **22,716,094 bytes** original interval `[79306841168,79329557261]`, SHA `26176322617b93c4233d4c7c5fba67381fc53f133dfa3dae8f74df49ac07c6af`; both standalone HF shards equal the original `.bin` exact HTTP206 intervals, with no gap/overlap, cumulative **45,471,791 original bytes**. The P0-H native 25-byte header/index/manifest receipt remains earlier-verified. This does NOT verify the other 202 `nodeOfName` shards or any native name-row completeness.
+
+**New source-written production bridge, untested at new head until operator acceptance:** Existing upstream Cap'n Proto C++ decoder now accepts `--stream-name-rows --max-name-rows N`, emitting *every* exact original `NodeNameChunk` or `NameChunk` key/node row as NDJSON, including repeated names and node IDs, with a terminal count frame emitted only after checking that the packed shard has no trailing bytes. Original selected lookup behaviour remains unchanged. The native C++ acceptance has a repeated-name fixture (`Q1 -> 7`, `Q1 -> 8`) plus no-footer, row cap, wrong language/section and trailing-byte adversarial checks. The Python physical-to-native tool `audit_zelph_native_name_rows.py` binds the actual physical range-equality receipt, pinned full manifest and original index, local packed file bytes and an externally supplied original-schema decoder SHA256; it spools native stdout to disk, verifies every row/index/schema and the EOF-certified footer, retains duplicate fibres, and optionally persists immutable complete NDJSON row evidence.
+
+**No second source-range download for native decode:** `audit_zelph_hf_name_section_bytes.py --save-published-root ROOT` now passes through the already-established direct comparator's atomic `--save-published-copy`: future missing chunks keep the *same* original-equal packed bytes used during their first two-source equality audit. For old chunk 0 and chunk 1 with only physical receipts and no local shard copies, `audit_zelph_native_name_rows.py --hydrate-missing-shard` fetches only each whole immutable HF standalone shard, checks its SHA against the existing original HTTP206 physical receipt, and retains it atomically. It does NOT reread the original 82GiB binary. The source-level native decode gate remains independent of physical byte equality.
+
+**Section-wide join now source-written:** `tools/audit_zelph_native_name_section.py` enumerates all original 204 `nodeOfName` (or `nameOfNode`) chunks from the independently pinned index, requires a distinct complete physical receipt and immutable native row stream/receipt for every chunk, checks the pinned decoder SHA, original chunk offset/identity, exact row stream SHA/count/footer, and preserves repeated target QID fibres across ALL submitted source chunks. `original_packed_byte_and_native_row_section_cover` is true only once the section is exhaustively covered. It never asserts decoder adequacy formally proved, Agda A1, original QID adjacency routes, Wikibase semantics or edit authority.
+
+### Operator commands for the first two already-live chunks, then scale to all 204
+
+    REV=0d4bd670959ebddae72f70d973410fdea8917ec1
+    MANIFEST_SHA=cedd5cf0e4951ae1aa7c2c5968614b0eb72a4c3b5c8b2dc4ab18c40be8c83f59
+    INDEX_SHA=89f7ccac888e9e7db09b349cef246e725d969f07d4280142c325e96e12a30d77
+    RUN=/tmp/zelph-new-p0-evidence
+    M="$RUN/metadata/wikidata-20260309-all/wikidata-20260309-all.hf-v2.json"
+    I="$RUN/metadata/wikidata-20260309-all/artifact.index.json"
+    PHYSICAL="$RUN/nodeOfName-receipts"
+    PACKED="$RUN/native-authenticated-packed-shards"
+    NATIVE_ROWS="$RUN/native-name-row-evidence"
+    DECODER=/tmp/zelph-native-p0/selected-decoder
+    DECODER_SHA=$(sha256sum "$DECODER" | awk '{print $1}')
+    mkdir -p "$NATIVE_ROWS"
+    bash tools/check_zelph_physical_maxcut_offline.sh
+
+    # Previously verified chunk 0/1: no original .bin re-fetch;
+    # hydrate only standalone shards if no original-equal local copy exists.
+    for CHUNK in 0 1; do
+      ID=$(printf '%06d' "$CHUNK")
+      python3 tools/audit_zelph_native_name_rows.py \
+        --manifest "$M" --original-index "$I" \
+        --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
+        --original-index-sha256 "$INDEX_SHA" \
+        --section nodeOfName --chunk-index "$CHUNK" \
+        --physical-receipt "$PHYSICAL/nodeOfName-$ID.json" \
+        --shard-root "$PACKED" --hydrate-missing-shard --max-hydrate-mib 128 \
+        --decoder "$DECODER" --decoder-sha256 "$DECODER_SHA" \
+        --rows-output "$NATIVE_ROWS/nodeOfName-$ID.native.ndjson" \
+        --receipt-output "$NATIVE_ROWS/nodeOfName-$ID.native.json"
+    done
+
+    # Continue P0-S original/published byte equality in bounded batches;
+    # newly verified chunks retain their own exact original-equal copy.
+    python3 tools/audit_zelph_hf_name_section_bytes.py --execute \
+      --manifest "$M" --original-index "$I" \
+      --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
+      --original-index-sha256 "$INDEX_SHA" --section nodeOfName \
+      --receipts-dir "$PHYSICAL" --save-published-root "$PACKED" \
+      --max-new-chunks 4 --max-chunk-mib 128 --max-transfer-mib 512
+
+    # After each batch, invoke audit_zelph_native_name_rows.py for each new
+    # chunk index printed in the physical audit. Omit --hydrate-missing-shard
+    # when the exact packed shard was already saved during physical equality.
+    # Obtain a local non-promoting status read at any time:
+    python3 tools/audit_zelph_native_name_section.py \
+      --manifest "$M" --original-index "$I" \
+      --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
+      --original-index-sha256 "$INDEX_SHA" --decoder-sha256 "$DECODER_SHA" \
+      --section nodeOfName --physical-receipts-dir "$PHYSICAL" \
+      --native-receipts-dir "$NATIVE_ROWS" --qid Q42
+
+Only after both 204-chunk sets have complete immutable evidence may the section join be rerun with `--require-complete`; missing physical or native chunks then fail closed. A full name-section native row union is a strong **original-source row-domain witness**, not proof of the original mathematical Agda decoder-adequacy theorem or all Wikibase/P854 semantics. No independent claim of user-data, reviewer authority or source truth is inferred.
+
+
 ## New preferred P0-S / P1 positive-name route: original HTTP206 only (15 November)
 
 **Important correction to the original full-download route below:** The operator has now established a real `nodeOfName:0` original HTTP206/published-shard byte match, **22,755,697 bytes**, at fixed revision `0d4bd670959ebddae72f70d973410fdea8917ec1`, SHA `0bbfc205a26caeb8a0daf5e1b265cc10a0895d43e5c7828c0c4ad8109efc8508`. ITIR exact-head `858cfea` passed 302/302 Python + original-schema native tests. **A whole 87,954,185,510-byte local original .bin is NOT needed to verify independently selected chunk equality or to obtain positive name→node observations**.
