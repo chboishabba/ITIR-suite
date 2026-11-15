@@ -136,8 +136,40 @@ def run_hf_connector_maxcut(*, revision: str, manifest_sha256: str,
         )
         if original_ranges.get("selected_raw_remote_bin_ranges_equal_local_shard_bytes") is not True:
             raise ValueError("original HTTP206 ranges not identical to selected HF shards")
+        # Bind the two independently acquired pinned-HF source paths by
+        # complete, unique per-object digest keys, not a self-asserted boolean.
+        fetched_receipts = fetched.get("selected_object_receipts")
+        source_receipts = original_ranges.get("receipts")
+        if (type(fetched_receipts) is not list or type(source_receipts) is not list
+                or not fetched_receipts or len(fetched_receipts) != len(source_receipts)):
+            raise ValueError("original and published selected-object receipt domains differ")
+        observed = {}
+        for row in fetched_receipts:
+            if type(row) is not dict:
+                raise ValueError("invalid selected HF object receipt")
+            key = "hf://datasets/acrion/zelph/" + row.get("object_relative_path", "")
+            digest = row.get("raw_hf_object_sha256")
+            if (key in observed or type(digest) is not str
+                    or not _SHA.fullmatch(digest)
+                    or row.get("exact_complete_hf_object_observed") is not True):
+                raise ValueError("selected HF complete-object evidence invalid/duplicate")
+            observed[key] = digest
+        original = {}
+        for row in source_receipts:
+            if type(row) is not dict:
+                raise ValueError("invalid original HTTP206 selected-source receipt")
+            key, digest = row.get("shard_object_uri"), row.get("equal_raw_sha256")
+            if (type(key) is not str or key in original or type(digest) is not str
+                    or not _SHA.fullmatch(digest)
+                    or row.get("exact_content_range_verified") is not True
+                    or row.get("range_http_status") != 206):
+                raise ValueError("original HTTP206 source receipt invalid/duplicate")
+            original[key] = digest
+        if observed != original:
+            raise ValueError("same-revision published HF objects disagree with original source range digest")
         _save_exclusive(workspace / "original-selected-byte-equality.json", original_ranges)
         result.update({
+            "same_pinned_revision_hf_object_and_original_range_digest_join_verified": True,
             "selected_original_source_byte_ranges_verified": True,
             "selected_object_count": original_ranges["selected_object_count"],
             "selected_byte_count": original_ranges["selected_byte_count"],
