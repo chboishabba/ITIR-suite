@@ -81,10 +81,13 @@ def execute_metadata_header_probe(*, plan: dict[str, Any], local_dir: Path,
     local_dir.mkdir(parents=True, exist_ok=True)
     receipt_dir.mkdir(parents=True, exist_ok=True)
     argv = plan["hf_download_argv"]
-    if (argv[:3] != ["hf", "download", "acrion/zelph"] or
-            argv[3:5] != [_MANIFEST_REL, _INDEX_REL] or
-            "--revision" not in argv or
-            argv[argv.index("--revision") + 1] != plan["dataset_revision"]):
+    expected_argv = [
+        "hf", "download", "acrion/zelph",
+        _MANIFEST_REL, _INDEX_REL,
+        "--repo-type", "dataset", "--revision", plan["dataset_revision"],
+        "--local-dir", str(local_dir),
+    ]
+    if argv != expected_argv:
         raise ValueError("metadata download plan attempts non-approved HF files or revision")
     run_download(argv, check=True, timeout=timeout_seconds)
     manifest = local_dir / _MANIFEST_REL
