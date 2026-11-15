@@ -1,5 +1,44 @@
 # Zelph A1 — original source-byte equality → full native name-row/duplicate fibre audit
 
+## Operator A1 exact-head execution ACCEPTED at `f7d1bff7` — 15 Nov
+
+**Same original source revision** `0d4bd670959ebddae72f70d973410fdea8917ec1`.
+Operator reran `bash tools/check_zelph_physical_maxcut_offline.sh` on clean
+ITIR PR #14 head [`f7d1bff7a87c24ed2fd7f9603176efd022c8b1fd`](https://github.com/chboishabba/ITIR-suite/commit/f7d1bff7a87c24ed2fd7f9603176efd022c8b1fd):
+**410/410 Python PASS**, native C++ Cap'n Proto section, original mini-bin route
+and exhaustive NDJSON/multifibre controls PASS. This supersedes references
+below to the *prior* `adba4f0` 347/347 baseline.
+
+Operator imported prior direct original HTTP206 receipts for `nodeOfName`
+**0/1/4/75**, reused chunk 1 without double-counting, and rematerialized
+chunk 0's standalone native packed bytes (22,755,697 bytes, SHA
+`0bbfc205a26caeb8a0daf5e1b265cc10a0895d43e5c7828c0c4ad8109efc8508`).
+Fresh upstream-schema native decoder SHA:
+`219fd5ec733a1c3cb2cf9f7f8388897a97f744985f0ec9643bca33712bcead95`.
+`audit_zelph_native_name_fibres.py` persisted **4,000,000 rows** in local
+SQLite scratch at `/tmp/zelph-new-original-name-evidence/a1-original-native-fibres.sqlite`,
+**exactly 1,000,000** per original source-equal chunk 0,1,4,75,
+**all five positive QID node IDs replayed**. Output JSON saved at
+`/tmp/zelph-new-original-name-evidence/a1-first-four-chunks.json`.
+The operator described DB size about **608 MB**. These are supplied local
+execution receipts; this documentation write does not independently materialize
+that SQLite file. **Actual source table name is `native_rows`**; one operator
+summary called it `name_node_rows`, so any SQL inspection should inspect
+`sqlite_master` rather than assume the table name.
+
+**A1 phase advanced:** 4/204 `nodeOfName` chunks now have complete native
+row and source byte evidence; 0/204 inverse `nameOfNode`. Exact original
+`(name,node,count)` multi-fibre inverse join, global name-key coverage and
+golden Agda decoder adequacy remain OPEN.
+
+**Next A2 source written** (new-head local acceptance outstanding):
+[original HTTP206 `left/right` → selected native node → 20 finite words](https://github.com/chboishabba/ITIR-suite/blob/agent/nat-filtered-route-producer/docs/planning/zelph_original_http206_a2_native_20_word_maxcut_20261115.md).
+It requires native/physical coverage for **984+984 adjacency chunks** unless
+an independently authenticated sparse node→chunk route is provided. Do NOT
+treat a positive name root as adjacency knowledge.
+
+---
+
 ## One-command bounded original P0-S → native A1 round (after 410/410 acceptance)
 
 **Accepted historical exact head:** ITIR #14 `f7d1bff7a87c24ed2fd7f9603176efd022c8b1fd` — 410/410 Python and upstream-schema native Cap'n Proto roundtrip PASS, as reported by the local operator. The combined coordinator below is a NEW source change, not covered by that acceptance.
