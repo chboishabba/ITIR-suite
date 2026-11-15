@@ -109,3 +109,106 @@ def test_extra_selected_adjacency_chunk_rejected(tmp_path):
             manifest_path=m, route_path=r, dataset_revision=REV,
             manifest_sha256=digest, shard_root=tmp_path / "hf",
         )
+
+
+def test_connector_fetches_all_exact_selected_objects_and_retains_raw_sha(tmp_path):
+    import io
+    from plan_zelph_hf_selected_fetch import execute_selected_fetch
+    m, r, digest = _inputs(tmp_path)
+    root = tmp_path / "selected-hf"
+    plan = planner.selected_fetch_plan(
+        manifest_path=m, route_path=r, dataset_revision=REV,
+        manifest_sha256=digest, shard_root=root,
+    )
+    called = []
+    class Response(io.BytesIO):
+        def __init__(self, raw):
+            super().__init__(raw)
+            self.status = 206
+            self.headers = {
+                "Content-Range": "bytes 0-7/8",
+                "Content-Length": "8",
+                "Content-Encoding": "identity",
+            }
+        def geturl(self):
+            return "https://huggingface.co/original-pinned-data"
+    def opener(req, timeout):
+        assert req.get_header("Range") == "bytes=0-7"
+        assert "/resolve/" + REV + "/" in req.full_url
+        assert "wikidata-20260309-all.bin" not in req.full_url
+        called.append(req.full_url)
+        return Response(b"shard123")
+    result = execute_selected_fetch(
+        plan=plan, manifest_path=m, route_path=r, shard_root=root,
+        opener=opener,
+    )
+    assert len(called) == 4
+    assert result["network_transfer_confirmed"] is True
+    assert result["download_client_invoked"] is False
+    assert result["connector_transport_owner"] == "itir_mcp.shard_transport"
+    assert result["source_bin_to_shard_ranges_verified"] is False
+    for receipt in result["selected_object_receipts"]:
+        assert receipt["size_bytes"] == 8
+        assert receipt["raw_hf_object_sha256"] == sha256(b"shard123").hexdigest()
+        assert (root / receipt["object_relative_path"]).read_bytes() == b"shard123"
+
+
+def test_connector_refuses_http200_and_never_promotes_source_equality(tmp_path):
+    import io
+    from plan_zelph_hf_selected_fetch import execute_selected_fetch
+    m, r, digest = _inputs(tmp_path)
+    root = tmp_path / "selected"
+    plan = planner.selected_fetch_plan(
+        manifest_path=m, route_path=r, dataset_revision=REV,
+        manifest_sha256=digest, shard_root=root,
+    )
+    class NotRange(io.BytesIO):
+        def __init__(self):
+            super().__init__(b"shard123")
+            self.status = 200
+            self.headers = {"Content-Length": "8"}
+    with pytest.raises(ValueError, match="exact HTTP 206"):
+        execute_selected_fetch(
+            plan=plan, manifest_path=m, route_path=r, shard_root=root,
+            opener=lambda *_a, **_kw: NotRange(),
+        )
+    assert not list(root.rglob("*.capnp-packed"))
+
+
+def test_connector_rejects_pretend_selected_plan_without_network(tmp_path):
+    from plan_zelph_hf_selected_fetch import execute_selected_fetch
+    m, r, digest = _inputs(tmp_path)
+    root = tmp_path / "selected"
+    plan = planner.selected_fetch_plan(
+        manifest_path=m, route_path=r, dataset_revision=REV,
+        manifest_sha256=digest, shard_root=root,
+    )
+    plan["selected_shard_files"] = plan["selected_shard_files"][:1]
+    def refuse(*_a, **_kw):
+        raise AssertionError("never contact source for tampered route selection")
+    with pytest.raises(ValueError, match="plan changed"):
+        execute_selected_fetch(
+            plan=plan, manifest_path=m, route_path=r, shard_root=root,
+            opener=refuse,
+        )
+
+
+def test_connector_never_overwrites_existing_selected_shard(tmp_path):
+    from plan_zelph_hf_selected_fetch import execute_selected_fetch
+    m, r, digest = _inputs(tmp_path)
+    root = tmp_path / "selected"
+    plan = planner.selected_fetch_plan(
+        manifest_path=m, route_path=r, dataset_revision=REV,
+        manifest_sha256=digest, shard_root=root,
+    )
+    old = root / plan["selected_shard_files"][0]
+    old.parent.mkdir(parents=True)
+    old.write_bytes(b"old evidence")
+    def refuse(*_a, **_kw):
+        raise AssertionError("existing immutable file must block before fetching")
+    with pytest.raises(ValueError, match="refuse overwrite"):
+        execute_selected_fetch(
+            plan=plan, manifest_path=m, route_path=r, shard_root=root,
+            opener=refuse,
+        )
+    assert old.read_bytes() == b"old evidence"
