@@ -128,6 +128,7 @@ def original_http206_finite_words(
     response=[]
     missing={}
     labels=set()
+    distinct_relation_contracts=set()
     for item in queries:
         if type(item) is not dict:
             raise ValueError("original finite query row not object")
@@ -138,6 +139,10 @@ def original_http206_finite_words(
                 or any(dir not in ("left","right") for dir in word)):
             raise ValueError("invalid original finite relation query label/word")
         labels.add(label)
+        contract=(qid,tuple(word))
+        if contract in distinct_relation_contracts:
+            raise ValueError("duplicate original QID/relation-word contract cannot count as a distinct finite query")
+        distinct_relation_contracts.add(contract)
         frontier={roots[qid]}
         trace=[]
         gaps=[]
@@ -184,7 +189,11 @@ def original_http206_finite_words(
         "query_results":response,
         "observed_exact_node_direction_rows":len(row_map),
         "all_declared_original_lr_words_closed":not missing,
-        "all_twenty_original_lr_words_closed":len(queries)==20 and not missing,
+        "all_twenty_original_lr_words_closed":(
+            len(queries)==20 and len(distinct_relation_contracts)==20 and not missing
+        ),
+        "distinct_declared_root_relation_word_count":len(distinct_relation_contracts),
+        "twenty_word_scope_is_explicitly_declared_not_all_possible_paths":True,
         "original_qid_global_unique_name_fibres_verified":False,
         "closure_is_for_explicit_root_node_ids_only":True,
         "upstream_native_scan_receipts_replayed_in_this_evaluator":False,
