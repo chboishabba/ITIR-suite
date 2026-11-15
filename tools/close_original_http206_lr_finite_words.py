@@ -50,9 +50,17 @@ def original_http206_finite_words(
     for item,raw_sha in audits:
         if type(raw_sha) is not str or not _SHA.fullmatch(raw_sha):
             raise ValueError("raw native scan receipt SHA invalid")
-        if (item.get("version")!="itir.zelph.original_lr_native_complete_chunk_scans.v1"
-                or item.get("edit_authority") is not False):
+        direct=item.get("version")=="itir.zelph.original_lr_native_complete_chunk_scans.v1"
+        bloom=item.get("version")=="itir.zelph.original_lr_bloom_pruned_exact_native_onehop.v1"
+        if (not (direct or bloom) or item.get("edit_authority") is not False):
             raise ValueError("original-native source-equal adjacency audit receipt required")
+        if bloom and (
+            item.get("all_original_adjacency_blooms_completed") is not True
+            or item.get("all_bloom_candidate_chunks_exact_native_replayed") is not True
+            or item.get("every_original_chunk_adjacency_key_natively_scanned") is not True
+            or item.get("unselected_noncandidate_chunks_omitted_only_by_complete_original_bloom") is not True
+        ):
+            raise ValueError("Bloom-pruned selected adjacency lacks full original source membership evidence")
         keys=("dataset_revision","manifest_sha256","original_index_sha256",
               "positive_roots_receipt_sha256","decoder_binary_sha256")
         identity=tuple(item.get(k) for k in keys)
@@ -64,7 +72,7 @@ def original_http206_finite_words(
             reference=identity
         elif reference!=identity:
             raise ValueError("cross-source revision, manifest/index, roots or decoder drift")
-        if (item.get("all_source_equal_original_chunks_natively_scanned") is not True
+        if ((direct and item.get("all_source_equal_original_chunks_natively_scanned") is not True)
                 or item.get("all_selected_root_one_hop_adjacencies_complete") is not True
                 or item.get("selected_root_adjacency_equal_exact_original_http206_bytes") is not True):
             # A partial scan may be passed, but never promote its rows into
@@ -91,6 +99,28 @@ def original_http206_finite_words(
         if type(records) is not list or len(records)!=2*len(declared):
             raise ValueError("original native scan missing declared node/direction rows")
         seen_local=set()
+        replayed=set()
+        if bloom:
+            actual=item.get("bloom_candidate_exact_native_replays")
+            if not isinstance(actual,list) or len(actual)>200000:
+                raise ValueError("Bloom-pruned original native candidate replays missing")
+            for source in actual:
+                if type(source) is not dict:
+                    raise ValueError("invalid original native candidate replay receipt")
+                key=(source.get("section"),source.get("chunk_index"))
+                if (key[0] not in ("left","right")
+                        or type(key[1]) is not int
+                        or not 0<=key[1]<source_counts[key[0]]
+                        or key in replayed
+                        or type(source.get("native_selected_output_sha256")) is not str
+                        or not _SHA.fullmatch(source["native_selected_output_sha256"])
+                        or type(source.get("original_equal_packed_sha256")) is not str
+                        or not _SHA.fullmatch(source["original_equal_packed_sha256"])
+                        or type(source.get("original_http206_receipt_sha256")) is not str
+                        or not _SHA.fullmatch(source["original_http206_receipt_sha256"])):
+                    raise ValueError("original source Bloom candidate replay has malformed provenance")
+                replayed.add(key)
+        declared_candidates=set()
         for row in records:
             node,dir=row.get("node_id"),row.get("direction")
             if (type(node) is not int or node not in declared or dir not in ("left","right")
@@ -101,6 +131,21 @@ def original_http206_finite_words(
                     or row.get("source_original_section_chunk_count")!=source_counts[dir]):
                 raise ValueError("full original source node/direction scan malformed")
             seen_local.add((node,dir))
+            if bloom:
+                candidates=row.get("candidate_chunk_indices_tested")
+                hits=row.get("native_packed_hit_chunk_indices")
+                if (type(candidates) is not list or
+                        any(type(x) is not int or not 0<=x<source_counts[dir]
+                            for x in candidates) or
+                        candidates!=sorted(set(candidates))
+                        or type(hits) is not list or
+                        any(type(x) is not int for x in hits) or
+                        hits!=sorted(set(hits)) or
+                        not set(hits).issubset(set(candidates)) or
+                        row.get("negative_chunk_keys_excluded_by_original_source_bloom")!=
+                            source_counts[dir]-len(candidates)):
+                    raise ValueError("Bloom-pruned native source candidate/hit route incomplete")
+                declared_candidates.update((dir,c) for c in candidates)
             neighbors=row.get("native_original_neighbors_sorted_unique")
             seen=row.get("native_original_values_seen")
             if (not isinstance(neighbors,list) or len(neighbors)>max_frontier
@@ -116,7 +161,10 @@ def original_http206_finite_words(
             row_sources.setdefault(key,set()).add(raw_sha)
         if seen_local!={(n,d) for n in declared for d in ("left","right")}:
             raise ValueError("selected original native directional completeness missing")
+        if bloom and declared_candidates!=replayed:
+            raise ValueError("full original Bloom candidate set not exactly replayed")
         receipts.append({"sha256":raw_sha,"accepted_exact_scan":True,
+                         "scan_method": "complete-original-bloom-candidates" if bloom else "complete-original-direct-sweep",
                          "nodes":len(declared)})
     roots=audits[0][0].get("root_qid_node_ids")
     if (not isinstance(roots,dict) or not roots
@@ -197,6 +245,7 @@ def original_http206_finite_words(
         "original_qid_global_unique_name_fibres_verified":False,
         "closure_is_for_explicit_root_node_ids_only":True,
         "upstream_native_scan_receipts_replayed_in_this_evaluator":False,
+        "full_bloom_candidate_source_stage_supported":True,
         "missing_source_numeric_frontiers":needed,
         "next_numeric_nodes_to_native_scan":sorted(set(row["node_id"] for row in needed)),
         "source_equal_native_full_section_sweep_receipts":receipts,
