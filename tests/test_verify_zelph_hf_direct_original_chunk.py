@@ -151,3 +151,24 @@ def test_real_zero_byte_source_offset_not_assumed_to_mean_first_chunk(tmp_path):
     proof, _ = _call(tmp_path, section="left")
     assert proof["original_source_offset"] == len(HEADER)
     assert proof["source_range_end_inclusive"] == len(HEADER) + 4
+
+
+def test_same_stream_can_atomically_save_only_physically_equal_native_shard(tmp_path):
+    target = tmp_path / "saved-node-of-name-0.capnp-packed"
+    proof, _ = _call(tmp_path, section="nodeOfName", body=b"abcde",
+                     save_published_copy=target)
+    assert target.read_bytes() == b"abcde"
+    assert proof["published_shard_raw_sha256"] == sha256(target.read_bytes()).hexdigest()
+    assert proof["saved_original_equal_published_copy"] == str(target)
+    with pytest.raises(ValueError, match="refuse overwrite"):
+        _call(tmp_path, section="nodeOfName", body=b"abcde",
+              save_published_copy=target)
+
+
+def test_byte_mismatch_does_not_leave_native_shard_or_scratch_copy(tmp_path):
+    target = tmp_path / "untrusted-published.capnp-packed"
+    with pytest.raises(ValueError, match="packed bytes differ"):
+        _call(tmp_path, section="nodeOfName", body=b"abcde",
+              wrong_source=True, save_published_copy=target)
+    assert not target.exists()
+    assert not list(tmp_path.glob(".verified-hf-original-*"))
