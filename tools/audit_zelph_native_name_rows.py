@@ -77,6 +77,7 @@ def enumerate_authenticated_name_chunk(
     dataset_revision: str, manifest_sha256: str, original_index_sha256: str,
     section: str, chunk_index: int, receipt_path: Path,
     shard_root: Path, decoder_path: Path,
+    expected_decoder_sha256: str,
     target_qids: tuple[str, ...] = (),
     max_name_rows: int = 10000000, max_stdout_mib: int = 2048,
     max_line_bytes: int = 65536, timeout_seconds: int = 600,
@@ -90,6 +91,9 @@ def enumerate_authenticated_name_chunk(
             or type(original_index_sha256) is not str
             or not _SHA.fullmatch(original_index_sha256)):
         raise ValueError("immutable original revision, manifest and index pins required")
+    if (type(expected_decoder_sha256) is not str
+            or not _SHA.fullmatch(expected_decoder_sha256)):
+        raise ValueError("independent pinned native decoder executable SHA256 required")
     if section not in ("nameOfNode", "nodeOfName"):
         raise ValueError("exhaustive native enumeration only for name sections")
     if type(chunk_index) is not int or chunk_index < 0:
@@ -182,6 +186,8 @@ def enumerate_authenticated_name_chunk(
             or _hash_file(file) != receipt["published_shard_raw_sha256"]):
         raise ValueError("local packed Capnp shard does not equal original HTTP206 witness")
     decoder_hash = _hash_file(decoder_path)
+    if decoder_hash != expected_decoder_sha256:
+        raise ValueError("original-schema native decoder executable digest mismatches pin")
     requested = [str(decoder_path), "--file", str(file), "--section", section,
                  "--chunk-index", str(chunk_index), "--lang", "wikidata",
                  "--stream-name-rows", "--max-name-rows", str(max_name_rows)]
@@ -289,6 +295,8 @@ def main() -> int:
     p.add_argument("--physical-receipt", type=Path, required=True)
     p.add_argument("--shard-root", type=Path, required=True)
     p.add_argument("--decoder", type=Path, required=True)
+    p.add_argument("--decoder-sha256", required=True,
+                   help="independently computed sha256sum of locally compiled original Capnp decoder")
     p.add_argument("--qid", action="append", default=[])
     p.add_argument("--max-name-rows", type=int, default=10000000)
     p.add_argument("--max-stdout-mib", type=int, default=2048)
@@ -311,7 +319,9 @@ def main() -> int:
             original_index_sha256=args.original_index_sha256,
             section=args.section, chunk_index=args.chunk_index,
             receipt_path=args.physical_receipt, shard_root=args.shard_root,
-            decoder_path=args.decoder, target_qids=tuple(args.qid),
+            decoder_path=args.decoder,
+            expected_decoder_sha256=args.decoder_sha256,
+            target_qids=tuple(args.qid),
             max_name_rows=args.max_name_rows,
             max_stdout_mib=args.max_stdout_mib,
             timeout_seconds=args.timeout_seconds, rows_output=args.rows_output,
