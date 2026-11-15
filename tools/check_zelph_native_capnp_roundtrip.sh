@@ -91,6 +91,16 @@ assert value["edit_authority"] is False
 print("PASS: original packed Zelph header native decoder counts 4 sections")
 PY
 
+# A trailing extra byte cannot silently be accepted as part of the
+# exact original source packed header interval.
+cp "$TMP/packed/header.capnp-packed" "$TMP/header-with-trailer.bin"
+printf 'x' >> "$TMP/header-with-trailer.bin"
+if "$TMP/original-header-probe" --header-file "$TMP/header-with-trailer.bin" \
+  >"$TMP/header-with-trailer.stdout" 2>"$TMP/header-with-trailer.stderr"; then
+  echo "BLOCKED: original header parser silently accepted appended trailer" >&2
+  exit 3
+fi
+
 # Original header decoder refuses non-Cap'n Proto bytes.
 printf '\x00\x01\x02' > "$TMP/corrupted-original-header.bin"
 if "$TMP/original-header-probe" --header-file "$TMP/corrupted-original-header.bin" \
