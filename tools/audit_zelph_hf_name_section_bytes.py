@@ -81,7 +81,8 @@ def audit_name_section(*, manifest_path: Path, original_index_path: Path,
                        max_chunk_mib: int = 128, max_transfer_mib: int = 512,
                        max_new_chunks: int = 4, execute: bool = False,
                        opener: Callable[..., Any] | None = None,
-                       save_published_root: Path | None = None) -> dict:
+                       save_published_root: Path | None = None,
+                       import_physical_receipts_dirs: list[Path] | None = None) -> dict:
     if (type(dataset_revision) is not str or not _REV.fullmatch(dataset_revision)
             or type(manifest_sha256) is not str
             or not _SHA.fullmatch(manifest_sha256)):
@@ -99,6 +100,11 @@ def audit_name_section(*, manifest_path: Path, original_index_path: Path,
         raise ValueError("explicit bounded chunk/network budgets required")
     if receipts_dir.is_symlink():
         raise ValueError("name receipt directory symlink refused")
+    imports = import_physical_receipts_dirs or []
+    if (not isinstance(imports, list) or len(imports) > 16 or
+            any(not isinstance(d, Path) or not d.is_dir() or d.is_symlink()
+                for d in imports)):
+        raise ValueError("original physical import roots must be actual receipt directories")
     if save_published_root is not None:
         if not isinstance(save_published_root, Path) or save_published_root.is_symlink():
             raise ValueError("native packed shard root symlink/invalid path refused")
@@ -121,7 +127,7 @@ def audit_name_section(*, manifest_path: Path, original_index_path: Path,
     if (not ordered or [n for n, _ in ordered] != list(range(len(ordered)))
             or crosswalk["section_chunk_counts"][section + "ChunkCount"] != len(ordered)):
         raise ValueError("name section geometry not complete")
-    retained, missing = [], []
+    retained, missing, planned_imports, performed_imports = [], [], [], []
     for n, row in ordered:
         path = receipts_dir / f"{section}-{n:06d}.json"
         if path.is_symlink():
@@ -138,7 +144,40 @@ def audit_name_section(*, manifest_path: Path, original_index_path: Path,
             )
             retained.append((n, row, path, sha256(path.read_bytes()).hexdigest()))
         else:
-            missing.append((n, row, path))
+            matches = []
+            for root in imports:
+                p = root / f"{section}-{n:06d}.json"
+                if p.is_symlink():
+                    raise ValueError("symlinked imported original physical receipt")
+                if p.is_file():
+                    other = _read_receipt(p)
+                    _check_receipt(other, row=row, number=n, section=section,
+                                   rev=dataset_revision, manifest_sha=manifest_sha256,
+                                   index_sha=original_index_sha, bin_size=bin_size)
+                    matches.append((p, other))
+            if not matches:
+                missing.append((n, row, path))
+                continue
+            head = matches[0][1]
+            for _, other in matches[1:]:
+                for label in (
+                    "original_packed_range_raw_sha256", "published_shard_raw_sha256",
+                    "original_source_offset", "source_range_end_inclusive",
+                    "bytes_compared", "published_object_uri",
+                ):
+                    if head.get(label) != other.get(label):
+                        raise ValueError("conflicting imported original physical chunk equality")
+            planned_imports.append(n)
+            if execute:
+                receipts_dir.mkdir(parents=True, exist_ok=True)
+                # Source receipt bytes are preserved verbatim. Exclusive create
+                # never silently rewrites the prior original HTTP206 witness.
+                with path.open("xb") as output:
+                    output.write(matches[0][0].read_bytes())
+                if sha256(path.read_bytes()).hexdigest() != sha256(matches[0][0].read_bytes()).hexdigest():
+                    raise ValueError("imported original source receipt changed during copy")
+                performed_imports.append(n)
+                retained.append((n, row, path, sha256(path.read_bytes()).hexdigest()))
     transfer_bytes = 0
     scheduled, deferred = [], []
     for n, row, path in missing:
@@ -205,6 +244,8 @@ def audit_name_section(*, manifest_path: Path, original_index_path: Path,
         "planned_chunk_indices": [n for n, _, _ in scheduled],
         "deferred_chunk_indices": deferred,
         "planned_transfer_bytes": transfer_bytes,
+        "planned_imported_original_receipt_indices": planned_imports,
+        "new_imported_original_receipt_indices": performed_imports,
         "network_executed": execute and bool(scheduled),
         "saved_native_shard_root": (
             str(save_published_root) if save_published_root is not None else None
@@ -234,6 +275,8 @@ def main() -> int:
     p.add_argument("--max-chunk-mib", type=int, default=128)
     p.add_argument("--max-transfer-mib", type=int, default=512)
     p.add_argument("--max-new-chunks", type=int, default=4)
+    p.add_argument("--import-physical-receipts-dir", type=Path, action="append",
+                   help="reconcile existing matrix/earlier physical HTTP206 receipts into this section ledger")
     p.add_argument("--save-published-root", type=Path,
                    help="reuse exact byte comparison transfer to retain immutable packed shards for native row decoding")
     p.add_argument("--execute", action="store_true")
@@ -248,6 +291,7 @@ def main() -> int:
             max_chunk_mib=args.max_chunk_mib, max_transfer_mib=args.max_transfer_mib,
             max_new_chunks=args.max_new_chunks, execute=args.execute,
             save_published_root=args.save_published_root,
+            import_physical_receipts_dirs=args.import_physical_receipts_dir,
         )
         rendered = json.dumps(result, sort_keys=True, indent=2) + "\n"
         if args.output:
