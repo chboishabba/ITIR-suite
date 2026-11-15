@@ -2,9 +2,8 @@
 """Plan or explicitly execute an immutable, budgeted HF selected-shard fetch.
 
 The artifact and every relative shard path are verified against a pinned v2
-manifest and a filtered route. The default is *no network*. With --execute,
-reuse the installed official 'hf download' CLI, avoiding a duplicate transfer
-implementation and never asking it to download the full 82 GiB .bin.
+manifest and a filtered route. The default is *no network*. With --execute, stream exact selected objects through the existing ITIR HF
+connector, never requesting the full original 82 GiB binary.
 """
 from __future__ import annotations
 
@@ -13,9 +12,10 @@ from hashlib import sha256
 import json
 from pathlib import Path
 import shlex
-import subprocess
 import sys
 from typing import Any
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'itir-mcp' / 'src'))
+from itir_mcp.shard_transport import open_pinned_zelph_range
 
 from verify_zelph_bin_shard_exact import (
     _ARTIFACT, _SHA40, _SHA64,
@@ -75,6 +75,7 @@ def selected_fetch_plan(
         "advertised_selected_bytes": total,
         "max_selected_gib": max_selected_gib,
         "invocation": command,
+        "primary_transport_owner": "itir_mcp.shard_transport",
         "printable_command": shlex.join(command),
         "download_client_invoked": False,
         "network_transfer_confirmed": False,
@@ -83,6 +84,88 @@ def selected_fetch_plan(
         "candidate_only": True,
     }
 
+
+
+def execute_selected_fetch(*, plan: dict[str, Any], manifest_path: Path,
+                           route_path: Path, shard_root: Path,
+                           opener: Any | None = None, timeout: int = 60) -> dict[str, Any]:
+    """Stream exact selected immutable HF objects via the existing connector."""
+    revision = plan.get("dataset_revision")
+    if (not isinstance(revision, str) or not _SHA40.fullmatch(revision)
+            or plan.get("version") != "itir.zelph.budgeted_immutable_hf_selected_shards.v1"):
+        raise ValueError("exact pinned selected-shard fetch plan required")
+    rebuilt = selected_fetch_plan(
+        manifest_path=manifest_path, route_path=route_path,
+        dataset_revision=revision,
+        manifest_sha256=plan.get("manifest_sha256_verified"),
+        shard_root=shard_root, max_selected_gib=plan.get("max_selected_gib"),
+    )
+    for field in ("dataset_revision", "manifest_sha256_verified",
+                  "route_sha256_verified", "selected_shard_files",
+                  "selected_object_count", "advertised_selected_bytes",
+                  "max_selected_gib", "invocation"):
+        if plan.get(field) != rebuilt[field]:
+            raise ValueError("selected HF plan changed after pinned inputs")
+    if type(timeout) is not int or not 0 < timeout <= 600:
+        raise ValueError("positive bounded selected HF network timeout required")
+    if shard_root.is_symlink():
+        raise ValueError("selected shard root must not be symlink")
+    if not shard_root.exists():
+        shard_root.mkdir(parents=True)
+    root = shard_root.resolve(strict=True)
+    if not root.is_dir():
+        raise ValueError("selected shard root must be a directory")
+    manifest = _read_json(manifest_path, 16 * 1024 * 1024)
+    index = _manifest_index(manifest, _ARTIFACT)
+    selected = _selected_route_keys(_read_json(route_path, 64 * 1024 * 1024))
+    ordered = [index[key] for key in sorted(selected)]
+    for row in ordered:
+        target = root / row["relative"]
+        if target.exists() or target.is_symlink():
+            raise ValueError("selected HF evidence already exists; refuse overwrite")
+        for parent in target.parents:
+            if parent == root:
+                break
+            if parent.is_symlink():
+                raise ValueError("selected HF shard parent symlink refused")
+    receipts = []
+    for row in ordered:
+        rel, length = row["relative"], row["length"]
+        target = root / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        digest = sha256()
+        bytes_seen = 0
+        with open_pinned_zelph_range(
+            hf_uri=f"hf://datasets/acrion/zelph/{rel}",
+            revision=revision, start=0, length=length, total_size=length,
+            max_bytes=plan["max_selected_gib"] * 1024**3,
+            opener=opener, timeout=timeout,
+        ) as remote:
+            with target.open("xb") as out:
+                while bytes_seen < length:
+                    block = remote.read(min(1024 * 1024, length - bytes_seen))
+                    if not block:
+                        raise ValueError("HF selected shard truncated")
+                    bytes_seen += len(block)
+                    out.write(block)
+                    digest.update(block)
+                if remote.read(1):
+                    raise ValueError("HF selected shard has unaccounted extra bytes")
+        receipts.append({
+            "object_relative_path": rel, "size_bytes": bytes_seen,
+            "raw_hf_object_sha256": digest.hexdigest(),
+            "exact_hf_object_http206": True,
+            "original_bin_source_range_equality_checked": False,
+        })
+    return {
+        **plan, "connector_transport_owner": "itir_mcp.shard_transport",
+        "download_client_invoked": False, "network_transfer_confirmed": True,
+        "original_bin_requested": False,
+        "selected_original_hf_objects_bytes_observed": True,
+        "selected_object_receipts": receipts,
+        "source_bin_to_shard_ranges_verified": False,
+        "upstream_source_authority_paid": False, "edit_authority": False,
+    }
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -93,7 +176,7 @@ def main() -> int:
     parser.add_argument("--shard-root", type=Path, required=True)
     parser.add_argument("--max-selected-gib", type=int, default=8)
     parser.add_argument("--execute", action="store_true",
-                        help="explicitly execute immutable hf download; default plans only")
+                        help="stream exact immutable selected HF objects via existing connector; default plans only")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     try:
@@ -105,21 +188,17 @@ def main() -> int:
             max_selected_gib=args.max_selected_gib,
         )
         if args.execute:
-            # Download command intentionally does not run via a shell.
-            # It reuses HF's existing client authentication, retries and cache.
-            subprocess.run(result["invocation"], check=True)
-            result["download_client_invoked"] = True
-            # Local HF cache hits can satisfy downloads; independent raw-byte
-            # verification is performed by the later physical audit.
-            result["network_transfer_confirmed"] = False
-            result["source_bin_to_shard_ranges_verified"] = False
+            result = execute_selected_fetch(
+                plan=result, manifest_path=args.manifest, route_path=args.route,
+                shard_root=args.shard_root,
+            )
         output = json.dumps(result, indent=2, sort_keys=True) + "\n"
         if args.output:
             args.output.write_text(output, encoding="utf-8")
         else:
             sys.stdout.write(output)
         return 0
-    except (OSError, ValueError, json.JSONDecodeError, subprocess.CalledProcessError) as exc:
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(json.dumps({"status": "blocked", "reason": str(exc),
                           "source_bin_to_shard_ranges_verified": False}, sort_keys=True),
               file=sys.stderr)
