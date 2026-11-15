@@ -153,7 +153,7 @@ def test_connector_fetches_all_exact_selected_objects_and_retains_raw_sha(tmp_pa
         assert (root / receipt["object_relative_path"]).read_bytes() == b"shard123"
 
 
-def test_connector_refuses_http200_and_never_promotes_source_equality(tmp_path):
+def test_connector_accepts_complete_http200_whole_shard_but_never_promotes_original_bin(tmp_path):
     import io
     from plan_zelph_hf_selected_fetch import execute_selected_fetch
     m, r, digest = _inputs(tmp_path)
@@ -162,15 +162,41 @@ def test_connector_refuses_http200_and_never_promotes_source_equality(tmp_path):
         manifest_path=m, route_path=r, dataset_revision=REV,
         manifest_sha256=digest, shard_root=root,
     )
-    class NotRange(io.BytesIO):
+    class Whole(io.BytesIO):
+        def __init__(self, *, wrong_length=False):
+            super().__init__(b"shard123")
+            self.status = 200
+            self.headers = {"Content-Length": "7" if wrong_length else "8"}
+        def geturl(self):
+            return "https://huggingface.co/pinned-whole-object"
+    result = execute_selected_fetch(
+        plan=plan, manifest_path=m, route_path=r, shard_root=root,
+        opener=lambda *_a, **_kw: Whole(),
+    )
+    assert result["selected_original_hf_objects_bytes_observed"] is True
+    assert result["source_bin_to_shard_ranges_verified"] is False
+    assert all(row["http_status"] == 200 for row in result["selected_object_receipts"])
+    assert len(result["selected_object_receipts"]) == 4
+
+
+def test_connector_rejects_http200_with_wrong_full_object_length(tmp_path):
+    import io
+    from plan_zelph_hf_selected_fetch import execute_selected_fetch
+    m, r, digest = _inputs(tmp_path)
+    root = tmp_path / "selected"
+    plan = planner.selected_fetch_plan(
+        manifest_path=m, route_path=r, dataset_revision=REV,
+        manifest_sha256=digest, shard_root=root,
+    )
+    class WrongSize(io.BytesIO):
         def __init__(self):
             super().__init__(b"shard123")
             self.status = 200
-            self.headers = {"Content-Length": "8"}
-    with pytest.raises(ValueError, match="exact HTTP 206"):
+            self.headers = {"Content-Length": "7"}
+    with pytest.raises(ValueError, match="Content-Length"):
         execute_selected_fetch(
             plan=plan, manifest_path=m, route_path=r, shard_root=root,
-            opener=lambda *_a, **_kw: NotRange(),
+            opener=lambda *_a, **_kw: WrongSize(),
         )
     assert not list(root.rglob("*.capnp-packed"))
 
