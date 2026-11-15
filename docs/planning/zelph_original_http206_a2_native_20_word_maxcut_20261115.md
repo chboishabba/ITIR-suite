@@ -100,12 +100,15 @@ INDEX="$META/artifact.index.json"
 RUN=/tmp/zelph-new-original-name-evidence
 SHARDS="$RUN/source-equal-shards"
 ROOTS="$RUN/five-original-positive-qid-roots.json"
-DECODER="$RUN/native-a1/selected-decoder"
+# Freshly compile the original-schema decoder from THIS exact A2 head:
+# previous native-a1 executable predates duplicate-node union semantics.
+bash tools/build_zelph_native_live.sh "$RUN/native-a2"
+DECODER="$RUN/native-a2/selected-decoder"
 LEFT="$RUN/left-original-receipts"
 RIGHT="$RUN/right-original-receipts"
 FAMILY=docs/planning/zelph_five_qid_lr_query_family.example.json
 
-# Inspect actual previous native decoder/receipt files.
+# Bind every A2 source/native receipt to this newly compiled decoder.
 sha256sum "$DECODER" "$ROOTS"
 ```
 
