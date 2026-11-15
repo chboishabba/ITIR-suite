@@ -17,14 +17,18 @@ from __future__ import annotations
 import argparse
 from hashlib import sha256
 import json
+import os
 from pathlib import Path
 import re
+from contextlib import ExitStack
 import shutil
 import subprocess
 import sys
-from tempfile import TemporaryDirectory
-from typing import Any
+from tempfile import TemporaryDirectory, NamedTemporaryFile
+from typing import Any, Callable
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "itir-mcp" / "src"))
+from itir_mcp.shard_transport import open_pinned_zelph_complete_object
 from audit_zelph_hf_name_section_bytes import _check_receipt, _read_receipt
 from verify_zelph_bin_shard_exact import _ARTIFACT, _manifest_index, _read_json
 from verify_zelph_index_manifest_original import verify_index_manifest_files
@@ -77,6 +81,9 @@ def enumerate_authenticated_name_chunk(
     max_name_rows: int = 10000000, max_stdout_mib: int = 2048,
     max_line_bytes: int = 65536, timeout_seconds: int = 600,
     rows_output: Path | None = None,
+    hydrate_missing_shard: bool = False,
+    max_hydrate_mib: int = 128,
+    opener: Callable[..., Any] | None = None,
 ) -> dict[str, Any]:
     if (type(dataset_revision) is not str or not _REV.fullmatch(dataset_revision)
             or type(manifest_sha256) is not str or not _SHA.fullmatch(manifest_sha256)
@@ -92,6 +99,10 @@ def enumerate_authenticated_name_chunk(
             or type(max_line_bytes) is not int or not 0 < max_line_bytes <= 1048576
             or type(timeout_seconds) is not int or not 0 < timeout_seconds <= 3600):
         raise ValueError("bounded native stream rows/bytes/timeout required")
+    if (type(hydrate_missing_shard) is not bool
+            or type(max_hydrate_mib) is not int
+            or not 1 <= max_hydrate_mib <= 16384):
+        raise ValueError("bounded explicit native packed shard hydration required")
     if (not isinstance(target_qids, tuple)
             or len(target_qids) > 10000
             or any(type(q) is not str or not _QID.fullmatch(q)
@@ -118,13 +129,56 @@ def enumerate_authenticated_name_chunk(
         index_sha=original_index_sha256,
         bin_size=cross["original_bin_size_bytes"],
     )
+    if shard_root.is_symlink():
+        raise ValueError("native packed shard root symlink refused")
+    if hydrate_missing_shard and not shard_root.exists():
+        shard_root.mkdir(parents=True, exist_ok=True)
     root = shard_root.resolve(strict=True)
-    if shard_root.is_symlink() or not root.is_dir():
+    if not root.is_dir():
         raise ValueError("native physical shard root must be real directory")
     file = root / row["relative"]
-    if file.is_symlink() or not file.resolve(strict=True).is_relative_to(root):
+    if (file.is_symlink()
+            or not file.resolve().is_relative_to(root)):
         raise ValueError("native shard path escapes immutable source root")
-    if (file.stat().st_size != row["length"]
+    hydrated = False
+    if not file.exists() and hydrate_missing_shard:
+        if row["length"] > max_hydrate_mib * 1024**2:
+            raise ValueError("retained original-equal shard exceeds hydration transfer cap")
+        file.parent.mkdir(parents=True, exist_ok=True)
+        if file.parent.is_symlink():
+            raise ValueError("symlinked native packed shard parent refused")
+        with ExitStack() as stack:
+            scratch_out = stack.enter_context(NamedTemporaryFile(
+                mode="wb", dir=file.parent, prefix=".original-equal-name-",
+                delete=False,
+            ))
+            scratch = Path(scratch_out.name)
+            stack.callback(lambda: scratch.unlink(missing_ok=True))
+            remote = stack.enter_context(open_pinned_zelph_complete_object(
+                hf_uri=row["object_uri"], revision=dataset_revision,
+                expected_size=row["length"],
+                max_bytes=max_hydrate_mib * 1024**2, opener=opener,
+            ))
+            digest = sha256()
+            count = 0
+            while count < row["length"]:
+                block = remote.read(min(1024 * 1024, row["length"] - count))
+                if not block:
+                    raise ValueError("source-backed published shard hydration truncated")
+                scratch_out.write(block)
+                digest.update(block)
+                count += len(block)
+            if remote.read(1) or digest.hexdigest() != receipt["published_shard_raw_sha256"]:
+                raise ValueError("hydrated published shard differs from original HTTP206 receipt")
+            scratch_out.flush()
+            os.fsync(scratch_out.fileno())
+            # Atomic, overwrite-refusing publication of the already-pinned
+            # whole-object bytes. No second original .bin request is required.
+            os.link(scratch, file, follow_symlinks=False)
+            hydrated = True
+    if (not file.is_file() or file.is_symlink()
+            or not file.resolve(strict=True).is_relative_to(root)
+            or file.stat().st_size != row["length"]
             or _hash_file(file) != receipt["published_shard_raw_sha256"]):
         raise ValueError("local packed Capnp shard does not equal original HTTP206 witness")
     decoder_hash = _hash_file(decoder_path)
@@ -207,6 +261,8 @@ def enumerate_authenticated_name_chunk(
         "physical_original_name_chunk_receipt_sha256": _hash_file(receipt_path),
         "original_packed_chunk_raw_sha256": receipt["original_packed_range_raw_sha256"],
         "native_decoder_executable_sha256": decoder_hash,
+        "packed_shard_hydrated_from_pinned_hf_whole_object": hydrated,
+        "original_bin_requeried_for_hydration": False,
         "native_packed_chunk_rows_enumerated": count,
         "native_name_rows_stdout_sha256": digest,
         "native_stdout_bytes": total_bytes,
@@ -238,6 +294,9 @@ def main() -> int:
     p.add_argument("--max-stdout-mib", type=int, default=2048)
     p.add_argument("--timeout-seconds", type=int, default=600)
     p.add_argument("--rows-output", type=Path)
+    p.add_argument("--hydrate-missing-shard", action="store_true",
+                   help="fetch only full published object when original-equal physical receipt already exists")
+    p.add_argument("--max-hydrate-mib", type=int, default=128)
     p.add_argument("--receipt-output", type=Path)
     args = p.parse_args()
     try:
@@ -256,6 +315,8 @@ def main() -> int:
             max_name_rows=args.max_name_rows,
             max_stdout_mib=args.max_stdout_mib,
             timeout_seconds=args.timeout_seconds, rows_output=args.rows_output,
+            hydrate_missing_shard=args.hydrate_missing_shard,
+            max_hydrate_mib=args.max_hydrate_mib,
         )
         rendered = json.dumps(proof, sort_keys=True, indent=2) + "\n"
         if args.receipt_output:
