@@ -225,3 +225,49 @@ def test_receipt_and_native_pack_roots_must_not_alias(monkeypatch, tmp_path):
             **params, execute=True, save_published_root=params["receipts_dir"],
         )
     assert fetched == []
+
+
+def test_import_existing_physical_matrix_receipts_without_any_new_original_http206(
+    monkeypatch, tmp_path
+):
+    params, fetched = setup(monkeypatch, tmp_path)
+    source = params["receipts_dir"]
+    audit.audit_name_section(**params, execute=True, max_new_chunks=3)
+    assert len(fetched) == 3
+    dest = tmp_path / "merged-section-receipts"
+    kwargs = {**params, "receipts_dir": dest,
+              "import_physical_receipts_dirs": [source]}
+    dry = audit.audit_name_section(**kwargs, max_new_chunks=0)
+    assert dry["planned_imported_original_receipt_indices"] == [0, 1, 2]
+    assert dry["verified_chunk_count"] == 0
+    assert len(fetched) == 3
+    accepted = audit.audit_name_section(**kwargs, execute=True, max_new_chunks=0)
+    assert accepted["all_name_section_packed_payload_bytes_verified"] is True
+    assert accepted["new_imported_original_receipt_indices"] == [0, 1, 2]
+    assert len(fetched) == 3
+    for n in range(3):
+        path = f"nodeOfName-{n:06d}.json"
+        assert (dest / path).read_bytes() == (source / path).read_bytes()
+    again = audit.audit_name_section(**kwargs, execute=True, max_new_chunks=3)
+    assert again["new_imported_original_receipt_indices"] == []
+    assert len(fetched) == 3
+
+
+def test_import_bad_original_receipt_refused_before_copy_or_remote_fetch(
+    monkeypatch, tmp_path
+):
+    params, fetched = setup(monkeypatch, tmp_path)
+    source = params["receipts_dir"]
+    audit.audit_name_section(**params, execute=True, max_new_chunks=1)
+    first = source / "nodeOfName-000000.json"
+    proof = json.loads(first.read_text())
+    proof["original_source_offset"] += 1
+    first.write_text(json.dumps(proof))
+    dest = tmp_path / "blocked-import"
+    with pytest.raises(ValueError, match="original_source_offset"):
+        audit.audit_name_section(
+            **{**params, "receipts_dir": dest,
+               "import_physical_receipts_dirs": [source]},
+            execute=True, max_new_chunks=0)
+    assert len(fetched) == 1
+    assert not (dest / "nodeOfName-000000.json").exists()
