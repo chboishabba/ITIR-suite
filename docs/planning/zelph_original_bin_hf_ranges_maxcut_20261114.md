@@ -1,5 +1,50 @@
 # Same-original Zelph `.bin` ↔ selected HF shards — physical maximum-cut receipt (2026-11-14)
 
+## 15 November 2026 P0 real-source shortcut: original header + entire offset index (NO 82 GiB local binary)
+
+**Last exact-head accepted by operator:** ITIR #14 at `fb61e629763b86c097f3f6a00a906575b02fe91d`: **165/165 Python tests and native Cap'n Proto C++ original mini-source** passed. DASHI #1506 at `9512b316` 9/9 Agda; SLR #10 `06bda03d` 24/24 Rust; SensibLaw #514 `f77b28f` 17/17 Python. All refer only to their checked source. New original-header metadata integration commits in this section are NOT YET locally accepted.
+
+**High-value original artifact observation:** Zelph upstream publishes (i) full HF-v2 sharded manifest, (ii) `artifact.index.json` (original packed header and **every** chunk offset), (iii) original `.bin`, and (iv) actual shard objects. `.index-file` writes a byte-offset record for the packed original header and each of four section-global chunk groups. Source: https://acrion.github.io/zelph/sharding/ . Thus a pinned immutable `GET Range: bytes=0-(headerLengthBytes-1)` to the ORIGINAL `.bin` and direct native Cap'n Proto parse of its header can authenticate its **four actual source chunk counts** without materialising the full 82 GiB file.
+
+**New committed P0 implementation (not yet new-head verified):** `verify_zelph_index_manifest_original.py` compares *all* index/manifest source chunks (section-global ID, direction/language, exact offset, exact length, size, contiguous header-plus-four-section cover). `zelph_original_packed_header_probe.cpp` parses only the actual standalone packed original header with upstream-generated Cap'n Proto and rejects unconsumed/trailing bytes. `verify_zelph_hf_original_header.py` uses HTTPS revision-pinned original `.bin` URL with exact HTTP206, Content-Range, Content-Length, identity encoding, bounded 1 MiB header, TLS-only final endpoint, and all four native count matches; it can retain the exact raw original header bytes under an exclusive-create path. `probe_zelph_hf_original_metadata.py` combines a DRY-RUN or explicit two-file Hugging Face CLI fetch (`manifest` and `artifact.index.json` ONLY) with the original HTTP206/native header check. It independently hashes the saved packed header before writing its final receipt, and refuses extra download arguments, a stale revision or overwriting evidence.
+
+**Operator commands, after obtaining generated original schema headers:**
+
+```bash
+REV=0d4bd670959ebddae72f70d973410fdea8917ec1
+# Supply a separately pinned full raw manifest SHA256; do not replace it
+# with the hash of a different manifest revision.
+MANIFEST_SHA=<expected-original-manifest-sha256>
+CAPNP_ROOT=aur/zelph/build-local/src/lib/io
+clang++ -fuse-ld=lld -std=c++17 -O2 -I "$CAPNP_ROOT" \
+  tools/zelph_original_packed_header_probe.cpp \
+  "$CAPNP_ROOT/zelph.capnp.c++" -lcapnp -lkj \
+  -o /tmp/zelph-original-header-probe
+
+# No network by default. Prints EXACTLY TWO immutable metadata filenames.
+python tools/probe_zelph_hf_original_metadata.py \
+  --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
+  --local-dir /path/to/p0-hf-metadata \
+  --receipt-dir /path/to/new-empty-p0-header-receipts
+
+# Opt-in: fetch ONLY those two metadata files and the exact tiny
+# original .bin header HTTP206 range, then native-decode/count-crosscheck.
+python tools/probe_zelph_hf_original_metadata.py --execute \
+  --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
+  --local-dir /path/to/p0-hf-metadata \
+  --receipt-dir /path/to/new-empty-p0-header-receipts \
+  --header-decoder /tmp/zelph-original-header-probe
+# Optional: --original-index-sha256 <separately-pinned-index-raw-sha256>
+# Outputs include original-header.capnp-packed (exact raw source bytes)
+# and original-header-proof.json (counts, full offset geometry, raw SHA).
+
+# This is NEW source. Run local clean exact-head acceptance first:
+bash tools/check_zelph_physical_maxcut_offline.sh
+```
+
+**Critical logical boundary:** A complete manifest/index crosswalk and a genuine native-decoded original source header only prove a header/offset-geometry fact at the fixed HF revision. They do **not** prove that every published chunk payload byte matches the original `.bin`, that 204 name chunks' decoded rows exhaust its name-key domain, that every QID gets all names/collisions, or that selected original graph relation words/joins preserve answers. Those still require immutable *selected* raw HTTP206 range comparisons, original source-backed route witnesses and A1/A2 physical premise instantiation. The main source HTTP original `.bin` remained inaccessible via DNS in this chat's execution environment; NO real physical P0 proof is claimed.
+
+
 ## Exact B5 discriminator acceptance and new P0 packed-partition audit (15 November 2026)
 
 The operator's clean-worktree exact-head check of [ITIR PR #14 at `712011a91231295250ce196e77d0015e04635492`](https://github.com/chboishabba/ITIR-suite/commit/712011a91231295250ce196e77d0015e04635492) ran `bash tools/check_zelph_physical_maxcut_offline.sh` with **145/145 Python tests** and genuine native original-schema C++ packed Cap'n Proto roundtrips/negative controls, exit 0. This supersedes the previously documented 120/120 checked-head offline tranche. The additional 25 are 19 `test_verify_wikidata_native_entity_snapshot.py` and 6 `test_run_zelph_local_physical_maxcut.py`. It does not mean any 82 GiB upstream source bytes were physically replayed.
