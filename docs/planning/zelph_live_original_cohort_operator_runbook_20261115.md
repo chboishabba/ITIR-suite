@@ -1,5 +1,40 @@
 # Original Zelph → native Wikibase → SLR source review: physical operator runbook
 
+## 15 November 2026: P0 existing itir-mcp HF connector is the sole physical transport owner
+
+**Supersedes prior P0 metadata/shard acquisition via separate HF CLI or duplicated HTTP in tools.** Strict pinned physical API owner: itir-mcp/src/itir_mcp/shard_transport.py, functions fetch_pinned_zelph_object and open_pinned_zelph_range. The existing bounded preview APIs remain backward compatible and DO NOT prove complete source byte equality.
+
+New consumer paths: tools/probe_zelph_hf_original_metadata.py (exact two pinned source metadata objects + raw native header), tools/verify_zelph_hf_original_header.py (strict original tiny HTTP206), tools/plan_zelph_hf_selected_fetch.py (exact selected shard object streaming, not subprocess), tools/verify_zelph_hf_remote_original_ranges.py (byte-for-byte comparison against original source HTTP206), and tools/run_zelph_hf_connector_maxcut.py (one-command dry-run / actual P0 physical receipt). All changes remain in existing ITIR PR #14; there is no new graph index or database owner.
+
+**Exact-head source acceptance to run:**
+
+    bash tools/check_zelph_physical_maxcut_offline.sh
+
+Run it on the latest PR #14 head and record actual Python test count and native C++ result. The historical clean user receipt 198/198 Python plus native C++ at c73ad1ee641866f273113f3e12a4a3340db7cf40 PREDATES these new connector changes and is not a new-head PASS.
+
+**Single command P0 header-only: build upstream native probe in separate new binary directory, then dry-run or explicit execution.** Use verified independently pinned manifest digest/revision:
+
+    REV=0d4bd670959ebddae72f70d973410fdea8917ec1
+    MANIFEST_SHA=cedd5cf0e4951ae1aa7c2c5968614b0eb72a4c3b5c8b2dc4ab18c40be8c83f59
+    NATIVE=/absolute/NEW-native-bin-directory
+    RUN=/absolute/NEW-evidence-workspace
+    bash tools/build_zelph_native_live.sh "$NATIVE"
+    python3 tools/run_zelph_hf_connector_maxcut.py --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" --workspace "$RUN"
+    python3 tools/run_zelph_hf_connector_maxcut.py --execute --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" --workspace "$RUN" --header-decoder "$NATIVE/original-header-probe"
+
+The second command is the only network operation; do not run it in an existing workspace. It requests exactly the pinned full manifest and original artifact.index.json via the HF connector plus a *tiny original .bin header* HTTP206 range. It never requests the full 82 GiB .bin. Outputs include metadata raw objects, original-header/original-header.capnp-packed, original-header/original-header-proof.json and physical-p0-disposition.json.
+
+**Conditional selected-source bytes, only if a real source-backed route has been independently acquired:**
+
+    ROUTE=/absolute/independently-authenticated-original-filtered-route.json
+    RUN=/absolute/DIFFERENT-new-selected-evidence-workspace
+    python3 tools/run_zelph_hf_connector_maxcut.py --execute --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" --workspace "$RUN" --header-decoder "$NATIVE/original-header-probe" --source-backed-route "$ROUTE" --max-selected-gib 8
+
+The connector streams full selected immutable shard objects with exact HTTP206, byte caps, per-object raw SHA256 and exclusive file creation; the same pinned source comparator separately reads exact original remote .bin byte ranges and proves byte-for-byte equality. No arbitrary or absent route is silently completed: the manifest byte-offset index is NOT a node/QID-to-adjacency chunk index, so it does not prove a full name domain or all query words. An invalid or unavailable hosted manifest/index/header is BLOCKED, never synthetically replaced or claimed as PASS.
+
+**Evidence firewall:** header/index agreement != payload equality; selected payload equality != route completeness; route completeness != native Wikibase statement/P854 support; valid source coordinates != human review or persisted S29; no output grants edit authority. Old 100 MiB limit for downloading an approximately 82 GiB original is impossible and is NOT used by this connector path.
+
+
 **Owner:** existing ITIR [PR #14](https://github.com/chboishabba/ITIR-suite/pull/14). **Not a new PR, database, scheduler or alternative data source.** Original Zelph attribution: Stefan Zipproth / acrion (zelph.org); first-link research attribution: Ibrahim, Danforth and Dodds (2017). DASHI is mathematical gold, ITIR owns transport/native evidence, SLR owns production Rust/review, SensibLaw is historical/NORA reference.
 
 ## Zero-authority invariant and source gate
