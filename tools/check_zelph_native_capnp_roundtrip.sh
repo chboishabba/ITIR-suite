@@ -36,6 +36,8 @@ COMMON=("$LINKER_FLAG" -std=c++17 -O2 -I "$CAPNP_ROOT")
   "$CAPNP_GENERATED" -lcapnp -lkj -o "$TMP/decoder"
 "$CXX" "${COMMON[@]}" tools/zelph_bin_filtered_route_builder.cpp \
   "$CAPNP_GENERATED" -lcapnp -lkj -o "$TMP/original-filtered-route"
+"$CXX" "${COMMON[@]}" tools/zelph_original_packed_header_probe.cpp \
+  "$CAPNP_GENERATED" -lcapnp -lkj -o "$TMP/original-header-probe"
 
 # The new --node frontier flag is explicit; reject nondecimal, signed IDs.
 # A valid numeric ID should reach the (intentionally absent) source bin,
@@ -65,6 +67,37 @@ grep -q "failed to open source bin" "$TMP/valid.stderr" || {
 
 mkdir -p "$TMP/packed"
 "$TMP/fixture" "$TMP/packed"
+
+# Directly decode the real original Cap'n Proto packed-header fixture, not
+# JSON-declared counts. Probe supports tiny standalone original HTTP206 ranges.
+"$TMP/original-header-probe" --header-file "$TMP/packed/header.capnp-packed" \
+  > "$TMP/original-header-probe.json"
+python3 - "$TMP/original-header-probe.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+value = json.loads(Path(sys.argv[1]).read_text())
+assert value["version"] == "itir.zelph.native_original_packed_header_probe.v1"
+assert {key: value[key] for key in (
+    "leftChunkCount", "rightChunkCount",
+    "nameOfNodeChunkCount", "nodeOfNameChunkCount",
+)} == {key: 1 for key in (
+    "leftChunkCount", "rightChunkCount",
+    "nameOfNodeChunkCount", "nodeOfNameChunkCount",
+)}
+assert value["header_size_bytes"] > 0
+assert value["source_upstream_authenticity_proved"] is False
+assert value["edit_authority"] is False
+print("PASS: original packed Zelph header native decoder counts 4 sections")
+PY
+
+# Original header decoder refuses non-Cap'n Proto bytes.
+printf '\x00\x01\x02' > "$TMP/corrupted-original-header.bin"
+if "$TMP/original-header-probe" --header-file "$TMP/corrupted-original-header.bin" \
+  > "$TMP/invalid-header.stdout" 2>"$TMP/invalid-header.stderr"; then
+  echo "BLOCKED: original header native parser accepted corrupted packed bytes" >&2
+  exit 3
+fi
 
 # Actually execute the SAME original-bin two-pass producer on a full
 # miniature source (not just its CLI parsing) with a named QID root and an
