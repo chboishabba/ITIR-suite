@@ -20,8 +20,8 @@ from verify_zelph_bin_shard_exact import _ARTIFACT, _manifest_index, _read_json
 from verify_zelph_index_manifest_original import verify_index_manifest_files
 from verify_zelph_hf_direct_original_chunk import verify_direct_original_chunk
 
-_SHA = re.compile(r"[0-9a-f]{64}\\Z")
-_REV = re.compile(r"[0-9a-f]{40}\\Z")
+_SHA = re.compile(r"[0-9a-f]{64}\Z")
+_REV = re.compile(r"[0-9a-f]{40}\Z")
 _NAMES = ("nameOfNode", "nodeOfName")
 _VERSION = "itir.zelph.direct_original_selected_chunk_equality.v1"
 
