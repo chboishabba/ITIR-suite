@@ -51,7 +51,8 @@ def materialization_plan(*, manifest: Path, original_index: Path,
                          original_index_sha256: str,
                          physical_receipts_dirs: list[Path], shard_root: Path,
                          max_new_chunks: int = 8, max_transfer_mib: int = 512,
-                         max_chunk_mib: int = 256) -> dict:
+                         max_chunk_mib: int = 256,
+                         sections: tuple[str, ...] = ("nodeOfName", "nameOfNode")) -> dict:
     if (type(revision) is not str or not _REV.fullmatch(revision)
             or type(manifest_sha256) is not str or not _SHA.fullmatch(manifest_sha256)
             or type(original_index_sha256) is not str or not _SHA.fullmatch(original_index_sha256)
@@ -62,6 +63,12 @@ def materialization_plan(*, manifest: Path, original_index: Path,
     if not physical_receipts_dirs or any(not d.is_dir() or d.is_symlink()
                                           for d in physical_receipts_dirs):
         raise ValueError("physical original HTTP206 evidence directories required")
+    if (type(sections) is not tuple or not sections
+            or len(set(sections)) != len(sections)
+            or any(type(sec) is not str or sec not in
+                   ("nodeOfName", "nameOfNode", "left", "right")
+                   for sec in sections)):
+        raise ValueError("original physical shard rematerialization section selection invalid")
     if shard_root.is_symlink():
         raise ValueError("saved native root may not be a symlink")
     if shard_root.exists() and not shard_root.is_dir():
@@ -76,7 +83,7 @@ def materialization_plan(*, manifest: Path, original_index: Path,
     objects = _manifest_index(_read_json(manifest, 16*_MIB), _ARTIFACT)
     known, retained, missing = [], [], []
     for (section, chunk), item in sorted(objects.items()):
-        if section not in _NAMES:
+        if section not in sections:
             continue
         evidence = []
         for root in physical_receipts_dirs:
@@ -128,6 +135,7 @@ def materialization_plan(*, manifest: Path, original_index: Path,
         "version": "itir.zelph.original_equal_name_shard_rematerialization_plan.v1",
         "dataset_revision": revision, "manifest_sha256": manifest_sha256,
         "original_index_sha256": original_index_sha256,
+        "selected_original_sections": list(sections),
         "eligible_prior_original_byte_witnesses": len(known),
         "already_locally_verified_shards": len(retained),
         "missing_locally_saved_shards": len(missing),
@@ -201,6 +209,8 @@ def main() -> int:
     p.add_argument("--original-index-sha256", required=True)
     p.add_argument("--physical-receipts-dir", type=Path, action="append", required=True)
     p.add_argument("--save-published-root", type=Path, required=True)
+    p.add_argument("--section", choices=("nodeOfName", "nameOfNode", "left", "right"),
+                   action="append", help="default name sections, explicitly select left/right for A2 original adjacency")
     p.add_argument("--max-new-chunks", type=int, default=8)
     p.add_argument("--max-transfer-mib", type=int, default=512)
     p.add_argument("--max-chunk-mib", type=int, default=256)
@@ -216,7 +226,8 @@ def main() -> int:
             shard_root=args.save_published_root,
             max_new_chunks=args.max_new_chunks,
             max_transfer_mib=args.max_transfer_mib,
-            max_chunk_mib=args.max_chunk_mib)
+            max_chunk_mib=args.max_chunk_mib,
+            sections=tuple(args.section or ("nodeOfName", "nameOfNode")))
         result = restore(plan=plan) if args.execute else plan
         rendered = json.dumps(result, sort_keys=True, indent=2) + "\n"
         if args.output:
