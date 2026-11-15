@@ -246,7 +246,7 @@ PY
 # upstream-schema C++ Cap'n Proto reader, with fixed ABI after exact EOF.
 # Only definite negatives are usable as chunk-exclusion evidence; membership
 # positives require a second selected-AdjPair native decoder witness.
-PYTHONPATH=tools python3 - "$TMP/decoder" "$TMP/packed" <<'PY'
+PYTHONPATH="tools:itir-mcp/src:${PYTHONPATH:-}" python3 - "$TMP/decoder" "$TMP/packed" <<'PY'
 from pathlib import Path
 import subprocess
 import sys
