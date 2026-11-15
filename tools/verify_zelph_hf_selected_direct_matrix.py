@@ -118,7 +118,8 @@ def _save(path: Path, value: dict) -> str:
 def execute_matrix(*, plan: dict, manifest_path: Path,
                    original_index_path: Path, evidence_dir: Path,
                    verify_one: Callable[..., dict] = verify_direct_original_chunk,
-                   opener: Callable[..., Any] | None = None) -> dict[str, Any]:
+                   opener: Callable[..., Any] | None = None,
+                   save_published_root: Path | None = None) -> dict[str, Any]:
     if evidence_dir.exists() or evidence_dir.is_symlink():
         raise ValueError("immutable physical evidence directory already exists")
     if not evidence_dir.parent.is_dir() or evidence_dir.parent.is_symlink():
@@ -134,6 +135,16 @@ def execute_matrix(*, plan: dict, manifest_path: Path,
         max_total_mib=plan["max_total_mib"], max_chunk_mib=plan["max_chunk_mib"])
     if plan != fresh:
         raise ValueError("source manifest/index or selected matrix plan drifted")
+    if save_published_root is not None:
+        if (save_published_root.exists() or save_published_root.is_symlink()
+                or not save_published_root.parent.is_dir()
+                or save_published_root.parent.is_symlink()):
+            raise ValueError("refuse overwrite existing published source-shard root")
+        if (save_published_root == evidence_dir
+                or save_published_root.is_relative_to(evidence_dir)
+                or evidence_dir.is_relative_to(save_published_root)):
+            raise ValueError("source shard and receipt roots must be distinct")
+        save_published_root.mkdir(mode=0o700)
     evidence_dir.mkdir(mode=0o700)
     receipts = []
     for row in plan["entries"]:
@@ -144,6 +155,17 @@ def execute_matrix(*, plan: dict, manifest_path: Path,
             max_chunk_mib=plan["max_chunk_mib"])
         if opener is not None:
             kwargs["opener"] = opener
+        saved = None
+        if save_published_root is not None:
+            prefix = "hf://datasets/acrion/zelph/"
+            if not row["published_object_uri"].startswith(prefix):
+                raise ValueError("selected native shard URI outside original dataset")
+            rel = row["published_object_uri"][len(prefix):]
+            saved = save_published_root / rel
+            saved.parent.mkdir(parents=True, exist_ok=True)
+            if saved.exists() or saved.is_symlink() or saved.parent.is_symlink():
+                raise ValueError("refuse existing/symlink native packed source shard")
+            kwargs["save_published_copy"] = saved
         witness = verify_one(**kwargs)
         digest = witness.get("published_shard_raw_sha256")
         if (witness.get("version") != "itir.zelph.direct_original_selected_chunk_equality.v1"
@@ -166,6 +188,17 @@ def execute_matrix(*, plan: dict, manifest_path: Path,
                     "all_query_frontiers_closed", "native_p854_source_support_paid",
                     "s29_persistence_paid", "edit_authority"))):
             raise ValueError("physical chunk witness identity, equality, or authority mismatch")
+        if saved is not None:
+            if (witness.get("saved_original_equal_published_copy") != str(saved)
+                    or not saved.is_file() or saved.is_symlink()
+                    or saved.stat().st_size != row["bytes"]):
+                raise ValueError("native saved shard missing from successful source equality")
+            digest_copy = sha256()
+            with saved.open("rb") as copy_stream:
+                for chunk in iter(lambda: copy_stream.read(1024 * 1024), b""):
+                    digest_copy.update(chunk)
+            if digest_copy.hexdigest() != digest:
+                raise ValueError("saved native published shard raw bytes drifted after equality")
         name = f"{row['section']}-{row['chunk_index']:06d}.json"
         receipt_sha = _save(evidence_dir / name, witness)
         receipts.append({"section": row["section"], "chunk_index": row["chunk_index"],
@@ -181,6 +214,10 @@ def execute_matrix(*, plan: dict, manifest_path: Path,
         "selected_chunk_count": len(receipts),
         "selected_byte_count": sum(x["bytes_equal"] for x in receipts),
         "selected_receipts": receipts,
+        "locally_saved_original_equal_published_shards": save_published_root is not None,
+        "local_selected_shard_root": (
+            str(save_published_root) if save_published_root is not None else None
+        ),
         "all_explicitly_selected_chunks_byte_equal": True,
         "all_original_chunks_byte_checked": False,
         "full_original_binary_downloaded": False,
@@ -206,6 +243,8 @@ def main() -> int:
     p.add_argument("--original-index-sha256", required=True)
     p.add_argument("--chunk", action="append", required=True)
     p.add_argument("--evidence-dir", type=Path, required=True)
+    p.add_argument("--save-published-root", type=Path,
+                   help="new shard root; retain exact selected packed files only on byte equality")
     p.add_argument("--max-total-mib", type=int, default=1024)
     p.add_argument("--max-chunk-mib", type=int, default=128)
     p.add_argument("--execute", action="store_true")
@@ -222,7 +261,8 @@ def main() -> int:
             print(json.dumps(plan, sort_keys=True, indent=2))
             return 0
         out = execute_matrix(plan=plan, manifest_path=args.manifest,
-            original_index_path=args.original_index, evidence_dir=args.evidence_dir)
+            original_index_path=args.original_index, evidence_dir=args.evidence_dir,
+            save_published_root=args.save_published_root)
         print(json.dumps(out, sort_keys=True, indent=2))
         return 0
     except (OSError, ValueError, TypeError, KeyError, OverflowError,
