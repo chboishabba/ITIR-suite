@@ -25,19 +25,72 @@ python3 tools/acquire_pinned_source_bytes.py \
   --receipt "$RUN/manifest-acquisition.json"
 ```
 
-The **original full packed `.bin` is a different object from the split published shard files**. Its original upstream URL and independently trusted expected digest are not established by the source code or this runbook. Locate those externally before filling the following placeholders; don't invent an HF `.bin` path or assume that the split public shards reconstruct provenance automatically:
+### 1A. First physical maximum cut: HTTP206 original *header* without 82 GiB
+
+The complete original `.bin` is **not** required for the first P0 witness. Before any large transfer, acquire the exact HF-v2 manifest and original `artifact.index.json` at the immutable revision, then request **only the initial packed header range** of the original binary. The native upstream-schema parser checks its four section counts against the complete index/manifest offset partition. This works only if the pinned remote `.bin` endpoint actually exists and honors exact HTTP 206. The source publisher, revision and raw manifest digest must remain pinned; an independently supplied `artifact.index.json` SHA is preferable.
 
 ```bash
-export BIN_URL='<authenticated-original-.bin-download-url>'
-export BIN_SHA='<independently-authenticated-original-bin-sha256>'
-python3 tools/acquire_pinned_source_bytes.py \
-  --url "$BIN_URL" --source-kind zelph-original-bin \
-  --dataset-revision "$REV" --destination "$RUN/original.bin" \
-  --max-mib 100 --expected-sha256 "$BIN_SHA" --execute \
-  --receipt "$RUN/bin-acquisition.json"
+# Compile the native header parser with the SAME generated original schema
+# used by the existing check_zelph_native_capnp_roundtrip.sh.
+CAPNP_ROOT=aur/zelph/build-local/src/lib/io
+clang++ -fuse-ld=lld -std=c++17 -O2 -I "$CAPNP_ROOT" \
+  tools/zelph_original_packed_header_probe.cpp \
+  "$CAPNP_ROOT/zelph.capnp.c++" -lcapnp -lkj \
+  -o "$RUN/original-header-probe"
+
+# Dry-run (default) uses zero network and requests no source payload.
+python3 tools/probe_zelph_hf_original_metadata.py \
+  --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
+  --local-dir "$RUN/header-metadata" --receipt-dir "$RUN/p0-header"
+
+# Explicit network cut: two metadata objects and the exact tiny packed
+# header HTTP206 range, NOT the 82 GiB original .bin.
+python3 tools/probe_zelph_hf_original_metadata.py --execute \
+  --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
+  --local-dir "$RUN/header-metadata" --receipt-dir "$RUN/p0-header" \
+  --header-decoder "$RUN/original-header-probe"
 ```
 
-The client is network-off by default, bounded by `--max-mib`, and refuses overwrite, non-HTTPS/private hosts, bad lengths and bad supplied SHA digests. Its receipt explicitly keeps upstream-source authentication false: the operator must supply **independent original identity evidence**.
+On success the physically retained `p0-header/original-header.capnp-packed` and `original-header-proof.json` bind the header's raw SHA, index/manifest offset geometry, four counts, exact TLS/HTTP 206 and immutable source revision. **This does not certify original payload bytes, the complete name-key domain or QID→adjacency-chunk routing.** If DNS, the original source object, or HTTP byte ranges are unavailable, mark the physical gate **BLOCKED**, not passed.
+
+### 1B. No-full-bin selected payload path, *conditional on an independently sourced route*
+
+Existing `tools/verify_zelph_hf_remote_original_ranges.py` can compare **selected** published shard files to exact HTTP206 byte ranges in the pinned original `.bin`, without downloading or storing its full 82 GiB. It requires a previously source-backed `route.json` and the selected shard files; the comparator cannot generate node routes by itself:
+
+```bash
+python3 tools/plan_zelph_hf_selected_fetch.py \
+  --manifest "$RUN/header-metadata/wikidata-20260309-all/wikidata-20260309-all.hf-v2.json" \
+  --route "$RUN/source-backed-route.json" \
+  --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
+  --shard-root "$RUN/shards" --max-selected-gib 16 --execute \
+  --output "$RUN/selected-fetch-plan.json"
+
+python3 tools/verify_zelph_hf_remote_original_ranges.py \
+  --manifest "$RUN/header-metadata/wikidata-20260309-all/wikidata-20260309-all.hf-v2.json" \
+  --route "$RUN/source-backed-route.json" \
+  --shard-root "$RUN/shards" \
+  --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
+  --max-selected-gib 16 --output "$RUN/selected-original-ranges.json"
+```
+
+The name sections are sorted on different keys, but `left` and `right` chunks are **not sorted by node ID**. The original `.index-file` records *chunk byte offsets*, not a QID/node→adjacency-chunk index. Consequently, a correct original source-backed route cannot be manufactured just from the header plus `artifact.index.json`. It must come from an independently audited original `.bin` scan, an upstream published node-route index with authenticated provenance, or a separately justified complete streamed scan of the relevant chunks. Without that evidence, selected range equality is a **conditional physical payload witness**, not proof of all original node neighbours or negative answers.
+
+### 1C. Full-original fallback ONLY when truly required and explicitly budgeted
+
+The original full packed `.bin` is a distinct object from the split published shards. Its genuine upstream URL and independently trusted whole-bin SHA256 are not supplied by this runbook; do not invent either. The earlier example `--max-mib 100` for an approximately **82 GiB** full binary was impossible: a 100 MiB cap cannot fetch it. If an operator deliberately chooses a full local original scan, the cap must exceed the verified original byte size, and adequate storage, time and transfer budget must be provided. This is **not** the header-only pathway and should not be executed as part of the small P0 probe.
+
+```bash
+# OPTIONAL full-original fallback only, after source URL and independently
+# authenticated digest/size are known and the huge transfer is approved:
+# python3 tools/acquire_pinned_source_bytes.py \
+#   --url "$BIN_URL" --source-kind zelph-original-bin \
+#   --dataset-revision "$REV" --destination "$RUN/original.bin" \
+#   --max-mib <budget-at-least-original-bin-size-in-MiB> \
+#   --expected-sha256 "$BIN_SHA" --expected-bytes <known-full-byte-length> \
+#   --execute --receipt "$RUN/bin-acquisition.json"
+```
+
+Even an exact received SHA against a *caller-provided* pin is not independently authenticated authorship. Once a real full original is independently established, the downstream original two-pass route/selected same-source native audit below is available. Until then, its steps 2–5 are **conditional and must not be described as executed**.
 
 ### 2. Build the actual native binaries (not the deleted offline-test temp files)
 
