@@ -120,11 +120,13 @@ def acquire(*, plan: dict, destination: Path, timeout_seconds: int = 45) -> dict
             if response.status != 200:
                 raise ValueError("whole-object HTTP 200 required (no ranges/partial content)")
             advertised = response.headers.get("Content-Length")
+            advertised_length = None
             if advertised is not None:
                 if not advertised.isdecimal() or int(advertised) > plan["byte_budget"]:
                     raise ValueError("HTTP content exceeds byte budget")
                 if plan["expected_bytes"] is not None and int(advertised) != plan["expected_bytes"]:
                     raise ValueError("HTTP length differs from externally supplied length")
+                advertised_length = int(advertised)
             with tempfile.NamedTemporaryFile(mode="wb", dir=destination.parent,
                                              prefix=".itir-source-", delete=False) as f:
                 temp_name = f.name
@@ -139,8 +141,9 @@ def acquire(*, plan: dict, destination: Path, timeout_seconds: int = 45) -> dict
                     f.write(block)
                 f.flush()
                 os.fsync(f.fileno())
-        if length == 0 or (plan["expected_bytes"] is not None
-                           and length != plan["expected_bytes"]):
+        if (length == 0 or
+                (advertised_length is not None and length != advertised_length) or
+                (plan["expected_bytes"] is not None and length != plan["expected_bytes"])):
             raise ValueError("truncated/empty source")
         value = digest.hexdigest()
         if plan["expected_sha256"] is not None and value != plan["expected_sha256"]:
