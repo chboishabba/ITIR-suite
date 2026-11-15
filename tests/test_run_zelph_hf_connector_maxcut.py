@@ -94,16 +94,33 @@ def test_optional_selected_http206_equality_stays_separate_from_route_authentica
         assert kwargs["route_path"] == route
         assert kwargs["dataset_revision"] == REV
         return {"selected_object_count": 4}
+    keys = [f"wikidata-20260309-all/shards/{sec}/chunk-000000.capnp-packed"
+            for sec in ("left", "right", "nameOfNode", "nodeOfName")]
+    digest = "d" * 64
     def fake_selected(*, plan, **kwargs):
         assert plan["selected_object_count"] == 4
-        return {"selected_original_hf_objects_bytes_observed": True,
-                "source_bin_to_shard_ranges_verified": False}
+        return {
+            "selected_original_hf_objects_bytes_observed": True,
+            "source_bin_to_shard_ranges_verified": False,
+            "selected_object_receipts": [
+                {"object_relative_path": key,
+                 "raw_hf_object_sha256": digest,
+                 "exact_complete_hf_object_observed": True}
+                for key in keys
+            ],
+        }
     def fake_ranges(**kwargs):
         assert kwargs["route_path"] == route
         return {
             "selected_raw_remote_bin_ranges_equal_local_shard_bytes": True,
             "selected_object_count": 4,
             "selected_byte_count": 28,
+            "receipts": [
+                {"shard_object_uri": "hf://datasets/acrion/zelph/" + key,
+                 "equal_raw_sha256": digest, "exact_content_range_verified": True,
+                 "range_http_status": 206}
+                for key in keys
+            ],
         }
     monkeypatch.setattr(runner, "selected_fetch_plan", fake_plan)
     monkeypatch.setattr(runner, "execute_selected_fetch", fake_selected)
@@ -116,6 +133,7 @@ def test_optional_selected_http206_equality_stays_separate_from_route_authentica
     assert result["selected_original_source_byte_ranges_verified"] is True
     assert result["selected_route_origin_independently_authenticated_here"] is False
     assert result["selected_object_count"] == 4
+    assert result["same_pinned_revision_hf_object_and_original_range_digest_join_verified"] is True
     assert result["name_domain_complete"] is False
     assert result["full_query_family_closed"] is False
     assert result["p854_support_paid"] is False
@@ -138,6 +156,41 @@ def test_selected_comparator_can_fail_without_paying_a_false_physical_receipt(
     monkeypatch.setattr(runner, "verify_pinned_remote_ranges", lambda **_kw: {
         "selected_raw_remote_bin_ranges_equal_local_shard_bytes": False})
     with pytest.raises(ValueError, match="not identical"):
+        runner.run_hf_connector_maxcut(
+            revision=REV, manifest_sha256=MANIFEST,
+            workspace=workspace, execute=True, header_decoder=binary,
+            source_backed_route=route,
+        )
+    assert not (workspace / "physical-p0-disposition.json").exists()
+
+
+def test_cross_transport_forged_digest_is_rejected_without_final_p0_receipt(
+    tmp_path, monkeypatch
+):
+    _mock_header(monkeypatch)
+    binary = tmp_path / "probe"
+    binary.touch()
+    route = tmp_path / "source-route.json"
+    route.write_text('{"routeVersion":"zelph-filtered-route/v1"}')
+    workspace = tmp_path / "p0"
+    monkeypatch.setattr(runner, "selected_fetch_plan", lambda **_kw: {})
+    monkeypatch.setattr(runner, "execute_selected_fetch", lambda **_kw: {
+        "selected_original_hf_objects_bytes_observed": True,
+        "selected_object_receipts": [{
+            "object_relative_path": "wikidata-20260309-all/shards/left/chunk-000000.capnp-packed",
+            "raw_hf_object_sha256": "a" * 64,
+            "exact_complete_hf_object_observed": True,
+        }],
+    })
+    monkeypatch.setattr(runner, "verify_pinned_remote_ranges", lambda **_kw: {
+        "selected_raw_remote_bin_ranges_equal_local_shard_bytes": True,
+        "receipts": [{
+            "shard_object_uri": "hf://datasets/acrion/zelph/wikidata-20260309-all/shards/left/chunk-000000.capnp-packed",
+            "equal_raw_sha256": "b" * 64,
+            "exact_content_range_verified": True, "range_http_status": 206,
+        }],
+    })
+    with pytest.raises(ValueError, match="disagree with original source range digest"):
         runner.run_hf_connector_maxcut(
             revision=REV, manifest_sha256=MANIFEST,
             workspace=workspace, execute=True, header_decoder=binary,
