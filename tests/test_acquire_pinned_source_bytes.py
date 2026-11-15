@@ -78,13 +78,22 @@ class FakeResponse:
         return None
 
 
+class FakeOpener:
+    def __init__(self, response):
+        self.response = response
+
+    def open(self, _request, timeout):
+        assert timeout > 0
+        return self.response
+
+
 def test_actual_stream_digest_match_and_atomic_commit(tmp_path):
     raw = b"original-byte-evidence-123"
     url = "https://huggingface.co/datasets/acrion/zelph/resolve/" + "a" * 40 + "/graph.bin"
     p = plan(tmp_path, expected_length=len(raw), expected_sha256=sha256(raw).hexdigest())
     with patch("acquire_pinned_source_bytes.require_public_https", return_value="huggingface.co"), \
-         patch("acquire_pinned_source_bytes.urlopen",
-               return_value=FakeResponse(raw, url)):
+         patch("acquire_pinned_source_bytes.build_opener",
+               return_value=FakeOpener(FakeResponse(raw, url))):
         receipt = acquire(plan=p, destination=tmp_path / "source.bin")
     assert receipt["digest_matches_supplied_pin"] is True
     assert receipt["upstream_source_origin_independently_authenticated"] is False
@@ -96,9 +105,20 @@ def test_bad_digest_fails_closed_and_leaves_no_target(tmp_path):
     url = "https://huggingface.co/datasets/acrion/zelph/resolve/" + "a" * 40 + "/graph.bin"
     p = plan(tmp_path, expected_sha256="0" * 64)
     with patch("acquire_pinned_source_bytes.require_public_https", return_value="huggingface.co"), \
-         patch("acquire_pinned_source_bytes.urlopen",
-               return_value=FakeResponse(b"wrong", url)):
+         patch("acquire_pinned_source_bytes.build_opener",
+               return_value=FakeOpener(FakeResponse(b"wrong", url))):
         with pytest.raises(ValueError, match="SHA256"):
             acquire(plan=p, destination=tmp_path / "source.bin")
     assert not (tmp_path / "source.bin").exists()
     assert not list(tmp_path.glob(".itir-source-*"))
+
+
+def test_redirect_handler_fails_closed_before_any_private_redirect_request():
+    from acquire_pinned_source_bytes import PublicHTTPSRedirects
+    handler = PublicHTTPSRedirects()
+    with pytest.raises(ValueError):
+        handler.redirect_request(None, None, 302, "Found", {},
+                                 "http://127.0.0.1/admin")
+    with pytest.raises(ValueError):
+        handler.redirect_request(None, None, 302, "Found", {},
+                                 "https://localhost/metadata")
