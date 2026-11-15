@@ -104,16 +104,47 @@ def test_tls_redirect_downgrade_refused():
             pass
 
 
-@pytest.mark.parametrize("bad", [-1, 0, True, 2**65])
-def test_invalid_range_or_budget_never_reaches_network(bad):
+@pytest.mark.parametrize("bad_start", [-1, True, 3, 2**65])
+def test_invalid_start_or_out_of_bounds_range_never_reaches_network(bad_start):
     def refuse(*_args, **_kwargs):
         raise AssertionError("network should never run")
     with pytest.raises(ValueError, match="invalid exact"):
         with open_pinned_zelph_range(
-            hf_uri=HEAD, revision=REV, start=bad, length=3,
+            hf_uri=HEAD, revision=REV, start=bad_start, length=3,
             total_size=5, opener=refuse,
         ):
             pass
+
+
+@pytest.mark.parametrize("bad_length", [-1, 0, True])
+def test_invalid_length_never_reaches_network(bad_length):
+    def refuse(*_args, **_kwargs):
+        raise AssertionError("network should never run")
+    with pytest.raises(ValueError, match="invalid exact"):
+        with open_pinned_zelph_range(
+            hf_uri=HEAD, revision=REV, start=0, length=bad_length,
+            total_size=5, opener=refuse,
+        ):
+            pass
+
+
+def test_zero_offset_is_valid_and_fetches_exact_initial_bytes():
+    raw = b"abc"
+    called = []
+    def opener(request, timeout):
+        called.append(request.get_header("Range"))
+        return Response(raw, status=206, headers={
+            "Content-Range": "bytes 0-2/5",
+            "Content-Length": "3",
+            "Content-Encoding": "identity",
+        })
+    with open_pinned_zelph_range(
+        hf_uri=HEAD, revision=REV, start=0, length=3,
+        total_size=5, opener=opener,
+    ) as response:
+        assert response.read(3) == raw
+        assert response.read(1) == b""
+    assert called == ["bytes=0-2"]
 
 
 def test_full_bounded_metadata_http200_success():
