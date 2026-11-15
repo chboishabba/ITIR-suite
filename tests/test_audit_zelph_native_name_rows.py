@@ -200,3 +200,72 @@ def test_oversized_row_limit_rejected_before_native_execution(tmp_path):
     kwargs["max_name_rows"] = 100000001
     with pytest.raises(ValueError, match="bounded native"):
         enumerate_authenticated_name_chunk(**kwargs)
+
+
+def test_previously_verified_original_range_can_hydrate_only_published_hf_object(
+    tmp_path
+):
+    import io
+    kwargs, receipt, shard = inputs(tmp_path)
+    shard.unlink()
+    seen = []
+    class Response(io.BytesIO):
+        status = 200
+        headers = {"Content-Length": "5", "Content-Encoding": "identity"}
+        def geturl(self):
+            return "https://huggingface.co/pinned-immutable-standalone-shard"
+    def opener(request, timeout):
+        seen.append((request.full_url, request.get_header("Range")))
+        assert request.get_header("Range") == "bytes=0-4"
+        assert "wikidata-20260309-all.bin" not in request.full_url
+        return Response(b"abcde")
+    result = enumerate_authenticated_name_chunk(
+        **kwargs, hydrate_missing_shard=True, opener=opener,
+    )
+    assert shard.read_bytes() == b"abcde"
+    assert len(seen) == 1
+    assert result["packed_shard_hydrated_from_pinned_hf_whole_object"] is True
+    assert result["original_bin_requeried_for_hydration"] is False
+    assert result["complete_native_row_stream_for_this_chunk"] is True
+
+
+def test_hydration_tampering_never_publishes_forged_local_packed_file(tmp_path):
+    import io
+    kwargs, receipt, shard = inputs(tmp_path)
+    shard.unlink()
+    class Response(io.BytesIO):
+        status = 200
+        headers = {"Content-Length": "5"}
+        def geturl(self):
+            return "https://huggingface.co/pinned-immutable-standalone-shard"
+    def opener(request, timeout):
+        return Response(b"abcdf")
+    with pytest.raises(ValueError, match="differs from original HTTP206 receipt"):
+        enumerate_authenticated_name_chunk(
+            **kwargs, hydrate_missing_shard=True, opener=opener,
+        )
+    assert not shard.exists()
+    assert not kwargs["rows_output"].exists()
+
+
+def test_existing_local_shard_never_triggers_extra_network_even_with_hydrate(tmp_path):
+    kwargs, receipt, shard = inputs(tmp_path)
+    def forbidden(*args, **kwargs):
+        raise AssertionError("existing digest-matched original source file needs no fetch")
+    out = enumerate_authenticated_name_chunk(
+        **kwargs, hydrate_missing_shard=True, opener=forbidden,
+    )
+    assert out["packed_shard_hydrated_from_pinned_hf_whole_object"] is False
+
+
+def test_hydrate_network_budget_checked_before_request(tmp_path):
+    kwargs, receipt, shard = inputs(tmp_path)
+    shard.unlink()
+    kwargs["max_hydrate_mib"] = 0
+    def forbidden(*args, **kwargs):
+        raise AssertionError("invalid hydration budget must fail before HTTP")
+    with pytest.raises(ValueError, match="bounded explicit"):
+        enumerate_authenticated_name_chunk(
+            **kwargs, hydrate_missing_shard=True, opener=forbidden,
+        )
+    assert not shard.exists()
