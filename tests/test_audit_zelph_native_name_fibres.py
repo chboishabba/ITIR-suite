@@ -221,3 +221,63 @@ def test_native_source_revision_mixing_is_forbidden(tmp_path):
 def test_duplicate_json_native_keys_fail_closed():
     with pytest.raises(ValueError, match="duplicate original-native"):
         _strict(b'{"name":"Q1","name":"Q2"}')
+
+
+def positive_receipt(tmp_path, cfg, *, node=11, qid="Q1"):
+    manifest = json.loads(cfg["manifest"].read_text())
+    item = _manifest_index(manifest, _ARTIFACT)[("nodeOfName", 0)]
+    data = b"n" * item["length"]
+    receipt = {
+        "version": "itir.zelph.original_direct_native_positive_qid_roots.v1",
+        "dataset_revision": cfg["revision"],
+        "manifest_sha256": cfg["manifest_sha256"],
+        "original_index_sha256": cfg["original_index_sha256"],
+        "all_declared_qid_name_witnesses_positive": True,
+        "edit_authority": False,
+        "native_exact_positive_name_to_node_rows": [{
+            "qid": qid, "node_id": node,
+            "node_of_name_section_global_chunk": 0,
+            "packed_bytes_sha256_equal_original_range": sha256(data).hexdigest(),
+        }],
+    }
+    path = tmp_path / "five-native-roots.json"
+    path.write_text(json.dumps(receipt))
+    return path
+
+
+def test_a1_join_replays_prior_original_qid_root_without_silently_changing_node(tmp_path):
+    cfg, decoder = setup(tmp_path)
+    prior = positive_receipt(tmp_path, cfg)
+    result = run_native_name_audit(
+        plan=original_name_plan(**cfg), decoder=decoder,
+        sqlite_index=tmp_path / "joined.db", max_new_chunks=2,
+        popen=simulated_native(), positive_roots_receipt=prior)
+    rows = result["prior_positive_root_replay"]
+    assert len(rows) == 1 and rows[0]["source_row_replayed_in_a1"] is True
+    assert rows[0]["native_positive_node_id"] == 11
+    assert rows[0]["local_chunk_distinct_nodes_for_name"] == [11, 12]
+    assert rows[0]["global_original_name_fibre_complete"] is True
+    assert result["source_support_paid"] is False
+
+
+def test_a1_prior_native_positive_root_drift_rejected(tmp_path):
+    cfg, decoder = setup(tmp_path)
+    prior = positive_receipt(tmp_path, cfg, node=999)
+    with pytest.raises(ValueError, match="conflicts"):
+        run_native_name_audit(
+            plan=original_name_plan(**cfg), decoder=decoder,
+            sqlite_index=tmp_path / "joined.db", max_new_chunks=2,
+            popen=simulated_native(), positive_roots_receipt=prior)
+
+
+def test_a1_unreplayed_prior_root_not_misclassified_absent(tmp_path):
+    cfg, decoder = setup(tmp_path)
+    prior = positive_receipt(tmp_path, cfg)
+    result = run_native_name_audit(
+        plan=original_name_plan(**cfg), decoder=decoder,
+        sqlite_index=tmp_path / "partial.db", max_new_chunks=0,
+        popen=simulated_native(), positive_roots_receipt=prior)
+    row = result["prior_positive_root_replay"][0]
+    assert row["source_row_replayed_in_a1"] is False
+    assert row["unreplayed_is_not_absence"] is True
+    assert not result["all_original_name_key_fibres_verified"]
