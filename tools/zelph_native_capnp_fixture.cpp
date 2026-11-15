@@ -57,6 +57,26 @@ int main(int argc, char** argv) {
             auto second = pairs[1].initAdj(1);
             second.set(0, 11);
         });
+        // Original source-bin builder unions repeated native AdjPair rows
+        // for the SAME node, including overlapping repeated neighbour values.
+        // Keep a separate fixture; do not alter existing original-small.bin.
+        write_chunk(root / "left-duplicate-node.capnp-packed", [](capnp::MallocMessageBuilder& msg) {
+            auto chunk = msg.initRoot<zelph::network::AdjChunk>();
+            chunk.setWhich("left");
+            chunk.setChunkIndex(0);
+            auto pairs = chunk.initPairs(3);
+            pairs[0].setNode(7);
+            auto first = pairs[0].initAdj(2);
+            first.set(0, 8);
+            first.set(1, 9);
+            pairs[1].setNode(7);
+            auto overlap = pairs[1].initAdj(2);
+            overlap.set(0, 9);
+            overlap.set(1, 15);
+            pairs[2].setNode(8);
+            auto unrelated = pairs[2].initAdj(1);
+            unrelated.set(0, 33);
+        });
         write_chunk(root / "right.capnp-packed", [](capnp::MallocMessageBuilder& msg) {
             auto chunk = msg.initRoot<zelph::network::AdjChunk>();
             chunk.setWhich("right");
