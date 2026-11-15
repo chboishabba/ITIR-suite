@@ -33,6 +33,7 @@ public:
         return n;
     }
     void skip(size_t count) override { buffered.skip(count); bytes += count; }
+    size_t bytesRead() const { return bytes; }
 private:
     kj::BufferedInputStreamWrapper buffered;
     size_t bytes{0};
@@ -65,6 +66,8 @@ int main(int argc, char** argv) {
                 nameOfNode = impl.getNameOfNodeChunkCount();
                 nodeOfName = impl.getNodeOfNameChunkCount();
             }
+            if (buffered.bytesRead() != size)
+                throw std::runtime_error("packed header contains trailing or unconsumed bytes");
             const int closed = std::fclose(fp);
             fp = nullptr;
             if (closed != 0) throw std::runtime_error("original header close failed");
