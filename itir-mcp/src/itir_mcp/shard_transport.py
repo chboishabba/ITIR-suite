@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
 from base64 import b64encode
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from hashlib import sha256
 import json
 from pathlib import Path
+import re
+from urllib.parse import urlsplit
 from typing import Any
 from urllib.error import URLError
 from urllib.request import Request, urlopen
@@ -171,6 +174,86 @@ def route_selector(
     return matched
 
 
+
+def exact_wikidata_name_route(
+    payload: Mapping[str, Any],
+    qid: str,
+    *,
+    route_index: Mapping[str, Any] | None,
+) -> dict[str, Any]:
+    """Resolve a Wikidata QID only from an exact, language-pinned route witness.
+
+    Deliberately bypasses route_selector's coarse routingKeys/family fallback.
+    This is a candidate shard plan, not evidence of payload fetch, native
+    Wikidata family coverage, semantic truth, or global absence.
+    """
+    artifact = validate_shared_shard_artifact(payload)
+    if (
+        not isinstance(qid, str)
+        or not qid.startswith("Q")
+        or not qid[1:].isascii()
+        or not qid[1:].isdigit()
+        or not qid[1:]
+        or qid[1] == "0"
+    ):
+        raise ValueError("qid must be a canonical nonzero Wikidata Q identifier")
+    if not isinstance(route_index, Mapping):
+        raise ValueError("exact QID route requires an explicit pinned route sidecar")
+    routing = route_index.get("routing", route_index)
+    if not isinstance(routing, Mapping):
+        raise ValueError("route sidecar routing must be an object")
+    entries = routing.get("nodeOfName")
+    if not isinstance(entries, list):
+        raise ValueError("route sidecar has no nodeOfName entries")
+    shard_ids_by_chunk = _shards_by_section_chunk(artifact)
+    matched: list[tuple[int, str]] = []
+    for entry in entries:
+        if not isinstance(entry, Mapping):
+            raise ValueError("nodeOfName entry must be an object")
+        if entry.get("lang") != "wikidata":
+            continue
+        names = entry.get("names")
+        if not isinstance(names, list):
+            raise ValueError("wikidata nodeOfName entry requires names")
+        if qid not in names:
+            continue
+        index = _required_int(entry, "chunkIndex")
+        shard_id = shard_ids_by_chunk.get(("nodeOfName", index, "wikidata"))
+        if shard_id is None:
+            raise ValueError("exact route refers to a missing indexed Wikidata name shard")
+        matched.append((index, shard_id))
+    if len(matched) != 1:
+        raise ValueError(
+            "exact Wikidata name route unresolved or ambiguous; do not use coarse fallback"
+        )
+    index, shard_id = matched[0]
+    shard = next(shard for shard in artifact["shards"] if shard["shardId"] == shard_id)
+    return {
+        "version": "itir.shard.exact_wikidata_name_route.v1",
+        "qid": qid,
+        "selector": f"route-name={qid} route-lang=wikidata",
+        "route_evidence": "exact-sidecar-name-and-language",
+        "artifact_identity": {
+            "artifactId": artifact["artifactId"],
+            "artifactRevision": artifact["artifactRevision"],
+        },
+        "selected_shard_id": shard_id,
+        "section": "nodeOfName",
+        "chunkIndex": index,
+        "language": "wikidata",
+        "declared_bytes": int(shard["sizeBytes"]),
+        "route_witness": True,
+        "payload_fetch": False,
+        "payload_decode": False,
+        "query_coverage_complete": False,
+        "candidate_only": True,
+        "truth_authority": False,
+        "support_authority": False,
+        "promotion_authority": False,
+        "wikidata_edit_authority": False,
+    }
+
+
 def build_partial_graph_view(
     payload: Mapping[str, Any], selectors: Sequence[str]
 ) -> dict[str, Any]:
@@ -227,9 +310,28 @@ def build_shared_shard_contract_from_zelph_manifest(
     artifact_class: str = "zelph-graph",
 ) -> dict[str, Any]:
     data = _mapping(manifest, "manifest")
-    manifest_version = _required_str(data, "manifestVersion")
-    if not manifest_version.startswith("zelph-hf-layout/v"):
-        raise ValueError("manifestVersion must be zelph-hf-layout/v*")
+    raw_manifest_version = data.get("manifestVersion")
+    # Upstream published HF v2 manifests may encode this as numeric 2
+    # together with storageMode=split-by-direction-and-section, while
+    # historical ITIR-generated manifests use zelph-hf-layout/v2.
+    # Accept only the explicitly observed pair; do not generalize arbitrary
+    # integers or downgrade unknown layouts to v2.
+    if (
+        type(raw_manifest_version) is int
+        and raw_manifest_version == 2
+        and data.get("storageMode") == "split-by-direction-and-section"
+    ):
+        manifest_version = "zelph-hf-layout/v2"
+    elif (
+        isinstance(raw_manifest_version, str)
+        and raw_manifest_version.startswith("zelph-hf-layout/v")
+    ):
+        manifest_version = raw_manifest_version
+    else:
+        raise ValueError(
+            "unsupported Zelph manifestVersion/storageMode; expected "
+            "zelph-hf-layout/v* or numeric 2 with split-by-direction-and-section"
+        )
     sections = _mapping(data.get("sections"), "sections")
     selector_model = dict(data.get("selectorModel") or {})
     source = dict(data.get("source") or {})
@@ -944,3 +1046,167 @@ def _required_int(mapping: Mapping[str, Any], key: str) -> int:
     if isinstance(value, bool) or not isinstance(value, int):
         raise ValueError(f"{key} must be an integer")
     return value
+
+
+# Strict transport owns physical HF bytes. Legacy prefix probes above retain
+# their preview/truncation semantics and must never imply full-byte equality.
+_EXACT_REV = re.compile(r"[0-9a-f]{40}\Z")
+_EXACT_SEGMENT = re.compile(r"[A-Za-z0-9_.-]+\Z")
+
+
+def _pinned_zelph_object_url(*, hf_uri: str, revision: str) -> str:
+    """Require immutable original dataset identity and safe literal paths."""
+    if type(revision) is not str or not _EXACT_REV.fullmatch(revision):
+        raise ValueError("exact HF evidence requires immutable 40-hex revision")
+    ref = _parse_hf_uri(hf_uri)
+    if ref.repo_type != "datasets" or ref.repo_id != "acrion/zelph":
+        raise ValueError("exact Zelph evidence requires original dataset")
+    parts = ref.object_path.split("/")
+    if (not parts or any(
+        not _EXACT_SEGMENT.fullmatch(part) or part in (".", "..")
+        for part in parts
+    )):
+        raise ValueError("unsafe exact HF object path")
+    return ref.url(revision)
+
+
+@contextmanager
+def open_pinned_zelph_range(
+    *, hf_uri: str, revision: str, start: int, length: int,
+    total_size: int, max_bytes: int = 16 * 1024**3,
+    opener: Any | None = None, timeout: int = 60,
+):
+    """Bounded exact HTTP206 response; caller consumes length then checks EOF."""
+    url = _pinned_zelph_object_url(hf_uri=hf_uri, revision=revision)
+    if (any(type(n) is not int for n in (start, length, total_size, max_bytes, timeout))
+            or start < 0 or length <= 0 or total_size < start + length
+            or not 0 < max_bytes or length > max_bytes or not 0 < timeout <= 600):
+        raise ValueError("invalid exact source range or bounded byte budget")
+    end = start + length - 1
+    request = Request(url, headers={
+        "Range": f"bytes={start}-{end}",
+        "Accept-Encoding": "identity",
+        "User-Agent": "itir-original-zelph-physical-range/1",
+    }, method="GET")
+    caller = opener or urlopen
+    with caller(request, timeout=timeout) as response:
+        final_url = (response.geturl() if callable(getattr(response, "geturl", None))
+                     else url)
+        if (not isinstance(final_url, str)
+                or urlsplit(final_url).scheme != "https"
+                or not urlsplit(final_url).hostname):
+            raise ValueError("original HF range redirected outside TLS")
+        if getattr(response, "status", None) != 206:
+            raise ValueError("range server refused exact HTTP 206 (no 200 fallback)")
+        headers = getattr(response, "headers", {})
+        if headers.get("Content-Range", "") != f"bytes {start}-{end}/{total_size}":
+            raise ValueError("remote original source Content-Range mismatch")
+        if headers.get("Content-Encoding", "identity").lower() not in ("", "identity"):
+            raise ValueError("non-identity remote packed byte-range content encoding")
+        advertised = headers.get("Content-Length")
+        if advertised is not None and (not advertised.isdecimal()
+                                       or int(advertised) != length):
+            raise ValueError("original HF Content-Length differs from requested range")
+        yield response
+
+
+def fetch_pinned_zelph_object(
+    *, hf_uri: str, revision: str, max_bytes: int = 16 * 1024 * 1024,
+    opener: Any | None = None, timeout: int = 60,
+) -> dict[str, Any]:
+    """Exact bounded whole HF metadata object, not the legacy preview API."""
+    url = _pinned_zelph_object_url(hf_uri=hf_uri, revision=revision)
+    if (type(max_bytes) is not int or not 0 < max_bytes <= 64 * 1024 * 1024
+            or type(timeout) is not int or not 0 < timeout <= 600):
+        raise ValueError("bounded exact HF metadata byte cap required")
+    request = Request(url, headers={
+        "Accept-Encoding": "identity", "User-Agent": "itir-zelph-exact-metadata/1",
+    }, method="GET")
+    caller = opener or urlopen
+    with caller(request, timeout=timeout) as response:
+        final_url = (response.geturl() if callable(getattr(response, "geturl", None))
+                     else url)
+        if (not isinstance(final_url, str)
+                or urlsplit(final_url).scheme != "https"
+                or not urlsplit(final_url).hostname):
+            raise ValueError("HF metadata redirected outside TLS")
+        status = getattr(response, "status", None)
+        headers = getattr(response, "headers", {})
+        if status not in (200, 206):
+            raise ValueError("exact metadata requires whole-object HTTP200 or 206")
+        if headers.get("Content-Encoding", "identity").lower() not in ("", "identity"):
+            raise ValueError("exact metadata cannot be content encoded")
+        data = response.read(max_bytes + 1)
+        if len(data) > max_bytes or not data:
+            raise ValueError("HF metadata empty or exceeds bound")
+        declared = headers.get("Content-Length")
+        if declared is not None and (not declared.isdecimal()
+                                     or int(declared) != len(data)):
+            raise ValueError("HF metadata Content-Length differs from complete bytes")
+        if status == 206:
+            if headers.get("Content-Range") != f"bytes 0-{len(data)-1}/{len(data)}":
+                raise ValueError("HF metadata HTTP206 was only a partial object")
+        elif headers.get("Content-Range"):
+            raise ValueError("unexpected Content-Range for HTTP200 metadata")
+        if response.read(1):
+            raise ValueError("HF metadata has unaccounted trailing bytes")
+    return {
+        "bytes": data, "sha256": sha256(data).hexdigest(),
+        "sizeBytes": len(data), "revision": revision,
+        "whole_object_observed": True, "candidate_only": True,
+        "source_support_paid": False, "edit_authority": False,
+    }
+
+
+
+@contextmanager
+def open_pinned_zelph_complete_object(
+    *, hf_uri: str, revision: str, expected_size: int,
+    max_bytes: int = 16 * 1024**3,
+    opener: Any | None = None, timeout: int = 60,
+):
+    """Stream a COMPLETE published shard object, not an original bin range.
+
+    Whole-object HTTP200 is valid if Content-Length exactly equals the
+    independently manifest-declared object byte size. Exact complete-object
+    HTTP206 is also valid; all subranges, length ambiguity, compression,
+    redirects outside TLS, and transfer-budget overflow are rejected.
+    The caller must read exactly expected_size and check EOF before writing
+    any successful receipt.
+    """
+    url = _pinned_zelph_object_url(hf_uri=hf_uri, revision=revision)
+    if (any(type(n) is not int for n in (expected_size, max_bytes, timeout))
+            or expected_size <= 0 or max_bytes <= 0
+            or expected_size > max_bytes or not 0 < timeout <= 600):
+        raise ValueError("invalid complete HF object size/budget")
+    request = Request(url, headers={
+        "Range": f"bytes=0-{expected_size-1}",
+        "Accept-Encoding": "identity",
+        "User-Agent": "itir-zelph-complete-selected-shard/1",
+    }, method="GET")
+    caller = opener or urlopen
+    with caller(request, timeout=timeout) as response:
+        final_url = (response.geturl() if callable(getattr(response, "geturl", None))
+                     else url)
+        if (not isinstance(final_url, str)
+                or urlsplit(final_url).scheme != "https"
+                or not urlsplit(final_url).hostname):
+            raise ValueError("selected HF shard redirected outside TLS")
+        status = getattr(response, "status", None)
+        headers = getattr(response, "headers", {})
+        if status not in (200, 206):
+            raise ValueError("complete selected HF shard requires exact HTTP200 or 206")
+        if headers.get("Content-Encoding", "identity").lower() not in ("", "identity"):
+            raise ValueError("complete selected HF shard must use identity encoding")
+        advertised = headers.get("Content-Length")
+        if (advertised is None or not advertised.isdecimal()
+                or int(advertised) != expected_size):
+            raise ValueError("selected HF shard Content-Length mismatches declared object")
+        if status == 206:
+            if headers.get("Content-Range") != (
+                f"bytes 0-{expected_size-1}/{expected_size}"
+            ):
+                raise ValueError("selected HF HTTP206 is only a partial shard")
+        elif headers.get("Content-Range"):
+            raise ValueError("selected HF HTTP200 unexpectedly advertises Content-Range")
+        yield response
