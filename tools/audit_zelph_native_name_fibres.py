@@ -288,6 +288,7 @@ def run_native_name_audit(*, plan: dict, sqlite_index: Path,
                           decoder: Path, max_new_chunks: int = 4,
                           max_rows_per_chunk: int = 10_000_000,
                           timeout_seconds: int = 900,
+                          positive_roots_receipt: Path | None = None,
                           popen: Callable[..., Any] = subprocess.Popen) -> dict:
     if (type(max_new_chunks) is not int or not 0 <= max_new_chunks <= 10000
             or not decoder.is_file() or decoder.is_symlink()
@@ -351,6 +352,58 @@ def run_native_name_audit(*, plan: dict, sqlite_index: Path,
             "SELECT COUNT(*) FROM (SELECT name FROM native_rows "
             "WHERE section='nodeOfName' GROUP BY name HAVING COUNT(DISTINCT node_id)>1)"
         ).fetchone()[0]
+        positive_results = []
+        if positive_roots_receipt is not None:
+            receipt = _strict(positive_roots_receipt.read_bytes())
+            if (receipt.get("version") !=
+                    "itir.zelph.original_direct_native_positive_qid_roots.v1"
+                    or receipt.get("dataset_revision") != plan["dataset_revision"]
+                    or receipt.get("manifest_sha256") != plan["manifest_sha256"]
+                    or receipt.get("original_index_sha256") != plan["original_index_sha256"]
+                    or receipt.get("all_declared_qid_name_witnesses_positive") is not True
+                    or receipt.get("edit_authority") is not False):
+                raise ValueError("original five-QID native name receipt identity mismatch")
+            expected = receipt.get("native_exact_positive_name_to_node_rows")
+            if type(expected) is not list or not expected:
+                raise ValueError("no actual prior positive source-backed QID rows")
+            seen_qids = set()
+            for item in expected:
+                if type(item) is not dict:
+                    raise ValueError("invalid earlier source-native positive row")
+                qid, node, chunk = item.get("qid"), item.get("node_id"), item.get("node_of_name_section_global_chunk")
+                if (type(qid) is not str or
+                    not re.fullmatch(r"Q[1-9][0-9]*", qid)
+                    or qid in seen_qids or type(node) is not int
+                    or not 0 <= node <= 2**64 - 1 or
+                    type(chunk) is not int or chunk < 0):
+                    raise ValueError("invalid or duplicate prior native QID root")
+                seen_qids.add(qid)
+                pair = db.execute(
+                    "SELECT packed_sha256 FROM completed_chunks "
+                    "WHERE section='nodeOfName' AND chunk_index=?",
+                    (chunk,)).fetchone()
+                if pair is None:
+                    positive_results.append({
+                        "qid": qid, "native_positive_node_id": node,
+                        "chunk_index": chunk, "source_row_replayed_in_a1": False,
+                        "unreplayed_is_not_absence": True})
+                    continue
+                if pair[0] != item.get("packed_bytes_sha256_equal_original_range"):
+                    raise ValueError("A1 shard hash differs from previously native-decoded QID root")
+                matches = [
+                    int(row[0]) for row in db.execute(
+                        "SELECT node_id FROM native_rows WHERE section='nodeOfName' "
+                        "AND chunk_index=? AND name=?", (chunk,qid))
+                ]
+                if node not in matches:
+                    raise ValueError("A1 original native name fibre conflicts with prior positive QID root")
+                positive_results.append({
+                    "qid": qid, "native_positive_node_id": node,
+                    "chunk_index": chunk, "source_row_replayed_in_a1": True,
+                    "local_chunk_matching_row_count": matches.count(node),
+                    "local_chunk_distinct_nodes_for_name": sorted(set(matches)),
+                    "global_original_name_fibre_complete": all_name_chunks,
+                })
         return {
             "version": "itir.zelph.native_original_name_fibres.v1",
             "dataset_revision": plan["dataset_revision"],
@@ -361,6 +414,8 @@ def run_native_name_audit(*, plan: dict, sqlite_index: Path,
             "native_decoded_chunk_counts": {sec: counts.get(sec, 0) for sec in _SECTIONS},
             "native_rows_persisted": total,
             "newly_completed_chunks": added,
+            "prior_positive_root_replay": positive_results,
+            "positive_root_receipt_replayed": positive_roots_receipt is not None,
             "duplicate_original_name_node_pair_groups": duplicate_groups,
             "original_name_keys_with_multiple_nodes_in_checked_rows": multi_fibre_names,
             "all_original_name_section_native_chunks_decoded": all_name_chunks,
@@ -389,6 +444,8 @@ def main() -> int:
     p.add_argument("--physical-receipts-dir", type=Path, action="append", required=True)
     p.add_argument("--shard-root", type=Path, required=True)
     p.add_argument("--decoder", type=Path, required=True)
+    p.add_argument("--positive-roots-receipt", type=Path,
+                   help="optional exact native five-QID original HTTP206 root receipt")
     p.add_argument("--sqlite-index", type=Path, required=True)
     p.add_argument("--max-new-chunks", type=int, default=4)
     p.add_argument("--max-chunk-mib", type=int, default=256)
@@ -412,7 +469,8 @@ def main() -> int:
             plan=plan, sqlite_index=args.sqlite_index, decoder=args.decoder,
             max_new_chunks=args.max_new_chunks,
             max_rows_per_chunk=args.max_rows_per_chunk,
-            timeout_seconds=args.decoder_timeout_seconds)
+            timeout_seconds=args.decoder_timeout_seconds,
+            positive_roots_receipt=args.positive_roots_receipt)
         wire = json.dumps(result, sort_keys=True, indent=2) + "\n"
         if args.output:
             with args.output.open("x", encoding="utf-8") as f:
