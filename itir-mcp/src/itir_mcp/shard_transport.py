@@ -1156,3 +1156,57 @@ def fetch_pinned_zelph_object(
         "whole_object_observed": True, "candidate_only": True,
         "source_support_paid": False, "edit_authority": False,
     }
+
+
+
+@contextmanager
+def open_pinned_zelph_complete_object(
+    *, hf_uri: str, revision: str, expected_size: int,
+    max_bytes: int = 16 * 1024**3,
+    opener: Any | None = None, timeout: int = 60,
+):
+    """Stream a COMPLETE published shard object, not an original bin range.
+
+    Whole-object HTTP200 is valid if Content-Length exactly equals the
+    independently manifest-declared object byte size. Exact complete-object
+    HTTP206 is also valid; all subranges, length ambiguity, compression,
+    redirects outside TLS, and transfer-budget overflow are rejected.
+    The caller must read exactly expected_size and check EOF before writing
+    any successful receipt.
+    """
+    url = _pinned_zelph_object_url(hf_uri=hf_uri, revision=revision)
+    if (any(type(n) is not int for n in (expected_size, max_bytes, timeout))
+            or expected_size <= 0 or max_bytes <= 0
+            or expected_size > max_bytes or not 0 < timeout <= 600):
+        raise ValueError("invalid complete HF object size/budget")
+    request = Request(url, headers={
+        "Range": f"bytes=0-{expected_size-1}",
+        "Accept-Encoding": "identity",
+        "User-Agent": "itir-zelph-complete-selected-shard/1",
+    }, method="GET")
+    caller = opener or urlopen
+    with caller(request, timeout=timeout) as response:
+        final_url = (response.geturl() if callable(getattr(response, "geturl", None))
+                     else url)
+        if (not isinstance(final_url, str)
+                or urlsplit(final_url).scheme != "https"
+                or not urlsplit(final_url).hostname):
+            raise ValueError("selected HF shard redirected outside TLS")
+        status = getattr(response, "status", None)
+        headers = getattr(response, "headers", {})
+        if status not in (200, 206):
+            raise ValueError("complete selected HF shard requires exact HTTP200 or 206")
+        if headers.get("Content-Encoding", "identity").lower() not in ("", "identity"):
+            raise ValueError("complete selected HF shard must use identity encoding")
+        advertised = headers.get("Content-Length")
+        if (advertised is None or not advertised.isdecimal()
+                or int(advertised) != expected_size):
+            raise ValueError("selected HF shard Content-Length mismatches declared object")
+        if status == 206:
+            if headers.get("Content-Range") != (
+                f"bytes 0-{expected_size-1}/{expected_size}"
+            ):
+                raise ValueError("selected HF HTTP206 is only a partial shard")
+        elif headers.get("Content-Range"):
+            raise ValueError("selected HF HTTP200 unexpectedly advertises Content-Range")
+        yield response
