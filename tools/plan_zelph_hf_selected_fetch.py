@@ -15,7 +15,7 @@ import shlex
 import sys
 from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'itir-mcp' / 'src'))
-from itir_mcp.shard_transport import open_pinned_zelph_range
+from itir_mcp.shard_transport import open_pinned_zelph_complete_object
 
 from verify_zelph_bin_shard_exact import (
     _ARTIFACT, _SHA40, _SHA64,
@@ -135,9 +135,9 @@ def execute_selected_fetch(*, plan: dict[str, Any], manifest_path: Path,
         target.parent.mkdir(parents=True, exist_ok=True)
         digest = sha256()
         bytes_seen = 0
-        with open_pinned_zelph_range(
+        with open_pinned_zelph_complete_object(
             hf_uri=f"hf://datasets/acrion/zelph/{rel}",
-            revision=revision, start=0, length=length, total_size=length,
+            revision=revision, expected_size=length,
             max_bytes=plan["max_selected_gib"] * 1024**3,
             opener=opener, timeout=timeout,
         ) as remote:
@@ -154,7 +154,8 @@ def execute_selected_fetch(*, plan: dict[str, Any], manifest_path: Path,
         receipts.append({
             "object_relative_path": rel, "size_bytes": bytes_seen,
             "raw_hf_object_sha256": digest.hexdigest(),
-            "exact_hf_object_http206": True,
+            "exact_complete_hf_object_observed": True,
+            "http_status": getattr(remote, "status", None),
             "original_bin_source_range_equality_checked": False,
         })
     return {
