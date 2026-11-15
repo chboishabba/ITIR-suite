@@ -208,6 +208,40 @@ print("PASS: 4 native packed Zelph section roundtrips and 5 fail-closed controls
 PY
 
 
+
+# The upstream original whole-.bin route builder unions repeated same-node
+# native AdjPair rows within a single packed shard. The selected decoder must
+# have identical semantics, including duplicate occurrence count and scoped
+# truncation controls; an unrelated node must never appear as an own result.
+python3 - "$TMP/decoder" "$TMP/packed" <<'PY'
+import json
+from pathlib import Path
+import subprocess
+import sys
+decoder, root = sys.argv[1], Path(sys.argv[2])
+path = root / "left-duplicate-node.capnp-packed"
+def run(*extra):
+    proc = subprocess.run([
+        decoder, "--file", str(path), "--section", "left",
+        "--chunk-index", "0", "--node", "7", *extra],
+        capture_output=True, text=True, timeout=60, check=False)
+    assert proc.returncode == 0, (proc.stdout, proc.stderr)
+    payload = json.loads(proc.stdout)
+    assert payload["authority"] is False
+    assert payload["candidate_only"] is True
+    return payload
+assert run()["rows"] == [{
+    "node_id": 7, "neighbors": [8, 9, 15],
+    "values_seen": 4, "truncated": False,
+}]
+assert run("--max-neighbors", "2")["rows"] == [{
+    "node_id": 7, "neighbors": [8, 9],
+    "values_seen": 4, "truncated": True,
+}]
+print("PASS: native duplicate-node original adjacency union and bounded truncation")
+PY
+
+
 # Exhaustive native name-row mode is separate from the QID selection mode:
 # demand one complete footer after reading the packed message through EOF.
 # Preserve ambiguous repeated keys as a multi-valued fibre, not a dict.
