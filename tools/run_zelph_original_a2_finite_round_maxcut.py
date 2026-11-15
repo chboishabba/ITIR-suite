@@ -177,6 +177,14 @@ def run_a2_round(
                 or shard_root.resolve().is_relative_to(r.resolve())
                 or r.resolve().is_relative_to(shard_root.resolve())):
             raise ValueError("packed and physical original LR evidence roots overlap")
+    # Native cohort SQLite/receipt storage must never be intermingled with
+    # source-equal packed files or original HTTP206 physical receipt roots.
+    evidence_roots = (shard_root, left_receipts_dir, right_receipts_dir)
+    for root in evidence_roots:
+        if (native_audit_dir.resolve() == root.resolve()
+                or native_audit_dir.resolve().is_relative_to(root.resolve())
+                or root.resolve().is_relative_to(native_audit_dir.resolve())):
+            raise ValueError("original LR native scratch must be separate from source and physical evidence roots")
     root_sha = digest(positive_roots_receipt)
     prior = read_existing_scans(
         native_audit_dir, revision=dataset_revision,
