@@ -1,5 +1,73 @@
 # Same-original Zelph `.bin` ↔ selected HF shards — physical maximum-cut receipt (2026-11-14)
 
+## 15 November 2026 — live P0-S positive selected original chunk; route-free batch + native QID root cut
+
+**Local operator LIVE receipt at pinned upstream source** (not independently re-fetched in this documentation commit): ITIR PR #14 exact-head [`858cfea1dba7f883c8cb5a4404b915c2a3fa7c4c`](https://github.com/chboishabba/ITIR-suite/commit/858cfea1dba7f883c8cb5a4404b915c2a3fa7c4c) **302/302 Python + genuine original Cap'n Proto C++ native offline**. Original `hf://datasets/acrion/zelph/wikidata-20260309-all.bin` HTTP206 exact range **[79,284,085,471, 79,306,841,167]**, length **22,755,697** bytes, matches original published `nodeOfName` chunk **0** byte-for-byte. Both observed SHA256: `0bbfc205a26caeb8a0daf5e1b265cc10a0895d43e5c7828c0c4ad8109efc8508`. Original total packed binary **87,954,185,510 bytes**, pinned git revision `0d4bd670959ebddae72f70d973410fdea8917ec1`, full manifest SHA `cedd5cf0e4951ae1aa7c2c5968614b0eb72a4c3b5c8b2dc4ab18c40be8c83f59`, original offset-index SHA `89f7ccac888e9e7db09b349cef246e725d969f07d4280142c325e96e12a30d77`. The user reported the raw local receipt at `/tmp/zelph-new-p0-evidence/direct-nodeOfName-0.json`; **this commit does not embed or recompute that external file's bytes**. P0-S *for this one chunk only* is evidenced; original full-bin SHA, original QID route, whole name-domain and all query frontiers remain OPEN.
+
+**Next larger cut implemented on this same #14 branch, SOURCE-WRITTEN; new exact-head acceptance required:**
+
+- `tools/verify_zelph_hf_selected_direct_matrix.py`: route-free explicit `section:index` list, requires independently pinned complete manifest + full index SHA, checks offset cover, counts **both** source and published-object payloads against a cumulative network budget, verifies each via existing `verify_direct_original_chunk`; writes per-chunk immutable SHA receipts and writes `selected-matrix-complete.json` **only if every requested key passes**. Optional `--save-published-root` retains published packed objects atomically **only after exact original-byte equality**, so a separate HF download is not required for decoding. Failed selected batch leaves completed per-chunk evidence but **no false complete receipt**.
+- `tools/verify_zelph_direct_native_qid_roots.py`: reads that exact matrix and each raw per-chunk receipt, rehashes locally retained original-equal `nodeOfName` shard bytes, calls the **already compiled original Cap'n Proto** selected decoder, and requires exactly one positive native `{qid,node_id}` row in the operator-declared section-global chunk. Emits original-byte-backed **positive name→node witnesses** with original graph SHA and decoder hash; it never treats a missing row/chunk as QID absence or infers adjacency routing.
+- New tests `test_verify_zelph_hf_selected_direct_matrix.py`, `test_verify_zelph_direct_native_qid_roots.py`, plus direct comparator atomic-save negative controls, are in `check_zelph_physical_maxcut_offline.sh`. **No new local test run on these commits is claimed.**
+
+### Operator commands: three named original chunks → five QIDs (no 87.95 GB download)
+
+The already reported positive name-shard hints were `Q10403939,Q10416948,Q10422059 → nodeOfName:1`, `Q10651551 → nodeOfName:4`, `Q56404383 → nodeOfName:75`. **These remain proposed selectors, not accepted original roots until native decoding below completes.** No need to repeat the already checked chunk 0 to test those three name-shard locations.
+
+```bash
+REV=0d4bd670959ebddae72f70d973410fdea8917ec1
+MANIFEST_SHA=cedd5cf0e4951ae1aa7c2c5968614b0eb72a4c3b5c8b2dc4ab18c40be8c83f59
+INDEX_SHA=89f7ccac888e9e7db09b349cef246e725d969f07d4280142c325e96e12a30d77
+RUN=/tmp/zelph-new-original-name-evidence
+# The existing source-pinned metadata operator run supplies these exact files:
+META=/path/to/pinned-hf-metadata/wikidata-20260309-all
+MANIFEST="$META/wikidata-20260309-all.hf-v2.json"
+INDEX="$META/artifact.index.json"
+mkdir -p "$RUN"
+
+# Exact-head source check first; no source download:
+bash tools/check_zelph_physical_maxcut_offline.sh
+
+# First preflight: metadata/index pins, exact selected offsets and BOTH
+# HTTP payload budgets; leaves no physical output directory.
+python3 tools/verify_zelph_hf_selected_direct_matrix.py \
+  --manifest "$MANIFEST" --original-index "$INDEX" \
+  --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
+  --original-index-sha256 "$INDEX_SHA" \
+  --chunk nodeOfName:1 --chunk nodeOfName:4 --chunk nodeOfName:75 \
+  --max-chunk-mib 256 --max-total-mib 2048 \
+  --evidence-dir "$RUN/positive-name-matrix"
+
+# Same exact request WITH explicit execution:
+python3 tools/verify_zelph_hf_selected_direct_matrix.py \
+  --manifest "$MANIFEST" --original-index "$INDEX" \
+  --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
+  --original-index-sha256 "$INDEX_SHA" \
+  --chunk nodeOfName:1 --chunk nodeOfName:4 --chunk nodeOfName:75 \
+  --max-chunk-mib 256 --max-total-mib 2048 \
+  --evidence-dir "$RUN/positive-name-matrix" \
+  --save-published-root "$RUN/source-equal-shards" --execute \
+  > "$RUN/matrix-stdout.json"
+
+# Compile original-schema selected Capnp decoder into a distinct fresh dir.
+bash tools/build_zelph_native_live.sh "$RUN/native"
+
+# Positive original/native QID witnesses from those exact source-equal files:
+python3 tools/verify_zelph_direct_native_qid_roots.py \
+  --manifest "$MANIFEST" --manifest-sha256 "$MANIFEST_SHA" \
+  --matrix-dir "$RUN/positive-name-matrix" \
+  --shard-root "$RUN/source-equal-shards" \
+  --decoder "$RUN/native/selected-decoder" \
+  --qid-chunk Q10403939:1 --qid-chunk Q10416948:1 \
+  --qid-chunk Q10422059:1 --qid-chunk Q10651551:4 \
+  --qid-chunk Q56404383:75 \
+  --output "$RUN/five-original-positive-qid-roots.json"
+```
+
+**Separate P2 gate:** The result is a physically validated *positive name→node* association for the five requested QIDs, if all commands pass, **NOT** the node→`left/right` adjacency source-route oracle or the 20 finite left/right query words. Those require independently verified required adjacency chunks and a corresponding declared numeric frontier. Do not cast a positive name mapping to an adjacency proof, and do not reintroduce a whole-original-.bin requirement merely to establish selected chunk equality. The existing local whole-bin producer remains an optional stronger alternative when the authenticated full binary is available.
+
+---
+
 ## 15 November 2026 P0 real-source shortcut: original header + entire offset index (NO 82 GiB local binary)
 
 **Last exact-head accepted by operator:** ITIR #14 at `fb61e629763b86c097f3f6a00a906575b02fe91d`: **165/165 Python tests and native Cap'n Proto C++ original mini-source** passed. DASHI #1506 at `9512b316` 9/9 Agda; SLR #10 `06bda03d` 24/24 Rust; SensibLaw #514 `f77b28f` 17/17 Python. All refer only to their checked source. New original-header metadata integration commits in this section are NOT YET locally accepted.
