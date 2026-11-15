@@ -85,6 +85,22 @@ int main(int argc, char** argv) {
             pairs[0].setKey("Q1");
             pairs[0].setValue(7);
         });
+        // Deliberate multi-valued original name fibre, NOT included in
+        // original-small.bin (its existing one-QID route remains unchanged).
+        // This tests that exhaustive native streaming does not silently
+        // coerce name->node into a single-valued map.
+        write_chunk(root / "nodeOfName-multifibre.capnp-packed", [](capnp::MallocMessageBuilder& msg) {
+            auto chunk = msg.initRoot<zelph::network::NodeNameChunk>();
+            chunk.setLang("wikidata");
+            chunk.setChunkIndex(0);
+            auto pairs = chunk.initPairs(3);
+            pairs[0].setKey("Q1");
+            pairs[0].setValue(7);
+            pairs[1].setKey("Q1");
+            pairs[1].setValue(8);
+            pairs[2].setKey("Q2");
+            pairs[2].setValue(9);
+        });
         // Emit a complete tiny original .bin: header then the four packed
         // section messages, preserving the upstream two-pass reader order.
         write_chunk(root / "header.capnp-packed", [](capnp::MallocMessageBuilder& msg) {
