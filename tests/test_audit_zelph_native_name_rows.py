@@ -106,6 +106,7 @@ def inputs(tmp_path, section="nodeOfName"):
         "receipt_path": receipt_path,
         "shard_root": root,
         "decoder_path": decoder,
+        "expected_decoder_sha256": sha256(decoder.read_bytes()).hexdigest(),
         "target_qids": ("Q1", "Q2", "Q999"),
         "rows_output": tmp_path / "complete-native-rows.ndjson",
     }, receipt, shard
@@ -269,3 +270,20 @@ def test_hydrate_network_budget_checked_before_request(tmp_path):
             **kwargs, hydrate_missing_shard=True, opener=forbidden,
         )
     assert not shard.exists()
+
+
+def test_native_decoder_binary_drift_blocks_before_streaming(tmp_path):
+    kwargs, _, _ = inputs(tmp_path)
+    kwargs["decoder_path"].write_text("#!/usr/bin/env python3\nprint('forged decoder')\n")
+    kwargs["decoder_path"].chmod(0o700)
+    with pytest.raises(ValueError, match="decoder executable digest mismatches pin"):
+        enumerate_authenticated_name_chunk(**kwargs)
+    assert not kwargs["rows_output"].exists()
+
+
+def test_unpinned_decoder_binary_never_executes(tmp_path):
+    kwargs, _, _ = inputs(tmp_path)
+    kwargs["expected_decoder_sha256"] = "not-a-valid-sha256"
+    with pytest.raises(ValueError, match="independent pinned native decoder"):
+        enumerate_authenticated_name_chunk(**kwargs)
+    assert not kwargs["rows_output"].exists()
