@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
 from base64 import b64encode
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from hashlib import sha256
 import json
 from pathlib import Path
+import re
+from urllib.parse import urlsplit
 from typing import Any
 from urllib.error import URLError
 from urllib.request import Request, urlopen
@@ -1043,3 +1046,113 @@ def _required_int(mapping: Mapping[str, Any], key: str) -> int:
     if isinstance(value, bool) or not isinstance(value, int):
         raise ValueError(f"{key} must be an integer")
     return value
+
+
+# Strict transport owns physical HF bytes. Legacy prefix probes above retain
+# their preview/truncation semantics and must never imply full-byte equality.
+_EXACT_REV = re.compile(r"[0-9a-f]{40}\Z")
+_EXACT_SEGMENT = re.compile(r"[A-Za-z0-9_.-]+\Z")
+
+
+def _pinned_zelph_object_url(*, hf_uri: str, revision: str) -> str:
+    """Require immutable original dataset identity and safe literal paths."""
+    if type(revision) is not str or not _EXACT_REV.fullmatch(revision):
+        raise ValueError("exact HF evidence requires immutable 40-hex revision")
+    ref = _parse_hf_uri(hf_uri)
+    if ref.repo_type != "datasets" or ref.repo_id != "acrion/zelph":
+        raise ValueError("exact Zelph evidence requires original dataset")
+    parts = ref.object_path.split("/")
+    if (not parts or any(
+        not _EXACT_SEGMENT.fullmatch(part) or part in (".", "..")
+        for part in parts
+    )):
+        raise ValueError("unsafe exact HF object path")
+    return ref.url(revision)
+
+
+@contextmanager
+def open_pinned_zelph_range(
+    *, hf_uri: str, revision: str, start: int, length: int,
+    total_size: int, max_bytes: int = 16 * 1024**3,
+    opener: Any | None = None, timeout: int = 60,
+):
+    """Bounded exact HTTP206 response; caller consumes length then checks EOF."""
+    url = _pinned_zelph_object_url(hf_uri=hf_uri, revision=revision)
+    if (any(type(n) is not int for n in (start, length, total_size, max_bytes, timeout))
+            or start < 0 or length <= 0 or total_size < start + length
+            or not 0 < max_bytes or length > max_bytes or not 0 < timeout <= 600):
+        raise ValueError("invalid exact source range or bounded byte budget")
+    end = start + length - 1
+    request = Request(url, headers={
+        "Range": f"bytes={start}-{end}",
+        "Accept-Encoding": "identity",
+        "User-Agent": "itir-original-zelph-physical-range/1",
+    }, method="GET")
+    caller = opener or urlopen
+    with caller(request, timeout=timeout) as response:
+        final_url = (response.geturl() if callable(getattr(response, "geturl", None))
+                     else url)
+        if (not isinstance(final_url, str)
+                or urlsplit(final_url).scheme != "https"
+                or not urlsplit(final_url).hostname):
+            raise ValueError("original HF range redirected outside TLS")
+        if getattr(response, "status", None) != 206:
+            raise ValueError("original HF exact range requires HTTP 206 (no 200 fallback)")
+        headers = getattr(response, "headers", {})
+        if headers.get("Content-Range", "") != f"bytes {start}-{end}/{total_size}":
+            raise ValueError("original HF Content-Range differs from pinned interval")
+        if headers.get("Content-Encoding", "identity").lower() not in ("", "identity"):
+            raise ValueError("original HF range must use identity content encoding")
+        advertised = headers.get("Content-Length")
+        if advertised is not None and (not advertised.isdecimal()
+                                       or int(advertised) != length):
+            raise ValueError("original HF Content-Length differs from requested range")
+        yield response
+
+
+def fetch_pinned_zelph_object(
+    *, hf_uri: str, revision: str, max_bytes: int = 16 * 1024 * 1024,
+    opener: Any | None = None, timeout: int = 60,
+) -> dict[str, Any]:
+    """Exact bounded whole HF metadata object, not the legacy preview API."""
+    url = _pinned_zelph_object_url(hf_uri=hf_uri, revision=revision)
+    if (type(max_bytes) is not int or not 0 < max_bytes <= 64 * 1024 * 1024
+            or type(timeout) is not int or not 0 < timeout <= 600):
+        raise ValueError("bounded exact HF metadata byte cap required")
+    request = Request(url, headers={
+        "Accept-Encoding": "identity", "User-Agent": "itir-zelph-exact-metadata/1",
+    }, method="GET")
+    caller = opener or urlopen
+    with caller(request, timeout=timeout) as response:
+        final_url = (response.geturl() if callable(getattr(response, "geturl", None))
+                     else url)
+        if (not isinstance(final_url, str)
+                or urlsplit(final_url).scheme != "https"
+                or not urlsplit(final_url).hostname):
+            raise ValueError("HF metadata redirected outside TLS")
+        status = getattr(response, "status", None)
+        headers = getattr(response, "headers", {})
+        if status not in (200, 206):
+            raise ValueError("exact metadata requires whole-object HTTP200 or 206")
+        if headers.get("Content-Encoding", "identity").lower() not in ("", "identity"):
+            raise ValueError("exact metadata cannot be content encoded")
+        data = response.read(max_bytes + 1)
+        if len(data) > max_bytes or not data:
+            raise ValueError("HF metadata empty or exceeds bound")
+        declared = headers.get("Content-Length")
+        if declared is not None and (not declared.isdecimal()
+                                     or int(declared) != len(data)):
+            raise ValueError("HF metadata Content-Length differs from complete bytes")
+        if status == 206:
+            if headers.get("Content-Range") != f"bytes 0-{len(data)-1}/{len(data)}":
+                raise ValueError("HF metadata HTTP206 was only a partial object")
+        elif headers.get("Content-Range"):
+            raise ValueError("unexpected Content-Range for HTTP200 metadata")
+        if response.read(1):
+            raise ValueError("HF metadata has unaccounted trailing bytes")
+    return {
+        "bytes": data, "sha256": sha256(data).hexdigest(),
+        "sizeBytes": len(data), "revision": revision,
+        "whole_object_observed": True, "candidate_only": True,
+        "source_support_paid": False, "edit_authority": False,
+    }
