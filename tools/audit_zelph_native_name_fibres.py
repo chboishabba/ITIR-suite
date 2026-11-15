@@ -119,8 +119,22 @@ def original_name_plan(*, manifest: Path, original_index: Path,
             digest = _file_sha(p, _MIB)
             if proof_path is None:
                 proof_path, proof_hash = p, digest
-            elif _read_receipt(p) != _read_receipt(proof_path):
-                raise ValueError("conflicting original-range receipts for same native chunk")
+            else:
+                other = _read_receipt(p)
+                first = _read_receipt(proof_path)
+                # Different auditors may add saved-path/status details,
+                # while preserving the same immutable byte identity.
+                comparable = (
+                    "dataset_revision", "original_manifest_raw_sha256",
+                    "original_index_raw_sha256", "section", "chunk_index",
+                    "original_source_offset", "source_range_end_inclusive",
+                    "bytes_compared", "published_object_uri",
+                    "original_binary_uri", "source_bin_size_bytes",
+                    "published_shard_raw_sha256",
+                    "original_packed_range_raw_sha256",
+                )
+                if any(other.get(k) != first.get(k) for k in comparable):
+                    raise ValueError("conflicting original-range receipts for same native chunk")
         if proof_path is None:
             continue
         proof = _read_receipt(proof_path)
@@ -169,7 +183,8 @@ def _validated_native_frame(frame: dict, *, section: str, chunk: int,
         raise ValueError("native name row/terminal section and language mismatch")
     if done:
         if (frame.get("version") != _END_VERSION or
-                frame.get("rows_emitted") != expected_row_index or
+                type(frame.get("rows_emitted")) is not int or
+                frame["rows_emitted"] != expected_row_index or
                 frame.get("candidate_only") is not True or
                 frame.get("authority") is not False):
             raise ValueError("missing/mismatched native packed EOF terminal frame")
@@ -244,7 +259,10 @@ def _stream_native_chunk(conn: sqlite3.Connection, *, entry: dict,
                  decoder_sha, stream_hash.hexdigest(), count))
             return count, stream_hash.hexdigest()
         except BaseException:
-            process.kill()
+            try:
+                process.kill()
+            except ProcessLookupError:
+                pass
             process.wait()
             raise
         finally:
@@ -292,6 +310,9 @@ def run_native_name_audit(*, plan: dict, sqlite_index: Path,
         if previously and previously != pins:
             raise ValueError("SQLite name fibre audit pins differ: refuse cross-revision reuse")
         if not previously:
+            if (db.execute("SELECT COUNT(*) FROM completed_chunks").fetchone()[0] or
+                    db.execute("SELECT COUNT(*) FROM native_rows").fetchone()[0]):
+                raise ValueError("unidentified existing native rows cannot be adopted as source proof")
             db.executemany("INSERT INTO metadata VALUES (?,?)", pins.items())
         present = {(row[0],row[1]): row for row in
                    db.execute("SELECT section,chunk_index,physical_receipt_sha256,packed_sha256,decoder_sha256 FROM completed_chunks")}
@@ -349,6 +370,7 @@ def run_native_name_audit(*, plan: dict, sqlite_index: Path,
             "native_original_packed_footer_and_process_exit_checked_per_chunk": True,
             "wikidata_qid_global_absence_proved_before_full_source_cover": False,
             "a1_formal_kernel_instantiation_paid": False,
+            "source_support_paid": False,
             "original_full_bin_digest_verified": False,
             "left_right_root_adjacency_verified": False,
             "p854_source_support_paid": False,
