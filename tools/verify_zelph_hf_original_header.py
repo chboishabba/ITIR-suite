@@ -19,7 +19,9 @@ import subprocess
 import sys
 from tempfile import TemporaryDirectory
 from typing import Any, Callable
-from urllib.request import Request, urlopen
+from urllib.request import urlopen
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'itir-mcp' / 'src'))
+from itir_mcp.shard_transport import open_pinned_zelph_range
 
 from verify_zelph_index_manifest_original import verify_index_manifest_files
 
@@ -39,26 +41,11 @@ def _http_206_header(*, revision: str, source_size: int, length: int,
     if type(timeout_seconds) is not int or not 1 <= timeout_seconds <= 600:
         raise ValueError("bounded positive source header network timeout required")
     url = f"{_URL_PREFIX}{revision}/{_ARTIFACT}.bin"
-    req = Request(
-        url, headers={
-            "Range": f"bytes=0-{length-1}",
-            "Accept-Encoding": "identity",
-            "User-Agent": "itir-zelph-original-header-proof/1",
-        }, method="GET",
-    )
-    with opener(req, timeout=timeout_seconds) as response:
-        final_url = response.geturl() if callable(getattr(response, "geturl", None)) else url
-        if not isinstance(final_url, str) or not final_url.startswith("https://"):
-            raise ValueError("original source redirected outside TLS")
-        if getattr(response, "status", None) != 206:
-            raise ValueError("remote original source header did not return HTTP 206")
-        if response.headers.get("Content-Range", "") != f"bytes 0-{length-1}/{source_size}":
-            raise ValueError("remote original HTTP Content-Range differs from indexed full source")
-        if response.headers.get("Content-Encoding", "identity").lower() not in ("", "identity"):
-            raise ValueError("remote original header has non-identity content encoding")
-        length_label = response.headers.get("Content-Length")
-        if length_label is not None and length_label != str(length):
-            raise ValueError("remote original header Content-Length mismatch")
+    with open_pinned_zelph_range(
+        hf_uri=f"hf://datasets/acrion/zelph/{_ARTIFACT}.bin",
+        revision=revision, start=0, length=length, total_size=source_size,
+        max_bytes=1024 * 1024, opener=opener, timeout=timeout_seconds,
+    ) as response:
         raw = response.read(length)
         if len(raw) != length or response.read(1):
             raise ValueError("remote original header range truncated or oversized")
