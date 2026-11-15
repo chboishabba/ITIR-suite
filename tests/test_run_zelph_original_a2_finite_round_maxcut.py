@@ -95,6 +95,7 @@ def stages(monkeypatch, *, complete=True):
     monkeypatch.setattr(a2,"native_original_lr_plan",native_plan)
     def native_run(**kwargs):
         numbers=kwargs["plan"]["target_numeric_nodes"]
+        kwargs["sqlite_index"].write_bytes(("native complete original LR cohort "+str(numbers)).encode())
         events.append(("native-run",tuple(numbers)))
         vals={(1,"left"):[2],(1,"right"):[3],
               (2,"right"):[4],(3,"left"):[5]}
@@ -290,3 +291,17 @@ def test_budget_with_zero_available_one_sided_bytes_blocks_restoration(
     assert result["planned_one_sided_restore_bytes"]==0
     assert result["planned_combined_network_bytes"]==6*MIB
     assert ("material-plan",1) in events
+
+
+def test_corrupted_completed_native_lr_sqlite_snapshot_blocks_replay(
+    tmp_path,monkeypatch
+):
+    args=fixtures(tmp_path)
+    events,roots,dec=stages(monkeypatch)
+    bind_hashes(args,(roots,dec))
+    a2.run_a2_round(**args,execute=True)
+    sqlite=next(args["native_audit_dir"].glob("original-lr-scan-*.sqlite"))
+    sqlite.write_bytes(b"tampered native A2 rows")
+    with pytest.raises(ValueError,match="SQLite snapshot SHA drift"):
+        a2.run_a2_round(**args,execute=True)
+    assert not any(e==("native-run",(1,2,3)) for e in events)
