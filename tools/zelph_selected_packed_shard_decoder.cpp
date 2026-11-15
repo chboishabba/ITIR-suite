@@ -256,15 +256,19 @@ uint64_t stream_all_native_name_rows(
         if (chunk.getChunkIndex() != args.chunk_index
                 || std::string(chunk.getLang().cStr()) != args.language)
             throw std::runtime_error("native nodeOfName section/language/chunk mismatch");
-        for (auto pair : chunk.getPairs())
-            emit(pair.getKey().cStr(), pair.getValue());
+        for (auto pair : chunk.getPairs()) {
+            auto key = pair.getKey();
+            emit(std::string(key.begin(), key.end()), pair.getValue());
+        }
     } else if (args.section == "nameOfNode") {
         auto chunk = reader.getRoot<zelph::network::NameChunk>();
         if (chunk.getChunkIndex() != args.chunk_index
                 || std::string(chunk.getLang().cStr()) != args.language)
             throw std::runtime_error("native nameOfNode section/language/chunk mismatch");
-        for (auto pair : chunk.getPairs())
-            emit(pair.getValue().cStr(), pair.getKey());
+        for (auto pair : chunk.getPairs()) {
+            auto name = pair.getValue();
+            emit(std::string(name.begin(), name.end()), pair.getKey());
+        }
     } else {
         throw std::runtime_error("cannot exhaustively stream a non-name chunk");
     }
