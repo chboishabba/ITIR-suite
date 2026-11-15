@@ -305,3 +305,23 @@ def test_corrupted_completed_native_lr_sqlite_snapshot_blocks_replay(
     with pytest.raises(ValueError,match="SQLite snapshot SHA drift"):
         a2.run_a2_round(**args,execute=True)
     assert not any(e==("native-run",(1,2,3)) for e in events)
+
+
+@pytest.mark.parametrize("alias",["packed","left","right","nested"])
+def test_native_frontier_scratch_cannot_alias_source_byte_evidence(
+    tmp_path,monkeypatch,alias
+):
+    args=fixtures(tmp_path)
+    events,roots,dec=stages(monkeypatch)
+    bind_hashes(args,(roots,dec))
+    args["native_audit_dir"]={
+        "packed":args["shard_root"],
+        "left":args["left_receipts_dir"],
+        "right":args["right_receipts_dir"],
+        "nested":args["shard_root"]/"inside-native",
+    }[alias]
+    if alias=="nested":
+        args["shard_root"].mkdir()
+    with pytest.raises(ValueError,match="native scratch must be separate"):
+        a2.run_a2_round(**args,execute=True)
+    assert not any(e[0]=="physical" for e in events)
