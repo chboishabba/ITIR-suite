@@ -1,5 +1,68 @@
 # Zelph original A2-B maximum cut: authentic Bloom candidate routing without a full original .bin
 
+## Five-shard physical batch and first positive source edge — 15 November 2026
+
+**Current operator-reported actual evidence is FIVE original-equal adjacency shards (L:5,7; R:1,2,983), not the older three.** The operator retained `/tmp/zelph-new-original-name-evidence/a2b-build-batch01.json`, `a2b-build-batch02.json`, `a2b-five-roots-source-route-partial-5shards.json`, `a2b-original-five-root-batch02.json`, and the source-native scratch SQLite. Raw local files have not been independently re-read from this remote GitHub documentation update.
+
+| Direction/chunk | Original-shard byte length | Reported HTTP206 original-equal SHA256 | Native Bloom wire SHA256 when fully supplied |
+|---|---:|---|---|
+| `left:5` | 62,972,326 | `d4ae3f77c9b6a48d3380ceeb8499d26783dc8db3d85b21949ff0cb1b9431df95` | consult batch01 raw receipt |
+| `left:7` | 56,979,303 | `a1fa1b06150d9aec84381337aa252222b477838e7aa28a28c4c8c57635e146b7` | `46e0112cfb86bbf9c2745fad0c6bf56a86a31b693d07f58df054dd5d62a5cd96` |
+| `right:1` | 34,976,558 | `58a1ee68b69da3fb8d2038741aa2a944208a0005a7fa8331fa55e8c14d9b626d` **(disputed by subsequent table)** | consult batch01 raw receipt |
+| `right:2` | 45,807,066 | `12ca8cd3bbdf9eb5f343d04612638542922d631eadf2432157b1622dcd60d10d` | `4873d586261f337d622a839072a3ab7aff424da2055861a4bcf43be1252ad75e` |
+| `right:983` | 29,849,869 | `6e0b7596ff503ee82424b94f6f3630f9d9e79e605d33682ef1764ebc3b6dcf88` **(disputed by subsequent table)** | consult batch01 raw receipt |
+
+**Totals from operator’s bounded source run:** 230,585,122 physical original-equal adjacency bytes, **5/1968 chunks** indexed, **4,424,620 native source key rows**, and **10,485,920 Bloom wire bytes** (5 × 2,097,184, including headers/footers; an earlier operator table stated 10,485,760, which is exactly five bitmaps *without* the 32-byte wire overhead each). All 1,963 remaining source chunks are UNKNOWN.
+
+**Per-chunk discrepancy requiring original receipt adjudication:** A previous ledger reported `right:1` 741,648 rows and SHA `58a1...`; `right:983` 682,972 rows and SHA `6e0...`. The later five-shard table instead says `right:1` 1,000,000 rows and SHA beginning `4d14...`; `right:983` 424,620 rows and SHA beginning `999b...`. Both pairings sum to 1,424,620 rows. They **cannot both certify the same per-chunk original byte identity**. Do not overwrite the full digests above from abbreviated later values or assert the conflict resolved by a matching aggregate. The operator must inspect the actual `right-000001.json`/`right-000983.json` physical receipts and native Bloom receipts and rehash the retained packed files before signing an unambiguous canonical per-chunk evidence ledger.
+
+**First original-native positive replay:** Bloom query finds node `741397` (`Q56404383`) possible in `right:2`. Direct original-schema selected-native `--node 741397` on that original-equal shard returns `values_seen=7`, `truncated=false`, and **7 sorted unique neighbours**:
+
+```json
+[4750078302585009999, 5722258421574666509,
+ 7048854505916013243, 8266125300765673293,
+ 8422695159416374426, 8884238291781291067,
+ 9111393206167045379]
+```
+
+This is a **chunk-scoped source-positive adjacency witness** only. Do not promote it to complete `right` adjacency of node 741397: the current partial route records 981 unverified right chunks, and the left direction has 982 unknown chunks. The five-root partial route must continue reporting `all_original_adjacency_blooms_completed=false`.
+
+### New logical certificate bridge — source-written, exact-head acceptance OPEN
+
+Implemented in this same ITIR PR #14:
+
+- `tools/certify_zelph_original_finite_word_boundary.py`: re-runs the existing `original_http206_finite_words` evaluator against exact raw audit JSON digests and independently rechecks each **source-reachable** frontier step; emits per-node/direction source receipt dependencies, multiplicity counters, the next frontier, and explicit missing boundaries. It rejects a changed finite result, source identity drift through the upstream evaluator, contradictory multiplicity over repeated exact rows, and forged/relabelled completion.
+- `tests/test_certify_zelph_original_finite_word_boundary.py`: adversarial partial-positive, two-step induction, tampered trace/certificate, multiplicity conflict and mixed-source regression tests.
+- `tools/check_zelph_physical_maxcut_offline.sh` includes the new test. **Only local syntax compilation and an isolated stubbed smoke test were performed during the source-write; a new exact-branch full pytest+native check is still required.** The earlier **506/506** and **10/10 Agda** acceptance receipts remain bound to their earlier exact tested heads, not the new code commit.
+
+Illustrative issuance, **only once actual complete source native audit receipts are available**:
+
+```bash
+python3 tools/close_original_http206_lr_finite_words.py \
+  --query-family docs/planning/zelph_five_qid_lr_query_family.example.json \
+  --native-audit /path/to/complete-exact-audit.json \
+  --output /tmp/original-20-finite-words.json
+
+python3 tools/certify_zelph_original_finite_word_boundary.py \
+  --query-family docs/planning/zelph_five_qid_lr_query_family.example.json \
+  --native-audit /path/to/complete-exact-audit.json \
+  --finite-result /tmp/original-20-finite-words.json \
+  --output /tmp/source-reachable-boundary-certificate.json
+# Recheck a previously emitted certificate with the same raw inputs:
+python3 tools/certify_zelph_original_finite_word_boundary.py \
+  --query-family docs/planning/zelph_five_qid_lr_query_family.example.json \
+  --native-audit /path/to/complete-exact-audit.json \
+  --finite-result /tmp/original-20-finite-words.json \
+  --certificate /tmp/source-reachable-boundary-certificate.json
+```
+
+These commands are a **conditional step-certificate projection**, not a universal source-verification oracle. The certificate does not discharge concrete original HTTP206 byte verification, arbitrary C++ semantics, `OriginalRow ↔ NativeRow` in Agda, the construction of an Agda `SourceReachableBoundary` proof term, full first-link Wikipedia equivalence, P854 source support, S29 durability or NORA authority. The source-logical and physical evidence layers stay separate until independently replayed and stitched by the actual external witness contract.
+
+**Next coordinated cut:** physically index the remaining 1,963 chunks (or find complete independent same-original routing), while replay-testing the new boundary certificate and mapping its per-step dependencies into SLR S29 without treating incomplete local positives as scoped global negatives. A second-operator exact-head local test remains required for new source.
+
+---
+
+
 ## A2-B1 physical-filter evidence crosswalk — three original shards DONE, full A2-B2 still OPEN
 
 **Additional already-produced local operator receipts, recovered from the contemporaneous A2-B execution rather than re-executed by this documentation commit.** The previous A2-B0 acceptance block immediately below mentions generating the first three Bloom files as a next step; this paragraph **supersedes that particular stale instruction.**
