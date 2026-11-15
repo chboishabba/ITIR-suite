@@ -47,6 +47,9 @@ def _http_206_header(*, revision: str, source_size: int, length: int,
         }, method="GET",
     )
     with opener(req, timeout=timeout_seconds) as response:
+        final_url = response.geturl() if callable(getattr(response, "geturl", None)) else url
+        if not isinstance(final_url, str) or not final_url.startswith("https://"):
+            raise ValueError("original source redirected outside TLS")
         if getattr(response, "status", None) != 206:
             raise ValueError("remote original source header did not return HTTP 206")
         if response.headers.get("Content-Range", "") != f"bytes 0-{length-1}/{source_size}":
@@ -87,10 +90,14 @@ def verify_pinned_original_header(*, manifest_path: Path, index_path: Path,
                                   manifest_sha256: str, dataset_revision: str,
                                   header_decoder_executable: Path,
                                   original_index_sha256: str | None = None,
+                                  raw_header_output: Path | None = None,
                                   opener: Callable[..., Any] = urlopen,
                                   decode_header: Callable[..., dict] | None = None,
                                   timeout_seconds: int = 60) -> dict[str, Any]:
     # Structural and cryptographic local preflight before ANY network access.
+    # Refuse an output overwrite before spending any remote bandwidth.
+    if raw_header_output is not None and raw_header_output.exists():
+        raise ValueError("refuse overwrite of immutable original header byte evidence")
     index_crosswalk = verify_index_manifest_files(
         manifest_path=manifest_path, index_path=index_path,
         manifest_sha256=manifest_sha256, index_sha256=original_index_sha256,
@@ -120,6 +127,10 @@ def verify_pinned_original_header(*, manifest_path: Path, index_path: Path,
     for name, expected_count in index_crosswalk["section_chunk_counts"].items():
         if type(native.get(name)) is not int or native[name] != expected_count:
             raise ValueError(f"native original header disagrees with manifest/index count: {name}")
+    if raw_header_output is not None:
+        # Create exclusively, so a race cannot overwrite an existing receipt.
+        with raw_header_output.open("xb") as target:
+            target.write(raw)
     return {
         "version": "itir.zelph.remote_original_header_index_manifest_witness.v1",
         "dataset_revision": dataset_revision,
@@ -128,6 +139,7 @@ def verify_pinned_original_header(*, manifest_path: Path, index_path: Path,
         "original_source_content_range_exact": True,
         "header_bytes_received": len(raw),
         "header_raw_sha256": sha256(raw).hexdigest(),
+        "raw_header_byte_copy_written": raw_header_output is not None,
         "manifest_raw_sha256": index_crosswalk["manifest_raw_sha256_rechecked"],
         "original_index_raw_sha256": index_crosswalk["original_index_raw_sha256_rechecked"],
         "full_original_index_manifest_geometry_checked": True,
@@ -154,6 +166,7 @@ def main() -> int:
     parser.add_argument("--original-index-sha256")
     parser.add_argument("--dataset-revision", required=True)
     parser.add_argument("--header-decoder", type=Path, required=True)
+    parser.add_argument("--raw-header-output", type=Path)
     parser.add_argument("--timeout-seconds", type=int, default=60)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
@@ -164,6 +177,7 @@ def main() -> int:
             original_index_sha256=args.original_index_sha256,
             dataset_revision=args.dataset_revision,
             header_decoder_executable=args.header_decoder,
+            raw_header_output=args.raw_header_output,
             timeout_seconds=args.timeout_seconds,
         )
         output = json.dumps(result, sort_keys=True, indent=2) + "\n"
