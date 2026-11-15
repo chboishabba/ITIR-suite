@@ -82,7 +82,7 @@ def test_actual_stream_digest_match_and_atomic_commit(tmp_path):
     raw = b"original-byte-evidence-123"
     url = "https://huggingface.co/datasets/acrion/zelph/resolve/" + "a" * 40 + "/graph.bin"
     p = plan(tmp_path, expected_length=len(raw), expected_sha256=sha256(raw).hexdigest())
-    with patch("acquire_pinned_source_bytes.require_public_https", return_value="huggingface.co"), \\
+    with patch("acquire_pinned_source_bytes.require_public_https", return_value="huggingface.co"), \
          patch("acquire_pinned_source_bytes.urlopen",
                return_value=FakeResponse(raw, url)):
         receipt = acquire(plan=p, destination=tmp_path / "source.bin")
@@ -95,7 +95,7 @@ def test_actual_stream_digest_match_and_atomic_commit(tmp_path):
 def test_bad_digest_fails_closed_and_leaves_no_target(tmp_path):
     url = "https://huggingface.co/datasets/acrion/zelph/resolve/" + "a" * 40 + "/graph.bin"
     p = plan(tmp_path, expected_sha256="0" * 64)
-    with patch("acquire_pinned_source_bytes.require_public_https", return_value="huggingface.co"), \\
+    with patch("acquire_pinned_source_bytes.require_public_https", return_value="huggingface.co"), \
          patch("acquire_pinned_source_bytes.urlopen",
                return_value=FakeResponse(b"wrong", url)):
         with pytest.raises(ValueError, match="SHA256"):
