@@ -1,5 +1,25 @@
 # Zelph original A2-B maximum cut: authentic Bloom candidate routing without a full original .bin
 
+## Operator exact-head acceptance — A2-B0 CLOSED (15 November 2026)
+
+**Newly reported clean-worktree acceptance, recorded as operator evidence, not independently reproduced by this documentation commit:**
+
+- **ITIR PR #14:** exact checked commit `d858c01477932460897f46540e5a05ab734b0084`, `bash tools/check_zelph_physical_maxcut_offline.sh` **exit 0**, **506/506 Python tests across 36 modules PASS**, **native C++ Cap'n Proto fixture/selected decoder/filtered route/header probe roundtrip PASS**, including the real native Bloom binary ABI, duplicate-key union and name-fibre fail-closed tests. This closes the previous post-fix *offline code/test* acceptance requirement.
+- **Golden DASHI Agda PR #1506:** merged exact commit `2f18e7efa03a2d6be9b73614fbf7d047bc2d1aaf`, `scripts/check_zelph_trie_hyperfabric_maxcut.sh` **exit 0**, **10/10 Agda 2.9.0 targets PASS** in the operator's clean worktree, including `DASHI/Interop/ZelphOriginalBloomPrunedSourceRouteExact.agda`. This closes the *kernel-check* component of A2-B0; the theorem remains conditional on actual physical source coverage and native decoder adequacy.
+- **SLR PR #10:** reported checked `e11d0d9`, **24/24 Rust + 4/4 S29 Python PASS**, with **one live PostgreSQL test skipped**: this does *not* close real persisted/restarted database acceptance.
+- **SensibLaw PR #514:** reported checked `345b6f12`, **25/25 Python review handoff tests PASS**. This is not an original NORA export or external review decision.
+
+**Source/physics ledger untouched:** published full .bin reported size 87,954,185,510 bytes and 25-byte original header SHA `2599c689cd2da7dfaeeacab5dc4f68003d3e8e02ec854313e5f083d5c3fd2998`; original-equal `nodeOfName:0` and `nodeOfName:1` source bytes additionally reported (45.47 MiB total). Prior receipts support original-equal `nodeOfName:4,75` and original-equal adjacency `left:5`, `right:1,983`, **but no full name/adjacency source partition**. Do not confuse the original header's four section *chunk counts* with 1,968 physically decoded adjacency chunks.
+
+**Current gate state:** A2-B0 **CLOSED** for reproducible code/test and conditional Agda source-kernel acceptance. A2-B1/B2/B3 and complete A1 remain **OPEN**. In particular, three source-equal adjacency chunks do not yet prove native Bloom key filters were physically generated; no 984+984 negative coverage or 20-word physical closure follows from offline tests.
+
+**Next A2-B1 cut:** using retained operator original-equal `left:5`, `right:1`, `right:983` and the new-head native decoder, execute the *existing* generator and query commands below. Report a source-bound artifact per chunk with source length, exact original HTTP206 SHA, source-equal packed SHA, decoder SHA, key row count, Bloom wire SHA, end-of-message check and explicit original section coverage counters. Expect **3/1968** or less; absence in uninspected chunks remains unknown. Then resume A2-B2's full-section coverage (or independently proved same-original node-route certificate), followed by candidate replay and the finite 20-word frontier induction.
+
+**Acceptance provenance:** the Agda and ITIR successful exit codes were supplied by the local operator; the committed documentation update does not independently replay the local Nix/compiler environment or retrieve the /tmp physical receipts. Earlier “new head unverified” warnings below are historical and superseded only for the two exact heads named here.
+
+---
+
+
 ## 15 November follow-up — exact source patch, acceptance still separated
 
 **Live ITIR PR #14 head before this documentation update:** `bb69f6556503798bf704cd68a713d4114ffedbb4`. The reported operator clean-worktree baseline `2f407629417ad7dfd63d4c04c85309812831ba7d` had 505/506 Python checks passing; a locally tested one-line assertion correction brought that to 506/506, and a separate local native C++ Cap'n Proto roundtrip passed after restoring inherited Python import paths. Those local corrected runs are **not** independent exact-head checks of the new committed files.
