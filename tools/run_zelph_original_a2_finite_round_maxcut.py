@@ -68,6 +68,12 @@ def read_existing_scans(directory: Path, *, revision: str, manifest_sha: str,
         if p.is_symlink():
             raise ValueError("symlink original native LR scan")
         entry, sha = _strict_json(p, 16*MIB)
+        cohort_sqlite = p.with_suffix(".sqlite")
+        old_sqlite_sha = entry.get("completed_original_native_cohort_sqlite_sha256")
+        if (type(old_sqlite_sha) is not str or not SHA.fullmatch(old_sqlite_sha)
+                or not cohort_sqlite.is_file() or cohort_sqlite.is_symlink()
+                or digest(cohort_sqlite) != old_sqlite_sha):
+            raise ValueError("old complete original native LR scan SQLite snapshot SHA drift")
         for key, correct in expected.items():
             if type(entry.get(key)) is not type(correct) or entry[key] != correct:
                 raise ValueError("old original native LR scan identity/coverage drift: " + key)
@@ -260,6 +266,10 @@ def run_a2_round(
                 max_new_chunks=max_native_chunks, max_neighbors=max_neighbors,
                 timeout_seconds=timeout_seconds)
             if native["all_source_equal_original_chunks_natively_scanned"] is True:
+                if not scan_sqlite.is_file() or scan_sqlite.is_symlink():
+                    raise ValueError("cannot issue full original LR native scan receipt without SQLite")
+                native = {**native,
+                          "completed_original_native_cohort_sqlite_sha256": digest(scan_sqlite)}
                 wire = json.dumps(native,sort_keys=True,indent=2)+"\n"
                 with scan_receipt.open("x",encoding="utf-8") as out:out.write(wire)
                 prior.append((native,sha256(wire.encode()).hexdigest()))
