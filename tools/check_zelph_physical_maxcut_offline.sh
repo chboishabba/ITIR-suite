@@ -32,6 +32,7 @@ PYTHONPATH=itir-mcp/src python3 -m pytest -q \
   tests/test_verify_zelph_hf_selected_direct_matrix.py \
   tests/test_verify_zelph_direct_native_qid_roots.py \
   tests/test_audit_zelph_hf_name_section_bytes.py \
+  tests/test_audit_zelph_native_name_fibres.py \
   tests/test_audit_zelph_native_name_rows.py \
   tests/test_probe_zelph_hf_original_metadata.py \
   tests/test_run_zelph_hf_connector_maxcut.py \
