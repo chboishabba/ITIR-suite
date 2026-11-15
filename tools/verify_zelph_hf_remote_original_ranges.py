@@ -16,8 +16,10 @@ import json
 from pathlib import Path
 import re
 import sys
-from urllib.request import Request, urlopen
+from urllib.request import urlopen
 from typing import Any, Callable
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'itir-mcp' / 'src'))
+from itir_mcp.shard_transport import open_pinned_zelph_range
 
 from verify_zelph_bin_shard_exact import (
     _ARTIFACT, _BLOCK, _SHA40, _SHA64,
@@ -43,30 +45,20 @@ def compare_remote_source_range(
     if not shard.is_file() or shard.stat().st_size != size:
         raise ValueError("missing or wrong-sized local selected shard")
     end = start + size - 1
-    req = Request(
-        url, headers={
-            "Range": f"bytes={start}-{end}",
-            "Accept-Encoding": "identity",
-            "User-Agent": "itir-zelph-physical-range-audit/1",
-        },
-        method="GET",
+    # The original pinned HTTP206 validation lives in the existing itir-mcp
+    # HF transport, not this verifier. Only local-vs-source content comparison
+    # and the proof-specific receipt live here.
+    match = re.fullmatch(
+        r"https://huggingface[.]co/datasets/acrion/zelph/resolve/"
+        r"([0-9a-f]{40})/" + re.escape(_ARTIFACT) + r"[.]bin", url
     )
-    with opener(req, timeout=timeout) as response:
-        status = getattr(response, "status", None)
-        if status != 206:
-            raise ValueError(f"range server refused exact HTTP 206 (got {status})")
-        content_range = response.headers.get("Content-Range", "")
-        required_range = f"bytes {start}-{end}/{total_size}"
-        if content_range != required_range:
-            raise ValueError(
-                f"remote original source Content-Range mismatch: {content_range!r}"
-            )
-        encoding = response.headers.get("Content-Encoding", "identity").lower()
-        if encoding not in ("", "identity"):
-            raise ValueError("remote packed bytes unexpectedly content-encoded")
-        length = response.headers.get("Content-Length")
-        if length is not None and (not length.isdecimal() or int(length) != size):
-            raise ValueError("remote original source range length mismatch")
+    if match is None:
+        raise ValueError("only exact immutable original Zelph bin URL supported")
+    with open_pinned_zelph_range(
+        hf_uri=f"hf://datasets/acrion/zelph/{_ARTIFACT}.bin",
+        revision=match.group(1), start=start, length=size, total_size=total_size,
+        opener=opener, timeout=timeout,
+    ) as response:
         digest = sha256()
         left = size
         with shard.open("rb") as stream:
