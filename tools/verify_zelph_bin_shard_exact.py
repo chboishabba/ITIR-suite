@@ -48,24 +48,55 @@ def _checked_int(value: Any, where: str) -> int:
 
 
 def _manifest_index(manifest: Mapping[str, Any], artifact: str) -> dict[tuple[str, int], dict]:
-    if (manifest.get("manifestVersion") != 2
-            or manifest.get("storageMode") != "split-by-direction-and-section"):
+    """One strict original-v2 chunk ABI, accepting two documented wire dialects.
+
+    Historical ITIR synthetic index: manifestVersion=2, storageMode=
+    split-by-direction-and-section, chunks.offset, source.artifactName.
+    Upstream Zelph emit_zelph_hf_v2.py: manifestVersion=zelph-hf-layout/v2,
+    storageMode=multi-object-shards, chunks.sourceOffset, source.binPath.
+    Preserve all exact original byte offsets, identity and path checks.
+    """
+    version, mode = manifest.get("manifestVersion"), manifest.get("storageMode")
+    legacy = version == 2 and mode == "split-by-direction-and-section"
+    upstream = (version == "zelph-hf-layout/v2"
+                and mode == "multi-object-shards")
+    if not legacy and not upstream:
         raise ValueError("unsupported published manifest v2 layout")
-    if (manifest.get("source") or {}).get("artifactName") != artifact:
+    source = manifest.get("source")
+    if not isinstance(source, dict):
         raise ValueError("manifest names a different original graph")
+    if legacy and source.get("artifactName") != artifact:
+        raise ValueError("manifest names a different original graph")
+    if upstream:
+        expected_bin_uri = f"hf://datasets/{_REPO}/{artifact}.bin"
+        if source.get("binPath") != expected_bin_uri:
+            raise ValueError("upstream manifest source.binPath is not pinned original HF artifact")
+        if ("artifactName" in source and source["artifactName"] != artifact):
+            raise ValueError("upstream manifest artifactName differs from original graph")
+        if manifest.get("transport", {}).get("primary") != "hf-object-fetch":
+            raise ValueError("upstream original manifest must use HF-object-fetch")
     sections = manifest.get("sections")
     if not isinstance(sections, dict) or set(sections) != set(_SECTIONS):
         raise ValueError("manifest is missing one of four original graph sections")
     index: dict[tuple[str, int], dict] = {}
+    all_bytes = 0
     for section in _SECTIONS:
         parts = sections[section]
         if not isinstance(parts, dict) or not isinstance(parts.get("chunks"), list):
             raise ValueError(f"manifest section invalid: {section}")
+        section_bytes = 0
         for part in parts["chunks"]:
             if not isinstance(part, dict):
                 raise ValueError("manifest chunk is not an object")
             number = _checked_int(part.get("chunkIndex"), "chunkIndex")
-            offset = _checked_int(part.get("offset"), "offset")
+            if upstream:
+                offset = _checked_int(part.get("sourceOffset"), "sourceOffset")
+                if "offset" in part and part["offset"] != offset:
+                    raise ValueError("upstream sourceOffset and offset disagree")
+            else:
+                offset = _checked_int(part.get("offset"), "offset")
+                if "sourceOffset" in part and part["sourceOffset"] != offset:
+                    raise ValueError("legacy offset and sourceOffset disagree")
             size = _checked_int(part.get("length"), "length")
             if size == 0:
                 raise ValueError("zero-length Cap'n Proto packed chunk")
@@ -75,26 +106,52 @@ def _manifest_index(manifest: Mapping[str, Any], artifact: str) -> dict[tuple[st
                 suffix = f"chunk-{number:06d}.capnp-packed"
             else:
                 lang = part.get("lang")
-                if not isinstance(lang, str) or not re.fullmatch(r"[a-zA-Z][a-zA-Z0-9_.-]{0,31}", lang):
+                if (not isinstance(lang, str)
+                        or not re.fullmatch(r"[a-zA-Z][a-zA-Z0-9_.-]{0,31}", lang)):
                     raise ValueError("unsafe or missing name language")
                 suffix = f"chunk-{number:06d}-{lang}.capnp-packed"
             relative = f"{artifact}/shards/{section}/{suffix}"
             expected = f"hf://datasets/{_REPO}/{relative}"
             if part.get("objectPath") != expected:
-                raise ValueError(f"manifest object is not exact immutable artifact path: {section}/{number}")
+                raise ValueError(
+                    f"manifest object is not exact immutable artifact path: {section}/{number}"
+                )
+            if upstream:
+                obj = part.get("object")
+                if (not isinstance(obj, dict) or obj.get("path") != expected
+                        or type(obj.get("sizeBytes")) is not int
+                        or obj["sizeBytes"] != size):
+                    raise ValueError("upstream manifest nested object path/length mismatch")
+                if part.get("sourceRange") != f"bytes={offset}-{offset + size - 1}":
+                    raise ValueError("upstream manifest sourceRange mismatches sourceOffset/length")
             key = (section, number)
             if key in index:
                 raise ValueError(f"duplicate manifest chunk {key}")
             index[key] = {
                 "offset": offset, "length": size,
-                "language": part.get("lang"),
-                "relative": relative,
+                "language": part.get("lang"), "relative": relative,
                 "object_uri": expected,
             }
+            section_bytes += size
+            all_bytes += size
+        if upstream and (
+            type(parts.get("chunkCount")) is not int
+            or parts["chunkCount"] != len(parts["chunks"])
+            or type(parts.get("totalBytes")) is not int
+            or parts["totalBytes"] != section_bytes
+        ):
+            raise ValueError(f"upstream manifest {section} section size/count mismatch")
     for section in _SECTIONS:
         numbers = sorted(number for sect, number in index if sect == section)
         if numbers != list(range(len(numbers))):
             raise ValueError(f"manifest {section} chunks not dense section-global 0..N-1")
+    if upstream and (
+        type(source.get("totalChunkCount")) is not int
+        or source["totalChunkCount"] != len(index)
+        or type(source.get("totalChunkBytes")) is not int
+        or source["totalChunkBytes"] != all_bytes
+    ):
+        raise ValueError("upstream source total chunk count/byte count mismatch")
     return index
 
 
