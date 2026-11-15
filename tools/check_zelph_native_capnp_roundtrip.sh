@@ -242,6 +242,56 @@ print("PASS: native duplicate-node original adjacency union and bounded truncati
 PY
 
 
+# Full original adjacency-key membership Bloom is produced by the SAME
+# upstream-schema C++ Cap'n Proto reader, with fixed ABI after exact EOF.
+# Only definite negatives are usable as chunk-exclusion evidence; membership
+# positives require a second selected-AdjPair native decoder witness.
+PYTHONPATH=tools python3 - "$TMP/decoder" "$TMP/packed" <<'PY'
+from pathlib import Path
+import subprocess
+import sys
+from build_zelph_original_lr_bloom import bloom_possible, validate_wire, WIRE_BYTES
+
+decoder, packed = sys.argv[1], Path(sys.argv[2])
+
+def run(section, file, *extras):
+    return subprocess.run([
+        decoder, "--file", str(packed/file), "--section", section,
+        "--chunk-index", "0", "--adjacency-bloom",
+        *extras,
+    ], capture_output=True, timeout=60, check=False)
+
+for section, filename, expected in [
+    ("left", "left.capnp-packed", [7,8]),
+    ("right", "right.capnp-packed", [7,8]),
+    ("left", "left-duplicate-node.capnp-packed", [7,7,8]),
+]:
+    proc=run(section,filename)
+    assert proc.returncode==0, proc.stderr.decode("utf-8","replace")
+    assert len(proc.stdout)==WIRE_BYTES
+    bits,count=validate_wire(proc.stdout, section=section,chunk_index=0)
+    assert count==len(expected),(count,expected)
+    assert all(bloom_possible(bits,n) for n in expected)
+    assert not bloom_possible(bits,123456789), "unexpected fixture false positive"
+
+# A valid partial native root is insufficient: the bloom is never emitted
+# for a corrupted extra trailer or row-cap failure, even if many keys parsed.
+trailer=packed/"left-bloom-trailer.capnp-packed"
+trailer.write_bytes((packed/"left.capnp-packed").read_bytes()+b"forged")
+proc=run("left",trailer.name)
+assert proc.returncode!=0 and not proc.stdout,proc.stderr
+capped=run("left","left-duplicate-node.capnp-packed",
+           "--max-key-rows","1")
+assert capped.returncode!=0 and not capped.stdout,capped.stderr
+for other in [
+    run("nodeOfName","nodeOfName.capnp-packed"),
+    run("left","left.capnp-packed","--node","7"),
+    run("left","left.capnp-packed","--stream-name-rows"),
+]:
+    assert other.returncode!=0,other.stdout
+print("PASS: source-native binary Bloom key ABI, duplicate-node membership, EOF and row-cap fail-closed")
+PY
+
 # Exhaustive native name-row mode is separate from the QID selection mode:
 # demand one complete footer after reading the packed message through EOF.
 # Preserve ambiguous repeated keys as a multi-valued fibre, not a dict.
