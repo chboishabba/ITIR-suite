@@ -230,7 +230,7 @@ def test_tiny_original_remote_header_206_matches_all_four_sections(tmp_path):
 @pytest.mark.parametrize("flag", ["bad_range", "bad_bytes", "extra"])
 def test_remote_header_corrupted_range_rejected(tmp_path, flag):
     m, _ = _fixture()
-    with pytest.raises(ValueError, match="Content-Range|truncated|oversized"):
+    with pytest.raises(ValueError, match="Content-Range|Content-Length|truncated|oversized"):
         _remote(tmp_path, opener=_source_opener(m["source"]["binSizeBytes"], **{flag: True}))
 
 
