@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from hashlib import sha256
 import sys
 
 import pytest
@@ -81,7 +82,8 @@ def test_execute_reuses_hf_cli_and_preserves_only_real_header_receipt(tmp_path):
         return {
             "version": "itir.zelph.remote_original_header_index_manifest_witness.v1",
             "dataset_revision": REV,
-            "header_raw_sha256": "c" * 64,
+            "header_raw_sha256": sha256(b"tiny-original-header").hexdigest(),
+            "header_bytes_received": len(b"tiny-original-header"),
             "original_source_http_status": 206,
             "native_original_header_matches_all_four_section_counts": True,
             "edit_authority": False,
