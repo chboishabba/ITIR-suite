@@ -254,3 +254,39 @@ def test_tampered_family_roots_never_promoted(tmp_path,monkeypatch):
     with pytest.raises(ValueError,match="family/QID roots mismatch"):
         a2.run_a2_round(**args)
     assert not any(e[0]=="physical" for e in events)
+
+
+@pytest.mark.parametrize("invalid", [
+    {"queries":[{"id":"bad","qid":"Q42","word":["P31"]}]},
+    {"queries":[{"id":"bad","qid":"Q123","word":["left"]}]},
+    {"queries":[{"id":"same","qid":"Q42","word":["left"]},
+                {"id":"same","qid":"Q42","word":["right"]}]},
+    {"queries":[{"id":"long","qid":"Q42","word":["left"]*17}]},
+    {"queries":[{"id":"missing","qid":"Q42","word":None}]},
+])
+def test_invalid_original_query_contract_fails_before_http206(
+    tmp_path,monkeypatch,invalid
+):
+    args=fixtures(tmp_path)
+    events,roots,dec=stages(monkeypatch)
+    bind_hashes(args,(roots,dec))
+    contract=json.loads(args["query_family"].read_text())
+    contract.update(invalid)
+    args["query_family"].write_text(json.dumps(contract))
+    args["query_family_sha256"]=sha256(args["query_family"].read_bytes()).hexdigest()
+    with pytest.raises(ValueError,match="query word|query family"):
+        a2.run_a2_round(**args,execute=True)
+    assert not any(e[0]=="physical" for e in events)
+
+
+def test_budget_with_zero_available_one_sided_bytes_blocks_restoration(
+    tmp_path,monkeypatch
+):
+    args=fixtures(tmp_path)
+    events,roots,dec=stages(monkeypatch)
+    bind_hashes(args,(roots,dec))
+    result=a2.run_a2_round(**args,execute=True,max_network_mib=6)
+    assert result["planned_two_sided_http206_bytes"]==6*MIB
+    assert result["planned_one_sided_restore_bytes"]==0
+    assert result["planned_combined_network_bytes"]==6*MIB
+    assert ("material-plan",1) in events
