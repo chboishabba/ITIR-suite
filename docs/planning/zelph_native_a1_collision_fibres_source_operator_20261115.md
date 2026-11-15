@@ -1,5 +1,52 @@
 # Zelph A1 — original source-byte equality → full native name-row/duplicate fibre audit
 
+## One-command bounded original P0-S → native A1 round (after 410/410 acceptance)
+
+**Accepted historical exact head:** ITIR #14 `f7d1bff7a87c24ed2fd7f9603176efd022c8b1fd` — 410/410 Python and upstream-schema native Cap'n Proto roundtrip PASS, as reported by the local operator. The combined coordinator below is a NEW source change, not covered by that acceptance.
+
+New `tools/run_zelph_original_a1_one_round_maxcut.py` composes the EXISTING original HTTP206-vs-published shard audit, previously verified whole-shard rematerialization, and transactional SQLite original name-fibre enumeration. Before any network operation it verifies immutable manifest/index/revision and the independently supplied SHA-256 of the compiled native decoder, and reserves the combined two-sided original-range plus published whole-object transfers for both name sections under one MiB budget. Only remaining network allowance may be used for one-sided restoration of a chunk whose original HTTP206 proof already exists. Default is dry-run; `--execute` permits one bounded, resumable batch. No new HF connector, graph database, or PR is created.
+
+### One exact runnable batch
+
+```bash
+bash tools/check_zelph_physical_maxcut_offline.sh
+REV=0d4bd670959ebddae72f70d973410fdea8917ec1
+MANIFEST_SHA=cedd5cf0e4951ae1aa7c2c5968614b0eb72a4c3b5c8b2dc4ab18c40be8c83f59
+INDEX_SHA=89f7ccac888e9e7db09b349cef246e725d969f07d4280142c325e96e12a30d77
+META=/tmp/zelph-new-p0-evidence/metadata/wikidata-20260309-all
+RUN=/tmp/zelph-new-original-name-evidence
+mkdir -p "$RUN"
+# For a fresh native build use a NEW output directory:
+# bash tools/build_zelph_native_live.sh "$RUN/native-a1"
+DECODER="$RUN/native-a1/selected-decoder"
+DECODER_SHA=$(sha256sum "$DECODER" | awk '{print $1}')
+ARGS=(
+  --manifest "$META/wikidata-20260309-all.hf-v2.json"
+  --original-index "$META/artifact.index.json"
+  --dataset-revision "$REV"
+  --manifest-sha256 "$MANIFEST_SHA"
+  --original-index-sha256 "$INDEX_SHA"
+  --decoder "$DECODER" --decoder-sha256 "$DECODER_SHA"
+  --node-receipts-dir /tmp/zelph-new-p0-evidence/nodeOfName-receipts
+  --inverse-receipts-dir "$RUN/nameOfNode-receipts"
+  --shard-root "$RUN/source-equal-shards"
+  --sqlite-index "$RUN/a1-original-native-fibres.sqlite"
+  --max-new-physical-chunks-per-section 8
+  --max-new-materialized-chunks 8
+  --max-new-native-chunks 16
+  --max-chunk-mib 256 --max-total-network-mib 1024
+)
+# Only if the earlier standalone/matrix receipt directory is actually present:
+# ARGS+=(--import-physical-receipts-dir "$RUN/positive-name-matrix")
+python3 tools/run_zelph_original_a1_one_round_maxcut.py "${ARGS[@]}"
+python3 tools/run_zelph_original_a1_one_round_maxcut.py "${ARGS[@]}" --execute
+```
+
+Repeat the same `--execute` invocation for subsequent bounded sections. Previously accepted HTTP206 receipts, independently SHA-matched packed shards and native SQLite rows are reused; failed native chunks roll back. The result separates `physical.nodeOfName`, `physical.nameOfNode`, `materialization`, `native.native_decoded_chunk_counts`, and `native.both_source_name_sections_pair_multiplicities_equal`. Budget accounting is **cumulative across both original-range (two-sided) and published-shard-only (one-sided) transfers per invocation**, not a separate cap for each phase. A complete 204+204 native row census and equal inverse pair multiplicities is a conditional source name-fibre witness; it does not independently prove the Agda decoder adequacy/`CompleteNameShardFibre` formal weld, native P854, SLR PostgreSQL persistence, or source authority.
+
+**Acceptance required after this new commit:** exact-head `bash tools/check_zelph_physical_maxcut_offline.sh` and a separately observed live round. Do not copy the 410/410 PASS onto a later head.
+
+
 **15 November 2026 — ITIR PR #14.** This is an executable operator handoff. No real
 run of these NEW A1 files has yet been reported. The previous source heads and
 receipts remain immutable evidence, but are not acceptance for the new code.
