@@ -80,7 +80,8 @@ def audit_name_section(*, manifest_path: Path, original_index_path: Path,
                        original_index_sha256: str | None = None,
                        max_chunk_mib: int = 128, max_transfer_mib: int = 512,
                        max_new_chunks: int = 4, execute: bool = False,
-                       opener: Callable[..., Any] | None = None) -> dict:
+                       opener: Callable[..., Any] | None = None,
+                       save_published_root: Path | None = None) -> dict:
     if (type(dataset_revision) is not str or not _REV.fullmatch(dataset_revision)
             or type(manifest_sha256) is not str
             or not _SHA.fullmatch(manifest_sha256)):
@@ -98,6 +99,15 @@ def audit_name_section(*, manifest_path: Path, original_index_path: Path,
         raise ValueError("explicit bounded chunk/network budgets required")
     if receipts_dir.is_symlink():
         raise ValueError("name receipt directory symlink refused")
+    if save_published_root is not None:
+        if not isinstance(save_published_root, Path) or save_published_root.is_symlink():
+            raise ValueError("native packed shard root symlink/invalid path refused")
+        if save_published_root.exists() and not save_published_root.is_dir():
+            raise ValueError("native packed shard root must be a directory")
+        if (save_published_root.resolve() == receipts_dir.resolve()
+                or save_published_root.resolve().is_relative_to(receipts_dir.resolve())
+                or receipts_dir.resolve().is_relative_to(save_published_root.resolve())):
+            raise ValueError("native source shard copies and physical receipts require separate roots")
     crosswalk = verify_index_manifest_files(
         manifest_path=manifest_path, index_path=original_index_path,
         manifest_sha256=manifest_sha256, index_sha256=original_index_sha256,
@@ -118,6 +128,8 @@ def audit_name_section(*, manifest_path: Path, original_index_path: Path,
             raise ValueError("symlinked name receipt rejected")
         if path.exists():
             proof = _read_receipt(path)
+            if dest is not None and proof.get("saved_original_equal_published_copy") != str(dest):
+                raise ValueError("native shard copy missing from exact source-byte receipt")
             _check_receipt(
                 proof, row=row, number=n, section=section, rev=dataset_revision,
                 manifest_sha=manifest_sha256, index_sha=original_index_sha,
@@ -141,12 +153,28 @@ def audit_name_section(*, manifest_path: Path, original_index_path: Path,
         if receipts_dir.exists() and not receipts_dir.is_dir():
             raise ValueError("receipt destination must be directory")
         receipts_dir.mkdir(parents=True, exist_ok=True)
+        if save_published_root is not None:
+            save_published_root.mkdir(parents=True, exist_ok=True)
+        # Refuse preexisting targets before any fetch in this batch.
         for n, row, path in scheduled:
+            if save_published_root is not None:
+                dest = save_published_root / row["relative"]
+                if (dest.exists() or dest.is_symlink()
+                        or not dest.resolve().is_relative_to(save_published_root.resolve())):
+                    raise ValueError("refuse overwrite or escape of locally retained original-equal shard")
+        for n, row, path in scheduled:
+            dest = None
+            if save_published_root is not None:
+                dest = save_published_root / row["relative"]
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                if dest.parent.is_symlink():
+                    raise ValueError("symlinked native shard parent refused")
             proof = verify_direct_original_chunk(
                 manifest_path=manifest_path, original_index_path=original_index_path,
                 dataset_revision=dataset_revision, manifest_sha256=manifest_sha256,
                 original_index_sha256=original_index_sha, section=section,
                 chunk_index=n, max_chunk_mib=max_chunk_mib, opener=opener,
+                **({"save_published_copy": dest} if dest is not None else {}),
             )
             _check_receipt(
                 proof, row=row, number=n, section=section, rev=dataset_revision,
@@ -177,6 +205,12 @@ def audit_name_section(*, manifest_path: Path, original_index_path: Path,
         "deferred_chunk_indices": deferred,
         "planned_transfer_bytes": transfer_bytes,
         "network_executed": execute and bool(scheduled),
+        "saved_native_shard_root": (
+            str(save_published_root) if save_published_root is not None else None
+        ),
+        "new_original_equal_shard_copy_indices": (
+            [n for n, _, _ in scheduled] if execute and save_published_root is not None else []
+        ),
         "all_name_section_packed_payload_bytes_verified": complete,
         "all_native_name_rows_decoded": False,
         "collision_preserving_name_fibres_verified": False,
@@ -199,6 +233,8 @@ def main() -> int:
     p.add_argument("--max-chunk-mib", type=int, default=128)
     p.add_argument("--max-transfer-mib", type=int, default=512)
     p.add_argument("--max-new-chunks", type=int, default=4)
+    p.add_argument("--save-published-root", type=Path,
+                   help="reuse exact byte comparison transfer to retain immutable packed shards for native row decoding")
     p.add_argument("--execute", action="store_true")
     p.add_argument("--output", type=Path)
     args = p.parse_args()
@@ -210,6 +246,7 @@ def main() -> int:
             section=args.section, receipts_dir=args.receipts_dir,
             max_chunk_mib=args.max_chunk_mib, max_transfer_mib=args.max_transfer_mib,
             max_new_chunks=args.max_new_chunks, execute=args.execute,
+            save_published_root=args.save_published_root,
         )
         rendered = json.dumps(result, sort_keys=True, indent=2) + "\n"
         if args.output:
