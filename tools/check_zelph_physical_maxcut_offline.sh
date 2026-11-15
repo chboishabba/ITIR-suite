@@ -16,6 +16,7 @@ PYTHONPATH=itir-mcp/src python3 -m pytest -q \
   itir-mcp/tests/test_zelph_query_closure.py \
   itir-mcp/tests/test_exact_wikidata_name_route.py \
   itir-mcp/tests/test_published_zelph_manifest_compat.py \
+  itir-mcp/tests/test_zelph_hf_exact_source_transport.py \
   tests/test_package_zelph_filtered_route_receipt.py \
   tests/test_verify_zelph_filtered_route_replay.py \
   tests/test_probe_zelph_hf_nat_routes.py \
