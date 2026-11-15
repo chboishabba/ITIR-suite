@@ -21,7 +21,7 @@ import socket
 import sys
 import tempfile
 from urllib.parse import urlsplit
-from urllib.request import Request, urlopen
+from urllib.request import Request, build_opener, HTTPRedirectHandler
 
 _HEX64 = re.compile(r"[0-9a-f]{64}\Z")
 _HEX40 = re.compile(r"[0-9a-f]{40}\Z")
@@ -102,6 +102,14 @@ def acquisition_plan(*, url: str, kind: str, destination: Path,
     }
 
 
+class PublicHTTPSRedirects(HTTPRedirectHandler):
+    """Reject redirects before urllib makes an HTTP request to the new host."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        require_public_https(newurl, resolve=True)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
 def acquire(*, plan: dict, destination: Path, timeout_seconds: int = 45) -> dict:
     if type(timeout_seconds) is not int or timeout_seconds <= 0:
         raise ValueError("positive timeout required")
@@ -114,7 +122,7 @@ def acquire(*, plan: dict, destination: Path, timeout_seconds: int = 45) -> dict
             "Accept-Encoding": "identity",
             "User-Agent": "ITIR-source-acquisition-v1 (read-only)",
         })
-        with urlopen(req, timeout=timeout_seconds) as response:
+        with build_opener(PublicHTTPSRedirects()).open(req, timeout=timeout_seconds) as response:
             final_url = response.geturl()
             require_public_https(final_url, resolve=True)
             if response.status != 200:
