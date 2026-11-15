@@ -133,6 +133,20 @@ def run_a2_round(
             or family.get("qid_root_nodes") != roots
             or not isinstance(family.get("queries"), list) or not family["queries"]):
         raise ValueError("declared original LR family/QID roots mismatch")
+    if len(family["queries"]) > 10000:
+        raise ValueError("original finite query family exceeds fixed row count")
+    labels = set()
+    for item in family["queries"]:
+        if not isinstance(item, dict):
+            raise ValueError("finite original LR query entry must be object")
+        label, qid, word = item.get("id"), item.get("qid"), item.get("word")
+        if (type(label) is not str or not label or label in labels
+                or type(qid) is not str or qid not in roots
+                or type(word) is not list or len(word) > max_steps
+                or any(type(direction) is not str or direction not in DIRECTIONS
+                       for direction in word)):
+            raise ValueError("unrecognised finite original LR query word, QID or duplicate label")
+        labels.add(label)
     if len(set(roots.values())) > 256:
         raise ValueError("overlarge source-native positive root set")
     geometry = verify_index_manifest_files(
