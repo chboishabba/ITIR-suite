@@ -1,5 +1,37 @@
 # Zelph original A2-B maximum cut: authentic Bloom candidate routing without a full original .bin
 
+## SLR S29 graph-only certificate handoff — source-written, operator acceptance OPEN
+
+Existing [SLR PR #10](https://github.com/chboishabba/slr/pull/10) now includes `scripts/s29_zelph_finite_boundary_postgres.py`, `tests/test_s29_zelph_finite_boundary_postgres.py`, and extends the **existing** `scripts/check_s29_source_handoff.sh` (initial source commit `4b53676dbfde7341987693e74852a079074d533a`). The S29 extension uses the current operator's PostgreSQL connection: no new database, daemon, graph DB or semantic edit API. It uses `sl_s29_zelph_finite_boundaries_v1` as a separate versioned table, without altering old native-statement or review tables.
+
+**What its read-only validator checks:** pinned graph revision and hashes, exact `itir.zelph.source_reachable_lr_finite_word_certificate.v1` ABI, accepted original-audit digest refs, distinct (QID, relation-word) contracts, each source-reachable step's input frontier, each node's directional neighbour list and `values_seen` multiplicity, recomputed union next-frontier, missing source boundaries, and no fabricated complete 20-word claim. It preserves the complete raw JSON candidate and rechecks canonical content digest on independent PostgreSQL readback. Explicit authority flags are always false.
+
+**What it does not check:** whether the physical HTTP206 source bytes were actually received or equal, whether arbitrary C++ execution implements the abstract decoder, whether an Agda term was generated or typechecked from this particular JSON, or whether native P854 evidence has been reviewed. A PostgreSQL row is a *source-scoped evidence candidate*, not primary-source authority.
+
+**New-head exact acceptance required** (the prior ITIR 506/506 and SLR 24/24+4/4 apply ONLY to their earlier checked commits):
+
+```bash
+# ITIR PR #14 at current post-certificate source head:
+bash tools/check_zelph_physical_maxcut_offline.sh
+
+# SLR PR #10 at current post-S29 source head:
+cargo test -p sensiblaw-source-handoff
+bash scripts/check_s29_source_handoff.sh
+
+# Real persistence/reconnect is still required; use an explicitly authorised
+# existing disposable/test PostgreSQL URL; do not conflate skip with pass:
+SLR_S29_REQUIRE_REAL_PG=1 \
+SLR_S29_TEST_DATABASE_URL='<operator-provided-existing-test-db>' \
+  bash scripts/check_s29_source_handoff.sh
+```
+
+**Partial source inputs are useful now**: an accepted partial original native scan can be passed to the ITIR evaluator and boundary certificate generator; the output explicitly records missing node/direction frontiers and the CLI returns exit **3** for incomplete closure. No need to wait for full 1968-chunk coverage to test the abstention/negative boundary. To *close* 20 words, every required source frontier still needs complete original-source one-hop equality, whether obtained by full source Bloom coverage or independent same-original routing.
+
+**Formal continuation in golden Agda:** construct a kernel-checkable refinement from native Cap'n Proto `AdjPair` rows with multiplicity/duplicate-union and hash-excluded per-chunk key membership into `OriginalRow ↔ NativeRow`, then provide a concrete step-wise bridge to `ZelphFiniteQueryWordClosureExact.SourceReachableBoundary`. The present Python/SLR certificate is the replayable *external premise shape*, not that Agda proof. Keep actor/discriminator receipts and SHA pins distinct from source truth, actual DB readback and NORA export.
+
+---
+
+
 ## Five-shard physical batch and first positive source edge — 15 November 2026
 
 **Current operator-reported actual evidence is FIVE original-equal adjacency shards (L:5,7; R:1,2,983), not the older three.** The operator retained `/tmp/zelph-new-original-name-evidence/a2b-build-batch01.json`, `a2b-build-batch02.json`, `a2b-five-roots-source-route-partial-5shards.json`, `a2b-original-five-root-batch02.json`, and the source-native scratch SQLite. Raw local files have not been independently re-read from this remote GitHub documentation update.
