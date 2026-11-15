@@ -8,6 +8,7 @@ import pytest
 
 from itir_mcp.shard_transport import (
     fetch_pinned_zelph_object, open_pinned_zelph_range,
+    open_pinned_zelph_complete_object,
 )
 
 REV = "a" * 40
@@ -176,3 +177,69 @@ def test_revision_must_be_immutable_before_any_request():
         fetch_pinned_zelph_object(
             hf_uri=METADATA, revision="main", opener=refuse,
         )
+
+
+def test_full_shard_http200_is_valid_but_original_range_http200_is_not():
+    raw = b"full-shard"
+    opener = _response_open(raw, status=200, headers={
+        "Content-Length": str(len(raw)), "Content-Encoding": "identity",
+    })
+    with open_pinned_zelph_complete_object(
+        hf_uri=METADATA, revision=REV, expected_size=len(raw),
+        opener=opener,
+    ) as response:
+        assert response.read(len(raw)) == raw
+        assert response.read(1) == b""
+    with pytest.raises(ValueError, match="exact HTTP 206"):
+        with open_pinned_zelph_range(
+            hf_uri=HEAD, revision=REV, start=0, length=len(raw),
+            total_size=100, opener=opener,
+        ):
+            pass
+
+
+def test_complete_shard_http206_requires_total_equal_its_whole_object_length():
+    raw = b"complete"
+    good = _response_open(raw, status=206, headers={
+        "Content-Length": str(len(raw)),
+        "Content-Range": f"bytes 0-{len(raw)-1}/{len(raw)}",
+    })
+    with open_pinned_zelph_complete_object(
+        hf_uri=METADATA, revision=REV, expected_size=len(raw),
+        opener=good,
+    ) as response:
+        assert response.read(len(raw)) == raw
+    partial = _response_open(raw, status=206, headers={
+        "Content-Length": str(len(raw)),
+        "Content-Range": f"bytes 0-{len(raw)-1}/{len(raw)+10}",
+    })
+    with pytest.raises(ValueError, match="partial shard"):
+        with open_pinned_zelph_complete_object(
+            hf_uri=METADATA, revision=REV, expected_size=len(raw),
+            opener=partial,
+        ):
+            pass
+
+
+def test_complete_shard_requires_exact_advertised_length_before_read():
+    opener = _response_open(b"abc", status=200, headers={
+        "Content-Length": "99",
+    })
+    with pytest.raises(ValueError, match="Content-Length"):
+        with open_pinned_zelph_complete_object(
+            hf_uri=METADATA, revision=REV, expected_size=3,
+            opener=opener,
+        ):
+            pass
+
+
+def test_selected_shard_compression_is_not_a_raw_byte_witness():
+    opener = _response_open(b"abc", status=200, headers={
+        "Content-Length": "3", "Content-Encoding": "gzip",
+    })
+    with pytest.raises(ValueError, match="identity encoding"):
+        with open_pinned_zelph_complete_object(
+            hf_uri=METADATA, revision=REV, expected_size=3,
+            opener=opener,
+        ):
+            pass
