@@ -141,10 +141,10 @@ def run_cohort(*, source_bin: Path, manifest: Path, shard_root: Path,
     candidate = build_source_bound_candidate(
         physical=physical, route=route, native=native,
         qid=target_qid, source_bin_sha256=expected_source_bin_sha256)
-    (output_dir / "raw-native-observation.json").write_text(
-        json.dumps(native, sort_keys=True, indent=2) + "\n", encoding="utf-8")
-    (output_dir / "source-bound-cohort-candidate.json").write_text(
-        json.dumps(candidate, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    with (output_dir / "raw-native-observation.json").open("x", encoding="utf-8") as f:
+        f.write(json.dumps(native, sort_keys=True, indent=2) + "\n")
+    with (output_dir / "source-bound-cohort-candidate.json").open("x", encoding="utf-8") as f:
+        f.write(json.dumps(candidate, sort_keys=True, indent=2) + "\n")
     return candidate
 
 
