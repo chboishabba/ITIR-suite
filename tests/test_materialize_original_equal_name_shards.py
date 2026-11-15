@@ -137,3 +137,54 @@ def test_zero_budget_and_missing_receipt_dir_are_blocked(tmp_path):
     cfg["physical_receipts_dirs"] = [tmp_path/"missing-receipts"]
     with pytest.raises(ValueError):
         tool.materialization_plan(**cfg)
+
+
+def test_explicit_original_left_right_receipt_restoration_reuses_same_transport(
+    tmp_path, monkeypatch
+):
+    cfg = fixture(tmp_path)
+    manifest = json.loads(cfg["manifest"].read_text())
+    idx = _manifest_index(manifest, _ARTIFACT)
+    physical = cfg["physical_receipts_dirs"][0]
+    for section, char in (("left",b"l"),("right",b"r")):
+        item = idx[(section,0)]
+        base = json.loads((physical/"nodeOfName-000000.json").read_text())
+        base.update({
+            "section":section,
+            "chunk_index":0,
+            "original_source_offset":item["offset"],
+            "source_range_end_inclusive":item["offset"]+item["length"]-1,
+            "bytes_compared":item["length"],
+            "published_object_uri":item["object_uri"],
+            "published_shard_raw_sha256":sha256(char*item["length"]).hexdigest(),
+            "original_packed_range_raw_sha256":sha256(char*item["length"]).hexdigest(),
+        })
+        (physical/f"{section}-000000.json").write_text(json.dumps(base))
+    seen=[]
+    def original_hf_complete(**kwargs):
+        assert "wikidata-20260309-all.bin" not in kwargs["hf_uri"]
+        sec="left" if "/left/" in kwargs["hf_uri"] else "right"
+        seen.append(sec)
+        return io.BytesIO((b"l" if sec=="left" else b"r")*kwargs["expected_size"])
+    monkeypatch.setattr(tool,"open_pinned_zelph_complete_object",original_hf_complete)
+    plan=tool.materialization_plan(
+        **cfg,sections=("left","right"),max_new_chunks=3)
+    assert plan["selected_original_sections"]==["left","right"]
+    assert plan["eligible_prior_original_byte_witnesses"]==2
+    tool.restore(plan=plan)
+    assert sorted(seen)==["left","right"]
+    for section,char in (("left",b"l"),("right",b"r")):
+        item=idx[(section,0)]
+        assert (cfg["shard_root"]/item["relative"]).read_bytes()==char*item["length"]
+    again=tool.materialization_plan(**cfg,sections=("left","right"))
+    assert again["already_locally_verified_shards"]==2
+    assert again["planned_one_sided_hf_bytes"]==0
+
+
+@pytest.mark.parametrize("sections",[
+    ("left","left"),(),("left","wrong"),["left","right"],
+])
+def test_bad_original_adjacency_rematerialization_selection_blocks(tmp_path,sections):
+    cfg=fixture(tmp_path)
+    with pytest.raises(ValueError,match="selection"):
+        tool.materialization_plan(**cfg,sections=sections)
