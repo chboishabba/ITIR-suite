@@ -146,14 +146,34 @@ def test_invalid_query_qid_or_word_cannot_be_interpreted_as_original_graph():
 def test_exact_20_word_flag_only_for_twenty_truly_closed_requested_words():
     one=sweep([1],{(1,"left"):[2],(1,"right"):[3]})
     two=sweep([2,3],{(2,"right"):[4],(3,"left"):[5]})
-    queries=family()["queries"]
+    # Distinct relation words: each starts left,left, reaches empty
+    # source-backed frontier, then has its own five-bit continuation.
+    # Relabelling the same four queries is NOT twenty mathematical endpoints.
     requested={
         "version":"itir.zelph.finite_lr_query_family.v1",
         "qid_root_nodes":{"Q42":1},
-        "queries":[{**queries[i%4],"id":f"explicit-{i:02d}"}
-                   for i in range(20)]}
+        "queries":[{
+            "id":f"explicit-{i:02d}", "qid":"Q42",
+            "word":["left","left"]+[
+                "left" if (i>>j)&1 else "right" for j in range(5)
+            ],
+        } for i in range(20)]}
     result=original_http206_finite_words(
         query_family=requested,audits=checks(one,two))
     assert result["query_count"]==20
     assert result["all_twenty_original_lr_words_closed"] is True
     assert result["all_original_source_bin_bytes_hashed_in_one_full_binary_sha"] is False
+
+
+def test_twenty_relabelled_copies_are_not_twenty_original_words():
+    roots=sweep([1],{(1,"left"):[2],(1,"right"):[3]})
+    onward=sweep([2,3],{(2,"right"):[4],(3,"left"):[5]})
+    queries=family()["queries"]
+    repeated={
+        "version":"itir.zelph.finite_lr_query_family.v1",
+        "qid_root_nodes":{"Q42":1},
+        "queries":[{**queries[i%4],"id":f"fake-{i:02d}"}
+                   for i in range(20)]}
+    with pytest.raises(ValueError,match="duplicate original QID/relation-word"):
+        original_http206_finite_words(
+            query_family=repeated,audits=checks(roots,onward))
