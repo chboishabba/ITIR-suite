@@ -37,6 +37,7 @@ PYTHONPATH=itir-mcp/src python3 -m pytest -q \
   tests/test_audit_zelph_native_original_lr_roots.py \
   tests/test_run_zelph_original_a2_finite_round_maxcut.py \
   tests/test_close_original_http206_lr_finite_words.py \
+  tests/test_certify_zelph_original_finite_word_boundary.py \
   tests/test_build_zelph_original_lr_bloom.py \
   tests/test_query_zelph_original_lr_blooms.py \
   tests/test_replay_zelph_original_lr_bloom_candidates.py \
