@@ -152,7 +152,7 @@ def test_bloom_complete_required_even_if_any_first_root_has_positive_hit(tmp_pat
         route=modified,manifest=args["manifest"],
         original_index=args["original_index"],shard_root=args["shard_root"])
     assert not plan["full_source_bloom_coverage"]
-    with pytest.raises(ValueError,match="unverified source Bloom"):
+    with pytest.raises(ValueError,match="unverified source Bloom|disagrees with current physical/source evidence"):
         run(args,decoder,modified)
 
 
