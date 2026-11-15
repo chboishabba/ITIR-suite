@@ -26,6 +26,26 @@ Run it on the latest PR #14 head and record actual Python test count and native 
 
 The second command is the only network operation; do not run it in an existing workspace. It requests exactly the pinned full manifest and original artifact.index.json via the HF connector plus a *tiny original .bin header* HTTP206 range. It never requests the full 82 GiB .bin. Outputs include metadata raw objects, original-header/original-header.capnp-packed, original-header/original-header-proof.json and physical-p0-disposition.json.
 
+**Next physical P0-S without a node route: direct explicit source-shard byte equality.** The existing pinned original index already identifies exact chunk offsets. For a designated section/chunk index, a new route-free verifier fetches the published whole HF shard object and the corresponding exact original `.bin` HTTP206 packed byte range through the SAME existing `itir_mcp.shard_transport`, streaming in 1 MiB blocks and failing on the first divergent byte. It checks complete manifest/index geometry before network and enforces a per-chunk MiB transfer limit. This is **real selected physical byte equality**, not a QID/name-to-chunk route, whole name coverage, or query closure.
+
+    # Use the RAW metadata paths from the successful P0-H workspace.
+    M=$RUN/metadata/wikidata-20260309-all/wikidata-20260309-all.hf-v2.json
+    I=$RUN/metadata/wikidata-20260309-all/artifact.index.json
+    # Dry-run, does not contact HF:
+    python3 tools/verify_zelph_hf_direct_original_chunk.py \
+      --manifest "$M" --original-index "$I" \
+      --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
+      --section nodeOfName --chunk-index 0 --max-chunk-mib 128 \
+      --output "$RUN/direct-nodeOfName-0.json"
+    # On an actual separately new receipt path: opt in to real 2-source download.
+    python3 tools/verify_zelph_hf_direct_original_chunk.py --execute \
+      --manifest "$M" --original-index "$I" \
+      --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" \
+      --original-index-sha256 89f7ccac888e9e7db09b349cef246e725d969f07d4280142c325e96e12a30d77 \
+      --section nodeOfName --chunk-index 0 --max-chunk-mib 128 \
+      --output "$RUN/direct-nodeOfName-0.json"
+
+**Budget:** if chunk 0 is larger than 128 MiB, the verifier rejects it *before any network request*; choose a different explicit name chunk or increase the bounded per-chunk budget intentionally. The verifier downloads the whole selected HF object and the matching original binary *range* (not the 82 GiB binary), records both SHA256s and exact byte count. For systematic A1, the mathematically significant next task remains iterating all 204 `nodeOfName` chunks and decoding the full multi-name collision fibre; sampling chunk 0 alone does not close A1.
 **Conditional selected-source bytes, only if a real source-backed route has been independently acquired:**
 
     ROUTE=/absolute/independently-authenticated-original-filtered-route.json
