@@ -35,6 +35,7 @@ PYTHONPATH=itir-mcp/src python3 -m pytest -q \
   tests/test_audit_zelph_native_name_fibres.py \
   tests/test_audit_zelph_hf_original_adjacency_sections.py \
   tests/test_audit_zelph_native_original_lr_roots.py \
+  tests/test_run_zelph_original_a2_finite_round_maxcut.py \
   tests/test_close_original_http206_lr_finite_words.py \
   tests/test_run_zelph_original_a1_one_round_maxcut.py \
   tests/test_materialize_original_equal_name_shards.py \
