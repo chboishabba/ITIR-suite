@@ -41,7 +41,7 @@ def inputs(tmp_path, *, omit_right=False):
         raw=(section[0]+str(n)).encode()
         raw=(raw*(item["length"]//len(raw)+1))[:item["length"]]
         dest=root/item["relative"]
-        dest.parent.mkdir(parents=True)
+        dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(raw)
         digest=sha256(raw).hexdigest()
         proof={
