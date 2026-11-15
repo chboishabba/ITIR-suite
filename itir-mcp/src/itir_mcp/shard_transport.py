@@ -1097,12 +1097,12 @@ def open_pinned_zelph_range(
                 or not urlsplit(final_url).hostname):
             raise ValueError("original HF range redirected outside TLS")
         if getattr(response, "status", None) != 206:
-            raise ValueError("original HF exact range requires HTTP 206 (no 200 fallback)")
+            raise ValueError("range server refused exact HTTP 206 (no 200 fallback)")
         headers = getattr(response, "headers", {})
         if headers.get("Content-Range", "") != f"bytes {start}-{end}/{total_size}":
-            raise ValueError("original HF Content-Range differs from pinned interval")
+            raise ValueError("remote original source Content-Range mismatch")
         if headers.get("Content-Encoding", "identity").lower() not in ("", "identity"):
-            raise ValueError("original HF range must use identity content encoding")
+            raise ValueError("non-identity remote packed byte-range content encoding")
         advertised = headers.get("Content-Length")
         if advertised is not None and (not advertised.isdecimal()
                                        or int(advertised) != length):
