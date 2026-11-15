@@ -69,6 +69,7 @@ def run(args,decoder,route,**kwargs):
     return replay.replay_exact_original_bloom_candidates(
         route=route,manifest=args["manifest"],original_index=args["original_index"],
         decoder=decoder,shard_root=args["shard_root"],
+        bloom_root=args["shard_root"].parent/"native-blooms",
         physical_receipts_dirs=args["physical_receipts_dirs"],
         positive_roots_receipt=args["positive_roots_receipt"],
         runner=source_native,**kwargs)
@@ -169,6 +170,7 @@ def test_truncated_native_exact_adjacency_cannot_become_source_complete(tmp_path
             route=route,manifest=args["manifest"],
             original_index=args["original_index"],
             decoder=decoder,shard_root=args["shard_root"],
+            bloom_root=blooms,
             physical_receipts_dirs=args["physical_receipts_dirs"],
             positive_roots_receipt=args["positive_roots_receipt"],
             runner=truncated)
@@ -185,3 +187,12 @@ def test_finite_word_checker_rejects_forged_bloom_missing_one_candidate_replay(t
     with pytest.raises(ValueError,match="candidate set not exactly replayed"):
         original_http206_finite_words(
             query_family=queries,audits=[(forged,sha256(b"forged").hexdigest())])
+
+
+def test_forged_selected_source_bloom_routes_cannot_skip_relevant_native_candidates(tmp_path):
+    args,decoder,route,blooms=source(tmp_path)
+    forged=json.loads(json.dumps(route))
+    root=next(x for x in forged["sections"]["left"]["nodes"] if x["node_id"]==11)
+    root["possible_native_source_chunk_indices"]=[0] # omit valid original chunk 1
+    with pytest.raises(ValueError,match="claimed original complete Bloom candidate route disagrees"):
+        run(args,decoder,forged)
