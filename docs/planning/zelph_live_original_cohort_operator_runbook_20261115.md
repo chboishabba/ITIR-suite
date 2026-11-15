@@ -6,6 +6,8 @@
 
 New consumer paths: tools/probe_zelph_hf_original_metadata.py (exact two pinned source metadata objects + raw native header), tools/verify_zelph_hf_original_header.py (strict original tiny HTTP206), tools/plan_zelph_hf_selected_fetch.py (exact selected shard object streaming, not subprocess), tools/verify_zelph_hf_remote_original_ranges.py (byte-for-byte comparison against original source HTTP206), and tools/run_zelph_hf_connector_maxcut.py (one-command dry-run / actual P0 physical receipt). All changes remain in existing ITIR PR #14; there is no new graph index or database owner.
 
+**Real upstream wire compatibility:** Zelph's emitter uses manifestVersion=zelph-hf-layout/v2, storageMode=multi-object-shards, sourceOffset/sourceRange and nested object.path/object.sizeBytes. Earlier ITIR synthetic receipts used manifestVersion=2, storageMode=split-by-direction-and-section and offset. The same strict physical index parser now accepts both exact original-v2 dialects while checking source.binPath, source offsets, section indices/counts/byte sums, object paths, declared ranges and original header partition. It rejects unexpected annotations/fifth sections until separately formalised; there is no silent downgrade or fabricated completeness. Regression fixtures exercise the upstream emitter's real field layout.
+
 **Exact-head source acceptance to run:**
 
     bash tools/check_zelph_physical_maxcut_offline.sh
@@ -30,7 +32,7 @@ The second command is the only network operation; do not run it in an existing w
     RUN=/absolute/DIFFERENT-new-selected-evidence-workspace
     python3 tools/run_zelph_hf_connector_maxcut.py --execute --dataset-revision "$REV" --manifest-sha256 "$MANIFEST_SHA" --workspace "$RUN" --header-decoder "$NATIVE/original-header-probe" --source-backed-route "$ROUTE" --max-selected-gib 8
 
-The connector streams full selected immutable shard objects with exact HTTP206, byte caps, per-object raw SHA256 and exclusive file creation; the same pinned source comparator separately reads exact original remote .bin byte ranges and proves byte-for-byte equality. No arbitrary or absent route is silently completed: the manifest byte-offset index is NOT a node/QID-to-adjacency chunk index, so it does not prove a full name domain or all query words. An invalid or unavailable hosted manifest/index/header is BLOCKED, never synthetically replaced or claimed as PASS.
+The existing connector streams complete published shard objects using exact whole-object HTTP 200 (with declared Content-Length) or complete-object HTTP 206 (with exact Content-Range), plus byte caps, per-object raw SHA256 and exclusive file creation. **The separate original .bin source-range comparator REQUIRES HTTP 206** and proves byte-for-byte equality only for selected source ranges. No arbitrary or absent route is silently completed: the manifest byte-offset index is NOT a node/QID-to-adjacency chunk index, so it does not prove a full name domain or all query words. An invalid or unavailable hosted manifest/index/header is BLOCKED, never synthetically replaced or claimed as PASS.
 
 **Evidence firewall:** header/index agreement != payload equality; selected payload equality != route completeness; route completeness != native Wikibase statement/P854 support; valid source coordinates != human review or persisted S29; no output grants edit authority. Old 100 MiB limit for downloading an approximately 82 GiB original is impossible and is NOT used by this connector path.
 
