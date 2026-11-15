@@ -108,6 +108,13 @@ def execute_metadata_header_probe(*, plan: dict[str, Any], local_dir: Path,
             or result.get("original_source_http_status") != 206
             or result.get("edit_authority") is not False):
         raise ValueError("immutable HF original header verification incomplete")
+    # Rehash the retained raw header; do not trust a detached JSON result
+    # without the actual exact original source bytes it is supposed to bind.
+    raw_path = receipt_dir / "original-header.capnp-packed"
+    if (not raw_path.is_file() or
+            raw_path.stat().st_size != result.get("header_bytes_received") or
+            sha256(raw_path.read_bytes()).hexdigest() != result.get("header_raw_sha256")):
+        raise ValueError("original header receipt is not bound to retained raw source bytes")
     receipt = {
         **result,
         "metadata_hf_cli_invoked": True,
