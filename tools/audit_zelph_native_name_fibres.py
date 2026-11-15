@@ -118,6 +118,11 @@ def original_name_plan(*, manifest: Path, original_index: Path,
             if not p.exists():
                 continue
             digest = _file_sha(p, _MIB)
+            candidate = _read_receipt(p)
+            _check_receipt(candidate, row=row, number=chunk, section=section,
+                           rev=revision, manifest_sha=manifest_sha256,
+                           index_sha=original_index_sha256,
+                           bin_size=meta["original_bin_size_bytes"])
             if proof_path is None:
                 proof_path, proof_hash = p, digest
             else:
