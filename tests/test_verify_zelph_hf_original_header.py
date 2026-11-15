@@ -297,3 +297,37 @@ def test_bad_final_redirect_not_accepted_as_original_tls_source(tmp_path):
         return Insecure(HEADER, 206, f"bytes 0-{len(HEADER)-1}/{size}")
     with pytest.raises(ValueError, match="outside TLS"):
         _remote(tmp_path, opener=opener)
+
+
+def test_real_upstream_v2_emitter_index_manifest_header_crosswalk(tmp_path):
+    # Layout follows acrion/zelph/tools/emit_zelph_hf_v2.py, not legacy
+    # ITIR manifestVersion=2 synthetic fixtures.
+    manifest, index = _fixture()
+    manifest["manifestVersion"] = "zelph-hf-layout/v2"
+    manifest["storageMode"] = "multi-object-shards"
+    manifest["transport"] = {"primary": "hf-object-fetch"}
+    manifest["source"] = {
+        "binPath": f"hf://datasets/acrion/zelph/{ART}.bin",
+        "headerLengthBytes": len(HEADER),
+        "binSizeBytes": manifest["source"]["binSizeBytes"],
+        "totalChunkCount": 5,
+        "totalChunkBytes": manifest["source"]["binSizeBytes"] - len(HEADER),
+    }
+    for section in ("left", "right", "nameOfNode", "nodeOfName"):
+        group = manifest["sections"][section]
+        group["chunkCount"] = len(group["chunks"])
+        group["totalBytes"] = sum(row["length"] for row in group["chunks"])
+        for row in group["chunks"]:
+            offset = row.pop("offset")
+            row["sourceOffset"] = offset
+            row["sourceRange"] = f"bytes={offset}-{offset + row['length'] - 1}"
+            row["object"] = {
+                "path": row["objectPath"],
+                "mediaType": "application/octet-stream",
+                "sizeBytes": row["length"],
+            }
+    result = crosscheck_original_index(manifest=manifest, original_index=index)
+    assert result["all_manifest_chunk_offsets_equal_original_index"] is True
+    assert result["entire_index_partition_gap_free"] is True
+    assert result["entire_index_partition_nonoverlapping"] is True
+    assert result["original_bin_header_raw_bytes_fetched"] is False
