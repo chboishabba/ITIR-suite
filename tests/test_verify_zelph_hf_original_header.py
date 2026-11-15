@@ -274,3 +274,26 @@ def test_raw_manifest_preflight_fails_before_network(tmp_path):
             header_decoder_executable=tmp_path / "probe",
             opener=forbid_network, decode_header=_decoder,
         )
+
+
+def test_exact_remote_original_header_byte_evidence_retained_without_overwrite(tmp_path):
+    output = tmp_path / "raw-original-header.capnp-packed"
+    result = _remote(tmp_path, raw_header_output=output)
+    assert output.read_bytes() == HEADER
+    assert sha256(output.read_bytes()).hexdigest() == result["header_raw_sha256"]
+    assert result["raw_header_byte_copy_written"] is True
+    # No subsequent request or run may silently replace physical bytes.
+    with pytest.raises(ValueError, match="refuse overwrite"):
+        _remote(tmp_path, raw_header_output=output)
+
+
+def test_bad_final_redirect_not_accepted_as_original_tls_source(tmp_path):
+    manifest, _ = _fixture()
+    size = manifest["source"]["binSizeBytes"]
+    class Insecure(Response):
+        def geturl(self):
+            return "http://untrusted.invalid/downgrade"
+    def opener(request, timeout):
+        return Insecure(HEADER, 206, f"bytes 0-{len(HEADER)-1}/{size}")
+    with pytest.raises(ValueError, match="outside TLS"):
+        _remote(tmp_path, opener=opener)
