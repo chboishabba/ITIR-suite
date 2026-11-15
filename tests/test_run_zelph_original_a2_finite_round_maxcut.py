@@ -286,7 +286,7 @@ def test_budget_with_zero_available_one_sided_bytes_blocks_restoration(
     args=fixtures(tmp_path)
     events,roots,dec=stages(monkeypatch)
     bind_hashes(args,(roots,dec))
-    result=a2.run_a2_round(**args,execute=True,max_network_mib=6)
+    result=a2.run_a2_round(**{**args, "max_network_mib": 6},execute=True)
     assert result["planned_two_sided_http206_bytes"]==6*MIB
     assert result["planned_one_sided_restore_bytes"]==0
     assert result["planned_combined_network_bytes"]==6*MIB
