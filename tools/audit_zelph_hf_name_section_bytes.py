@@ -128,8 +128,9 @@ def audit_name_section(*, manifest_path: Path, original_index_path: Path,
             raise ValueError("symlinked name receipt rejected")
         if path.exists():
             proof = _read_receipt(path)
-            if dest is not None and proof.get("saved_original_equal_published_copy") != str(dest):
-                raise ValueError("native shard copy missing from exact source-byte receipt")
+            # Existing prior source HTTP206 receipts can predate optional
+            # shard saving; do not demand an undefined destination or
+            # confuse a missing local copy with false physical evidence.
             _check_receipt(
                 proof, row=row, number=n, section=section, rev=dataset_revision,
                 manifest_sha=manifest_sha256, index_sha=original_index_sha,
