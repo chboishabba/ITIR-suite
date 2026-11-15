@@ -198,7 +198,7 @@ def plan_exact_original_bloom_replay(*, route:dict,
 
 
 def replay_exact_original_bloom_candidates(*,route:dict,manifest:Path,
-    original_index:Path,decoder:Path,shard_root:Path,
+    original_index:Path,decoder:Path,shard_root:Path,bloom_root:Path,
     physical_receipts_dirs:list[Path],positive_roots_receipt:Path,
     max_hydrate_mib:int=512,max_neighbors:int=200000,
     max_stdout_mib:int=64,timeout_seconds:int=900,
@@ -210,8 +210,35 @@ def replay_exact_original_bloom_candidates(*,route:dict,manifest:Path,
             or type(max_stdout_mib) is not int or not 0<max_stdout_mib<=1024
             or type(timeout_seconds) is not int or not 0<timeout_seconds<=7200):
         raise ValueError("exact pinned native Capnp decoder/selected-root limits required")
+    # A source-route dict alone is NOT a proof. Re-read every current
+    # original-equal membership filter and original HTTP206 receipt before
+    # allowing any claimed missing candidate to become an exact negative.
+    # The CLI also validates at preflight, but the callable API must never
+    # trust an externally constructed or mutated route object.
+    genuine_roots=_strict(positive_roots_receipt.read_bytes())
+    genuine_qids=genuine_roots.get("native_exact_positive_name_to_node_rows")
+    if type(genuine_qids) is not list:
+        raise ValueError("original positive QID roots absent from exact source receipt")
+    known={r.get("node_id") for r in genuine_qids if type(r) is dict}
+    if any(type(n) is not int for n in known):
+        raise ValueError("invalid genuine source-positive QID node")
+    targets=route.get("queried_numeric_nodes")
+    if not isinstance(targets,list):
+        raise ValueError("original source Bloom query target set missing")
+    extras=sorted(set(targets)-known)
+    fresh=query_original_lr_blooms(
+        manifest=manifest,original_index=original_index,
+        revision=route["dataset_revision"],
+        manifest_sha256=route["manifest_sha256"],
+        original_index_sha256=route["original_index_sha256"],
+        positive_roots_receipt=positive_roots_receipt,
+        decoder_sha256=_file_sha(decoder),
+        physical_receipts_dirs=physical_receipts_dirs,
+        bloom_root=bloom_root,numeric_nodes=extras)
+    if route!=fresh:
+        raise ValueError("claimed original complete Bloom candidate route disagrees with current physical/source evidence")
     plan=plan_exact_original_bloom_replay(
-        route=route,manifest=manifest,original_index=original_index,
+        route=fresh,manifest=manifest,original_index=original_index,
         shard_root=shard_root,max_hydrate_mib=max_hydrate_mib)
     if not plan["full_source_bloom_coverage"]:
         raise ValueError("unverified source Bloom sections: absent adjacency must remain UNKNOWN")
@@ -360,7 +387,7 @@ def main()->int:
         if args.execute:
             result=replay_exact_original_bloom_candidates(
                 route=route,manifest=args.manifest,original_index=args.original_index,
-                decoder=args.decoder,shard_root=args.shard_root,
+                decoder=args.decoder,shard_root=args.shard_root,bloom_root=args.bloom_root,
                 physical_receipts_dirs=args.physical_receipts_dir,
                 positive_roots_receipt=args.positive_roots_receipt,
                 max_hydrate_mib=args.max_hydrate_mib,
