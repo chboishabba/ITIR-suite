@@ -43,6 +43,7 @@ def _scan_rows(*, rows_file: Path, source_section: str, chunk_index: int,
                expected_rows: int, target_names: dict[str, list[int]],
                max_line_bytes: int, max_target_hits: int) -> int:
     count = 0
+    hits = sum(len(values) for values in target_names.values())
     end_seen = False
     with rows_file.open("rb") as data:
         while True:
@@ -77,9 +78,10 @@ def _scan_rows(*, rows_file: Path, source_section: str, chunk_index: int,
                     or not 0 <= frame["node_id"] <= 2**64 - 1):
                 raise ValueError("native original row stream schema/order mismatch")
             if frame["name"] in target_names:
-                if sum(map(len, target_names.values())) >= max_target_hits:
+                if hits >= max_target_hits:
                     raise ValueError("bounded complete target name fibre cap exceeded")
                 target_names[frame["name"]].append(frame["node_id"])
+                hits += 1
             count += 1
             if count > expected_rows:
                 raise ValueError("native original row count exceeds exact receipt")
