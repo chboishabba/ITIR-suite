@@ -25,6 +25,7 @@ def setup(monkeypatch, tmp_path, count=3):
     rows = {
         ("nodeOfName", n): {
             "offset": 25 + n * 8, "length": 8,
+            "relative": f"wikidata-20260309-all/shards/nodeOfName/chunk-{n:06d}-wikidata.capnp-packed",
             "object_uri": f"hf://datasets/acrion/zelph/original/shards/nodeOfName/chunk-{n:06d}-wikidata.capnp-packed"
         } for n in range(count)
     }
@@ -44,6 +45,8 @@ def setup(monkeypatch, tmp_path, count=3):
         fetched.append(chunk_index)
         row = rows[(section, chunk_index)]
         digest = sha256(bytes([chunk_index]) * 8).hexdigest()
+        if "save_published_copy" in kwargs:
+            kwargs["save_published_copy"].write_bytes(bytes([chunk_index]) * 8)
         return {
             "version": audit._VERSION, "dataset_revision": REV,
             "original_manifest_raw_sha256": MAN,
@@ -60,6 +63,9 @@ def setup(monkeypatch, tmp_path, count=3):
             "published_shard_raw_sha256": digest,
             "original_packed_range_raw_sha256": digest,
             "exact_original_packed_bytes_equal_published_shard": True,
+            "saved_original_equal_published_copy": (
+                str(kwargs["save_published_copy"]) if "save_published_copy" in kwargs else None
+            ),
             "full_index_manifest_offset_cover_checked": True,
             "original_qid_route_verified": False,
             "whole_name_domain_enumerated": False,
@@ -165,4 +171,57 @@ def test_wrong_name_section_and_invalid_revision_fail_closed(monkeypatch, tmp_pa
         audit.audit_name_section(**{**params, "section": "left"}, execute=True)
     with pytest.raises(ValueError, match="immutable"):
         audit.audit_name_section(**{**params, "dataset_revision": "main"}, execute=True)
+    assert fetched == []
+
+
+def test_same_physical_compare_stream_also_materialises_native_packed_copy(
+    monkeypatch, tmp_path
+):
+    params, fetched = setup(monkeypatch, tmp_path)
+    saved = tmp_path / "native-shards"
+    first = audit.audit_name_section(
+        **params, execute=True, max_new_chunks=2, save_published_root=saved,
+    )
+    assert fetched == [0, 1]
+    assert first["new_original_equal_shard_copy_indices"] == [0, 1]
+    assert first["saved_native_shard_root"] == str(saved)
+    for n in [0, 1]:
+        shard = (saved / "wikidata-20260309-all/shards/nodeOfName"
+                 / f"chunk-{n:06d}-wikidata.capnp-packed")
+        assert shard.read_bytes() == bytes([n]) * 8
+        receipt = json.loads(
+            (params["receipts_dir"] / f"nodeOfName-{n:06d}.json").read_text()
+        )
+        assert receipt["saved_original_equal_published_copy"] == str(shard)
+        assert receipt["original_packed_range_raw_sha256"] == sha256(
+            shard.read_bytes()
+        ).hexdigest()
+    second = audit.audit_name_section(
+        **params, execute=True, max_new_chunks=2, save_published_root=saved,
+    )
+    assert fetched == [0, 1, 2]
+    assert second["all_name_section_packed_payload_bytes_verified"] is True
+    assert second["all_native_name_rows_decoded"] is False
+
+
+def test_native_copy_collision_blocks_before_any_network(monkeypatch, tmp_path):
+    params, fetched = setup(monkeypatch, tmp_path)
+    root = tmp_path / "local-native"
+    shard = root / "wikidata-20260309-all/shards/nodeOfName/chunk-000000-wikidata.capnp-packed"
+    shard.parent.mkdir(parents=True)
+    shard.write_bytes(b"untrusted original-equal packed bytes")
+    with pytest.raises(ValueError, match="refuse overwrite"):
+        audit.audit_name_section(
+            **params, execute=True, save_published_root=root,
+        )
+    assert fetched == []
+    assert shard.read_bytes() == b"untrusted original-equal packed bytes"
+
+
+def test_receipt_and_native_pack_roots_must_not_alias(monkeypatch, tmp_path):
+    params, fetched = setup(monkeypatch, tmp_path)
+    with pytest.raises(ValueError, match="separate roots"):
+        audit.audit_name_section(
+            **params, execute=True, save_published_root=params["receipts_dir"],
+        )
     assert fetched == []
