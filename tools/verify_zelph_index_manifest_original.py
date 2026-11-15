@@ -29,6 +29,11 @@ _COUNTS = {
 def crosscheck_original_index(*, manifest: Mapping[str, Any],
                               original_index: Mapping[str, Any]) -> dict[str, Any]:
     """Exhaustively compare all original header and section-global chunk offsets."""
+    expected_index_fields = {"file", "header", *_SECTIONS}
+    if not set(original_index).issubset(expected_index_fields) or (
+        set(_SECTIONS) | {"header"}
+    ) - set(original_index):
+        raise ValueError("original offset index has missing or unrecognised section fields")
     original_header = original_index.get("header")
     source = manifest.get("source")
     if not isinstance(original_header, Mapping) or not isinstance(source, Mapping):
