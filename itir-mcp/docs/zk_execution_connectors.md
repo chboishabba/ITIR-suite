@@ -1,0 +1,12 @@
+# Local zkSEC / zkperf connectors
+
+Source owners inspected: zkSEC ac5ecbadf241f1abb49038b4755a5e74c9209861 (security.py, mu_exec ingest V1); zkperf 29275570392595547a41f63d444ec01e7595516a (five layer introspection); ITIR-suite 8a784366fe8325c52caa208185e09da95ae6fc79 (zkperf_stream_core, registry, authority profiles). Reuse these, not an independent browser policy engine.
+
+Registered tools (also visible via the existing FastMCP and native JSON bridge):
+- itir.zksec.policy_preview: calls actual local zksec.security.assess_action on hypothetical public/anonymous input; only catalog action and risk accepted, never actor, confirmation or scope claims. Result not execution permission.
+- itir.zkperf.window_plan: calls existing ITIR JMD zkperf stream fixture builder using bounded redacted observation metadata; returns window plan, no payload, upload, filesystem or collection. Proof and hash references are not verified.
+- itir.zkperf.evidence_index_check: checks supplied Bushido witness-receipt.py index schema and canonical self-hash; no path dereferencing; absent layers explicit; file integrity, binary provenance, proof and native acceptance not verified.
+
+Provider loading is lazy, from the operator's trusted local Python environment, not a request-selected import path. Install/configure the actual adjacent zkSEC src and ITIR suite package/import roots in the local environment; use Python >=3.11 for existing stream core (datetime.UTC). Provider absence returns explicit error. No new mandatory dependency, no subprocess, no network. Registry profiles cap authority at observed, safe invocation abstains from promotion; direct FastMCP handlers also enforce narrow input and output locally because current server uses registry.invoke. Do not expose to remote/unauthorized clients; existing transport authentication/deployment remains separate. Only synthetic or reviewed redacted metadata; never submit browser secrets, raw traffic, real profile files. Tool output is not a trusted actor receipt.
+
+Next: real provider integration tests on pinned checkout, native MCP discovery/call through existing bridge, same-run/binary/object trace-to-IR linkage with typed zkSEC producer adapter, independent bounded local collection and separate trusted approval. No auto-promotion from fixture linkage. Bushido's external Rust MCP client may call these tools via ITIR local stdio; no embedded browser server or arbitrary tool routing. Test sources added; execution deferred. No CI requested.
