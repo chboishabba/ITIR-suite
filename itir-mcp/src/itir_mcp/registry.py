@@ -25,6 +25,7 @@ from .sensiblaw_tools import get_sensiblaw_tools
 from .spectral_plot_tools import get_spectral_plot_tools
 from .tool_authority_profiles import DEFAULT_REGISTRY_TOOL_AUTHORITY_PROFILES, validate_tool_authority_profile
 from .wikidata_disjointness_tool import get_wikidata_disjointness_tools
+from .zk_execution_tools import get_zk_execution_tools, authority_profile as zk_authority_profile
 
 
 class ToolRegistry:
@@ -159,4 +160,6 @@ def build_default_registry(
         registry.register(spec, handler)
     for spec, handler in get_wikidata_disjointness_tools():
         registry.register(spec, handler)
+    for spec, handler in get_zk_execution_tools():
+        registry.register(spec, handler, authority_profile=zk_authority_profile(spec.name))
     return registry
