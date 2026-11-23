@@ -121,6 +121,11 @@ channels for each core project directory in this workspace.
   canonical document-evidence substrate for compliance, standards, legal, and
   audit lanes; retrieval helpers must resolve back to exact canonical
   revision/span refs before stronger evaluation or receipt claims.
+- `docs/planning/cursor_claude_extension_supply_chain_contract_20261101.md`:
+  source-anchored Cursor/Claude extension marketplace supply-chain incident
+  formalisation; distinguishes package provenance, exposure, execution,
+  persistence, authenticated access and independently verified recovery;
+  companion fixture and non-promotion regression checks.
 - `docs/planning/itir_public_repo_security_discovery_contract_20260407.md`:
   planned lower-trust public repo/security-surface discovery lane for
   candidate risk findings, follow obligations, and internal exposure checks
