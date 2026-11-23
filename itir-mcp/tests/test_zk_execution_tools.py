@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import sys
 
 from itir_mcp import build_default_registry
-from itir_mcp.zk_execution_tools import SEC, PERF, INDEX, BUSHIDO, LAYERS
+from itir_mcp.zk_execution_tools import SEC, PERF, INDEX, BUSHIDO, SOCKET, LAYERS
 
 
 def index():
@@ -18,7 +18,7 @@ def index():
 
 def test_registry_index_and_safe_boundary():
     r = build_default_registry()
-    for name in (SEC, PERF, INDEX, BUSHIDO):
+    for name in (SEC, PERF, INDEX, BUSHIDO, SOCKET):
         assert r.get_tool_spec(name).read_only
         assert r.get_tool_authority_profile(name)["max_authority"] == "observed"
     result = r.invoke(INDEX, {"index": index()})
@@ -109,3 +109,50 @@ def test_bushido_rejects_authority_and_false_consistency():
     row["enabled_origin"]["extension_deny_route"]=0
     row["native_reported_counts"]["extension_redirect_target_route"]=0
     assert not r.invoke(BUSHIDO,p)["ok"]
+
+
+def bushido_socket_join():
+    return {
+        "version":"bushido.socket_provenance_join.v1",
+        "state":"proposal_only","candidate_only":True,"non_authoritative":True,
+        "native_acceptance":"OPEN","decision":"socket_endpoint_observed",
+        "fixture_run_id":"a"*32,"proxy_port":9000,"proxy_pid":100,
+        "proxy_start_ticks":10000,"browser_pid":200,"browser_start_ticks":20000,
+        "network_namespace":"net:[4026532000]",
+        "listener_owned_and_listening":True,
+        "browser_socket_endpoint_observed":True,
+        "source_sha256":{k:"b"*64 for k in
+          ("final_origin","live_origin_snapshot","live_socket_witness","ab_reconciliation")},
+        **{k:False for k in ("same_run_linkage_verified","request_identity_verified",
+            "runtime_binary_linkage_verified","physical_enforcement_verified",
+            "execution_authorized","publication_authorized")},
+    }
+
+
+def test_bushido_socket_candidate_window_without_promotion():
+    r=build_default_registry()
+    args={"join":bushido_socket_join(),"asserted_at":"2026-11-23T03:41:00Z"}
+    receipt=r.invoke(SOCKET,args)
+    assert receipt["ok"],receipt
+    out=receipt["result"]
+    assert out["native_acceptance"]=="OPEN"
+    assert out["stream_contract"]=="zkperf-stream/v1"
+    assert out["observation"]["metrics"][1]["value"]==1
+    assert out["windows"][0]["observationIds"]==[out["observation"]["zkperf_observation_id"]]
+    assert not out["binary_linkage_verified"]
+    assert r.safe_invoke(SOCKET,args)["result"]["decision"]=="abstained"
+
+
+def test_bushido_socket_candidate_rejects_promoted_claims():
+    r=build_default_registry()
+    join=bushido_socket_join()
+    args={"join":join,"asserted_at":"2026-11-23T03:41:00Z"}
+    for key,value in (
+        ("same_run_linkage_verified",True),("native_acceptance","PASS"),
+        ("browser_socket_endpoint_observed",False),("proxy_pid",True)):
+        old=join[key]
+        join[key]=value
+        assert not r.invoke(SOCKET,args)["ok"],key
+        join[key]=old
+    join["source_sha256"]["final_origin"]="not-a-hash"
+    assert not r.invoke(SOCKET,args)["ok"]

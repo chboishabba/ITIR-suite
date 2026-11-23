@@ -13,6 +13,7 @@ SEC = "itir.zksec.policy_preview"
 PERF = "itir.zkperf.window_plan"
 INDEX = "itir.zkperf.evidence_index_check"
 BUSHIDO = "itir.zkperf.bushido_ab_candidate"
+SOCKET = "itir.zkperf.bushido_socket_candidate"
 ACTIONS = ("read", "collect", "review", "plan", "deploy", "remediate", "patch")
 RISKS = ("low", "medium", "high")
 LAYERS = ("binary_closure", "source_debug", "traces", "models", "build_events")
@@ -320,6 +321,94 @@ def bushido_ab_candidate(payload):
     )
 
 
+def bushido_socket_candidate(payload):
+    """One typed candidate row for an independently collected procfs sidecar.
+
+    Do not accept a claimed physical request proof or infer browser execution
+    from socket endpoints. Reuse the same zkperf window owner.
+    """
+    _bounded(payload, ("join", "asserted_at"))
+    receipt, stamp = payload["join"], payload["asserted_at"]
+    if not isinstance(stamp, str) or not re.fullmatch(
+        r"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?Z", stamp):
+        _invalid()
+    keys = {"version", "state", "candidate_only", "non_authoritative",
+        "native_acceptance", "decision", "fixture_run_id", "proxy_port",
+        "proxy_pid", "proxy_start_ticks", "browser_pid", "browser_start_ticks",
+        "network_namespace", "listener_owned_and_listening",
+        "browser_socket_endpoint_observed", "source_sha256",
+        "same_run_linkage_verified", "request_identity_verified",
+        "runtime_binary_linkage_verified", "physical_enforcement_verified",
+        "execution_authorized", "publication_authorized"}
+    if not isinstance(receipt, dict) or set(receipt) != keys:
+        _invalid()
+    if receipt["version"] != "bushido.socket_provenance_join.v1" or (
+        receipt["state"], receipt["native_acceptance"]) != ("proposal_only", "OPEN"):
+        _invalid()
+    if receipt["candidate_only"] is not True or receipt["non_authoritative"] is not True:
+        _invalid()
+    for key in ("same_run_linkage_verified", "request_identity_verified",
+                "runtime_binary_linkage_verified", "physical_enforcement_verified",
+                "execution_authorized", "publication_authorized"):
+        if receipt[key] is not False:
+            _invalid()
+    if not isinstance(receipt["fixture_run_id"],str) or not re.fullmatch(
+        r"[0-9a-f]{32}",receipt["fixture_run_id"]):
+        _invalid()
+    if not isinstance(receipt["network_namespace"],str) or not re.fullmatch(
+        r"net:\[\\d+\\]",receipt["network_namespace"]):
+        _invalid()
+    for key in ("proxy_port", "proxy_pid", "proxy_start_ticks", "browser_pid",
+                "browser_start_ticks"):
+        value = receipt[key]
+        if type(value) is not int or value < 1 or value > 2**53:
+            _invalid()
+    if receipt["proxy_port"] < 1024 or receipt["proxy_port"] > 65535:
+        _invalid()
+    listener = receipt["listener_owned_and_listening"]
+    connected = receipt["browser_socket_endpoint_observed"]
+    if type(listener) is not bool or type(connected) is not bool or connected and not listener:
+        _invalid()
+    expected = "socket_endpoint_observed" if connected else "inconclusive"
+    if receipt["decision"] != expected:
+        _invalid()
+    refs = receipt["source_sha256"]
+    if not isinstance(refs, dict) or set(refs) != {
+        "final_origin", "live_origin_snapshot", "live_socket_witness",
+        "ab_reconciliation"}:
+        _invalid()
+    for value in refs.values():
+        _hash(value)
+    canonical = json.dumps(receipt, sort_keys=True, separators=(",", ":"),
+                           allow_nan=False).encode()
+    digest = sha256(canonical).hexdigest()
+    row = {
+        "zkperf_observation_id": "bushido-socket-" + digest[:32],
+        "trace_id": "bushido-socket-trace-" + digest[:24],
+        "run_id": "bushido-ab-" + receipt["fixture_run_id"],
+        "asserted_at": stamp, "source_ref": "receipt:sha256:" + digest,
+        "status": "observed",
+        "metrics": [
+            {"name": "live_proxy_listener_observed", "kind": "integer",
+             "value": int(listener)},
+            {"name": "browser_proxy_socket_observed", "kind": "integer",
+             "value": int(connected)},
+        ],
+        "trace_refs": ["trace:sha256:" + digest], "proof_refs": [],
+        "hash": "sha256:" + digest,
+    }
+    plan = window_plan({"observations": [row], "max_observations_per_window": 1})
+    return _result(SOCKET, provider="itir.zkperf.window_plan",
+        observation=row, reconciliation_decision=receipt["decision"],
+        join_sha256=digest, source_sha256=refs,
+        supplied_input_hashes_verified=False, files_verified=False,
+        same_run_linkage_verified=False, request_identity_verified=False,
+        binary_linkage_verified=False, physical_enforcement_verified=False,
+        native_acceptance="OPEN", stream_contract=plan["stream_contract"],
+        stream_id=plan["stream_id"], stream_revision=plan["stream_revision"],
+        windows=plan["windows"], proof_verified=False)
+
+
 def get_zk_execution_tools():
     def spec(name, title, description, properties):
         return ToolSpec(name=name, title=title, description=description, response_version=name+".v1",
@@ -335,4 +424,6 @@ def get_zk_execution_tools():
               {"index":{"type":"object"}}), evidence_index_check),
         (spec(BUSHIDO, "Bushido A/B candidate observation", "Project a supplied reconciliation into the existing zkperf window owner; no native acceptance.",
               {"reconciliation":{"type":"object"}, "asserted_at":{"type":"string"}}), bushido_ab_candidate),
+        (spec(SOCKET, "Bushido socket candidate observation", "Project supplied nonpromoting procfs provenance join into the existing zkperf window owner.",
+              {"join":{"type":"object"}, "asserted_at":{"type":"string"}}), bushido_socket_candidate),
     ]

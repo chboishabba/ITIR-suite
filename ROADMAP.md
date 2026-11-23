@@ -186,3 +186,7 @@ SQLite-backed corpus with TIRC and SL-style views.
 - Reuse the existing `itir.zkperf.window_plan`, `itir.zkperf.evidence_index_check` and zkSEC profile. New `itir.zkperf.bushido_ab_candidate` normalizes the already-reconciled four-receipt candidate into one typed zkPERF observation/window, without parsing raw traffic or building a second stream engine.
 - Strict authority boundary: signed provenance, native executable/process identity, same-run identity, exact source-frame attribution, independent OS capture, native test acceptance and promotion remain OPEN. Local metadata consistency is not execution permission.
 - Next weld: Bushido-side offline fixed-tool safe_call client with exact result echo and five-layer source index; check against actual pinned suite environment and user-run native acceptance before any authority gate. No CI requested.
+
+
+## Bushido live procfs provenance candidate (2026-11-23)
+- Reuse existing zkPERF window planner for a separate `itir.zkperf.bushido_socket_candidate` adapter. Typed input holds producer-labeled enabled-run procfs join; preserve four independent source hashes and nonpromoting authority. No path dereference, subprocess, network, release promotion or claimed physical request matching. Two adapter tests authored, unrun. Pending native/OS execution and independent binary-to-process/request proof.
