@@ -41,6 +41,45 @@ class PacketTests(unittest.TestCase):
         return build_work_packet(self.proposals, archive_db=str(self.archive),
                                  span_policy=policy or None)
 
+
+    def test_reference_materialization_receipt_round_trip(self):
+        first = self.packet(max_messages=1, max_chars=100, packet_max_chars=24000)
+        again = self.packet(max_messages=1, max_chars=100, packet_max_chars=24000)
+        self.assertEqual(first, again)  # idempotent, byte-stable identity
+        packet = first["packets"][0]
+        receipt = packet["reference_materialization_receipt"]
+        self.assertEqual(receipt["work_packet_ref"], packet["packet_id"])
+        self.assertEqual(receipt["archive_thread_ref"], "thread")
+        self.assertEqual(receipt["source_ref_count"], 1)
+        self.assertEqual(receipt["governed_dispatch"]["state"], "not_dispatched")
+        self.assertFalse(receipt["raw_body_persisted"])
+        self.assertFalse(receipt["producer_verified_pnf"])
+        self.assertEqual(len(receipt["pnf_projection_refs"]), 1)
+        projection = receipt["pnf_projection_refs"][0]
+        source = packet["source_refs"][0]
+        self.assertEqual(projection["source_ref"]["message_id"], source["message_id"])
+        self.assertEqual(projection["source_ref"]["archive_locator"], source["archive_locator"])
+        self.assertEqual(projection["source_ref"]["body_sha256"], source["body_sha256"])
+        self.assertIn("lexical_candidate_not_producer_verified_pnf", projection["residuals"])
+        self.assertNotIn("lemma 5", json.dumps(first))
+        self.assertLessEqual(len(json.dumps(first, sort_keys=True, separators=(",", ":"), ensure_ascii=False)), 24000)
+
+    def test_registry_reference_receipt_and_packet_budget(self):
+        response = build_default_registry().invoke("itir.pnf.work_packet", {
+            "archive_db": str(self.archive),
+            "proposals": self.proposals,
+            "span_policy": {"max_messages": 2, "max_chars": 100,
+                            "packet_max_chars": 3000},
+        })
+        self.assertTrue(response["ok"], response)
+        result = response["result"]
+        self.assertLessEqual(len(json.dumps(result, sort_keys=True,
+                        separators=(",", ":"), ensure_ascii=False)), 3000)
+        packet = result["packets"][0]
+        for unit in packet["reference_materialization_receipt"]["pnf_projection_refs"]:
+            self.assertIn(unit["source_ref"]["message_id"],
+                          {r["message_id"] for r in packet["source_refs"]})
+
     def test_live_schema_digest_and_tail(self):
         result = self.packet(max_messages=3, max_chars=100, packet_max_chars=24000)
         packet = result["packets"][0]
