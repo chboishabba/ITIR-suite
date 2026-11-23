@@ -307,3 +307,44 @@ def test_live_hf_fetch_probe() -> None:
     assert payload["statusCode"] == 200
     assert payload["sha256"]
     assert payload["sizeBytes"] > 0
+
+@pytest.mark.parametrize(
+    ("uri", "expected"),
+    [
+        (
+            "hf://datasets/chbwa/zelph-sharded/minimal-proof/manifest.json",
+            "https://huggingface.co/datasets/chbwa/zelph-sharded/resolve/main/minimal-proof/manifest.json",
+        ),
+        (
+            "hf://models/org/model/weights/model.safetensors",
+            "https://huggingface.co/org/model/resolve/main/weights/model.safetensors",
+        ),
+        (
+            "hf://spaces/org/demo/app.py",
+            "https://huggingface.co/spaces/org/demo/resolve/main/app.py",
+        ),
+    ],
+)
+def test_hf_raw_file_resolve_url_by_repo_type(uri: str, expected: str) -> None:
+    ref = parse_hf_uri(uri)
+    assert ref.resolve_url == expected
+    assert ref.resolve_url_for_revision("abc123") == expected.replace(
+        "/resolve/main/", "/resolve/abc123/"
+    )
+
+
+def test_model_fetch_uses_raw_resolve_url_not_models_prefix() -> None:
+    observed: dict[str, object] = {}
+
+    def _get(url: str, **kwargs: object) -> _FakeResponse:
+        observed["url"] = url
+        return _FakeResponse(
+            status_code=200, url=url, headers={}, content=b"model-bytes"
+        )
+
+    response = fetch_hf_object(
+        hf_uri="hf://models/org/model/weights/model.bin",
+        get=_get,
+    )
+    assert observed["url"] == "https://huggingface.co/org/model/resolve/main/weights/model.bin"
+    assert response["sizeBytes"] == len(b"model-bytes")

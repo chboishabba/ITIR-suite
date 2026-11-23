@@ -21,10 +21,10 @@ class HfObjectReference:
 
     @property
     def resolve_url(self) -> str:
-        return f"https://huggingface.co/{self.repo_type}/{self.repo_id}/resolve/main/{self.object_path}"
+        return f"https://huggingface.co/{'' if self.repo_type == 'models' else self.repo_type + '/'}{self.repo_id}/resolve/main/{self.object_path}"
 
     def resolve_url_for_revision(self, revision: str) -> str:
-        return f"https://huggingface.co/{self.repo_type}/{self.repo_id}/resolve/{revision}/{self.object_path}"
+        return f"https://huggingface.co/{'' if self.repo_type == 'models' else self.repo_type + '/'}{self.repo_id}/resolve/{revision}/{self.object_path}"
 
 
 def parse_hf_uri(uri: str) -> HfObjectReference:

@@ -216,3 +216,27 @@ def test_build_payload_probe_rejects_over_cap_unless_explicitly_truncated() -> N
         "truncated": True,
     }
     assert truncated["payload_sample"] == payload_text[:8]
+
+@pytest.mark.parametrize(
+    ("uri", "expected"),
+    [
+        (
+            "hf://datasets/chbwa/zelph-sharded/minimal-proof/manifest.json",
+            "https://huggingface.co/datasets/chbwa/zelph-sharded/resolve/main/minimal-proof/manifest.json",
+        ),
+        (
+            "hf://models/org/model/checkpoints/weights.bin",
+            "https://huggingface.co/org/model/resolve/main/checkpoints/weights.bin",
+        ),
+        (
+            "hf://spaces/org/demo/app.py",
+            "https://huggingface.co/spaces/org/demo/resolve/main/app.py",
+        ),
+    ],
+)
+def test_shard_transport_hf_raw_resolve_mapping(uri: str, expected: str) -> None:
+    ref = shard_transport._parse_hf_uri(uri)
+    assert ref.url() == expected
+    assert ref.url("revision-1") == expected.replace(
+        "/resolve/main/", "/resolve/revision-1/"
+    )

@@ -46,7 +46,7 @@ class _HfRef:
 
     def url(self, revision: str | None = None) -> str:
         ref = revision or "main"
-        return f"https://huggingface.co/{self.repo_type}/{self.repo_id}/resolve/{ref}/{self.object_path}"
+        return f"https://huggingface.co/{'' if self.repo_type == 'models' else self.repo_type + '/'}{self.repo_id}/resolve/{ref}/{self.object_path}"
 
 
 def validate_shared_shard_artifact(payload: Mapping[str, Any]) -> dict[str, Any]:
