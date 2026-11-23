@@ -5,7 +5,7 @@ import { normalizePayloadObject } from './normalize';
 import { isHcaCanonicalRelPath, maybeOverlayHcaPayload } from './hca_overlay';
 import { fileExists, loadFromDbCandidates, resolveItirDbPath } from './runtime';
 
-function timelineSuffixCandidates(relPath: string): string[] {
+export function timelineSuffixCandidates(relPath: string): string[] {
   const base = path.basename(relPath);
   const candidates = new Set<string>([base]);
   if (base.endsWith('_aoo.json')) {
