@@ -44,3 +44,7 @@
 - [ ] Add PostgreSQL persistence for fibre bundles and candidate frontier entities against the canonical TrueNAS spine.
 - [ ] Connect the Python/runtime receipts to the existing golden Agda formal owners and Lean mirrors with an exact cross-language ABI receipt.
 - [ ] Prove any desired theorem transport between Yang–Mills representation branches explicitly; shared fibre membership alone is non-promoting.
+
+## zkSEC / zkperf connectors
+- [x] Register local proposal-only policy preview, observation window plan and five-layer evidence index check.
+- [ ] Verify real pinned providers, stdio discovery/calls and safe-bridge receipts locally; exact trace/IR linkage, collection and approval remain open.
