@@ -180,3 +180,9 @@ SQLite-backed corpus with TIRC and SL-style views.
 - Route verified lemma references only along explicit ontology edges and explicit lemma attachments. Ontology ancestry never creates proof authority.
 - Golden safe Agda is authoritative; Lean mirrors Agda. Reuse current dashi_agda TOE/fleet formal owners instead of creating a competing scheduler formalism.
 - Acceptance requires focused deterministic Python tests, zero ESD edits, zero hardcoded lexical wordlists, and no regression of `execute_pareto_conductor`, `spawn_parallel_lanes`, or the live cost-law contract.
+
+
+## zkSEC / zkPERF — Bushido original A/B receipt convergence (2026-11-23)
+- Reuse the existing `itir.zkperf.window_plan`, `itir.zkperf.evidence_index_check` and zkSEC profile. New `itir.zkperf.bushido_ab_candidate` normalizes the already-reconciled four-receipt candidate into one typed zkPERF observation/window, without parsing raw traffic or building a second stream engine.
+- Strict authority boundary: signed provenance, native executable/process identity, same-run identity, exact source-frame attribution, independent OS capture, native test acceptance and promotion remain OPEN. Local metadata consistency is not execution permission.
+- Next weld: Bushido-side offline fixed-tool safe_call client with exact result echo and five-layer source index; check against actual pinned suite environment and user-run native acceptance before any authority gate. No CI requested.

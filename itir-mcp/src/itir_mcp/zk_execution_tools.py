@@ -12,6 +12,7 @@ from .contracts import JsonDict, ToolInputError, ToolExecutionError, ToolSpec
 SEC = "itir.zksec.policy_preview"
 PERF = "itir.zkperf.window_plan"
 INDEX = "itir.zkperf.evidence_index_check"
+BUSHIDO = "itir.zkperf.bushido_ab_candidate"
 ACTIONS = ("read", "collect", "review", "plan", "deploy", "remediate", "patch")
 RISKS = ("low", "medium", "high")
 LAYERS = ("binary_closure", "source_debug", "traces", "models", "build_events")
@@ -197,6 +198,128 @@ def evidence_index_check(payload):
                    files_verified=False, binary_linkage_verified=False, proof_verified=False)
 
 
+def bushido_ab_candidate(payload):
+    """Normalize an already reconciled *candidate*, without validating native execution.
+
+    No filesystem access or claimed same-request linkage. Reuse the exact
+    zkperf window_plan producer for the one canonical candidate observation.
+    """
+    _bounded(payload, ("reconciliation", "asserted_at"))
+    r = payload["reconciliation"]
+    timestamp = payload["asserted_at"]
+    if not isinstance(timestamp, str) or not re.fullmatch(
+        r"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,6})?Z", timestamp
+    ):
+        _invalid()
+    keys = {"version", "state", "non_authoritative", "candidate_only",
+            "native_acceptance", "decision", "missing_controls", "contradictions",
+            "baseline_origin", "enabled_origin", "native_reported_counts",
+            "fixture_run_ids", "execution_authorized", "publication_authorized",
+            "same_run_linkage_verified", "request_identity_verified",
+            "runtime_binary_linkage_verified", "physical_enforcement_verified",
+            "input_sha256"}
+    if not isinstance(r, dict) or set(r) != keys:
+        _invalid()
+    if (r["version"] != "bushido.extension_ab_reconciliation.v1"
+            or r["state"] != "proposal_only" or r["native_acceptance"] != "OPEN"):
+        _invalid()
+    if any(r[k] is not True for k in ("non_authoritative", "candidate_only")):
+        _invalid()
+    if any(r[k] is not False for k in (
+        "execution_authorized", "publication_authorized", "same_run_linkage_verified",
+        "request_identity_verified", "runtime_binary_linkage_verified",
+        "physical_enforcement_verified")):
+        _invalid()
+    decision = r["decision"]
+    if decision not in ("consistent_controls_observed", "contradiction_observed", "inconclusive"):
+        _invalid()
+    if (not isinstance(r["missing_controls"], list)
+            or not isinstance(r["contradictions"], list)
+            or len(r["missing_controls"]) > 32 or len(r["contradictions"]) > 32
+            or any(not isinstance(v, str) or not REF.fullmatch(v) for v in
+                   r["missing_controls"] + r["contradictions"])):
+        _invalid()
+    if (decision == "consistent_controls_observed"
+            and (r["missing_controls"] or r["contradictions"])):
+        _invalid()
+    if decision == "contradiction_observed" and not r["contradictions"]:
+        _invalid()
+    if decision == "inconclusive" and (not r["missing_controls"] or r["contradictions"]):
+        _invalid()
+    runs = r["fixture_run_ids"]
+    if not isinstance(runs, list) or len(runs) != 2 or any(
+        not isinstance(v, str) or not re.fullmatch("[0-9a-f]{32}", v) for v in runs
+    ) or runs[0] == runs[1]:
+        _invalid()
+    source_hashes = r["input_sha256"]
+    names = ("baseline_origin", "enabled_origin", "baseline_preview", "enabled_preview")
+    if not isinstance(source_hashes, dict) or set(source_hashes) != set(names):
+        _invalid()
+    for digest in source_hashes.values():
+        _hash(digest)
+    allowed_routes = {"extension_allow_route", "extension_deny_route",
+                      "extension_redirect_route", "extension_redirect_target_route"}
+    counts = {}
+    for name in ("baseline_origin", "enabled_origin", "native_reported_counts"):
+        values = r[name]
+        if not isinstance(values, dict) or set(values) != allowed_routes:
+            # Native prefix may omit routes, but omitted is a missing control,
+            # not evidence of zero physical requests.
+            if name != "native_reported_counts" or not isinstance(values, dict) or not set(values) <= allowed_routes:
+                _invalid()
+        for value in values.values():
+            if type(value) is not int or value < 0 or value > 2**53:
+                _invalid()
+        counts[name] = sum(values.values())
+    if decision == "consistent_controls_observed":
+        a, b = r["baseline_origin"], r["enabled_origin"]
+        n = r["native_reported_counts"]
+        if (any(a[k] < 1 for k in allowed_routes)
+                or b["extension_allow_route"] < 1 or b["extension_redirect_route"] < 1
+                or b["extension_deny_route"] != 0 or b["extension_redirect_target_route"] != 0
+                or any(n.get(k, 0) < 1 for k in allowed_routes)):
+            _invalid()
+    if decision == "contradiction_observed" and not (
+        r["enabled_origin"]["extension_deny_route"]
+        or r["enabled_origin"]["extension_redirect_target_route"]
+    ):
+        _invalid()
+    # Hash is an exact commitment to supplied canonical metadata, not a check
+    # against file bytes, process identity, nor independently captured evidence.
+    canonical = json.dumps(r, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+    digest = sha256(canonical).hexdigest()
+    row = {
+        "zkperf_observation_id": "bushido-ab-" + digest[:32],
+        "trace_id": "bushido-ab-trace-" + digest[:24],
+        "run_id": "bushido-ab-" + runs[1],
+        "asserted_at": timestamp,
+        "source_ref": "receipt:sha256:" + digest,
+        "status": "observed",
+        "metrics": [
+            {"name": "baseline_origin_events", "kind": "integer",
+             "value": counts["baseline_origin"]},
+            {"name": "enabled_origin_events", "kind": "integer",
+             "value": counts["enabled_origin"]},
+            {"name": "native_reported_events", "kind": "integer",
+             "value": counts["native_reported_counts"]},
+        ],
+        "trace_refs": ["trace:sha256:" + digest],
+        "proof_refs": [],
+        "hash": "sha256:" + digest,
+    }
+    plan = window_plan({"observations": [row], "max_observations_per_window": 1})
+    return _result(
+        BUSHIDO, provider="itir.zkperf.window_plan", observation=row,
+        reconciliation_decision=decision, reconciliation_sha256=digest,
+        supplied_input_hashes_verified=False, files_verified=False,
+        same_run_linkage_verified=False, request_identity_verified=False,
+        binary_linkage_verified=False, physical_enforcement_verified=False,
+        native_acceptance="OPEN", stream_contract=plan["stream_contract"],
+        stream_id=plan["stream_id"], stream_revision=plan["stream_revision"],
+        windows=plan["windows"], proof_verified=False,
+    )
+
+
 def get_zk_execution_tools():
     def spec(name, title, description, properties):
         return ToolSpec(name=name, title=title, description=description, response_version=name+".v1",
@@ -210,4 +333,6 @@ def get_zk_execution_tools():
                "max_observations_per_window":{"type":"integer","minimum":1,"maximum":128}}), window_plan),
         (spec(INDEX, "zkperf evidence index check", "Check supplied Bushido five-layer index self-commitment, not files or proof.",
               {"index":{"type":"object"}}), evidence_index_check),
+        (spec(BUSHIDO, "Bushido A/B candidate observation", "Project a supplied reconciliation into the existing zkperf window owner; no native acceptance.",
+              {"reconciliation":{"type":"object"}, "asserted_at":{"type":"string"}}), bushido_ab_candidate),
     ]
