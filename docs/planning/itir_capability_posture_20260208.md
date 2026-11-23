@@ -119,11 +119,24 @@ Related planning docs (existing):
 
 ## Streamline Siphon/Asset-Flow Detection (Design Posture)
 
+Ownership clarification:
+- canonical transaction/source observations and semantic review live outside the
+  ribbon;
+- StatiBaker may provide temporal observer alignment but does not own finance
+  semantics;
+- `itir-ribbon`/Streamline is projection-only.
+
 Target goals:
 - proportional ribbon rendering of financial flows with click-through receipts
-- multi-account layering without “spaghetti” graphs
+  to exact transaction/source anchors;
+- multi-account layering without “spaghetti” graphs;
 - transfer inference as explicit, testable heuristics (candidate edges), not
-  implied truth
+  implied truth;
+- observed/reconciled/inferred/unresolved flow states remain visually distinct;
+- source freshness/coverage gaps remain visible so missing edges are not treated
+  as observed absence;
+- candidate laundering/structuring/layering patterns never become legal
+  conclusions without an explicit legal consumer/review path.
 
 ## Update Policy
 
@@ -132,3 +145,16 @@ When adding marketing/sales/docs claims:
 - If it’s implemented but not yet enforced end-to-end, label `CURRENT (CONTRACT)`
   and state the missing enforcement surface.
 
+
+
+## 2026-09-20 Federated Typed World Alignment
+
+The canonical current planning contract is:
+`docs/planning/federated_typed_world_projection_contract_20260920.md`.
+
+It records that semantic/epistemic world state, StatiBaker temporal observer
+state, Casey possibility/workspace state, SensibLaw legal admission and
+projection-only UI state are distinct authorities. It also makes
+source-addressability a suite-level product invariant and treats domain-specific
+study/health/finance/Wikidata/legal coordinates as typed refinements over common
+provenance rather than separate evidence substrates.
