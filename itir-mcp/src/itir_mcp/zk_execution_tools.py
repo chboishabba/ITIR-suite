@@ -356,7 +356,7 @@ def bushido_socket_candidate(payload):
         r"[0-9a-f]{32}",receipt["fixture_run_id"]):
         _invalid()
     if not isinstance(receipt["network_namespace"],str) or not re.fullmatch(
-        r"net:\[\\d+\\]",receipt["network_namespace"]):
+        r"net:\[\d+\]",receipt["network_namespace"]):
         _invalid()
     for key in ("proxy_port", "proxy_pid", "proxy_start_ticks", "browser_pid",
                 "browser_start_ticks"):
