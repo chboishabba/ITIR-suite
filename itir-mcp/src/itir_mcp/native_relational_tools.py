@@ -72,6 +72,33 @@ def inspect_relational_family(payload: Mapping[str, Any]) -> dict[str, Any]:
                 or raw.get("level_three_paid") is not False
                 or raw.get("world_truth_paid") is not False):
             raise ToolExecutionError("Wrong or promotion-bearing original relation receipt")
+    elif action in ("factor_consumer", "demand_fibre"):
+        if action == "factor_consumer":
+            keys = ("numeric_run_ref", "document_ref", "snapshot_ref", "packet_sha256", "consumer_axis")
+            values = [_coordinate(payload, k) for k in keys]
+            if values[-1] not in ("type_ref", "referential_type", "role", "value"):
+                raise ToolInputError("Unknown recorded consumer axis")
+            raw = _native(["numeric-pnf-native", "factor-consumer", *values])
+            expected = dict(zip(keys, values))
+            schema = "slr.recorded-factor-consumer.v1"
+            exact_flag = "represented_product_projection_exact"
+        else:
+            keys = ("numeric_run_ref", "document_ref", "source_sha256")
+            values = [_coordinate(payload, k) for k in keys]
+            demand = payload.get("demand_id")
+            if type(demand) is not int or not 0 < demand < (1 << 63):
+                raise ToolInputError("Expected positive native demand ID")
+            raw = _native(["numeric-pnf-native", "demand-fibre", *values, str(demand)])
+            expected = dict(zip(keys, values))
+            expected["demand_id"] = demand
+            schema = "slr.native-demand-fibre.v1"
+            exact_flag = "recorded_universe_exact"
+        if (raw.get("schema") != schema or any(raw.get(k) != v for k, v in expected.items())
+                or raw.get(exact_flag) is not True
+                or any(raw.get(k) is not False for k in (
+                    "semantic_coverage_paid", "source_meaning_correspondence_paid",
+                    "governed_identity_paid", "level_three_paid", "world_truth_paid"))):
+            raise ToolExecutionError("Wrong or promotion-bearing native fibre receipt")
     else:
         raise ToolInputError("Unknown read-only relational inspection action")
     return {"version": "itir.native_relational_inspection.v1", "action": action,
@@ -85,9 +112,11 @@ def get_native_relational_tools():
         title="Inspect native SLR informational comparison",
         description="Reopen exact native family, revision or original relation coordinates; read only.",
         input_schema={"type": "object", "properties": {
-            "action": {"enum": ["family", "revision", "original_relations"]},
+            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre"]},
+            "demand_id": {"type": "integer", "minimum": 1},
             **{k: {"type": "string"} for k in ("family_ref", "transition_ref",
-               "numeric_run_ref", "document_ref", "snapshot_ref", "packet_sha256", "relation_type")},
+               "numeric_run_ref", "document_ref", "snapshot_ref", "packet_sha256", "relation_type",
+               "source_sha256", "consumer_axis")},
         }, "additionalProperties": False},
         read_only=True,
     ), inspect_relational_family)]

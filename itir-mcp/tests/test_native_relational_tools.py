@@ -28,3 +28,43 @@ def test_no_mutating_action_or_actor_supplied_executable(monkeypatch):
         native.inspect_relational_family({"action": "publish-revision", "transition_ref": "r"})
     with pytest.raises(ToolInputError):
         native.inspect_relational_family({"action": "original_relations", "numeric_run_ref": "r"})
+
+
+def test_generic_demand_fibre_is_native_and_does_not_promote(monkeypatch):
+    request = {"action": "demand_fibre", "numeric_run_ref": "n", "document_ref": "d",
+               "source_sha256": "a" * 64, "demand_id": 7}
+    receipt = {**{k: v for k, v in request.items() if k != "action"},
+               "schema": "slr.native-demand-fibre.v1", "recorded_universe_exact": True,
+               **{k: False for k in ("semantic_coverage_paid", "source_meaning_correspondence_paid",
+                   "governed_identity_paid", "level_three_paid", "world_truth_paid")}}
+    def load(args):
+        assert args == ["numeric-pnf-native", "demand-fibre", "n", "d", "a" * 64, "7"]
+        return receipt
+    monkeypatch.setattr(native, "_native", load)
+    result = native.inspect_relational_family(request)
+    assert result["native_receipt"] is receipt
+    assert result["mutates"] is False
+    receipt["semantic_coverage_paid"] = True
+    with pytest.raises(ToolExecutionError):
+        native.inspect_relational_family(request)
+    with pytest.raises(ToolInputError):
+        native.inspect_relational_family({**request, "demand_id": True})
+
+
+def test_factor_axis_allowlist_and_native_binding(monkeypatch):
+    request = {"action": "factor_consumer", "numeric_run_ref": "n", "document_ref": "d",
+               "snapshot_ref": "s", "packet_sha256": "p", "consumer_axis": "role"}
+    receipt = {**{k: v for k, v in request.items() if k != "action"},
+               "schema": "slr.recorded-factor-consumer.v1", "represented_product_projection_exact": True,
+               **{k: False for k in ("semantic_coverage_paid", "source_meaning_correspondence_paid",
+                   "governed_identity_paid", "level_three_paid", "world_truth_paid")}}
+    def load(args):
+        assert args == ["numeric-pnf-native", "factor-consumer", "n", "d", "s", "p", "role"]
+        return receipt
+    monkeypatch.setattr(native, "_native", load)
+    assert native.inspect_relational_family(request)["native_receipt"] is receipt
+    with pytest.raises(ToolInputError):
+        native.inspect_relational_family({**request, "consumer_axis": "arbitrary"})
+    receipt["snapshot_ref"] = "foreign"
+    with pytest.raises(ToolExecutionError):
+        native.inspect_relational_family(request)
