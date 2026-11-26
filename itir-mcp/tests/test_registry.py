@@ -11,6 +11,7 @@ def test_default_registry_lists_expected_tools() -> None:
         "itir.formal.certify",
         "itir.build_envelope",
         "itir.compare_observations",
+        "itir.relational.inspect",
         "itir.score_coherence",
         "sensiblaw.itir_job_status",
         "sensiblaw.obligations_query",
