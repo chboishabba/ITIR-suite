@@ -38,7 +38,7 @@ def _native(args: list[str]) -> dict[str, Any]:
 
 
 
-def _inspect_licensed_view_cohort(payload: Mapping[str, Any]) -> dict[str, Any]:
+def _view_evidence_request(payload: Mapping[str, Any]):
     """Validate native coordinates and inverse accounting only; Rust owns the
     signed reducer and authenticated formal readback. No caller proof payload."""
     family = _coordinate(payload, "family_ref")
@@ -64,6 +64,11 @@ def _inspect_licensed_view_cohort(payload: Mapping[str, Any]) -> dict[str, Any]:
     encoded = json.dumps(normalized, ensure_ascii=False, separators=(",", ":"))
     if len(encoded.encode("utf-8")) > 65536:
         raise ToolInputError("Pair evidence coordinate request too large")
+    return family, query, encoded, requested
+
+
+def _inspect_licensed_view_cohort(payload: Mapping[str, Any]) -> dict[str, Any]:
+    family, query, encoded, requested = _view_evidence_request(payload)
     raw = _native(["relational-family", "inspect-licensed-view-cohort", family, query, encoded])
     if (raw.get("schema") != "slr.authenticated-view-cohort.v1"
             or raw.get("family_ref") != family or raw.get("query_ref") != query
@@ -193,9 +198,130 @@ def _inspect_licensed_view_cohort(payload: Mapping[str, Any]) -> dict[str, Any]:
     return raw
 
 
+
+def _inspect_query_context(payload: Mapping[str, Any], expand: bool) -> dict[str, Any]:
+    family, query, encoded, requested = _view_evidence_request(payload)
+    args = ["relational-family",
+            "expand-query-context-capsule" if expand else "inspect-query-context-capsule",
+            family, query, encoded]
+    def digest(value):
+        return (isinstance(value, str) and value.startswith("sha256:")
+                and len(value) == 71 and all(c in "0123456789abcdef" for c in value[7:]))
+    expected = None
+    if expand:
+        expected = _coordinate(payload, "capsule_digest")
+        if not digest(expected):
+            raise ToolInputError("Expected canonical capsule digest")
+        args.append(expected)
+    raw = _native(args)
+    if expand:
+        if (raw.get("schema") != "slr.query-context-expanded.v1"
+                or raw.get("capsule_digest") != expected
+                or raw.get("exact_current_replay") is not True
+                or raw.get("creates_semantic_authority") is not False
+                or raw.get("writes_database") is not False):
+            raise ToolExecutionError("Stale or foreign native capsule expansion")
+        envelope = raw.get("capsule_envelope")
+        if not isinstance(envelope, dict) or envelope.get("capsule_digest") != expected:
+            raise ToolExecutionError("Wrong expanded capsule digest")
+    else:
+        envelope = raw
+    cap = envelope.get("capsule")
+    if (envelope.get("schema") != "slr.query-context-capsule-envelope.v1"
+            or not digest(envelope.get("capsule_digest"))
+            or envelope.get("creates_semantic_authority") is not False
+            or envelope.get("writes_database") is not False
+            or not isinstance(cap, dict)
+            or cap.get("schema") != "slr.query-context-capsule.v1"
+            or cap.get("family_ref") != family or cap.get("query_ref") != query
+            or not all(digest(cap.get(k)) for k in ("family_digest", "full_readback_digest"))
+            or any(cap.get(k) is not True for k in ("noncanonical", "query_scoped",
+                                                   "shared_transaction_snapshot"))
+            or any(cap.get(k) is not False for k in ("creates_semantic_authority",
+                                                    "world_truth_paid", "writes_database"))
+            or not all(isinstance(cap.get(k), list) for k in (
+                "sources", "pairs", "residuals", "reviews", "lifecycles", "queues", "pair_evidence"))):
+        raise ToolExecutionError("Invalid native context capsule")
+    full, compact = (envelope.get(k) for k in ("full_readback_json_bytes", "capsule_body_json_bytes"))
+    loss = cap.get("loss_profile")
+    if (type(full) is not int or type(compact) is not int or min(full, compact) <= 0
+            or envelope.get("body_smaller_than_full_readback") is not (compact < full)
+            or not isinstance(loss, dict) or not isinstance(loss.get("omitted_inline"), list)
+            or not loss["omitted_inline"] or loss.get("canonical_owners_retained") is not True
+            or loss.get("omission_implies_irrelevance") is not False
+            or loss.get("expansion_requires_exact_current_replay") is not True):
+        raise ToolExecutionError("Invalid context compression loss accounting")
+    # Native authority remains in Rust. Check the compact coordinate inverse
+    # and ensure no residual, review or pair disappears from the carrier.
+    def unique_rows(name, key):
+        rows = cap[name]
+        if any(not isinstance(r, dict) or not isinstance(r.get(key), str) or not r[key] for r in rows):
+            raise ToolExecutionError("Invalid capsule coordinate")
+        refs = {r[key] for r in rows}
+        if len(refs) != len(rows):
+            raise ToolExecutionError("Duplicate capsule coordinate")
+        return refs
+    selectors = unique_rows("sources", "selector_ref")
+    residuals = unique_rows("residuals", "residual_ref")
+    reviews = unique_rows("reviews", "review_item_ref")
+    obligations = unique_rows("queues", "obligation_ref")
+    if (not 2 <= len(selectors) <= 10 or unique_rows("lifecycles", "obligation_ref") != obligations
+            or {r.get("obligation_ref") for r in cap["reviews"]} != obligations
+            or any(r.get("acquisition_obligation_ref") not in obligations for r in cap["residuals"])):
+        raise ToolExecutionError("Capsule residual/review lifecycle inverse mismatch")
+    if any(not digest(r.get("observation_digest")) or not isinstance(r.get("context"), dict)
+           or not all(isinstance(r.get(k), str) and r[k] for k in (
+               "source_revision_ref", "source_span_ref", "predicate_candidate_ref", "observation_ref"))
+           for r in cap["sources"]):
+        raise ToolExecutionError("Capsule source inverse missing")
+    unique_rows("pairs", "pair_ref")
+    universe = {(a, b) for a in selectors for b in selectors if a < b}
+    actual = {(r.get("left_selector_ref"), r.get("right_selector_ref")) for r in cap["pairs"]}
+    if actual != universe or len(actual) != len(cap["pairs"]):
+        raise ToolExecutionError("Capsule pair universe mismatch")
+    if sorted(cap["pair_evidence"], key=lambda r: (r["left_selector_ref"], r["right_selector_ref"])) != sorted(
+            requested.values(), key=lambda r: (r["left_selector_ref"], r["right_selector_ref"])):
+        raise ToolExecutionError("Capsule evidence locator mismatch")
+    for r in cap["pairs"]:
+        pair = (r["left_selector_ref"], r["right_selector_ref"])
+        f, b = r.get("forward"), r.get("backward")
+        if (not isinstance(f, dict) or not isinstance(b, dict)
+                or f.get("lost") != b.get("gained") or f.get("gained") != b.get("lost")
+                or f.get("left_support") != b.get("right_support")
+                or f.get("right_support") != b.get("left_support")
+                or r.get("residual_paid") is not False or r.get("source_independence_paid") is not False):
+            raise ToolExecutionError("Capsule signed pair inverse mismatch")
+        if pair not in requested:
+            if (r.get("proof_binding") is not None or r.get("formal_premise") is not None
+                    or r.get("proof_readback_digest") is not None
+                    or f.get("status") != "missing_authenticated_pair"):
+                raise ToolExecutionError("Unrequested capsule proof")
+        else:
+            binding, premise = r.get("proof_binding"), r.get("formal_premise")
+            req = requested[pair]
+            if (not digest(r.get("proof_readback_digest")) or not isinstance(binding, dict)
+                    or not isinstance(premise, dict) or premise.get("formal_premise_paid") is not True
+                    or premise.get("evidence_ref") != req["evidence_ref"]
+                    or any(binding.get(k) != v for k, v in (
+                        ("family_ref", family), ("query_ref", query),
+                        ("left_selector_ref", req["left_selector_ref"]),
+                        ("right_selector_ref", req["right_selector_ref"]),
+                        ("evidence_ref", req["evidence_ref"])))):
+                raise ToolExecutionError("Foreign capsule proof")
+    if expand:
+        full_family, cohort = raw.get("family"), raw.get("cohort")
+        if (not isinstance(full_family, dict) or full_family.get("family_ref") != family
+                or not isinstance(cohort, dict) or cohort.get("family_ref") != family
+                or cohort.get("query_ref") != query or cohort.get("world_truth_paid") is not False):
+            raise ToolExecutionError("Foreign expanded canonical readback")
+    return raw
+
+
 def inspect_relational_family(payload: Mapping[str, Any]) -> dict[str, Any]:
     action = payload.get("action", "family")
-    if action == "licensed_view_cohort":
+    if action in ("query_context_capsule", "expand_query_context_capsule"):
+        raw = _inspect_query_context(payload, action == "expand_query_context_capsule")
+    elif action == "licensed_view_cohort":
         raw = _inspect_licensed_view_cohort(payload)
     elif action == "family":
         ref = _coordinate(payload, "family_ref")
@@ -427,7 +553,7 @@ def get_native_relational_tools():
         title="Inspect native SLR informational comparison",
         description="Reopen native family, recorded syntax parity, local candidate research, source-exact investigation, Mabo formal demands, research frontier, revision or relation coordinates; read only.",
         input_schema={"type": "object", "properties": {
-            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre", "source_fibre", "research_frontier", "recorded_parity", "local_research", "investigation", "mabo_formal_demands", "licensed_view_cohort"]},
+            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre", "source_fibre", "research_frontier", "recorded_parity", "local_research", "investigation", "mabo_formal_demands", "licensed_view_cohort", "query_context_capsule", "expand_query_context_capsule"]},
             "demand_id": {"type": "integer", "minimum": 1},
             "pair_evidence": {"type": "array", "maxItems": 45, "items": {
                 "type": "object", "additionalProperties": False,
@@ -437,7 +563,7 @@ def get_native_relational_tools():
                 "required": ["left_selector_ref", "right_selector_ref", "evidence_ref",
                              "repo", "sha", "path", "canonical_thread_id"]}},
             "batch_refs": {"type": "array", "items": {"type": "string"}, "maxItems": 4096},
-            **{k: {"type": "string"} for k in ("family_ref", "query_ref", "transition_ref", "obligation_ref",
+            **{k: {"type": "string"} for k in ("family_ref", "query_ref", "capsule_digest", "transition_ref", "obligation_ref",
                "numeric_run_ref", "document_ref", "snapshot_ref", "packet_sha256", "relation_type",
                "source_sha256", "consumer_axis", "source_revision_ref")},
         }, "additionalProperties": False},
