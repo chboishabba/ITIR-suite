@@ -37,9 +37,150 @@ def _native(args: list[str]) -> dict[str, Any]:
     return raw
 
 
+
+def _inspect_licensed_view_cohort(payload: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate native coordinates and inverse accounting only; Rust owns the
+    signed reducer and authenticated formal readback. No caller proof payload."""
+    family = _coordinate(payload, "family_ref")
+    query = _coordinate(payload, "query_ref")
+    requests = payload.get("pair_evidence", [])
+    keys = ("left_selector_ref", "right_selector_ref", "evidence_ref",
+            "repo", "sha", "path", "canonical_thread_id")
+    if not isinstance(requests, list) or len(requests) > 45:
+        raise ToolInputError("Expected at most 45 existing pair evidence coordinates")
+    normalized = []
+    requested = {}
+    evidence_ids = set()
+    for req in requests:
+        if not isinstance(req, dict) or set(req) != set(keys):
+            raise ToolInputError("Only existing pair evidence locator coordinates are accepted")
+        row = {k: _coordinate(req, k) for k in keys}
+        pair = tuple(sorted((row["left_selector_ref"], row["right_selector_ref"])))
+        if pair[0] == pair[1] or pair in requested or row["evidence_ref"] in evidence_ids:
+            raise ToolInputError("Duplicate or self pair evidence")
+        requested[pair] = row
+        evidence_ids.add(row["evidence_ref"])
+        normalized.append(row)
+    encoded = json.dumps(normalized, ensure_ascii=False, separators=(",", ":"))
+    if len(encoded.encode("utf-8")) > 65536:
+        raise ToolInputError("Pair evidence coordinate request too large")
+    raw = _native(["relational-family", "inspect-licensed-view-cohort", family, query, encoded])
+    if (raw.get("schema") != "slr.authenticated-view-cohort.v1"
+            or raw.get("family_ref") != family or raw.get("query_ref") != query
+            or raw.get("shared_transaction_snapshot") is not True
+            or any(raw.get(k) is not False for k in (
+                "derives_transitive_licences", "formal_consumer_equivalence_paid",
+                "all_live_semantic_readings_covered", "creates_semantic_authority",
+                "source_independence_paid", "world_truth_paid", "writes_database"))):
+        raise ToolExecutionError("Invalid authenticated native cohort")
+    selectors = raw.get("selector_refs")
+    pairs = raw.get("pairs")
+    if (not isinstance(selectors, list) or not 2 <= len(selectors) <= 10
+            or any(not isinstance(s, str) or not s for s in selectors)
+            or len(set(selectors)) != len(selectors)
+            or not isinstance(pairs, list)):
+        raise ToolExecutionError("Invalid cohort selector universe")
+    universe = {(a, b) for a in selectors for b in selectors if a < b}
+    seen = set()
+    pair_refs = set()
+    paid = available = equal = 0
+    for row in pairs:
+        if not isinstance(row, dict):
+            raise ToolExecutionError("Invalid native pair row")
+        pair = (row.get("left_selector_ref"), row.get("right_selector_ref"))
+        if (any(not isinstance(x, str) for x in pair) or pair not in universe or pair in seen
+                or row.get("source_independence_paid") is not False
+                or row.get("residual_paid") is not False
+                or any(not isinstance(row.get(k), str) or not row[k] for k in
+                       ("pair_ref", "forward_comparison_ref", "backward_comparison_ref"))
+                or row["pair_ref"] in pair_refs):
+            raise ToolExecutionError("Invalid native pair coordinate")
+        seen.add(pair)
+        pair_refs.add(row["pair_ref"])
+        f, b = row.get("forward"), row.get("backward")
+        if (not isinstance(f, dict) or not isinstance(b, dict)
+                or not all(k in f and k in b for k in (
+                    "status", "left_support", "right_support", "lost", "gained",
+                    "opposed_signs", "bounded_signed_support_equal"))
+                or f["left_support"] != b["right_support"]
+                or f["right_support"] != b["left_support"]
+                or f["lost"] != b["gained"] or f["gained"] != b["lost"]
+                or f["status"] != b["status"]
+                or f["opposed_signs"] != b["opposed_signs"]
+                or f["bounded_signed_support_equal"] != b["bounded_signed_support_equal"]):
+            raise ToolExecutionError("Native pair inverse mismatch")
+        proof = row.get("authenticated_pair")
+        req = requested.get(pair)
+        if req is None:
+            if (proof is not None or f["status"] != "missing_authenticated_pair"
+                    or any(f[k] is not None for k in ("left_support", "right_support",
+                        "lost", "gained", "opposed_signs", "bounded_signed_support_equal"))):
+                raise ToolExecutionError("Unexpected proof for unrequested pair")
+            continue
+        if not isinstance(proof, dict):
+            raise ToolExecutionError("Requested pair has no authenticated readback")
+        binding, premise, answer = (proof.get(k) for k in
+                                    ("binding", "authenticated_formal_premise", "answer"))
+        if (proof.get("schema") != "slr.authenticated-bounded-reciprocal-query.v1"
+                or proof.get("family_ref") != family or proof.get("query_ref") != query
+                or any(proof.get(k) is not False for k in (
+                    "creates_semantic_authority", "all_live_semantic_readings_covered",
+                    "governed_identity_paid", "world_truth_paid", "writes_database"))
+                or not all(isinstance(x, dict) for x in (binding, premise, answer))
+                or any(binding.get(k) != v for k, v in {
+                    "family_ref": family, "query_ref": query,
+                    "consumer_ref": raw.get("consumer_ref"),
+                    "left_selector_ref": req["left_selector_ref"],
+                    "right_selector_ref": req["right_selector_ref"],
+                    "evidence_ref": req["evidence_ref"]}.items())
+                or premise.get("evidence_ref") != req["evidence_ref"]
+                or premise.get("formal_premise_paid") is not True
+                or premise.get("statement_digest") != binding.get("statement_digest")
+                or any(premise.get(k) is not False for k in (
+                    "creates_legal_authority", "applicability_promoted", "claim_truth_promoted"))
+                or answer.get("schema") != "slr.signed-view-query-answer.v1"
+                or answer.get("query_ref") != query
+                or not all(k in answer for k in ("left_support", "right_support"))):
+            raise ToolExecutionError("Foreign or promotion-bearing pair proof")
+        left, right = answer["left_support"], answer["right_support"]
+        if req["left_selector_ref"] != pair[0]:
+            left, right = right, left
+        if f["left_support"] != left or f["right_support"] != right:
+            raise ToolExecutionError("Native signed answer differs from authenticated answer")
+        if any(x is not None and (not isinstance(x, dict) or set(x) != {"positive", "negative"}
+                   or any(type(v) is not bool for v in x.values())) for x in (left, right)):
+            raise ToolExecutionError("Invalid signed support")
+        paid += 1
+        if left is None or right is None:
+            if (f["status"] != "unavailable_answer"
+                    or any(f[k] is not None for k in ("lost", "gained", "opposed_signs",
+                                                     "bounded_signed_support_equal"))):
+                raise ToolExecutionError("Unavailable answer promoted to parity")
+        else:
+            available += 1
+            same = f["bounded_signed_support_equal"]
+            if type(same) is not bool or f["status"] != ("preserved" if same else "different"):
+                raise ToolExecutionError("Invalid bounded support disposition")
+            equal += int(same)
+    inconsistent = raw.get("inconsistent_selector_refs")
+    if (seen != universe or not set(requested).issubset(universe)
+            or not isinstance(inconsistent, list)
+            or any(not isinstance(s, str) or s not in selectors for s in inconsistent)
+            or len(set(inconsistent)) != len(inconsistent)
+            or any(type(raw.get(k)) is not int or raw[k] != v for k, v in {
+                "pair_count": len(universe), "authenticated_pair_count": paid,
+                "available_pair_count": available, "equal_support_pair_count": equal}.items())
+            or raw.get("all_pairs_bounded_signed_support_equal") is not
+                (equal == len(universe) and not inconsistent)):
+        raise ToolExecutionError("Native cohort coverage accounting mismatch")
+    return raw
+
+
 def inspect_relational_family(payload: Mapping[str, Any]) -> dict[str, Any]:
     action = payload.get("action", "family")
-    if action == "family":
+    if action == "licensed_view_cohort":
+        raw = _inspect_licensed_view_cohort(payload)
+    elif action == "family":
         ref = _coordinate(payload, "family_ref")
         raw = _native(["relational-family", "inspect", ref])
         projection = raw.get("projection")
@@ -269,10 +410,17 @@ def get_native_relational_tools():
         title="Inspect native SLR informational comparison",
         description="Reopen native family, recorded syntax parity, local candidate research, source-exact investigation, Mabo formal demands, research frontier, revision or relation coordinates; read only.",
         input_schema={"type": "object", "properties": {
-            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre", "source_fibre", "research_frontier", "recorded_parity", "local_research", "investigation", "mabo_formal_demands"]},
+            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre", "source_fibre", "research_frontier", "recorded_parity", "local_research", "investigation", "mabo_formal_demands", "licensed_view_cohort"]},
             "demand_id": {"type": "integer", "minimum": 1},
+            "pair_evidence": {"type": "array", "maxItems": 45, "items": {
+                "type": "object", "additionalProperties": False,
+                "properties": {k: {"type": "string"} for k in (
+                    "left_selector_ref", "right_selector_ref", "evidence_ref",
+                    "repo", "sha", "path", "canonical_thread_id")},
+                "required": ["left_selector_ref", "right_selector_ref", "evidence_ref",
+                             "repo", "sha", "path", "canonical_thread_id"]}},
             "batch_refs": {"type": "array", "items": {"type": "string"}, "maxItems": 4096},
-            **{k: {"type": "string"} for k in ("family_ref", "transition_ref", "obligation_ref",
+            **{k: {"type": "string"} for k in ("family_ref", "query_ref", "transition_ref", "obligation_ref",
                "numeric_run_ref", "document_ref", "snapshot_ref", "packet_sha256", "relation_type",
                "source_sha256", "consumer_axis", "source_revision_ref")},
         }, "additionalProperties": False},
