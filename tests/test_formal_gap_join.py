@@ -58,6 +58,49 @@ class GapJoinTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     mod.join_one({**self.item, **override}, fake, fake)
 
+    def test_prefixed_digest_and_native_mabo_demand_binding(self):
+        digest = "sha256:" + "a"*64
+        demand = {"demand_ref": "d1", "obligation_ref": "o1", "residual_ref": "r1",
+                  "statement_digest": digest, "target_prover": "lean",
+                  "candidate_only": True, "establishes_proof": False,
+                  "discharges_obligation": False, "all_source_refs_reviewed_in_graph": True,
+                  "formal_premise_evidence_refs": []}
+        receipt = {"schema": "slr.mabo-formal-demand-readback.v1", "obligation_ref": "o1",
+                   "residual_ref": "r1", "candidate_only": True, "establishes_proof": False,
+                   "discharges_obligation": False, "writes_database": False, "demands": [demand]}
+        request = {"demand_ref": "d1", "query": "operator hint", "limit": 7}
+        rows, provenance = mod.bind_mabo_queries([request], receipt, "o1")
+        self.assertEqual(rows[0]["statement_digest"], digest)
+        self.assertEqual(provenance["d1"]["native_demand"], demand)
+        def inspect(payload):
+            self.assertEqual(payload["limit"], 7)
+            return self.good("similarity")
+        def route(payload):
+            self.assertEqual(payload["statement_digest"], digest)
+            self.assertEqual(payload["limit"], 7)
+            return {**self.good("obligation_routing"), "demand_binding": {
+                k: payload[k] for k in ("demand_ref", "external_obligation_ref", "statement_digest")}}
+        result = mod.run(rows, inspect, route, require_binding=True)
+        self.assertEqual(result[0]["demand_binding"]["statement_digest"], digest)
+        self.assertFalse(result[0]["discharges_obligation"])
+        with self.assertRaisesRegex(ValueError, "foreign or unbound"):
+            mod.run(rows, inspect, lambda _: self.good("obligation_routing"), require_binding=True)
+        with self.assertRaisesRegex(ValueError, "cannot override"):
+            mod.bind_mabo_queries([{**request, "statement_digest": "f"*64}], receipt, "o1")
+        demand["formal_premise_evidence_refs"] = ["paid"]
+        with self.assertRaisesRegex(ValueError, "held, already paid"):
+            mod.bind_mabo_queries([request], receipt, "o1")
+
+    def test_multiple_distinct_demands_for_same_obligation_and_duplicate_preflight(self):
+        def fake(_):
+            return self.good("similarity")
+        rows = [{**self.item, "demand_ref": "d1"}, {**self.item, "demand_ref": "d2"}]
+        self.assertEqual([r["demand_ref"] for r in mod.run(rows, fake, fake)], ["d1", "d2"])
+        def never(_):
+            raise AssertionError("duplicate batch must be rejected before provider invocation")
+        with self.assertRaisesRegex(ValueError, "Duplicate"):
+            mod.run([rows[0], rows[0]], never, never)
+
     def test_bounded_batch(self):
         def fake(_):
             raise AssertionError("must not invoke provider")

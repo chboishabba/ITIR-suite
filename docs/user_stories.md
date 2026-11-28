@@ -1316,6 +1316,30 @@ Acceptance criteria:
 - Protected singleton obligations and negative-evidence pointers survive snapshot
   compression without loss.
 
+- For an explicitly selected native source/query family (WIKI-US-04 /
+  SL-US-41; SLR-US-09 / ITIR-US-26), receive a query-context capsule with
+  original source/revision/span/producer coordinates, signed proof support,
+  unresolved and unavailable pair states, exact residual occurrences,
+  acquisition obligations, review/lifecycle and reopening references.
+  Neither a shorter rendering nor a shared topic/QID proves sufficiency.
+- The compact carrier declares omitted inline payloads and preserves the
+  canonical source/review/referee owners. Report actual compact JSON byte
+  lengths against the full readback; a negative saving is a valid result.
+  Do not report token savings or global semantic compression from byte counts.
+- Expand by the capsule digest and exact existing source/referee coordinates;
+  reproduce the complete current native readback or hold on changed
+  source, revision, query, receipt, review or acquisition state. Do not
+  overwrite a historical capsule or infer a fresh licence from stale context.
+- GWB acceptance: original English/Simple/other edition source receipts,
+  native exact residual inverse, repeated digest, expansion and wrong/stale
+  digest control, preserved positive/negative/contested/zero/unavailable
+  differences. A shared office-only summary must fail a distinct-holder
+  consumer (GWB/GHWB); explicit interval query may use the original bounded
+  licence. The rest of the protected AO frontier and access policy remain
+  separately governed; this capsule does not replace StateCapsule or grant
+  permission to retrieve restricted material.
+
+
 ### SLR-US-07 / ITIR-US-24: Federated Capability & Local Machine Sovereignty Enforcement
 As a participating node operator in a federated mesh, I want to delegate bounded
 capabilities to remote generative agents while retaining strict local sovereignty
@@ -1538,3 +1562,84 @@ Acceptance criteria:
 - Wiki entities and claims integrate seamlessly into SensibLaw review bundles.
 - Primary evidence and crowd-sourced claims remain strictly segregated in the UI.
 - Narrative drift and retroactive edits are clearly surfaced on the timeline.
+- Compare ordinary, Simple, multilingual and Abstract Wikipedia views against
+  an explicit typed query family, retaining independent edition/revision,
+  source spans or constructor/argument inverses, qualifiers and provenance.
+  A shared QID, role-shape or translated label is retrieval evidence, never
+  sufficient proof of query equivalence or source independence.
+- For independently licensed answers, display preserved, lost and gained
+  positive/negative proof support in both directions; preserve contested,
+  checked zero, unlicensed, unavailable and unsearched states separately.
+  Abstraction or simplification is acceptable only for the declared consumer
+  when its proof-bearing distinctions are preserved.
+- GWB Q207 ordinary/Simple/another edition, original JMD EntityData and
+  independent book are the end-to-end acceptance cohort. Finnish/English
+  UMK/Eurovision and recurring-event-edition type/order cases exercise
+  bounded repair and explicit scope/applicability witnesses. Actual pinned
+  inputs are required; historical diagnosis alone is not acceptance.
+- Feed justified type-pressure residuals into the existing WIKI-1/S29
+  modeled repair and review flow, showing before/after consumer effects,
+  unchecked consumers and exact original statement GUIDs. Never auto-edit
+  or infer a global ontology fact from a review proposal.
+
+
+
+## SLR-US-09 / ITIR-US-26: Consumer-relative investigation gap and evidence routing
+
+As an investigator comparing independent narratives, different manifestations of
+one source, or competing legal/research propositions, I want one inspectable
+source-bound investigation frontier that distinguishes representation gaps,
+missing observations, ambiguous correspondence, unresolved context and
+semantic discriminators, formal proof obligations, and access/review holds.
+I want existing preflight, typed/spectral similarity, exact gap accounting,
+native candidate retrieval, and governed acquisition to be used in their
+appropriate lanes rather than a new generic similarity score or proof engine.
+
+Typical flow:
+- Open an actual revision-pinned comparison family. See directional residuals
+  with exact occurrence inverse, source provenance, and recorded transport
+  witnesses; structural coincidence alone is not semantic correspondence.
+- Inspect each gap with its existing acquisition obligation, review, lifecycle,
+  candidate hypotheses, candidate route dispositions and explicit missing
+  routes. Missing information, denial, conflict, and unavailable source remain
+  distinct. Query-specific adequacy can be paid independently of world closure.
+- Reuse SLR native local/typed candidate retrieval and provider route owners.
+  Calibrate explicit costs and discrimination value before Pareto selection.
+  Review and acquire through existing permitted providers; re-enter the
+  current consumer with acquired/reviewed evidence, retaining negative outcomes.
+- For an actual source-bound formal demand (e.g. the existing Mabo proof graph),
+  use the existing formal inspect/discover/route/refine surfaces with exact
+  demand, obligation, statement digest and target prover. Empirical residuals
+  do not become formal demands because a theorem looks similar.
+- AO inspects the exact candidate work/evidence references and canonical thread
+  binding via existing AO-OP-1, frontier and work-packet owners. Unbound or
+  ambiguous thread mapping, missing evaluator, unavailable provider, or
+  unverified receipt is an explicit hold, not automatic dispatch.
+- Review the resulting evidence and potential reopening cone. Only a durable
+  reviewed change can trigger actual selective reopening; prior unaffected
+  source evidence remains unchanged.
+
+Acceptance criteria:
+- Actual same-manifestation and independent-document controls, including
+  additional right-only coordinates, paraphrase, absent context, opposite
+  signs, source genealogy and revision change. Every gap occurrence and
+  hypothesis retains source/consumer inverse.
+- Existing native investigation readback distinguishes recorded-but-unlicensed
+  correspondence, unobserved context and genuine semantic discriminators;
+  route state and Pareto dispositions derive from native durable queues.
+- Actual Mabo source -> reviewed evidence -> competing proposition fibre ->
+  residual -> open proof obligation -> exact formal demand -> certified
+  evidence trace. Formal payment cannot establish legal outcome, applicability
+  or unrestricted semantic truth. Prefixed digest identity survives routing.
+- Selected-thread bounded formal gap evaluation, source-bound AO handoff,
+  no whole-corpus text sweep, no silent semantic/proof promotion, no execution
+  merely from a route suggestion, no autonomous dispatch on missing authority.
+- Repeated inspection is deterministic at the same native revision; affected
+  review/re-entry and unaffected receipts can be inspected. Show candidate
+  vs verified formal evidence separately. Demonstrate a real local research
+  move and a genuinely governed acquisition/re-entry path, not only fixture
+  or hypothesis counts.
+
+Status: integrated acceptance contract; individual producer implementations
+exist and bounded relational inspection is being attached. Full journey
+acceptance is not claimed.

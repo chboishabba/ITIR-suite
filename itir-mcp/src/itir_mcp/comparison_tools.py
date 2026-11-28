@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Any, Mapping, Sequence
 
 from .contracts import JsonDict, ToolInputError, ToolSpec
+from .native_relational_tools import get_native_relational_tools
 
 
 def _require_mapping(payload: Mapping[str, Any], key: str) -> Mapping[str, Any]:
@@ -206,7 +207,7 @@ def build_envelope(payload: Mapping[str, Any]) -> JsonDict:
 
 
 def get_comparison_tools():
-    return [
+    return get_native_relational_tools() + [
         (
             ToolSpec(
                 name="itir.compare_observations",

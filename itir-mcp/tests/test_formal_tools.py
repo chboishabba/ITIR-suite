@@ -199,3 +199,55 @@ def test_kernel_metadata_tampering_fails_closed():
         kernel[field] = original
     artifact["contentDigest"] = "stale"
     assert certify(request)["kernel_handoff_eligible"] is False
+
+
+def test_explicit_formal_route_returns_exact_demand_binding_and_limit():
+    class BoundPreflight(FakePreflight):
+        def proof_route_for_obligation(self, query, **kwargs):
+            assert kwargs["limit"] == 7
+            return {**{k: kwargs[k] for k in (
+                "demand_ref", "external_obligation_ref", "statement_digest")},
+                    "establishes_proof": False}
+    operations = {spec.name: handler for spec, handler in get_formal_tools(
+        tools_provider=BoundPreflight)}
+    req = {"query": "candidate", "demand_ref": "d", "external_obligation_ref": "o",
+           "statement_digest": "sha256:" + "a"*64, "target_prover": "lean", "limit": 7}
+    result = operations["itir.formal.route"](req)
+    assert result["demand_binding"] == {k: req[k] for k in (
+        "demand_ref", "external_obligation_ref", "statement_digest")}
+    assert result["establishes_proof"] is False
+
+
+def test_explicit_formal_route_rejects_foreign_native_binding():
+    import pytest
+    from itir_mcp.contracts import ToolExecutionError
+    class ForeignPreflight(FakePreflight):
+        def proof_route_for_obligation(self, query, **kwargs):
+            return {"demand_ref": "foreign", "external_obligation_ref": kwargs["external_obligation_ref"],
+                    "statement_digest": kwargs["statement_digest"], "establishes_proof": False}
+    operations = {spec.name: handler for spec, handler in get_formal_tools(
+        tools_provider=ForeignPreflight)}
+    with pytest.raises(ToolExecutionError):
+        operations["itir.formal.route"]({"query": "candidate", "demand_ref": "d",
+            "external_obligation_ref": "o", "statement_digest": "sha256:" + "a"*64})
+
+
+def test_actor_domain_extension_never_reaches_writer():
+    artifact={"schemaVersion":"artifact-resolution-receipt/v1","contentDigest":"a","verified":True,
+              "authority":"transport-only","establishesProof":False,"logicalArtifactRef":"proof.lean"}
+    kernel={"schemaVersion":"kernel-certification-receipt/v1","authority":"formal-checker-only",
+            "certifiesFormalResult":True,"createsLegalAuthority":False,"applicabilityPromoted":False,
+            "claimTruthPromoted":False,"certificationState":"kernel-certified","sourceRevision":"git:"+"a"*40,
+            "artifactRef":"proof.lean","artifactDigest":"a","checker":"lean","checkerRevision":"4.28",
+            "dependencies":["lib"]}
+    trusted={"authenticated_local_referee":True,"independent_kernel_success":True,"subject_commit":"a"*40,
+             "source_digest":"a","artifact_digest":"a",
+             "checker_digest":_digest({"checker":"lean","revision":"4.28"}),"dependency_digest":_digest(["lib"])}
+    writes=[]
+    certify=handlers(certifier=lambda **_:kernel,handoff_validator=lambda *_:{"artifact_digest":"a"},
+                     referee_context=lambda:trusted,verified_receipt_writer=lambda *x:writes.append(x) or True)["itir.formal.certify"]
+    req={"artifact_resolution_receipt":artifact,"demand_ref":"d","obligation_ref":"o","statement_digest":"s"}
+    assert certify(dict(req,slr_reciprocal_query_answer={} ))["status"]=="held"
+    trusted["domain_scope"]="slr-reciprocal-source-query-binding-v1"
+    assert certify(req)["status"]=="held"
+    assert writes==[]

@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
-from .contracts import ToolInputError, ToolSpec
+from .contracts import ToolInputError, ToolExecutionError, ToolSpec
 
 MAX_ITEMS = 12
 MAX_CHARS = 2400
@@ -152,6 +152,7 @@ def get_formal_tools(
     interactive_backend: Callable[[Mapping[str, Any]], Any] | None = None,
     referee_context: Callable[[], Mapping[str, Any]] | None = None,
     verified_receipt_writer: Callable[[Mapping[str, Any], Mapping[str, Any]], bool] | None = None,
+    independent_domain_verifier: Callable[[Mapping[str, Any], Mapping[str, Any], Mapping[str, Any]], Mapping[str, Any]] | None = None,
 ) -> list[tuple[ToolSpec, Callable[[Mapping[str, Any]], dict[str, Any]]]]:
     provider = tools_provider or _default_tools
 
@@ -185,7 +186,15 @@ def get_formal_tools(
         if action == "proof_route_for_obligation":
             kwargs = {k: data[k] for k in ("demand_ref", "external_obligation_ref",
                       "statement_digest", "target_prover") if k in data}
+            kwargs["limit"] = _bounded_limit(data)
             raw = tools.proof_route_for_obligation(_required(data, "query"), **kwargs)
+            binding_keys = ("demand_ref", "external_obligation_ref", "statement_digest")
+            if all(k in kwargs for k in binding_keys):
+                if (not isinstance(raw, dict) or raw.get("establishes_proof") is not False
+                        or any(raw.get(k) != kwargs[k] for k in binding_keys)):
+                    raise ToolExecutionError("Formal route does not bind the exact candidate demand")
+                return {**_candidate("obligation_routing", raw),
+                        "demand_binding": {k: raw[k] for k in binding_keys}}
         elif action == "da51_resolve":
             raw = tools.da51_resolve(_required(data, "address"))
         elif action == "formal_evidence_for_obligation":
@@ -247,6 +256,18 @@ def get_formal_tools(
             if not _handoff_eligible(kernel, artifact, handoff, trusted):
                 return _receipt_hold("stale-or-unverified-handoff",
                                      {"kernel": kernel, "artifact": artifact})
+            extension = {}
+            if trusted.get("domain_scope") == "slr-reciprocal-source-query-binding-v1":
+                if independent_domain_verifier is None or verified_receipt_writer is None:
+                    return _receipt_hold("independent-domain-verifier-required", {})
+                from .slr_referee_domain import validated_extension
+                # Never copy request-provided domain claims. The local verifier
+                # resolves its own native snapshot and exact checked theorem.
+                extension = validated_extension(
+                    independent_domain_verifier(trusted, kernel, artifact), kernel, data)
+            elif any(k in data for k in ("slr_premise_binding","slr_reciprocal_query_binding",
+                                        "slr_reciprocal_query_answer")):
+                return _receipt_hold("actor-supplied-domain-binding", {})
             if verified_receipt_writer is not None:
                 bound = {
                     "repo": trusted.get("repo"),
@@ -259,7 +280,7 @@ def get_formal_tools(
                     "status": "verified", "kernel_handoff_eligible": True,
                     "candidate_only": False, "establishes_proof": True,
                     "authority_kind": "isolated_kernel_check",
-                    "handoff": handoff, "reference_binding": bound,
+                    "handoff": handoff, "reference_binding": bound, **extension,
                 }
                 if not verified_receipt_writer(result, trusted):
                     return _receipt_hold("referee-receipt-write-failed", result)
