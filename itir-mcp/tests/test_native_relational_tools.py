@@ -171,3 +171,59 @@ def test_local_research_readback_never_dispatches_or_ranks_uncalibrated_hits(mon
     receipt["retrieval"][0]["passages"][0]["candidate_only"] = False
     with pytest.raises(ToolExecutionError):
         native.inspect_relational_family(req)
+
+
+def test_investigation_preserves_gap_lanes_and_reopening_boundary(monkeypatch):
+    receipt = {"schema": "slr.relational-investigation.v1", "family_ref": "f",
+               **{k: True for k in ("derived_only", "challengeable", "candidate_only")},
+               **{k: False for k in ("creates_graph_edges", "creates_actual_reopening",
+                     "formal_consumer_equivalence_paid", "world_truth_paid", "creates_access_authority",
+                     "provider_acquisition_executed", "writes_database")},
+               "gap_rows": [{"residual_ref": "r", "comparison_ref": "c", "obligation_ref": "o",
+                             "diagnostic_lane": "recorded_correspondence_unlicensed",
+                             "route_state": "no_candidate_routes", "candidate_only": True,
+                             "residual_paid": False, "formal_route_eligible": False}],
+               "gap_counts": {"recorded_correspondence_unlicensed": 1},
+               "dependency_edges": [], "potential_reopening_cones": [
+                   {"creates_actual_reopening": False, "creates_semantic_authority": False}]}
+    def load(args):
+        assert args == ["relational-family", "inspect-investigation", "f"]
+        return receipt
+    monkeypatch.setattr(native, "_native", load)
+    req = {"action": "investigation", "family_ref": "f"}
+    assert native.inspect_relational_family(req)["native_receipt"] is receipt
+    receipt["gap_rows"][0]["formal_route_eligible"] = True
+    with pytest.raises(ToolExecutionError):
+        native.inspect_relational_family(req)
+    receipt["gap_rows"][0]["formal_route_eligible"] = False
+    receipt["potential_reopening_cones"][0]["creates_actual_reopening"] = True
+    with pytest.raises(ToolExecutionError):
+        native.inspect_relational_family(req)
+
+
+def test_mabo_formal_demands_keep_native_digest_and_obligation(monkeypatch):
+    demand = {"demand_ref": "d", "obligation_ref": "o", "residual_ref": "r",
+              "statement_digest": "sha256:" + "a"*64, "target_prover": "lean",
+              "pnf_revision_ref": "pnf", "consumer_ref": "q",
+              "candidate_only": True, "establishes_proof": False,
+              "discharges_obligation": False, "all_source_refs_reviewed_in_graph": True,
+              "formal_premise_evidence_refs": []}
+    receipt = {"schema": "slr.mabo-formal-demand-readback.v1", "obligation_ref": "o",
+               "residual_ref": "r", "candidate_only": True, "derived_only": True,
+               **{k: False for k in ("shared_transaction_snapshot", "kernel_recertified",
+                   "establishes_proof", "discharges_obligation", "creates_legal_authority",
+                   "claim_truth_promoted", "search_executed", "writes_database")},
+               "demands": [demand], "source_review_nodes": [], "ancestry_edges": []}
+    def load(args):
+        assert args == ["relational-family", "inspect-mabo-formal-demands", "o"]
+        return receipt
+    monkeypatch.setattr(native, "_native", load)
+    req = {"action": "mabo_formal_demands", "obligation_ref": "o"}
+    assert native.inspect_relational_family(req)["native_receipt"] is receipt
+    demand["statement_digest"] = "a"*64
+    with pytest.raises(ToolExecutionError):
+        native.inspect_relational_family(req)
+    demand["statement_digest"] = "sha256:" + "a"*64
+    demand["obligation_ref"] = "foreign"
+    with pytest.raises(ToolExecutionError):
+        native.inspect_relational_family(req)
