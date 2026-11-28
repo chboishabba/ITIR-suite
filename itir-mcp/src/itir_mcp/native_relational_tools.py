@@ -51,6 +51,33 @@ def inspect_relational_family(payload: Mapping[str, Any]) -> dict[str, Any]:
                 or projection.get("formal_consumer_equivalence_paid") is not False
                 or projection.get("all_live_reading_coverage_paid") is not False):
             raise ToolExecutionError("Wrong or promotion-bearing native family receipt")
+    elif action == "research_frontier":
+        ref = _coordinate(payload, "family_ref")
+        raw = _native(["relational-family", "inspect-research-frontier", ref])
+        if (raw.get("schema") != "slr.relational-research-frontier.v1"
+                or raw.get("family_ref") != ref
+                or raw.get("candidate_only") is not True
+                or any(raw.get(k) is not False for k in (
+                    "formal_consumer_equivalence_paid", "world_truth_paid",
+                    "creates_access_authority", "writes_database"))
+                or raw.get("satisfied_payment_refs") != []
+                or not all(isinstance(raw.get(k), list) for k in
+                           ("residuals", "inverse", "hypotheses"))):
+            raise ToolExecutionError("Wrong or promotion-bearing research frontier")
+        residuals, inverse, hypotheses = (raw[k] for k in
+                                          ("residuals", "inverse", "hypotheses"))
+        if (not all(isinstance(x, dict) for x in residuals + inverse + hypotheses)
+                or any(not isinstance(x.get("residual_ref"), str)
+                       or not x["residual_ref"] for x in residuals + inverse + hypotheses)
+                or any(x.get("status") not in ("open", "underidentified") for x in residuals)):
+            raise ToolExecutionError("Invalid native research frontier coordinates")
+        ids = {x["residual_ref"] for x in residuals}
+        open_ids = {x["residual_ref"] for x in residuals if x["status"] == "open"}
+        if (len(ids) != len(residuals) or len(inverse) != len(residuals)
+                or {x["residual_ref"] for x in inverse} != ids
+                or any(x["residual_ref"] not in open_ids
+                       or x.get("candidate_only") is not True for x in hypotheses)):
+            raise ToolExecutionError("Native research frontier inverse or hypothesis mismatch")
     elif action == "revision":
         ref = _coordinate(payload, "transition_ref")
         raw = _native(["relational-family", "inspect-revision", ref])
@@ -141,9 +168,9 @@ def get_native_relational_tools():
     return [(ToolSpec(
         name="itir.relational.inspect",
         title="Inspect native SLR informational comparison",
-        description="Reopen exact native family, revision or original relation coordinates; read only.",
+        description="Reopen exact native family, research frontier, revision or original relation coordinates; read only.",
         input_schema={"type": "object", "properties": {
-            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre", "source_fibre"]},
+            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre", "source_fibre", "research_frontier"]},
             "demand_id": {"type": "integer", "minimum": 1},
             "batch_refs": {"type": "array", "items": {"type": "string"}, "maxItems": 4096},
             **{k: {"type": "string"} for k in ("family_ref", "transition_ref",
