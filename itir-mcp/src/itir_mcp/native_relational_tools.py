@@ -51,6 +51,38 @@ def inspect_relational_family(payload: Mapping[str, Any]) -> dict[str, Any]:
                 or projection.get("formal_consumer_equivalence_paid") is not False
                 or projection.get("all_live_reading_coverage_paid") is not False):
             raise ToolExecutionError("Wrong or promotion-bearing native family receipt")
+    elif action == "mabo_formal_demands":
+        ref = _coordinate(payload, "obligation_ref")
+        raw = _native(["relational-family", "inspect-mabo-formal-demands", ref])
+        if (raw.get("schema") != "slr.mabo-formal-demand-readback.v1"
+                or raw.get("obligation_ref") != ref
+                or raw.get("candidate_only") is not True or raw.get("derived_only") is not True
+                or any(raw.get(k) is not False for k in (
+                    "shared_transaction_snapshot", "kernel_recertified", "establishes_proof",
+                    "discharges_obligation", "creates_legal_authority", "claim_truth_promoted",
+                    "search_executed", "writes_database"))
+                or not all(isinstance(raw.get(k), list) for k in (
+                    "demands", "source_review_nodes", "ancestry_edges"))):
+            raise ToolExecutionError("Invalid native Mabo formal-demand receipt")
+        ids = set()
+        for row in raw["demands"]:
+            if (not isinstance(row, dict) or row.get("obligation_ref") != ref
+                    or row.get("residual_ref") != raw.get("residual_ref")
+                    or row.get("candidate_only") is not True
+                    or row.get("establishes_proof") is not False
+                    or row.get("discharges_obligation") is not False
+                    or not all(isinstance(row.get(k), str) and row[k] for k in (
+                        "demand_ref", "statement_digest", "target_prover", "pnf_revision_ref",
+                        "consumer_ref"))
+                    or not isinstance(row.get("all_source_refs_reviewed_in_graph"), bool)
+                    or not isinstance(row.get("formal_premise_evidence_refs"), list)
+                    or row["demand_ref"] in ids):
+                raise ToolExecutionError("Invalid exact Mabo demand coordinate")
+            digest = row["statement_digest"]
+            if (not digest.startswith("sha256:") or len(digest) != 71
+                    or any(c not in "0123456789abcdef" for c in digest[7:])):
+                raise ToolExecutionError("Invalid original Mabo statement digest")
+            ids.add(row["demand_ref"])
     elif action == "investigation":
         ref = _coordinate(payload, "family_ref")
         raw = _native(["relational-family", "inspect-investigation", ref])
@@ -235,12 +267,12 @@ def get_native_relational_tools():
     return [(ToolSpec(
         name="itir.relational.inspect",
         title="Inspect native SLR informational comparison",
-        description="Reopen native family, recorded syntax parity, local candidate research, source-exact investigation, research frontier, revision or relation coordinates; read only.",
+        description="Reopen native family, recorded syntax parity, local candidate research, source-exact investigation, Mabo formal demands, research frontier, revision or relation coordinates; read only.",
         input_schema={"type": "object", "properties": {
-            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre", "source_fibre", "research_frontier", "recorded_parity", "local_research", "investigation"]},
+            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre", "source_fibre", "research_frontier", "recorded_parity", "local_research", "investigation", "mabo_formal_demands"]},
             "demand_id": {"type": "integer", "minimum": 1},
             "batch_refs": {"type": "array", "items": {"type": "string"}, "maxItems": 4096},
-            **{k: {"type": "string"} for k in ("family_ref", "transition_ref",
+            **{k: {"type": "string"} for k in ("family_ref", "transition_ref", "obligation_ref",
                "numeric_run_ref", "document_ref", "snapshot_ref", "packet_sha256", "relation_type",
                "source_sha256", "consumer_axis", "source_revision_ref")},
         }, "additionalProperties": False},
