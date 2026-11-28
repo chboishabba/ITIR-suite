@@ -317,9 +317,63 @@ def _inspect_query_context(payload: Mapping[str, Any], expand: bool) -> dict[str
     return raw
 
 
+def _inspect_signed_query_frontier(payload: Mapping[str, Any]) -> dict[str, Any]:
+    family, query, encoded, _ = _view_evidence_request(payload)
+    digest = _coordinate(payload, "capsule_digest")
+    if not (digest.startswith("sha256:") and len(digest)==71
+            and all(c in "0123456789abcdef" for c in digest[7:])):
+        raise ToolInputError("Exact current capsule digest required")
+    raw = _native(["relational-family","inspect-signed-query-frontier",family,query,encoded,digest])
+    if (raw.get("schema")!="slr.signed-query-frontier.v1"
+            or raw.get("family_ref")!=family or raw.get("query_ref")!=query
+            or raw.get("capsule_digest")!=digest or raw.get("exact_current_replay") is not True
+            or raw.get("candidate_only") is not True
+            or any(raw.get(k) is not False for k in ("formal_consumer_equivalence_paid",
+                "world_truth_paid","writes_database","executes_acquisition"))
+            or not all(isinstance(raw.get(k),list) for k in ("obligations","structural_residuals","existing_queues"))):
+        raise ToolExecutionError("Invalid signed query frontier")
+    ids=set()
+    residuals=raw["structural_residuals"]
+    if any(not isinstance(r,dict) or not isinstance(r.get("residual_ref"),str) for r in residuals):
+        raise ToolExecutionError("Invalid structural residual inverse")
+    residual_ids={r["residual_ref"] for r in residuals}
+    for row in raw["obligations"]:
+        if (not isinstance(row,dict) or row.get("candidate_only") is not True
+                or row.get("paid") is not False or row.get("requires_reviewed_reentry") is not True
+                or not isinstance(row.get("obligation_ref"),str) or row["obligation_ref"] in ids):
+            raise ToolExecutionError("Invalid signed query obligation")
+        ids.add(row["obligation_ref"])
+        reason=row.get("reason")
+        if reason=="inconsistent_selector_answer":
+            if not isinstance(row.get("selector_ref"),str):
+                raise ToolExecutionError("Missing selector inverse")
+            continue
+        f,b=row.get("forward"),row.get("backward")
+        if (not isinstance(f,dict) or not isinstance(b,dict)
+                or not all(k in f and k in b for k in ("status","left_support","right_support",
+                    "lost","gained","bounded_signed_support_equal"))
+                or f["status"]!=b["status"] or f["left_support"]!=b["right_support"]
+                or f["right_support"]!=b["left_support"] or f["lost"]!=b["gained"]
+                or f["gained"]!=b["lost"] or f["bounded_signed_support_equal"]!=b["bounded_signed_support_equal"]
+                or not isinstance(row.get("existing_residual_refs"),list)
+                or any(not isinstance(x,str) or x not in residual_ids for x in row["existing_residual_refs"])
+                or any(not isinstance(row.get(k),str) or not row[k] for k in ("pair_ref","left_selector_ref",
+                    "right_selector_ref","forward_comparison_ref","backward_comparison_ref"))):
+            raise ToolExecutionError("Invalid directional obligation inverse")
+        expected=("independent_pair_evidence_required" if f["status"]=="missing_authenticated_pair"
+                  else "source_consumer_coverage_required" if f["status"]=="unavailable_answer"
+                  else "signed_support_discriminator_required" if f["bounded_signed_support_equal"] is False
+                  else None)
+        if reason!=expected or expected is None:
+            raise ToolExecutionError("Incorrect query debt classification")
+    return raw
+
+
 def inspect_relational_family(payload: Mapping[str, Any]) -> dict[str, Any]:
     action = payload.get("action", "family")
-    if action in ("query_context_capsule", "expand_query_context_capsule"):
+    if action == "signed_query_frontier":
+        raw = _inspect_signed_query_frontier(payload)
+    elif action in ("query_context_capsule", "expand_query_context_capsule"):
         raw = _inspect_query_context(payload, action == "expand_query_context_capsule")
     elif action == "licensed_view_cohort":
         raw = _inspect_licensed_view_cohort(payload)
@@ -553,7 +607,7 @@ def get_native_relational_tools():
         title="Inspect native SLR informational comparison",
         description="Reopen native family, recorded syntax parity, local candidate research, source-exact investigation, Mabo formal demands, research frontier, revision or relation coordinates; read only.",
         input_schema={"type": "object", "properties": {
-            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre", "source_fibre", "research_frontier", "recorded_parity", "local_research", "investigation", "mabo_formal_demands", "licensed_view_cohort", "query_context_capsule", "expand_query_context_capsule"]},
+            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre", "source_fibre", "research_frontier", "recorded_parity", "local_research", "investigation", "mabo_formal_demands", "licensed_view_cohort", "query_context_capsule", "expand_query_context_capsule", "signed_query_frontier"]},
             "demand_id": {"type": "integer", "minimum": 1},
             "pair_evidence": {"type": "array", "maxItems": 45, "items": {
                 "type": "object", "additionalProperties": False,

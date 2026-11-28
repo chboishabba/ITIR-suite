@@ -90,3 +90,6 @@ SLR-US-06 / ITIR-US-23 already owns deterministic StateCapsule, protected obliga
 
 ### Independent domain verifier handoff
 The existing formal_tools certify path and PostgresRefereeReceiptStore remain the issuance owners. Optional local independent_domain_verifier callback is required for a trusted reciprocal domain scope; receives trusted context, actual kernel and artifact only, not actor answer or binding. Validates strict premise/answer/binding shape, digest, source and kernel correspondence before existing immutable writer. This is an extension contract, NOT a deployed independent theorem-to-answer verifier; local isolated checker adapter and DB role deployment remain required. Actor domain fields cannot issue receipts. No new store, CI or local runtime acceptance.
+
+### Signed query frontier read-only facade
+SLR #80 c6e8e118 adds exact current capsule replay to query-specific proof debt. ITIR relational.inspect action signed_query_frontier requires explicit family/query/digest and existing evidence locators, checks directional inverses and original residual references; no acquisition, mutation or promotion. Protected AO display and reviewed re-entry execution remain outstanding; no local runtime verification.
