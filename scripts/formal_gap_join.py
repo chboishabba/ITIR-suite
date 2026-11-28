@@ -45,13 +45,17 @@ def normalize(item: Mapping[str, object]) -> dict[str, object]:
     if target not in {"agda", "lean"}:
         raise ValueError("target_prover must be agda or lean")
     digest = _nonempty(item, "statement_digest")
-    if not (len(digest) == 64 and all(x in "0123456789abcdefABCDEF" for x in digest)):
-        raise ValueError("statement_digest must be a SHA256 hex digest")
+    # SLR stores sha256:<hex>; the external proof router uses the exact
+    # statement_digest as part of its primary key. Do not strip the prefix
+    # or case-normalize a persisted digest into a different demand.
+    hex_part = digest.removeprefix("sha256:")
+    if not (len(hex_part) == 64 and all(x in "0123456789abcdefABCDEF" for x in hex_part)):
+        raise ValueError("statement_digest must be SHA256 hex, optionally prefixed sha256:")
     limit = item.get("limit", 10)
     if type(limit) is not int or not 1 <= limit <= MAX_LIMIT:
         raise ValueError("limit must be 1..50")
     return {"obligation_ref": identity, "query": query,
-            "target_prover": target, "statement_digest": digest.lower(),
+            "target_prover": target, "statement_digest": digest,
             "limit": limit, "demand_ref": str(item.get("demand_ref") or identity)}
 
 
@@ -72,19 +76,21 @@ def join_one(obligation: Mapping[str, object],
              route: Callable[[Mapping[str, object]], dict]) -> dict:
     row = normalize(obligation)
     search = inspect({"action": "discover", "query": row["query"], "limit": row["limit"]})
+    discovery = _safe_candidate(search, "discover")
     routed = route({"action": "proof_route_for_obligation",
                     "query": row["query"],
                     "external_obligation_ref": row["obligation_ref"],
                     "demand_ref": row["demand_ref"],
                     "statement_digest": row["statement_digest"],
-                    "target_prover": row["target_prover"]})
+                    "target_prover": row["target_prover"], "limit": row["limit"]})
     return {
         "schema": "itir.formal.gap-join.v1",
         "obligation_ref": row["obligation_ref"],
+        "demand_ref": row["demand_ref"],
         "statement_digest": row["statement_digest"],
         "target_prover": row["target_prover"],
         "query_digest": _fingerprint(row["query"]),
-        "discovery": _safe_candidate(search, "discover"),
+        "discovery": discovery,
         "route": _safe_candidate(routed, "proof_route_for_obligation"),
         "candidate_only": True,
         "establishes_proof": False,
