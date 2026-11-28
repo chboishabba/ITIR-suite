@@ -1538,6 +1538,26 @@ Acceptance criteria:
 - Wiki entities and claims integrate seamlessly into SensibLaw review bundles.
 - Primary evidence and crowd-sourced claims remain strictly segregated in the UI.
 - Narrative drift and retroactive edits are clearly surfaced on the timeline.
+- Compare ordinary, Simple, multilingual and Abstract Wikipedia views against
+  an explicit typed query family, retaining independent edition/revision,
+  source spans or constructor/argument inverses, qualifiers and provenance.
+  A shared QID, role-shape or translated label is retrieval evidence, never
+  sufficient proof of query equivalence or source independence.
+- For independently licensed answers, display preserved, lost and gained
+  positive/negative proof support in both directions; preserve contested,
+  checked zero, unlicensed, unavailable and unsearched states separately.
+  Abstraction or simplification is acceptable only for the declared consumer
+  when its proof-bearing distinctions are preserved.
+- GWB Q207 ordinary/Simple/another edition, original JMD EntityData and
+  independent book are the end-to-end acceptance cohort. Finnish/English
+  UMK/Eurovision and recurring-event-edition type/order cases exercise
+  bounded repair and explicit scope/applicability witnesses. Actual pinned
+  inputs are required; historical diagnosis alone is not acceptance.
+- Feed justified type-pressure residuals into the existing WIKI-1/S29
+  modeled repair and review flow, showing before/after consumer effects,
+  unchecked consumers and exact original statement GUIDs. Never auto-edit
+  or infer a global ontology fact from a review proposal.
+
 
 
 ## SLR-US-09 / ITIR-US-26: Consumer-relative investigation gap and evidence routing
