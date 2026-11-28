@@ -152,6 +152,7 @@ def get_formal_tools(
     interactive_backend: Callable[[Mapping[str, Any]], Any] | None = None,
     referee_context: Callable[[], Mapping[str, Any]] | None = None,
     verified_receipt_writer: Callable[[Mapping[str, Any], Mapping[str, Any]], bool] | None = None,
+    independent_domain_verifier: Callable[[Mapping[str, Any], Mapping[str, Any], Mapping[str, Any]], Mapping[str, Any]] | None = None,
 ) -> list[tuple[ToolSpec, Callable[[Mapping[str, Any]], dict[str, Any]]]]:
     provider = tools_provider or _default_tools
 
@@ -255,6 +256,18 @@ def get_formal_tools(
             if not _handoff_eligible(kernel, artifact, handoff, trusted):
                 return _receipt_hold("stale-or-unverified-handoff",
                                      {"kernel": kernel, "artifact": artifact})
+            extension = {}
+            if trusted.get("domain_scope") == "slr-reciprocal-source-query-binding-v1":
+                if independent_domain_verifier is None or verified_receipt_writer is None:
+                    return _receipt_hold("independent-domain-verifier-required", {})
+                from .slr_referee_domain import validated_extension
+                # Never copy request-provided domain claims. The local verifier
+                # resolves its own native snapshot and exact checked theorem.
+                extension = validated_extension(
+                    independent_domain_verifier(trusted, kernel, artifact), kernel, data)
+            elif any(k in data for k in ("slr_premise_binding","slr_reciprocal_query_binding",
+                                        "slr_reciprocal_query_answer")):
+                return _receipt_hold("actor-supplied-domain-binding", {})
             if verified_receipt_writer is not None:
                 bound = {
                     "repo": trusted.get("repo"),
@@ -267,7 +280,7 @@ def get_formal_tools(
                     "status": "verified", "kernel_handoff_eligible": True,
                     "candidate_only": False, "establishes_proof": True,
                     "authority_kind": "isolated_kernel_check",
-                    "handoff": handoff, "reference_binding": bound,
+                    "handoff": handoff, "reference_binding": bound, **extension,
                 }
                 if not verified_receipt_writer(result, trusted):
                     return _receipt_hold("referee-receipt-write-failed", result)
