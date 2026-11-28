@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
-from .contracts import ToolInputError, ToolSpec
+from .contracts import ToolInputError, ToolExecutionError, ToolSpec
 
 MAX_ITEMS = 12
 MAX_CHARS = 2400
@@ -185,7 +185,15 @@ def get_formal_tools(
         if action == "proof_route_for_obligation":
             kwargs = {k: data[k] for k in ("demand_ref", "external_obligation_ref",
                       "statement_digest", "target_prover") if k in data}
+            kwargs["limit"] = _bounded_limit(data)
             raw = tools.proof_route_for_obligation(_required(data, "query"), **kwargs)
+            binding_keys = ("demand_ref", "external_obligation_ref", "statement_digest")
+            if all(k in kwargs for k in binding_keys):
+                if (not isinstance(raw, dict) or raw.get("establishes_proof") is not False
+                        or any(raw.get(k) != kwargs[k] for k in binding_keys)):
+                    raise ToolExecutionError("Formal route does not bind the exact candidate demand")
+                return {**_candidate("obligation_routing", raw),
+                        "demand_binding": {k: raw[k] for k in binding_keys}}
         elif action == "da51_resolve":
             raw = tools.da51_resolve(_required(data, "address"))
         elif action == "formal_evidence_for_obligation":
