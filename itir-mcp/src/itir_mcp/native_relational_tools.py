@@ -72,6 +72,37 @@ def inspect_relational_family(payload: Mapping[str, Any]) -> dict[str, Any]:
                 or raw.get("level_three_paid") is not False
                 or raw.get("world_truth_paid") is not False):
             raise ToolExecutionError("Wrong or promotion-bearing original relation receipt")
+    elif action == "source_fibre":
+        keys = ("source_revision_ref", "numeric_run_ref", "document_ref",
+                "snapshot_ref", "packet_sha256")
+        values = [_coordinate(payload, k) for k in keys]
+        batches = payload.get("batch_refs")
+        if (not isinstance(batches, list) or not 0 < len(batches) <= 4096
+                or any(not isinstance(b, str) or not b.strip() or len(b) > 2048
+                       or "\\x00" in b for b in batches)
+                or len(set(batches)) != len(batches)):
+            raise ToolInputError("Expected distinct bounded native batch references")
+        encoded = json.dumps(batches, ensure_ascii=False, separators=(",", ":"))
+        if len(encoded.encode("utf-8")) > 262144:
+            raise ToolInputError("Batch reference request too large")
+        raw = _native(["relational-family", "inspect-source-fibre", *values, encoded])
+        transport = raw.get("original_transport")
+        meet = transport.get("source_coordinate_meet") if isinstance(transport, dict) else None
+        numeric = meet.get("numeric_original") if isinstance(meet, dict) else None
+        checked = meet.get("checked_batches") if isinstance(meet, dict) else None
+        if (raw.get("schema") != "slr.source-semantic-candidate-fragments.v1"
+                or not isinstance(raw.get("rows"), list)
+                or not isinstance(meet, dict) or not isinstance(numeric, dict)
+                or not isinstance(checked, list)
+                or any(not isinstance(b, dict) for b in checked)
+                or [b.get("batch_ref") for b in checked] != batches
+                or meet.get("source_revision_ref") != values[0]
+                or any(numeric.get(k) != v for k, v in zip(keys[1:], values[1:]))
+                or raw.get("semantic_coverage_paid") is not False
+                or raw.get("world_truth_paid") is not False
+                or meet.get("common_current_authority_snapshot") is not False
+                or transport.get("outside_model_possible") is not True):
+            raise ToolExecutionError("Wrong or promotion-bearing native source fibre")
     elif action in ("factor_consumer", "demand_fibre"):
         if action == "factor_consumer":
             keys = ("numeric_run_ref", "document_ref", "snapshot_ref", "packet_sha256", "consumer_axis")
@@ -112,11 +143,12 @@ def get_native_relational_tools():
         title="Inspect native SLR informational comparison",
         description="Reopen exact native family, revision or original relation coordinates; read only.",
         input_schema={"type": "object", "properties": {
-            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre"]},
+            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre", "source_fibre"]},
             "demand_id": {"type": "integer", "minimum": 1},
+            "batch_refs": {"type": "array", "items": {"type": "string"}, "maxItems": 4096},
             **{k: {"type": "string"} for k in ("family_ref", "transition_ref",
                "numeric_run_ref", "document_ref", "snapshot_ref", "packet_sha256", "relation_type",
-               "source_sha256", "consumer_axis")},
+               "source_sha256", "consumer_axis", "source_revision_ref")},
         }, "additionalProperties": False},
         read_only=True,
     ), inspect_relational_family)]
