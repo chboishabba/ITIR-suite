@@ -51,6 +51,41 @@ def inspect_relational_family(payload: Mapping[str, Any]) -> dict[str, Any]:
                 or projection.get("formal_consumer_equivalence_paid") is not False
                 or projection.get("all_live_reading_coverage_paid") is not False):
             raise ToolExecutionError("Wrong or promotion-bearing native family receipt")
+    elif action in ("recorded_parity", "local_research"):
+        ref = _coordinate(payload, "family_ref")
+        mode = "inspect-recorded-parity" if action == "recorded_parity" else "inspect-local-research"
+        raw = _native(["relational-family", mode, ref])
+        schema = ("slr.recorded-family-parity.v1" if action == "recorded_parity"
+                  else "slr.relational-local-research.v1")
+        if (raw.get("schema") != schema or raw.get("family_ref") != ref
+                or raw.get("candidate_only") is not True
+                or any(raw.get(k) is not False for k in (
+                    "formal_consumer_equivalence_paid", "world_truth_paid", "writes_database"))):
+            raise ToolExecutionError("Wrong or promotion-bearing native research receipt")
+        if action == "recorded_parity":
+            if (raw.get("reviewed_representation_parity_paid") is not False
+                    or raw.get("source_independence_paid") is not False
+                    or not isinstance(raw.get("pairs"), list)
+                    or not isinstance(raw.get("recorded_consumer_adequacy"), list)
+                    or not isinstance(raw.get("all_recorded_answers_equal"), bool)
+                    or (not raw["all_recorded_answers_equal"] and raw["recorded_consumer_adequacy"])):
+                raise ToolExecutionError("Invalid recorded-syntax parity receipt")
+        else:
+            if (raw.get("creates_access_authority") is not False
+                    or raw.get("provider_acquisition_executed") is not False
+                    or type(raw.get("network_requests")) is not int or raw["network_requests"] != 0
+                    or raw.get("planned_moves") != [] or raw.get("pareto_move_refs") != []
+                    or "selected_move_ref" not in raw or raw["selected_move_ref"] is not None
+                    or not all(isinstance(raw.get(k), list) for k in
+                               ("source_manifest", "lexical_seeds", "retrieval", "no_hit_hypothesis_refs"))):
+                raise ToolExecutionError("Invalid read-only uncalibrated local research receipt")
+            for row in raw["retrieval"]:
+                if (not isinstance(row, dict) or row.get("candidate_only") is not True
+                        or type(row.get("network_requests")) is not int or row["network_requests"] != 0
+                        or not isinstance(row.get("passages"), list)
+                        or any(not isinstance(p, dict) or p.get("candidate_only") is not True
+                               for p in row["passages"])):
+                    raise ToolExecutionError("Invalid candidate retrieval")
     elif action == "research_frontier":
         ref = _coordinate(payload, "family_ref")
         raw = _native(["relational-family", "inspect-research-frontier", ref])
@@ -168,9 +203,9 @@ def get_native_relational_tools():
     return [(ToolSpec(
         name="itir.relational.inspect",
         title="Inspect native SLR informational comparison",
-        description="Reopen exact native family, research frontier, revision or original relation coordinates; read only.",
+        description="Reopen native family, recorded syntax parity, local candidate research, research frontier, revision or relation coordinates; read only.",
         input_schema={"type": "object", "properties": {
-            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre", "source_fibre", "research_frontier"]},
+            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre", "source_fibre", "research_frontier", "recorded_parity", "local_research"]},
             "demand_id": {"type": "integer", "minimum": 1},
             "batch_refs": {"type": "array", "items": {"type": "string"}, "maxItems": 4096},
             **{k: {"type": "string"} for k in ("family_ref", "transition_ref",
