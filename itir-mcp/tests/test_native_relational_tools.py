@@ -68,3 +68,31 @@ def test_factor_axis_allowlist_and_native_binding(monkeypatch):
     receipt["snapshot_ref"] = "foreign"
     with pytest.raises(ToolExecutionError):
         native.inspect_relational_family(request)
+
+
+def test_source_fibre_preserves_native_members_and_rejects_foreign_batches(monkeypatch):
+    request = {"action": "source_fibre", "source_revision_ref": "rev",
+               "numeric_run_ref": "n", "document_ref": "d", "snapshot_ref": "s",
+               "packet_sha256": "a" * 64, "batch_refs": ["batch:1"]}
+    receipt = {"schema": "slr.source-semantic-candidate-fragments.v1",
+               "rows": [{"fragments": [], "outside_model_possible": True}],
+               "semantic_coverage_paid": False, "world_truth_paid": False,
+               "original_transport": {"outside_model_possible": True,
+                   "source_coordinate_meet": {"source_revision_ref": "rev",
+                       "common_current_authority_snapshot": False,
+                       "checked_batches": [{"batch_ref": "batch:1"}],
+                       "numeric_original": {k: request[k] for k in (
+                           "numeric_run_ref", "document_ref", "snapshot_ref", "packet_sha256")}}}}
+    def load(args):
+        assert args == ["relational-family", "inspect-source-fibre", "rev", "n",
+                        "d", "s", "a" * 64, '["batch:1"]']
+        return receipt
+    monkeypatch.setattr(native, "_native", load)
+    result = native.inspect_relational_family(request)
+    assert result["native_receipt"] is receipt
+    assert result["mutates"] is False
+    with pytest.raises(ToolInputError):
+        native.inspect_relational_family({**request, "batch_refs": ["batch:1", "batch:1"]})
+    receipt["original_transport"]["source_coordinate_meet"]["checked_batches"][0]["batch_ref"] = "foreign"
+    with pytest.raises(ToolExecutionError):
+        native.inspect_relational_family(request)
