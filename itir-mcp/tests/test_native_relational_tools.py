@@ -303,3 +303,65 @@ def test_licensed_view_cohort_reverse_binding_and_missing_pairs(monkeypatch):
         native.inspect_relational_family({**request, "pair_evidence": [req, req]})
     with pytest.raises(ToolInputError):
         native.inspect_relational_family({**request, "pair_evidence": [{**req, "left_support": pos}]})
+
+
+def test_context_capsule_preserves_held_pairs_and_requires_current_digest(monkeypatch):
+    import copy
+    d = "sha256:" + "a"*64
+    held = {"status": "missing_authenticated_pair", "left_support": None,
+            "right_support": None, "lost": None, "gained": None,
+            "opposed_signs": None, "bounded_signed_support_equal": None}
+    cap = {"schema": "slr.query-context-capsule.v1", "family_ref": "f", "query_ref": "q",
+           "family_digest": d, "full_readback_digest": d, "noncanonical": True,
+           "query_scoped": True, "shared_transaction_snapshot": True,
+           "creates_semantic_authority": False, "world_truth_paid": False, "writes_database": False,
+           "sources": [{"selector_ref": s, "observation_ref": s, "source_revision_ref": s,
+                        "source_span_ref": s, "predicate_candidate_ref": s,
+                        "observation_digest": d, "context": {"time": None}} for s in ("a", "b")],
+           "pairs": [{"pair_ref": "ab", "left_selector_ref": "a", "right_selector_ref": "b",
+                      "forward": held.copy(), "backward": held.copy(), "proof_binding": None,
+                      "formal_premise": None, "proof_readback_digest": None,
+                      "residual_paid": False, "source_independence_paid": False}],
+           "residuals": [{"residual_ref": "r", "acquisition_obligation_ref": "o"}],
+           "reviews": [{"review_item_ref": "v", "obligation_ref": "o"}],
+           "lifecycles": [{"obligation_ref": "o"}], "queues": [{"obligation_ref": "o"}],
+           "pair_evidence": [],
+           "loss_profile": {"omitted_inline": ["full_payloads"], "canonical_owners_retained": True,
+                            "omission_implies_irrelevance": False,
+                            "expansion_requires_exact_current_replay": True}}
+    envelope = {"schema": "slr.query-context-capsule-envelope.v1", "capsule_digest": d,
+                "capsule": cap, "full_readback_json_bytes": 5000, "capsule_body_json_bytes": 3000,
+                "body_smaller_than_full_readback": True, "creates_semantic_authority": False,
+                "writes_database": False}
+    request = {"action": "query_context_capsule", "family_ref": "f", "query_ref": "q"}
+    def read(args):
+        assert args[:5] == ["relational-family", "inspect-query-context-capsule", "f", "q", "[]"]
+        return envelope
+    monkeypatch.setattr(native, "_native", read)
+    assert native.inspect_relational_family(request)["native_receipt"] is envelope
+    for mutate in (
+        lambda e: e["capsule"]["pairs"].clear(),
+        lambda e: e["capsule"]["queues"].clear(),
+        lambda e: e["capsule"]["loss_profile"].update(omission_implies_irrelevance=True),
+        lambda e: e.update(body_smaller_than_full_readback=False),
+        lambda e: e["capsule"]["pairs"][0].update(proof_readback_digest=d),
+    ):
+        bad = copy.deepcopy(envelope)
+        mutate(bad)
+        monkeypatch.setattr(native, "_native", lambda _: bad)
+        with pytest.raises(ToolExecutionError):
+            native.inspect_relational_family(request)
+    expanded = {"schema": "slr.query-context-expanded.v1", "capsule_digest": d,
+                "capsule_envelope": envelope, "family": {"family_ref": "f"},
+                "cohort": {"family_ref": "f", "query_ref": "q", "world_truth_paid": False},
+                "exact_current_replay": True, "creates_semantic_authority": False,
+                "writes_database": False}
+    def expand(args):
+        assert args[-1] == d
+        return expanded
+    monkeypatch.setattr(native, "_native", expand)
+    request = {**request, "action": "expand_query_context_capsule", "capsule_digest": d}
+    assert native.inspect_relational_family(request)["native_receipt"] is expanded
+    expanded["exact_current_replay"] = False
+    with pytest.raises(ToolExecutionError):
+        native.inspect_relational_family(request)
