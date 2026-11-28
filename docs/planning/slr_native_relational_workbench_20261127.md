@@ -38,3 +38,16 @@ Revised workbench deliverables: (1) source manifest and declared candidate unive
 Implemented pending local acceptance: `itir.relational.inspect` action `research_frontier` accepts a family_ref and calls native `relational-family inspect-research-frontier FAMILY` (SLR #80 commit 97a09e5135e3033187c57d798ee95c62172d05ee). The facade validates family/schema binding, nonpromotion, exact residual/inverse ID correspondence and open-only candidate hypotheses; no Python research semantics or DB writes. Tests added for foreign/deferred hypothesis targets, duplicate inverse and fabricated payment (567315946d3efce8fa69d7f3b7b5f468c7433951). Tests not executed in this turn.
 
 Workbench next: display directional residuals with inverse coordinates, lifecycle/deferred status, source revisions and competing hypotheses; connect existing selector/spectral ranking to native relational family inputs, then existing consumer parity receipts and governed recurrent proof-search planner. Inspect planned moves and acquisition review/re-entry history from the existing owners, not from synthetic lexical scores. Actual article/book and same-manifestation acceptance still pending.
+
+
+## 2026-11-28 — live P3b and bounded parity / local research cut
+
+f875fc2 records 6/6 focused ITIR tests; later SLR ad59d2f / 86a9019 records actual native Run A/B family/frontier, 4/4 declared coordinate transport, 24 open residuals and 144 hypotheses, no executable acquisition routes. Source is shared canonical book content, not independent Wikipedia and book. Prior ITIR live test remained unrun. No full user-story acceptance.
+
+ITIR b53d424 / 0b89be7 adds two read-only `itir.relational.inspect` actions:
+- recorded_parity: native inspect-recorded-parity FAMILY, exact selected syntax coordinate inverse, bounded recorded query adequacy, not reviewed semantic parity or independence;
+- local_research: native inspect-local-research FAMILY, source-local lexical seeds, original revision hits, explicit no-hit hypotheses, no ranking without calibration and no network/DB mutations or provider dispatch.
+
+SLR #80 b35c6ff scripts/run_p3b_relational_user_journey.sh uses real existing run receipts, corrected scoped consumer and native corpus, optional ITIR_ROOT for live facade, optional JMD and original numeric book coordinates for independent-document candidate overlap. New source code and tests not run here. Operator-only calibrated planning is native CLI, not remote caller-selected path or access authority.
+
+Next product acceptance: actual independent-document selector/spectral retrieval and consumer-relative context/adequacy/dominance with source inverse; existing provider routes and calibrated planning, review/re-entry and lifecycle receipts; actual chronology, proposition/support/conflict, omission/abstention and gap workbench panels. SL-US-08 and ITIR-US-08 remain primary; original J01–J11, ITIR-US-17, SL-US-13/15–24, WIKI-US-04/SL-US-41 and formal-gap stories remain separate acceptance contracts. Do not interpret positive recorded parity or a lexical candidate hit as end-to-end narrative comparison.
