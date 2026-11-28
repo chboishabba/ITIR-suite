@@ -84,6 +84,8 @@ def _inspect_licensed_view_cohort(payload: Mapping[str, Any]) -> dict[str, Any]:
     seen = set()
     pair_refs = set()
     paid = available = equal = 0
+    observed_answers = {}
+    derived_inconsistent = set()
     for row in pairs:
         if not isinstance(row, dict):
             raise ToolExecutionError("Invalid native pair row")
@@ -150,6 +152,15 @@ def _inspect_licensed_view_cohort(payload: Mapping[str, Any]) -> dict[str, Any]:
         if any(x is not None and (not isinstance(x, dict) or set(x) != {"positive", "negative"}
                    or any(type(v) is not bool for v in x.values())) for x in (left, right)):
             raise ToolExecutionError("Invalid signed support")
+        if (binding.get("forward_comparison_ref") != row[
+                "forward_comparison_ref" if req["left_selector_ref"] == pair[0] else "backward_comparison_ref"]
+                or binding.get("backward_comparison_ref") != row[
+                "backward_comparison_ref" if req["left_selector_ref"] == pair[0] else "forward_comparison_ref"]):
+            raise ToolExecutionError("Native proof comparison binding mismatch")
+        for selector, support in zip(pair, (left, right)):
+            if selector in observed_answers and observed_answers[selector] != support:
+                derived_inconsistent.add(selector)
+            observed_answers[selector] = support
         paid += 1
         if left is None or right is None:
             if (f["status"] != "unavailable_answer"
@@ -159,7 +170,12 @@ def _inspect_licensed_view_cohort(payload: Mapping[str, Any]) -> dict[str, Any]:
         else:
             available += 1
             same = f["bounded_signed_support_equal"]
-            if type(same) is not bool or f["status"] != ("preserved" if same else "different"):
+            if (type(same) is not bool or same != (left == right)
+                    or f["status"] != ("preserved" if same else "different")
+                    or f["lost"] != {k: left[k] and not right[k] for k in left}
+                    or f["gained"] != {k: right[k] and not left[k] for k in left}
+                    or f["opposed_signs"] is not ((left["positive"] and right["negative"])
+                                                or (left["negative"] and right["positive"]))):
                 raise ToolExecutionError("Invalid bounded support disposition")
             equal += int(same)
     inconsistent = raw.get("inconsistent_selector_refs")
@@ -167,6 +183,7 @@ def _inspect_licensed_view_cohort(payload: Mapping[str, Any]) -> dict[str, Any]:
             or not isinstance(inconsistent, list)
             or any(not isinstance(s, str) or s not in selectors for s in inconsistent)
             or len(set(inconsistent)) != len(inconsistent)
+            or set(inconsistent) != derived_inconsistent
             or any(type(raw.get(k)) is not int or raw[k] != v for k, v in {
                 "pair_count": len(universe), "authenticated_pair_count": paid,
                 "available_pair_count": available, "equal_support_pair_count": equal}.items())
