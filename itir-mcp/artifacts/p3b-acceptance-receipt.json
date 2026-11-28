@@ -1,0 +1,17 @@
+{
+  "schema": "itir.p3b.acceptance-receipt.v1",
+  "commit": "4c8f8772dbc53d689c106b6f1b8483b2a1ddcf4f",
+  "branch": "feat/slr-native-informational-equivalence-20261127",
+  "tests": {
+    "test_native_relational_tools.py": {"passed": 6, "failed": 0}
+  },
+  "live_frontier_inspection": {
+    "delegated_to_native_slr": true,
+    "result": "not-run-no-persisted-relational-family",
+    "writes_database": false
+  },
+  "authority": {
+    "semantic_payment": false,
+    "world_truth": false
+  }
+}
