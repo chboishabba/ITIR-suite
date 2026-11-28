@@ -96,3 +96,31 @@ def test_source_fibre_preserves_native_members_and_rejects_foreign_batches(monke
     receipt["original_transport"]["source_coordinate_meet"]["checked_batches"][0]["batch_ref"] = "foreign"
     with pytest.raises(ToolExecutionError):
         native.inspect_relational_family(request)
+
+
+def test_research_frontier_preserves_inverse_and_defers_terminal_residuals(monkeypatch):
+    receipt = {"schema": "slr.relational-research-frontier.v1", "family_ref": "f",
+               "candidate_only": True, "satisfied_payment_refs": [],
+               **{k: False for k in ("formal_consumer_equivalence_paid", "world_truth_paid",
+                                     "creates_access_authority", "writes_database")},
+               "residuals": [{"residual_ref": "r1", "status": "open"},
+                             {"residual_ref": "r2", "status": "underidentified"}],
+               "inverse": [{"residual_ref": "r1"}, {"residual_ref": "r2"}],
+               "hypotheses": [{"residual_ref": "r1", "candidate_only": True}]}
+    def load(args):
+        assert args == ["relational-family", "inspect-research-frontier", "f"]
+        return receipt
+    monkeypatch.setattr(native, "_native", load)
+    request = {"action": "research_frontier", "family_ref": "f"}
+    assert native.inspect_relational_family(request)["native_receipt"] is receipt
+    receipt["hypotheses"][0]["residual_ref"] = "r2"
+    with pytest.raises(ToolExecutionError):
+        native.inspect_relational_family(request)
+    receipt["hypotheses"][0]["residual_ref"] = "r1"
+    receipt["inverse"][1]["residual_ref"] = "r1"
+    with pytest.raises(ToolExecutionError):
+        native.inspect_relational_family(request)
+    receipt["inverse"][1]["residual_ref"] = "r2"
+    receipt["satisfied_payment_refs"] = ["fake"]
+    with pytest.raises(ToolExecutionError):
+        native.inspect_relational_family(request)
