@@ -227,3 +227,79 @@ def test_mabo_formal_demands_keep_native_digest_and_obligation(monkeypatch):
     demand["obligation_ref"] = "foreign"
     with pytest.raises(ToolExecutionError):
         native.inspect_relational_family(req)
+
+
+def test_licensed_view_cohort_reverse_binding_and_missing_pairs(monkeypatch):
+    import json
+    import copy
+    req = {"left_selector_ref": "b", "right_selector_ref": "a",
+           "evidence_ref": "ev", "repo": "r", "sha": "s", "path": "p",
+           "canonical_thread_id": "t"}
+    request = {"action": "licensed_view_cohort", "family_ref": "f",
+               "query_ref": "q", "pair_evidence": [req]}
+    pos, neg = {"positive": True, "negative": False}, {"positive": False, "negative": True}
+    forward = {"status": "different", "left_support": pos, "right_support": neg,
+               "lost": pos, "gained": neg, "opposed_signs": True,
+               "bounded_signed_support_equal": False}
+    backward = {**forward, "left_support": neg, "right_support": pos,
+                "lost": neg, "gained": pos}
+    proof = {"schema": "slr.authenticated-bounded-reciprocal-query.v1",
+             "family_ref": "f", "query_ref": "q",
+             **{k: False for k in ("creates_semantic_authority",
+                 "all_live_semantic_readings_covered", "governed_identity_paid",
+                 "world_truth_paid", "writes_database")},
+             "binding": {"family_ref": "f", "consumer_ref": "c", "query_ref": "q",
+                         "left_selector_ref": "b", "right_selector_ref": "a",
+                         "forward_comparison_ref": "ba", "backward_comparison_ref": "ab",
+                         "evidence_ref": "ev", "statement_digest": "stmt"},
+             "authenticated_formal_premise": {"evidence_ref": "ev",
+                 "statement_digest": "stmt", "formal_premise_paid": True,
+                 "creates_legal_authority": False, "applicability_promoted": False,
+                 "claim_truth_promoted": False},
+             "answer": {"schema": "slr.signed-view-query-answer.v1", "query_ref": "q",
+                        "left_support": neg, "right_support": pos}}
+    held = {"status": "missing_authenticated_pair", "left_support": None,
+            "right_support": None, "lost": None, "gained": None, "opposed_signs": None,
+            "bounded_signed_support_equal": None}
+    def pair(a, b, f, r, p):
+        return {"pair_ref": a+b, "left_selector_ref": a, "right_selector_ref": b,
+                "forward_comparison_ref": a+b, "backward_comparison_ref": b+a,
+                "forward": f, "backward": r, "authenticated_pair": p,
+                "source_independence_paid": False, "residual_paid": False}
+    receipt = {"schema": "slr.authenticated-view-cohort.v1", "family_ref": "f",
+               "consumer_ref": "c", "query_ref": "q", "selector_refs": ["a", "b", "c"],
+               "shared_transaction_snapshot": True, "pair_count": 3,
+               "authenticated_pair_count": 1, "available_pair_count": 1,
+               "equal_support_pair_count": 0, "inconsistent_selector_refs": [],
+               "all_pairs_bounded_signed_support_equal": False,
+               **{k: False for k in ("derives_transitive_licences", "formal_consumer_equivalence_paid",
+                   "all_live_semantic_readings_covered", "creates_semantic_authority",
+                   "source_independence_paid", "world_truth_paid", "writes_database")},
+               "pairs": [pair("a", "b", forward, backward, proof),
+                         pair("a", "c", held.copy(), held.copy(), None),
+                         pair("b", "c", held.copy(), held.copy(), None)]}
+    baseline = copy.deepcopy(receipt)
+    def load(args):
+        assert args[:4] == ["relational-family", "inspect-licensed-view-cohort", "f", "q"]
+        assert json.loads(args[4]) == [req]
+        return receipt
+    monkeypatch.setattr(native, "_native", load)
+    result = native.inspect_relational_family(request)
+    assert result["native_receipt"] is receipt and not result["mutates"]
+    for mutate in (
+        lambda r: r["pairs"].pop(),
+        lambda r: r.update(all_pairs_bounded_signed_support_equal=True),
+        lambda r: r["pairs"][0]["authenticated_pair"]["binding"].update(forward_comparison_ref="foreign"),
+        lambda r: r["pairs"][0]["forward"].update(lost=neg),
+        lambda r: r["pairs"][1].update(authenticated_pair=proof),
+        lambda r: r.update(inconsistent_selector_refs=["a"]),
+    ):
+        receipt.clear()
+        receipt.update(copy.deepcopy(baseline))
+        mutate(receipt)
+        with pytest.raises(ToolExecutionError):
+            native.inspect_relational_family(request)
+    with pytest.raises(ToolInputError):
+        native.inspect_relational_family({**request, "pair_evidence": [req, req]})
+    with pytest.raises(ToolInputError):
+        native.inspect_relational_family({**request, "pair_evidence": [{**req, "left_support": pos}]})
