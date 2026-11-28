@@ -51,6 +51,38 @@ def inspect_relational_family(payload: Mapping[str, Any]) -> dict[str, Any]:
                 or projection.get("formal_consumer_equivalence_paid") is not False
                 or projection.get("all_live_reading_coverage_paid") is not False):
             raise ToolExecutionError("Wrong or promotion-bearing native family receipt")
+    elif action == "investigation":
+        ref = _coordinate(payload, "family_ref")
+        raw = _native(["relational-family", "inspect-investigation", ref])
+        if (raw.get("schema") != "slr.relational-investigation.v1" or raw.get("family_ref") != ref
+                or any(raw.get(k) is not True for k in ("derived_only", "challengeable", "candidate_only"))
+                or any(raw.get(k) is not False for k in (
+                    "creates_graph_edges", "creates_actual_reopening", "formal_consumer_equivalence_paid",
+                    "world_truth_paid", "creates_access_authority", "provider_acquisition_executed",
+                    "writes_database"))
+                or not all(isinstance(raw.get(k), list) for k in (
+                    "gap_rows", "dependency_edges", "potential_reopening_cones"))):
+            raise ToolExecutionError("Invalid native investigation receipt")
+        gaps = raw["gap_rows"]
+        lanes = {}
+        ids = set()
+        for row in gaps:
+            if (not isinstance(row, dict) or row.get("candidate_only") is not True
+                    or row.get("residual_paid") is not False
+                    or row.get("formal_route_eligible") is not False
+                    or not all(isinstance(row.get(k), str) and row[k] for k in (
+                        "residual_ref", "comparison_ref", "obligation_ref", "diagnostic_lane", "route_state"))
+                    or row["residual_ref"] in ids):
+                raise ToolExecutionError("Invalid exact investigation gap")
+            ids.add(row["residual_ref"])
+            lane = row["diagnostic_lane"]
+            lanes[lane] = lanes.get(lane, 0) + 1
+        if raw.get("gap_counts") != lanes:
+            raise ToolExecutionError("Investigation gap count mismatch")
+        if any(not isinstance(c, dict) or c.get("creates_actual_reopening") is not False
+               or c.get("creates_semantic_authority") is not False
+               for c in raw["potential_reopening_cones"]):
+            raise ToolExecutionError("Invalid potential reopening cone")
     elif action in ("recorded_parity", "local_research"):
         ref = _coordinate(payload, "family_ref")
         mode = "inspect-recorded-parity" if action == "recorded_parity" else "inspect-local-research"
@@ -203,9 +235,9 @@ def get_native_relational_tools():
     return [(ToolSpec(
         name="itir.relational.inspect",
         title="Inspect native SLR informational comparison",
-        description="Reopen native family, recorded syntax parity, local candidate research, research frontier, revision or relation coordinates; read only.",
+        description="Reopen native family, recorded syntax parity, local candidate research, source-exact investigation, research frontier, revision or relation coordinates; read only.",
         input_schema={"type": "object", "properties": {
-            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre", "source_fibre", "research_frontier", "recorded_parity", "local_research"]},
+            "action": {"enum": ["family", "revision", "original_relations", "factor_consumer", "demand_fibre", "source_fibre", "research_frontier", "recorded_parity", "local_research", "investigation"]},
             "demand_id": {"type": "integer", "minimum": 1},
             "batch_refs": {"type": "array", "items": {"type": "string"}, "maxItems": 4096},
             **{k: {"type": "string"} for k in ("family_ref", "transition_ref",
