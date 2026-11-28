@@ -1316,6 +1316,30 @@ Acceptance criteria:
 - Protected singleton obligations and negative-evidence pointers survive snapshot
   compression without loss.
 
+- For an explicitly selected native source/query family (WIKI-US-04 /
+  SL-US-41; SLR-US-09 / ITIR-US-26), receive a query-context capsule with
+  original source/revision/span/producer coordinates, signed proof support,
+  unresolved and unavailable pair states, exact residual occurrences,
+  acquisition obligations, review/lifecycle and reopening references.
+  Neither a shorter rendering nor a shared topic/QID proves sufficiency.
+- The compact carrier declares omitted inline payloads and preserves the
+  canonical source/review/referee owners. Report actual compact JSON byte
+  lengths against the full readback; a negative saving is a valid result.
+  Do not report token savings or global semantic compression from byte counts.
+- Expand by the capsule digest and exact existing source/referee coordinates;
+  reproduce the complete current native readback or hold on changed
+  source, revision, query, receipt, review or acquisition state. Do not
+  overwrite a historical capsule or infer a fresh licence from stale context.
+- GWB acceptance: original English/Simple/other edition source receipts,
+  native exact residual inverse, repeated digest, expansion and wrong/stale
+  digest control, preserved positive/negative/contested/zero/unavailable
+  differences. A shared office-only summary must fail a distinct-holder
+  consumer (GWB/GHWB); explicit interval query may use the original bounded
+  licence. The rest of the protected AO frontier and access policy remain
+  separately governed; this capsule does not replace StateCapsule or grant
+  permission to retrieve restricted material.
+
+
 ### SLR-US-07 / ITIR-US-24: Federated Capability & Local Machine Sovereignty Enforcement
 As a participating node operator in a federated mesh, I want to delegate bounded
 capabilities to remote generative agents while retaining strict local sovereignty
