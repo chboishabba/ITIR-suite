@@ -1538,3 +1538,64 @@ Acceptance criteria:
 - Wiki entities and claims integrate seamlessly into SensibLaw review bundles.
 - Primary evidence and crowd-sourced claims remain strictly segregated in the UI.
 - Narrative drift and retroactive edits are clearly surfaced on the timeline.
+
+
+## SLR-US-09 / ITIR-US-26: Consumer-relative investigation gap and evidence routing
+
+As an investigator comparing independent narratives, different manifestations of
+one source, or competing legal/research propositions, I want one inspectable
+source-bound investigation frontier that distinguishes representation gaps,
+missing observations, ambiguous correspondence, unresolved context and
+semantic discriminators, formal proof obligations, and access/review holds.
+I want existing preflight, typed/spectral similarity, exact gap accounting,
+native candidate retrieval, and governed acquisition to be used in their
+appropriate lanes rather than a new generic similarity score or proof engine.
+
+Typical flow:
+- Open an actual revision-pinned comparison family. See directional residuals
+  with exact occurrence inverse, source provenance, and recorded transport
+  witnesses; structural coincidence alone is not semantic correspondence.
+- Inspect each gap with its existing acquisition obligation, review, lifecycle,
+  candidate hypotheses, candidate route dispositions and explicit missing
+  routes. Missing information, denial, conflict, and unavailable source remain
+  distinct. Query-specific adequacy can be paid independently of world closure.
+- Reuse SLR native local/typed candidate retrieval and provider route owners.
+  Calibrate explicit costs and discrimination value before Pareto selection.
+  Review and acquire through existing permitted providers; re-enter the
+  current consumer with acquired/reviewed evidence, retaining negative outcomes.
+- For an actual source-bound formal demand (e.g. the existing Mabo proof graph),
+  use the existing formal inspect/discover/route/refine surfaces with exact
+  demand, obligation, statement digest and target prover. Empirical residuals
+  do not become formal demands because a theorem looks similar.
+- AO inspects the exact candidate work/evidence references and canonical thread
+  binding via existing AO-OP-1, frontier and work-packet owners. Unbound or
+  ambiguous thread mapping, missing evaluator, unavailable provider, or
+  unverified receipt is an explicit hold, not automatic dispatch.
+- Review the resulting evidence and potential reopening cone. Only a durable
+  reviewed change can trigger actual selective reopening; prior unaffected
+  source evidence remains unchanged.
+
+Acceptance criteria:
+- Actual same-manifestation and independent-document controls, including
+  additional right-only coordinates, paraphrase, absent context, opposite
+  signs, source genealogy and revision change. Every gap occurrence and
+  hypothesis retains source/consumer inverse.
+- Existing native investigation readback distinguishes recorded-but-unlicensed
+  correspondence, unobserved context and genuine semantic discriminators;
+  route state and Pareto dispositions derive from native durable queues.
+- Actual Mabo source -> reviewed evidence -> competing proposition fibre ->
+  residual -> open proof obligation -> exact formal demand -> certified
+  evidence trace. Formal payment cannot establish legal outcome, applicability
+  or unrestricted semantic truth. Prefixed digest identity survives routing.
+- Selected-thread bounded formal gap evaluation, source-bound AO handoff,
+  no whole-corpus text sweep, no silent semantic/proof promotion, no execution
+  merely from a route suggestion, no autonomous dispatch on missing authority.
+- Repeated inspection is deterministic at the same native revision; affected
+  review/re-entry and unaffected receipts can be inspected. Show candidate
+  vs verified formal evidence separately. Demonstrate a real local research
+  move and a genuinely governed acquisition/re-entry path, not only fixture
+  or hypothesis counts.
+
+Status: integrated acceptance contract; individual producer implementations
+exist and bounded relational inspection is being attached. Full journey
+acceptance is not claimed.
