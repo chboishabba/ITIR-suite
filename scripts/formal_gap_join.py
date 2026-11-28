@@ -73,7 +73,8 @@ def _safe_candidate(value: Any, label: str) -> dict[str, object]:
 
 def join_one(obligation: Mapping[str, object],
              inspect: Callable[[Mapping[str, object]], dict],
-             route: Callable[[Mapping[str, object]], dict]) -> dict:
+             route: Callable[[Mapping[str, object]], dict], *,
+             require_binding: bool = False) -> dict:
     row = normalize(obligation)
     search = inspect({"action": "discover", "query": row["query"], "limit": row["limit"]})
     discovery = _safe_candidate(search, "discover")
@@ -83,6 +84,13 @@ def join_one(obligation: Mapping[str, object],
                     "demand_ref": row["demand_ref"],
                     "statement_digest": row["statement_digest"],
                     "target_prover": row["target_prover"], "limit": row["limit"]})
+    route_receipt = _safe_candidate(routed, "proof_route_for_obligation")
+    expected_binding = {"demand_ref": row["demand_ref"],
+                        "external_obligation_ref": row["obligation_ref"],
+                        "statement_digest": row["statement_digest"]}
+    binding = routed.get("demand_binding")
+    if (require_binding or binding is not None) and binding != expected_binding:
+        raise ValueError("Formal route returned a foreign or unbound demand")
     return {
         "schema": "itir.formal.gap-join.v1",
         "obligation_ref": row["obligation_ref"],
@@ -91,7 +99,7 @@ def join_one(obligation: Mapping[str, object],
         "target_prover": row["target_prover"],
         "query_digest": _fingerprint(row["query"]),
         "discovery": discovery,
-        "route": _safe_candidate(routed, "proof_route_for_obligation"),
+        "route": route_receipt, "demand_binding": binding,
         "candidate_only": True,
         "establishes_proof": False,
         "discharges_obligation": False,
@@ -100,19 +108,70 @@ def join_one(obligation: Mapping[str, object],
 
 def run(inputs: list[Mapping[str, object]],
         inspect: Callable[[Mapping[str, object]], dict],
-        route: Callable[[Mapping[str, object]], dict]) -> list[dict]:
+        route: Callable[[Mapping[str, object]], dict], *,
+        require_binding: bool = False) -> list[dict]:
     if len(inputs) > MAX_INPUT:
         raise ValueError("Input exceeds bounded batch")
-    references = set()
-    rows = []
-    for item in inputs:
-        row = join_one(item, inspect, route)
-        key = row["obligation_ref"]
-        if key in references:
-            raise ValueError("Duplicate obligation_ref")
-        references.add(key)
-        rows.append(row)
-    return sorted(rows, key=lambda item: item["obligation_ref"])
+    # Validate the entire batch before any routing side effect in the existing
+    # preflight index. Multiple distinct demands may belong to one obligation.
+    normalized = [normalize(item) for item in inputs]
+    references = [row["demand_ref"] for row in normalized]
+    if len(set(references)) != len(references):
+        raise ValueError("Duplicate demand_ref")
+    return [join_one(row, inspect, route, require_binding=require_binding)
+            for row in sorted(normalized, key=lambda x: (x["obligation_ref"], x["demand_ref"]))]
+
+
+def bind_mabo_queries(queries: list[Mapping[str, object]], receipt: Mapping[str, Any],
+                      obligation_ref: str) -> tuple[list[dict], dict[str, dict]]:
+    """Select actual native demands; a search hint cannot alter their identity.
+
+    The caller supplies only query text and limit. Paid or ancestry-incomplete
+    demands stay held. This is a routing preparation, never formal payment.
+    """
+    if (receipt.get("schema") != "slr.mabo-formal-demand-readback.v1"
+            or receipt.get("obligation_ref") != obligation_ref
+            or receipt.get("candidate_only") is not True
+            or receipt.get("establishes_proof") is not False
+            or receipt.get("discharges_obligation") is not False
+            or receipt.get("writes_database") is not False
+            or not isinstance(receipt.get("demands"), list)):
+        raise ValueError("Invalid native Mabo demand receipt")
+    rows = receipt["demands"]
+    if any(not isinstance(r, dict) or not isinstance(r.get("demand_ref"), str)
+           or not r["demand_ref"] for r in rows):
+        raise ValueError("Invalid native demand coordinate")
+    by_ref = {r["demand_ref"]: r for r in rows}
+    if len(by_ref) != len(rows) or len(queries) > MAX_INPUT:
+        raise ValueError("Duplicate demand or bounded batch exceeded")
+    bound, provenance = [], {}
+    for request in queries:
+        if set(request) - {"demand_ref", "query", "limit"}:
+            raise ValueError("Mabo queries cannot override native demand coordinates")
+        ref = _nonempty(request, "demand_ref")
+        if ref in provenance or ref not in by_ref:
+            raise ValueError("Duplicate or unknown native demand")
+        row = by_ref[ref]
+        if (row.get("obligation_ref") != obligation_ref
+                or row.get("residual_ref") != receipt.get("residual_ref")
+                or row.get("candidate_only") is not True
+                or row.get("establishes_proof") is not False
+                or row.get("discharges_obligation") is not False
+                or row.get("all_source_refs_reviewed_in_graph") is not True
+                or row.get("formal_premise_evidence_refs") != []):
+            raise ValueError("Native demand is held, already paid, or foreign")
+        bound.append(normalize({
+            "obligation_ref": obligation_ref, "demand_ref": ref,
+            "statement_digest": row.get("statement_digest"),
+            "target_prover": row.get("target_prover"),
+            "query": _nonempty(request, "query"), "limit": request.get("limit", 10)}))
+        provenance[ref] = {
+            "native_readback_digest": _fingerprint(receipt),
+            "native_demand": row,
+            "query_is_operator_search_hint": True,
+            "independent_recertification_performed": False,
+        }
+    return bound, provenance
 
 
 def _tools():
@@ -125,6 +184,7 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--mabo-obligation", help="Reopen native Mabo demands; input rows contain demand_ref, query, limit only")
     args = parser.parse_args(argv)
     if args.input.resolve() == args.output.resolve():
         parser.error("input and output must differ")
@@ -139,8 +199,17 @@ def main(argv=None) -> int:
         if not isinstance(parsed, dict):
             raise ValueError(f"Expected JSON object at line {line}")
         inputs.append(parsed)
+    provenance = {}
+    if args.mabo_obligation:
+        from itir_mcp.native_relational_tools import inspect_relational_family
+        native = inspect_relational_family({"action": "mabo_formal_demands",
+                                            "obligation_ref": args.mabo_obligation})
+        inputs, provenance = bind_mabo_queries(inputs, native["native_receipt"], args.mabo_obligation)
     inspect, route = _tools()
-    result = run(inputs, inspect, route)
+    result = run(inputs, inspect, route, require_binding=bool(args.mabo_obligation))
+    for row in result:
+        if args.mabo_obligation:
+            row["native_mabo_provenance"] = provenance[row["demand_ref"]]
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text("".join(json.dumps(item, sort_keys=True) + "\n"
                                    for item in result), encoding="utf-8")
