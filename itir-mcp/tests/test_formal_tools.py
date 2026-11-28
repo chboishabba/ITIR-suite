@@ -199,3 +199,34 @@ def test_kernel_metadata_tampering_fails_closed():
         kernel[field] = original
     artifact["contentDigest"] = "stale"
     assert certify(request)["kernel_handoff_eligible"] is False
+
+
+def test_explicit_formal_route_returns_exact_demand_binding_and_limit():
+    class BoundPreflight(FakePreflight):
+        def proof_route_for_obligation(self, query, **kwargs):
+            assert kwargs["limit"] == 7
+            return {**{k: kwargs[k] for k in (
+                "demand_ref", "external_obligation_ref", "statement_digest")},
+                    "establishes_proof": False}
+    operations = {spec.name: handler for spec, handler in get_formal_tools(
+        tools_provider=BoundPreflight)}
+    req = {"query": "candidate", "demand_ref": "d", "external_obligation_ref": "o",
+           "statement_digest": "sha256:" + "a"*64, "target_prover": "lean", "limit": 7}
+    result = operations["itir.formal.route"](req)
+    assert result["demand_binding"] == {k: req[k] for k in (
+        "demand_ref", "external_obligation_ref", "statement_digest")}
+    assert result["establishes_proof"] is False
+
+
+def test_explicit_formal_route_rejects_foreign_native_binding():
+    import pytest
+    from itir_mcp.contracts import ToolExecutionError
+    class ForeignPreflight(FakePreflight):
+        def proof_route_for_obligation(self, query, **kwargs):
+            return {"demand_ref": "foreign", "external_obligation_ref": kwargs["external_obligation_ref"],
+                    "statement_digest": kwargs["statement_digest"], "establishes_proof": False}
+    operations = {spec.name: handler for spec, handler in get_formal_tools(
+        tools_provider=ForeignPreflight)}
+    with pytest.raises(ToolExecutionError):
+        operations["itir.formal.route"]({"query": "candidate", "demand_ref": "d",
+            "external_obligation_ref": "o", "statement_digest": "sha256:" + "a"*64})
