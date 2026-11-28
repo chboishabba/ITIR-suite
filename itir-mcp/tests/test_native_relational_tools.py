@@ -124,3 +124,50 @@ def test_research_frontier_preserves_inverse_and_defers_terminal_residuals(monke
     receipt["satisfied_payment_refs"] = ["fake"]
     with pytest.raises(ToolExecutionError):
         native.inspect_relational_family(request)
+
+
+def test_recorded_parity_is_not_reviewed_or_semantic_parity(monkeypatch):
+    receipt = {"schema": "slr.recorded-family-parity.v1", "family_ref": "f",
+               "candidate_only": True, "formal_consumer_equivalence_paid": False,
+               "world_truth_paid": False, "writes_database": False,
+               "reviewed_representation_parity_paid": False, "source_independence_paid": False,
+               "all_recorded_answers_equal": True, "pairs": [{"recorded_answer_equal": True}],
+               "recorded_consumer_adequacy": [{"consumer_adequate": True}]}
+    def load(args):
+        assert args == ["relational-family", "inspect-recorded-parity", "f"]
+        return receipt
+    monkeypatch.setattr(native, "_native", load)
+    req = {"action": "recorded_parity", "family_ref": "f"}
+    assert native.inspect_relational_family(req)["native_receipt"] is receipt
+    receipt["reviewed_representation_parity_paid"] = True
+    with pytest.raises(ToolExecutionError):
+        native.inspect_relational_family(req)
+    receipt["reviewed_representation_parity_paid"] = False
+    receipt["all_recorded_answers_equal"] = False
+    with pytest.raises(ToolExecutionError):
+        native.inspect_relational_family(req)
+
+
+def test_local_research_readback_never_dispatches_or_ranks_uncalibrated_hits(monkeypatch):
+    receipt = {"schema": "slr.relational-local-research.v1", "family_ref": "f",
+               "candidate_only": True, "formal_consumer_equivalence_paid": False,
+               "world_truth_paid": False, "writes_database": False,
+               "creates_access_authority": False, "provider_acquisition_executed": False,
+               "network_requests": 0, "planned_moves": [], "pareto_move_refs": [],
+               "selected_move_ref": None, "source_manifest": [], "lexical_seeds": [],
+               "no_hit_hypothesis_refs": [], "retrieval": [
+                   {"candidate_only": True, "network_requests": 0, "passages": [
+                       {"candidate_only": True, "source_revision_ref": "r"}]}]}
+    def load(args):
+        assert args == ["relational-family", "inspect-local-research", "f"]
+        return receipt
+    monkeypatch.setattr(native, "_native", load)
+    req = {"action": "local_research", "family_ref": "f"}
+    assert native.inspect_relational_family(req)["native_receipt"] is receipt
+    receipt["planned_moves"] = [{"move_ref": "unpaid"}]
+    with pytest.raises(ToolExecutionError):
+        native.inspect_relational_family(req)
+    receipt["planned_moves"] = []
+    receipt["retrieval"][0]["passages"][0]["candidate_only"] = False
+    with pytest.raises(ToolExecutionError):
+        native.inspect_relational_family(req)
